@@ -126,8 +126,7 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get(
-                'ckan.extra_resource_fields', '').split()
+            cls.extra_columns = config.get_value("ckan.extra_resource_fields")
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
@@ -145,8 +144,7 @@ meta.mapper(Resource, resource_table, properties={
         # formally package_resources_all
         backref=orm.backref('resources_all',
                             collection_class=ordering_list('position'),
-                            cascade='all, delete',
-                            order_by=resource_table.c.position,
+                            cascade='all, delete'
                             ),
     )
 },

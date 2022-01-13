@@ -1,15 +1,12 @@
 # encoding: utf-8
 
-import inspect
 import functools
 import logging
 import re
 import importlib
-import inspect
 
 from collections import defaultdict
 
-from werkzeug.utils import import_string
 import six
 
 
@@ -235,17 +232,20 @@ def _prepopulate_context(context):
         context = {}
     context.setdefault('model', model)
     context.setdefault('session', model.Session)
+
     try:
-        context.setdefault('user', c.user)
+        user = c.user
     except AttributeError:
         # c.user not set
-        pass
+        user = ""
     except RuntimeError:
         # Outside of request context
-        pass
+        user = ""
     except TypeError:
         # c not registered
-        pass
+        user = ""
+
+    context.setdefault('user', user)
     return context
 
 
@@ -295,32 +295,26 @@ def check_access(action, context, data_dict=None):
     if audit and audit[0] == action:
         context['__auth_audit'].pop()
 
-    user = context.get('user')
+    if 'auth_user_obj' not in context:
+        context['auth_user_obj'] = None
 
+    context = _prepopulate_context(context)
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            if context["user"] and not context["auth_user_obj"]:
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
     try:
-        if 'auth_user_obj' not in context:
-            context['auth_user_obj'] = None
-
-        if not context.get('ignore_auth'):
-            if not context.get('__auth_user_obj_checked'):
-                if context.get('user') and not context.get('auth_user_obj'):
-                    context['auth_user_obj'] = \
-                        model.User.by_name(context['user'])
-                context['__auth_user_obj_checked'] = True
-
-        context = _prepopulate_context(context)
-
-        logic_authorization = authz.is_authorized(action, context,
-                                                  data_dict)
+        logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
     except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
-                  action, user, str(e))
+                  action, context["user"], str(e))
         raise
 
-    log.debug('check access OK - %s user=%s', action, user)
+    log.debug('check access OK - %s user=%s', action, context["user"])
     return True
 
 

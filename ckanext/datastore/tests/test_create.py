@@ -106,7 +106,7 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         resource = helpers.call_action("resource_show", id=resource_id)
         url = resource["url"]
-        assert url.startswith(config.get("ckan.site_url"))
+        assert url.startswith(config.get_value("ckan.site_url"))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -346,9 +346,11 @@ class TestDatastoreCreate(object):
     def create_test_data(self, clean_datastore, test_request_context):
         ctd.CreateTestData.create()
         self.sysadmin_user = factories.Sysadmin()
-        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user)
+        self.sysadmin_token = factories.APIToken(user=self.sysadmin_user["id"])
+        self.sysadmin_token = self.sysadmin_token["token"]
         self.normal_user = factories.User()
-        self.normal_user_token = factories.APIToken(user=self.normal_user)
+        self.normal_user_token = factories.APIToken(user=self.normal_user["id"])
+        self.normal_user_token = self.normal_user_token["token"]
         engine = db.get_write_engine()
         self.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         with test_request_context():
@@ -426,8 +428,8 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_duplicate_alias_name(self, app):
-        resource = model.Package.get("annakarenina").resources[0]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        resource = factories.Resource(url_type = 'datastore')
+        data = {"resource_id": resource['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
@@ -439,8 +441,8 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is True
 
         # try to create another table with the same alias
-        resource = model.Package.get("annakarenina").resources[1]
-        data = {"resource_id": resource.id, "aliases": u"myalias"}
+        resource_2 = factories.Resource(url_type = 'datastore')
+        data = {"resource_id": resource_2['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_create",
@@ -453,10 +455,9 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is False
 
         # try to create an alias that is a resource id
-        resource = model.Package.get("annakarenina").resources[1]
         data = {
-            "resource_id": resource.id,
-            "aliases": model.Package.get("annakarenina").resources[0].id,
+            "resource_id": resource_2['id'],
+            "aliases": resource_2['id'],
         }
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(

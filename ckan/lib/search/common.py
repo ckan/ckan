@@ -9,7 +9,7 @@ import simplejson
 
 from urllib.parse import quote_plus
 
-from ckan.common import config, asint
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class SearchQueryError(SearchError):
     pass
 
 
-DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr'
+DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr/ckan'
 
 
 class SolrSettings(object):
@@ -79,7 +79,7 @@ def make_connection(decode_dates=True):
                                        quote_plus(solr_password),
                                        solr_url)
 
-    timeout = asint(config.get('solr_timeout', 60))
+    timeout = config.get_value('solr_timeout')
 
     if decode_dates:
         decoder = simplejson.JSONDecoder(object_hook=solr_datetime_decoder)

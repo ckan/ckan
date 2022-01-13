@@ -4,7 +4,7 @@ import copy
 import json
 import six
 
-from ckan.common import config, _
+from ckan.common import _
 
 
 class Missing(object):
@@ -247,16 +247,14 @@ def convert(converter, key, converted_data, errors, context):
 
 def _remove_blank_keys(schema):
 
-    schema_copy = copy.copy(schema)
-
-    for key, value in schema.items():
+    for key, value in list(schema.items()):
         if isinstance(value[0], dict):
             for item in value:
                 _remove_blank_keys(item)
             if not any(value):
-                schema_copy.pop(key)
+                schema.pop(key)
 
-    return schema_copy
+    return schema
 
 
 def validate(data, schema, context=None):
@@ -278,12 +276,10 @@ def validate(data, schema, context=None):
     converted_data, errors = _validate(flattened, schema, validators_context)
     converted_data = unflatten(converted_data)
 
-    # check config for partial update fix option
-    if config.get('ckan.fix_partial_updates', True):
-        # repopulate the empty lists
-        for key in empty_lists:
-            if key not in converted_data:
-                converted_data[key] = []
+    # repopulate the empty lists
+    for key in empty_lists:
+        if key not in converted_data:
+            converted_data[key] = []
 
     errors_unflattened = unflatten(errors)
 
@@ -299,7 +295,7 @@ def validate(data, schema, context=None):
             if isinstance(value[0], dict):
                 dicts_to_process.extend(value)
 
-    errors_unflattened = _remove_blank_keys(errors_unflattened)
+    _remove_blank_keys(errors_unflattened)
 
     return converted_data, errors_unflattened
 

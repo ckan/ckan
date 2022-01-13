@@ -9,15 +9,11 @@ from flask import Blueprint, make_response
 import ckan.model as model
 import ckan.logic as logic
 from ckan.common import config, _
-from ckan.plugins.toolkit import (asint, abort, get_action, c)
+from ckan.plugins.toolkit import (abort, get_action, c)
 
 log = getLogger(__name__)
 
-MAX_FILE_SIZE = asint(
-    config.get(u'ckan.resource_proxy.max_file_size', 1024**2)
-)
-CHUNK_SIZE = asint(config.get(u'ckan.resource_proxy.chunk_size', 4096))
-TIMEOUT = asint(config.get(u'ckan.resource_proxy.timeout', 10))
+TIMEOUT = config.get_value('ckan.resource_proxy.timeout')
 
 resource_proxy = Blueprint(u'resource_proxy', __name__)
 
@@ -42,6 +38,7 @@ def proxy_resource(context, data_dict):
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
+    max_file_size = config.get_value(u'ckan.resource_proxy.max_file_size')
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
@@ -57,12 +54,13 @@ def proxy_resource(context, data_dict):
         r.raise_for_status()
 
         cl = r.headers.get(u'content-length')
-        if cl and int(cl) > MAX_FILE_SIZE:
+
+        if cl and int(cl) > max_file_size:
             return abort(
                 409, (
                     u'Content is too large to be proxied. Allowed'
                     u'file size: {allowed}, Content-Length: {actual}.'
-                ).format(allowed=MAX_FILE_SIZE, actual=cl)
+                ).format(allowed=max_file_size, actual=cl)
             )
 
         if not did_get:
@@ -72,11 +70,13 @@ def proxy_resource(context, data_dict):
         response.charset = r.encoding
 
         length = 0
-        for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+        chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')
+
+        for chunk in r.iter_content(chunk_size=chunk_size):
             response.stream.write(chunk)
             length += len(chunk)
 
-            if length >= MAX_FILE_SIZE:
+            if length >= max_file_size:
                 return abort(
                     409,
                     headers={u'content-encoding': u''},

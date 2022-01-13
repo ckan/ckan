@@ -55,7 +55,7 @@ def compare_domains(urls):
 
 def on_same_domain(data_dict):
     # compare CKAN domain and resource URL
-    ckan_url = config.get('ckan.site_url', '//localhost:5000')
+    ckan_url = config.get_value('ckan.site_url')
     resource_url = data_dict['resource']['url']
 
     return compare_domains([ckan_url, resource_url])
@@ -120,11 +120,7 @@ def get_default_view_plugins(get_datastore_views=False):
 
     Returns a list of IResourceView plugins
     '''
-
-    if config.get('ckan.views.default_views') is None:
-        default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
-    else:
-        default_view_types = config.get('ckan.views.default_views').split()
+    default_view_types = config.get_value('ckan.views.default_views')
 
     default_view_plugins = []
     for view_type in default_view_types:
@@ -188,7 +184,7 @@ def add_views_to_resource(context,
     if not view_plugins:
         return []
 
-    existing_views = p.toolkit.get_action('resource_view_list')(
+    existing_views = logic.get_action('resource_view_list')(
         context, {'id': resource_dict['id']})
 
     existing_view_types = ([v['view_type'] for v in existing_views]
@@ -214,8 +210,7 @@ def add_views_to_resource(context,
                     'title': view_info.get('default_title', _('View')),
                     'description': view_info.get('default_description', '')}
 
-            view_dict = p.toolkit.get_action('resource_view_create')(context,
-                                                                     view)
+            view_dict = logic.get_action('resource_view_create')(context, view)
             created_views.append(view_dict)
 
     return created_views

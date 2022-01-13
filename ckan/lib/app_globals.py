@@ -6,8 +6,7 @@ import logging
 from threading import Lock
 import re
 import six
-from ckan.common import asbool
-from ckan.common import config
+from ckan.common import config, asbool, aslist
 
 import ckan
 import ckan.model as model
@@ -112,7 +111,7 @@ def process_app_global(key, value):
         elif data_type == 'int':
             value = int(value)
         elif data_type == 'split':
-            value = value.split()
+            value = aslist(value)
 
     return key, value
 
@@ -139,7 +138,7 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        
+
         # we want to store the config the first time we get here so we can
         # reset them if needed
         if key not in _CONFIG_CACHE:

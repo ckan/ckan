@@ -70,6 +70,12 @@ class TestUserInvite(object):
             self._invite_user_to_group(email=None)
 
     @mock.patch("ckan.lib.mailer.send_invite")
+    def test_existed_email(self, _):
+        factories.User(email="email@example.com")
+        with pytest.raises(logic.ValidationError):
+            self._invite_user_to_group(email="email@example.com")
+
+    @mock.patch("ckan.lib.mailer.send_invite")
     def test_requires_role(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(role=None)
@@ -790,7 +796,7 @@ class TestDatasetCreate(object):
 
     def test_id_cant_already_exist(self):
         dataset = factories.Dataset()
-        user = factories.Sysadmin()
+        factories.Sysadmin()
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "package_create", id=dataset["id"], name="test-dataset"
@@ -985,7 +991,7 @@ class TestGroupCreate(object):
         context = {"user": user["name"], "ignore_auth": True}
 
         with pytest.raises(logic.ValidationError):
-            group = helpers.call_action(
+            helpers.call_action(
                 "group_create", context=context, name=""
             )
 
@@ -1044,7 +1050,7 @@ class TestOrganizationCreate(object):
         context = {"user": user["name"], "ignore_auth": True}
 
         with pytest.raises(logic.ValidationError):
-            org = helpers.call_action(
+            helpers.call_action(
                 "organization_create", context=context, name=""
             )
 
@@ -1225,7 +1231,8 @@ class TestFollowDataset(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_dataset", context, id=dataset["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         dataset = factories.Dataset()
         _clear_activities()
@@ -1290,7 +1297,8 @@ class TestFollowGroup(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=group["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         group = factories.Group()
         _clear_activities()
@@ -1338,7 +1346,8 @@ class TestFollowOrganization(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=organization["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         org = factories.Organization()
         _clear_activities()
@@ -1393,7 +1402,8 @@ class TestFollowUser(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("follow_user", context, id=user["id"])
 
-    def test_no_activity(self, app):
+    @pytest.mark.usefixtures("app")
+    def test_no_activity(self):
         user = factories.User()
         user2 = factories.User()
         _clear_activities()
@@ -1660,7 +1670,7 @@ class TestUserPluginExtras(object):
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
-    def test_upload_picture(self):
+    def test_external_picture(self):
 
         params = {
             "name": "test_user",
@@ -1675,6 +1685,55 @@ class TestUserImageUrl(object):
         assert (
             user_dict["image_display_url"] == "https://example.com/mypic.png"
         )
+
+    def test_upload_non_picture_works_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload("hello world", "file.txt", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_non_picture(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("hello world", "file.txt", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_non_picture_with_png_extension(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("hello world", "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture(self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload(faker.image(), "file.png", **params)
 
 
 class TestVocabularyCreate(object):
@@ -1799,7 +1858,7 @@ class TestTagCreate:
 
 
 @pytest.mark.usefixtures("clean_db")
-class TestMemberCreate:
+class TestMemberCreate2:
     def test_member_create_accepts_object_name_or_id(self):
         org = factories.Organization()
         package = factories.Dataset()

@@ -12,10 +12,8 @@ from babel import Locale
 import pytest
 
 import ckan.lib.helpers as h
-import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
-import ckan.lib.base as base
 
 
 CkanUrlException = ckan.exceptions.CkanUrlException
@@ -436,9 +434,9 @@ class TestHelpersRemoveLineBreaks(object):
         test_string = UnicodeLike("foo")
         result = h.remove_linebreaks(test_string)
 
-        strType = u"".__class__
+        str_type = u"".__class__
         assert (
-            result.__class__ == strType
+            result.__class__ == str_type
         ), '"remove_linebreaks" casts into unicode()'
 
 
@@ -468,7 +466,6 @@ def test_unified_resource_format(fmt, exp):
 
 
 class TestGetDisplayTimezone(object):
-    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
         assert h.get_display_timezone() == pytz.timezone("utc")
 
@@ -662,41 +659,6 @@ class TestBuildNavMain(object):
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
-class HelpersTestPlugin(p.SingletonPlugin):
-
-    p.implements(p.IRoutes, inherit=True)
-
-    controller = "ckan.tests.lib.test_helpers:TestHelperController"
-
-    def after_map(self, _map):
-
-        _map.connect(
-            "/broken_helper_as_attribute",
-            controller=self.controller,
-            action="broken_helper_as_attribute",
-        )
-
-        _map.connect(
-            "/broken_helper_as_item",
-            controller=self.controller,
-            action="broken_helper_as_item",
-        )
-
-        _map.connect(
-            "/helper_as_attribute",
-            controller=self.controller,
-            action="helper_as_attribute",
-        )
-
-        _map.connect(
-            "/helper_as_item",
-            controller=self.controller,
-            action="helper_as_item",
-        )
-
-        return _map
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
@@ -743,8 +705,15 @@ class TestActivityListSelect(object):
         assert str(html).startswith(u'<option value="&#34;&gt;" >')
 
 
-class TestAddUrlParam(object):
+class TestRemoveUrlParam:
+    def test_current_url(self, test_request_context):
+        base = "/organization/name"
+        with test_request_context(base + "?q=search"):
+            assert h.remove_url_param("q") == base
+            assert h.remove_url_param("q", replace="test") == base + "?q=test"
 
+
+class TestAddUrlParam(object):
     @pytest.mark.parametrize(u'url,params,expected', [
         (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
         (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
@@ -799,15 +768,15 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    WITH_HTML = u"""Data exposed: &mdash;
+    with_html = u"""Data exposed: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
 
-    WITH_UNICODE = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
+    with_unicode = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
 
-    assert "Data exposed" in h.markdown_extract(WITH_HTML)
-    assert "collects information" in h.markdown_extract(WITH_UNICODE)
+    assert "Data exposed" in h.markdown_extract(with_html)
+    assert "collects information" in h.markdown_extract(with_unicode)
 
 
 @pytest.mark.parametrize("string, date", [
@@ -842,7 +811,7 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get("ckan.gravatar_default", "identicon")
+    default = ckan_config.get_value("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
@@ -903,7 +872,6 @@ def test_get_pkg_dict_extra():
 
     from ckan.lib.create_test_data import CreateTestData
     from ckan import model
-    from ckan.logic import get_action
 
     CreateTestData.create()
 

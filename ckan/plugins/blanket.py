@@ -278,13 +278,13 @@ def _blanket_implementation(
 
     def decorator(subject: Optional[Subject] = None) -> Callable[..., Any]:
         def wrapper(plugin: Type[p.SingletonPlugin]):
-            class wrapped_plugin(plugin):
+            class WrappedPlugin(plugin):
                 for key in Blanket:
                     if key & group:
                         p.implements(key.interface())
                         key.implement(locals(), plugin, subject)
 
-            return update_wrapper(wrapped_plugin, plugin, updated=[])
+            return update_wrapper(WrappedPlugin, plugin, updated=[])
 
         if isinstance(subject, type) and issubclass(
             subject, p.SingletonPlugin

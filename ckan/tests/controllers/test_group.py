@@ -22,7 +22,8 @@ class TestGroupController(object):
         app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
-        orgs = [factories.Organization() for _ in range(35)]
+        orgs = sorted([factories.Organization() for _ in range(35)],
+                      key=lambda o: o["name"])
         org_url = url_for("organization.index", sort="name desc")
         response = app.get(url=org_url)
         assert orgs[-1]["name"] in response
@@ -34,7 +35,8 @@ class TestGroupController(object):
         assert orgs[0]["name"] in response
 
     def test_page_thru_list_of_groups_preserves_sort_order(self, app):
-        groups = [factories.Group() for _ in range(35)]
+        groups = sorted([factories.Group() for _ in range(35)],
+                        key=lambda g: g["title"])
         group_url = url_for("group.index", sort="title desc")
 
         response = app.get(url=group_url)
@@ -160,7 +162,7 @@ class TestGroupControllerEdit(object):
             "image_url": "http://example.com/image.png",
             "save": "",
         }
-        resp = app.post(
+        app.post(
             url=url_for("group.edit", id=group["name"]),
             extra_environ=env,
             data=form,
@@ -235,7 +237,7 @@ class TestGroupRead(object):
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
 
-    def test_search_with_extra_params(self, app, monkeypatch):
+    def test_search_with_extra_params(self, app):
         group = factories.Group()
         url = url_for('group.read', id=group['id'])
         url += '?ext_a=1&ext_a=2&ext_b=3'
@@ -611,7 +613,7 @@ class TestGroupFollow:
 
         env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         unfollow_url = url_for("group.unfollow", id="not-here")
-        unfollow_response = app.post(
+        app.post(
             unfollow_url, extra_environ=env, status=404
         )
 
@@ -722,7 +724,7 @@ class TestGroupInnerSearch(object):
         ds_titles = grp_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert "3 datasets found" in grp_response
         assert len(ds_titles) == 3
@@ -754,7 +756,7 @@ class TestGroupInnerSearch(object):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
@@ -840,7 +842,7 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "created the group" in response
 
     def test_create_group(self, app):
@@ -850,11 +852,13 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def _clear_activities(self):
@@ -874,12 +878,14 @@ class TestActivity:
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the group" in response
         assert (
-            '<a href="/group/{}">Group with changed title'.format(
-                group["name"]
+            '<a href="/group/{}">{}'.format(
+                group["name"], group["title"]
             )
             in response
         )
@@ -894,7 +900,7 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env, status=404)
+        app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
         # can't render the activity stream of that group. You'd hope that
@@ -914,11 +920,13 @@ class TestActivity:
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">Test Group'.format(group["name"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
         )
 
     def test_create_dataset(self, app):
@@ -929,14 +937,16 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "created the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app):
 
@@ -951,16 +961,16 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(
+                user["name"], user["fullname"]
+            ) in response
         )
         assert "updated the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
-            )
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
         user = factories.User()
@@ -973,11 +983,12 @@ class TestActivity:
 
         url = url_for("group.activity", id=group["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]
+                                           ) in response
         )
         assert "deleted the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()

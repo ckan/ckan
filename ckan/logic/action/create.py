@@ -24,6 +24,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.mailer as mailer
+import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
@@ -206,7 +207,7 @@ def package_create(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
-        item.after_create(context, data)
+        item.after_dataset_create(context, data)
 
     # Make sure that a user provided schema is not used in create_views
     # and on package_show
@@ -293,7 +294,7 @@ def resource_create(context, data_dict):
     _check_access('resource_create', context, data_dict)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_create(context, data_dict)
+        plugin.before_resource_create(context, data_dict)
 
     if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
@@ -343,7 +344,7 @@ def resource_create(context, data_dict):
          })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_create(context, resource)
+        plugin.after_resource_create(context, resource)
 
     return resource
 
@@ -993,7 +994,7 @@ def user_create(context, data_dict):
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-    plugins.toolkit.signals.user_created.send(user.name, user=user)
+    signals.user_created.send(user.name, user=user)
     # Flush the session to cause user.id to be initialised, because
     # activity_create() (below) needs it.
     session.flush()
@@ -1114,9 +1115,11 @@ def user_invite(context, data_dict):
 
         _get_action('user_delete')(context, {'id': user.id})
 
-        msg = _('Error sending the invite email, ' +
-                'the user was not created: {0}').format(error)
-        raise ValidationError({'message': msg}, error_summary=msg)
+        error_dict = {
+            "message": _('Error sending the invite email, \
+                the user was not created: {0}').format(error)
+        }
+        raise ValidationError(error_dict, error_summary=error_dict)
 
     return model_dictize.user_dictize(user, context)
 
@@ -1206,8 +1209,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not ckan.common.asbool(
-            config.get('ckan.activity_streams_enabled', 'true')):
+    if not config.get_value('ckan.activity_streams_enabled'):
         return
 
     model = context['model']

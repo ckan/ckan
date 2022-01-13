@@ -19,11 +19,8 @@ from alembic.config import Config as AlembicConfig
 
 from ckan.model import meta
 
-from ckan.model.meta import (
-    Session,
-    engine_is_sqlite,
-    engine_is_pg,
-)
+from ckan.model.meta import Session
+
 from ckan.model.core import (
     State,
 )
@@ -186,17 +183,10 @@ class Repository():
         warnings.filterwarnings('ignore', 'SAWarning')
         self.session.rollback()
         self.session.remove()
-        # sqlite database needs to be recreated each time as the
-        # memory database is lost.
 
-        if self.metadata.bind.engine.url.drivername == 'sqlite':
-            # this creates the tables, which isn't required inbetween tests
-            # that have simply called rebuild_db.
-            self.create_db()
-        else:
-            if not self.tables_created_and_initialised:
-                self.upgrade_db()
-                self.tables_created_and_initialised = True
+        if not self.tables_created_and_initialised:
+            self.upgrade_db()
+            self.tables_created_and_initialised = True
         log.info('Database initialised')
 
     def clean_db(self):
@@ -259,7 +249,7 @@ class Repository():
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "sqlalchemy.url", config.get("sqlalchemy.url")
+            "sqlalchemy.url", config.get_value("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(

@@ -322,7 +322,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
+    sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -330,13 +330,13 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
         try:
-            max_limit = int(config.get(
-                'ckan.group_and_organization_list_all_fields_max', 25))
+            max_limit = config.get_value(
+                'ckan.group_and_organization_list_all_fields_max')
         except ValueError:
             max_limit = 25
     else:
         try:
-            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+            max_limit = config.get_value('ckan.group_and_organization_list_max')
         except ValueError:
             max_limit = 1000
 
@@ -1004,14 +1004,14 @@ def package_show(context, data_dict):
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
-            package_dict = item.before_view(package_dict)
+            package_dict = item.before_dataset_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
         for resource_dict in package_dict['resources']:
-            item.before_show(resource_dict)
+            item.before_resource_show(resource_dict)
 
     if not package_dict_validated:
         package_plugin = lib_plugins.lookup_package_plugin(
@@ -1026,7 +1026,7 @@ def package_show(context, data_dict):
                 'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_show(context, package_dict)
+        item.after_dataset_show(context, package_dict)
 
     return package_dict
 
@@ -1144,7 +1144,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     try:
         include_tags = asbool(data_dict.get('include_tags', True))
-        if asbool(config.get('ckan.auth.public_user_details', True)):
+        if config.get_value('ckan.auth.public_user_details'):
             include_users = asbool(data_dict.get('include_users', True))
         else:
             include_users = asbool(data_dict.get('include_users', False))
@@ -1354,12 +1354,10 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     '''Return a user account.
 
-    Either the ``id`` or the ``user_obj`` parameter must be given.
+    Either the ``id`` should be passed or the user should be logged in.
 
     :param id: the id or name of the user (optional)
     :type id: string
-    :param user_obj: the user dictionary of the user (optional)
-    :type user_obj: user dictionary
     :param include_datasets: Include a list of datasets the user has created.
         If it is the same user or a sysadmin requesting, it includes datasets
         that are draft or private.
@@ -1386,13 +1384,13 @@ def user_show(context, data_dict):
     '''
     model = context['model']
 
+    if 'user' in context and 'id' not in data_dict:
+        data_dict['id'] = context.get('user')
+
     id = data_dict.get('id', None)
-    provided_user = data_dict.get('user_obj', None)
     if id:
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
-    elif provided_user:
-        context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
 
@@ -1809,14 +1807,14 @@ def package_search(context, data_dict):
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+        data_dict = item.before_dataset_search(data_dict)
 
     # the extension may have decided that it is not necessary to perform
     # the query
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get('ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
+        data_dict['sort'] = config.get_value('ckan.search.default_package_sort')
 
     results = []
     if not abort:
@@ -1875,7 +1873,8 @@ def package_search(context, data_dict):
                     if context.get('for_view'):
                         for item in plugins.PluginImplementations(
                                 plugins.IPackageController):
-                            package_dict = item.before_view(package_dict)
+                            package_dict = item.before_dataset_view(
+                                package_dict)
                     results.append(package_dict)
                 else:
                     log.error('No package_dict is coming from solr for package '
@@ -1935,7 +1934,7 @@ def package_search(context, data_dict):
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_results = item.after_search(search_results, data_dict)
+        search_results = item.after_dataset_search(search_results, data_dict)
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
@@ -2371,7 +2370,7 @@ def get_site_user(context, data_dict):
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get('ckan.site_id', 'ckan_site_user')
+    site_id = config.get_value('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -2395,17 +2394,15 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
-
-    plugins = config.get('ckan.plugins')
-    extensions = plugins.split() if plugins else []
+    extensions = config.get_value('ckan.plugins')
 
     return {
-        'site_title': config.get('ckan.site_title'),
-        'site_description': config.get('ckan.site_description'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_description': config.get_value('ckan.site_description'),
+        'site_url': config.get_value('ckan.site_url'),
         'ckan_version': ckan.__version__,
-        'error_emails_to': config.get('email_to'),
-        'locale_default': config.get('ckan.locale_default'),
+        'error_emails_to': config.get_value('email_to'),
+        'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
 
