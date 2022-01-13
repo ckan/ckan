@@ -138,6 +138,7 @@ def test_plugins_load(monkeypatch):
         ]
     )
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
+    plugins.unload_all()
 
 
 def test_action_plugin_override():
