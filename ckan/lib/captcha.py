@@ -1,10 +1,10 @@
 # encoding: utf-8
 
-from ckan.common import config, asint
+from ckan.common import config
 
 import requests
 
-TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
 def check_recaptcha(request):
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
