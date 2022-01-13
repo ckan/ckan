@@ -10,7 +10,7 @@ import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool, asint, config
+from ckan.common import asbool, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
@@ -28,7 +28,7 @@ from ckan.lib.search.query import (
 
 log = logging.getLogger(__name__)
 
-TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
 def text_traceback():
     with warnings.catch_warnings():

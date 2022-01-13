@@ -14,7 +14,7 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-from ckan.common import config, asint
+from ckan.common import config
 import ckanext.datapusher.logic.schema as dpschema
 import ckanext.datapusher.interfaces as interfaces
 
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
-TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
 
 def datapusher_submit(context, data_dict):

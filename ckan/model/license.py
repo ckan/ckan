@@ -6,7 +6,7 @@ import logging
 import requests
 
 from ckan.common import config
-from ckan.common import asbool, asint
+from ckan.common import asbool
 import six
 
 from ckan.common import _, json
@@ -14,7 +14,7 @@ import ckan.lib.maintain as maintain
 
 log = logging.getLogger(__name__)
 
-TIMEOUT = asint(config.get('ckan.requests.timeout', 10))
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
 class License(object):
     """Domain object for a license."""
