@@ -128,52 +128,17 @@ def reset_observer():
 
 
 def test_plugins_load(monkeypatch):
-    monkeypatch.setitem(config, "ckan.plugins", "mapper_plugin action_plugin")
+    monkeypatch.setitem(config, "ckan.plugins", "action_plugin")
     plugins.load_all()
     # synchronous_search automatically gets loaded
     current_plugins = set(
         [
             plugins.get_plugin(p)
-            for p in ["mapper_plugin", "action_plugin", "synchronous_search"]
+            for p in ["action_plugin", "synchronous_search"]
             + find_system_plugins()
         ]
     )
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "clean_db")
-def test_mapper_plugin_fired_on_insert():
-    plugin = plugins.get_plugin("mapper_plugin")
-    factories.Dataset(name="testpkg")
-    assert plugin.calls == [
-        ("before_insert", "testpkg"),
-        ("after_insert", "testpkg"),
-    ]
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
-def test_mapper_plugin_fired_on_delete():
-    plugin = plugins.get_plugin("mapper_plugin")
-    factories.Dataset(name="testpkg")
-    plugin.calls = []
-    # remove this data
-    user = factories.User()
-    context = {"user": user["name"]}
-    logic.get_action("package_delete")(context, {"id": "testpkg"})
-    # state=deleted doesn't trigger before_delete()
-    assert plugin.calls == []
-    from ckan import model
-
-    # purging the package does trigger before_delete()
-    model.Package.get("testpkg").purge()
-    model.Session.commit()
-    model.Session.remove()
-    assert plugin.calls == [
-        ("before_delete", "testpkg"),
-        ("after_delete", "testpkg"),
-    ]
 
 
 def test_action_plugin_override():
