@@ -142,16 +142,6 @@ def test_plugins_load(monkeypatch):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins")
-def test_only_configured_plugins_loaded():
-    plugin = plugins.get_plugin("mapper_plugin")
-    # MapperPlugin should be loaded as it is listed in
-    assert plugin in plugins.PluginImplementations(plugins.IMapper)
-    # MapperPlugin2 and RoutesPlugin should NOT be loaded
-    assert len(plugins.PluginImplementations(plugins.IMapper)) == 1
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 def test_mapper_plugin_fired_on_insert():
     plugin = plugins.get_plugin("mapper_plugin")
