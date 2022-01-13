@@ -83,9 +83,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
     if version == 1:
 
         data, errors = validate(definition, config_declaration_v1())
-        if any(
-            options for item in errors["groups"] for options in item["options"]
-        ):
+        if errors:
             raise ValidationError(errors)
         for group in data["groups"]:
             if group["annotation"]:
