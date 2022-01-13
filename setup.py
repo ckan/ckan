@@ -158,7 +158,9 @@ entry_points = {
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
         'example_database_migrations = ckanext.example_database_migrations.plugin:ExampleDatabaseMigrationsPlugin',
     ],
-    'ckan.system_plugins': [],
+    'ckan.system_plugins': [
+        'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
+    ],
     'ckan.test_plugins': [
         'mapper_plugin = tests.plugins.ckantestplugins:MapperPlugin',
         'session_plugin = tests.plugins.ckantestplugins:SessionPlugin',

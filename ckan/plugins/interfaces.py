@@ -14,8 +14,10 @@ from pyutilib.component.core import Interface as _pca_Interface
 __all__ = [
     u'Interface',
     u'IMapper',
+    u'ISession',
     u'IMiddleware',
     u'IAuthFunctions',
+    u'IDomainObjectModification',
     u'IFeed',
     u'IGroupController',
     u'IOrganizationController',
@@ -165,6 +167,70 @@ class IMapper(Interface):
         (whereas usually in ckan 'delete' means to change the state property to
         deleted, so use before_update for that case.)
         '''
+
+
+class ISession(Interface):
+    u'''
+    A subset of the SQLAlchemy session extension hooks.
+    '''
+
+    def after_begin(self, session, transaction, connection):
+        u'''
+        Executed after a transaction is begun on a connection
+        '''
+
+    def before_flush(self, session, flush_context, instances):
+        u'''
+        Executed before a flush process has started.
+        '''
+
+    def after_flush(self, session, flush_context):
+        u'''
+        Executed after a flush has completed, but before commit has been
+        called.
+        '''
+
+    def before_commit(self, session):
+        u'''
+        Executed right before commit is called.
+        '''
+
+    def after_commit(self, session):
+        u'''
+        Executed after a commit has occured.
+        '''
+
+    def after_rollback(self, session):
+        u'''
+        Executed after a rollback has occured.
+        '''
+
+
+class IDomainObjectModification(Interface):
+    u'''
+    Receives notification of new, changed and deleted datasets.
+    '''
+
+    def notify(self, entity, operation):
+        u'''
+        Send a notification on entity modification.
+
+        :param entity: instance of module.Package.
+        :param operation: 'new', 'changed' or 'deleted'.
+        '''
+        pass
+
+    def notify_after_commit(self, entity, operation):
+        u'''
+        ** DEPRECATED **
+
+        Supposed to send a notification after entity modification, but it
+        doesn't work.
+
+        :param entity: instance of module.Package.
+        :param operation: 'new', 'changed' or 'deleted'.
+        '''
+        pass
 
 
 class IFeed(Interface):
