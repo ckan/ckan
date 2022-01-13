@@ -38,6 +38,7 @@ ckan.tracking_enabled = false
 There are a few things that have changed in who.ini. First lets open the file.
 ```
 export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+sudo cp $VOL_CKAN_HOME/venv/src/ckan/ckan/config/who.ini ./who.ini.bak
 sudo nano $VOL_CKAN_HOME/venv/src/ckan/ckan/config/who.ini
 ```
 Then update the following lines.
@@ -59,7 +60,7 @@ will not index properly. You will not be able to clear the harvester later so yo
 cd ~/ckan/contrib/docker
 sudo docker-compose pull ckan
 ./clean_reload_ckan.sh
-sudo docker-compose up -d
+sudo docker-compose -f docker-compose.cpu_limited.yml --compatibility up -d
 ```
 
 # Upgrade the database and build web assets?

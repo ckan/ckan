@@ -108,6 +108,7 @@ License. -->
     <field name="temporal-extent-end" type="date" indexed="true" stored="true" multiValued="false"/>
     <field name="vertical-extent-min" type="float" indexed="true" stored="true" multiValued="false"/>
     <field name="vertical-extent-max" type="float" indexed="true" stored="true" multiValued="false"/>
+    <field name="unique-resource-identifier-full" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="bbox_area" type="float" indexed="true" stored="true"/>
     <field name="maxx" type="float" indexed="true" stored="true"/>
     <field name="maxy" type="float" indexed="true" stored="true"/>
