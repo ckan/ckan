@@ -173,38 +173,38 @@ class TestPlugins:
         config_plugins = config["ckan.plugins"]
         config[
             "ckan.plugins"
-        ] = "test_observer_plugin mapper_plugin mapper_plugin2"
+        ] = "test_observer_plugin action_plugin auth_plugin"
         plugins.load_all()
 
         observerplugin = plugins.get_plugin("test_observer_plugin")
 
         expected_order = _make_calls(
-            plugins.get_plugin("mapper_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
+            plugins.get_plugin("action_plugin"),
+            plugins.get_plugin("auth_plugin"),
         )
 
         assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
-            plugins.get_plugin("mapper_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
+            plugins.get_plugin("action_plugin"),
+            plugins.get_plugin("auth_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
 
         config[
             "ckan.plugins"
-        ] = "test_observer_plugin mapper_plugin2 mapper_plugin"
+        ] = "test_observer_plugin auth_plugin action_plugin"
         plugins.load_all()
 
         expected_order = _make_calls(
-            plugins.get_plugin("mapper_plugin2"),
-            plugins.get_plugin("mapper_plugin"),
+            plugins.get_plugin("auth_plugin"),
+            plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
-            plugins.get_plugin("mapper_plugin"),
+            plugins.get_plugin("auth_plugin"),
+            plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
         # cleanup
