@@ -194,7 +194,9 @@ def resource_delete(context, data_dict):
         plugin.before_resource_delete(context, data_dict,
                                       pkg_dict.get('resources', []))
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    package_show_context = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(
+        package_show_context, {'id': package_id})
 
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
