@@ -13,6 +13,8 @@ from ckan.plugins.toolkit import (abort, get_action, c)
 
 log = getLogger(__name__)
 
+TIMEOUT = config.get_value('ckan.resource_proxy.timeout')
+
 resource_proxy = Blueprint(u'resource_proxy', __name__)
 
 
@@ -41,13 +43,13 @@ def proxy_resource(context, data_dict):
     try:
         # first we try a HEAD request which may not be supported
         did_get = False
-        r = requests.head(url)
+        r = requests.head(url, timeout=TIMEOUT)
         # Servers can refuse HEAD requests. 405 is the appropriate
         # response, but 400 with the invalid method mentioned in the
         # text, or a 403 (forbidden) status is also possible (#2412,
         # #2530)
         if r.status_code in (400, 403, 405):
-            r = requests.get(url, stream=True)
+            r = requests.get(url, timeout=TIMEOUT, stream=True)
             did_get = True
         r.raise_for_status()
 
@@ -62,7 +64,7 @@ def proxy_resource(context, data_dict):
             )
 
         if not did_get:
-            r = requests.get(url, stream=True)
+            r = requests.get(url, timeout=TIMEOUT, stream=True)
 
         response.headers[u'content-type'] = r.headers[u'content-type']
         response.charset = r.encoding

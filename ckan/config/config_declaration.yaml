@@ -240,6 +240,9 @@ groups:
           - http
           - https
           - ftp
+      - key: ckan.requests.timeout
+        default: 5
+        type: int
 
   - annotation: Authorization Settings
     options:
@@ -374,6 +377,9 @@ groups:
           Note: Add ``datastore`` to enable the CKAN DataStore.
           Add ``datapusher`` to enable DataPusher.
           Add ``resource_proxy`` to enable resorce proxying and get around the same origin policy.
+      - key: ckan.resource_proxy.timeout
+        type: int
+        default: 5
 
   - annotation: Front-End Settings
     options:
