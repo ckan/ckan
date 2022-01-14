@@ -470,6 +470,34 @@ Default value: ``http https ftp``
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.requests.timeout = 3
+
+Default value: 5
+
+Default timeout for GET requests performed by the requests library.
+
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
+
 .. _config-authorization:
 
 Authorization Settings
