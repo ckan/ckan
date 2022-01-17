@@ -3367,9 +3367,9 @@ msgid ""
 msgstr ""
 "Vistas do tipo Data Explorer podem ser lentas e falíveis, a não ser que a "
 "extensão DataStore seja ativada. Para mais informação, consulte por favor a "
-"<a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>documentação do "
-"Data Explorer </a>. "
+"<a href='http://docs.ckan.org/en/latest/maintaining/data-"
+"viewer.html#viewing-structured-data-the-data-explorer' "
+"target='_blank'>documentação do Data Explorer </a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:83

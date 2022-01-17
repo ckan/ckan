@@ -3381,9 +3381,9 @@ msgid ""
 msgstr ""
 "Data Explorer Darstellungen können langsam und ungenau sein solange die "
 "DataStore Extension nicht aktiviert ist. Weiterführende Informationen hierzu"
-" in der <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"Dokumentation</a>. "
+" in der <a href='http://docs.ckan.org/en/latest/maintaining/data-"
+"viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>Data "
+"Explorer Dokumentation</a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:83

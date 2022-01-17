@@ -3015,8 +3015,8 @@ msgid ""
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 "Du kan bruke <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true"
-"\">Markdown-formatering</a> her"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">Markdown-formatering</a> her"
 
 #: ckan/templates/macros/form.html:233
 msgid "Key"
