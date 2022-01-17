@@ -3640,9 +3640,9 @@ msgid ""
 msgstr ""
 "Las vistas de Data Explorer pueden ser lentas y no confiables a no ser que "
 "la extensión DataStore esté activa. Para más información por favor revise la"
-" <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>documentación de"
-" Data Explorer</a>."
+" <a href='http://docs.ckan.org/en/latest/maintaining/data-"
+"viewer.html#viewing-structured-data-the-data-explorer' "
+"target='_blank'>documentación de Data Explorer</a>."
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:85
@@ -4705,8 +4705,8 @@ msgstr "Establecida visibilidad de {pkg_link} a {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Actualizada la descripción del recurso {resource_link} en {pkg_link} a <br "
 "class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
@@ -4717,13 +4717,13 @@ msgstr "Eliminada descripción del recurso {resource_link} en {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Actualizada la descripción del recurso {resource_link} en {pkg_link} desde "
-"<br class=\"line-height2\"><blockquote>{old_desc}</blockquote>a<br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"<br class=\"line-height2\"><blockquote>{old_desc}</blockquote>a<br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""
