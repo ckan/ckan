@@ -391,9 +391,6 @@ groups:
         default: /base/css/main.css
       - key: ckan.favicon
         default: /base/images/ckan.ico
-      - key: ckan.legacy_templates
-        ignored: true
-        type: bool
       - key: ckan.datasets_per_page
         type: int
         default: 20
