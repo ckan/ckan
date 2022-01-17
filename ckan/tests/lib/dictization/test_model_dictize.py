@@ -20,7 +20,7 @@ from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupListDictize:
     def test_group_list_dictize(self):
         group = factories.Group()
@@ -148,7 +148,7 @@ class TestGroupListDictize:
         assert child_dict["groups"][0]["name"] == "parent"
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupDictize:
     def test_group_dictize(self):
         group = factories.Group(name="test_dictize")
@@ -339,7 +339,7 @@ class TestGroupDictize:
         assert org["package_count"] == 1
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestPackageDictize:
     def remove_changable_values(self, dict_):
         dict_ = copy.deepcopy(dict_)
@@ -660,7 +660,7 @@ class TestVocabularyDictize(object):
             assert len(tag.get("packages", [])) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestActivityDictize(object):
     def test_include_data(self):
         dataset = factories.Dataset()
