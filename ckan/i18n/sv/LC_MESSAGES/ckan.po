@@ -4646,8 +4646,8 @@ msgstr "Ändrade synlighet för {pkg_link} till {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Uppdaterade beskrivningen av resursen {resource_link} i {pkg_link} till <br "
 "class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
@@ -4658,13 +4658,13 @@ msgstr "Raderade beskrivning från resurs {resource_link} i {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Uppdaterade beskrivningen av resursen {resource_link} i {pkg_link} från <br "
-"class=\"line-height2\"><blockquote>{old_desc}</blockquote> till <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> till <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""

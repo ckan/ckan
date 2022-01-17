@@ -4700,8 +4700,8 @@ msgstr "{pkg_link} ၏ visibility ကို {visibility} သို့ ထား�
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote> သို့ ပြင်ဆင်ခဲ့သည်။"
@@ -4713,9 +4713,9 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို <br class=\"line-"
 "height2\"><blockquote>{old_desc}</blockquote> မှ <br class=\"line-"
