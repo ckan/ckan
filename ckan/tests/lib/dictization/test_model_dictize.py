@@ -226,7 +226,7 @@ class TestGroupDictize:
         Packages returned in group are limited by context var.
         """
         group_ = factories.Group()
-        for _ in range(10):
+        for _ in range(5):
             factories.Dataset(groups=[{"name": group_["name"]}])
         group_obj = model.Session.query(model.Group).filter_by().first()
         # limit packages to 4
