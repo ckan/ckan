@@ -35,6 +35,7 @@ set_environment () {
   export CKAN_SMTP_MAIL_FROM=${CKAN_SMTP_MAIL_FROM}
   export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
   export CKAN_LOG_PATH=${CKAN_LOG_PATH}
+  export SECRET_KEY=${SECRET_KEY}
 }
 
 write_config () {
@@ -70,7 +71,7 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan --config "$CONFIG" db init
+${CKAN_VENV}/bin/ckan --config "$CONFIG" db init
 # ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
 # ckan-paster --plugin=ckanext-harvest harvester initdb -c "${CKAN_CONFIG}/production.ini"
 # ckan-paster --plugin=ckanext-spatial spatial initdb -c "${CKAN_CONFIG}/production.ini"
