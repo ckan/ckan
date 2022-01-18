@@ -7,6 +7,17 @@
 Changelog
 ---------
 
+v.2.8.10 2022-01-19
+===================
+
+Fixes:
+
+* Add timeouts to requests calls (see :ref:`ckan.requests.timeout`) (`#6408 <https://github.com/ckan/ckan/pull/6408>`_)
+* Fix user create/edit email validators (`#6399 <https://github.com/ckan/ckan/pull/6399>`_)
+* Allow children elements on select2 lists (`#6503 <https://github.com/ckan/ckan/pull/6503>`_)
+
+
+
 v.2.8.9 2021-09-22
 ==================
 
