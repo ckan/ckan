@@ -645,15 +645,15 @@ class TestGroupShow(object):
                 dataset["id"] for dataset in group["packages"]
             ], "group_show() should never show private datasets"
 
-    @pytest.mark.ckan_config("ckan.search.rows_max", "5")
+    @pytest.mark.ckan_config("ckan.search.rows_max", "2")
     def test_package_limit_configured(self):
         group = factories.Group()
-        for _ in range(7):
+        for _ in range(3):
             factories.Dataset(groups=[{"id": group["id"]}])
         id = group["id"]
 
         results = helpers.call_action("group_show", id=id, include_datasets=1)
-        assert len(results["packages"]) == 5  # i.e. ckan.search.rows_max
+        assert len(results["packages"]) == 2  # i.e. ckan.search.rows_max
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -838,17 +838,17 @@ class TestOrganizationShow(object):
         assert org_dict["packages"][0]["name"] == "dataset_1"
         assert org_dict["package_count"] == 1
 
-    @pytest.mark.ckan_config("ckan.search.rows_max", "5")
+    @pytest.mark.ckan_config("ckan.search.rows_max", "2")
     def test_package_limit_configured(self):
         org = factories.Organization()
-        for _ in range(7):
+        for _ in range(3):
             factories.Dataset(owner_org=org["id"])
         id = org["id"]
 
         results = helpers.call_action(
             "organization_show", id=id, include_datasets=1
         )
-        assert len(results["packages"]) == 5  # i.e. ckan.search.rows_max
+        assert len(results["packages"]) == 2  # i.e. ckan.search.rows_max
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -1439,11 +1439,11 @@ class TestPackageSearch(object):
         results = logic.get_action("package_search")({}, {})
         assert len(results["results"]) == 10  # i.e. 'rows' default value
 
-    @pytest.mark.ckan_config("ckan.search.rows_max", "12")
+    @pytest.mark.ckan_config("ckan.search.rows_max", "3")
     def test_rows_returned_limited(self):
-        self._create_bulk_datasets("rows_limited", 14)
+        self._create_bulk_datasets("rows_limited", 5)
         results = logic.get_action("package_search")({}, {"rows": "15"})
-        assert len(results["results"]) == 12  # i.e. ckan.search.rows_max
+        assert len(results["results"]) == 3  # i.e. ckan.search.rows_max
 
     def test_facets(self):
         org = factories.Organization(name="test-org-facet", title="Test Org")
@@ -4569,17 +4569,17 @@ class TestDashboardNewActivities(object):
             == 0
         )
 
-    @pytest.mark.ckan_config("ckan.activity_list_limit", "15")
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_maximum_number_of_new_activities(self):
-        """Test that the new activities count does not go higher than 15, even
-        if there are more than 15 new activities from the user's followers."""
+        """Test that the new activities count does not go higher than 5, even
+        if there are more than 5 new activities from the user's followers."""
         user = factories.User()
         another_user = factories.Sysadmin()
         dataset = factories.Dataset()
         helpers.call_action(
             "follow_dataset", context={"user": user["name"]}, **dataset
         )
-        for n in range(0, 20):
+        for n in range(0, 7):
             dataset["notes"] = "Updated {n} times".format(n=n)
             helpers.call_action(
                 "package_update",
@@ -4590,7 +4590,7 @@ class TestDashboardNewActivities(object):
             helpers.call_action(
                 "dashboard_new_activities_count", context={"user": user["id"]}
             )
-            == 15
+            == 5
         )
 
 
