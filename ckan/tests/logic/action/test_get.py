@@ -15,7 +15,7 @@ from ckan import __version__
 from ckan.lib.search.common import SearchError
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestPackageShow(object):
     def test_package_show(self):
         # simple dataset, simple checks
@@ -207,7 +207,7 @@ class TestPackageShow(object):
         assert "new_field" not in dataset2
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupList(object):
     def test_group_list(self):
 
@@ -475,7 +475,7 @@ class TestGroupList(object):
             helpers.call_action("group_list", offset="-2")
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupShow(object):
     def test_group_show(self):
         group = factories.Group(user=factories.User())
@@ -656,7 +656,7 @@ class TestGroupShow(object):
         assert len(results["packages"]) == 5  # i.e. ckan.search.rows_max
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationList(object):
     def test_organization_list(self):
 
@@ -767,7 +767,7 @@ class TestOrganizationList(object):
         assert len(results) == 5  # i.e. configured limit
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationShow(object):
     def test_organization_show(self):
         org = factories.Organization()
@@ -851,7 +851,7 @@ class TestOrganizationShow(object):
         assert len(results["packages"]) == 5  # i.e. ckan.search.rows_max
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserList(object):
     def test_user_list_default_values(self):
         # we need to set fullname because user_list by default sorts by
@@ -1029,7 +1029,7 @@ class TestUserList(object):
             helpers.call_action("user_list", order_by="edits")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserShow(object):
     def test_user_show_default_values(self):
 
@@ -1224,7 +1224,7 @@ class TestUserShow(object):
         assert "reset_key" not in got_user
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestCurrentPackageList(object):
     def test_current_package_list(self):
         """
@@ -1299,7 +1299,7 @@ class TestCurrentPackageList(object):
         assert len(current_package_list) == 2
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageAutocomplete(object):
     def test_package_autocomplete_match_name(self):
         pkg = factories.Dataset(name="warandpeace")
@@ -1372,7 +1372,7 @@ class TestPackageAutocomplete(object):
         assert len(package_list) == 2
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageSearch(object):
     def test_search(self):
         factories.Dataset(title="Rivers")
@@ -1959,7 +1959,7 @@ class TestPackageSearch(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_idatasetform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestPackageAutocompleteWithDatasetForm(object):
     def test_custom_schema_returned(self):
         dataset1 = factories.Dataset(custom_text="foo")
@@ -1986,7 +1986,7 @@ class TestPackageAutocompleteWithDatasetForm(object):
         assert query["results"][0]["extras"][0]["value"] == "foo"
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestUserAutocomplete(object):
     def test_autocomplete(self):
         factories.Sysadmin(name="autocompletesysadmin")
@@ -2010,7 +2010,7 @@ class TestUserAutocomplete(object):
         assert len(result) == 1
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestFormatAutocomplete:
     def test_missing_param(self):
         with pytest.raises(logic.ValidationError):
@@ -2024,7 +2024,7 @@ class TestFormatAutocomplete:
         assert result == ["csv"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestBadLimitQueryParameters(object):
     """test class for #1258 non-int query parameters cause 500 errors
 
@@ -2060,7 +2060,7 @@ class TestBadLimitQueryParameters(object):
             helpers.call_action("package_search", **kwargs)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationListForUser(object):
     """Functional tests for the organization_list_for_user() action function."""
 
@@ -2706,7 +2706,7 @@ class TestTagList(object):
             helpers.call_action("tag_list", vocabulary_id="does-not-exist")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestMembersList(object):
     def test_dataset_delete_marks_membership_of_group_as_deleted(self):
         sysadmin = factories.Sysadmin()
@@ -2829,7 +2829,7 @@ class TestMembersList(object):
         assert len(org_members) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollow(object):
     def test_followee_list(self):
 
@@ -2877,9 +2877,7 @@ class TestFollow(object):
 
 class TestStatusShow(object):
     @pytest.mark.ckan_config("ckan.plugins", "stats")
-    @pytest.mark.usefixtures(
-        "clean_db", "with_plugins", "with_request_context"
-    )
+    @pytest.mark.usefixtures("clean_db", "with_plugins")
     def test_status_show(self):
 
         status = helpers.call_action("status_show")
@@ -2949,7 +2947,7 @@ def _seconds_since_timestamp(timestamp, format_):
     return (now - dt).total_seconds()
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestActivityShow(object):
     def test_simple_without_data(self):
         dataset = factories.Dataset()
@@ -3009,7 +3007,7 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestPackageActivityList(object):
     def test_create_dataset(self):
         user = factories.User()
@@ -3403,7 +3401,7 @@ class TestPackageActivityList(object):
         ]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -3606,7 +3604,7 @@ class TestUserActivityList(object):
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupActivityList(object):
     def test_create_group(self):
         user = factories.User()
@@ -3847,7 +3845,7 @@ class TestGroupActivityList(object):
         ]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationActivityList(object):
     def test_create_organization(self):
         user = factories.User()
@@ -4088,7 +4086,7 @@ class TestOrganizationActivityList(object):
         ]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestRecentlyChangedPackagesActivityList(object):
     def test_create_dataset(self):
         user = factories.User()
@@ -4231,7 +4229,7 @@ class TestRecentlyChangedPackagesActivityList(object):
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDashboardActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -4340,7 +4338,7 @@ class TestDashboardActivityList(object):
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDashboardNewActivities(object):
     def test_users_own_activities(self):
         # a user's own activities are not shown as "new"
@@ -4885,7 +4883,7 @@ class TestCollaboratorsSearch(object):
         assert results["results"][1]["id"] == dataset2["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestResourceSearch(object):
     def test_required_fields(self):
         with pytest.raises(logic.ValidationError):
