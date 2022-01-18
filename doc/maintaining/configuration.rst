@@ -470,6 +470,34 @@ Default value: ``http https ftp``
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.requests.timeout = 3
+
+Default value: 5
+
+Default timeout for GET requests performed by the requests library.
+
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
+
 .. _config-authorization:
 
 Authorization Settings
@@ -780,6 +808,39 @@ Example::
 Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
+
+
+.. _ckan.group_and_organization_list_max:
+
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
 
 
 Redis Settings
