@@ -779,10 +779,10 @@ select[data-module="autocomplete"] {
     }
 
     .btn-remove-url {
-        // "Remove" buttons float right of the select-type div labels
         position: absolute;
         margin-right: 0;
-        top: 0;
+        margin-top: 2px;
+        top: $grid-gutter-width;
         right: $grid-gutter-width / 6;
         padding: 0 12px;
         border-radius: 100px;
