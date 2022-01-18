@@ -32,7 +32,8 @@ def not_missing(key, data, errors, context):
 def not_empty(key, data, errors, context):
 
     value = data.get(key)
-    if not value or value is missing:
+    valid_values = [False, 0, 0.0]
+    if (not value and value not in valid_values) or value is missing:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
