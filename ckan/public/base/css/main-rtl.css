@@ -10604,7 +10604,8 @@ select[data-module=autocomplete] {
 .resource-upload-field .btn-remove-url {
   position: absolute;
   margin-right: 0;
-  top: 0;
+  margin-top: 2px;
+  top: 30px;
   right: 5px;
   padding: 0 12px;
   border-radius: 100px;
