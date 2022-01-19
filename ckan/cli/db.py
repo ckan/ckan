@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 applies_to_plugin = click.option(u"-p", u"--plugin", help=u"Affected plugin.")
 
 
-@click.group()
+@click.group(short_help=u"Database management commands.")
 def db():
     """Database management commands.
     """

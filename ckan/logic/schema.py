@@ -414,11 +414,9 @@ def default_user_schema(
 @validator_args
 def user_new_form_schema(
         unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match,
-        email_is_unique):
+        user_password_validator, user_passwords_match):
     schema = default_user_schema()
 
-    schema['email'] = [email_is_unique]
     schema['password1'] = [text_type, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [text_type]
@@ -428,11 +426,10 @@ def user_new_form_schema(
 
 @validator_args
 def user_edit_form_schema(
-        ignore_missing, unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match, email_is_unique):
+        ignore_missing, unicode_safe, user_password_validator,
+        user_passwords_match):
     schema = default_user_schema()
 
-    schema['email'] = [email_is_unique]
     schema['password'] = [ignore_missing]
     schema['password1'] = [ignore_missing, unicode_safe,
                            user_password_validator, user_passwords_match]
@@ -450,8 +447,6 @@ def default_update_user_schema(
 
     schema['name'] = [
         ignore_missing, name_validator, user_name_validator, unicode_safe]
-    schema['email'] = [
-        not_empty, email_validator, email_is_unique, unicode_safe]
     schema['password'] = [
         user_password_validator, ignore_missing, unicode_safe]
 
@@ -469,9 +464,9 @@ def default_generate_apikey_user_schema(
 
 @validator_args
 def default_user_invite_schema(
-        not_empty, unicode_safe):
+        not_empty, email_validator, email_is_unique):
     return {
-        'email': [not_empty, text_type],
+        'email': [not_empty, email_validator, email_is_unique, text_type],
         'group_id': [not_empty],
         'role': [not_empty],
     }

@@ -33,7 +33,8 @@ from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
-                                                      HostHeaderMiddleware)
+                                                      HostHeaderMiddleware,
+                                                      RootPathMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -183,6 +184,7 @@ def make_flask_stack(conf):
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
             data_dir=cache_dir)
 
+    app.wsgi_app = RootPathMiddleware(app.wsgi_app, session_opts)
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
 
@@ -579,6 +581,7 @@ def _setup_error_mail_handler(app):
         secure=secure
     )
 
+    mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(logging.Formatter('''
 Time:               %(asctime)s
 URL:                %(url)s

@@ -944,8 +944,8 @@ def email_is_unique(key, data, errors, context):
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name in [data[("name",)], data[("id",)]]
-                    or user.id == data[("id",)]):
+            if (user.name in (data.get(("name",)), data.get(("id",)))
+                    or user.id == data.get(("id",))):
                 return
 
     raise Invalid(
@@ -953,9 +953,9 @@ def email_is_unique(key, data, errors, context):
 
 
 def one_of(list_of_value):
-    ''' Checks if the provided value is present in a list '''
+    ''' Checks if the provided value is present in a list or is an empty string'''
     def callable(value):
-        if value not in list_of_value:
+        if value != "" and value not in list_of_value:
             raise Invalid(_('Value must be one of {}'.format(list_of_value)))
         return value
     return callable

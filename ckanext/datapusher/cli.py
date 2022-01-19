@@ -29,10 +29,11 @@ def confirm(yes):
     click.confirm(question, abort=True)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands in the datapusher.")
 def datapusher():
-    u'''Perform commands in the datapusher.
-    '''
+    """Perform commands in the datapusher.
+    """
+    pass
 
 
 @datapusher.command()

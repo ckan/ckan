@@ -657,6 +657,34 @@ Default value: ``http https ftp``
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.requests.timeout = 3
+
+Default value: 5
+
+Default timeout for GET requests performed by the requests library.
+
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
+
 .. _config-authorization:
 
 Authorization Settings
@@ -1869,6 +1897,61 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
+
+Uploader Settings
+-----------------
+
+.. _ckan.upload.user.types:
+
+ckan.upload.user.types
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.types = image text
+
+Default value: <empty>
+
+File types allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.user.mimetypes:
+
+ckan.upload.user.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.mimetypes = image/png text/svg
+
+Default value: <empty>
+
+File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.group.types:
+
+ckan.upload.group.types
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.types = image text
+
+Default value: <empty>
+
+File types allowed to upload as group image. No restrictions applied when empty
+
+.. _ckan.upload.group.mimetypes:
+
+ckan.upload.group.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.mimetypes = image/png text/svg
+
+Default value: <empty>
+
+File MIMETypes allowed to upload as group image. No restrictions applied when empty
 
 
 Webassets Settings

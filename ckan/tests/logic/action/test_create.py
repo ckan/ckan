@@ -68,6 +68,12 @@ class TestUserInvite(object):
             self._invite_user_to_group(email=None)
 
     @mock.patch("ckan.lib.mailer.send_invite")
+    def test_existed_email(self, _):
+        factories.User(email="email@example.com")
+        with pytest.raises(logic.ValidationError):
+            self._invite_user_to_group(email="email@example.com")
+
+    @mock.patch("ckan.lib.mailer.send_invite")
     def test_requires_role(self, _):
         with pytest.raises(logic.ValidationError):
             self._invite_user_to_group(role=None)
@@ -1353,8 +1359,7 @@ class TestUserPluginExtras(object):
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserImageUrl(object):
-
-    def test_upload_picture(self):
+    def test_external_picture(self):
 
         params = {
             'name': 'test_user',
@@ -1363,7 +1368,67 @@ class TestUserImageUrl(object):
             'image_url': 'https://example.com/mypic.png',
         }
 
-        user_dict = helpers.call_action('user_create', {}, **params)
+        user_dict = helpers.call_action("user_create", {}, **params)
 
-        assert user_dict['image_url'] == 'https://example.com/mypic.png'
-        assert user_dict['image_display_url'] == 'https://example.com/mypic.png'
+        assert user_dict["image_url"] == "https://example.com/mypic.png"
+        assert (
+            user_dict["image_display_url"] == "https://example.com/mypic.png"
+        )
+
+    def test_upload_non_picture_works_without_extra_config(
+            self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        assert create_with_upload("hello world", "file.txt", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_non_picture(self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("hello world", "file.txt", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_non_picture_with_png_extension(
+            self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("hello world", "file.png", **params)
+
+    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
+    def test_upload_picture(self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+
+        some_png = """
+        89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52
+        00 00 00 01 00 00 00 01 08 02 00 00 00 90 77 53
+        DE 00 00 00 0C 49 44 41 54 08 D7 63 F8 CF C0 00
+        00 03 01 01 00 18 DD 8D B0 00 00 00 00 49 45 4E
+        44 AE 42 60 82"""
+        some_png = some_png.replace(' ', '').replace('\n', '')
+        some_png_bytes = bytes(bytearray.fromhex(some_png))
+        assert create_with_upload(some_png_bytes, "file.png", **params)
