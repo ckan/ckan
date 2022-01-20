@@ -1370,7 +1370,7 @@ def history(package_type, id):
 def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/', view_func=search, strict_slashes=False)
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
-    blueprint.add_url_rule(u'/<id>', view_func=read)
+    blueprint.add_url_rule(u'/<id>', view_func=read, strict_slashes=False)
     blueprint.add_url_rule(u'/resources/<id>', view_func=resources)
     blueprint.add_url_rule(
         u'/edit/<id>', view_func=EditView.as_view(str(u'edit'))
