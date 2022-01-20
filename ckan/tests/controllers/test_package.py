@@ -1702,7 +1702,7 @@ class TestSearch(object):
 
         search_url = url_for("dataset.search")
         search_response = app.get(search_url)
-        assert "/dataset/?tags=my-tag" in search_response
+        assert "/dataset?tags=my-tag" in search_response
 
         tag_search_response = app.get("/dataset?tags=my-tag")
 
@@ -1732,7 +1732,7 @@ class TestSearch(object):
         factories.Dataset(name="dataset-two", title="Dataset Two")
         factories.Dataset(name="dataset-three", title="Dataset Three")
 
-        params = "/dataset/?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3"
+        params = "/dataset?tags=my-tag-1&tags=my-tag-2&tags=my-tag-3"
         tag_search_response = app.get(params)
 
         assert "1 dataset found" in tag_search_response

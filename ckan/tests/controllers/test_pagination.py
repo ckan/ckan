@@ -17,7 +17,7 @@ def test_package_search(app):
     resp = app.get(url_for("dataset.search", q=f"groups:{group['name']}"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
-    assert f'/dataset/?q=groups%3A{group["name"]}&page=2' == href
+    assert f'/dataset?q=groups%3A{group["name"]}&page=2' == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
@@ -29,7 +29,7 @@ def test_package_search(app):
     )
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
-    assert f'/dataset/?q=groups%3A{group["name"]}&page=1' == href
+    assert f'/dataset?q=groups%3A{group["name"]}&page=1' == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .dataset-heading a")
@@ -81,7 +81,7 @@ def test_group_index(app):
     resp = app.get(url_for("group.index", sort="name"))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
-    assert "/group/?q=&sort=name&page=2" == href
+    assert "/group?q=&sort=name&page=2" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")
@@ -92,7 +92,7 @@ def test_group_index(app):
     resp = app.get(url_for("group.index", sort="name", page=2))
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
-    assert "/group/?q=&sort=name&page=1" == href
+    assert "/group?q=&sort=name&page=1" == href
     names = [
         link["href"].rsplit("/", 1)[-1]
         for link in page.select(".primary .media-view")

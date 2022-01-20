@@ -1303,7 +1303,7 @@ def register_group_plugin_rules(blueprint):
         u'member_delete', u'history', u'followers', u'follow',
         u'unfollow', u'admins', u'activity'
     ]
-    blueprint.add_url_rule(u'/', view_func=index)
+    blueprint.add_url_rule(u'', view_func=index)
     blueprint.add_url_rule(
         u'/new',
         methods=[u'GET', u'POST'],
