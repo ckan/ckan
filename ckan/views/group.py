@@ -1303,13 +1303,13 @@ def register_group_plugin_rules(blueprint):
         u'member_delete', u'history', u'followers', u'follow',
         u'unfollow', u'admins', u'activity'
     ]
-    blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
+    blueprint.add_url_rule(u'/', view_func=index)
     blueprint.add_url_rule(
         u'/new',
         methods=[u'GET', u'POST'],
         view_func=CreateGroupView.as_view(str(u'new')))
     blueprint.add_url_rule(
-        u'/<id>', methods=[u'GET'], view_func=read, strict_slashes=False)
+        u'/<id>', methods=[u'GET'], view_func=read)
     blueprint.add_url_rule(
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
     blueprint.add_url_rule(

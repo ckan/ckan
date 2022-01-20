@@ -502,6 +502,9 @@ def _register_error_handler(app):
 
     def error_handler(e):
         debug = config.get_value('debug')
+        if request.path.endswith('/'):
+            site_url = config.get_value('ckan.site_url')
+            return helpers.redirect_to(site_url + request.path[:-1])
         if isinstance(e, HTTPException):
             log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
