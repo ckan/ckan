@@ -76,7 +76,7 @@ def reset_db():
     """
     # Close any database connections that have been left open.
     # This prevents CKAN from hanging waiting for some unclosed connection.
-    model.Session.close_all()
+    model.Session.close_all_sessions()
 
     model.repo.rebuild_db()
 
