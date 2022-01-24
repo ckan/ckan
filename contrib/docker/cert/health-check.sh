@@ -1,7 +1,7 @@
 #!/bin/sh
 
 FAIL_CODE=6
-
+ 
 check_status() {
     LRED="\033[1;31m" # Light Red
     LGREEN="\033[1;32m" # Light Green
