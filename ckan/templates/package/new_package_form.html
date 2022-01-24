@@ -25,3 +25,9 @@
     {{ super() }}
   {% endif %}
 {% endblock %}
+
+{% block previous_button %}
+  {% if form_style == 'edit' %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
