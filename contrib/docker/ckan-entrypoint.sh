@@ -19,9 +19,6 @@ abort () {
 }
 
 set_environment () {
-  export CKAN_INI=${CONFIG}
-  export CKAN_SITE_TITLE=${CKAN_SITE_TITLE}
-  export CKAN_SITE_DESC=${CKAN_SITE_DESC}
   export CKAN_SITE_ID=${CKAN_SITE_ID}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
   export CKAN_DOMAIN=${CKAN_DOMAIN}
@@ -32,6 +29,10 @@ set_environment () {
   export CKAN_DATAPUSHER_URL=${CKAN_DATAPUSHER_URL}
   export CKAN_DATASTORE_WRITE_URL=${CKAN_DATASTORE_WRITE_URL}
   export CKAN_DATASTORE_READ_URL=${CKAN_DATASTORE_READ_URL}
+  export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
+
+  export CKAN_SITE_TITLE=${CKAN_SITE_TITLE}
+  export CKAN_SITE_DESC=${CKAN_SITE_DESC}
   export CKAN_SMTP_SERVER=${CKAN_SMTP_SERVER}
   export CKAN_SMTP_STARTTLS=${CKAN_SMTP_STARTTLS}
   export CKAN_SMTP_USER=${CKAN_SMTP_USER}
@@ -40,10 +41,11 @@ set_environment () {
   export CKAN_SMTP_REPLY_TO=${CKAN_SMTP_REPLY_TO}
   export CKAN_ACTIVITY_STREAMS_ENABLED=${CKAN_ACTIVITY_STREAMS_ENABLED}
   export CKAN_ACTIVITY_STREAMS_NOTIFIY=${CKAN_ACTIVITY_STREAMS_NOTIFIY}
-  export CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
 }
 
 write_config () {
+  set_environment
+
   echo "Generating config at ${CONFIG}..."
   ckan generate config "$CONFIG"
 }
@@ -55,7 +57,6 @@ done
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-  set_environment
   write_config
 fi
 
