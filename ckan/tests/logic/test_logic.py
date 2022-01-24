@@ -24,6 +24,7 @@ def test_check_access_auth_user_obj_is_not_set():
         assert context["__auth_user_obj_checked"]
         assert context["auth_user_obj"] is None
 
+
 @pytest.mark.usefixtures("clean_db")
 def test_check_access_auth_user_obj_is_set():
     user = factories.User()
@@ -34,6 +35,7 @@ def test_check_access_auth_user_obj_is_set():
     assert result
     assert context["__auth_user_obj_checked"]
     assert context["auth_user_obj"].name == user["name"]
+
 
 @pytest.mark.usefixtures("clean_db")
 def test_check_access_auth_user_obj_is_not_set_when_ignoring_auth():
