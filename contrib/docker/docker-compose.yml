@@ -32,6 +32,7 @@ services:
       start_period: 30s
       interval: 1m
       timeout: 5s
+    restart: unless-stopped
 
   ckan:
     container_name: ckan
@@ -47,7 +48,7 @@ services:
     depends_on:
       - db
     ports:
-      - "${CKAN_PORT}:5000"
+      - "0.0.0.0:${CKAN_PORT}:5000"
       - "8080:8080"
     environment:
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
@@ -57,6 +58,7 @@ services:
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
       - CKAN_DATAPUSHER_URL=http://datapusher:8800
+      - CKAN_SITE_URL=${CKAN_SITE_URL}
       - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
@@ -74,6 +76,7 @@ services:
       - ckan_config:/etc/ckan
       - ckan_home:/usr/lib/ckan
       - ckan_storage:/var/lib/ckan
+    restart: unless-stopped
 
   datapusher:
     container_name: datapusher

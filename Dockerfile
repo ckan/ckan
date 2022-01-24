@@ -40,10 +40,6 @@ RUN apt-get -q -y update \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Build-time variables specified by docker-compose.yml / .env
-ARG CKAN_DOMAIN
-ARG CKAN_SITE_URL
-
 # Define environment variables
 ENV CKAN_DOMAIN ${CKAN_DOMAIN:-localhost}
 ENV CKAN_SITE_URL ${CKAN_SITE_URL}
@@ -53,6 +49,10 @@ ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH /var/lib/ckan
 ENV APACHE_RUN_USER ckan
 ENV APACHE_RUN_GROUP ckan
+
+# Build-time variables specified by docker-compose.yml / .env
+ARG CKAN_DOMAIN
+ARG CKAN_SITE_URL
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
@@ -72,7 +72,7 @@ RUN ckan-pip3 install -U pip && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip3 install -e $CKAN_VENV/src/ckan/ && \
-    ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \    
+    ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
