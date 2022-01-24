@@ -210,7 +210,7 @@ class TestGroupDictize:
         Packages returned in group are limited by context var.
         """
         group_obj = factories.Group.model()
-        for _ in range(10):
+        for _ in range(5):
             factories.Dataset(groups=[{"name": group_obj.name}])
         # limit packages to 4
         context = {
