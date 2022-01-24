@@ -19,7 +19,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserInvite(object):
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
@@ -575,7 +575,6 @@ class TestResourceCreate:
         size = int(result.pop("size"))
         assert size == 500
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -653,7 +652,7 @@ class TestResourceCreate:
         assert created_resource["name"] == "created by collaborator"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
         user = factories.User()
@@ -738,7 +737,7 @@ class TestMemberCreate(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetCreate(object):
     def test_private_package(self):
         org = factories.Organization()
@@ -970,7 +969,7 @@ class TestDatasetCreate(object):
         assert isinstance(dataset, str)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupCreate(object):
     def test_create_group(self):
         user = factories.User()
@@ -1029,7 +1028,7 @@ class TestGroupCreate(object):
             assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationCreate(object):
     def test_create_organization(self):
         user = factories.User()
@@ -1106,7 +1105,7 @@ class TestOrganizationCreate(object):
         assert org["type"] == custom_org_type
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1182,7 +1181,7 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowCommon(object):
     def test_validation(self):
         user = factories.User()
@@ -1220,7 +1219,7 @@ class TestFollowCommon(object):
                     helpers.call_action(action, context, id=object_id)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowDataset(object):
     def test_auth(self):
         user = factories.User()
@@ -1286,7 +1285,7 @@ class TestFollowDataset(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowGroup(object):
     def test_auth(self):
         user = factories.User()
@@ -1335,7 +1334,7 @@ class TestFollowGroup(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowOrganization(object):
     def test_auth(self):
         user = factories.User()
@@ -1384,7 +1383,7 @@ class TestFollowOrganization(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowUser(object):
     def test_auth(self):
         user = factories.User()
