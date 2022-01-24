@@ -114,50 +114,6 @@ several settings that you'll update as you develop your project.
 source code files for our extension.
 
 
-Creating a plugin class
-=======================
-
-.. topic:: Plugins
-
-   Each CKAN extension contains one or more plugins that provide the
-   extension's features.
-
-
-``cookiecutter`` should have created the following file file
-``ckanext-iauthfunctions/ckanext/iauthfunctions/plugin.py``.
-Edit it to match the following:
-
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v1.py
-
-Our plugin is a normal Python class, named
-:py:class:`~ckanext.example_iauthfunctions.plugin_v1.ExampleIAuthFunctionsPlugin`
-in this example, that inherits from CKAN's
-:py:class:`~ckan.plugins.core.SingletonPlugin` class.
-
-.. note::
-
-   Every CKAN plugin class should inherit from
-   :py:class:`~ckan.plugins.core.SingletonPlugin`.
-
-
-.. _setup.py:
-
-Adding the plugin to ``setup.py``
-=================================
-
-Now let's add our class to the ``entry_points`` in ``setup.py``. This
-identifies the plugin class to CKAN once the extension is installed in CKAN's
-virtualenv, and associates a plugin name with the class.  Edit
-``ckanext-iauthfunctions/setup.py`` and add a line to
-the ``entry_points`` section like this::
-
-
-    entry_points='''
-        [ckan.plugins]
-        example_iauthfunctions=ckanext.iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
-    ''',
-
-
 Installing the extension
 ========================
 
