@@ -869,6 +869,11 @@ class TestOneOfValidator(object):
         func = validators.one_of(cont)
         raises_invalid(func)(5)
 
+    def test_empty_val_accepted(self):
+        cont = [1, 2, 3, 4]
+        func = validators.one_of(cont)
+        assert func("") == ""
+
 
 def test_tag_string_convert():
     def convert(tag_string):

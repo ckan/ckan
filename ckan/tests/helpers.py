@@ -266,7 +266,6 @@ def _get_test_app():
     Unit tests shouldn't need this.
 
     """
-    config["ckan.legacy_templates"] = False
     config["testing"] = True
     app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)

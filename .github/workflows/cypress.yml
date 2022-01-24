@@ -27,10 +27,9 @@ jobs:
         ports:
           - 6379:6379
       ckan-solr:
-        image: solr:6.5
+        image: ckan/ckan-solr:master
         ports:
           - 8983:8983
-        options: --name ckan-solr
 
     env:
       CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
@@ -51,10 +50,6 @@ jobs:
 
       - name: Init environment
         run: |
-          docker exec ckan-solr solr create -c ckan
-          docker cp ckan/config/solr/schema.xml ckan-solr:/opt/solr/server/solr/ckan/conf/managed-schema
-          docker restart ckan-solr
-          sleep 5
           ckan -c test-core-circle-ci.ini db init
 
       - name: Run Cypress

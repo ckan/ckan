@@ -206,7 +206,7 @@ class TestResourceQuery(object):
         )
         assert res_keys == expected_res_keys
         pkg1 = model.Package.by_name(u"pkg1")
-        ab = pkg1.resources[0]
+        ab = [r for r in pkg1.resources if r.url == self.ab][0]
         assert res_dict["id"] == ab.id
         assert res_dict["package_id"] == pkg1.id
         assert res_dict["url"] == ab.url
