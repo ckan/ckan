@@ -206,13 +206,9 @@ class TestPackageNew(object):
         assert pkg.resources[1].url == u"http://example.com/resource0"
         assert pkg.state == "active"
 
-<<<<<<< HEAD
     # resource upload is tested in TestExampleIUploaderPlugin
 
     def test_previous_button_works(self, app, user):
-=======
-    def test_previous_button_works(self, app, user_env):
->>>>>>> master
         url = url_for("dataset.new")
         helpers.login_user(app, user)
         response = app.post(url, data={
