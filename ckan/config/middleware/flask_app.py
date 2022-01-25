@@ -343,7 +343,7 @@ def remote_user():
 
     if "_user_id" in request.environ.get("beaker.session"):
         user_id = request.environ["beaker.session"]["_user_id"]
-        userobj = model.User.get(user_id)
+        userobj = model.Session.query(model.User).get(user_id)
         request.environ[header] = userobj.name
 
 
