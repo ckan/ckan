@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #     checks whether a user is logged in, and determines the validity of the
 #     session cookie, removing it if necessary.
 #     '''
-    
 #     for cookie in request.cookies:
 #         # Remove the ckan session cookie if logged out.
 #         if cookie == u'ckan' and not getattr(g, u'user', None):
