@@ -90,7 +90,7 @@ def test_get_group_object_id_none():
     _get_object_id_none("group")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestInit(object):
     def test_get_package_object_with_id(self):
 

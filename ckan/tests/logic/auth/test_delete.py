@@ -13,7 +13,7 @@ from ckan import authz, model
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDeleteAuth:
     def test_auth_deleted_users_are_always_unauthorized(self):
         def always_success(x, y):
@@ -135,7 +135,7 @@ def test_anon_cant_clear():
         helpers.call_auth("resource_view_clear", context=context, **params)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_normal_user_cant_clear():
     user = factories.User()
 
@@ -145,7 +145,7 @@ def test_normal_user_cant_clear():
         helpers.call_auth("resource_view_clear", context=context)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_sysadmin_user_can_clear():
     user = factories.User(sysadmin=True)
 

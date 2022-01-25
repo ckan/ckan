@@ -17,7 +17,7 @@ import ckan.tests.factories as factories
         factories.MockUser,
     ],
 )
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_id_uniqueness(entity):
     first, second = entity(), entity()
     assert first[u"id"] != second[u"id"]

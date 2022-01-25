@@ -26,7 +26,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -435,7 +435,7 @@ class TestUpdate(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
@@ -757,7 +757,7 @@ class TestSendEmailNotifications(object):
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -877,7 +877,7 @@ class TestResourceViewUpdate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -1509,7 +1509,7 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1530,7 +1530,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1578,7 +1578,7 @@ class TestUserUpdate(object):
         assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupUpdate(object):
     def test_group_update_image_url_field(self):
         user = factories.User()
@@ -1621,7 +1621,7 @@ class TestGroupUpdate(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1674,7 +1674,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1778,7 +1778,7 @@ class TestBulkOperations(object):
         assert activities[0]["activity_type"] == "deleted package"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -1838,7 +1838,7 @@ class TestDashboardMarkActivitiesOld(object):
         ]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsUpdate(object):
     @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
@@ -1972,7 +1972,7 @@ class TestCollaboratorsUpdate(object):
         assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetRevise(object):
     def test_revise_description(self):
         factories.Dataset(name="xyz", notes="old notes")

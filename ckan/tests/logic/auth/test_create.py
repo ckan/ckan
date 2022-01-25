@@ -44,7 +44,7 @@ def test_cud_overrides_acd():
         helpers.call_auth("package_create", context)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserCreate:
     def test_sysadmin_can_create_via_api(self):
         sysadmin = factories.Sysadmin()
@@ -72,7 +72,7 @@ class TestUserCreate:
         assert helpers.call_auth("user_create", context)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestRealUsersAuth(object):
     def test_no_org_user_can_create(self):
         user = factories.User()

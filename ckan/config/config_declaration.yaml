@@ -420,6 +420,9 @@ groups:
         description: >-
           Controls what uri schemes are rendered as links.
 
+      - key: ckan.requests.timeout
+        default: 5
+        type: int
 
   - annotation: Authorization Settings
     options:
@@ -810,6 +813,9 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
+      - key: ckan.resource_proxy.timeout
+        type: int
+        default: 5
 
   - annotation: Front-End Settings
     options:
@@ -855,9 +861,6 @@ groups:
         example: http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
         description: This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
 
-      - key: ckan.legacy_templates
-        ignored: true
-        type: bool
       - key: ckan.datasets_per_page
         type: int
         default: 20

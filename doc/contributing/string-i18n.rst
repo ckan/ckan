@@ -355,7 +355,7 @@ the quality of CKAN's translations:
 * Try not to make translators translate strings that don't need to be
   translated.
 
-  For example, ``'legacy_templates'`` is the name of a directory, it doesn't
+  For example, ``'templates'`` is the name of a directory, it doesn't
   need to be marked for translation.
 
 * Mark singular and plural forms of strings correctly.
