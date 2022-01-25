@@ -137,7 +137,7 @@ directory, and run ``python setup.py develop``:
 Enabling the plugin
 ===================
 
-An extension's plugins must be added to the :ref:`ckan.plugins` setting in your
+An extension's plugins must be added to the setting in your
 CKAN config file so that CKAN will call the plugins' methods.  The name that
 you gave to your plugin class in the :ref:`left-hand-side of the assignment in
 the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
