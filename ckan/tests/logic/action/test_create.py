@@ -579,7 +579,6 @@ class TestResourceCreate:
         size = int(result.pop("size"))
         assert size == 500
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
