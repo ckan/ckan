@@ -121,6 +121,7 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["tags"][0]["name"] == tag.name
 
+    @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
         parent = factories.Group(tile="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
