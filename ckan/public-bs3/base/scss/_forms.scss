@@ -754,3 +754,63 @@ select[data-module="autocomplete"] {
     table-layout: inherit;
     line-height: 1;
 }
+
+.resource-upload-field {
+    > input[type="radio"] {
+        // hide the radio buttons we're using to show/hide select-type divs
+        display: none;
+    }
+
+    > div.select-type {
+        // "Remove" buttons should be positioned relative to this element
+        position: relative;
+        // defaut select-type divs to hidden...
+        display: none;
+    }
+
+    > input[type="radio"]:checked + div.select-type {
+        // ...unless the radio button above is checked
+        display: block;
+    }
+
+    label.btn::after {
+        // button labels don't need a ":" at the end of the content
+        content: "";
+    }
+
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        margin-top: 2px;
+        top: $grid-gutter-width;
+        right: $grid-gutter-width / 6;
+        padding: 0 12px;
+        border-radius: 100px;
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    input#field-clear-upload {
+        // checkbox shows/hides existing upload display and new upload input
+        display: none;
+
+        + div.upload-type {
+          display: block;
+        }
+
+        ~ .upload-type {
+          display: none;
+        }
+    }
+
+    input#field-clear-upload:checked {
+        + div.upload-type {
+          display: none;
+        }
+
+        ~ .upload-type {
+          display: block;
+        }
+    }
+}
