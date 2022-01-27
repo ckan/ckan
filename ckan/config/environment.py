@@ -35,9 +35,6 @@ def load_environment(conf):
     """
     os.environ['CKAN_CONFIG'] = conf['__file__']
 
-    # Pylons paths
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
     valid_base_public_folder_names = ['public', 'public-bs3']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
