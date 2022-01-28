@@ -13,7 +13,7 @@ from markupsafe import escape
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-from ckan.common import config
+from ckan.common import config, request
 
 
 log = logging.getLogger(__name__)
@@ -192,12 +192,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             searchpaths = self.searchpath[index + 1:]
         else:
             searchpaths = self.searchpath
+        if not hasattr(request, 'missing_templates'):
+            request.missing_templates = set()
         # end of ckan changes
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
             filename = path.join(searchpath, *pieces)
+            if filename in request.missing_templates:
+                continue
             f = open_if_exists(filename)
             if f is None:
+                request.missing_templates.add(filename)
                 continue
             try:
                 contents = f.read().decode(self.encoding)
