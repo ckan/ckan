@@ -26,6 +26,35 @@ _validate = ckan.lib.navl.dictization_functions.validate
 WHITELISTED_RESOURCES = ['_table_metadata']
 
 
+def _fix_bad_field_names(data_dict, prefix):
+    """ fix bad fields names.
+        Datastore do not allow "_" before field names
+        """
+    if data_dict.get('fields'):
+        new_fields = []
+        for field in data_dict.get('fields'):
+            if field['id'].startswith('_'):
+                new_field_name = '{}{}'.format(prefix, field['id'])
+                log.warn('Datastore field name starts with _: %s, replaced as %s', field['id'], new_field_name)
+                field['id'] = new_field_name
+            new_fields.append(field)
+        data_dict['fields'] = new_fields
+
+        if data_dict.get('records'):
+            new_records = []
+            for record in data_dict.get('records'):
+                new_record = {}
+                for field, value in record.items():
+                    if field.startswith('_'):
+                        new_record['{}{}'.format(prefix, field)] = value
+                    else:
+                        new_record[field] = record[field]
+                new_records.append(new_record)
+            data_dict['records'] = new_records
+
+    return data_dict
+
+
 def datastore_create(context, data_dict):
     '''Adds a new table to the DataStore.
 
@@ -92,6 +121,8 @@ def datastore_create(context, data_dict):
     '''
     backend = DatastoreBackend.get_active_backend()
     schema = context.get('schema', dsschema.datastore_create_schema())
+
+    data_dict = _fix_bad_field_names(data_dict, prefix=p.toolkit.config.get("ckanext.datastore.field_prefix", "dstore"))
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
     data_dict, errors = _validate(data_dict, schema, context)
