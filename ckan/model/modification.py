@@ -54,14 +54,10 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         for obj in new | changed | deleted:
             if not isinstance(obj, model.package.Package):
                 try:
-                    related_packages = obj.related_packages()
+                    changed_pkgs.update(obj.related_packages())
                 except AttributeError:
                     continue
-                # this is needed to sort out vdm bug where pkg.as_dict does not
-                # work when the package is deleted.
-                for package in related_packages:
-                    if package and package not in deleted | new:
-                        changed_pkgs.add(package)
+
         for obj in changed_pkgs:
             method(obj, model.domain_object.DomainObjectOperation.changed)
 
