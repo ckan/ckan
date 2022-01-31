@@ -60,6 +60,8 @@ def ckan_after_commit(session):
 @event.listens_for(create_local_session, 'before_commit')
 @event.listens_for(Session, 'before_commit')
 def ckan_before_commit(session):
+    """ Calls all extensions implementing IDomainObjectModification interface.
+    """
 
     dome = DomainObjectModificationExtension()
     dome.before_commit(session)

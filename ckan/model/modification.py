@@ -18,8 +18,10 @@ __all__ = ['DomainObjectModificationExtension']
 
 class DomainObjectModificationExtension(plugins.SingletonPlugin):
     """
-    A domain object level interface to change notifications
+    Notify observers about domain object modifications before commit.
 
+    Observers are other plugins implementing the IDomainObjectModification
+    interface.
     """
 
     def before_commit(self, session):
