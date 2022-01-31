@@ -4,7 +4,7 @@
 from sqlalchemy import MetaData, event
 import sqlalchemy.orm as orm
 
-from ckan.model import extension
+from ckan.model.modification import DomainObjectModificationExtension
 
 __all__ = ['Session']
 
@@ -17,7 +17,6 @@ Session = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 ))
 
 
@@ -25,7 +24,6 @@ create_local_session = orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 )
 
 
@@ -62,6 +60,10 @@ def ckan_after_commit(session):
 @event.listens_for(create_local_session, 'before_commit')
 @event.listens_for(Session, 'before_commit')
 def ckan_before_commit(session):
+
+    dome = DomainObjectModificationExtension()
+    dome.before_commit(session)
+
     session.flush()
     try:
         session._object_cache

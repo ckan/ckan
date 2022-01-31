@@ -14,7 +14,6 @@ from pyutilib.component.core import Interface as _pca_Interface
 __all__ = [
     u'Interface',
     u'IMapper',
-    u'ISession',
     u'IMiddleware',
     u'IAuthFunctions',
     u'IDomainObjectModification',
@@ -166,43 +165,6 @@ class IMapper(Interface):
         Receive an object instance after that instance is PURGEd.
         (whereas usually in ckan 'delete' means to change the state property to
         deleted, so use before_update for that case.)
-        '''
-
-
-class ISession(Interface):
-    u'''
-    A subset of the SQLAlchemy session extension hooks.
-    '''
-
-    def after_begin(self, session, transaction, connection):
-        u'''
-        Executed after a transaction is begun on a connection
-        '''
-
-    def before_flush(self, session, flush_context, instances):
-        u'''
-        Executed before a flush process has started.
-        '''
-
-    def after_flush(self, session, flush_context):
-        u'''
-        Executed after a flush has completed, but before commit has been
-        called.
-        '''
-
-    def before_commit(self, session):
-        u'''
-        Executed right before commit is called.
-        '''
-
-    def after_commit(self, session):
-        u'''
-        Executed after a commit has occured.
-        '''
-
-    def after_rollback(self, session):
-        u'''
-        Executed after a rollback has occured.
         '''
 
 
