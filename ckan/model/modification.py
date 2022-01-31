@@ -68,18 +68,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 observer.notify(entity, operation)
             except SearchIndexError as search_error:
                 log.exception(search_error)
-
-                # userobj must be available inside rendered error template,
-                # though it become unbounded after session rollback because
-                # of this error. Expunge will prevent `UnboundedInstanceError`
-                # raised from error template.
-                try:
-                    model.Session.expunge(g.userobj)
-                # AttributeError - there is no such prop in `g`
-                # UnmappedInstanceError - g.userobj is None or empty string.
-                except (AttributeError, UnmappedInstanceError):
-                    pass
-
                 # Reraise, since it's pretty crucial to ckan if it can't index
                 # a dataset
                 raise
