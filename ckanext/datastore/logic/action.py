@@ -2,6 +2,7 @@
 
 import logging
 import json
+# from turtle import update
 
 import sqlalchemy
 import six
@@ -169,7 +170,7 @@ def datastore_create(context, data_dict):
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
-        set_datastore_active_flag(model, data_dict, True)
+        set_datastore_active_flag(context, data_dict, True)
 
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -389,7 +390,7 @@ def datastore_delete(context, data_dict):
             'Setting datastore_active=False on resource {0}'.format(
                 resource.id)
         )
-        set_datastore_active_flag(model, data_dict, False)
+        set_datastore_active_flag(context, data_dict, False)
 
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -584,7 +585,7 @@ def datastore_search_sql(context, data_dict):
     return result
 
 
-def set_datastore_active_flag(model, data_dict, flag):
+def set_datastore_active_flag(context, data_dict, flag):
     '''
     Set appropriate datastore_active flag on CKAN resource.
 
@@ -593,6 +594,7 @@ def set_datastore_active_flag(model, data_dict, flag):
     # We're modifying the resource extra directly here to avoid a
     # race condition, see issue #3245 for details and plan for a
     # better fix
+    model = context['model']
     update_dict = {'datastore_active': flag}
 
     # get extras(for entity update) and package_id(for search index update)
@@ -613,21 +615,18 @@ def set_datastore_active_flag(model, data_dict, flag):
     # get package with  updated resource from solr
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    solr_query = search.PackageSearchQuery()
-    q = {
-        'q': 'id:"{0}"'.format(package_id),
-        'fl': 'data_dict',
-        'wt': 'json',
-        'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-        'rows': 1
-    }
-    for record in solr_query.run(q)['results']:
-        solr_data_dict = json.loads(record['data_dict'])
-        for resource in solr_data_dict['resources']:
+
+    try:
+        _data_dict = p.toolkit.get_action('package_show')({}, {
+            'id': package_id
+        })
+        for resource in _data_dict['resources']:
             if resource['id'] == data_dict['resource_id']:
                 resource.update(update_dict)
-                psi.index_package(solr_data_dict)
+                psi.index_package(_data_dict)
                 break
+    except (logic.NotAuthorized, logic.NotFound) as e:
+        log.error(e.message)
 
 
 def _resource_exists(context, data_dict):

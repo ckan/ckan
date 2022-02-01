@@ -114,15 +114,18 @@ def _get_locales():
     i18n_path = get_ckan_i18n_dir()
     # For every file in the ckan i18n directory see if babel can understand
     # the locale. If yes, add it to the available locales
-    for locale in os.listdir(i18n_path):
-        try:
-            Locale.parse(locale)
-            locales.append(locale)
-        except (ValueError, UnknownLocaleError):
-            # Babel does not know how to make a locale out of this.
-            # This is fine since we are passing all files in the
-            # ckan.i18n_directory here which e.g. includes the __init__.py
-            pass
+    # breakpoint()
+    if i18n_path:
+        for locale in os.listdir(i18n_path):
+            try:
+                Locale.parse(locale)
+                locales.append(locale)
+            except (ValueError, UnknownLocaleError):
+                # Babel does not know how to make a locale out of this.
+                # This is fine since we are passing all files in the
+                # ckan.i18n_directory here which e.g. includes the __init__.py
+                pass
+    
 
     assert locale_default in locales, \
         'default language "%s" not available' % locale_default
@@ -371,10 +374,12 @@ def build_js_translations():
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()
+    # breakpoint()
     i18n_dirs = collections.OrderedDict([(ckan_i18n_dir, u'ckan')])
-    for item in os.listdir(ckan_i18n_dir):
-        if os.path.isdir(os.path.join(ckan_i18n_dir, item)):
-            langs.add(item)
+    if ckan_i18n_dir:
+        for item in os.listdir(ckan_i18n_dir):
+            if os.path.isdir(os.path.join(ckan_i18n_dir, item)):
+                langs.add(item)
     for plugin in PluginImplementations(ITranslation):
         langs.update(plugin.i18n_locales())
         i18n_dirs[plugin.i18n_directory()] = plugin.i18n_domain()
