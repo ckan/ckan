@@ -377,7 +377,11 @@ def _read(id, limit, group_type):
 
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
-        facets = plugin.group_facets(facets, group_type, None)
+        facets = (
+            plugin.group_facets(facets, group_type, None)
+            if group_type == "group"
+            else plugin.organization_facets(facets, group_type, None)
+        )
     return facets
 
 
