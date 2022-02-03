@@ -2015,46 +2015,22 @@ def resource_search(context, data_dict):
     '''
     model = context['model']
 
-    # Allow either the `query` or `fields` parameter to be given, but not both.
-    # Once `fields` parameter is dropped, this can be made simpler.
-    # The result of all this gumpf is to populate the local `fields` variable
-    # with mappings from field names to list of search terms, or a single
-    # search-term string.
     query = data_dict.get('query')
-    fields = data_dict.get('fields')
-
-    if query is None and fields is None:
-        raise ValidationError({'query': _('Missing value')})
-
-    elif query is not None and fields is not None:
-        raise ValidationError(
-            {'fields': _('Do not specify if using "query" parameter')})
-
-    elif query is not None:
-        if isinstance(query, str):
-            query = [query]
-        try:
-            fields = dict(pair.split(":", 1) for pair in query)
-        except ValueError:
-            raise ValidationError(
-                {'query': _('Must be <field>:<value> pair(s)')})
-
-    else:
-        log.warning('Use of the "fields" parameter in resource_search is '
-                    'deprecated.  Use the "query" parameter instead')
-
-        # The legacy fields paramter splits string terms.
-        # So maintain that behaviour
-        split_terms = {}
-        for field, terms in fields.items():
-            if isinstance(terms, str):
-                terms = terms.split()
-            split_terms[field] = terms
-        fields = split_terms
-
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
+
+    if query is None:
+        raise ValidationError({'query': _('Missing value')})
+
+    if isinstance(query, str):
+        query = [query]
+
+    try:
+        fields = dict(pair.split(":", 1) for pair in query)
+    except ValueError:
+        raise ValidationError(
+            {'query': _('Must be <field>:<value> pair(s)')})
 
     q = model.Session.query(model.Resource) \
          .join(model.Package) \
@@ -2064,7 +2040,6 @@ def resource_search(context, data_dict):
 
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
-
         if isinstance(terms, str):
             terms = [terms]
 
@@ -2081,7 +2056,6 @@ def resource_search(context, data_dict):
             raise ValidationError({'query': msg})
 
         for term in terms:
-
             # prevent pattern injection
             term = misc.escape_sql_like_special_characters(term)
 
@@ -2092,7 +2066,7 @@ def resource_search(context, data_dict):
                 q = q.filter(model_attr.ilike(str(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
-            # matching fields is a bit trickier.  See the docstring.
+            # matching fields is a bit trickier. See the docstring.
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
 
