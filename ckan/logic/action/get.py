@@ -1957,7 +1957,7 @@ def resource_search(context, data_dict):
     list of dictized Resource objects.
 
     The 'query' parameter is a required field.  It is a string of the form
-    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    ``{field}:{term}`` or a list of strings, each of the same form. Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
 
@@ -1995,9 +1995,6 @@ def resource_search(context, data_dict):
     Currently only ordering one field is available, and in ascending order
     only.
 
-    The ``fields`` parameter is deprecated as it is not compatible with calling
-    this action with a GET request to the action API.
-
     The context may contain a flag, `search_query`, which if True will make
     this action behave as if being used by the internal search api.  ie - the
     results will not be dictized, and SearchErrors are thrown for bad search
@@ -2005,8 +2002,6 @@ def resource_search(context, data_dict):
 
     :param query: The search criteria.  See above for description.
     :type query: string or list of strings of the form ``{field}:{term1}``
-    :param fields: Deprecated
-    :type fields: dict of fields to search terms.
     :param order_by: A field on the Resource model that orders the results.
     :type order_by: string
     :param offset: Apply an offset to the query.
