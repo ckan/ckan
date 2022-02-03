@@ -1949,7 +1949,7 @@ def package_search(context, data_dict):
 @logic.validate(logic.schema.default_resource_search_schema)
 def resource_search(context, data_dict):
     '''
-    Searches for resources satisfying a given search criteria.
+    Searches for resources in public Datasets satisfying the search criteria.
 
     It returns a dictionary with 2 fields: ``count`` and ``results``.  The
     ``count`` field contains the total number of Resources found without the
