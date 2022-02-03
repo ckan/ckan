@@ -572,7 +572,7 @@ It may become necessary to reindex harvesters, especially if they no longer repo
 > **NOTE:** If modifying the harvester config you will also need to reindex to make the new config take affect and restart the ckan_fetch_harvester container
 
 ```bash
-sudo docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-harvest harvester reindex --config=/etc/ckan/production.ini
+sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex 
 cd ~/ckan/contrib/docker
 sudo docker-compose restart ckan_fetch_harvester
 ```
