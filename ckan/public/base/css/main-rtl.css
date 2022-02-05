@@ -629,15 +629,15 @@ progress {
   display: flex;
   flex-wrap: wrap;
   margin-top: calc(var(--bs-gutter-y) * -1);
-  margin-right: calc(var(--bs-gutter-x) * -.5);
-  margin-left: calc(var(--bs-gutter-x) * -.5);
+  margin-right: calc(var(--bs-gutter-x) * -0.5);
+  margin-left: calc(var(--bs-gutter-x) * -0.5);
 }
 .row > * {
   flex-shrink: 0;
   width: 100%;
   max-width: 100%;
-  padding-right: calc(var(--bs-gutter-x) * .5);
-  padding-left: calc(var(--bs-gutter-x) * .5);
+  padding-right: calc(var(--bs-gutter-x) * 0.5);
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
   margin-top: var(--bs-gutter-y);
 }
 
@@ -6154,15 +6154,15 @@ textarea.form-control-lg {
 }
 
 .ratio-4x3 {
-  --bs-aspect-ratio: calc(3 / 4 * 100%);
+  --bs-aspect-ratio: 75%;
 }
 
 .ratio-16x9 {
-  --bs-aspect-ratio: calc(9 / 16 * 100%);
+  --bs-aspect-ratio: 56.25%;
 }
 
 .ratio-21x9 {
-  --bs-aspect-ratio: calc(9 / 21 * 100%);
+  --bs-aspect-ratio: 42.8571428571%;
 }
 
 .fixed-top {
@@ -12160,6 +12160,47 @@ select[data-module=autocomplete] {
 #recaptcha_table {
   table-layout: inherit;
   line-height: 1;
+}
+
+.resource-upload-field > input[type=radio] {
+  display: none;
+}
+.resource-upload-field > div.select-type {
+  position: relative;
+  display: none;
+}
+.resource-upload-field > input[type=radio]:checked + div.select-type {
+  display: block;
+}
+.resource-upload-field label.btn::after {
+  content: "";
+}
+.resource-upload-field .btn-remove-url {
+  position: absolute;
+  margin-right: 0;
+  margin-top: 2px;
+  top: 1.5rem;
+  right: div(1.5rem, 6);
+  padding: 0 12px;
+  border-radius: 100px;
+}
+.resource-upload-field .btn-remove-url .icon-remove {
+  margin-right: 0;
+}
+.resource-upload-field input#field-clear-upload {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload + div.upload-type {
+  display: block;
+}
+.resource-upload-field input#field-clear-upload ~ .upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked + div.upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked ~ .upload-type {
+  display: block;
 }
 
 .dataset-item {

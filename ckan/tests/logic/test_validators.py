@@ -769,7 +769,7 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_user_id_or_name_exists():
     user = factories.User(name="username")
     v = validators.user_id_or_name_exists(user["id"], _make_context())
@@ -783,7 +783,7 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]
@@ -868,6 +868,11 @@ class TestOneOfValidator(object):
         cont = [1, 2, 3, 4]
         func = validators.one_of(cont)
         raises_invalid(func)(5)
+
+    def test_empty_val_accepted(self):
+        cont = [1, 2, 3, 4]
+        func = validators.one_of(cont)
+        assert func("") == ""
 
 
 def test_tag_string_convert():

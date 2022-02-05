@@ -12,7 +12,6 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
 
-@pytest.mark.usefixtures("with_request_context")
 def test_user_update_visitor_cannot_update_user():
     """Visitors should not be able to update users' accounts."""
 
@@ -41,7 +40,6 @@ def test_user_update_visitor_cannot_update_user():
 # START-AFTER
 
 
-@pytest.mark.usefixtures("with_request_context")
 def test_user_update_user_cannot_update_another_user():
     """Users should not be able to update other users' accounts."""
 
@@ -78,7 +76,6 @@ def test_user_update_user_cannot_update_another_user():
 # END-BEFORE
 
 
-@pytest.mark.usefixtures("with_request_context")
 def test_user_update_user_can_update_her():
     """Users should be authorized to update their own accounts."""
 
@@ -130,7 +127,7 @@ def test_user_update_with_no_user_in_context():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestUpdateWithView(object):
     def test_anon_can_not_update(self):
 
@@ -206,7 +203,7 @@ class TestUpdateWithView(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUpdate(object):
     def test_config_option_update_anon_user(self):
         """An anon user is not authorized to use config_option_update

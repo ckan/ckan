@@ -6,7 +6,7 @@ from ckan import model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures(u"clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"clean_db")
 class TestPackage(object):
     def test_create(self):
         # Demonstrate creating a package.

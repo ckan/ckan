@@ -8,7 +8,6 @@ import unittest.mock as mock
 import pytest
 
 
-import ckan
 import ckan.logic as logic
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -19,7 +18,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserInvite(object):
     @mock.patch("ckan.lib.mailer.send_invite")
     def test_invited_user_is_created_as_pending(self, _):
@@ -407,7 +406,7 @@ class TestResourceCreate:
 
         assert not stored_resource["url"]
 
-    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -420,7 +419,7 @@ class TestResourceCreate:
             "url": "http://localhost/data.csv",
             "name": "A nice resource",
         }
-        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         result = helpers.call_action("resource_create", context, **params)
 
         mimetype = result.pop("mimetype")
@@ -575,7 +574,6 @@ class TestResourceCreate:
         size = int(result.pop("size"))
         assert size == 500
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_extras(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -653,7 +651,7 @@ class TestResourceCreate:
         assert created_resource["name"] == "created by collaborator"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
         user = factories.User()
@@ -738,7 +736,7 @@ class TestMemberCreate(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestDatasetCreate(object):
     def test_private_package(self):
         org = factories.Organization()
@@ -970,7 +968,7 @@ class TestDatasetCreate(object):
         assert isinstance(dataset, str)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupCreate(object):
     def test_create_group(self):
         user = factories.User()
@@ -1029,7 +1027,7 @@ class TestGroupCreate(object):
             assert created[k] == shown[k], k
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationCreate(object):
     def test_create_organization(self):
         user = factories.User()
@@ -1106,7 +1104,7 @@ class TestOrganizationCreate(object):
         assert org["type"] == custom_org_type
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1182,7 +1180,7 @@ def _clear_activities():
     model.Session.flush()
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowCommon(object):
     def test_validation(self):
         user = factories.User()
@@ -1220,7 +1218,7 @@ class TestFollowCommon(object):
                     helpers.call_action(action, context, id=object_id)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowDataset(object):
     def test_auth(self):
         user = factories.User()
@@ -1286,7 +1284,7 @@ class TestFollowDataset(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowGroup(object):
     def test_auth(self):
         user = factories.User()
@@ -1335,7 +1333,7 @@ class TestFollowGroup(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowOrganization(object):
     def test_auth(self):
         user = factories.User()
@@ -1384,7 +1382,7 @@ class TestFollowOrganization(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFollowUser(object):
     def test_auth(self):
         user = factories.User()
