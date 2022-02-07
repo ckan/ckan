@@ -7,7 +7,6 @@ import ckan.logic as logic
 import ckan.authz as authz
 import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
-from ckan.tests import factories
 
 
 def _make_calls(*args):
@@ -134,56 +133,11 @@ def test_plugins_load():
     current_plugins = set(
         [
             plugins.get_plugin(p)
-            for p in ["mapper_plugin", "action_plugin", "synchronous_search"]
+            for p in ["action_plugin", "synchronous_search"]
             + find_system_plugins()
         ]
     )
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins")
-def test_only_configured_plugins_loaded():
-    plugin = plugins.get_plugin("mapper_plugin")
-    # MapperPlugin should be loaded as it is listed in
-    assert plugin in plugins.PluginImplementations(plugins.IMapper)
-    # MapperPlugin2 and RoutesPlugin should NOT be loaded
-    assert len(plugins.PluginImplementations(plugins.IMapper)) == 1
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
-def test_mapper_plugin_fired_on_insert():
-    plugin = plugins.get_plugin("mapper_plugin")
-    dataset = factories.Dataset()
-    assert plugin.calls == [
-        ("before_insert", dataset["name"]),
-        ("after_insert", dataset["name"]),
-    ]
-
-
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
-def test_mapper_plugin_fired_on_delete():
-    plugin = plugins.get_plugin("mapper_plugin")
-    dataset = factories.Dataset()
-    plugin.calls = []
-    # remove this data
-    user = factories.User()
-    context = {"user": user["name"]}
-    logic.get_action("package_delete")(context, {"id": dataset["name"]})
-    # state=deleted doesn't trigger before_delete()
-    assert plugin.calls == []
-    from ckan import model
-
-    # purging the package does trigger before_delete()
-    model.Package.get(dataset["name"]).purge()
-    model.Session.commit()
-    model.Session.remove()
-    assert plugin.calls == [
-        ("before_delete", dataset["name"]),
-        ("after_delete", dataset["name"]),
-    ]
 
 
 @pytest.mark.usefixtures("with_plugins")
@@ -219,38 +173,38 @@ class TestPlugins:
         config_plugins = config["ckan.plugins"]
         config[
             "ckan.plugins"
-        ] = "test_observer_plugin mapper_plugin mapper_plugin2"
+        ] = "test_observer_plugin action_plugin auth_plugin"
         plugins.load_all()
 
         observerplugin = plugins.get_plugin("test_observer_plugin")
 
         expected_order = _make_calls(
-            plugins.get_plugin("mapper_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
+            plugins.get_plugin("action_plugin"),
+            plugins.get_plugin("auth_plugin"),
         )
 
         assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
-            plugins.get_plugin("mapper_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
+            plugins.get_plugin("action_plugin"),
+            plugins.get_plugin("auth_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
 
         config[
             "ckan.plugins"
-        ] = "test_observer_plugin mapper_plugin2 mapper_plugin"
+        ] = "test_observer_plugin auth_plugin action_plugin"
         plugins.load_all()
 
         expected_order = _make_calls(
-            plugins.get_plugin("mapper_plugin2"),
-            plugins.get_plugin("mapper_plugin"),
+            plugins.get_plugin("auth_plugin"),
+            plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
-            plugins.get_plugin("mapper_plugin2"),
-            plugins.get_plugin("mapper_plugin"),
+            plugins.get_plugin("auth_plugin"),
+            plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
         # cleanup

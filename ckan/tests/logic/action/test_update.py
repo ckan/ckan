@@ -6,7 +6,6 @@ import time
 import unittest.mock as mock
 import pytest
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
 import ckan.plugins as p
@@ -1051,7 +1050,7 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -1062,7 +1061,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],

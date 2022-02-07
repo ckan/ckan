@@ -7,7 +7,6 @@ from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
 from urllib.parse import urlparse
-import ckan.lib.uploader
 import ckan.model as model
 
 import ckan.tests.factories as factories
@@ -31,7 +30,6 @@ def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
     user = factories.User()
     env = {"REMOTE_USER": six.ensure_str(user["name"])}

@@ -20,10 +20,6 @@ MB = 1 << 20
 
 log = logging.getLogger(__name__)
 
-_storage_path = None
-_max_resource_size = None
-_max_image_size = None
-
 
 def _copy_file(input_file, output_file, max_size):
     input_file.seek(0)
@@ -78,34 +74,21 @@ def get_resource_uploader(data_dict):
 
 
 def get_storage_path():
-    '''Function to cache storage path'''
-    global _storage_path
+    '''Function to get the storage path from config file.'''
+    storage_path = config.get_value('ckan.storage_path')
+    if not storage_path:
+        log.critical('''Please specify a ckan.storage_path in your config
+                        for your uploads''')
 
-    # None means it has not been set. False means not in config.
-    if _storage_path is None:
-        storage_path = config.get_value('ckan.storage_path')
-        if storage_path:
-            _storage_path = storage_path
-        else:
-            log.critical('''Please specify a ckan.storage_path in your config
-                         for your uploads''')
-            _storage_path = False
-
-    return _storage_path
+    return storage_path
 
 
 def get_max_image_size():
-    global _max_image_size
-    if _max_image_size is None:
-        _max_image_size = config.get_value('ckan.max_image_size')
-    return _max_image_size
+    return config.get_value('ckan.max_image_size')
 
 
 def get_max_resource_size():
-    global _max_resource_size
-    if _max_resource_size is None:
-        _max_resource_size = config.get_value('ckan.max_resource_size')
-    return _max_resource_size
+    return config.get_value('ckan.max_resource_size')
 
 
 class Upload(object):
