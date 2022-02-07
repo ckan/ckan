@@ -6,32 +6,6 @@ import ckan.plugins as p
 import ckan.tests.plugins.mock_plugin as mock_plugin
 
 
-class MapperPlugin(p.SingletonPlugin):
-    p.implements(p.IMapper, inherit=True)
-
-    def __init__(self, *args, **kw):
-        self.calls = []
-
-    def _get_instance_name(self, instance):
-        return getattr(instance, "name", None)
-
-    def before_insert(self, mapper, conn, instance):
-        self.calls.append(("before_insert", self._get_instance_name(instance)))
-
-    def after_insert(self, mapper, conn, instance):
-        self.calls.append(("after_insert", self._get_instance_name(instance)))
-
-    def before_delete(self, mapper, conn, instance):
-        self.calls.append(("before_delete", self._get_instance_name(instance)))
-
-    def after_delete(self, mapper, conn, instance):
-        self.calls.append(("after_delete", self._get_instance_name(instance)))
-
-
-class MapperPlugin2(MapperPlugin):
-    p.implements(p.IMapper)
-
-
 class SessionPlugin(p.SingletonPlugin):
     p.implements(p.ISession, inherit=True)
 

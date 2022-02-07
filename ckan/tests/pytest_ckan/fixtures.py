@@ -364,7 +364,6 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
         action = kwargs.pop(u"action", u"resource_create")
