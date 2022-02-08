@@ -3,7 +3,10 @@
 import logging
 import pathlib
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
-from typing_extensions import TypedDict
+try:  # Python 3.8+
+    from typing import TypedDict
+except ImportError:  # Python <3.8
+    from typing_extensions import TypedDict
 import yaml
 
 from .key import Key
