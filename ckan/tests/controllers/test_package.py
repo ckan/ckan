@@ -1704,7 +1704,7 @@ class TestSearch(object):
         search_response = app.get(search_url)
         assert "/dataset/?tags=my-tag" in search_response
 
-        tag_search_response = app.get("/dataset/?tags=my-tag")
+        tag_search_response = app.get("/dataset?tags=my-tag")
 
         assert "1 dataset found" in tag_search_response
 

@@ -1,5 +1,4 @@
 # encoding: utf-8
-from codecs import strict_errors
 import logging
 import inspect
 from collections import OrderedDict
