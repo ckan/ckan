@@ -69,7 +69,7 @@ class TestVersion3(ExampleIDatasetFormPluginBase):
 )
 class TestVersion5(object):
     def test_custom_package_type_urls(self):
-        assert url_for("fancy_type.search") == "/fancy_type"
+        assert url_for("fancy_type.search") == "/fancy_type/"
         assert url_for("fancy_type.new") == "/fancy_type/new"
         assert url_for("fancy_type.read", id="check") == "/fancy_type/check"
         assert (
@@ -458,7 +458,7 @@ class TestCustomSearch(object):
         )
 
         response = app.get(
-            "/dataset", query_string={"sort": "custom_text asc"}
+            "/dataset/", query_string={"sort": "custom_text asc"}
         )
 
         # check that package_b appears before package a (y < z)
@@ -467,7 +467,7 @@ class TestCustomSearch(object):
         assert b < a
 
         response = app.get(
-            "/dataset", query_string={"sort": "custom_text desc"}
+            "/dataset/", query_string={"sort": "custom_text desc"}
         )
         # check that package_a appears before package b (z is first in
         # descending order)
@@ -497,7 +497,7 @@ class TestDatasetBlueprintPreparations(object):
         links = [
             a['href'] for a in page.select(".breadcrumb a")
         ]
-        assert links == ['/', '/fancy_type']
+        assert links == ['/', '/fancy_type/']
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v7")

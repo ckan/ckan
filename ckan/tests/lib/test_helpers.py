@@ -319,45 +319,45 @@ class TestHelpersRenderMarkdown(object):
             (
                 "tag:test-tag foobar",
                 (
-                    '<p><a href="/dataset?tags=test-tag">tag:test-tag</a> foobar</p>'
+                    '<p><a href="/dataset/?tags=test-tag">tag:test-tag</a> foobar</p>'
                 ),
                 False,
             ),
             (
                 'tag:"test-tag" foobar',
-                '<p><a href="/dataset?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test-tag">tag:&quot;test-tag&quot;</a> foobar</p>',
                 False,
             ),
             (
                 'tag:"test tag" foobar',
-                '<p><a href="/dataset?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=test+tag">tag:&quot;test tag&quot;</a> foobar</p>',
                 False,
             ),
             (
                 'tag:test tag" foobar',  # should match 'tag:test'
                 (
-                    '<p><a href="/dataset?tags=test">tag:test</a> tag" foobar</p>'
+                    '<p><a href="/dataset/?tags=test">tag:test</a> tag" foobar</p>'
                 ),
                 False,
             ),
             (
                 'tag:test" foobar',  # should match 'tag:test'
-                '<p><a href="/dataset?tags=test">tag:test</a>" foobar</p>',
+                '<p><a href="/dataset/?tags=test">tag:test</a>" foobar</p>',
                 False,
             ),
             (
                 'tag:"Test- _." foobar',
-                '<p><a href="/dataset?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
+                '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>',
                 False,
             ),
             (
                 "tag:Test,tag foobar",
-                '<p><a href="/dataset?tags=Test">tag:Test</a>,tag foobar</p>',
+                '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>',
                 False,
             ),
             (
                 u'tag:"Japanese katakana \u30a1" blah',
-                u'<p><a href="/dataset?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
+                u'<p><a href="/dataset/?tags=Japanese+katakana+%E3%82%A1">tag:&quot;Japanese katakana \u30a1&quot;</a> blah</p>',
                 False,
             ),
             (
@@ -399,13 +399,13 @@ class TestHelpersRenderMarkdown(object):
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
-        output = '<p><a href="/dataset?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_do_not_match_commas(self):
         """Asserts commas don't get matched as part of a tag name"""
         data = "tag:Test,tag foobar"
-        output = '<p><a href="/dataset?tags=Test">tag:Test</a>,tag foobar</p>'
+        output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
         assert h.render_markdown(data) == output
 
     def test_tag_names_dont_match_non_space_whitespace(self):
@@ -413,7 +413,7 @@ class TestHelpersRenderMarkdown(object):
         whitespace_characters = "\t\n\r\f\v"
         for ch in whitespace_characters:
             data = "tag:Bad" + ch + "space"
-            output = '<p><a href="/dataset?tags=Bad">tag:Bad</a>'
+            output = '<p><a href="/dataset/?tags=Bad">tag:Bad</a>'
             result = h.render_markdown(data)
             assert output in result, "\nGot: %s\nWanted: %s" % (result, output)
 
@@ -587,9 +587,9 @@ class TestBuildNavMain(object):
         )
         assert h.build_nav_main(*menu) == (
             '<li class="active"><a href="/">Home</a></li>'
-            '<li><a href="/dataset">Datasets</a></li>'
-            '<li><a href="/organization">Organizations</a></li>'
-            '<li><a href="/group">Groups</a></li>'
+            '<li><a href="/dataset/">Datasets</a></li>'
+            '<li><a href="/organization/">Organizations</a></li>'
+            '<li><a href="/group/">Groups</a></li>'
             '<li><a href="/about">About</a></li>'
         )
 
@@ -604,9 +604,9 @@ class TestBuildNavMain(object):
             )
             assert h.build_nav_main(*menu) == (
                 '<li><a href="/">Home</a></li>'
-                '<li><a href="/dataset">Datasets</a></li>'
-                '<li class="active"><a href="/organization">Organizations</a></li>'
-                '<li><a href="/group">Groups</a></li>'
+                '<li><a href="/dataset/">Datasets</a></li>'
+                '<li class="active"><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
                 '<li><a href="/about">About</a></li>'
             )
 
@@ -624,9 +624,9 @@ class TestBuildNavMain(object):
             )
             assert h.build_nav_main(*menu) == (
                 '<li><a href="/">Home</a></li>'
-                '<li class="active"><a href="/dataset">Datasets</a></li>'
-                '<li><a href="/organization">Organizations</a></li>'
-                '<li><a href="/group">Groups</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
                 '<li><a href="/about">About</a></li>'
             )
 
@@ -641,9 +641,9 @@ class TestBuildNavMain(object):
             )
             assert h.build_nav_main(*menu) == (
                 '<li><a href="/">Home</a></li>'
-                '<li class="active"><a href="/dataset">Datasets</a></li>'
-                '<li><a href="/organization">Organizations</a></li>'
-                '<li><a href="/group">Groups</a></li>'
+                '<li class="active"><a href="/dataset/">Datasets</a></li>'
+                '<li><a href="/organization/">Organizations</a></li>'
+                '<li><a href="/group/">Groups</a></li>'
                 '<li><a href="/about">About</a></li>'
             )
 
@@ -652,7 +652,7 @@ class TestBuildNavMain(object):
         assert link == '<a class="css-class" href="https://www.example.com" target="_blank">Example Link</a>'
 
         link2 = h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
-        link2 == '<a class="tag" href="/dataset?tags=name">display_name</a>'
+        link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
         link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
@@ -715,10 +715,10 @@ class TestRemoveUrlParam:
 
 class TestAddUrlParam(object):
     @pytest.mark.parametrize(u'url,params,expected', [
-        (u'/dataset', {u'a': u'2'}, u'/dataset?a=2'),
-        (u'/dataset?a=1', {u'a': u'2'}, u'/dataset?a=1&a=2'),
-        (u'/dataset?a=1&a=3', {u'a': u'2'}, u'/dataset?a=1&a=3&a=2'),
-        (u'/dataset?a=2', {u'a': u'2'}, u'/dataset?a=2&a=2'),
+        (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
+        (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
+        (u'/dataset?a=1&a=3', {u'a': u'2'}, u'/dataset/?a=1&a=3&a=2'),
+        (u'/dataset?a=2', {u'a': u'2'}, u'/dataset/?a=2&a=2'),
     ])
     def test_new_param(self, test_request_context, url, params, expected):
         with test_request_context(url):
@@ -729,7 +729,7 @@ class TestAddUrlParam(object):
             assert h.add_url_param(u'/group') == u'/group'
             assert h.add_url_param(
                 u'/group', new_params={'x': 'y'}) == u'/group?x=y'
-            assert h.add_url_param() == u'/dataset'
+            assert h.add_url_param() == u'/dataset/'
 
     @pytest.mark.parametrize(u'controller,action,extras', [
         ('dataset', 'read', {'id': 'uuid'}),
@@ -740,7 +740,7 @@ class TestAddUrlParam(object):
     ])
     def test_controller_action(
             self, test_request_context, controller, action, extras):
-        with test_request_context(u'/dataset'):
+        with test_request_context(u'/dataset/'):
             assert h.add_url_param(
                 controller=controller, action=action, extras=extras
             ) == h.url_for(controller + '.' + action, **extras)

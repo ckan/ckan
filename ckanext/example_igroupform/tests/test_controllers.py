@@ -261,7 +261,7 @@ class TestGroupBlueprintPreparations(object):
         links = [
             a['href'] for a in page.select(".breadcrumb a")
         ]
-        assert links == ['/', '/fancy_type']
+        assert links == ['/', '/fancy_type/']
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_igroupform")
@@ -273,7 +273,7 @@ class TestCustomGroupBlueprint(object):
         resp = app.get("/grup", status=200)
         page = bs4.BeautifulSoup(resp.body)
         links = page.select(".breadcrumb a")
-        assert [a["href"] for a in links] == ["/", "/grup"]
+        assert [a["href"] for a in links] == ["/", "/grup/"]
         assert links[-1].text == "Grups"
         assert page.head.title.text.startswith("Grups")
 
@@ -296,6 +296,6 @@ class TestCustomGroupBlueprint(object):
     def test_default_group_type(self, app):
         resp = app.get("/", status=200)
         page = bs4.BeautifulSoup(resp.body)
-        link = page.select_one('.masthead .nav a[href="/grup"]')
+        link = page.select_one('.masthead .nav a[href="/grup/"]')
         assert link
         assert link.text == 'Grups'
