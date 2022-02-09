@@ -829,6 +829,16 @@ Default value: |config:ckan.valid_url_schemes|
 
 Controls what uri schemes are rendered as links.
 
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+  ckan.requests.timeout = 5
+
+Default value: |config:ckan.requests.timeout|
+
+Defines how long requests calls should last before they will timeout.
+
 .. _config-authorization:
 
 Authorization Settings
