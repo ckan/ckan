@@ -837,7 +837,7 @@ Example::
 
 Default value: |config:ckan.requests.timeout|
 
-Defines how long requests calls should last before they will timeout.
+Defines how long (in seconds) requests calls should last before they will timeout.
 
 .. _config-authorization:
 
