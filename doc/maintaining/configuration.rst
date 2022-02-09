@@ -829,6 +829,8 @@ Default value: |config:ckan.valid_url_schemes|
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
 ckan.requests.timeout
 ^^^^^^^^^^^^^^^^^^^^^
 
