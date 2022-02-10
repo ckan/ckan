@@ -162,9 +162,7 @@ entry_points = {
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
     ],
     'ckan.test_plugins': [
-        'mapper_plugin = tests.plugins.ckantestplugins:MapperPlugin',
         'session_plugin = tests.plugins.ckantestplugins:SessionPlugin',
-        'mapper_plugin2 = tests.plugins.ckantestplugins:MapperPlugin2',
         'authorizer_plugin = tests.plugins.ckantestplugins:AuthorizerPlugin',
         'test_observer_plugin = tests.plugins.ckantestplugins:PluginObserverPlugin',
         'action_plugin = tests.plugins.ckantestplugins:ActionPlugin',

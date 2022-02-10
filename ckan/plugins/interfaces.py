@@ -13,7 +13,6 @@ from pyutilib.component.core import Interface as _pca_Interface
 
 __all__ = [
     u'Interface',
-    u'IMapper',
     u'IMiddleware',
     u'IAuthFunctions',
     u'IDomainObjectModification',
@@ -112,60 +111,6 @@ class IMiddleware(Interface):
         Pylons app.
         '''
         return app
-
-
-class IMapper(Interface):
-    u'''
-    A subset of the SQLAlchemy mapper extension hooks.
-    See `sqlalchemy MapperExtension`_
-
-    Example::
-
-        >>> class MyPlugin(SingletonPlugin):
-        ...
-        ...     implements(IMapper)
-        ...
-        ...     def after_update(self, mapper, connection, instance):
-        ...         log(u'Updated: %r', instance)
-
-    .. _sqlalchemy MapperExtension:\
-    http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
-    '''  # noqa
-
-    def before_insert(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is INSERTed into
-        its table.
-        '''
-
-    def before_update(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is UPDATEed.
-        '''
-
-    def before_delete(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is PURGEd.
-        (whereas usually in ckan 'delete' means to change the state property to
-        deleted, so use before_update for that case.)
-        '''
-
-    def after_insert(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is INSERTed.
-        '''
-
-    def after_update(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is UPDATEed.
-        '''
-
-    def after_delete(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is PURGEd.
-        (whereas usually in ckan 'delete' means to change the state property to
-        deleted, so use before_update for that case.)
-        '''
 
 
 class IDomainObjectModification(Interface):

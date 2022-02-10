@@ -489,16 +489,12 @@ meta.mapper(Package, package_table, properties={
     'package_tags':orm.relation(tag.PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
         ),
-    },
-    extension=[extension.PluginMapperExtension()],
-    )
+    })
 
 meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
     'pkg':orm.relation(Package, backref='package_tag_all',
         cascade='none',
         )
-    },
-    extension=[extension.PluginMapperExtension()],
-    )
+    })
 
 meta.mapper(PackageMember, package_member_table)
