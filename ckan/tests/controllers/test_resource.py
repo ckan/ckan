@@ -508,7 +508,7 @@ class TestTracking(object):
             tracking_summary["total"] == 1
         ), "Repeat resource downloads should not add to total views count"
 
-    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.usefixtures("clean_index", "clean_db")
     def test_sorting_datasets_by_recent_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
