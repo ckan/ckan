@@ -126,7 +126,7 @@ def reset_observer():
     plugins.unload("test_observer_plugin")
 
 
-@pytest.mark.ckan_config("ckan.plugins", "mapper_plugin action_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "action_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugins_load():
     # synchronous_search automatically gets loaded

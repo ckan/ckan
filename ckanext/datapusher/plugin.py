@@ -47,7 +47,6 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        self.datapusher_formats = config.get_value(u'ckan.datapusher.formats')
 
         for config_option in (
             u'ckan.site_url',
@@ -87,10 +86,13 @@ class DatapusherPlugin(p.SingletonPlugin):
         }
 
         resource_format = resource_dict.get('format')
+        supported_formats = toolkit.config.get_value(
+            'ckan.datapusher.formats'
+        )
 
         submit = (
             resource_format
-            and resource_format.lower() in self.datapusher_formats
+            and resource_format.lower() in supported_formats
             and resource_dict.get('url_type') != u'datapusher'
         )
 
