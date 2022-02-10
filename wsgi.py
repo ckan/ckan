@@ -3,7 +3,7 @@
 import os
 from ckan.config.middleware import make_app
 from ckan.cli import CKANConfigLoader
-from logging.config import fileConfig as loggingFileConfig
+from logging.config import dictConfig as loggingDictConfig
 
 if os.environ.get('CKAN_INI'):
     config_path = os.environ['CKAN_INI']
@@ -14,7 +14,7 @@ else:
 if not os.path.exists(config_path):
     raise RuntimeError('CKAN config file not found: {}'.format(config_path))
 
-loggingFileConfig(config_path)
 config = CKANConfigLoader(config_path).get_config()
+loggingDictConfig(config)
 
 application = make_app(config)
