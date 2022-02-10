@@ -841,6 +841,19 @@ Default value: |config:ckan.requests.timeout|
 
 Defines how long (in seconds) requests calls should last before they will timeout.
 
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
 .. _config-authorization:
 
 Authorization Settings
