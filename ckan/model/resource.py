@@ -13,7 +13,6 @@ from ckan.model import (
     meta,
     core,
     types as _types,
-    extension,
     domain_object,
 )
 import ckan.lib.dictization
