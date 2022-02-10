@@ -42,7 +42,7 @@ def load_environment(conf):
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public".'
+            'Possible values are: "public-bs3".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -193,7 +193,7 @@ def update_config():
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates".'
+            'Possible values are: "templates-bs3".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
