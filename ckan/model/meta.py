@@ -66,12 +66,6 @@ def ckan_before_commit(session):
     dome = DomainObjectModificationExtension()
     dome.before_commit(session)
 
-    session.flush()
-    try:
-        session._object_cache
-    except AttributeError:
-        return
-
 
 @event.listens_for(create_local_session, 'after_rollback')
 @event.listens_for(Session, 'after_rollback')
