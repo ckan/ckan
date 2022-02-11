@@ -1,0 +1,16 @@
+{% extends "organization/base_form_page.html" %}
+
+{% set title = h.humanize_entity_type('organization', group_type, 'create title') or _('Create an Organization')%}
+
+
+{% block subtitle %}{{ title }}{% endblock %}
+
+{% block breadcrumb_link %}{{ h.nav_link(title, named_route=group_type+'.new') }}{% endblock %}
+
+{% block page_heading %}{{ title }}{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "organization/snippets/helper.html", group_type=group_type %}
+{% endblock %}
