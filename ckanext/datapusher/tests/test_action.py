@@ -23,7 +23,7 @@ def _pending_task(resource_id):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestSubmit:
     def test_submit(self, monkeypatch):
         """Auto-submit when creating a resource with supported format.

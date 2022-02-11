@@ -37,7 +37,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
-    p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IForkObserver, inherit=True)

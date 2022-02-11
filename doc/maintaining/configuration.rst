@@ -829,6 +829,31 @@ Default value: |config:ckan.valid_url_schemes|
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+  ckan.requests.timeout = 5
+
+Default value: |config:ckan.requests.timeout|
+
+Defines how long (in seconds) requests calls should last before they will timeout.
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
 .. _config-authorization:
 
 Authorization Settings
@@ -1188,8 +1213,6 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 .. note::  If you change this value, you need to rebuild the search index.
 
-.. _ckan.search.automatic_indexing:
-
 solr_timeout
 ^^^^^^^^^^^^
 
@@ -1200,21 +1223,6 @@ Example::
 Default value: |config:solr_timeout|
 
 The option defines the timeout in seconds until giving up on a request. Raising this value might help you if you encounter a timeout exception.
-
-ckan.search.automatic_indexing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.search.automatic_indexing = true
-
-Default value: |config:ckan.search.automatic_indexing|
-
-Make all changes immediately available via the search after editing or
-creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to false.
-
-.. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
 .. _ckan.search.solr_commit:
 

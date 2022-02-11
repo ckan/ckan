@@ -1,0 +1,47 @@
+{% macro followee_icon(type) -%}
+  {% if type == 'dataset' %}
+    <i class="fa fa-sitemap"></i>
+  {% elif type == 'user' %}
+    <i class="fa fa-user"></i>
+  {% elif type == 'group' %}
+    <i class="fa fa-users"></i>
+  {% elif type == 'organization' %}
+    <i class="fa fa-building-o"></i>
+  {% endif %}
+{%- endmacro %}
+
+<div id="followee-filter" class="pull-right">
+  <div class="btn-group">
+    <a href="#followee-popover" class="btn btn-default dropdown-toggle" title="{{ _('Activity from:') }} {{ context.context }}">
+    <span>{{ _('Activity from:') }}</span> <strong>{{ context.context }}</strong> <span class="caret"></span>
+    </a>
+  </div>
+  <form id="followee-popover" action="/dashboard" class="dropdown js-hide">
+    <div class="popover-header">
+      <div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input type="text" class="form-control" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}" autocomplete="off" aria-label="{{ _('Search followee') }}">
+      </div>
+    </div>
+    {% if followees %}
+      <ul class="nav nav-pills nav-stacked">
+        <li class="everything {% if context.selected_id == False %} active{% endif %}">
+          <a href="{{ h.url_for('dashboard.index') }}">
+            <i class="fa fa-star"></i>
+            <span>Everything</span>
+          </a>
+        </li>
+        {% for followee in followees %}
+          <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
+            <a href="{{ h.url_for('dashboard.index', type=followee.type, name=followee.dict.name) }}" title="{{followee.display_name}}">
+              {{followee_icon(followee.type)}}
+              <span>{{followee.display_name}}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">{{ _('You are not following anything') }}</p>
+    {% endif %}
+  </form>
+</div>
