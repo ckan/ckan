@@ -42,7 +42,7 @@ def load_environment(conf):
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public-bs3".'
+            'Possible values are: "public" and "public-bs3".'
         )
 
     log.info('Loading static files from %s' % static_files)
