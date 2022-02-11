@@ -147,9 +147,7 @@ meta.mapper(Resource, resource_table, properties={
                             cascade='all, delete'
                             ),
     )
-},
-extension=[extension.PluginMapperExtension()],
-)
+})
 
 
 def resource_identifier(obj):

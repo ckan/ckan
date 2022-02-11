@@ -1,0 +1,432 @@
+
+@use "sass:map";
+$small: 16px;
+$medium: 17px;
+$large: 20px;
+$huge: 25px;
+
+$icon-position: (
+ "smallX": $small,
+ "smallY": $small,
+ "smallOffsetX": $small,
+ "smallOffsetY": 0,
+ "mediumX": $medium,
+ "mediumY": $medium,
+ "mediumOffsetX": - $medium,
+ "mediumOffsetY": - $medium,
+ "largeX": $large,
+ "largeY": $large,
+ "largeOffsetX": -$large,
+ "largeOffsetY": -$small - $medium,
+ "hugeX": 25px,
+ "hugeY": 25px,
+ "hugeOffsetX": -$huge,
+ "hugeOffsetY": -$small - $medium - $large,
+ "formatMediumX": 32px,
+ "formatMediumY": 35px,
+ "formatMediumOffsetX": -32px,
+ "formatMediumOffsetY": -62px,
+ "resourceIconX": 60px,
+ "resourceIconY": 65px,
+ "resourceIconOffsetX": -20px,
+ "resourceIconOffsetY": -220px,
+);
+
+@mixin ckan-icon-background-position($offset, $size) {
+  $w: map-get($icon-position, "#{$size}X");
+  $h: map-get($icon-position, "#{$size}Y");
+  $x: map-get($icon-position, "#{$size}OffsetX");
+  $y: map-get($icon-position, "#{$size}OffsetY");
+  width: $w;
+  height: $h;
+  background-position: ($x * $offset) $y;
+}
+
+@mixin ckan-resource-icon-bg-pos($offset, $size) {
+  $w: map-get($icon-position, "#{$size}X");
+  $h: map-get($icon-position, "#{$size}Y");
+  $x: map-get($icon-position, "#{$size}OffsetX");
+  $y: map-get($icon-position, "#{$size}OffsetY");
+  width: $w;
+  height: $h;
+  background-position: ($x + -100 * $offset) $y;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+// SMALL
+.ckan-icon-fb {
+    @include ckan-icon-background-position(0,
+    "small")
+}
+
+.ckan-icon-gplus {
+    @include ckan-icon-background-position(1,
+    "small")
+}
+
+.ckan-icon-twitter {
+    @include ckan-icon-background-position(2,
+    "small")
+}
+
+.ckan-icon-email {
+    @include ckan-icon-background-position(3,
+    "small")
+}
+
+.ckan-icon-share {
+    @include ckan-icon-background-position(4,
+    "small")
+}
+
+.ckan-icon-feed {
+    @include ckan-icon-background-position(5,
+    "small")
+}
+
+.ckan-icon-calendar {
+    @include ckan-icon-background-position(6,
+    "small")
+}
+
+.ckan-icon-file {
+    @include ckan-icon-background-position(7,
+    "small")
+}
+
+.ckan-icon-lock {
+    @include ckan-icon-background-position(8,
+    "small")
+}
+
+.ckan-icon-link-file {
+    @include ckan-icon-background-position(9,
+    "small")
+}
+
+.ckan-icon-link-plugin {
+    @include ckan-icon-background-position(10,
+    "small")
+}
+
+.ckan-icon-upload-file {
+    @include ckan-icon-background-position(11,
+    "small")
+}
+
+.ckan-icon-callout {
+    @include ckan-icon-background-position(12,
+    "small")
+}
+
+// MEDIUM
+.ckan-icon-circle-cross {
+    @include ckan-icon-background-position(0,
+    "medium")
+}
+
+.ckan-icon-circle-add {
+    @include ckan-icon-background-position(1,
+    "medium")
+}
+
+.ckan-icon-flame {
+    @include ckan-icon-background-position(2,
+    "medium")
+}
+
+.ckan-icon-search {
+    @include ckan-icon-background-position(3,
+    "medium")
+}
+
+// LARGE
+.ckan-icon-large-lock {
+    @include ckan-icon-background-position(0,
+    "large")
+}
+
+.ckan-icon-photo {
+    @include ckan-icon-background-position(1,
+    "large")
+}
+
+.ckan-icon-add {
+    @include ckan-icon-background-position(2,
+    "large")
+}
+
+.ckan-icon-home {
+    @include ckan-icon-background-position(3,
+    "large")
+}
+
+.ckan-icon-rewind {
+    @include ckan-icon-background-position(4,
+    "large")
+}
+
+.ckan-icon-tools {
+    @include ckan-icon-background-position(5,
+    "large")
+}
+
+.ckan-icon-flag {
+    @include ckan-icon-background-position(6,
+    "large")
+}
+
+.ckan-icon-clipboard {
+    @include ckan-icon-background-position(7,
+    "large")
+}
+
+.ckan-icon-share {
+    @include ckan-icon-background-position(8,
+    "large")
+}
+
+.ckan-icon-info {
+    @include ckan-icon-background-position(9,
+    "large")
+}
+
+.ckan-icon-download {
+    @include ckan-icon-background-position(10,
+    "large")
+}
+
+.ckan-icon-star {
+    @include ckan-icon-background-position(11,
+    "large")
+}
+
+.ckan-icon-info-flat {
+    @include ckan-icon-background-position(12,
+    "large")
+}
+
+.ckan-icon-tag {
+    @include ckan-icon-background-position(13,
+    "large")
+}
+
+.ckan-icon-plus {
+    @include ckan-icon-background-position(14,
+    "large");
+    width: 16px;
+}
+
+.ckan-icon-head {
+    @include ckan-icon-background-position(15,
+    "large")
+}
+
+.ckan-icon-arrow-e {
+    @include ckan-icon-background-position(16,
+    "large");
+    width: 16px;
+}
+
+.ckan-icon-bookmark {
+    @include ckan-icon-background-position(0,
+    "huge");
+}
+
+// RESOURCE FORMAT ICONS
+.format-label {
+    @extend .ckan-icon;
+    text-indent: -900em;
+    background: url("#{$imagePath}/sprite-resource-icons.png") no-repeat 0 0;
+}
+
+.format-label {
+    @include ckan-resource-icon-bg-pos(17,
+    "resourceIcon");
+}
+
+.format-label[data-format=html],
+.format-label[data-format*=html] {
+    @include ckan-resource-icon-bg-pos(1,
+    "resourceIcon");
+}
+
+.format-label[data-format=json],
+.format-label[data-format*=json] {
+    @include ckan-resource-icon-bg-pos(2,
+    "resourceIcon");
+}
+
+.format-label[data-format=xml],
+.format-label[data-format*=xml] {
+    @include ckan-resource-icon-bg-pos(3,
+    "resourceIcon");
+}
+
+.format-label[data-format=txt],
+.format-label[data-format*=txt] {
+    @include ckan-resource-icon-bg-pos(4,
+    "resourceIcon");
+}
+
+.format-label[data-format=doc],
+.format-label[data-format*=doc],
+.format-label[data-format=docx],
+.format-label[data-format*=docx] {
+    @include ckan-resource-icon-bg-pos(5,
+    "resourceIcon");
+}
+
+.format-label[data-format=odt],
+.format-label[data-format*=odt] {
+    @include ckan-resource-icon-bg-pos(6,
+    "resourceIcon");
+}
+
+.format-label[data-format=csv],
+.format-label[data-format*=csv] {
+    @include ckan-resource-icon-bg-pos(7,
+    "resourceIcon");
+}
+
+.format-label[data-format=xls],
+.format-label[data-format*=xls] {
+    @include ckan-resource-icon-bg-pos(8,
+    "resourceIcon");
+}
+
+.format-label[data-format=zip],
+.format-label[data-format*=zip] {
+    @include ckan-resource-icon-bg-pos(9,
+    "resourceIcon");
+}
+
+.format-label[data-format=api],
+.format-label[data-format*=api] {
+    @include ckan-resource-icon-bg-pos(10,
+    "resourceIcon");
+}
+
+.format-label[data-format=pdf],
+.format-label[data-format*=pdf] {
+    @include ckan-resource-icon-bg-pos(11,
+    "resourceIcon");
+}
+
+.format-label[data-format=rdf],
+.format-label[data-format*=rdf] {
+    @include ckan-resource-icon-bg-pos(12,
+    "resourceIcon");
+}
+
+.format-label[data-format=wms],
+.format-label[data-format*=wms] {
+    @include ckan-resource-icon-bg-pos(13,
+    "resourceIcon");
+}
+
+.format-label[data-format=png],
+.format-label[data-format*=png] {
+    @include ckan-resource-icon-bg-pos(14,
+    "resourceIcon");
+}
+
+.format-label[data-format=jpg],
+.format-label[data-format*=jpg],
+.format-label[data-format=jpeg],
+.format-label[data-format*=jpeg] {
+    @include ckan-resource-icon-bg-pos(15,
+    "resourceIcon");
+}
+
+.format-label[data-format=gif],
+.format-label[data-format*=gif] {
+    @include ckan-resource-icon-bg-pos(16,
+    "resourceIcon");
+}
+
+.format-label[data-format=wfs],
+.format-label[data-format*=wfs] {
+    @include ckan-resource-icon-bg-pos(18,
+    "resourceIcon");
+}
+
+.format-label[data-format=gml],
+.format-label[data-format*=gml] {
+    @include ckan-resource-icon-bg-pos(19,
+    "resourceIcon");
+}
+
+.format-label[data-format=wmts],
+.format-label[data-format*=wmts] {
+    @include ckan-resource-icon-bg-pos(20,
+    "resourceIcon");
+}
+
+.format-label[data-format=kml],
+.format-label[data-format*=kml] {
+    @include ckan-resource-icon-bg-pos(21,
+    "resourceIcon");
+}
+
+.format-label[data-format=geo],
+.format-label[data-format*=geo] {
+    @include ckan-resource-icon-bg-pos(22,
+    "resourceIcon");
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+    display: inline-block;
+    text-align: right;
+    font-size: 14px;
+    line-height: 1;
+    width: 14px;
+}
+
+.btn,
+.nav,
+.module-heading,
+.dropdown {
+    [class^="icon-"],
+    [class*=" icon-"] {
+        margin-right: 4px;
+    }
+}
+
+.info-block {
+    [class^="icon-"],
+    [class*=" icon-"] {
+        float: left;
+        font-size: 28px;
+        width: 28px;
+        margin-right: 5px;
+        margin-top: 2px;
+    }
+}
+
+.breadcrumb .home .icon-home {
+    font-size: 24px;
+    width: 24px;
+    vertical-align: -1px;
+}
+
+.info-block-small {
+    [class^="icon-"],
+    [class*=" icon-"] {
+        font-size: 14px;
+        width: 14px;
+        margin-top: 1px;
+    }
+}
+
+.nav-tabs,
+.module-heading,
+.btn {
+    .fa {
+        &:last-child {
+            margin-right: 3px;
+        }
+    }
+}

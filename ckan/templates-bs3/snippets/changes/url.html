@@ -1,0 +1,46 @@
+<li>
+  <p>
+    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id)) %}
+    {% if change.method == "change" %}
+
+      {{ _('Changed the source URL of') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('from') }}
+      <a href="{{'http://' + change.old_url if not change.old_url[0:4] == 'http' else change.old_url}}">
+        {{change.old_url}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url}}">
+        {{change.new_url}}
+      </a>
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed the source URL from') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+    {% elif change.method == "add" %}
+
+      {{_('Changed the source URL of') }}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{'http://' + change.new_url if not change.new_url[0:4] == 'http' else change.new_url}}">
+        {{change.new_url}}
+      </a>
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

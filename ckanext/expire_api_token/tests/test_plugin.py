@@ -14,7 +14,7 @@ from ckan.lib.helpers import url_for
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"expire_api_token")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins")
 class TestExpireApiTokenPlugin(object):
     def test_token_is_removed_on_second_use(self, app):
         user = factories.User()

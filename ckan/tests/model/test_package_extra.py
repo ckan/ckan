@@ -6,10 +6,10 @@ from ckan import model
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestPackageExtra(object):
     def test_create_extras(self):
-        pkg = model.Package(name=u"test-package")
+        pkg = model.Package(name=factories.Dataset.stub().name)
 
         # method 1
         extra1 = model.PackageExtra(key=u"subject", value=u"science")
@@ -22,7 +22,7 @@ class TestPackageExtra(object):
         model.Session.commit()
         model.Session.remove()
 
-        pkg = model.Package.by_name(u"test-package")
+        pkg = model.Package.by_name(pkg.name)
         assert pkg.extras == {u"subject": u"science", u"accuracy": u"metre"}
 
     def test_delete_extras(self):

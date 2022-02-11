@@ -1,0 +1,35 @@
+{#
+Renders a list of resources with icons and view links.
+
+resources - A list of resources (dicts) to render
+pkg - A package dict that the resources belong to.
+is_activity_archive - Whether this is an old version of the dataset (and therefore read-only)
+
+Example:
+
+  {% snippet "package/snippets/resources_list.html", pkg=pkg, resources=pkg.resources %}
+
+#}
+<section id="dataset-resources" class="resources">
+  <h2>{{ _('Data and Resources') }}</h2>
+  {% block resource_list %}
+    {% if resources %}
+      <ul class="{% block resource_list_class %}resource-list{% endblock %}">
+        {% block resource_list_inner %}
+          {% set can_edit = h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
+          {% for resource in resources %}
+            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit, is_activity_archive=is_activity_archive %}
+          {% endfor %}
+        {% endblock %}
+      </ul>
+    {% else %}
+      {% if h.check_access('resource_create', {'package_id': pkg['id']}) and not is_activity_archive %}
+          {% trans url=h.url_for(pkg.type ~ '_resource.new', id=pkg.name) %}
+            <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a></p>
+          {% endtrans %}
+      {% else %}
+          <p class="empty">{{ _('This dataset has no data') }}</p>
+      {% endif %}
+    {% endif %}
+    {% endblock %}
+</section>
