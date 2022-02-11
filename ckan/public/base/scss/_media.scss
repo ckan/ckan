@@ -19,7 +19,7 @@
     @include clearfix;
     padding-left: 0px;
     min-height: 205px;
-    padding-top: $grid-gutter-width/2;
+    padding-top: math.div($grid-gutter-width, 2);
     background: lighten($layoutBackgroundColor, 5%) url("#{$bgPath}");
     border: 1px solid $moduleHeadingBorderColor;
     border-width: 1px 0;
@@ -29,8 +29,8 @@
     position: relative;
     float: left;
     width: 178px;
-    padding: $grid-gutter-width/2;
-    margin: 0 0 $grid-gutter-width/2 $grid-gutter-width/2;
+    padding: math.div($grid-gutter-width, 2);
+    margin: 0 0 math.div($grid-gutter-width, 2)  math.div($grid-gutter-width, 2);
     background-color: white;
     @include border-radius(3px);
     span.count {

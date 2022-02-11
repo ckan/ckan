@@ -9,7 +9,6 @@ from ckan.tests.helpers import body_contains
 
 
 @pytest.mark.ckan_config("ckan.plugins", "test_flash_plugin")
-@pytest.mark.usefixtures("with_request_context")
 class TestWithFlashPlugin:
     def test_flash_success(self, app):
         """

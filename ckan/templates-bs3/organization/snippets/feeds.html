@@ -1,0 +1,2 @@
+{%- set dataset_feed = h.url_for('feeds.organization', id=group_dict.name) -%}
+<link rel="alternate" type="application/atom+xml" title="{{ g.site_title }} - {{ _('Datasets in organization: {group}').format(group=group_dict.display_name) }}" href="{{ dataset_feed }}" />

@@ -1,0 +1,8 @@
+<li>
+  <p>
+    {{ _('Changed title to {title_link} (previously {old_title})').format(
+      title_link = h.nav_link(change.new_title, named_route='organization.read', id=change.id),
+      old_title = change.old_title
+      ) }}
+  </p>
+</li>
