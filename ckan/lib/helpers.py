@@ -1110,7 +1110,7 @@ def get_facet_items_dict(
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True)
+        params_items = request.args.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
@@ -1147,7 +1147,7 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
     for facet_item in search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
             continue
-        params_items = request.params.items(multi=True)
+        params_items = request.args.items(multi=True)
         if not (facet, facet_item['name']) in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
@@ -1185,7 +1185,7 @@ def unselected_facet_items(facet, limit=10):
 @core_helper
 def get_param_int(name, default=10):
     try:
-        return int(request.params.get(name, default))
+        return int(request.args.get(name, default))
     except ValueError:
         return default
 
@@ -1941,7 +1941,7 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     instead.
     '''
 
-    params_items = request.params.items(multi=True)
+    params_items = request.args.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'
@@ -1979,7 +1979,7 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     else:
         keys = key
 
-    params_items = request.params.items(multi=True)
+    params_items = request.args.items(multi=True)
     params_nopage = [
         (k, v) for k, v in params_items
         if k != 'page'
@@ -2157,7 +2157,7 @@ def get_request_param(parameter_name, default=None):
     ''' This function allows templates to access query string parameters
     from the request. This is useful for things like sort order in
     searches. '''
-    return request.params.get(parameter_name, default)
+    return request.args.get(parameter_name, default)
 
 
 # find all inner text of html eg `<b>moo</b>` gets `moo` but not of <a> tags

@@ -315,15 +315,15 @@ def _parse_url_params():
     Returns the constructed search-query dict, and the valid URL
     query parameters.
     """
-    page = h.get_page_number(request.params)
+    page = h.get_page_number(request.args)
 
     limit = config.get_value('ckan.feeds.limit')
     data_dict = {u'start': (page - 1) * limit, u'rows': limit}
 
     # Filter ignored query parameters
     valid_params = ['page']
-    params = dict((p, request.params.get(p)) for p in valid_params
-                  if p in request.params)
+    params = dict((p, request.args.get(p)) for p in valid_params
+                  if p in request.args)
     return data_dict, params
 
 
@@ -364,16 +364,16 @@ def custom():
     Custom atom feed
 
     """
-    q = request.params.get(u'q', u'')
+    q = request.args.get(u'q', u'')
     fq = u''
     search_params = {}
-    for (param, value) in request.params.items():
+    for (param, value) in request.args.items():
         if param not in [u'q', u'page', u'sort'] \
                 and len(value) and not param.startswith(u'_'):
             search_params[param] = value
             fq += u'%s:"%s"' % (param, value)
 
-    page = h.get_page_number(request.params)
+    page = h.get_page_number(request.args)
 
     limit = config.get_value('ckan.feeds.limit')
     data_dict = {
@@ -381,23 +381,23 @@ def custom():
         u'fq': fq,
         u'start': (page - 1) * limit,
         u'rows': limit,
-        u'sort': request.params.get(u'sort', None)
+        u'sort': request.args.get(u'sort', None)
     }
 
     item_count, results = _package_search(data_dict)
 
     navigation_urls = _navigation_urls(
-        request.params,
+        request.args,
         item_count=item_count,
         limit=data_dict['rows'],
         controller=u'feeds',
         action=u'custom')
 
-    feed_url = _feed_url(request.params, controller=u'feeds', action=u'custom')
+    feed_url = _feed_url(request.args, controller=u'feeds', action=u'custom')
 
     atom_url = h._url_with_params(u'/feeds/custom.atom', search_params.items())
 
-    alternate_url = _alternate_url(request.params)
+    alternate_url = _alternate_url(request.args)
     site_title = config.get_value(u'ckan.site_title')
     return output_feed(
         results,
