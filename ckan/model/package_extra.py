@@ -40,9 +40,7 @@ meta.mapper(PackageExtra, package_extra_table, properties={
             cascade='all, delete, delete-orphan',
             ),
         ),
-    },
-    order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
-    extension=[extension.PluginMapperExtension()],
+    }
 )
 
 

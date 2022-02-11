@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from typing import Any, Container, Optional, Union
 
 import flask

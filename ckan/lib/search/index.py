@@ -13,13 +13,11 @@ import re
 import six
 import pysolr
 from ckan.common import config
-from ckan.common import asbool
 import six
 
 
 
 from .common import SearchIndexError, make_connection
-from ckan.model import PackageRelationship
 import ckan.model as model
 from ckan.plugins import (PluginImplementations,
                           IPackageController)
@@ -36,7 +34,6 @@ KEY_CHARS = string.digits + string.ascii_letters + "_-"
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",
                                  "res_format", "res_url", "res_type"]
-RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
 _illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')

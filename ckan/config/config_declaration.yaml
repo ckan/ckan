@@ -240,6 +240,9 @@ groups:
           - http
           - https
           - ftp
+      - key: ckan.requests.timeout
+        default: 5
+        type: int
 
   - annotation: Authorization Settings
     options:
@@ -300,14 +303,11 @@ groups:
       - key: ckan.site_id
         default: default
       - key: solr_url
-        placeholder: http://127.0.0.1:8983/solr
+        placeholder: http://127.0.0.1:8983/solr/ckan
         validators: not_empty
         required: true
       - key: solr_user
       - key: solr_password
-      - key: ckan.search.automatic_indexing
-        type: bool
-        default: true
       - key: ckan.search.solr_commit
         type: bool
         default: true
@@ -377,6 +377,9 @@ groups:
           Note: Add ``datastore`` to enable the CKAN DataStore.
           Add ``datapusher`` to enable DataPusher.
           Add ``resource_proxy`` to enable resorce proxying and get around the same origin policy.
+      - key: ckan.resource_proxy.timeout
+        type: int
+        default: 5
 
   - annotation: Front-End Settings
     options:
@@ -391,9 +394,6 @@ groups:
         default: /base/css/main.css
       - key: ckan.favicon
         default: /base/images/ckan.ico
-      - key: ckan.legacy_templates
-        ignored: true
-        type: bool
       - key: ckan.datasets_per_page
         type: int
         default: 20
@@ -460,6 +460,26 @@ groups:
       - key: ckan.max_image_size
         type: int
         default: 2
+
+  - annotation: Uploader Settings
+    options:
+      - key: ckan.upload.user.types
+        type: list
+        description: >-
+          File types allowed to upload as user's avatar
+      - key: ckan.upload.user.mimetypes
+        type: list
+        description: >-
+          File MIMETypes allowed to upload as user's avatar
+      - key: ckan.upload.group.types
+        type: list
+        description: >-
+          File types allowed to upload as group image
+      - key: ckan.upload.group.mimetypes
+        type: list
+        description: >-
+          File MIMETypes allowed to upload as group image
+
 
   - annotation: Webassets Settings
     options:
