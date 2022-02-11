@@ -23,6 +23,8 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config
+from flask import flash
+from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -47,7 +49,7 @@ import ckan.plugins as p
 import ckan
 
 from ckan.lib.pagination import Page  # noqa: re-export
-from ckan.common import _, ungettext, c, g, request, session, json
+from ckan.common import _, ungettext, c, g, request, json
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
 from textwrap import shorten
@@ -229,9 +231,6 @@ def redirect_to(*args, **kw):
         toolkit.redirect_to('/some/other/path')
 
     '''
-    if are_there_flash_messages():
-        kw['__no_cache__'] = True
-
     # Routes router doesn't like unicode args
     uargs = [str(arg) if isinstance(arg, str) else arg for arg in args]
 
@@ -673,112 +672,40 @@ def get_rtl_css():
     return config.get_value('ckan.i18n.rtl_css')
 
 
-class Message(object):
-    '''A message returned by ``Flash.pop_messages()``.
-
-    Converting the message to a string returns the message text. Instances
-    also have the following attributes:
-
-    * ``message``: the message text.
-    * ``category``: the category specified when the message was created.
-    '''
-
-    def __init__(self, category, message, allow_html):
-        self.category = category
-        self.message = message
-        self.allow_html = allow_html
-
-    def __str__(self):
-        return self.message
-
-    __unicode__ = __str__
-
-    def __html__(self):
-        if self.allow_html:
-            return self.message
-        else:
-            return escape(self.message)
-
-
-class _Flash(object):
-
-    # List of allowed categories.  If None, allow any category.
-    categories = ["", "alert-info", "alert-error", "alert-success"]
-
-    # Default category if none is specified.
-    default_category = ""
-
-    def __init__(self, session_key="flash", categories=None,
-                 default_category=None):
-        self.session_key = session_key
-        if categories is not None:
-            self.categories = categories
-        if default_category is not None:
-            self.default_category = default_category
-        if self.categories and self.default_category not in self.categories:
-            raise ValueError("unrecognized default category %r"
-                             % (self.default_category, ))
-
-    def __call__(self, message, category=None, ignore_duplicate=False,
-                 allow_html=False):
-        if not category:
-            category = self.default_category
-        elif self.categories and category not in self.categories:
-            raise ValueError("unrecognized category %r" % (category, ))
-        # Don't store Message objects in the session, to avoid unpickling
-        # errors in edge cases.
-        new_message_tuple = (category, message, allow_html)
-        messages = session.setdefault(self.session_key, [])
-        # ``messages`` is a mutable list, so changes to the local variable are
-        # reflected in the session.
-        if ignore_duplicate:
-            for i, m in enumerate(messages):
-                if m[1] == message:
-                    if m[0] != category:
-                        messages[i] = new_message_tuple
-                        session.save()
-                    return  # Original message found, so exit early.
-        messages.append(new_message_tuple)
-        session.save()
-
-    def pop_messages(self):
-        messages = session.pop(self.session_key, [])
-        # only save session if it has changed
-        if messages:
-            session.save()
-        return [Message(*m) for m in messages]
-
-    def are_there_messages(self):
-        return bool(session.get(self.session_key))
-
-
-flash = _Flash()
-# this is here for backwards compatability
-_flash = flash
-
-
 @core_helper
 def flash_notice(message, allow_html=False):
     ''' Show a flash message of type notice '''
-    flash(message, category='alert-info', allow_html=allow_html)
+    if allow_html:
+        message = Markup(message)
+    else:
+        message = escape(message)
+    flash(message, category='alert-info')
 
 
 @core_helper
 def flash_error(message, allow_html=False):
     ''' Show a flash message of type error '''
-    flash(message, category='alert-error', allow_html=allow_html)
+    if allow_html:
+        message = Markup(message)
+    else:
+        message = escape(message)
+    flash(message, category='alert-error')
 
 
 @core_helper
 def flash_success(message, allow_html=False):
     ''' Show a flash message of type success '''
-    flash(message, category='alert-success', allow_html=allow_html)
+    if allow_html:
+        message = Markup(message)
+    else:
+        message = escape(message)
+    flash(message, category='alert-success')
 
 
 @core_helper
-def are_there_flash_messages():
-    ''' Returns True if there are flash messages for the current user '''
-    return flash.are_there_messages()
+def get_flashed_messages(**kwargs):
+    '''Call Flask's built in get_flashed_messages'''
+    return _flask_get_flashed_messages(**kwargs)
 
 
 def _link_active(kwargs):
