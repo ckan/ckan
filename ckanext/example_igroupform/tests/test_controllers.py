@@ -21,7 +21,7 @@ def _get_group_new_page(app, group_type):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestGroupController(object):
     def test_about(self, app):
         user = factories.User()
