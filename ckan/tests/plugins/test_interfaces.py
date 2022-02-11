@@ -12,7 +12,6 @@ def test_no_conflicts_in_method_names():
         "IOrganizationController",
         "IGroupController",
         "ITagController",
-        "IMapper",
         "IDomainObjectModification",
     }
     classes = dict(

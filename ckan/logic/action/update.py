@@ -1119,11 +1119,7 @@ def send_email_notifications(context, data_dict):
     command.
 
     '''
-    # If paste.command_request is True then this function has been called
-    # by a `paster post ...` command not a real HTTP request, so skip the
-    # authorization.
-    if not request.environ.get('paste.command_request'):
-        _check_access('send_email_notifications', context, data_dict)
+    _check_access('send_email_notifications', context, data_dict)
 
     if not config.get_value('ckan.activity_streams_email_notifications'):
         raise ValidationError('ckan.activity_streams_email_notifications'
