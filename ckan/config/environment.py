@@ -193,7 +193,7 @@ def update_config():
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates-bs3".'
+            'Possible values are: "templates" and "templates-bs3".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
