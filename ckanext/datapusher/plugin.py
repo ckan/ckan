@@ -47,7 +47,6 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-
         for config_option in (
             u'ckan.site_url',
             u'ckan.datapusher.url',
