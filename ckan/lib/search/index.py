@@ -13,13 +13,11 @@ import re
 import six
 import pysolr
 from ckan.common import config
-from ckan.common import asbool
 import six
-from six import text_type
-from six.moves import map
+
+
 
 from .common import SearchIndexError, make_connection
-from ckan.model import PackageRelationship
 import ckan.model as model
 from ckan.plugins import (PluginImplementations,
                           IPackageController)
@@ -31,15 +29,11 @@ log = logging.getLogger(__name__)
 
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
-if six.PY2:
-    KEY_CHARS = string.digits + string.letters + "_-"
-else:
-    KEY_CHARS = string.digits + string.ascii_letters + "_-"
+KEY_CHARS = string.digits + string.ascii_letters + "_-"
 
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",
                                  "res_format", "res_url", "res_type"]
-RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
 _illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
@@ -55,7 +49,7 @@ def escape_xml_illegal_chars(val, replacement=''):
 
 def clear_index():
     conn = make_connection()
-    query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
+    query = "+site_id:\"%s\"" % (config.get_value('ckan.site_id'))
     try:
         conn.delete(q=query)
     except socket.error as e:
@@ -119,7 +113,7 @@ class PackageSearchIndex(SearchIndex):
 
         data_dict_json = json.dumps(pkg_dict)
 
-        if config.get('ckan.cache_validated_datasets', True):
+        if config.get_value('ckan.cache_validated_datasets'):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
 
@@ -148,7 +142,7 @@ class PackageSearchIndex(SearchIndex):
         for extra in extras:
             key, value = extra['key'], extra['value']
             if isinstance(value, (tuple, list)):
-                value = " ".join(map(text_type, value))
+                value = " ".join(map(str, value))
             key = ''.join([c for c in key if c in KEY_CHARS])
             pkg_dict['extras_' + key] = value
             if key not in index_fields:
@@ -222,7 +216,7 @@ class PackageSearchIndex(SearchIndex):
         for rel in subjects:
             type = rel['type']
             rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
-        for key, value in six.iteritems(rel_dict):
+        for key, value in rel_dict.items():
             if key not in pkg_dict:
                 pkg_dict[key] = value
 
@@ -249,7 +243,8 @@ class PackageSearchIndex(SearchIndex):
                         # The date field was empty, so dateutil filled it with
                         # the default bogus date
                         value = None
-                except (ValueError, IndexError):
+                except (IndexError, TypeError, ValueError):
+                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
         pkg_dict = new_dict
@@ -265,7 +260,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['metadata_modified'] += 'Z'
 
         # mark this CKAN instance as data source:
-        pkg_dict['site_id'] = config.get('ckan.site_id')
+        pkg_dict['site_id'] = config.get_value('ckan.site_id')
 
         # Strip a selection of the fields.
         # These fields are possible candidates for sorting search results on,
@@ -280,15 +275,15 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get('ckan.site_id')))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5(six.b('%s%s' % (pkg_dict['id'],config.get_value('ckan.site_id')))).hexdigest()
 
         for item in PluginImplementations(IPackageController):
-            pkg_dict = item.before_index(pkg_dict)
+            pkg_dict = item.before_dataset_index(pkg_dict)
 
         assert pkg_dict, 'Plugin must return non empty package dict on index'
 
         # permission labels determine visibility in search, can't be set
-        # in original dataset or before_index plugins
+        # in original dataset or before_dataset_index plugins
         labels = lib_plugins.get_permission_labels()
         dataset = model.Package.get(pkg_dict['id'])
         pkg_dict['permission_labels'] = labels.get_dataset_labels(
@@ -298,7 +293,7 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
-            if not asbool(config.get('ckan.search.solr_commit', 'true')):
+            if not config.get_value('ckan.search.solr_commit'):
                 commit = False
             conn.add(docs=[pkg_dict], commit=commit)
         except pysolr.SolrError as e:
@@ -325,9 +320,9 @@ class PackageSearchIndex(SearchIndex):
     def delete_package(self, pkg_dict):
         conn = make_connection()
         query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
-                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get('ckan.site_id'))
+                (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get_value('ckan.site_id'))
         try:
-            commit = asbool(config.get('ckan.search.solr_commit', 'true'))
+            commit = config.get_value('ckan.search.solr_commit')
             conn.delete(q=query, commit=commit)
         except Exception as e:
             log.exception(e)

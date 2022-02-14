@@ -29,9 +29,9 @@
 
   {% block search_sortby %}
     {% if sorting %}
-      <div class="form-select form-group control-order-by">
+      <div class="form-group control-order-by">
         <label for="field-order-by">{{ _('Order by') }}</label>
-        <select id="field-order-by" name="sort" class="form-control">
+        <select id="field-order-by" name="sort" class="form-control form-select">
           {% for label, value in sorting %}
             {% if label and value %}
               <option value="{{ value }}"{% if sorting_selected == value %} selected="selected"{% endif %}>{{ label }}</option>
@@ -57,7 +57,7 @@
     {% if facets %}
       <p class="filter-list">
         {% for field in facets.fields %}
-          {% set search_facets_items = facets.search.get(field)['items'] %}
+          {% set search_facets_items = facets.search.get(field)['items'] if facets.search and field in facets.search else [] %}
           <span class="facet">{{ facets.titles.get(field) }}:</span>
           {% for value in facets.fields[field] %}
             <span class="filtered pill">

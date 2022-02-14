@@ -140,6 +140,10 @@ class TestGetFunctions(object):
             (u"SELECT max(id) from test_a", ["max"]),
             (u"SELECT count(distinct(id)) FROM test_a", ["count", "distinct"]),
             (u"SELECT trunc(avg(result),2) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT trunc(avg(result),2), avg(result) FROM test_a", ["trunc", "avg"]),
+            (u"SELECT * from pg_settings", ["pg_show_all_settings"]),
+            (u"SELECT * from pg_settings UNION SELECT * from pg_settings", ["pg_show_all_settings"]),
+            (u"SELECT * from (SELECT * FROM pg_settings) AS tmp", ["pg_show_all_settings"]),
             (u"SELECT query_to_xml('SELECT max(id) FROM test_a', true, true , '')", ["query_to_xml"]),
             (u"select $$'$$, query_to_xml($X$SELECT table_name FROM information_schema.tables$X$,true,true,$X$$X$), $$'$$", ["query_to_xml"])
         ]

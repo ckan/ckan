@@ -6,7 +6,6 @@ import logging
 import os
 
 import click
-import six
 
 from ckan.common import config
 from ckan.lib.i18n import build_js_translations
@@ -135,7 +134,8 @@ def sync_po_file_msgids(entries_to_change, path):
 
 
 def get_i18n_path():
-    return config.get(u'ckan.i18n_directory', os.path.join(ckan_path, u'i18n'))
+    return config.get_value(
+        u'ckan.i18n_directory') or os.path.join(ckan_path, u'i18n')
 
 
 def simple_conv_specs(s):
@@ -184,7 +184,7 @@ def check_po_file(path):
             for function in (
                 simple_conv_specs, mapping_keys, replacement_fields
             ):
-                for key, msgstr in six.iteritems(entry.msgstr_plural):
+                for key, msgstr in entry.msgstr_plural.items():
                     if key == u'0':
                         error = check_translation(
                             function, entry.msgid, entry.msgstr_plural[key]

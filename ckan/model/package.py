@@ -76,7 +76,6 @@ class Package(core.StatefulObjectMixin,
     text_search_fields = ['name', 'title']
 
     def __init__(self, **kw):
-        from ckan import model
         super(Package, self).__init__(**kw)
 
     @classmethod
@@ -194,15 +193,6 @@ class Package(core.StatefulObjectMixin,
             return True
         return False
 
-    def get_average_rating(self):
-        total = 0
-        for rating in self.ratings:
-            total += rating.rating
-        if total == 0:
-            return None
-        else:
-            return total / len(self.ratings)
-
     def as_dict(self, ref_package_by='name', ref_group_by='name'):
         _dict = domain_object.DomainObject.as_dict(self)
         # Set 'license' in _dict to cater for old clients.
@@ -216,11 +206,9 @@ class Package(core.StatefulObjectMixin,
         groups.sort()
         _dict['groups'] = groups
         _dict['extras'] = {key: value for key, value in self.extras.items()}
-        _dict['ratings_average'] = self.get_average_rating()
-        _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
-        site_url = config.get('ckan.site_url', None)
+        site_url = config.get_value('ckan.site_url')
         if site_url:
             _dict['ckan_url'] = '%s/dataset/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
@@ -381,7 +369,8 @@ class Package(core.StatefulObjectMixin,
 
     @property
     @maintain.deprecated('`is_private` attriute of model.Package is ' +
-                         'deprecated and should not be used.  Use `private`')
+                         'deprecated and should not be used.  Use `private`',
+                         since="2.1.0")
     def is_private(self):
         """
         DEPRECATED in 2.1
@@ -468,53 +457,8 @@ class Package(core.StatefulObjectMixin,
             }
         )
 
-    def set_rating(self, user_or_ip, rating):
-        '''Record a user's rating of this package.
-
-        The caller function is responsible for doing the commit.
-
-        If a rating is outside the range MAX_RATING - MIN_RATING then a
-        RatingValueException is raised.
-
-        @param user_or_ip - user object or an IP address string
-        '''
-        user = None
-        from ckan.model.user import User
-        from ckan.model.rating import Rating, MAX_RATING, MIN_RATING
-        if isinstance(user_or_ip, User):
-            user = user_or_ip
-            rating_query = meta.Session.query(Rating)\
-                               .filter_by(package=self, user=user)
-        else:
-            ip = user_or_ip
-            rating_query = meta.Session.query(Rating)\
-                               .filter_by(package=self, user_ip_address=ip)
-
-        try:
-            rating = float(rating)
-        except TypeError:
-            raise RatingValueException
-        except ValueError:
-            raise RatingValueException
-        if rating > MAX_RATING or rating < MIN_RATING:
-            raise RatingValueException
-
-        if rating_query.count():
-            rating_obj = rating_query.first()
-            rating_obj.rating = rating
-        elif user:
-            rating = Rating(package=self,
-                            user=user,
-                            rating=rating)
-            meta.Session.add(rating)
-        else:
-            rating = Rating(package=self,
-                            user_ip_address=ip,
-                            rating=rating)
-            meta.Session.add(rating)
-
     @property
-    @maintain.deprecated()
+    @maintain.deprecated(since="2.9.0")
     def extras_list(self):
         '''DEPRECATED in 2.9
 
@@ -531,9 +475,6 @@ class PackageMember(domain_object.DomainObject):
     pass
 
 
-class RatingValueException(Exception):
-    pass
-
 # import here to prevent circular import
 from ckan.model import tag
 
@@ -548,18 +489,12 @@ meta.mapper(Package, package_table, properties={
     'package_tags':orm.relation(tag.PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
         ),
-    },
-    order_by=package_table.c.name,
-    extension=[extension.PluginMapperExtension()],
-    )
+    })
 
 meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
     'pkg':orm.relation(Package, backref='package_tag_all',
         cascade='none',
         )
-    },
-    order_by=tag.package_tag_table.c.id,
-    extension=[extension.PluginMapperExtension()],
-    )
+    })
 
 meta.mapper(PackageMember, package_member_table)

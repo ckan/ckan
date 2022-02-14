@@ -11,7 +11,7 @@ import socket
 from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
-from six import string_types, text_type
+
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -44,30 +44,10 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 _select = sqlalchemy.sql.select
-_aliased = sqlalchemy.orm.aliased
 _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
-_desc = sqlalchemy.desc
 _case = sqlalchemy.case
-_text = sqlalchemy.text
-
-
-def _activity_stream_get_filtered_users():
-    '''
-    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
-    option and return a list of their ids. If the config is not specified,
-    returns the id of the site user.
-    '''
-    users = config.get('ckan.hide_activity_from_users')
-    if users:
-        users_list = users.split()
-    else:
-        context = {'model': model, 'ignore_auth': True}
-        site_user = logic.get_action('get_site_user')(context)
-        users_list = [site_user.get('name')]
-
-    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def site_read(context, data_dict=None):
@@ -141,7 +121,6 @@ def current_package_list_with_resources(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
     user = context['user']
@@ -343,7 +322,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             data_dict, logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
+    sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -351,13 +330,13 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
         try:
-            max_limit = int(config.get(
-                'ckan.group_and_organization_list_all_fields_max', 25))
+            max_limit = config.get_value(
+                'ckan.group_and_organization_list_all_fields_max')
         except ValueError:
             max_limit = 25
     else:
         try:
-            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+            max_limit = config.get_value('ckan.group_and_organization_list_max')
         except ValueError:
             max_limit = 1000
 
@@ -838,7 +817,7 @@ def user_list(context, data_dict):
             model.User.name.label('name'),
             model.User.fullname.label('fullname'),
             model.User.about.label('about'),
-            model.User.about.label('email'),
+            model.User.email.label('email'),
             model.User.created.label('created'),
             _select([_func.count(model.Package.id)],
                     _and_(
@@ -1025,14 +1004,14 @@ def package_show(context, data_dict):
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
-            package_dict = item.before_view(package_dict)
+            package_dict = item.before_dataset_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
         for resource_dict in package_dict['resources']:
-            item.before_show(resource_dict)
+            item.before_resource_show(resource_dict)
 
     if not package_dict_validated:
         package_plugin = lib_plugins.lookup_package_plugin(
@@ -1047,7 +1026,7 @@ def package_show(context, data_dict):
                 'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_show(context, package_dict)
+        item.after_dataset_show(context, package_dict)
 
     return package_dict
 
@@ -1093,7 +1072,7 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        log.error('Could not find resource %s after all', id)
+        log.error('Resource %s exists but it is not found in the package it should belong to.', id)
         raise NotFound(_('Resource was not found.'))
 
     return resource_dict
@@ -1165,7 +1144,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     try:
         include_tags = asbool(data_dict.get('include_tags', True))
-        if asbool(config.get('ckan.auth.public_user_details', True)):
+        if config.get_value('ckan.auth.public_user_details'):
             include_users = asbool(data_dict.get('include_users', True))
         else:
             include_users = asbool(data_dict.get('include_users', False))
@@ -1375,12 +1354,10 @@ def tag_show(context, data_dict):
 def user_show(context, data_dict):
     '''Return a user account.
 
-    Either the ``id`` or the ``user_obj`` parameter must be given.
+    Either the ``id`` should be passed or the user should be logged in.
 
     :param id: the id or name of the user (optional)
     :type id: string
-    :param user_obj: the user dictionary of the user (optional)
-    :type user_obj: user dictionary
     :param include_datasets: Include a list of datasets the user has created.
         If it is the same user or a sysadmin requesting, it includes datasets
         that are draft or private.
@@ -1407,13 +1384,13 @@ def user_show(context, data_dict):
     '''
     model = context['model']
 
+    if 'user' in context and 'id' not in data_dict:
+        data_dict['id'] = context.get('user')
+
     id = data_dict.get('id', None)
-    provided_user = data_dict.get('user_obj', None)
     if id:
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
-    elif provided_user:
-        context['user_obj'] = user_obj = provided_user
     else:
         raise NotFound
 
@@ -1830,14 +1807,14 @@ def package_search(context, data_dict):
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+        data_dict = item.before_dataset_search(data_dict)
 
     # the extension may have decided that it is not necessary to perform
     # the query
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get('ckan.search.default_package_sort') or 'score desc, metadata_modified desc'
+        data_dict['sort'] = config.get_value('ckan.search.default_package_sort')
 
     results = []
     if not abort:
@@ -1880,7 +1857,7 @@ def package_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
-                if isinstance(package, text_type):
+                if isinstance(package, str):
                     package = {result_fl[0]: package}
                 extras = package.pop('extras', {})
                 package.update(extras)
@@ -1896,7 +1873,8 @@ def package_search(context, data_dict):
                     if context.get('for_view'):
                         for item in plugins.PluginImplementations(
                                 plugins.IPackageController):
-                            package_dict = item.before_view(package_dict)
+                            package_dict = item.before_dataset_view(
+                                package_dict)
                     results.append(package_dict)
                 else:
                     log.error('No package_dict is coming from solr for package '
@@ -1956,7 +1934,7 @@ def package_search(context, data_dict):
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_results = item.after_search(search_results, data_dict)
+        search_results = item.after_dataset_search(search_results, data_dict)
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
@@ -1971,7 +1949,7 @@ def package_search(context, data_dict):
 @logic.validate(logic.schema.default_resource_search_schema)
 def resource_search(context, data_dict):
     '''
-    Searches for resources satisfying a given search criteria.
+    Searches for resources in public Datasets satisfying the search criteria.
 
     It returns a dictionary with 2 fields: ``count`` and ``results``.  The
     ``count`` field contains the total number of Resources found without the
@@ -1979,7 +1957,7 @@ def resource_search(context, data_dict):
     list of dictized Resource objects.
 
     The 'query' parameter is a required field.  It is a string of the form
-    ``{field}:{term}`` or a list of strings, each of the same form.  Within
+    ``{field}:{term}`` or a list of strings, each of the same form. Within
     each string, ``{field}`` is a field or extra field on the Resource domain
     object.
 
@@ -2017,9 +1995,6 @@ def resource_search(context, data_dict):
     Currently only ordering one field is available, and in ascending order
     only.
 
-    The ``fields`` parameter is deprecated as it is not compatible with calling
-    this action with a GET request to the action API.
-
     The context may contain a flag, `search_query`, which if True will make
     this action behave as if being used by the internal search api.  ie - the
     results will not be dictized, and SearchErrors are thrown for bad search
@@ -2027,8 +2002,6 @@ def resource_search(context, data_dict):
 
     :param query: The search criteria.  See above for description.
     :type query: string or list of strings of the form ``{field}:{term1}``
-    :param fields: Deprecated
-    :type fields: dict of fields to search terms.
     :param order_by: A field on the Resource model that orders the results.
     :type order_by: string
     :param offset: Apply an offset to the query.
@@ -2042,46 +2015,22 @@ def resource_search(context, data_dict):
     '''
     model = context['model']
 
-    # Allow either the `query` or `fields` parameter to be given, but not both.
-    # Once `fields` parameter is dropped, this can be made simpler.
-    # The result of all this gumpf is to populate the local `fields` variable
-    # with mappings from field names to list of search terms, or a single
-    # search-term string.
     query = data_dict.get('query')
-    fields = data_dict.get('fields')
-
-    if query is None and fields is None:
-        raise ValidationError({'query': _('Missing value')})
-
-    elif query is not None and fields is not None:
-        raise ValidationError(
-            {'fields': _('Do not specify if using "query" parameter')})
-
-    elif query is not None:
-        if isinstance(query, string_types):
-            query = [query]
-        try:
-            fields = dict(pair.split(":", 1) for pair in query)
-        except ValueError:
-            raise ValidationError(
-                {'query': _('Must be <field>:<value> pair(s)')})
-
-    else:
-        log.warning('Use of the "fields" parameter in resource_search is '
-                    'deprecated.  Use the "query" parameter instead')
-
-        # The legacy fields paramter splits string terms.
-        # So maintain that behaviour
-        split_terms = {}
-        for field, terms in fields.items():
-            if isinstance(terms, string_types):
-                terms = terms.split()
-            split_terms[field] = terms
-        fields = split_terms
-
     order_by = data_dict.get('order_by')
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
+
+    if query is None:
+        raise ValidationError({'query': _('Missing value')})
+
+    if isinstance(query, str):
+        query = [query]
+
+    try:
+        fields = dict(pair.split(":", 1) for pair in query)
+    except ValueError:
+        raise ValidationError(
+            {'query': _('Must be <field>:<value> pair(s)')})
 
     q = model.Session.query(model.Resource) \
          .join(model.Package) \
@@ -2091,8 +2040,7 @@ def resource_search(context, data_dict):
 
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
-
-        if isinstance(terms, string_types):
+        if isinstance(terms, str):
             terms = [terms]
 
         if field not in resource_fields:
@@ -2108,7 +2056,6 @@ def resource_search(context, data_dict):
             raise ValidationError({'query': msg})
 
         for term in terms:
-
             # prevent pattern injection
             term = misc.escape_sql_like_special_characters(term)
 
@@ -2116,10 +2063,10 @@ def resource_search(context, data_dict):
 
             # Treat the has field separately, see docstring.
             if field == 'hash':
-                q = q.filter(model_attr.ilike(text_type(term) + '%'))
+                q = q.filter(model_attr.ilike(str(term) + '%'))
 
             # Resource extras are stored in a json blob.  So searching for
-            # matching fields is a bit trickier.  See the docstring.
+            # matching fields is a bit trickier. See the docstring.
             elif field in model.Resource.get_extra_columns():
                 model_attr = getattr(model.Resource, 'extras')
 
@@ -2135,7 +2082,7 @@ def resource_search(context, data_dict):
             else:
                 column = model_attr.property.columns[0]
                 if isinstance(column.type, sqlalchemy.UnicodeText):
-                    q = q.filter(model_attr.ilike('%' + text_type(term) + '%'))
+                    q = q.filter(model_attr.ilike('%' + str(term) + '%'))
                 else:
                     q = q.filter(model_attr == term)
 
@@ -2168,7 +2115,7 @@ def _tag_search(context, data_dict):
     model = context['model']
 
     terms = data_dict.get('query') or data_dict.get('q') or []
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     terms = [t.strip() for t in terms if t.strip()]
 
@@ -2355,7 +2302,7 @@ def term_translation_show(context, data_dict):
     # This action accepts `terms` as either a list of strings, or a single
     # string.
     terms = _get_or_bust(data_dict, 'terms')
-    if isinstance(terms, string_types):
+    if isinstance(terms, str):
         terms = [terms]
     if terms:
         q = q.where(trans_table.c.term.in_(terms))
@@ -2364,7 +2311,7 @@ def term_translation_show(context, data_dict):
     # string.
     if 'lang_codes' in data_dict:
         lang_codes = _get_or_bust(data_dict, 'lang_codes')
-        if isinstance(lang_codes, string_types):
+        if isinstance(lang_codes, str):
             lang_codes = [lang_codes]
         q = q.where(trans_table.c.lang_code.in_(lang_codes))
 
@@ -2392,7 +2339,7 @@ def get_site_user(context, data_dict):
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get('ckan.site_id', 'ckan_site_user')
+    site_id = config.get_value('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -2416,17 +2363,15 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
-
-    plugins = config.get('ckan.plugins') 
-    extensions = plugins.split() if plugins else [] 
+    extensions = config.get_value('ckan.plugins')
 
     return {
-        'site_title': config.get('ckan.site_title'),
-        'site_description': config.get('ckan.site_description'),
-        'site_url': config.get('ckan.site_url'),
+        'site_title': config.get_value('ckan.site_title'),
+        'site_description': config.get_value('ckan.site_description'),
+        'site_url': config.get_value('ckan.site_url'),
         'ckan_version': ckan.__version__,
-        'error_emails_to': config.get('email_to'),
-        'locale_default': config.get('ckan.locale_default'),
+        'error_emails_to': config.get_value('email_to'),
+        'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
 
@@ -2534,6 +2479,11 @@ def package_activity_list(context, data_dict):
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param activity_types: A list of activity types to include in the response
+    :type activity_types: list
+
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
 
     :rtype: list of dictionaries
 
@@ -2542,6 +2492,12 @@ def package_activity_list(context, data_dict):
     # authorized to read.
     data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    activity_types = data_dict.pop('activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+
+    if activity_types is not None and exclude_activity_types is not None:
+        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+
     _check_access('package_activity_list', context, data_dict)
 
     model = context['model']
@@ -2557,6 +2513,8 @@ def package_activity_list(context, data_dict):
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types,
+        exclude_activity_types=exclude_activity_types
     )
 
     return model_dictize.activity_list_dictize(
@@ -3257,7 +3215,6 @@ def activity_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
@@ -3288,7 +3245,6 @@ def activity_data_show(context, data_dict):
     :rtype: dictionary
     '''
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = data_dict.get('object_type')
 
@@ -3325,10 +3281,8 @@ def activity_diff(context, data_dict):
     :type diff_type: string
     '''
     import difflib
-    from pprint import pformat
 
     model = context['model']
-    user = context['user']
     activity_id = _get_or_bust(data_dict, 'id')
     object_type = _get_or_bust(data_dict, 'object_type')
     diff_type = data_dict.get('diff_type', 'unified')

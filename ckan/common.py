@@ -7,61 +7,43 @@
 #
 # NOTE:  This file is specificaly created for
 # from ckan.common import x, y, z to be allowed
+from __future__ import annotations
 
-from collections import MutableMapping
+import logging
+from collections.abc import MutableMapping
+from typing import Any, Container, Optional, Union
 
 import flask
-import six
 
 from werkzeug.local import Local, LocalProxy
 
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json
+import simplejson as json  # noqa: re-export
+import ckan.lib.maintain as maintain
+from ckan.config.declaration import Declaration, Key
 
-if six.PY2:
-    import pylons
-    from pylons.i18n import (ugettext as pylons_ugettext,
-                             ungettext as pylons_ungettext)
-    from pylons import response
-
+log = logging.getLogger(__name__)
 current_app = flask.current_app
 
 
+@maintain.deprecated('All web requests are served by Flask', since="2.10.0")
 def is_flask_request():
     u'''
-    A centralized way to determine whether we are in the context of a
-    request being served by Flask or Pylons
+    This function is deprecated. All CKAN requests are now served by Flask
     '''
-    if six.PY3:
-        return True
-    try:
-        pylons.request.environ
-        pylons_request_available = True
-    except TypeError:
-        pylons_request_available = False
-
-    return (flask.request and
-            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
-             not pylons_request_available))
+    return True
 
 
 def streaming_response(
         data, mimetype=u'application/octet-stream', with_context=False):
     iter_data = iter(data)
-    if is_flask_request():
-        # Removal of context variables for pylon's app is prevented
-        # inside `pylons_app.py`. It would be better to decide on the fly
-        # whether we need to preserve context, but it won't affect performance
-        # in any visible way and we are going to get rid of pylons anyway.
-        # Flask allows to do this in easy way.
-        if with_context:
-            iter_data = flask.stream_with_context(iter_data)
-        resp = flask.Response(iter_data, mimetype=mimetype)
-    else:
-        response.app_iter = iter_data
-        resp = response.headers['Content-type'] = mimetype
+
+    if with_context:
+        iter_data = flask.stream_with_context(iter_data)
+    resp = flask.Response(iter_data, mimetype=mimetype)
+
     return resp
 
 
@@ -73,10 +55,7 @@ _ = ugettext
 
 
 def ungettext(*args, **kwargs):
-    if is_flask_request():
-        return flask_ungettext(*args, **kwargs)
-    else:
-        return pylons_ungettext(*args, **kwargs)
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -111,19 +90,10 @@ class CKANConfig(MutableMapping):
 
     def clear(self):
         self.store.clear()
-
         try:
             flask.current_app.config.clear()
         except RuntimeError:
             pass
-
-        if six.PY2:
-            try:
-                pylons.config.clear()
-                # Pylons set this default itself
-                pylons.config[u'lang'] = None
-            except TypeError:
-                pass
 
     def __setitem__(self, key, value):
         self.store[key] = value
@@ -132,12 +102,6 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                pylons.config[key] = value
-            except TypeError:
-                pass
-
     def __delitem__(self, key):
         del self.store[key]
         try:
@@ -145,18 +109,32 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-        if six.PY2:
-            try:
-                del pylons.config[key]
-            except TypeError:
-                pass
+    def get_value(self, key: Union[str, Key]) -> Any:
+        if self.get("config.mode") == "strict":
+            return self[key]
+
+        option = config_declaration.get(key)
+        if not option:
+            log.warning("Option %s is not declared", key)
+            return self.get(key)
+
+        value = self.get(key, option.default)
+        return option._normalize(value)
+
+    def subset(
+            self, pattern: Key,
+            exclude: Optional[Container[Union[str, Key]]] = frozenset()
+    ) -> dict[str, Any]:
+        subset = {}
+        for k, v in self.store.items():
+            if k in exclude or pattern != k:
+                continue
+            subset[k] = v
+        return subset
 
 
 def _get_request():
-    if is_flask_request():
-        return flask.request
-    else:
-        return pylons.request
+    return flask.request
 
 
 class CKANRequest(LocalProxy):
@@ -164,18 +142,15 @@ class CKANRequest(LocalProxy):
 
     This is just a wrapper around LocalProxy so we can handle some special
     cases for backwards compatibility.
-
-    LocalProxy will forward to Flask or Pylons own request objects depending
-    on the output of `_get_request` (which essentially calls
-    `is_flask_request`) and at the same time provide all objects methods to be
-    able to interact with them transparently.
     '''
 
+    @maintain.deprecated(since="2.10.0")
     @property
     def params(self):
         u''' Special case as Pylons' request.params is used all over the place.
-        All new code meant to be run just in Flask (eg views) should always
-        use request.args
+
+        This function is deprecated. All new code should always use Flask's
+        request.args attribute.
         '''
         try:
             return super(CKANRequest, self).params
@@ -184,39 +159,15 @@ class CKANRequest(LocalProxy):
 
 
 def _get_c():
-    if is_flask_request():
-        return flask.g
-    else:
-        return pylons.c
+    return flask.g
 
 
 def _get_session():
-    if is_flask_request():
-        return flask.session
-    else:
-        return pylons.session
-
-
-local = Local()
-
-# This a proxy to the bounded config object
-local(u'config')
-
-# Thread-local safe objects
-config = local.config = CKANConfig()
-
-# Proxies to already thread-local safe objects
-request = CKANRequest(_get_request)
-# Provide a `c`  alias for `g` for backwards compatibility
-g = c = LocalProxy(_get_c)
-session = LocalProxy(_get_session)
-
-truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
-falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
+    return flask.session
 
 
 def asbool(obj):
-    if isinstance(obj, six.string_types):
+    if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in truthy:
             return True
@@ -235,7 +186,7 @@ def asint(obj):
 
 
 def aslist(obj, sep=None, strip=True):
-    if isinstance(obj, six.string_types):
+    if isinstance(obj, str):
         lst = obj.split(sep)
         if strip:
             lst = [v.strip() for v in lst]
@@ -246,3 +197,24 @@ def aslist(obj, sep=None, strip=True):
         return []
     else:
         return [obj]
+
+
+local = Local()
+
+# This a proxy to the bounded config object
+local(u'config')
+
+# Thread-local safe objects
+config = local.config = CKANConfig()
+
+local("config_declaration")
+config_declaration = local.config_declaration = Declaration()
+
+# Proxies to already thread-local safe objects
+request = CKANRequest(_get_request)
+# Provide a `c`  alias for `g` for backwards compatibility
+g = c = LocalProxy(_get_c)
+session = LocalProxy(_get_session)
+
+truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
+falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])

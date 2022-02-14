@@ -2,7 +2,7 @@
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
-from six import text_type
+
 
 from ckan.model import (
     group,
@@ -35,12 +35,11 @@ meta.mapper(GroupExtra, group_extra_table, properties={
             cascade='all, delete, delete-orphan',
             ),
         )
-    },
-    order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
+    }
 )
 
 def _create_extra(key, value):
-    return GroupExtra(key=text_type(key), value=value)
+    return GroupExtra(key=str(key), value=value)
 
 group.Group.extras = association_proxy(
     '_extras', 'value', creator=_create_extra)

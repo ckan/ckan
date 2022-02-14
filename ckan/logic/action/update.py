@@ -10,7 +10,7 @@ import json
 from ckan.common import config
 import ckan.common as converters
 import six
-from six import text_type
+
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -50,6 +50,10 @@ def resource_update(context, data_dict):
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `resource_patch`
+        instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.resource_create`.
 
@@ -61,7 +65,6 @@ def resource_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
@@ -94,7 +97,8 @@ def resource_update(context, data_dict):
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+        plugin.before_resource_update(context, pkg_dict['resources'][n],
+                                      data_dict)
 
     pkg_dict['resources'][n] = data_dict
 
@@ -117,7 +121,7 @@ def resource_update(context, data_dict):
              'resource': resource})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_update(context, resource)
+        plugin.after_resource_update(context, resource)
 
     return resource
 
@@ -216,6 +220,10 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `package_patch`
+        instead.
 
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
@@ -326,7 +334,7 @@ def package_update(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
 
-        item.after_update(context, data)
+        item.after_dataset_update(context, data)
 
     # Create activity
     if not pkg.private:
@@ -402,7 +410,7 @@ def package_revise(context, data_dict):
     * Change description in dataset, checking for old description::
 
         match={"notes": "old notes", "name": "xyz"}
-        date={"notes": "new notes"}
+        update={"notes": "new notes"}
 
     * Identical to above, but using flattened keys::
 
@@ -750,6 +758,10 @@ def group_update(context, data_dict):
 
     You must be authorized to edit the group.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `group_patch`
+        instead.
+
     Plugins may change the parameters of this function depending on the value
     of the group's ``type`` attribute, see the
     :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
@@ -774,6 +786,10 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `organization_patch`
+        instead.
+
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
@@ -797,6 +813,10 @@ def user_update(context, data_dict):
 
     Normal users can only update their own user accounts. Sysadmins can update
     any user account. Can not modify exisiting user's name.
+
+    .. note:: Update methods may delete parameters not explicitly provided in the
+        data_dict. If you want to edit only a specific attribute use `user_patch`
+        instead.
 
     For further parameters see
     :py:func:`~ckan.logic.action.create.user_create`.
@@ -867,39 +887,6 @@ def user_update(context, data_dict):
     return user_dict
 
 
-def user_generate_apikey(context, data_dict):
-    '''Cycle a user's API key
-
-    :param id: the name or id of the user whose key needs to be updated
-    :type id: string
-
-    :returns: the updated user
-    :rtype: dictionary
-    '''
-    model = context['model']
-    user = context['user']
-    session = context['session']
-    schema = context.get('schema') or schema_.default_generate_apikey_user_schema()
-    context['schema'] = schema
-    # check if user id in data_dict
-    id = _get_or_bust(data_dict, 'id')
-
-    # check if user exists
-    user_obj = model.User.get(id)
-    context['user_obj'] = user_obj
-    if user_obj is None:
-        raise NotFound('User was not found.')
-
-    # check permission
-    _check_access('user_generate_apikey', context, data_dict)
-
-    # change key
-    old_data = _get_action('user_show')(context, data_dict)
-    old_data['apikey'] = model.types.make_uuid()
-    data_dict = old_data
-    return _get_action('user_update')(context, data_dict)
-
-
 def task_status_update(context, data_dict):
     '''Update a task status.
 
@@ -927,8 +914,7 @@ def task_status_update(context, data_dict):
 
     '''
     model = context['model']
-    session = model.Session
-    context['session'] = session
+    session = context['session']
 
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
@@ -969,6 +955,7 @@ def task_status_update_many(context, data_dict):
     model = context['model']
     deferred = context.get('defer_commit')
     context['defer_commit'] = True
+
     for data in data_dict['data']:
         results.append(_get_action('task_status_update')(context, data))
     if not deferred:
@@ -999,9 +986,10 @@ def term_translation_update(context, data_dict):
 
     _check_access('term_translation_update', context, data_dict)
 
-    schema = {'term': [validators.not_empty, text_type],
-              'term_translation': [validators.not_empty, text_type],
-              'lang_code': [validators.not_empty, text_type]}
+    schema = {'term': [validators.not_empty, validators.unicode_safe],
+              'term_translation': [
+                  validators.not_empty, validators.unicode_safe],
+              'lang_code': [validators.not_empty, validators.unicode_safe]}
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
@@ -1131,14 +1119,9 @@ def send_email_notifications(context, data_dict):
     command.
 
     '''
-    # If paste.command_request is True then this function has been called
-    # by a `paster post ...` command not a real HTTP request, so skip the
-    # authorization.
-    if not request.environ.get('paste.command_request'):
-        _check_access('send_email_notifications', context, data_dict)
+    _check_access('send_email_notifications', context, data_dict)
 
-    if not converters.asbool(
-            config.get('ckan.activity_streams_email_notifications')):
+    if not config.get_value('ckan.activity_streams_email_notifications'):
         raise ValidationError('ckan.activity_streams_email_notifications'
                               ' is not enabled in config')
 
@@ -1155,7 +1138,6 @@ def package_owner_org_update(context, data_dict):
     :type organization_id: string
     '''
     model = context['model']
-    user = context['user']
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
 
@@ -1239,7 +1221,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
             'rows': BATCH_SIZE
         }
 
@@ -1375,7 +1357,7 @@ def config_option_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    for key, value in six.iteritems(data):
+    for key, value in data.items():
 
         # Set full Logo url
         if key == 'ckan.site_logo' and value and not value.startswith('http')\

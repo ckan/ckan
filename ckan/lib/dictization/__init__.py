@@ -4,8 +4,7 @@ import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy
 
-import six
-from six import text_type
+
 from ckan.model.core import State
 
 try:
@@ -31,14 +30,11 @@ def table_dictize(obj, context, **kw):
 
     result_dict = {}
 
-    model = context["model"]
-    session = model.Session
-
     if isinstance(obj, RowProxy):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
-        table = class_mapper(ModelClass).mapped_table
+        table = class_mapper(ModelClass).persist_selectable
         fields = [field.name for field in table.c]
 
     for field in fields:
@@ -61,14 +57,9 @@ def table_dictize(obj, context, **kw):
         elif isinstance(value, list):
             result_dict[name] = value
         else:
-            result_dict[name] = text_type(value)
+            result_dict[name] = str(value)
 
     result_dict.update(kw)
-
-    ##HACK For optimisation to get metadata_modified created faster.
-
-    context['metadata_modified'] = max(result_dict.get('revision_timestamp', ''),
-                                       context.get('metadata_modified', ''))
 
     return result_dict
 
@@ -124,7 +115,7 @@ def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
     model = context["model"]
     session = context["session"]
 
-    table = class_mapper(ModelClass).mapped_table
+    table = class_mapper(ModelClass).persist_selectable
 
     obj = None
 

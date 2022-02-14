@@ -4,8 +4,8 @@ import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
-
-import ckan.plugins.toolkit as tk
+from ckan.common import config
+from . import error_shout
 
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
@@ -18,7 +18,6 @@ def search_index():
 @click.option(u'-v', u'--verbose', is_flag=True)
 @click.option(u'-i', u'--force', is_flag=True,
               help=u'Ignore exceptions when rebuilding the index')
-@click.option(u'-r', u'--refresh', help=u'Refresh current index', is_flag=True)
 @click.option(u'-o', u'--only-missing',
               help=u'Index non indexed datasets only', is_flag=True)
 @click.option(u'-q', u'--quiet', help=u'Do not output index rebuild progress',
@@ -28,9 +27,11 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
+@click.option('-c', '--clear', help='Clear the index before reindexing',
+              is_flag=True)
 @click.argument(u'package_id', required=False)
 def rebuild(
-        verbose, force, refresh, only_missing, quiet, commit_each, package_id
+        verbose, force, only_missing, quiet, commit_each, package_id, clear
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -39,11 +40,11 @@ def rebuild(
         rebuild(package_id,
                 only_missing=only_missing,
                 force=force,
-                refresh=refresh,
                 defer_commit=(not commit_each),
-                quiet=quiet)
+                quiet=quiet,
+                clear=clear)
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     if not commit_each:
         commit()
 
@@ -79,7 +80,7 @@ def clear(dataset_name):
 def rebuild_fast():
     from ckan.lib.search import commit
 
-    db_url = tk.config['sqlalchemy.url']
+    db_url = config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
     result = engine.execute(u"select id from package where state = 'active';")

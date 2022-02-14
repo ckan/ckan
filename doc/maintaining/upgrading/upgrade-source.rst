@@ -45,9 +45,6 @@ CKAN release you're upgrading to:
 
      pip install --upgrade -r requirements.txt
 
-   .. note::
-
-     For Python 2 replace `requirements.txt` with `requirements-py2.txt`
 
 #. Register any new or updated plugins:
 

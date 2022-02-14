@@ -7,9 +7,7 @@ import ckan.common as converters
 import sqlparse
 import six
 
-from six import string_types
-
-from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
+import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +59,7 @@ def validate_int(i, non_negative=False):
 
 
 def _strip(s):
-    if isinstance(s, string_types) and len(s) and s[0] == s[-1]:
+    if isinstance(s, str) and len(s) and s[0] == s[-1]:
         return s.strip().strip('"')
     return s
 
@@ -106,9 +104,11 @@ def get_table_and_function_names_from_sql(context, sql):
             query_plan = json.loads(result['QUERY PLAN'])
             plan = query_plan[0]['Plan']
 
-            t, q = _get_table_names_queries_from_plan(plan)
+            t, q, f = _parse_query_plan(plan)
             table_names.extend(t)
             queries.extend(q)
+
+            function_names = list(set(function_names) | set(f))
 
         except ValueError:
             log.error('Could not parse query plan')
@@ -117,28 +117,41 @@ def get_table_and_function_names_from_sql(context, sql):
     return table_names, function_names
 
 
-def _get_table_names_queries_from_plan(plan):
+def _parse_query_plan(plan):
+    '''
+    Given a Postgres Query Plan object (parsed from the output of an EXPLAIN
+    query), returns a tuple with three items:
+
+    * A list of tables involved
+    * A list of remaining queries to parse
+    * A list of function names involved
+    '''
 
     table_names = []
     queries = []
+    functions = []
 
     if plan.get('Relation Name'):
         table_names.append(plan['Relation Name'])
-    if 'Function Name' in plan and plan['Function Name'].startswith(
-            'crosstab'):
-        try:
-            queries.append(_get_subquery_from_crosstab_call(
-                plan['Function Call']))
-        except ValueError:
-            table_names.append('_unknown_crosstab_sql')
+    if 'Function Name' in plan:
+        if plan['Function Name'].startswith(
+                'crosstab'):
+            try:
+                queries.append(_get_subquery_from_crosstab_call(
+                    plan['Function Call']))
+            except ValueError:
+                table_names.append('_unknown_crosstab_sql')
+        else:
+            functions.append(plan['Function Name'])
 
     if 'Plans' in plan:
         for child_plan in plan['Plans']:
-            t, q = _get_table_names_queries_from_plan(child_plan)
+            t, q, f = _parse_query_plan(child_plan)
             table_names.extend(t)
             queries.extend(q)
+            functions.extend(f)
 
-    return table_names, queries
+    return table_names, queries, functions
 
 
 def _get_function_names_from_sql(sql):
@@ -180,11 +193,11 @@ def datastore_dictionary(resource_id):
     """
     try:
         return [
-            f for f in get_action('datastore_search')(
+            f for f in tk.get_action('datastore_search')(
                 None, {
                     u'resource_id': resource_id,
                     u'limit': 0,
                     u'include_total': False})['fields']
             if not f['id'].startswith(u'_')]
-    except (ObjectNotFound, NotAuthorized):
+    except (tk.ObjectNotFound, tk.NotAuthorized):
         return []

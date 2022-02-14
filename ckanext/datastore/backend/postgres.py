@@ -13,10 +13,10 @@ import json
 from collections import OrderedDict
 
 import six
-from six.moves.urllib.parse import (
+from urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type, StringIO
+from io import StringIO
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -30,7 +30,6 @@ import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 
-import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import config
 
@@ -73,10 +72,6 @@ _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
 
-_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
-)
-
 
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
@@ -107,19 +102,23 @@ def identifier(s):
 
 
 def get_read_engine():
-    return _get_engine_from_url(config['ckan.datastore.read_url'])
+    return _get_engine_from_url(
+        config['ckan.datastore.read_url'],
+        isolation_level='READ_UNCOMMITTED')
 
 
 def get_write_engine():
     return _get_engine_from_url(config['ckan.datastore.write_url'])
 
 
-def _get_engine_from_url(connection_url):
+def _get_engine_from_url(connection_url, **kwargs):
     '''Get either read or write engine.'''
     engine = _engines.get(connection_url)
     if not engine:
         extras = {'url': connection_url}
-        config.setdefault('pool_pre_ping', True)
+        config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
+        for key, value in kwargs.items():
+            config.setdefault(key, value)
         engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
@@ -138,7 +137,7 @@ def _get_engine_from_url(connection_url):
 def _dispose_engines():
     '''Dispose all database engines.'''
     global _engines
-    for url, engine in _engines.items():
+    for _, engine in _engines.items():
         engine.dispose()
     _engines = {}
 
@@ -334,11 +333,6 @@ def _pg_version_is_at_least(connection, version):
         return False
 
 
-def _get_read_only_user(data_dict):
-    parsed = model.parse_db_config('ckan.datastore.read_url')
-    return parsed['db_user']
-
-
 def _is_array_type(field_type):
     return field_type.startswith('_')
 
@@ -365,7 +359,7 @@ def _where_clauses(data_dict, fields_types):
     filters = data_dict.get('filters', {})
     clauses = []
 
-    for field, value in six.iteritems(filters):
+    for field, value in filters.items():
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
@@ -383,14 +377,15 @@ def _where_clauses(data_dict, fields_types):
 
     # add full-text search where clause
     q = data_dict.get('q')
-    if q:
-        if isinstance(q, string_types):
+    full_text = data_dict.get('full_text')
+    if q and not full_text:
+        if isinstance(q, str):
             ts_query_alias = _ts_query_alias()
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
         elif isinstance(q, dict):
             lang = _fts_lang(data_dict.get('language'))
-            for field, value in six.iteritems(q):
+            for field, value in q.items():
                 if field not in fields_types:
                     continue
                 query_field = _ts_query_alias(field)
@@ -406,39 +401,103 @@ def _where_clauses(data_dict, fields_types):
                         identifier(field),
                         query_field)
                 clauses.append((clause_str,))
+    elif (full_text and not q):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+
+    elif full_text and isinstance(q, dict):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
+        # update clauses with q dict
+        _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses)
+
+    elif full_text and isinstance(q, str):
+        ts_query_alias = _ts_query_alias()
+        clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+        clauses.append((clause_str,))
 
     return clauses
 
 
-def _textsearch_query(lang, q, plain):
+def _update_where_clauses_on_q_dict(data_dict, fields_types, q, clauses):
+    lang = _fts_lang(data_dict.get('language'))
+    for field, _ in q.items():
+        if field not in fields_types:
+            continue
+        query_field = _ts_query_alias(field)
+
+        ftyp = fields_types[field]
+        if not datastore_helpers.should_fts_index_field_type(ftyp):
+            clause_str = u'_full_text @@ {0}'.format(query_field)
+            clauses.append((clause_str,))
+
+        clause_str = (
+            u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
+                literal_string(lang),
+                identifier(field),
+                query_field)
+        clauses.append((clause_str,))
+
+
+def _textsearch_query(lang, q, plain, full_text):
     u'''
     :param lang: language for to_tsvector
     :param q: string to search _full_text or dict to search columns
     :param plain: True to use plainto_tsquery, False for to_tsquery
+    :param full_text: string to search _full_text
 
     return (query, rank_columns) based on passed text/dict query
     rank_columns is a {alias: statement} dict where alias is "rank" for
     _full_text queries, and "rank <column-name>" for column search
     '''
-    if not q:
+    if not (q or full_text):
         return '', {}
 
     statements = []
     rank_columns = {}
-    if isinstance(q, string_types):
-        query, rank = _build_query_and_rank_statements(
-            lang, q, plain)
-        statements.append(query)
-        rank_columns[u'rank'] = rank
-    elif isinstance(q, dict):
-        for field, value in six.iteritems(q):
+    if q and not full_text:
+        if isinstance(q, str):
             query, rank = _build_query_and_rank_statements(
-                lang, value, plain, field)
+                lang, q, plain)
             statements.append(query)
-            rank_columns[u'rank ' + field] = rank
+            rank_columns[u'rank'] = rank
+        elif isinstance(q, dict):
+            for field, value in q.items():
+                query, rank = _build_query_and_rank_statements(
+                    lang, value, plain, field)
+                statements.append(query)
+                rank_columns[u'rank ' + field] = rank
+    elif full_text and not q:
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain
+        )
+    elif full_text and isinstance(q, dict):
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain)
+        for field, value in q.items():
+            _update_rank_statements_and_columns(
+                statements, rank_columns, lang, value, plain, field
+            )
+    elif full_text and isinstance(q, str):
+        _update_rank_statements_and_columns(
+            statements, rank_columns, lang, full_text, plain
+        )
 
     statements_str = ', ' + ', '.join(statements)
     return statements_str, rank_columns
+
+
+def _update_rank_statements_and_columns(
+        statements, rank_columns, lang, query, plain, field=None):
+    query, rank = _build_query_and_rank_statements(
+        lang, query, plain, field)
+    statements.append(query)
+    if field:
+        rank_columns[u'rank ' + field] = rank
+    else:
+        rank_columns[u'rank'] = rank
 
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
@@ -463,10 +522,7 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
 
 
 def _fts_lang(lang=None):
-    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
-    if default_fts_lang is None:
-        default_fts_lang = u'english'
-    return lang or default_fts_lang
+    return lang or config.get_value('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort, fields_types, rank_columns):
@@ -562,18 +618,14 @@ def _generate_index_name(resource_id, field):
 
 
 def _get_fts_index_method():
-    method = config.get('ckan.datastore.default_fts_index_method')
-    return method or 'gist'
+    return config.get_value('ckan.datastore.default_fts_index_method')
 
 
-def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
+def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):  # noqa
     fts_indexes = []
     resource_id = data_dict['resource_id']
-    # FIXME: This is repeated on the plugin.py, we should keep it DRY
-    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
-    if default_fts_lang is None:
-        default_fts_lang = u'english'
-    fts_lang = data_dict.get('language', default_fts_lang)
+    fts_lang = data_dict.get(
+        'language', config.get_value('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -750,7 +802,7 @@ def convert(data, type_name):
         return data.isoformat()
     if isinstance(data, (int, float)):
         return data
-    return text_type(data)
+    return str(data)
 
 
 def check_fields(context, fields):
@@ -1061,7 +1113,7 @@ def upsert_data(context, data_dict):
             VALUES ({values});'''.format(
             res_id=identifier(data_dict['resource_id']),
             columns=sql_columns.replace('%', '%%'),
-            values=', '.join(['%s' for field in field_names])
+            values=', '.join(['%s' for _ in field_names])
         )
 
         try:
@@ -1205,10 +1257,10 @@ def validate(context, data_dict):
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
 
-    for key, values in six.iteritems(data_dict_copy):
+    for key, values in data_dict_copy.items():
         if not values:
             continue
-        if isinstance(values, string_types):
+        if isinstance(values, str):
             value = values
         elif isinstance(values, (list, tuple)):
             value = values[0]
@@ -1253,6 +1305,9 @@ def search_data(context, data_dict):
         distinct = 'DISTINCT'
     else:
         distinct = ''
+
+    if not sort and not distinct:
+        sort = ['_id']
 
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
@@ -1388,7 +1443,7 @@ def _execute_single_statement_copy_to(context, sql_string, where_values, buf):
     cursor.close()
 
 
-def format_results(context, results, data_dict, rows_max):
+def format_results(context, results, data_dict, rows_max):  # noqa
     result_fields = []
     for field in results.cursor.description:
         result_fields.append({
@@ -1520,7 +1575,7 @@ def upsert(context, data_dict):
                 'query': ['Query took too long']
             })
         raise
-    except Exception as e:
+    except Exception:
         trans.rollback()
         raise
     finally:
@@ -1567,7 +1622,7 @@ def search_sql(context, data_dict):
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = int(config.get('ckan.datastore.search.rows_max', 32000))
+    rows_max = config.get_value('ckan.datastore.search.rows_max')
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1641,7 +1696,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message):
-        if self.config.get('debug'):
+        if self.config.get_value('debug'):
             log.critical(message)
         else:
             raise DatastoreException(message)
@@ -1660,6 +1715,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         if not self._read_connection_has_correct_privileges():
             self._log_or_raise('The read-only user has write privileges.')
+
+    def _is_postgresql_engine(self):
+        ''' Returns True if the read engine is a Postgresql Database.
+
+        According to
+        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        all Postgres driver names start with `postgres`.
+        '''
+        drivername = self._get_read_engine().engine.url.drivername
+        return drivername.startswith('postgres')
 
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
@@ -1725,13 +1790,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
-        self.enable_sql_search = toolkit.asbool(
-            self.config.get('ckan.datastore.sqlsearch.enabled', False))
+        self.enable_sql_search = self.config.get_value(
+            'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.get(
-                'ckan.datastore.sqlsearch.allowed_functions_file',
-                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            allowed_sql_functions_file = self.config.get_value(
+                'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 
             def format_entry(line):
@@ -1762,8 +1826,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.write_url = self.config['ckan.datastore.write_url']
         self.read_url = self.config['ckan.datastore.read_url']
 
-        self.read_engine = self._get_read_engine()
-        if not model.engine_is_pg(self.read_engine):
+        if not self._is_postgresql_engine():
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -1776,29 +1839,33 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         else:
             self._check_urls_and_permissions()
 
-        # check rows_max is valid on CKAN start-up
-        rows_max = config.get('ckan.datastore.search.rows_max')
-        if rows_max is not None:
-            int(rows_max)
-
-    def datastore_delete(self, context, data_dict, fields_types, query_dict):
+    def datastore_delete(
+            self, context, data_dict, fields_types, query_dict):  # noqa
         query_dict['where'] += _where_clauses(data_dict, fields_types)
         return query_dict
 
-    def datastore_search(self, context, data_dict, fields_types, query_dict):
+    def datastore_search(
+            self, context, data_dict, fields_types, query_dict):  # noqa
 
         fields = data_dict.get('fields')
 
         ts_query, rank_columns = _textsearch_query(
             _fts_lang(data_dict.get('language')),
             data_dict.get('q'),
-            data_dict.get('plain', True))
+            data_dict.get('plain', True),
+            data_dict.get('full_text'))
         # mutate parameter to add rank columns for _result_fields
         for rank_alias in rank_columns:
             fields_types[rank_alias] = u'float'
-
-        if fields:
+        fts_q = data_dict.get('full_text')
+        if fields and not fts_q:
             field_ids = datastore_helpers.get_list(fields)
+        elif fields and fts_q:
+            field_ids = datastore_helpers.get_list(fields)
+            all_field_ids = list(fields_types.keys())
+            field_intersect = [x for x in field_ids
+                               if x not in all_field_ids]
+            field_ids = all_field_ids + field_intersect
         else:
             field_ids = fields_types.keys()
 
@@ -1811,7 +1878,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             fields_types,
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
-
         select_cols = []
         records_format = data_dict.get(u'records_format')
         for field_id in field_ids:
@@ -1943,7 +2009,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     'query': ['Query took too long']
                 })
             raise
-        except Exception as e:
+        except Exception:
             trans.rollback()
             raise
         finally:
@@ -2030,7 +2096,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             # DB_SIZE - size of database in bytes
             dbsize_sql = sqlalchemy.text(
-                u"SELECT pg_database_size(current_database())".format(id))
+                u"SELECT pg_database_size(current_database())")
             dbsize_results = engine.execute(dbsize_sql)
             info['meta']['db_size'] = dbsize_results.fetchone()[0]
 

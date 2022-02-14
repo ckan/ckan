@@ -21,7 +21,7 @@ def _get_group_new_page(app, group_type):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestGroupController(object):
     def test_about(self, app):
         user = factories.User()
@@ -39,7 +39,7 @@ class TestGroupController(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
         try:
-            response = app.get(url=url, extra_environ=env)
+            app.get(url=url, extra_environ=env)
         except Exception as e:
             assert e.args == ("Must be an organization",)
         else:
@@ -51,14 +51,14 @@ class TestGroupController(object):
         group_name = group["name"]
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        app.get(url=url, extra_environ=env)
 
     def test_custom_group_form_slug(self, app):
-        env, response = _get_group_new_page(app, custom_group_type)
+        _, response = _get_group_new_page(app, custom_group_type)
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<label class="input-group-text">/{}/</label>'.format(
                 custom_group_type
             ),
         )
@@ -76,7 +76,7 @@ class TestGroupController(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform_organization")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
 class TestOrganizationController(object):
     def test_about(self, app):
         user = factories.User()
@@ -93,7 +93,7 @@ class TestOrganizationController(object):
         group_name = group["name"]
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        app.get(url=url, extra_environ=env)
 
     def test_delete(self, app):
         user = factories.User()
@@ -101,14 +101,14 @@ class TestOrganizationController(object):
         group_name = group["name"]
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        app.get(url=url, extra_environ=env)
 
     def test_custom_org_form_slug(self, app):
-        env, response = _get_group_new_page(app, custom_group_type)
+        _, response = _get_group_new_page(app, custom_group_type)
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<label class="input-group-text">/{}/</label>'.format(
                 custom_group_type
             ),
         )
@@ -122,6 +122,24 @@ class TestOrganizationController(object):
         assert helpers.body_contains(
             response,
             'data-module-placeholder="&lt;{}&gt;"'.format(custom_group_type),
+        )
+
+    def test_pagination(self, app):
+        user = factories.User()
+        group = factories.Organization(user=user, type=custom_group_type)
+        group_name = group["name"]
+        for _ in range(0, 21):
+            factories.Dataset(owner_org=group['id'], user=user)
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("%s.read" % custom_group_type, id=group_name)
+        response = app.get(url=url, extra_environ=env)
+        assert helpers.body_contains(
+            response,
+            '/grup/{}?page=2'.format(group_name)
+        )
+        assert not helpers.body_contains(
+            response,
+            '/organization/{}?page=2'.format(group_name)
         )
 
 
@@ -144,7 +162,7 @@ class TestGroupControllerNew(object):
 
     def test_custom_group_form(self, app):
         """Our custom group form is being used for new groups."""
-        env, response = _get_group_new_page(app, custom_group_type)
+        _, response = _get_group_new_page(app, custom_group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
@@ -153,7 +171,7 @@ class TestGroupControllerNew(object):
     "ckan.plugins", "example_igroupform_default_group_type"
 )
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
-class TestGroupControllerNew_DefaultGroupType(object):
+class TestGroupControllerNewDefaultGroupType(object):
     def test_save(self, app):
         url = url_for("%s.new" % group_type)
         user = factories.User()
@@ -170,7 +188,7 @@ class TestGroupControllerNew_DefaultGroupType(object):
 
     def test_custom_group_form(self, app):
         """Our custom group form is being used for new groups."""
-        env, response = _get_group_new_page(app, group_type)
+        _, response = _get_group_new_page(app, group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
@@ -197,7 +215,7 @@ class TestGroupControllerEdit(object):
 
     def test_custom_group_form(self, app):
         """Our custom group form is being used to edit groups."""
-        env, response, group_name = _get_group_edit_page(
+        _, response, _ = _get_group_edit_page(
             app, custom_group_type
         )
 
@@ -208,7 +226,7 @@ class TestGroupControllerEdit(object):
     "ckan.plugins", "example_igroupform_default_group_type"
 )
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
-class TestGroupControllerEdit_DefaultGroupType(object):
+class TestGroupControllerEditDefaultGroupType(object):
     def test_group_doesnt_exist(self, app):
         user = factories.User()
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
@@ -218,7 +236,7 @@ class TestGroupControllerEdit_DefaultGroupType(object):
 
     def test_custom_group_form(self, app):
         """Our custom group form is being used to edit groups."""
-        env, response, group_name = _get_group_edit_page(app, group_type)
+        _, response, _ = _get_group_edit_page(app, group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
@@ -278,6 +296,6 @@ class TestCustomGroupBlueprint(object):
     def test_default_group_type(self, app):
         resp = app.get("/", status=200)
         page = bs4.BeautifulSoup(resp.body)
-        link = page.select_one('.masthead .nav a[href="/grup/"]')
+        link = page.select_one('.masthead .navbar-nav a[href="/grup/"]')
         assert link
         assert link.text == 'Grups'

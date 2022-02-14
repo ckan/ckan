@@ -2,7 +2,7 @@
 
 import datetime
 
-from six import text_type
+
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
@@ -126,30 +126,10 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get(
-                'ckan.extra_resource_fields', '').split()
+            cls.extra_columns = config.get_value("ckan.extra_resource_fields")
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
-
-    @classmethod
-    def get_all_without_views(cls, formats=[]):
-        '''Returns all resources that have no resource views
-
-        :param formats: if given, returns only resources that have no resource
-            views and are in any of the received formats
-        :type formats: list
-
-        :rtype: list of ckan.model.Resource objects
-        '''
-        query = meta.Session.query(cls).outerjoin(ckan.model.ResourceView) \
-                    .filter(ckan.model.ResourceView.id == None)
-
-        if formats:
-            lowercase_formats = [f.lower() for f in formats]
-            query = query.filter(func.lower(cls.format).in_(lowercase_formats))
-
-        return query.all()
 
     def related_packages(self):
         return [self.package]
@@ -164,13 +144,10 @@ meta.mapper(Resource, resource_table, properties={
         # formally package_resources_all
         backref=orm.backref('resources_all',
                             collection_class=ordering_list('position'),
-                            cascade='all, delete',
-                            order_by=resource_table.c.position,
+                            cascade='all, delete'
                             ),
     )
-},
-extension=[extension.PluginMapperExtension()],
-)
+})
 
 
 def resource_identifier(obj):
@@ -179,7 +156,7 @@ def resource_identifier(obj):
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type=text_type):
+    def __init__(self, target_key, target_dict, data_type=str):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type

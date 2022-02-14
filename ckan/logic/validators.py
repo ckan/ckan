@@ -9,8 +9,7 @@ import mimetypes
 import string
 import json
 
-from six import string_types, iteritems
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -32,7 +31,6 @@ missing = df.missing
 
 
 def owner_org_validator(key, data, errors, context):
-
     value = data.get(key)
 
     if value is missing or value is None:
@@ -160,10 +158,6 @@ def isodate(value, context):
     return date
 
 def no_http(value, context):
-
-    model = context['model']
-    session = context['session']
-
     if 'http:' in value:
         raise Invalid(_('No links are allowed in the log_message.'))
     return value
@@ -356,7 +350,7 @@ def name_validator(value, context):
         a valid name
 
     '''
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise Invalid(_('Names must be strings'))
 
     # check basic textual rules
@@ -471,7 +465,7 @@ def tag_string_convert(key, data, errors, context):
     and parses tag names. These are added to the data dict, enumerated. They
     are also validated.'''
 
-    if isinstance(data[key], string_types):
+    if isinstance(data[key], str):
         tags = [tag.strip() \
                 for tag in data[key].split(',') \
                 if tag.strip()]
@@ -494,7 +488,6 @@ def ignore_not_admin(key, data, errors, context):
 def ignore_not_package_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer the package specified.'''
 
-    model = context['model']
     user = context.get('user')
 
     if 'ignore_auth' in context:
@@ -536,7 +529,6 @@ def ignore_not_sysadmin(key, data, errors, context):
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
 
-    model = context['model']
     user = context.get('user')
 
     if user and authz.is_sysadmin(user):
@@ -570,7 +562,7 @@ def user_name_validator(key, data, errors, context):
     model = context['model']
     new_user_name = data[key]
 
-    if not isinstance(new_user_name, string_types):
+    if not isinstance(new_user_name, str):
         raise Invalid(_('User names must be strings'))
 
     user = model.User.get(new_user_name)
@@ -608,7 +600,7 @@ def user_password_validator(key, data, errors, context):
 
     if isinstance(value, Missing):
         pass
-    elif not isinstance(value, string_types):
+    elif not isinstance(value, str):
         errors[('password',)].append(_('Passwords must be strings'))
     elif value == '':
         pass
@@ -779,7 +771,7 @@ def list_of_strings(key, data, errors, context):
     if not isinstance(value, list):
         raise Invalid(_('Not a list'))
     for x in value:
-        if not isinstance(x, string_types):
+        if not isinstance(x, str):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
 def if_empty_guess_format(key, data, errors, context):
@@ -883,6 +875,11 @@ email_pattern = re.compile(
                         )
 
 
+def strip_value(value):
+    '''Trims the Whitespace'''
+    return value.strip()
+
+
 def email_validator(value, context):
     '''Validate email input '''
 
@@ -931,21 +928,22 @@ def dict_only(value):
         raise Invalid(_('Must be a dict'))
     return value
 
+
 def email_is_unique(key, data, errors, context):
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
 
     users = session.query(model.User) \
-            .filter(model.User.email == data[key]).all()
+        .filter(model.User.email == data[key]).all()
     # is there is no users with this email it's free
     if not users:
         return
     else:
         # allow user to update their own email
         for user in users:
-            if (user.name == data[("name",)]
-                    or user.id == data[("id",)]):
+            if (user.name in (data.get(("name",)), data.get(("id",)))
+                    or user.id == data.get(("id",))):
                 return
 
     raise Invalid(
@@ -953,9 +951,9 @@ def email_is_unique(key, data, errors, context):
 
 
 def one_of(list_of_value):
-    ''' Checks if the provided value is present in a list '''
+    ''' Checks if the provided value is present in a list or is an empty string'''
     def callable(value):
-        if value not in list_of_value:
+        if value != "" and value not in list_of_value:
             raise Invalid(_('Value must be one of {}'.format(list_of_value)))
         return value
     return callable
@@ -976,7 +974,7 @@ def json_object(value):
 
 def extras_valid_json(extras, context):
     try:
-        for extra, value in iteritems(extras):
+        for extra, value in extras.items():
             json.dumps(value)
     except ValueError as e:
         raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').

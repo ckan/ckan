@@ -125,7 +125,7 @@ class TestDatapreviewWithWebpageView(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view test_datastore_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestDatapreview(object):
     def test_get_view_plugins(self):
 
@@ -234,6 +234,7 @@ class TestDatapreview(object):
 
         assert created_views[0]["view_type"] == "image_view"
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view")
     def test_default_views_created_on_package_create(self):
 
         dataset_dict = factories.Dataset(
@@ -259,6 +260,7 @@ class TestDatapreview(object):
             assert len(views_list) == 1
             assert views_list[0]["view_type"] == "image_view"
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view")
     def test_default_views_created_on_resource_create(self):
 
         dataset_dict = factories.Dataset(

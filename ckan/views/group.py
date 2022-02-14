@@ -4,9 +4,7 @@ import logging
 import re
 from collections import OrderedDict
 
-import six
-from six import string_types
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from datetime import datetime
 
 import ckan.lib.base as base
@@ -85,13 +83,6 @@ def _check_access(action_name, *args, **kw):
     return check_access(_replace_group_org(action_name), *args, **kw)
 
 
-def _render_template(template_name, group_type):
-    u''' render the correct group/org template '''
-    return base.render(
-        _replace_group_org(template_name),
-        extra_vars={u'group_type': group_type})
-
-
 def _force_reindex(grp):
     u''' When the group name has changed, we need to force a reindex
     of the datasets within the group, otherwise they will stop
@@ -129,8 +120,8 @@ def set_org(is_organization):
 def index(group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    page = h.get_page_number(request.params) or 1
-    items_per_page = int(config.get(u'ckan.datasets_per_page', 20))
+    page = h.get_page_number(request.args) or 1
+    items_per_page = config.get_value('ckan.datasets_per_page')
 
     context = {
         u'model': model,
@@ -146,8 +137,8 @@ def index(group_type, is_organization):
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    q = request.params.get(u'q', u'')
-    sort_by = request.params.get(u'sort')
+    q = request.args.get(u'q', u'')
+    sort_by = request.args.get(u'sort')
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -224,7 +215,7 @@ def _read(id, limit, group_type):
         u'extras_as_string': True
     }
 
-    q = request.params.get(u'q', u'')
+    q = request.args.get(u'q', u'')
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -244,19 +235,19 @@ def _read(id, limit, group_type):
 
     context['return_query'] = True
 
-    page = h.get_page_number(request.params)
+    page = h.get_page_number(request.args)
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items() if k != u'page']
-    sort_by = request.params.get(u'sort', None)
+    params_nopage = [(k, v) for k, v in request.args.items(multi=True)
+                     if k != u'page']
+    sort_by = request.args.get(u'sort', None)
 
     def search_url(params):
-        controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(
             g, u'action', u'') == u'bulk_process' else u'read'
-        url = h.url_for(u'.'.join([controller, action]), id=id)
+        url = h.url_for(u'.'.join([group_type, action]), id=id)
         params = [(k, v.encode(u'utf-8')
-                   if isinstance(v, string_types) else str(v))
+                   if isinstance(v, str) else str(v))
                   for k, v in params]
         return url + u'?' + urlencode(params)
 
@@ -282,7 +273,7 @@ def _read(id, limit, group_type):
 
     extra_vars["remove_field"] = remove_field
 
-    def pager_url(q=None, page=None):
+    def pager_url(q=None, page=None):  # noqa
         params = list(params_nopage)
         params.append((u'page', page))
         return search_url(params)
@@ -365,8 +356,9 @@ def _read(id, limit, group_type):
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         for facet in g.search_facets.keys():
             limit = int(
-                request.params.get(u'_%s_limit' % facet,
-                                   config.get(u'search.facets.default', 10)))
+                request.args.get(
+                    u'_%s_limit' % facet,
+                    config.get_value(u'search.facets.default')))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
 
@@ -385,11 +377,15 @@ def _read(id, limit, group_type):
 
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
-        facets = plugin.group_facets(facets, group_type, None)
+        facets = (
+            plugin.group_facets(facets, group_type, None)
+            if group_type == "group"
+            else plugin.organization_facets(facets, group_type, None)
+        )
     return facets
 
 
-def _get_group_dict(id, group_type):
+def _get_group_dict(id, group_type):  # noqa
     u''' returns the result of group_show action or aborts if there is a
     problem '''
     context = {
@@ -420,7 +416,7 @@ def read(group_type, is_organization, id=None, limit=20):
     data_dict = {u'id': id, u'type': group_type}
 
     # unicode format (decoded from utf8)
-    q = request.params.get(u'q', u'')
+    q = request.args.get(u'q', u'')
 
     extra_vars["q"] = q
 
@@ -513,6 +509,8 @@ def changes(id, group_type, is_organization):
     Shows the changes to an organization in one particular activity stream
     item.
     '''
+    set_org(is_organization)
+    extra_vars = {}
     activity_id = id
     context = {
         u'model': model, u'session': model.Session,
@@ -541,14 +539,14 @@ def changes(id, group_type, is_organization):
         }
     )
 
-    return base.render(
-        u'organization/changes.html', {
-            u'activity_diffs': [activity_diff],
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': [activity_diff],
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def changes_multiple(is_organization, group_type=None):
@@ -558,7 +556,8 @@ def changes_multiple(is_organization, group_type=None):
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     '''
-
+    set_org(is_organization)
+    extra_vars = {}
     new_id = h.get_request_param(u'new_id')
     old_id = h.get_request_param(u'old_id')
 
@@ -624,14 +623,14 @@ def changes_multiple(is_organization, group_type=None):
         u'id': group_id,
         u'limit': 100})
 
-    return base.render(
-        u'organization/changes.html', {
-            u'activity_diffs': diff_list,
-            u'group_dict': current_group_dict,
-            u'group_activity_list': group_activity_list,
-            u'group_type': current_group_dict[u'type'],
-        }
-    )
+    extra_vars = {
+        u'activity_diffs': diff_list,
+        u'group_dict': current_group_dict,
+        u'group_activity_list': group_activity_list,
+        u'group_type': current_group_dict[u'type'],
+    }
+
+    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
 
 
 def about(id, group_type, is_organization):
@@ -693,7 +692,7 @@ def members(id, group_type, is_organization):
 def member_delete(id, group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.params:
+    if u'cancel' in request.args:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = {u'model': model, u'session': model.Session, u'user': g.user}
@@ -704,7 +703,7 @@ def member_delete(id, group_type, is_organization):
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
 
     try:
-        user_id = request.params.get(u'user')
+        user_id = request.args.get(u'user')
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
@@ -735,7 +734,7 @@ def member_delete(id, group_type, is_organization):
 
 
 # deprecated
-def history(id, group_type, is_organization):
+def history(id, group_type, is_organization):  # noqa
     return h.redirect_to(u'group.activity', id=id)
 
 
@@ -759,7 +758,7 @@ def follow(id, group_type, is_organization):
     return h.redirect_to(u'group.read', id=id)
 
 
-def unfollow(id, group_type, is_organization):
+def unfollow(id, group_type, is_organization):  # noqa
     u'''Stop following this group.'''
     set_org(is_organization)
     context = {u'model': model, u'session': model.Session, u'user': g.user}
@@ -842,6 +841,12 @@ class BulkProcessView(MethodView):
             u'for_view': True,
             u'extras_as_string': True
         }
+
+        try:
+            check_access(u'bulk_update_public', context, {u'org_id': id})
+        except NotAuthorized:
+            base.abort(403, _(u'Unauthorized to access'))
+
         return context
 
     def get(self, id, group_type, is_organization):
@@ -882,12 +887,11 @@ class BulkProcessView(MethodView):
             _get_group_template(u'bulk_process_template', group_type),
             extra_vars)
 
-    def post(self, id, group_type, is_organization, data=None):
+    def post(self, id, group_type, is_organization, data=None):  # noqa
         set_org(is_organization)
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
         try:
-            check_access(u'bulk_update_public', context, {u'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
@@ -924,7 +928,7 @@ class BulkProcessView(MethodView):
         actions = form_names.intersection(actions_in_form)
         # ie7 puts all buttons in form params but puts submitted one twice
 
-        for key, value in six.iteritems(request.form.to_dict()):
+        for key, value in request.form.to_dict().items():
             if value in [u'private', u'public']:
                 action = key.split(u'.')[-1]
                 break
@@ -969,8 +973,8 @@ class CreateGroupView(MethodView):
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
-            u'save': u'save' in request.params,
-            u'parent': request.params.get(u'parent', None),
+            u'save': u'save' in request.args,
+            u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
         }
 
@@ -995,7 +999,7 @@ class CreateGroupView(MethodView):
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
 
-        except (NotFound, NotAuthorized) as e:
+        except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
@@ -1049,22 +1053,22 @@ class CreateGroupView(MethodView):
 class EditGroupView(MethodView):
     u''' Edit group view'''
 
-    def _prepare(self, id, is_organization, data=None):
+    def _prepare(self, id, is_organization, data=None):  # noqa
         data_dict = {u'id': id, u'include_datasets': False}
 
         context = {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
-            u'save': u'save' in request.params,
+            u'save': u'save' in request.args,
             u'for_edit': True,
-            u'parent': request.params.get(u'parent', None),
+            u'parent': request.args.get(u'parent', None),
             u'id': id
         }
 
         try:
-            group = _action(u'group_show')(context, data_dict)
-            check_access(u'group_update', context)
+            _action(u'group_show')(context, data_dict)
+            _check_access(u'group_update', context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
@@ -1088,7 +1092,7 @@ class EditGroupView(MethodView):
             if id != group['name']:
                 _force_reindex(group)
 
-        except (NotFound, NotAuthorized) as e:
+        except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
@@ -1163,18 +1167,13 @@ class DeleteGroupView(MethodView):
                 u'has been deleted') or _(u'Group')
             h.flash_notice(
                 _(u'%s has been deleted.') % _(group_label))
-            group_dict = _action(u'group_show')(context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
             h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'organization.read', id=id)
-
             return h.redirect_to(u'{}.read'.format(group_type), id=id)
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
@@ -1183,7 +1182,7 @@ class DeleteGroupView(MethodView):
         set_org(is_organization)
         context = self._prepare(id)
         group_dict = _action(u'group_show')(context, {u'id': id})
-        if u'cancel' in request.params:
+        if u'cancel' in request.args:
             return h.redirect_to(u'{}.edit'.format(group_type), id=id)
 
         # TODO: Remove
@@ -1229,7 +1228,15 @@ class MembersGroupView(MethodView):
                 u'role': data_dict['role']
             }
             del data_dict['email']
-            user_dict = _action(u'user_invite')(context, user_data_dict)
+
+            try:
+                user_dict = _action(u'user_invite')(context, user_data_dict)
+            except ValidationError as e:
+                for _key, error in e.error_summary.items():
+                    h.flash_error(error)
+                return h.redirect_to(
+                    u'{}.member_new'.format(group_type), id=id)
+
             data_dict['username'] = user_dict['name']
 
         try:
@@ -1239,7 +1246,8 @@ class MembersGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            h.flash_error(e.error_summary)
+            for _key, error in e.error_summary.items():
+                h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
         # TODO: Remove
@@ -1251,7 +1259,7 @@ class MembersGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare(id)
-        user = request.params.get(u'user')
+        user = request.args.get(u'user')
         data_dict = {u'id': id}
         data_dict['include_datasets'] = False
         group_dict = _action(u'group_show')(context, data_dict)
@@ -1329,7 +1337,7 @@ def register_group_plugin_rules(blueprint):
             view_func=globals()[action])
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(
-        u'/organization.changes_multiple',
+        u'/changes_multiple',
         view_func=changes_multiple)
 
 

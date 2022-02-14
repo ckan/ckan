@@ -5,12 +5,14 @@ extend CKAN.
 
 '''
 from inspect import isclass
+import warnings
+
+from ckan.exceptions import CkanDeprecationWarning
 from pyutilib.component.core import Interface as _pca_Interface
+
 
 __all__ = [
     u'Interface',
-    u'IRoutes',
-    u'IMapper',
     u'ISession',
     u'IMiddleware',
     u'IAuthFunctions',
@@ -21,12 +23,12 @@ __all__ = [
     u'IPackageController',
     u'IPluginObserver',
     u'IConfigurable',
+    u'IConfigDeclaration',
     u'IConfigurer',
     u'IActions',
     u'IResourceUrlChange',
     u'IDatasetForm',
     u'IValidators',
-    u'IResourcePreview',
     u'IResourceView',
     u'IResourceController',
     u'IGroupForm',
@@ -41,6 +43,7 @@ __all__ = [
     u'IForkObserver',
     u'IApiToken',
     u'IClick',
+    u'ISignal',
 ]
 
 
@@ -109,86 +112,6 @@ class IMiddleware(Interface):
         Pylons app.
         '''
         return app
-
-
-class IRoutes(Interface):
-    u'''
-    Plugin into the setup of the routes map creation.
-
-    '''
-    def before_map(self, map):
-        u'''
-        Called before the routes map is generated. ``before_map`` is before any
-        other mappings are created so can override all other mappings.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
-
-    def after_map(self, map):
-        u'''
-        Called after routes map is set up. ``after_map`` can be used to
-        add fall-back handlers.
-
-        :param map: Routes map object
-        :returns: Modified version of the map object
-        '''
-        return map
-
-
-class IMapper(Interface):
-    u'''
-    A subset of the SQLAlchemy mapper extension hooks.
-    See `sqlalchemy MapperExtension`_
-
-    Example::
-
-        >>> class MyPlugin(SingletonPlugin):
-        ...
-        ...     implements(IMapper)
-        ...
-        ...     def after_update(self, mapper, connection, instance):
-        ...         log(u'Updated: %r', instance)
-
-    .. _sqlalchemy MapperExtension:\
-    http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
-    '''  # noqa
-
-    def before_insert(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is INSERTed into
-        its table.
-        '''
-
-    def before_update(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is UPDATEed.
-        '''
-
-    def before_delete(self, mapper, connection, instance):
-        u'''
-        Receive an object instance before that instance is PURGEd.
-        (whereas usually in ckan 'delete' means to change the state property to
-        deleted, so use before_update for that case.)
-        '''
-
-    def after_insert(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is INSERTed.
-        '''
-
-    def after_update(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is UPDATEed.
-        '''
-
-    def after_delete(self, mapper, connection, instance):
-        u'''
-        Receive an object instance after that instance is PURGEd.
-        (whereas usually in ckan 'delete' means to change the state property to
-        deleted, so use before_update for that case.)
-        '''
 
 
 class ISession(Interface):
@@ -445,65 +368,6 @@ class IResourceView(Interface):
         '''
 
 
-class IResourcePreview(Interface):
-    u'''
-
-    .. warning:: This interface is deprecated, and is only kept for backwards
-        compatibility with the old resource preview code. Please
-        use :py:class:`~ckan.plugins.interfaces.IResourceView` for writing
-        custom view plugins.
-
-    '''
-
-    def can_preview(self, data_dict):
-        u'''Return info on whether the plugin can preview the resource.
-
-        This can be done in two ways:
-
-        1. The old way is to just return ``True`` or ``False``.
-
-        2. The new way is to return a dict with  three keys:
-
-           * ``can_preview`` (``boolean``)
-             ``True`` if the extension can preview the resource.
-
-           * ``fixable`` (``string``)
-             A string explaining how preview for the resource could be enabled,
-             for example if the ``resource_proxy`` plugin was enabled.
-
-           * ``quality`` (``int``)
-             How good the preview is: ``1`` (poor), ``2`` (average) or
-             ``3`` (good). When multiple preview extensions can preview the
-             same resource, this is used to determine which extension will
-             be used.
-
-        :param data_dict: the resource to be previewed and the dataset that it
-          belongs to.
-        :type data_dict: dictionary
-
-        Make sure to check the ``on_same_domain`` value of the resource or the
-        url if your preview requires the resource to be on the same domain
-        because of the same-origin policy.  To find out how to preview
-        resources that are on a different domain, read :ref:`resource-proxy`.
-
-        '''
-
-    def setup_template_variables(self, context, data_dict):
-        u'''
-        Add variables to c just prior to the template being rendered.
-        The ``data_dict`` contains the resource and the dataset.
-
-        Change the url to a proxied domain if necessary.
-        '''
-
-    def preview_template(self, context, data_dict):
-        u'''
-        Returns a string representing the location of the template to be
-        rendered for the read page.
-        The ``data_dict`` contains the resource and the dataset.
-        '''
-
-
 class ITagController(Interface):
     u'''
     Hook into the Tag view. These will usually be called just before
@@ -600,9 +464,28 @@ class IPackageController(Interface):
     u'''
     Hook into the dataset view.
     '''
+    def __init__(self):
+        # Drop support by removing this __init__ function
+        for old_name, new_name in [
+            ["after_create", "after_dataset_create"],
+            ["after_update", "after_dataset_update"],
+            ["after_delete", "after_dataset_delete"],
+            ["after_show", "after_dataset_show"],
+            ["before_search", "before_dataset_search"],
+            ["after_search", "after_dataset_search"],
+            ["before_index", "before_dataset_index"],
+                ["before_view", "before_dataset_view"]]:
+            if hasattr(self, old_name):
+                warnings.warn(
+                    "The method 'IPackageController.{}' is ".format(old_name)
+                    + "deprecated. Please use '{}' instead!".format(new_name),
+                    CkanDeprecationWarning)
+                setattr(self, new_name, getattr(self, old_name))
 
     def read(self, entity):
-        u'''Called after IPackageController.before_view inside package_show.
+        u'''
+        Called after IPackageController.before_dataset_view inside
+        package_show.
         '''
         pass
 
@@ -621,7 +504,7 @@ class IPackageController(Interface):
         '''
         pass
 
-    def after_create(self, context, pkg_dict):
+    def after_dataset_create(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been created (Note that the create method will return a dataset
@@ -630,28 +513,28 @@ class IPackageController(Interface):
         '''
         pass
 
-    def after_update(self, context, pkg_dict):
+    def after_dataset_update(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
         '''
         pass
 
-    def after_delete(self, context, pkg_dict):
+    def after_dataset_delete(self, context, pkg_dict):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
         '''
         pass
 
-    def after_show(self, context, pkg_dict):
+    def after_dataset_show(self, context, pkg_dict):
         u'''
         Extensions will receive the validated data dict after the dataset
         is ready for display.
         '''
         pass
 
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         u'''
         Extensions will receive a dictionary with the query parameters,
         and should return a modified (or not) version of it.
@@ -662,7 +545,7 @@ class IPackageController(Interface):
         '''
         return search_params
 
-    def after_search(self, search_results, search_params):
+    def after_dataset_search(self, search_results, search_params):
         u'''
         Extensions will receive the search results, as well as the search
         parameters, and should return a modified (or not) object with the
@@ -681,7 +564,7 @@ class IPackageController(Interface):
 
         return search_results
 
-    def before_index(self, pkg_dict):
+    def before_dataset_index(self, pkg_dict):
         u'''
         Extensions will receive what will be given to Solr for
         indexing. This is essentially a flattened dict (except for
@@ -691,7 +574,7 @@ class IPackageController(Interface):
         '''
         return pkg_dict
 
-    def before_view(self, pkg_dict):
+    def before_dataset_view(self, pkg_dict):
         u'''
         Extensions will receive this before the dataset gets
         displayed. The dictionary passed will be the one that gets
@@ -704,8 +587,24 @@ class IResourceController(Interface):
     u'''
     Hook into the resource view.
     '''
+    def __init__(self):
+        # Drop support by removing this __init__ function
+        for old_name, new_name in [
+            ["before_create", "before_resource_create"],
+            ["after_create", "after_resource_create"],
+            ["before_update", "before_resource_update"],
+            ["after_update", "after_resource_update"],
+            ["before_delete", "before_resource_delete"],
+            ["after_delete", "after_resource_delete"],
+                ["before_show", "before_resource_show"]]:
+            if hasattr(self, old_name):
+                warnings.warn(
+                    "The method 'IResourceController.{}' is ".format(old_name)
+                    + "deprecated. Please use '{}' instead!".format(new_name),
+                    CkanDeprecationWarning)
+                setattr(self, new_name, getattr(self, old_name))
 
-    def before_create(self, context, resource):
+    def before_resource_create(self, context, resource):
         u'''
         Extensions will receive this before a resource is created.
 
@@ -718,7 +617,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_create(self, context, resource):
+    def after_resource_create(self, context, resource):
         u'''
         Extensions will receive this after a resource is created.
 
@@ -734,7 +633,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def before_update(self, context, current, resource):
+    def before_resource_update(self, context, current, resource):
         u'''
         Extensions will receive this before a resource is updated.
 
@@ -749,7 +648,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_update(self, context, resource):
+    def after_resource_update(self, context, resource):
         u'''
         Extensions will receive this after a resource is updated.
 
@@ -758,14 +657,14 @@ class IResourceController(Interface):
         :type context: dictionary
         :param resource: An object representing the updated resource in
             the dataset (the one that was just updated). As with
-            ``after_create``, a noteworthy key in the resource dictionary
-            ``url_type`` which is set to ``upload`` when the resource file
-            is uploaded instead of linked.
+            ``after_resource_create``, a noteworthy key in the resource
+            dictionary ``url_type`` which is set to ``upload`` when the
+            resource file is uploaded instead of linked.
         :type resource: dictionary
         '''
         pass
 
-    def before_delete(self, context, resource, resources):
+    def before_resource_delete(self, context, resource, resources):
         u'''
         Extensions will receive this before a resource is deleted.
 
@@ -783,7 +682,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def after_delete(self, context, resources):
+    def after_resource_delete(self, context, resources):
         u'''
         Extensions will receive this after a resource is deleted.
 
@@ -796,7 +695,7 @@ class IResourceController(Interface):
         '''
         pass
 
-    def before_show(self, resource_dict):
+    def before_resource_show(self, resource_dict):
         u'''
         Extensions will receive the validated data dict before the resource
         is ready for display.
@@ -861,6 +760,53 @@ class IConfigurable(Interface):
         :param config: dict-like configuration object
         :type config: :py:class:`ckan.common.CKANConfig`
         '''
+        return
+
+
+class IConfigDeclaration(Interface):
+    """Register additional configuration options.
+
+    While it's not necessary, declared config options can be printed out using
+    CLI or additionally verified in code. This makes the task of adding new
+    configuration, removing obsolete config options, checking the sanity of
+    config options much simpler for extension consumers.
+
+    """
+
+    def declare_config_options(self, declaration, key):
+        """Register extra config options.
+
+        Example::
+
+            from ckan.config.declaration import Declaration, Key
+
+            def declare_config_options(
+                self, declaration: Declaration, key: Key):
+
+                declaration.annotate("MyExt config section")
+                group = key.ckanext.my_ext.feature
+                declaration.declare(group.enabled, "no").set_description(
+                    "Enables feature"
+                )
+                declaration.declare(group.mode, "simple")
+
+        Produces the following config suggestion::
+
+            ####### MyExt config section #######
+            # Enables feature
+            ckanext.my_ext.feature.enabled = no
+            # ckanext.my_ext.feature.mode = simple
+
+        See :ref:`declare configuration <declare-config-options>` guide for
+        details.
+
+        :param declaration:  object containing all the config declarations
+        :type declaration: :py:class:`ckan.config.declaration.Declaration`
+
+        :param key: object for generic option access.
+        :type key: :py:class:`ckan.config.declaration.Key`
+
+        """
 
 
 class IConfigurer(Interface):
@@ -2058,3 +2004,130 @@ class IClick(Interface):
         :rtype: list of function objects
         '''
         return []
+
+
+class ISignal(Interface):
+    """Subscribe to CKAN signals.
+    """
+
+    def get_signal_subscriptions(self):
+        """Return a mapping of signals to their listeners.
+
+        Note that keys are not strings, they are instances of
+        ``blinker.Signal``. When using signals provided by CKAN core,
+        it is better to use the references from the :doc:`plugins
+        toolkit <plugins-toolkit>` for better future
+        compatibility. Values should be a list of listener functions::
+
+            def get_signal_subscriptions(self):
+                import ckan.plugins.toolkit as tk
+
+                # or, even better, but requires additional dependency:
+                # pip install ckantoolkit
+                import ckantoolkit as tk
+
+                return {
+                    tk.signals.request_started: [request_listener],
+                    tk.signals.register_blueprint: [
+                        first_blueprint_listener,
+                        second_blueprint_listener
+                    ]
+                }
+
+        Listeners are callables that accept one mandatory
+        argument (``sender``) and an arbitrary number of
+        named arguments (text). The best signature for a listener is
+        ``def(sender, **kwargs)``.
+
+        The ``sender`` argument  will be different depending on the signal
+        and will be generally used to conditionally executing code on the
+        listener. For example, the ``register_blueprint`` signal is sent every
+        time a custom dataset/group/organization blueprint is registered
+        (using :class:`ckan.plugins.interfaces.IDatasetForm`
+        or :class:`ckan.plugins.interfaces.IGroupForm`). Depending on
+        the kind of blueprint, ``sender`` may be 'dataset', 'group',
+        'organization' or 'resource'. If you want to do some work only
+        for 'dataset' blueprints, you may end up with something similar to::
+
+
+            import ckan.plugins.toolkit as tk
+
+            def dataset_blueprint_listener(sender, **kwargs):
+                if sender != 'dataset':
+                    return
+                # Otherwise, do something..
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+
+                    return {
+                        tk.signals.register_blueprint: [
+                            dataset_blueprint_listener,
+                        ]
+                    }
+
+        Because this is a really common use case, there is additional
+        form of listener registration supported. Instead of just
+        callables, one can use dictionaries of form ``{'receiver':
+        CALLABLE, 'sender': DESIRED_SENDER}``. The following code
+        snippet has the same effect than the previous one::
+
+
+            import ckan.plugins.toolkit as tk
+
+            def dataset_blueprint_listener(sender, **kwargs):
+                # do something..
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+
+                    return {
+                        tk.signals.register_blueprint: [{
+                            'receiver': dataset_blueprint_listener,
+                            'sender': 'dataset'
+                        }]
+                    }
+
+        The two forms of registration can be mixed when multiple
+        listeners are registered, callables and dictionaries with
+        ``receiver``/``sender`` keys::
+
+            import ckan.plugins.toolkit as tk
+
+            def log_registration(sender, **kwargs):
+                log.info("Log something")
+
+            class ExamplePlugin(plugins.SingletonPlugin)
+                plugins.implements(plugins.ISignal)
+
+                def get_signal_subscriptions(self):
+                    return {
+                        tk.signals.request_started: [
+                            log_registration,
+                            {'receiver': log_registration, 'sender': 'dataset'}
+                        ]
+                    }
+
+        Even though it is possible to change mutable arguments inside the
+        listener, or return something from it, the main purpose of signals
+        is the triggering of side effects, like logging, starting background
+        jobs, calls to external services, etc.
+
+        Any mutation or attempt to change CKAN behavior through signals should
+        be considered unsafe and may lead to hard to track bugs in
+        the future. So never modify the arguments of signal listener and
+        treat them as constants.
+
+        Always check for the presence of the desired value inside the received
+        context (named arguments). Arguments passed to
+        signals may change over time, and some arguments may disappear.
+
+        :returns: mapping of subscriptions to signals
+        :rtype: dict
+
+        """
+        return {}

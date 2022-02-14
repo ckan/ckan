@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from six import string_types
+
 
 from ckan.model import meta, core
 
@@ -96,7 +96,7 @@ class DomainObject(object):
         are converted to strings for json compatibilty
         """
         _dict = OrderedDict()
-        table = orm.class_mapper(self.__class__).mapped_table
+        table = orm.class_mapper(self.__class__).persist_selectable
         for col in table.c:
             val = getattr(self, col.name)
             if isinstance(val, datetime.date):
@@ -122,14 +122,14 @@ class DomainObject(object):
         """
         changed = set()
         skipped = dict(_dict)
-        table = orm.class_mapper(self.__class__).mapped_table
+        table = orm.class_mapper(self.__class__).persist_selectable
         for col in table.c:
             if col.name.startswith('_'):
                 continue
             if col.name in _dict:
                 value = _dict[col.name]
                 db_value = getattr(self, col.name)
-                if isinstance(db_value, datetime.datetime) and isinstance(value, string_types):
+                if isinstance(db_value, datetime.datetime) and isinstance(value, str):
                     db_value = db_value.isoformat()
                 if db_value != value:
                     changed.add(col.name)
@@ -151,7 +151,7 @@ class DomainObject(object):
 
     def __unicode__(self):
         repr = u'<%s' % self.__class__.__name__
-        table = orm.class_mapper(self.__class__).mapped_table
+        table = orm.class_mapper(self.__class__).persist_selectable
         for col in table.c:
             try:
                 repr += u' %s=%s' % (col.name, getattr(self, col.name))

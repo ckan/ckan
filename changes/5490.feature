@@ -1,0 +1,1 @@
+Add functionality for the user_show to fetch own details when logged in without passing id

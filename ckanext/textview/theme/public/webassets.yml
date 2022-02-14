@@ -1,7 +1,7 @@
 main-css:
   output: ckanext-textview/%(version)s_textview.css
   contents:
-    - styles/github.css
+    - styles/a11y-light.css
     - css/text.css
 
 main:
@@ -11,5 +11,5 @@ main:
       - base/main
       - ckanext-textview/main-css
   contents:
-    - vendor/highlight.pack.js
+    - vendor/highlight.js
     - text_view.js

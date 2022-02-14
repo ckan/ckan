@@ -1,17 +1,16 @@
 # encoding: utf-8
 import logging
+import inspect
 from collections import OrderedDict
 from functools import partial
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from datetime import datetime
 
 from flask import Blueprint
 from flask.views import MethodView
+from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
 from ckan.common import asbool
-
-import six
-from six import string_types, text_type
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -23,9 +22,7 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.render import TemplateNotFound
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-from ckan.views import LazyView
 
 
 NotFound = logic.NotFound
@@ -57,16 +54,15 @@ def _setup_template_variables(context, data_dict, package_type=None):
 def _get_pkg_template(template_type, package_type=None):
     pkg_plugin = lookup_package_plugin(package_type)
     method = getattr(pkg_plugin, template_type)
-    try:
+    signature = inspect.signature(method)
+    if len(signature.parameters):
         return method(package_type)
-    except TypeError as err:
-        if u'takes 1' not in str(err) and u'takes exactly 1' not in str(err):
-            raise
+    else:
         return method()
 
 
 def _encode_params(params):
-    return [(k, v.encode(u'utf-8') if isinstance(v, string_types) else str(v))
+    return [(k, v.encode(u'utf-8') if isinstance(v, str) else str(v))
             for k, v in params]
 
 
@@ -118,7 +114,7 @@ def _sort_by(params_nosort, package_type, fields):
     return search_url(params, package_type)
 
 
-def _pager_url(params_nopage, package_type, q=None, page=None):
+def _pager_url(params_nopage, package_type, q=None, page=None):  # noqa
     params = list(params_nopage)
     params.append((u'page', page))
     return search_url(params, package_type)
@@ -143,7 +139,7 @@ def _form_save_redirect(pkg_name, action, package_type=None):
     @param action - What the action of the edit was
     """
     assert action in (u'new', u'edit')
-    url = request.args.get(u'return_to') or config.get(
+    url = request.args.get(u'return_to') or config.get_value(
         u'package_%s_return_url' % action
     )
     if url:
@@ -220,10 +216,11 @@ def search(package_type):
     extra_vars['query_error'] = False
     page = h.get_page_number(request.args)
 
-    limit = int(config.get(u'ckan.datasets_per_page', 20))
+    limit = config.get_value(u'ckan.datasets_per_page')
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.args.items() if k != u'page']
+    params_nopage = [(k, v) for k, v in request.args.items(multi=True)
+                     if k != u'page']
 
     extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
@@ -261,7 +258,7 @@ def search(package_type):
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
     # on the default search page (dataset) or on one other search page
-    search_all_type = config.get(u'ckan.search.show_all_types', u'dataset')
+    search_all_type = config.get_value(u'ckan.search.show_all_types')
     search_all = False
 
     try:
@@ -317,9 +314,8 @@ def search(package_type):
         u'start': (page - 1) * limit,
         u'sort': sort_by,
         u'extras': search_extras,
-        u'include_private': asbool(
-            config.get(u'ckan.search.default_include_private', True)
-        ),
+        u'include_private': config.get_value(
+            u'ckan.search.default_include_private'),
     }
     try:
         query = get_action(u'package_search')(context, data_dict)
@@ -361,7 +357,7 @@ def search(package_type):
             limit = int(
                 request.args.get(
                     u'_%s_limit' % facet,
-                    int(config.get(u'search.facets.default', 10))
+                    config.get_value(u'search.facets.default')
                 )
             )
         except ValueError:
@@ -378,7 +374,7 @@ def search(package_type):
     extra_vars[u'dataset_type'] = package_type
 
     # TODO: remove
-    for key, value in six.iteritems(extra_vars):
+    for key, value in extra_vars.items():
         setattr(g, key, value)
 
     return base.render(
@@ -437,7 +433,7 @@ def read(package_type, id):
         u'auth_user_obj': g.userobj
     }
     data_dict = {u'id': id, u'include_tracking': True}
-    activity_id = request.params.get(u'activity_id')
+    activity_id = request.args.get(u'activity_id')
 
     # check if package exists
     try:
@@ -525,14 +521,12 @@ def read(package_type, id):
         )
         return base.abort(404, msg)
 
-    assert False, u"We should never get here"
-
 
 class CreateView(MethodView):
     def _is_save(self):
         return u'save' in request.form
 
-    def _prepare(self, data=None):
+    def _prepare(self, data=None):  # noqa
 
         context = {
             u'model': model,
@@ -612,13 +606,13 @@ class CreateView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to read package'))
-        except NotFound as e:
+        except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to add package to search index.') + exc_str
@@ -709,7 +703,7 @@ class CreateView(MethodView):
 
 
 class EditView(MethodView):
-    def _prepare(self, id, data=None):
+    def _prepare(self, id, data=None):  # noqa
         context = {
             u'model': model,
             u'session': model.Session,
@@ -748,13 +742,13 @@ class EditView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to read package %s') % id)
-        except NotFound as e:
+        except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:
-                exc_str = text_type(repr(e.args))
+                exc_str = str(repr(e.args))
             except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
+                exc_str = str(str(e))
             return base.abort(
                 500,
                 _(u'Unable to update search index.') + exc_str
@@ -1022,7 +1016,7 @@ class GroupView(MethodView):
         return context, pkg_dict
 
     def post(self, package_type, id):
-        context, pkg_dict = self._prepare(id)
+        context, _pkg_dict = self._prepare(id)
         new_group = request.form.get(u'group_added')
         if new_group:
             data_dict = {
@@ -1086,7 +1080,7 @@ class GroupView(MethodView):
         )
 
 
-def activity(package_type, id):
+def activity(package_type, id):  # noqa
     """Render this package's public activity stream page.
     """
     context = {
@@ -1124,7 +1118,7 @@ def activity(package_type, id):
     )
 
 
-def changes(id, package_type=None):
+def changes(id, package_type=None):  # noqa
     '''
     Shows the changes to a dataset in one particular activity stream item.
     '''
@@ -1165,7 +1159,7 @@ def changes(id, package_type=None):
     )
 
 
-def changes_multiple(package_type=None):
+def changes_multiple(package_type=None):  # noqa
     '''
     Called when a user specifies a range of versions they want to look at
     changes between. Verifies that the range is valid and finds the set of
@@ -1247,7 +1241,7 @@ def changes_multiple(package_type=None):
     )
 
 
-def collaborators_read(package_type, id):
+def collaborators_read(package_type, id):  # noqa
     context = {u'model': model, u'user': g.user}
     data_dict = {u'id': id}
 
@@ -1265,7 +1259,7 @@ def collaborators_read(package_type, id):
         u'pkg_dict': pkg_dict})
 
 
-def collaborator_delete(package_type, id, user_id):
+def collaborator_delete(package_type, id, user_id):  # noqa
     context = {u'model': model, u'user': g.user}
 
     try:
@@ -1286,7 +1280,7 @@ def collaborator_delete(package_type, id, user_id):
 
 class CollaboratorEditView(MethodView):
 
-    def post(self, package_type, id):
+    def post(self, package_type, id):  # noqa
         context = {u'model': model, u'user': g.user}
 
         try:
@@ -1313,7 +1307,7 @@ class CollaboratorEditView(MethodView):
         except NotAuthorized:
             message = _(u'Unauthorized to edit collaborators {}').format(id)
             return base.abort(401, _(message))
-        except NotFound as e:
+        except NotFound:
             h.flash_error(_('User not found'))
             return h.redirect_to(u'dataset.new_collaborator', id=id)
         except ValidationError as e:
@@ -1324,7 +1318,7 @@ class CollaboratorEditView(MethodView):
 
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
-    def get(self, package_type, id):
+    def get(self, package_type, id):  # noqa
         context = {u'model': model, u'user': g.user}
         data_dict = {u'id': id}
 
@@ -1338,7 +1332,7 @@ class CollaboratorEditView(MethodView):
         except NotFound:
             return base.abort(404, _(u'Resource not found'))
 
-        user = request.params.get(u'user_id')
+        user = request.args.get(u'user_id')
         user_capacity = u'member'
 
         if user:
@@ -1399,24 +1393,6 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
     blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
-
-    # Duplicate resource create and edit for backward compatibility. Note,
-    # we cannot use resource.CreateView directly here, because of
-    # circular imports
-    blueprint.add_url_rule(
-        u'/new_resource/<id>',
-        view_func=LazyView(
-            u'ckan.views.resource.CreateView', str(u'new_resource')
-        )
-    )
-
-    blueprint.add_url_rule(
-        u'/<id>/resource_edit/<resource_id>',
-        view_func=LazyView(
-            u'ckan.views.resource.EditView', str(u'edit_resource')
-        )
-
-    )
 
     if authz.check_config_permission(u'allow_dataset_collaborators'):
         blueprint.add_url_rule(

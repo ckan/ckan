@@ -14,8 +14,6 @@ services:
     container_name: ckan
     build:
       context: ../../
-      args:
-          - CKAN_SITE_URL=${CKAN_SITE_URL}
     links:
       - db
       - solr
@@ -37,7 +35,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_HOST=${POSTGRES_HOST}
-
+    restart: unless-stopped
 
     volumes:
       - ckan_config:/etc/ckan
@@ -49,22 +47,22 @@ services:
     image: clementmouchet/datapusher
     ports:
       - "8800:8800"
+    restart: unless-stopped
 
   db:
     container_name: db
     build:
       context: ../../
-      dockerfile: contrib/docker/postgresql/Dockerfile
-      args:
-        - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      dockerfile: contrib/docker/postgresql/Dockerfile  
     environment:
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/db
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+    restart: unless-stopped
 
   solr:
     container_name: solr
@@ -73,8 +71,9 @@ services:
       dockerfile: contrib/docker/solr/Dockerfile
     volumes:
       - solr_data:/opt/solr/server/solr/ckan/data
-
+    restart: unless-stopped
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:6.2
+    restart: unless-stopped

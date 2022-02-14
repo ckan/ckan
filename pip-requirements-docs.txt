@@ -1,5 +1,0 @@
-# This will install the requirements used to build the docs
-
--r requirements-py2.txt
--r dev-requirements.txt
--r requirement-setuptools.txt

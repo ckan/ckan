@@ -2,19 +2,19 @@
 
 import datetime
 import re
-
+import logging
 import requests
 
 from ckan.common import config
 from ckan.common import asbool
 import six
-from six import text_type, string_types
 
 from ckan.common import _, json
 import ckan.lib.maintain as maintain
 
-log = __import__('logging').getLogger(__name__)
+log = logging.getLogger(__name__)
 
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
 class License(object):
     """Domain object for a license."""
@@ -38,10 +38,6 @@ class License(object):
                     *list(int(item) for item in re.split(r'[^\d]', value)))
                 self._data[key] = value
             elif isinstance(value, str):
-                if six.PY2:
-                    # Convert str to unicode
-                    # (keeps Pylons and SQLAlchemy happy).
-                    value = six.ensure_text(value)
                 self._data[key] = value
 
     def __getattr__(self, name):
@@ -62,7 +58,7 @@ class License(object):
 
     @maintain.deprecated("License.__getitem__() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def __getitem__(self, key):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.
@@ -77,7 +73,7 @@ class License(object):
 
     @maintain.deprecated("License.as_dict() is deprecated and will be "
                          "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
+                         "please use attribute access.", since="2.4.0")
     def as_dict(self):
         '''NB This method is deprecated and will be removed in a future version
         of CKAN. Instead, please use attribute access.
@@ -101,7 +97,7 @@ class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
     def __init__(self):
-        group_url = config.get('licenses_group_url', None)
+        group_url = config.get_value('licenses_group_url')
         if group_url:
             self.load_licenses(group_url)
         else:
@@ -130,7 +126,7 @@ class LicenseRegister(object):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(license_url)
+                response = requests.get(license_url, timeout=TIMEOUT)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
@@ -139,10 +135,8 @@ class LicenseRegister(object):
             msg = "Couldn't parse the licenses file {}: {}".format(license_url, e)
             raise Exception(msg)
         for license in license_data:
-            if isinstance(license, string_types):
+            if isinstance(license, str):
                 license = license_data[license]
-            if license.get('title'):
-                license['title'] = _(license['title'])
         self._create_license_list(license_data, license_url)
 
     def _create_license_list(self, license_data, license_url=''):
@@ -218,7 +212,7 @@ class DefaultLicense(dict):
         if key in self.keys:
             value = getattr(self, key)
             if isinstance(value, str):
-                return text_type(value)
+                return str(value)
             else:
                 return value
         else:
@@ -228,7 +222,7 @@ class DefaultLicense(dict):
         ''' create a dict of the license used by the licenses api '''
         out = {}
         for key in self.keys:
-            out[key] = text_type(getattr(self, key))
+            out[key] = str(getattr(self, key))
         return out
 
 class LicenseNotSpecified(DefaultLicense):

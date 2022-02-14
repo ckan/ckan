@@ -1,0 +1,8 @@
+main:
+  filters: cssrewrite
+  output: base/%(version)s_main.css
+  contents: main.css
+main-rtl:
+  filters: cssrewrite
+  output: base/%(version)s_main-rtl.css
+  contents: main-rtl.css

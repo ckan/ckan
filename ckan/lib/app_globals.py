@@ -6,8 +6,7 @@ import logging
 from threading import Lock
 import re
 import six
-from ckan.common import asbool
-from ckan.common import config
+from ckan.common import config, asbool, aslist
 
 import ckan
 import ckan.model as model
@@ -59,7 +58,6 @@ app_globals_from_config_details = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
@@ -112,7 +110,7 @@ def process_app_global(key, value):
         elif data_type == 'int':
             value = int(value)
         elif data_type == 'split':
-            value = value.split()
+            value = aslist(value)
 
     return key, value
 
@@ -139,11 +137,7 @@ def reset():
             value = None
         config_value = config.get(key)
         # sort encodeings if needed
-        if isinstance(config_value, str) and six.PY2:
-            try:
-                config_value = six.ensure_text(config_value)
-            except UnicodeDecodeError:
-                config_value = config_value.decode('latin-1')
+
         # we want to store the config the first time we get here so we can
         # reset them if needed
         if key not in _CONFIG_CACHE:

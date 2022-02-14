@@ -6,6 +6,7 @@ from zope.interface import implementer
 from repoze.who.interfaces import IAuthenticator
 
 from ckan.model import User
+from . import signals
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class UsernamePasswordAuthenticator(object):
         elif not user.validate_password(identity['password']):
             log.debug('Login as %r failed - password not valid', login)
         else:
+            signals.successful_login.send(user.name)
             return user.name
-
+        signals.failed_login.send(login)
         return None

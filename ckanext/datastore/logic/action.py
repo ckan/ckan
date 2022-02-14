@@ -5,7 +5,7 @@ import json
 
 import sqlalchemy
 import six
-from six import text_type
+
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -138,7 +138,8 @@ def datastore_create(context, data_dict):
 
         # create empty resource
         else:
-            # no need to set the full url because it will be set in before_show
+            # no need to set the full url because it will be set
+            # in before_resource_show
             resource_dict['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, resource_dict)
     else:
@@ -157,7 +158,7 @@ def datastore_create(context, data_dict):
     try:
         result = backend.create(context, data_dict)
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(text_type(err))
+        raise p.toolkit.ValidationError(str(err))
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])
@@ -278,6 +279,8 @@ def datastore_upsert(context, data_dict):
         ))
 
     result = backend.upsert(context, data_dict)
+    p.toolkit.signals.datastore_upsert.send(resource_id, records=records)
+
     result.pop('id', None)
     result.pop('connection_url', None)
 
@@ -404,7 +407,8 @@ def datastore_delete(context, data_dict):
         ))
 
     result = backend.delete(context, data_dict)
-
+    p.toolkit.signals.datastore_delete.send(
+        res_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])
 
@@ -446,6 +450,10 @@ def datastore_search(context, data_dict):
               each row. If it's a dictionary as {"key1": "a", "key2": "b"},
               it'll search on each specific field (optional)
     :type q: string or dictionary
+    :param full_text: full text query. It search on all fields on each row.
+                      This should be used in replace of ``q`` when performing
+                      string search accross all fields
+    :type full_text: string
     :param distinct: return only distinct rows (optional, default: false)
     :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
@@ -648,7 +656,7 @@ def set_datastore_active_flag(model, data_dict, flag):
         'q': 'id:"{0}"'.format(package_id),
         'fl': 'data_dict',
         'wt': 'json',
-        'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+        'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
         'rows': 1
     }
     for record in solr_query.run(q)['results']:
@@ -658,18 +666,6 @@ def set_datastore_active_flag(model, data_dict, flag):
                 resource.update(update_dict)
                 psi.index_package(solr_data_dict)
                 break
-
-
-def _resource_exists(context, data_dict):
-    ''' Returns true if the resource exists in CKAN and in the datastore '''
-    model = _get_or_bust(context, 'model')
-    res_id = _get_or_bust(data_dict, 'resource_id')
-    if not model.Resource.get(res_id):
-        return False
-
-    backend = DatastoreBackend.get_active_backend()
-
-    return backend.resource_exists(res_id)
 
 
 def _check_read_only(context, resource_id):

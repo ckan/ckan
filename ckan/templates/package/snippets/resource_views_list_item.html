@@ -9,9 +9,10 @@
                          resource_id=view.resource_id, view_id=view.id) %}
 {% endif %}
 
-<li class="{% if is_selected %} active{% endif %}" data-id="{{ view.id }}">
+<li data-id="{{ view.id }}">
+  {% set tab_class = "nav-link active" if is_selected else "nav-link" %}
 
-  <a href="{{ url }}" data-id="{{ view.id }}">
+  <a class="{{ tab_class }}" href="{{ url }}" data-id="{{ view.id }}">
     <i class="fa icon fa-{{ h.resource_view_icon(view) }}"></i>
     {{ view.title }}
   </a>

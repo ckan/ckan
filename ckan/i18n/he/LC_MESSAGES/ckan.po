@@ -4626,8 +4626,8 @@ msgstr "מצב ההצגה של {pkg_link} הוגדר להיות {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "תיאור המשאב {resource_link} שבחבילה {pkg_link} עודכן לכדי <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote>"
@@ -4638,13 +4638,13 @@ msgstr "תיאור המשאב {resource_link} שבחבילה {pkg_link} הוסר
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
-"תיאור המשאב {resource_link} שבחבילה {pkg_link} עודכן מהתיאור <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> לכדי <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"תיאור המשאב {resource_link} שבחבילה {pkg_link} עודכן מהתיאור <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> לכדי <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""

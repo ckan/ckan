@@ -4,8 +4,6 @@ import logging
 import math
 import os
 
-import six
-
 try:
     from http.cookies import SimpleCookie
 except ImportError:
@@ -24,8 +22,7 @@ log = logging.getLogger(__name__)
 _ckan_userid_type_decoders = dict(
     repoze_auth_tkt.AuthTktCookiePlugin.userid_type_decoders
 )
-if six.PY3:
-    _ckan_userid_type_decoders.pop('unicode')
+_ckan_userid_type_decoders.pop('unicode')
 
 
 class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
@@ -85,18 +82,18 @@ def make_plugin(secret=None,
     if secret is None or secret == u'somesecret':
         secret = config[u'beaker.session.secret']
     # Session timeout and reissue time for auth cookie
-    if timeout is None and config.get(u'who.timeout'):
-        timeout = config.get(u'who.timeout')
-    if reissue_time is None and config.get(u'who.reissue_time'):
-        reissue_time = config.get(u'who.reissue_time')
+    if timeout is None and config.get_value(u'who.timeout'):
+        timeout = config[u'who.timeout']
+    if reissue_time is None and config.get_value(u'who.reissue_time'):
+        reissue_time = config['who.reissue_time']
     if timeout is not None and reissue_time is None:
         reissue_time = int(math.ceil(int(timeout) * 0.1))
     # Set httponly based on config value. Default is True
-    httponly = _bool(config.get(u'who.httponly', True))
+    httponly = config.get_value(u'who.httponly')
     # Set secure based on config value. Default is False
-    secure = _bool(config.get(u'who.secure', False))
+    secure = config.get_value(u'who.secure')
     # Set samesite based on config value. Default is lax
-    samesite = config.get(u'who.samesite', 'lax').lower()
+    samesite = config.get_value(u'who.samesite').lower()
     if samesite == 'none' and not secure:
         raise ValueError(
             'SameSite=None requires the Secure attribute,'

@@ -251,7 +251,7 @@ tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
 A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
-    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+    ``offset``, ``limit``, ``filters``, ``q``, ``full_text``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
 
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 

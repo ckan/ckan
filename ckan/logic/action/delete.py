@@ -12,7 +12,6 @@ import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization as dictization
-import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.api_token as api_token
 from ckan import authz
 
@@ -94,7 +93,7 @@ def package_delete(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.delete(entity)
 
-        item.after_delete(context, data_dict)
+        item.after_dataset_delete(context, data_dict)
 
     entity.delete()
 
@@ -192,8 +191,8 @@ def resource_delete(context, data_dict):
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_delete(context, data_dict,
-                             pkg_dict.get('resources', []))
+        plugin.before_resource_delete(context, data_dict,
+                                      pkg_dict.get('resources', []))
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
@@ -207,7 +206,7 @@ def resource_delete(context, data_dict):
         raise ValidationError(errors)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_delete(context, pkg_dict.get('resources', []))
+        plugin.after_resource_delete(context, pkg_dict.get('resources', []))
 
     model.repo.commit()
 
@@ -226,9 +225,7 @@ def resource_view_delete(context, data_dict):
     if not resource_view:
         raise NotFound
 
-    context["resource_view"] = resource_view
-    context['resource'] = model.Resource.get(resource_view.resource_id)
-    _check_access('resource_view_delete', context, data_dict)
+    _check_access('resource_view_delete', context, {'id': id})
 
     resource_view.delete()
     model.repo.commit()
@@ -267,7 +264,6 @@ def package_relationship_delete(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
     pkg1 = model.Package.get(id)
@@ -282,7 +278,6 @@ def package_relationship_delete(context, data_dict):
         raise NotFound
 
     relationship = existing_rels[0]
-    revisioned_details = 'Package Relationship: %s %s %s' % (id, rel, id2)
 
     context['relationship'] = relationship
     _check_access('package_relationship_delete', context, data_dict)
@@ -399,8 +394,6 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     if group is None:
         raise NotFound('Group was not found.')
 
-    revisioned_details = 'Group: %s' % group.name
-
     if is_org:
         _check_access('organization_delete', context, data_dict)
     else:
@@ -452,7 +445,6 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     }
     activity_create_context = {
         'model': model,
-        'user': user,
         'defer_commit': True,
         'ignore_auth': True,
         'session': context['session']
