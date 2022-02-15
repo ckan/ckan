@@ -317,6 +317,32 @@ class TestGroupDictize:
 
         assert org["package_count"] == 1
 
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    def test_group_dictize_for_org_with_private_package_count_collaborator(
+        self,
+    ):
+        import ckan.tests.helpers as helpers
+
+        org_obj = factories.Organization.model()
+        user_obj = factories.User.model()
+        private_dataset = factories.Dataset(owner_org=org_obj.id, private=True)
+        factories.Dataset(owner_org=org_obj.id)
+        context = {
+            "model": model,
+            "session": model.Session,
+            "auth_user_obj": user_obj,
+        }
+        org = model_dictize.group_dictize(org_obj, context)
+        assert org["package_count"] == 1
+
+        helpers.call_action(
+            "package_collaborator_create",
+            id=private_dataset["id"],
+            user_id=user_obj.id,
+            capacity="member",
+        )
+        org = model_dictize.group_dictize(org_obj, context)
+        assert org["package_count"] == 2
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackageDictize:
