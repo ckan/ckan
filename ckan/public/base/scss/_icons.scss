@@ -236,7 +236,7 @@ $icon-position: (
 
 // RESOURCE FORMAT ICONS
 .format-label {
-    @extend .ckan-icon;
+    @include ckan-icon;
     text-indent: -900em;
     background: url("#{$imagePath}/sprite-resource-icons.png") no-repeat 0 0;
 }

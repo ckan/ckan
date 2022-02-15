@@ -6,7 +6,6 @@ import time
 import unittest.mock as mock
 import pytest
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
 import ckan.plugins as p
@@ -26,7 +25,7 @@ def datetime_from_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -94,8 +93,8 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
-        fred = factories.User(name="fred")
-        bob = factories.User(name="bob")
+        fred = factories.User()
+        bob = factories.User()
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
@@ -416,26 +415,24 @@ class TestUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        org = factories.Organization(
-            type="organization", name="unchanging", user=user
-        )
+        org = factories.Organization(type="organization", user=user)
 
         org = helpers.call_action(
             "organization_update",
             context=context,
             id=org["id"],
-            name="unchanging",
+            name=org["name"],
             type="ragtagband",
         )
 
         assert org["type"] == "organization"
         assert (
-            helpers.call_action("organization_show", id="unchanging")["type"]
+            helpers.call_action("organization_show", id=org["name"])["type"]
             == "organization"
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
@@ -448,14 +445,15 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
+        stub = factories.Dataset.stub()
         dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], name="new-name"
+            "package_update", id=dataset["id"], name=stub.name
         )
 
-        assert dataset_["name"] == "new-name"
+        assert dataset_["name"] == stub.name
         assert (
             helpers.call_action("package_show", id=dataset["id"])["name"]
-            == "new-name"
+            == stub.name
         )
 
     def test_title(self):
@@ -607,18 +605,19 @@ class TestDatasetUpdate(object):
     def test_tags(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-
+        tag1 = factories.Tag.stub().name
+        tag2 = factories.Tag.stub().name
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            tags=[{"name": "russian"}, {"name": "tolstoy"}],
+            tags=[{"name": tag1}, {"name": tag2}],
         )
 
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
 
     def test_return_id_only(self):
         user = factories.User()
@@ -642,10 +641,7 @@ class TestSendEmailNotifications(object):
     def check_email(self, email, address, name, subject):
         assert email[1] == "info@test.ckan.net"
         assert email[2] == [address]
-        encoded_subject = "Subject: =?utf-8?q?{subject}".format(
-            subject=subject.replace(" ", "_")
-        )
-        assert encoded_subject in email[3]
+        assert subject in email[3]
         # TODO: Check that body contains link to dashboard and email prefs.
 
     def test_fresh_setupnotifications(self, mail_server):
@@ -760,7 +756,7 @@ class TestSendEmailNotifications(object):
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -880,7 +876,7 @@ class TestResourceViewUpdate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -1054,7 +1050,7 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -1065,7 +1061,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1512,7 +1508,7 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1533,7 +1529,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1542,7 +1538,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=sysadmin["email"],
             id=sysadmin["name"],
             password_hash="pretend-this-is-a-valid-hash",
         )
@@ -1557,7 +1553,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=normal_user["email"],
             id=normal_user["name"],
             password="required",
             password_hash="pretend-this-is-a-valid-hash",
@@ -1574,21 +1570,20 @@ class TestUserUpdate(object):
             "user_update",
             context=context,
             id=user["name"],
-            email="test@example.com",
+            email=user["email"],
             image_url="new_image_url.jpg",
         )
 
         assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupUpdate(object):
     def test_group_update_image_url_field(self):
         user = factories.User()
         context = {"user": user["name"]}
         group = factories.Group(
             type="group",
-            name="testing",
             user=user,
             image_url="group_image.jpg",
         )
@@ -1607,24 +1602,24 @@ class TestGroupUpdate(object):
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        group = factories.Group(type="group", name="unchanging", user=user)
+        group = factories.Group(type="group", user=user)
 
         group = helpers.call_action(
             "group_update",
             context=context,
+            name=group["name"],
             id=group["id"],
-            name="unchanging",
             type="favouritecolour",
         )
 
         assert group["type"] == "group"
         assert (
-            helpers.call_action("group_show", id="unchanging")["type"]
+            helpers.call_action("group_show", id=group["name"])["type"]
             == "group"
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1677,7 +1672,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1781,7 +1776,7 @@ class TestBulkOperations(object):
         assert activities[0]["activity_type"] == "deleted package"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -1841,7 +1836,7 @@ class TestDashboardMarkActivitiesOld(object):
         ]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsUpdate(object):
     @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
@@ -1975,42 +1970,42 @@ class TestCollaboratorsUpdate(object):
         assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetRevise(object):
     def test_revise_description(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
             "package_revise",
-            match={"notes": "old notes", "name": "xyz"},
+            match={"notes": "old notes", "name": dataset["name"]},
             update={"notes": "new notes"},
         )
         assert response["package"]["notes"] == "new notes"
 
     def test_revise_failed_match(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "package_revise",
-                match={"notes": "wrong notes", "name": "xyz"},
+                match={"notes": "wrong notes", "name": dataset["name"]},
                 update={"notes": "new notes"},
             )
 
     def test_revise_description_flattened(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
             "package_revise",
             match__notes="old notes",
-            match__name="xyz",
+            match__name=dataset["name"],
             update__notes="new notes",
         )
         assert response["package"]["notes"] == "new notes"
 
     def test_revise_dataset_fields_only(self):
         dataset = factories.Dataset(
-            name="xyz",
             notes="old notes",
             resources=[{"url": "http://example.com"}],
         )
+        stub = factories.Dataset.stub()
         response = helpers.call_action(
             "package_revise",
             match={"id": dataset["id"]},
@@ -2018,10 +2013,10 @@ class TestDatasetRevise(object):
                 "+resources",  # keep everything under resources
                 "-*",  # remove everything else
             ],
-            update={"name": "fresh-start", "title": "Fresh Start"},
+            update={"name": stub.name, "title": "Fresh Start"},
         )
         assert response["package"]["notes"] is None
-        assert response["package"]["name"] == "fresh-start"
+        assert response["package"]["name"] == stub.name
         assert (
             response["package"]["resources"][0]["url"] == "http://example.com"
         )
@@ -2101,7 +2096,7 @@ class TestDatasetRevise(object):
         assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
     def test_stored_on_update_if_sysadmin(self):
 
@@ -2254,7 +2249,7 @@ class TestUserPluginExtras(object):
 
 
 class TestVocabularyUpdate(object):
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_no_real_update(self):
         vocab = factories.Vocabulary()
         updated = helpers.call_action("vocabulary_update", id=vocab["id"])
@@ -2265,20 +2260,25 @@ class TestVocabularyUpdate(object):
         )
         assert vocab == updated
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_update_name(self):
-        vocab = factories.Vocabulary(name="old_name")
-        updated = helpers.call_action(
-            "vocabulary_update", id=vocab["id"], name="new_name"
-        )
-        assert updated["name"] == "new_name"
+        vocab = factories.Vocabulary()
+        stub = factories.Vocabulary.stub()
 
-    @pytest.mark.usefixtures("clean_db")
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name=stub.name
+        )
+        assert updated["name"] == stub.name
+
+    @pytest.mark.usefixtures("non_clean_db")
     def test_add_tags(self):
-        vocab = factories.Vocabulary(name="old_name")
+        vocab = factories.Vocabulary()
         assert vocab["tags"] == []
 
-        tags = [{"name": "new test tag one"}, {"name": "new test tag two"}]
+        tags = [
+            {"name": factories.Tag.stub().name},
+            {"name": factories.Tag.stub().name},
+        ]
 
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=tags
@@ -2288,7 +2288,7 @@ class TestVocabularyUpdate(object):
         }
 
         tags.append(
-            {"name": "new test tag three"},
+            {"name": factories.Tag.stub().name},
         )
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=tags
@@ -2299,14 +2299,16 @@ class TestVocabularyUpdate(object):
 
     def test_non_existing(self):
         with pytest.raises(logic.NotFound):
-            helpers.call_action("vocabulary_update", id="not-a-real-vocab")
+            helpers.call_action(
+                "vocabulary_update", id=factories.Vocabulary.stub().name
+            )
 
     def test_missing_id(self):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("vocabulary_update")
 
     @pytest.mark.parametrize("tags", [])
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_bad_tags(self, tags):
         vocab = factories.Vocabulary()
         for tags in [
@@ -2322,22 +2324,24 @@ class TestVocabularyUpdate(object):
                     "vocabulary_update", id=vocab["id"], tags=tags
                 )
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_no_tags(self):
         vocab = factories.Vocabulary()
         with pytest.raises(DataError):
             helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_clen_tags(self):
-        vocab = factories.Vocabulary(tags=[{"name": "foo"}])
+        vocab = factories.Vocabulary(
+            tags=[{"name": factories.Tag.stub().name}]
+        )
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=[]
         )
         assert updated["tags"] == []
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTaskStatusUpdate:
     def test_task_status_update(self):
         pkg = factories.Dataset()
@@ -2471,7 +2475,7 @@ class TestTaskStatusUpdate:
         helpers.call_action("task_status_delete", id=task_status_updated["id"])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTermTranslations:
     def test_update_single(self, app):
 

@@ -3,37 +3,24 @@
 import pytest
 
 import ckan.authz as authz
-import ckan.cli
 from ckan.cli.cli import ckan as ckan_command
-from ckan.plugins import toolkit as tk
+from ckan.logic import get_action, get_validator, UnknownValidator
+from ckan.lib.helpers import helper_functions as h
 
 
 @pytest.mark.usefixtures(u"with_plugins", u"with_extended_cli")
 class TestBlanketImplementation(object):
-    @pytest.fixture(autouse=True)
-    def _patch_cli(self, monkeypatch, ckan_config):
-        """CLI loads config from file on invocation stage, so everythin in
-        `ckan_config` ignored. Let's interfere a bit into this process
-        and return ready to use patched config for checking whether
-        extension registers its commands.
-
-        """
-        class MockConfig(object):
-            global_conf = ckan_config
-            local_conf = ckan_config
-        monkeypatch.setattr(ckan.cli, u'load_config', lambda _: MockConfig())
-
     def _helpers_registered(self):
         try:
-            tk.h.bed()
-            tk.h.pillow()
-            tk.h.blanket_helper()
+            h.bed()
+            h.pillow()
+            h.blanket_helper()
         except AttributeError:
             return False
         with pytest.raises(AttributeError):
-            tk.h._hidden_helper()
+            h._hidden_helper()
         with pytest.raises(AttributeError):
-            tk.h.randrange(1, 10)
+            h.randrange(1, 10)
         return True
 
     def _auth_registered(self):
@@ -42,8 +29,8 @@ class TestBlanketImplementation(object):
 
     def _actions_registered(self):
         try:
-            tk.get_action(u'sleep')
-            tk.get_action(u'wake_up')
+            get_action(u'sleep')
+            get_action(u'wake_up')
         except KeyError:
             return False
         return True
@@ -57,8 +44,8 @@ class TestBlanketImplementation(object):
 
     def _validators_registered(self):
         try:
-            tk.get_validator(u'is_blanket')
-        except tk.UnknownValidator:
+            get_validator(u'is_blanket')
+        except UnknownValidator:
             return False
         return True
 

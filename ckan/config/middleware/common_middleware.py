@@ -11,6 +11,24 @@ import sqlalchemy as sa
 from ckan.common import config
 
 
+class RootPathMiddleware(object):
+    '''
+    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
+    config. The routes package uses the SCRIPT_NAME variable and appends to the
+    path and ckan addes the root url causing a duplication of the root path.
+    This is a middleware to ensure that even redirects use this logic.
+    '''
+    def __init__(self, app, config):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Prevents the variable interfering with the root_path logic
+        if 'SCRIPT_NAME' in environ:
+            environ['SCRIPT_NAME'] = ''
+
+        return self.app(environ, start_response)
+
+
 class TrackingMiddleware(object):
 
     def __init__(self, app, config):

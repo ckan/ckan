@@ -35,8 +35,7 @@ meta.mapper(GroupExtra, group_extra_table, properties={
             cascade='all, delete, delete-orphan',
             ),
         )
-    },
-    order_by=[group_extra_table.c.group_id, group_extra_table.c.key],
+    }
 )
 
 def _create_extra(key, value):

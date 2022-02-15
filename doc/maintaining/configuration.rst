@@ -829,6 +829,31 @@ Default value: |config:ckan.valid_url_schemes|
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+  ckan.requests.timeout = 5
+
+Default value: |config:ckan.requests.timeout|
+
+Defines how long (in seconds) requests calls should last before they will timeout.
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
 .. _config-authorization:
 
 Authorization Settings
@@ -1188,8 +1213,6 @@ Optionally, ``solr_user`` and ``solr_password`` can also be configured to specif
 
 .. note::  If you change this value, you need to rebuild the search index.
 
-.. _ckan.search.automatic_indexing:
-
 solr_timeout
 ^^^^^^^^^^^^
 
@@ -1200,21 +1223,6 @@ Example::
 Default value: |config:solr_timeout|
 
 The option defines the timeout in seconds until giving up on a request. Raising this value might help you if you encounter a timeout exception.
-
-ckan.search.automatic_indexing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.search.automatic_indexing = true
-
-Default value: |config:ckan.search.automatic_indexing|
-
-Make all changes immediately available via the search after editing or
-creating a dataset. Default is true. If for some reason you need the indexing
-to occur asynchronously, set this option to false.
-
-.. note:: This is equivalent to explicitly load the ``synchronous_search`` plugin.
 
 .. _ckan.search.solr_commit:
 
@@ -1461,6 +1469,25 @@ Format as a space-separated list of the plugin names. The plugin name is the key
         Fix CKAN's plugin loading order to simply load all plugins in the order
         they're given in the config file, regardless of which Python modules
         they're implemented in.
+
+
+.. _ckan.download_proxy:
+
+ckan.download_proxy
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.download_proxy = http://proxy:3128
+
+Specifies a HTTP proxy to be used by extensions such as XLoader or Archiver
+when downloading remote files. This may be useful for enabling access to
+restricted network locations, or restricting access to privileged ones, eg
+[preventing Server Side Request Forgery](https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/).
+It will not be used by CKAN core.
+
+If this value is not present, extensions should use the Python defaults.
+If it is present but blank, extensions should not use a proxy.
 
 
 .. _ckan.resource_proxy.max_file_size:
@@ -2152,6 +2179,61 @@ Default value: |config:ckan.max_image_size|
 
 The maximum in megabytes an image upload can be.
 
+Uploader Settings
+-----------------
+
+.. _ckan.upload.user.types:
+
+ckan.upload.user.types
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.types = image text
+
+Default value: |config:ckan.upload.user.types|
+
+File types allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.user.mimetypes:
+
+ckan.upload.user.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.user.mimetypes = image/png text/svg
+
+Default value: |config:ckan.upload.user.mimetypes|
+
+File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+
+.. _ckan.upload.group.types:
+
+ckan.upload.group.types
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.types = image text
+
+Default value: |config:ckan.upload.group.types|
+
+File types allowed to upload as group image. No restrictions applied when empty
+
+.. _ckan.upload.group.mimetypes:
+
+ckan.upload.group.mimetypes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.upload.group.mimetypes = image/png text/svg
+
+Default value: |config:ckan.upload.group.mimetypes|
+
+File MIMETypes allowed to upload as group image. No restrictions applied when empty
+
 
 Webassets Settings
 ------------------
@@ -2828,4 +2910,3 @@ Example::
 Default value: |config:error_email_from|
 
 This controls from which email the error messages will come from.
-

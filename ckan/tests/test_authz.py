@@ -48,29 +48,26 @@ def test_get_user_outside_web_request_py3(mock_runtimeerror):
     assert mock_runtimeerror.called
 
 
-@pytest.mark.usefixtures("with_request_context", "clean_db")
-def test_get_user_inside_web_request_returns_user_obj():
+@pytest.mark.usefixtures("non_clean_db")
+def test_get_user_returns_user_obj():
     user = factories.User()
     assert auth._get_user(user["name"]).name == user["name"]
 
 
-@pytest.mark.usefixtures("with_request_context")
-def test_get_user_inside_web_request_not_found():
+def test_get_user_not_found():
+    name = factories.User.stub().name
+    assert auth._get_user(name) is None
 
-    assert auth._get_user("example") is None
 
-
-@pytest.mark.usefixtures("with_request_context", "app")
 def test_no_attributes_set_on_imported_auth_members():
     import ckan.logic.auth.get as auth_get
-    import ckan.plugins.toolkit as tk
 
-    tk.check_access("site_read", {})
+    logic.check_access("site_read", {})
     assert hasattr(auth_get.package_show, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestAuthOrgHierarchy(object):
     def test_parent_admin_auth(self):
         user = factories.User()

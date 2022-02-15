@@ -14,6 +14,7 @@ import ckan.lib.uploader as uploader
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
+from ckan.lib import signals
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
@@ -60,7 +61,7 @@ def read(package_type, id, resource_id):
         package = get_action(u'package_show')(context, {u'id': id})
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
-    activity_id = request.params.get(u'activity_id')
+    activity_id = request.args.get(u'activity_id')
     if activity_id:
         # view an 'old' version of the package, as recorded in the
         # activity stream
@@ -174,7 +175,7 @@ def download(package_type, id, resource_id, filename=None):
         resp = flask.send_file(filepath)
         if rsc.get('mimetype'):
             resp.headers['Content-Type'] = rsc['mimetype']
-        plugins.toolkit.signals.resource_download.send(resource_id)
+        signals.resource_download.send(resource_id)
         return resp
 
     elif u'url' not in rsc:
@@ -594,9 +595,9 @@ def view(package_type, id, resource_id, view_id=None):
         return base.abort(404, _(u'Resource not found'))
 
     view = None
-    if request.params.get(u'resource_view', u''):
+    if request.args.get(u'resource_view', u''):
         try:
-            view = json.loads(request.params.get(u'resource_view', u''))
+            view = json.loads(request.args.get(u'resource_view', u''))
         except ValueError:
             return base.abort(409, _(u'Bad resource view data'))
     elif view_id:
