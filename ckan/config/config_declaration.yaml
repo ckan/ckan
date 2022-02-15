@@ -422,7 +422,10 @@ groups:
 
       - key: ckan.requests.timeout
         default: 5
+        example: 10
         type: int
+        description: >
+          Defines how long (in seconds) requests calls should last before they will timeout.
 
   - annotation: Authorization Settings
     options:

@@ -1,0 +1,16 @@
+{% extends "group/base_form_page.html" %}
+
+{% set label = h.humanize_entity_type('group', group_type, 'create title') or _('Create a Group') %}
+
+
+{% block subtitle %}{{ label }}{% endblock %}
+
+{% block breadcrumb_link %}{{ h.nav_link(label, named_route=group_type+'.new') }}{% endblock %}
+
+{% block page_heading %}{{ label }}{% endblock %}
+
+{% block page_header %}{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/helper.html", group_type=group_type %}
+{% endblock %}

@@ -4,7 +4,7 @@
     position: relative;
     min-height: 300px;
     background-color: #fff;
-    @media (min-width: $screen-sm-min) {
+    @include media-breakpoint-up(sm) {
         &:before {
             content: '';
             display: block;
@@ -40,19 +40,11 @@
 [role=main],
 .main {
     position: relative;
-    padding-bottom: 20px;
 }
 
-@media (min-width: $screen-sm-min) {
-    .main {
-        padding-top: 10px;
-        background: $layoutBackgroundColor url("#{$bgPath}");
-    }
-}
-
-[role=main],
 .main {
-    min-height: 350px;
+    padding: 20px 0;
+    background: $layoutBackgroundColor url("#{$bgPath}");
 }
 
 .main:after,
@@ -89,7 +81,7 @@
     display: none;
 }
 
-@media (max-width: $screen-xs-max) {
+@include media-breakpoint-down(md) {
     .wrapper {
         border-width: 0;
         @include box-shadow(0);
@@ -159,7 +151,7 @@
     }
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(sm) {
     .hero {
         background: url("#{$imagePath}/background-tile.png");
     }
@@ -258,7 +250,7 @@
         }
     }
     .follow_button {
-        margin: $grid-gutter-width/2 0;
+        margin: math.div($grid-gutter-width,2) 0;
     }
     &.editing {
         .module-heading {}

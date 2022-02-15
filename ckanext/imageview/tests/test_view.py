@@ -8,7 +8,7 @@ import ckan.tests.helpers as helpers
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 def test_view_shown_on_resource_page_with_image_url(app):
 
     dataset = factories.Dataset()

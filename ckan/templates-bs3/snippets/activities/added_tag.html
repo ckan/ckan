@@ -1,0 +1,14 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <i class="fa icon fa-tag"></i>
+  <p>
+  {{ _('{actor} added the tag {tag} to the dataset {dataset}').format(
+      actor=ah.actor(activity),
+      dataset=ah.dataset(activity),
+      tag=ah.tag(activity)
+    )|safe }}
+    <br />
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+      {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    </span>
+  </p>
+</li>

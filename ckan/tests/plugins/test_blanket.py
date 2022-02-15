@@ -3,7 +3,6 @@
 import pytest
 
 import ckan.authz as authz
-import ckan.cli
 from ckan.cli.cli import ckan as ckan_command
 from ckan.logic import get_action, get_validator, UnknownValidator
 from ckan.lib.helpers import helper_functions as h
@@ -11,19 +10,6 @@ from ckan.lib.helpers import helper_functions as h
 
 @pytest.mark.usefixtures(u"with_plugins", u"with_extended_cli")
 class TestBlanketImplementation(object):
-    @pytest.fixture(autouse=True)
-    def _patch_cli(self, monkeypatch, ckan_config):
-        """CLI loads config from file on invocation stage, so everythin in
-        `ckan_config` ignored. Let's interfere a bit into this process
-        and return ready to use patched config for checking whether
-        extension registers its commands.
-
-        """
-        class MockConfig(object):
-            global_conf = ckan_config
-            local_conf = ckan_config
-        monkeypatch.setattr(ckan.cli, u'load_config', lambda _: MockConfig())
-
     def _helpers_registered(self):
         try:
             h.bed()

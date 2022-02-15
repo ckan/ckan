@@ -117,7 +117,7 @@ def _allow_caching(cache_force=None):
     elif request.environ.get('__no_cache__'):
         allow_cache = False
     # Don't cache if we have set the __no_cache__ param in the query string.
-    elif request.params.get('__no_cache__'):
+    elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
     elif not config.get_value('ckan.cache_enabled'):
