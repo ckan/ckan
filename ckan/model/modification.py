@@ -1,15 +1,12 @@
 # encoding: utf-8
 
 import logging
-
-from sqlalchemy.orm.exc import UnmappedInstanceError
+from typing import Any
 
 from ckan.lib.search import SearchIndexError
-from ckan.common import g
 
 import ckan.plugins as plugins
 import ckan.model as model
-
 
 log = logging.getLogger(__name__)
 
@@ -24,10 +21,10 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
     interface.
     """
 
-    def before_commit(self, session):
+    def before_commit(self, session: Any):
         self.notify_observers(session, self.notify)
 
-    def notify_observers(self, session, method):
+    def notify_observers(self, session: Any, method: Any):
         session.flush()
         if not hasattr(session, '_object_cache'):
             return
@@ -38,32 +35,32 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         deleted = obj_cache['deleted']
 
         for obj in set(new):
-            if isinstance(obj, (model.package.Package, model.resource.Resource)):
-                method(obj, model.domain_object.DomainObjectOperation.new)
+            if isinstance(obj, (model.Package, model.Resource)):
+                method(obj, model.DomainObjectOperation.new)
         for obj in set(deleted):
-            if isinstance(obj, (model.package.Package, model.resource.Resource)):
-                method(obj, model.domain_object.DomainObjectOperation.deleted)
+            if isinstance(obj, (model.Package, model.Resource)):
+                method(obj, model.DomainObjectOperation.deleted)
         for obj in set(changed):
-            if isinstance(obj, model.resource.Resource):
-                method(obj, model.domain_object.DomainObjectOperation.changed)
+            if isinstance(obj, model.Resource):
+                method(obj, model.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
                     item.notify(obj)
 
         changed_pkgs = set(obj for obj in changed
-                           if isinstance(obj, model.package.Package))
+                           if isinstance(obj, model.Package))
 
         for obj in new | changed | deleted:
-            if not isinstance(obj, model.package.Package):
+            if not isinstance(obj, model.Package):
                 try:
                     changed_pkgs.update(obj.related_packages())
                 except AttributeError:
                     continue
 
         for obj in changed_pkgs:
-            method(obj, model.domain_object.DomainObjectOperation.changed)
+            method(obj, model.DomainObjectOperation.changed)
 
-    def notify(self, entity, operation):
+    def notify(self, entity: Any, operation: Any):
         for observer in plugins.PluginImplementations(
                 plugins.IDomainObjectModification):
             try:

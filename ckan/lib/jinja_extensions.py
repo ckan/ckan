@@ -1,8 +1,10 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import re
-from os import path
 import logging
+from os import path
+from typing import Any, Iterable, Optional, Sequence, Union
 
 from jinja2 import nodes
 from jinja2 import loaders
@@ -14,12 +16,13 @@ from markupsafe import escape
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import config
+from markupsafe import Markup
 
 
 log = logging.getLogger(__name__)
 
 
-def _get_extensions():
+def _get_extensions() -> list[Any]:
     return ['jinja2.ext.do', 'jinja2.ext.loopcontrols',
             SnippetExtension,
             CkanExtend,
@@ -30,7 +33,7 @@ def _get_extensions():
             AssetExtension]
 
 
-def get_jinja_env_options():
+def get_jinja_env_options() -> dict[str, Any]:
     return dict(
         loader=CkanFileSystemLoader(config['computed_template_paths']),
         autoescape=True,
@@ -40,7 +43,7 @@ def get_jinja_env_options():
 
 ### Filters
 
-def empty_and_escape(value):
+def empty_and_escape(value: Optional[str]) -> Union[str, Markup]:
     ''' returns '' for a None value else escapes the content useful for form
     elements. '''
     if value is None:
@@ -50,19 +53,19 @@ def empty_and_escape(value):
 
 ### Tags
 
-def regularise_html(html):
+def regularise_html(html: Optional[str]) -> Optional[str]:
     ''' Take badly formatted html with strings etc and make it beautiful
     generally remove surlus whitespace and kill \n this will break <code><pre>
     tags but they should not be being translated '''
     if html is None:
-        return
+        return None
     html = re.sub('\n', ' ', html)
-    matches = re.findall('(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
+    matches = re.findall(r'(<[^>]*>|%[^%]\([^)]*\)\w|[^<%]+|%)', html)
     for i in range(len(matches)):
         match = matches[i]
         if match.startswith('<') or match.startswith('%'):
             continue
-        matches[i] = re.sub('\s{2,}', ' ', match)
+        matches[i] = re.sub(r'\s{2,}', ' ', match)
     html = ''.join(matches)
     return html
 
@@ -70,8 +73,8 @@ def regularise_html(html):
 class CkanInternationalizationExtension(ext.InternationalizationExtension):
     ''' Custom translation to allow cleaned up html '''
 
-    def parse(self, parser):
-        node = ext.InternationalizationExtension.parse(self, parser)
+    def parse(self, parser: Any) -> Any:
+        node: Any = ext.InternationalizationExtension.parse(self, parser)
         if isinstance(node, list):
             args = getattr(node[1].nodes[0], 'args', None)
         else:
@@ -92,7 +95,7 @@ class CkanExtend(ext.Extension):
 
     tags = set(['ckan_extends'])
 
-    def __init__(self, environment):
+    def __init__(self, environment: Any):
         ext.Extension.__init__(self, environment)
         try:
             self.searchpath = environment.loader.searchpath[:]
@@ -100,19 +103,21 @@ class CkanExtend(ext.Extension):
             # this isn't available on message extraction
             pass
 
-    def parse(self, parser):
+    def parse(self, parser: Any):
         lineno = next(parser.stream).lineno
         node = nodes.Extends(lineno)
         template_path = parser.filename
         # find where in the search path this template is from
+        searchpath = None
         current_path = None
+
         if not hasattr(self, 'searchpath'):
             return node
         for searchpath in self.searchpath:
             if template_path.startswith(searchpath):
                 current_path = searchpath
                 break
-
+        assert searchpath and current_path
         # get filename from full path
         filename = template_path[len(searchpath) + 1:]
 
@@ -179,7 +184,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =====================================================================
     '''
 
-    def get_source(self, environment, template):
+    def get_source(self, environment: Any, template: str) -> Any:
         # if the template name starts with * then this should be
         # treated specially.
         # format is *<search path parent directory>*<template name>
@@ -227,12 +232,12 @@ class BaseExtension(ext.Extension):
     {% tag_name args, kw %}
     after parsing it will call _call(args, kw) which must be defined. '''
 
-    def parse(self, parser):
+    def parse(self, parser: Any) -> Any:
         stream = parser.stream
         tag = next(stream)
         # get arguments
-        args = []
-        kwargs = []
+        args: list[Any] = []
+        kwargs: list[Any] = []
         while not stream.current.test_any('block_end'):
             if args or kwargs:
                 stream.expect('comma')
@@ -240,15 +245,18 @@ class BaseExtension(ext.Extension):
                 key = nodes.Const(next(stream).value)
                 stream.skip()
                 value = parser.parse_expression()
-                kwargs.append(nodes.Pair(key, value, lineno=key.lineno))
+                kwargs.append(nodes.Pair(
+                    key, value,
+                    lineno=key.lineno
+                ))
             else:
                 args.append(parser.parse_expression())
 
-        def make_call_node(*kw):
+        def make_call_node(*kw: Any) -> Any:
             return self.call_method('_call', args=[
                 nodes.List(args),
                 nodes.Dict(kwargs),
-            ], kwargs=kw)
+            ], kwargs=list(kw))
 
         return nodes.Output([make_call_node()]).set_lineno(tag.lineno)
 
@@ -265,7 +273,7 @@ class SnippetExtension(BaseExtension):
     tags = set(['snippet'])
 
     @classmethod
-    def _call(cls, args, kwargs):
+    def _call(cls, args: Iterable[Any], kwargs: dict[str, Any]):
         return base.render_snippet(*args, **kwargs)
 
 class UrlForStaticExtension(BaseExtension):
@@ -279,7 +287,7 @@ class UrlForStaticExtension(BaseExtension):
     tags = set(['url_for_static'])
 
     @classmethod
-    def _call(cls, args, kwargs):
+    def _call(cls, args: Sequence[Any], kwargs: dict[str, Any]):
         assert len(args) == 1
         return h.url_for_static(args[0], **kwargs)
 
@@ -294,7 +302,7 @@ class UrlForExtension(BaseExtension):
     tags = set(['url_for'])
 
     @classmethod
-    def _call(cls, args, kwargs):
+    def _call(cls, args: Iterable[Any], kwargs: dict[str, Any]):
         return h.url_for(*args, **kwargs)
 
 
@@ -309,8 +317,9 @@ class LinkForExtension(BaseExtension):
     tags = set(['link_for'])
 
     @classmethod
-    def _call(cls, args, kwargs):
+    def _call(cls, args: Iterable[Any], kwargs: dict[str, Any]):
         return h.nav_link(*args, **kwargs)
+
 
 class AssetExtension(BaseExtension):
     ''' Custom include_asset tag.
@@ -323,7 +332,7 @@ class AssetExtension(BaseExtension):
     tags = set(['asset'])
 
     @classmethod
-    def _call(cls, args, kwargs):
+    def _call(cls, args: Sequence[Any], kwargs: dict[str, Any]):
         assert len(args) == 1
         assert len(kwargs) == 0
         h.include_asset(args[0])

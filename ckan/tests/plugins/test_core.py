@@ -82,11 +82,6 @@ def test_implemented_by():
     assert not IFoo.implemented_by(BarImpl)
 
 
-def test_implemented_by_raises_exception_on_instances():
-    with pytest.raises(TypeError):
-        IFoo.implemented_by(FooImpl())
-
-
 def test_provided_by():
     assert IFoo.provided_by(FooImpl())
     assert IFoo.provided_by(FooBarImpl())

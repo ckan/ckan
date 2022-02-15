@@ -107,6 +107,7 @@ Or just a dict with the items required by the interface::
         pass
 
 """
+from __future__ import annotations
 
 import logging
 import enum
@@ -115,7 +116,7 @@ import inspect
 
 from functools import update_wrapper
 from importlib import import_module
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
+from typing import Any, Callable, NamedTuple, Optional, Type, Union
 
 import ckan.plugins as p
 
@@ -131,7 +132,7 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 Subject = Union[
-    types.FunctionType, types.ModuleType, Dict[str, Any], List[Any]
+    Callable[[], Any], types.ModuleType, "dict[str, Any]", "list[Any]"
 ]
 
 
@@ -172,7 +173,7 @@ class Blanket(enum.Flag):
 
     def implement(
         self,
-        locals: Dict[str, Any],
+        locals: dict[str, Any],
         plugin: p.SingletonPlugin,
         subject: Optional[Subject],
     ):
@@ -203,7 +204,7 @@ class BlanketMapping(NamedTuple):
     interface: p.Interface
 
 
-_mapping: Dict[Blanket, BlanketMapping] = {
+_mapping: dict[Blanket, BlanketMapping] = {
     Blanket.helpers: BlanketMapping(
         u"helpers", u"get_helpers", p.ITemplateHelpers
     ),
@@ -234,8 +235,8 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
 
     def func(
         self: p.SingletonPlugin, *args: Any, **kwargs: Any
-    ) -> Union[Dict[str, Any], List[Any]]:
-        if isinstance(subject, types.FunctionType):
+    ) -> Union[dict[str, Any], list[Any]]:
+        if callable(subject):
             return subject(*args, **kwargs)
         elif isinstance(subject, types.ModuleType):
             result = _get_public_module_members(subject)
@@ -248,7 +249,7 @@ def _as_implementation(subject: Subject, as_list: bool) -> Callable[..., Any]:
     return func
 
 
-def _get_public_module_members(module: types.ModuleType) -> Dict[str, Any]:
+def _get_public_module_members(module: types.ModuleType) -> dict[str, Any]:
     all_ = getattr(module, u"__all__", None)
     if all_:
         return {item: getattr(module, item) for item in all_}
@@ -265,9 +266,12 @@ def _get_public_module_members(module: types.ModuleType) -> Dict[str, Any]:
     return dict(inspect.getmembers(module, _is_public))
 
 
+PluginClass = Type[p.SingletonPlugin]
+
+
 def _blanket_implementation(
     group: Blanket,
-) -> Callable[[Optional[Subject]], Callable[..., Any]]:
+):
     """Generator of blanket types.
 
     Unless blanket requires something fancy, this function should be
@@ -276,8 +280,8 @@ def _blanket_implementation(
 
     """
 
-    def decorator(subject: Optional[Subject] = None) -> Callable[..., Any]:
-        def wrapper(plugin: Type[p.SingletonPlugin]):
+    def decorator(subject: Union[Subject, PluginClass, None] = None) -> Any:
+        def wrapper(plugin: PluginClass) -> PluginClass:
             class WrappedPlugin(plugin):
                 for key in Blanket:
                     if key & group:

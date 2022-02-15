@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from typing import Any
 import logging
 import os
 
@@ -59,7 +60,8 @@ def set_permissions():
     click.echo(sql)
 
 
-def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
+def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
+                    writeuser: str, readuser: str):
     template_filename = os.path.join(
         os.path.dirname(datastore_module.__file__), u'set_permissions.sql'
     )
@@ -86,7 +88,8 @@ def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
 @click.option(u'--limit', type=click.IntRange(0))
 @click.option(u'--bom', is_flag=True)  # FIXME: options based on format
 @click.pass_context
-def dump(ctx, resource_id, output_file, format, offset, limit, bom):
+def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
+         offset: int, limit: int, bom: bool):
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
@@ -103,7 +106,7 @@ def dump(ctx, resource_id, output_file, format, offset, limit, bom):
         )
 
 
-def _parse_db_config(config_key=u'sqlalchemy.url'):
+def _parse_db_config(config_key: str = u'sqlalchemy.url'):
     db_config = parse_db_config(config_key)
     if not db_config:
         click.secho(

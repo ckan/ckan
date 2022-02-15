@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from . import Declaration
 
 handler: FormatHandler[Callable[..., Any]] = FormatHandler()
-serialize = handler.handle
+serializer = handler.handle
 
 
 @handler.register("ini")
