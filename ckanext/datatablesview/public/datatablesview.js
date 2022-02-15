@@ -454,7 +454,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         const colname = thecol.textContent
         const colid = 'dtcol-' + validateId(colname) + '-' + i
         const coltype = $(thecol).data('type')
-        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''  
+        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''
         $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid + '"' +
                 placeholderText +
                 ' class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
@@ -880,8 +880,8 @@ this.ckan.module('datatables_view', function (jQuery) {
           const colText = datatable.column(sortcol[0]).name()
           gsortInfo = gsortInfo + colText +
                       (sortcol[1] === 'asc'
-                        ? ' <span class="glyphicon glyphicon-sort-by-attributes"></span> '
-                        : ' <span class="glyphicon glyphicon-sort-by-attributes-alt"></span> ')
+                        ? ' <span class="fa fa-sort-amount-asc"></span> '
+                        : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
       })

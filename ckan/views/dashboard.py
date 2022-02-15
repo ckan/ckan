@@ -94,9 +94,9 @@ def index(offset=0):
     data_dict = {u'user_obj': g.userobj, u'offset': offset}
     extra_vars = _extra_template_variables(context, data_dict)
 
-    q = request.params.get(u'q', u'')
-    filter_type = request.params.get(u'type', u'')
-    filter_id = request.params.get(u'name', u'')
+    q = request.args.get(u'q', u'')
+    filter_type = request.args.get(u'type', u'')
+    filter_id = request.args.get(u'name', u'')
 
     extra_vars[u'followee_list'] = logic.get_action(u'followee_list')(
         context, {

@@ -8,7 +8,6 @@
         position: relative;
         margin-bottom: 20px;
         input {
-            @include box-sizing(border-box);
             margin: 0;
             width: 100%;
             height: auto;
@@ -41,7 +40,7 @@
                 padding: 15px;
             }
             button {
-                margin-top: -$grid-gutter-width/2;
+                margin-top: math.div(-$grid-gutter-width, 2);
                 right: 15px;
                 // height: 30px;
                 i {
@@ -117,10 +116,11 @@
     }
 }
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
     .search-form .control-order-by {
         float: right;
         margin-left: 15px;
+        width: auto;
     }
     .tertiary {
         .search-form .control-order-by {

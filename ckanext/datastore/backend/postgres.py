@@ -30,7 +30,6 @@ import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 
-import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import config
 
@@ -1717,6 +1716,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         if not self._read_connection_has_correct_privileges():
             self._log_or_raise('The read-only user has write privileges.')
 
+    def _is_postgresql_engine(self):
+        ''' Returns True if the read engine is a Postgresql Database.
+
+        According to
+        http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
+        all Postgres driver names start with `postgres`.
+        '''
+        drivername = self._get_read_engine().engine.url.drivername
+        return drivername.startswith('postgres')
+
     def _is_read_only_database(self):
         ''' Returns True if no connection has CREATE privileges on the public
         schema. This is the case if replication is enabled.'''
@@ -1817,8 +1826,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         self.write_url = self.config['ckan.datastore.write_url']
         self.read_url = self.config['ckan.datastore.read_url']
 
-        self.read_engine = self._get_read_engine()
-        if not model.engine_is_pg(self.read_engine):
+        if not self._is_postgresql_engine():
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')

@@ -16,7 +16,6 @@ extend-exclude =
                ckan/lib/email_notifications.py
                ckan/lib/hash.py
                ckan/lib/jinja_extensions.py
-               ckan/lib/jsonp.py
                ckan/lib/maintain.py
                ckan/lib/navl/validators.py
                ckan/lib/plugins.py

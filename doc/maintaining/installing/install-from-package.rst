@@ -120,10 +120,6 @@ set the correct password, database and database user.
    change the :ref:`solr_url` setting in your
    |ckan.ini| |production.ini| file to reference your |solr| server.
 
-Install |solr|, running this command in a terminal::
-
-    sudo apt install -y solr-tomcat
-
 .. include:: solr.rst
 
 -------------------------------------------------------

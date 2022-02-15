@@ -144,13 +144,10 @@ meta.mapper(Resource, resource_table, properties={
         # formally package_resources_all
         backref=orm.backref('resources_all',
                             collection_class=ordering_list('position'),
-                            cascade='all, delete',
-                            order_by=resource_table.c.position,
+                            cascade='all, delete'
                             ),
     )
-},
-extension=[extension.PluginMapperExtension()],
-)
+})
 
 
 def resource_identifier(obj):

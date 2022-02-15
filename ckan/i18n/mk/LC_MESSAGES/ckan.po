@@ -3465,11 +3465,11 @@ msgid ""
 msgstr ""
 "<p>Организациите дејствуваат како издавачки одделенија за податочни сетови "
 "(на пример, Министерството за здравство). Ова значи дека податочните сетови "
-"може да бидат објавени и припаѓаат на оддел наместо на поединечен корисник. "
-"</p><p>Во рамките на организациите, администраторите можат да доделуваат "
-"улоги и да ги овластуваат своите членови, давајќи им на индивидуалните "
-"корисници право да објавуваат податочни сетови од таа одредена организација "
-"(пр. Канцеларијата за национална статистика).</p>"
+"може да бидат објавени и припаѓаат на оддел наместо на поединечен "
+"корисник. </p><p>Во рамките на организациите, администраторите можат да "
+"доделуваат улоги и да ги овластуваат своите членови, давајќи им на "
+"индивидуалните корисници право да објавуваат податочни сетови од таа "
+"одредена организација (пр. Канцеларијата за национална статистика).</p>"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -4642,8 +4642,8 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
 #: ckan/templates/snippets/changes/resource_desc.html:22
@@ -4652,9 +4652,9 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
