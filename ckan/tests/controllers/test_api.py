@@ -12,7 +12,6 @@ from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
 @pytest.mark.parametrize(
@@ -65,7 +64,6 @@ class TestApiController(object):
         self, app, monkeypatch, tmpdir, ckan_config
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])

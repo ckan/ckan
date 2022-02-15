@@ -1,0 +1,23 @@
+<li>
+  <p>
+    {% set old_url = h.url_for('dataset.read', qualified=True, id=change.old_name) %}
+    {% set new_url = h.url_for('dataset.read', qualified=True, id=change.new_name) %}
+
+    {{ _('Moved')}}
+    <a href="{{ h.url_for('dataset.read', id=change.pkg_id) }}">
+      {{change.title}}
+    </a>
+
+    {{ _('from') }}
+    <a href="{{old_url}}">
+      {{old_url}}
+    </a>
+
+    {{ _('to') }}
+    <a href="{{new_url}}">
+      {{new_url}}
+    </a>
+    
+    
+  </p>
+</li>

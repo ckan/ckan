@@ -58,7 +58,6 @@ app_globals_from_config_details = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
