@@ -81,6 +81,42 @@ class TestSearchIndex(object):
         search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
         assert search_result[u'count'] == 0
 
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_deleted_only_visible_for_right_users(self):
+        """ If we index deleted datasets, we still needs to preserve
+            privacy for private datasets. """
+
+        user1 = factories.User()
+        user2 = factories.User()
+        org1 = factories.Organization(user=user1)
+        org2 = factories.Organization(user=user2)
+        dataset1 = factories.Dataset(
+            user=user1, private=True, owner_org=org1["name"], state="deleted"
+        )
+        dataset2 = factories.Dataset(
+            user=user2, private=True, owner_org=org2["name"], state="deleted"
+        )
+
+        search_results_1 = helpers.call_action(
+            "package_search",
+            {"user": user1["name"]},
+            include_private=True,
+            include_deleted=True
+        )
+        results_1 = search_results_1["results"]
+
+        assert [r["name"] for r in results_1] == [dataset1['name']]
+
+        search_results_2 = helpers.call_action(
+            "package_search",
+            {"user": user2["name"]},
+            include_private=True,
+            include_deleted=True
+        )
+        results_2 = search_results_2["results"]
+
+        assert [r["name"] for r in results_2] == [dataset2['name']]
+
     def test_test_main_operations(self, cli):
         """Create few datasets, clear index, rebuild it - make sure search results
         are always reflect correct state of index.
