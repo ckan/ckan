@@ -115,6 +115,6 @@ def test_get_endpoint_without_context():
 
 
 @pytest.mark.usefixtures("with_request_context")
-def test_get_endpoint_witho_context():
+def test_get_endpoint_with_context():
     """with_request_context fixture mocks request to the homepage."""
     assert tk.get_endpoint() == ("home", "index")

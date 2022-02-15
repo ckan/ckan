@@ -35,14 +35,14 @@ def load_environment(conf):
     """
     os.environ['CKAN_CONFIG'] = conf['__file__']
 
-    valid_base_public_folder_names = ['public']
+    valid_base_public_folder_names = ['public', 'public-bs3']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public".'
+            'Possible values are: "public" and "public-bs3".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -186,14 +186,14 @@ def update_config():
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates']
-    templates = config.get_value('ckan.base_templates_folder')
+    valid_base_templates_folder_names = ['templates', 'templates-bs3']
+    templates = config.get('ckan.base_templates_folder', 'templates')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates".'
+            'Possible values are: "templates" and "templates-bs3".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
@@ -226,6 +226,9 @@ def update_config():
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
     except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
         # The database is not yet initialised. It happens in `ckan db init`
+        pass
+    except sqlalchemy.exc.IntegrityError:
+        # Race condition, user already exists.
         pass
 
     # Close current session and open database connections to ensure a clean

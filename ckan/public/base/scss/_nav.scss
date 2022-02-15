@@ -2,6 +2,7 @@
 .nav-aside {
     @include simple-list; // Adds border and padding.
     padding-bottom: 0;
+    display: block;
 }
 
 .nav-aside {
@@ -10,32 +11,42 @@
     margin-bottom: 15px;
 }
 
-.nav-item>a,
-.nav-aside li a {
+
+.module-narrow  {
+    .nav-item>a,
+    .nav-aside li a {
+    text-decoration: none;;
+    display: block;
     color: $navLinkColor;
     font-size: $font-size-base;
     line-height: $line-height-base;
     margin: -7px (-$gutterX);
-    padding: 7px ($gutterX);
-}
-
-.nav-item.active,
-.nav-aside li.active {
-    background-color: $navActiveBackgroundColor;
-}
-
-.nav-item.active>a,
-.nav-aside li.active a {
-    position: relative;
-    color: $navItemActiveTextColor;
-    background-color: $navItemActiveBackgroundColor;
+    padding: 10px ($gutterX);
     &:hover {
-        color: $navItemActiveTextColor;
-        background-color: $navItemActiveBackgroundColor;
+        text-decoration: none;
+        background-color: #eeeeee;
+    }
+    .badge {
+        background-color: $emptyTextColor;
+        border-radius: 10px;
     }
 }
-
-@media (min-width: $screen-sm-min) {
+    .nav-item.active,
+    .nav-aside li.active {
+        background-color: $navActiveBackgroundColor;
+    }
+    
+    .nav-item.active>a,
+    .nav-aside li.active a {
+        position: relative;
+        color: $navItemActiveTextColor;
+        background-color: $navItemActiveBackgroundColor;
+        &:hover {
+            color: $navItemActiveTextColor;
+            background-color: $navItemActiveBackgroundColor;
+        }
+    }
+    
     .nav-item.active>a:before,
     .nav-aside li.active a:before {
         content: ' ';
@@ -51,21 +62,21 @@
         height: 34px;
         // background-image: url("${imagePath}/nav-active.png?1");
     }
-}
-
-.nav-pills>li {
-    float: none;
-    @media (min-width: $grid-float-breakpoint) {
-        float: left;
+    
+    .nav-pills>li {
+        float: none;
+        @include media-breakpoint-down(sm) { 
+            float: left;
+        }
+    }
+    
+    .nav-item.active>a span,
+    .nav-aside li.active a span {
+        white-space: nowrap;
+        // display: block;
     }
 }
 
-.nav-item.active>a span,
-.nav-aside li.active a span {
-    white-space: nowrap;
-    overflow: hidden;
-    // display: block;
-}
 
 .module-narrow .nav-item>a,
 .module-narrow .nav-aside li a {
@@ -100,6 +111,7 @@
 .nav-facet .nav-item>a:hover:after,
 .nav-facet .nav-item.active>a:after {
     @include ckan-icon;
+    background-position: 0px -16px;
     content: "";
     position: absolute;
     top: 50%;

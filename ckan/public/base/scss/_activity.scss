@@ -79,11 +79,12 @@
         float: right;
         text-decoration: none;
     }
-    .popover-content {
+    .followee-popover {
         font-size: $font-size-base;
         line-height: $line-height-base;
         color: $layoutTextColor;
         word-break: break-all;
+        padding: 0;
         dl {
             margin: 0;
             dd {
@@ -92,12 +93,17 @@
             }
         }
     }
+    .empty {
+        padding: 10px;
+        color: #6e6e6e;
+        font-style: italic;
+    }
 }
 
 // colors
 .activity .item {
-    &.icon {
-        background-color: #333 ;
+    .icon {
+        background-color: $activityColorBlank ;
     } // Non defined
     &.failure .icon {
         background-color: $activityColorDelete;

@@ -4679,8 +4679,8 @@ msgstr "Nastavit viditelnost {pkg_link} na {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Aktualizován popis zdroje {resource_link} v {pkg_link} na <br class=\"line-"
 "height2\"><blockquote>{new_desc}</blockquote>"
@@ -4691,9 +4691,9 @@ msgstr "Odebrán popis ze zdroje {resource_link} v {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "Aktualizován popis zdroje {resource_link} v {pkg_link} z <br class=\"line-"
 "height2\"><blockquote>{old_desc}</blockquote> na <br class=\"line-"
