@@ -318,7 +318,7 @@ def group_dictize(group, context,
 
             # Allow members/collaborators of organizations to see private datasets.
             labels = lib_plugins.get_permission_labels(
-                ).get_user_dataset_labels(context['auth_user_obj'])
+                ).get_user_dataset_labels(context.get('auth_user_obj'))
 
             if group_.is_organization:
                 is_group_member = (context.get('user') and

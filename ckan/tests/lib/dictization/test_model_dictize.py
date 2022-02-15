@@ -344,6 +344,7 @@ class TestGroupDictize:
         org = model_dictize.group_dictize(org_obj, context)
         assert org["package_count"] == 2
 
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackageDictize:
     def remove_changable_values(self, dict_):
