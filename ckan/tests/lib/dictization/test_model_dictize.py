@@ -684,7 +684,6 @@ class TestActivityDictize(object):
         )
         assert dictized["user_id"] == user["id"]
         assert dictized["activity_type"] == "new package"
-        breakpoint()
         assert dictized["data"] == {"package": {"title": dataset["title"], "type": "dataset"}}
 
 
