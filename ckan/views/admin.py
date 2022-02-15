@@ -191,7 +191,11 @@ class TrashView(MethodView):
         }
         query.run(search_params)
 
-        return query.results
+        results = []
+        for result in query.results:
+            result['type'] = result['dataset_type']
+            results.append(result)
+        return results
 
     def get(self) -> str:
         ent_type = request.args.get(u'name')
