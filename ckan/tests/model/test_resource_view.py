@@ -9,7 +9,7 @@ ResourceView = model.ResourceView
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view webpage_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceView(object):
     def test_resource_view_get(self):
         resource_view_id = factories.ResourceView()["id"]
@@ -17,6 +17,7 @@ class TestResourceView(object):
 
         assert resource_view is not None
 
+    @pytest.mark.usefixtures("clean_db")
     def test_get_count_view_type(self):
         factories.ResourceView(view_type="image_view")
         factories.ResourceView(view_type="webpage_view")
@@ -25,6 +26,7 @@ class TestResourceView(object):
 
         assert result == [("webpage_view", 1)]
 
+    @pytest.mark.usefixtures("clean_db")
     def test_delete_view_type(self):
         factories.ResourceView(view_type="image_view")
         factories.ResourceView(view_type="webpage_view")
@@ -34,6 +36,7 @@ class TestResourceView(object):
         result = ResourceView.get_count_not_in_view_types(["image_view"])
         assert result == []
 
+    @pytest.mark.usefixtures("clean_db")
     def test_delete_view_type_doesnt_commit(self):
         factories.ResourceView(view_type="image_view")
         factories.ResourceView(view_type="webpage_view")

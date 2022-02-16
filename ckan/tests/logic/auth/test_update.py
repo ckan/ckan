@@ -16,7 +16,7 @@ def test_user_update_visitor_cannot_update_user():
     """Visitors should not be able to update users' accounts."""
 
     # Make a mock ckan.model.User object, Fred.
-    fred = factories.MockUser(name="fred")
+    fred = factories.MockUser()
 
     # Make a mock ckan.model object.
     mock_model = mock.MagicMock()
@@ -46,7 +46,7 @@ def test_user_update_user_cannot_update_another_user():
     # 1. Setup.
 
     # Make a mock ckan.model.User object, Fred.
-    fred = factories.MockUser(name="fred")
+    fred = factories.MockUser()
 
     # Make a mock ckan.model object.
     mock_model = mock.MagicMock()
@@ -80,7 +80,7 @@ def test_user_update_user_can_update_her():
     """Users should be authorized to update their own accounts."""
 
     # Make a mock ckan.model.User object, Fred.
-    fred = factories.MockUser(name="fred")
+    fred = factories.MockUser()
 
     # Make a mock ckan.model object.
     mock_model = mock.MagicMock()
@@ -106,7 +106,7 @@ def test_user_update_user_can_update_her():
 def test_user_update_with_no_user_in_context():
 
     # Make a mock ckan.model.User object.
-    mock_user = factories.MockUser(name="fred")
+    mock_user = factories.MockUser()
 
     # Make a mock ckan.model object.
     mock_model = mock.MagicMock()
@@ -127,7 +127,7 @@ def test_user_update_with_no_user_in_context():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestUpdateWithView(object):
     def test_anon_can_not_update(self):
 
@@ -203,7 +203,7 @@ class TestUpdateWithView(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def test_config_option_update_anon_user(self):
         """An anon user is not authorized to use config_option_update
@@ -215,22 +215,22 @@ class TestUpdate(object):
     def test_config_option_update_normal_user(self):
         """A normal logged in user is not authorized to use config_option_update
         action."""
-        factories.User(name="fred")
-        context = {"user": "fred", "model": None}
+        user = factories.User()
+        context = {"user": user["name"], "model": None}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("config_option_update", context=context)
 
     def test_config_option_update_sysadmin(self):
         """A sysadmin is authorized to use config_option_update action."""
-        factories.Sysadmin(name="fred")
-        context = {"user": "fred", "model": None}
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "model": None}
         assert helpers.call_auth("config_option_update", context=context)
 
 
-@pytest.mark.usefixtures('clean_db', 'with_plugins')
-@pytest.mark.ckan_config('ckan.plugins', 'image_view')
-@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
-@pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.plugins", "image_view")
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+@pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
 class TestUpdateAuthWithCollaborators(object):
 
     def _get_context(self, user):

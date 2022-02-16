@@ -829,6 +829,31 @@ Default value: |config:ckan.valid_url_schemes|
 
 Controls what uri schemes are rendered as links.
 
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+  ckan.requests.timeout = 5
+
+Default value: |config:ckan.requests.timeout|
+
+Defines how long (in seconds) requests calls should last before they will timeout.
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
 .. _config-authorization:
 
 Authorization Settings
@@ -1444,6 +1469,25 @@ Format as a space-separated list of the plugin names. The plugin name is the key
         Fix CKAN's plugin loading order to simply load all plugins in the order
         they're given in the config file, regardless of which Python modules
         they're implemented in.
+
+
+.. _ckan.download_proxy:
+
+ckan.download_proxy
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.download_proxy = http://proxy:3128
+
+Specifies a HTTP proxy to be used by extensions such as XLoader or Archiver
+when downloading remote files. This may be useful for enabling access to
+restricted network locations, or restricting access to privileged ones, eg
+[preventing Server Side Request Forgery](https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/).
+It will not be used by CKAN core.
+
+If this value is not present, extensions should use the Python defaults.
+If it is present but blank, extensions should not use a proxy.
 
 
 .. _ckan.resource_proxy.max_file_size:

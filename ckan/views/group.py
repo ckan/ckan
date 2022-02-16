@@ -120,8 +120,8 @@ def set_org(is_organization):
 def index(group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    page = h.get_page_number(request.params) or 1
-    items_per_page = config.get_value(u'ckan.datasets_per_page')
+    page = h.get_page_number(request.args) or 1
+    items_per_page = config.get_value('ckan.datasets_per_page')
 
     context = {
         u'model': model,
@@ -137,8 +137,8 @@ def index(group_type, is_organization):
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    q = request.params.get(u'q', u'')
-    sort_by = request.params.get(u'sort')
+    q = request.args.get(u'q', u'')
+    sort_by = request.args.get(u'sort')
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -215,7 +215,7 @@ def _read(id, limit, group_type):
         u'extras_as_string': True
     }
 
-    q = request.params.get(u'q', u'')
+    q = request.args.get(u'q', u'')
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -235,12 +235,12 @@ def _read(id, limit, group_type):
 
     context['return_query'] = True
 
-    page = h.get_page_number(request.params)
+    page = h.get_page_number(request.args)
 
     # most search operations should reset the page counter:
-    params_nopage = [(k, v) for k, v in request.params.items(multi=True)
+    params_nopage = [(k, v) for k, v in request.args.items(multi=True)
                      if k != u'page']
-    sort_by = request.params.get(u'sort', None)
+    sort_by = request.args.get(u'sort', None)
 
     def search_url(params):
         action = u'bulk_process' if getattr(
@@ -356,7 +356,7 @@ def _read(id, limit, group_type):
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         for facet in g.search_facets.keys():
             limit = int(
-                request.params.get(
+                request.args.get(
                     u'_%s_limit' % facet,
                     config.get_value(u'search.facets.default')))
             g.search_facets_limits[facet] = limit
@@ -377,7 +377,11 @@ def _read(id, limit, group_type):
 
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
-        facets = plugin.group_facets(facets, group_type, None)
+        facets = (
+            plugin.group_facets(facets, group_type, None)
+            if group_type == "group"
+            else plugin.organization_facets(facets, group_type, None)
+        )
     return facets
 
 
@@ -412,7 +416,7 @@ def read(group_type, is_organization, id=None, limit=20):
     data_dict = {u'id': id, u'type': group_type}
 
     # unicode format (decoded from utf8)
-    q = request.params.get(u'q', u'')
+    q = request.args.get(u'q', u'')
 
     extra_vars["q"] = q
 
@@ -688,7 +692,7 @@ def members(id, group_type, is_organization):
 def member_delete(id, group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.params:
+    if u'cancel' in request.args:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = {u'model': model, u'session': model.Session, u'user': g.user}
@@ -699,7 +703,7 @@ def member_delete(id, group_type, is_organization):
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
 
     try:
-        user_id = request.params.get(u'user')
+        user_id = request.args.get(u'user')
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
@@ -969,8 +973,8 @@ class CreateGroupView(MethodView):
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
-            u'save': u'save' in request.params,
-            u'parent': request.params.get(u'parent', None),
+            u'save': u'save' in request.args,
+            u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
         }
 
@@ -1056,9 +1060,9 @@ class EditGroupView(MethodView):
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
-            u'save': u'save' in request.params,
+            u'save': u'save' in request.args,
             u'for_edit': True,
-            u'parent': request.params.get(u'parent', None),
+            u'parent': request.args.get(u'parent', None),
             u'id': id
         }
 
@@ -1178,7 +1182,7 @@ class DeleteGroupView(MethodView):
         set_org(is_organization)
         context = self._prepare(id)
         group_dict = _action(u'group_show')(context, {u'id': id})
-        if u'cancel' in request.params:
+        if u'cancel' in request.args:
             return h.redirect_to(u'{}.edit'.format(group_type), id=id)
 
         # TODO: Remove
@@ -1255,7 +1259,7 @@ class MembersGroupView(MethodView):
         extra_vars = {}
         set_org(is_organization)
         context = self._prepare(id)
-        user = request.params.get(u'user')
+        user = request.args.get(u'user')
         data_dict = {u'id': id}
         data_dict['include_datasets'] = False
         group_dict = _action(u'group_show')(context, data_dict)

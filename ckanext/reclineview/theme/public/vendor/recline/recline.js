@@ -3981,7 +3981,7 @@ my.Fields = Backbone.View.extend({
     {{#fields}} \
       <div class="panel panel-default field"> \
         <div class="panel-heading"> \
-          <i class="glyphicon glyphicon-file"></i> \
+          <i class="fa fa-file"></i> \
           <h4> \
             {{label}} \
             <small> \
@@ -4314,7 +4314,7 @@ my.QueryEditor = Backbone.View.extend({
       <div class="form-group"> \
         <div class="input-group text-query"> \
           <div class="input-group-addon"> \
-            <i class="glyphicon glyphicon-search"></i> \
+            <i class="fa fa-search"></i> \
           </div> \
           <label for="q">Search</label> \
           <input class="form-control search-query" type="text" id="q" name="q" value="{{q}}" placeholder="Search data ..."> \

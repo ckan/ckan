@@ -126,9 +126,9 @@ def reset_observer():
     plugins.unload("test_observer_plugin")
 
 
-def test_plugins_load(monkeypatch):
-    monkeypatch.setitem(config, "ckan.plugins", "action_plugin")
-    plugins.load_all()
+@pytest.mark.ckan_config("ckan.plugins", "action_plugin")
+@pytest.mark.usefixtures("with_plugins")
+def test_plugins_load():
     # synchronous_search automatically gets loaded
     current_plugins = set(
         [
@@ -138,9 +138,9 @@ def test_plugins_load(monkeypatch):
         ]
     )
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
-    plugins.unload_all()
 
 
+@pytest.mark.usefixtures("with_plugins")
 def test_action_plugin_override():
     status_show_original = logic.get_action("status_show")(None, {})
     with plugins.use_plugin("action_plugin"):

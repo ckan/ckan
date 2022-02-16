@@ -1,0 +1,9 @@
+<li>
+  <p>
+    {{ _('Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}').format(
+      pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+      key = change.key,
+      value = change.value
+      )}}
+  </p>
+</li>

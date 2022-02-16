@@ -32,7 +32,7 @@ def _set_password(password):
     return hashed_password
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPasswordUpgrade:
     def test_upgrade_from_sha(self):
         user = factories.User()
@@ -165,13 +165,13 @@ class TestUser:
         assert user.email == data["email"]
 
     def test_get(self):
-        factories.User(fullname="Brian", name="brian")
-        factories.User(fullname="Sandra", name="sandra")
+        brian = factories.User(fullname="Brian")
+        sandra = factories.User(fullname="Sandra")
 
-        out = model.User.get(u"brian")
+        out = model.User.get(brian["name"])
         assert out.fullname == u"Brian"
 
-        out = model.User.get(u"sandra")
+        out = model.User.get(sandra["name"])
         assert out.fullname == u"Sandra"
 
     def test_is_deleted(self):
@@ -204,19 +204,21 @@ class TestUser:
 
     def test_get_groups(self):
         data = factories.User()
-        factories.Group(name="grp1", users=[{"name": data["name"], "capacity": "admin"}])
+        group = factories.Group(
+            users=[{"name": data["name"], "capacity": "admin"}]
+        )
         user = model.User.get(data["id"])
         groups = user.get_groups()
 
         assert len(groups) == 1
-        assert groups[0].name == "grp1"
+        assert groups[0].name == group["name"]
 
         # check cache works between sessions
         model.Session.expunge_all()
         # don't refresh user user since this is how c.user works
         # i.e. don't do this: user = model.User.by_name(u'user')
         assert len(groups) == 1
-        assert groups[0].name == "grp1"
+        assert groups[0].name == group["name"]
 
     def test_number_of_administered_packages(self):
         data = factories.User()

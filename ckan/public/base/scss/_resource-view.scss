@@ -95,6 +95,6 @@
     position: relative;
   }
   .actions {
-    right: $grid-gutter-width/2;
+    right: math.div($grid-gutter-width,2);
   }
 }

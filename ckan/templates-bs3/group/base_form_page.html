@@ -1,0 +1,25 @@
+{% extends "group/edit_base.html" %}
+
+{% block breadcrumb_content %}
+  <li>{{ h.nav_link(
+        h.humanize_entity_type('group', group_type, 'breadcrumb') or _('Groups'),
+        named_route=group_type+'.index') }}</li>
+  <li class="active">
+    {% block breadcrumb_link %}
+      {{ h.nav_link(
+        h.humanize_entity_type('group', group_type, 'add link') or _('Add a Group'),
+        named_route=group_type~'.new') }}
+    {% endblock %}
+  </li>
+{% endblock %}
+
+{% block primary_content_inner %}
+  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">
+    {% block page_heading %}
+      {{ h.humanize_entity_type('group', group_type, 'form label') or _('Group Form'), }}
+    {% endblock %}
+  </h1>
+  {% block form %}
+    {{ form | safe }}
+  {% endblock %}
+{% endblock %}
