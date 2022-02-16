@@ -136,7 +136,7 @@ class PackageSearchIndex(SearchIndex):
 
         if config.get_value('ckan.search.remove_deleted_packages'):
             # delete the package if there is no state, or the state is `deleted`
-            if (not pkg_dict.get('state') or 'deleted' in pkg_dict.get('state')):
+            if pkg_dict.get('state', 'deleted') == 'deleted':
                 return self.delete_package(pkg_dict)
 
         index_fields = RESERVED_FIELDS + list(pkg_dict.keys())

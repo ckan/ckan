@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, cast
+from typing import Any, Union, cast, List
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -135,7 +135,6 @@ class ConfigView(MethodView):
 
 
 class TrashView(MethodView):
-    deleted_entities: dict[str, Union[Query[Any], list[Any]]]
 
     def __init__(self):
         self.deleted_packages = self._get_deleted_datasets()
@@ -169,20 +168,22 @@ class TrashView(MethodView):
             }
         }
 
-    def _get_deleted_datasets(self):
+    def _get_deleted_datasets(
+        self
+    ) -> Union["Query[model.Package]", List[Any]]:
         if config.get_value('ckan.search.remove_deleted_packages'):
             return self._get_deleted_datasets_from_db()
         else:
             return self._get_deleted_datasets_from_search_index()
 
-    def _get_deleted_datasets_from_db(self):
+    def _get_deleted_datasets_from_db(self) -> "Query[model.Package]":
         return model.Session.query(
             model.Package
         ).filter_by(
             state=model.State.DELETED
         )
 
-    def _get_deleted_datasets_from_search_index(self):
+    def _get_deleted_datasets_from_search_index(self) -> List[Any]:
         query = search.query_for(model.Package)
         search_params = {
             'fq': '+state:deleted',
@@ -231,9 +232,9 @@ class TrashView(MethodView):
         )
 
         for action, deleted_entities in zip(actions, entities):
-            
             for entity in deleted_entities:
-                ent_id = entity.id if hasattr(entity, 'id') else entity['id']
+                ent_id = entity.id if hasattr(entity, 'id') \
+                    else entity['id']  # type: ignore
                 logic.get_action(action)(
                     {u'user': g.user}, {u'id': ent_id}
                 )

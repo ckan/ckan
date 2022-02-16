@@ -91,15 +91,23 @@ class TestSearchIndex(object):
         org1 = factories.Organization(user=user1)
         org2 = factories.Organization(user=user2)
         dataset1 = factories.Dataset(
-            user=user1, private=True, owner_org=org1["name"], state="deleted"
+            name="dataset-user-1",
+            user=user1,
+            private=True,
+            owner_org=org1["name"],
+            state="deleted"
         )
         dataset2 = factories.Dataset(
-            user=user2, private=True, owner_org=org2["name"], state="deleted"
+            name="dataset-user-2",
+            user=user2,
+            private=True,
+            owner_org=org2["name"],
+            state="deleted"
         )
 
         search_results_1 = helpers.call_action(
             "package_search",
-            {"user": user1["name"]},
+            {"user": user1["name"], "ignore_auth": False},
             include_private=True,
             include_deleted=True
         )
@@ -109,7 +117,7 @@ class TestSearchIndex(object):
 
         search_results_2 = helpers.call_action(
             "package_search",
-            {"user": user2["name"]},
+            {"user": user2["name"], "ignore_auth": False},
             include_private=True,
             include_deleted=True
         )
