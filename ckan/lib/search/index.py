@@ -52,6 +52,7 @@ def clear_index():
     query = "+site_id:\"%s\"" % (config.get_value('ckan.site_id'))
     try:
         conn.delete(q=query)
+        conn.commit()
     except socket.error as e:
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
