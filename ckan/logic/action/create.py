@@ -395,13 +395,15 @@ def resource_view_create(context, data_dict):
     if context.get('preview'):
         return data
 
-    max_order = model.Session.query(
-        func.max(model.ResourceView.order)
-    ).filter_by(resource_id=resource_id).first()
+    last_view = model.Session.query(model.ResourceView).\
+        filter_by(resource_id=resource_id).\
+        order_by(model.ResourceView.order.desc()).\
+        first()
 
-    order = 0
-    if max_order[0] is not None:
-        order = max_order[0] + 1
+    if not last_view:
+        order = 0
+    else:
+        order = last_view.order + 1
     data['order'] = order
 
     resource_view = model_save.resource_view_dict_save(data, context)
