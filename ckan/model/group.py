@@ -9,6 +9,7 @@ from ckan.model import core
 from ckan.model import package as _package
 from ckan.model import types as _types
 from ckan.model import domain_object
+from ckan.common import g
 
 __all__ = ['group_table', 'Group',
            'Member',

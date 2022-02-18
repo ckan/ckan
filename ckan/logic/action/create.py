@@ -752,7 +752,14 @@ def _group_or_org_create(context, data_dict, is_org=False):
         'activity_type': activity_type,
     }
     activity_dict['data'] = {
-        'group': ckan.lib.dictization.table_dictize(group, context)
+        'group': model_dictize.group_dictize(
+            group,
+            context,
+            include_groups=False,
+            include_tags=False,
+            include_users=False,
+            packages_field=None,
+        )
     }
     activity_create_context = {
         'model': model,
@@ -1199,7 +1206,6 @@ def activity_create(context, activity_dict, **kw):
     :rtype: dictionary
 
     '''
-
     _check_access('activity_create', context, activity_dict)
 
     # this action had a ignore_auth param which has been removed

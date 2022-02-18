@@ -696,6 +696,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
         data, context,
         prevent_packages_update=is_org or not contains_packages
     )
+    # Needed to let extensions know the group id
+    session.flush()
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -732,7 +734,14 @@ def _group_or_org_update(context, data_dict, is_org=False):
                 'deleted organization' if is_org else 'deleted group'
     if activity_dict is not None:
         activity_dict['data'] = {
-                'group': dictization.table_dictize(group, context)
+                'group': model_dictize.group_dictize(
+                    group,
+                    context,
+                    include_groups=False,
+                    include_tags=False,
+                    include_users=False, 
+                    packages_field=None
+                    )
                 }
         activity_create_context = {
             'model': model,
@@ -750,7 +759,13 @@ def _group_or_org_update(context, data_dict, is_org=False):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    return model_dictize.group_dictize(group, context)
+    return_id_only = context.get('return_id_only', False)
+    action = 'organization_show' if is_org else 'group_show'
+
+    output = context['id'] if return_id_only \
+        else _get_action(action)(context, {'id': group.id})
+
+    return output
 
 
 def group_update(context, data_dict):
