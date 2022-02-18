@@ -13,8 +13,7 @@ from ckan.model import (
     license as _license,
     types as _types,
     domain_object,
-    activity,
-    extension,
+    activity
 )
 import ckan.lib.maintain as maintain
 

@@ -159,7 +159,6 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
-        'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
         'session_plugin = tests.plugins.ckantestplugins:SessionPlugin',
