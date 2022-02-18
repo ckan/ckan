@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
+from sqlalchemy import subquery, types, Column, Table, ForeignKey, UniqueConstraint
 
 from ckan.model import (
     core,
@@ -190,9 +190,14 @@ class Tag(domain_object.DomainObject):
                         % vocab_id_or_name)
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
-            query = meta.Session.query(Tag).filter(Tag.vocabulary_id == None)
-            query = query.distinct().join(PackageTag)
-            query = query.filter_by(state='active')
+            subquery = meta.Session.query(PackageTag).\
+                filter(PackageTag.state == 'active').subquery()
+
+            query = meta.Session.query(Tag).\
+                filter(Tag.vocabulary_id == None).\
+                distinct().\
+                join(subquery, Tag.id==subquery.c.tag_id)
+
         return query
 
     @property
