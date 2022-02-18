@@ -1,16 +1,12 @@
 # encoding: utf-8
 
 import datetime
-from sqlalchemy.orm import class_mapper
 import sqlalchemy
 
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.engine import Row
 
 from ckan.model.core import State
-
-try:
-    RowProxy = sqlalchemy.engine.result.RowProxy
-except AttributeError:
-    RowProxy = sqlalchemy.engine.base.RowProxy
 
 try:
     long        # Python 2
@@ -30,7 +26,7 @@ def table_dictize(obj, context, **kw):
 
     result_dict = {}
 
-    if isinstance(obj, RowProxy):
+    if isinstance(obj, Row):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
