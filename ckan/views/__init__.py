@@ -141,6 +141,8 @@ def identify_user():
 
     # general settings
     if g.user:
+        if g.userobj:
+            g.userobj.set_user_last_active()
         g.author = g.user
     else:
         g.author = g.remote_addr

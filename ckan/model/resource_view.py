@@ -30,7 +30,6 @@ class ResourceView(domain_object.DomainObject):
             return None
 
         view = meta.Session.query(cls).get(reference)
-
         return view
 
     @classmethod

@@ -820,72 +820,6 @@ def _parse_recline_state(params):
     return recline_state
 
 
-def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
-    """
-    Embedded page for a read-only resource dataview. Allows
-    for width and height to be specified as part of the
-    querystring (as well as accepting them via routes).
-    """
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    }
-
-    try:
-        resource = get_action(u'resource_show')(context, {u'id': resource_id})
-        package = get_action(u'package_show')(context, {u'id': id})
-        resource_json = h.json.dumps(resource)
-
-        # double check that the resource belongs to the specified package
-        if not resource[u'id'] in [r[u'id'] for r in package[u'resources']]:
-            raise NotFound
-        dataset_type = package[u'type'] or package_type
-
-    except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Resource not found'))
-
-    # Construct the recline state
-    state_version = int(request.args.get(u'state_version', u'1'))
-    recline_state = _parse_recline_state(request.args)
-    if recline_state is None:
-        return base.abort(
-            400, (
-                u'"state" parameter must be a valid recline '
-                u'state (version %d)' % state_version
-            )
-        )
-
-    recline_state = h.json.dumps(recline_state)
-
-    width = max(int(request.args.get(u'width', width)), 100)
-    height = max(int(request.args.get(u'height', height)), 100)
-    embedded = True
-
-    # TODO: remove
-    g.resource = resource
-    g.package = package
-    g.resource_json = resource_json
-    g.recline_state = recline_state
-    g.width = width
-    g.height = height
-    g.embedded = embedded
-
-    return base.render(
-        u'package/resource_embedded_dataviewer.html', {
-            u'dataset_type': dataset_type,
-            u'resource': resource,
-            u'package': package,
-            u'resource_json': resource_json,
-            u'width': width,
-            u'height': height,
-            u'embedded': embedded,
-            u'recline_state': recline_state
-        }
-    )
-
-
 def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
     blueprint.add_url_rule(
@@ -909,16 +843,6 @@ def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/<resource_id>/new_view', view_func=_edit_view)
     blueprint.add_url_rule(
         u'/<resource_id>/edit_view/<view_id>', view_func=_edit_view
-    )
-    blueprint.add_url_rule(
-        u'/<resource_id>/embed', view_func=embedded_dataviewer)
-    blueprint.add_url_rule(
-        u'/<resource_id>/viewer',
-        view_func=embedded_dataviewer,
-        defaults={
-            u'width': u"960",
-            u'height': u"800"
-        }
     )
 
 

@@ -7,10 +7,8 @@ import requests
 
 from ckan.common import config
 from ckan.common import asbool
-import six
 
 from ckan.common import _, json
-import ckan.lib.maintain as maintain
 
 log = logging.getLogger(__name__)
 
@@ -20,16 +18,6 @@ class License(object):
     """Domain object for a license."""
 
     def __init__(self, data):
-        # convert old keys if necessary
-        if 'is_okd_compliant' in data:
-            data['od_conformance'] = 'approved' \
-                if asbool(data['is_okd_compliant']) else ''
-            del data['is_okd_compliant']
-        if 'is_osi_compliant' in data:
-            data['osd_conformance'] = 'approved' \
-                if asbool(data['is_osi_compliant']) else ''
-            del data['is_osi_compliant']
-
         self._data = data
         for (key, value) in self._data.items():
             if key == 'date_created':
@@ -41,14 +29,6 @@ class License(object):
                 self._data[key] = value
 
     def __getattr__(self, name):
-        if name == 'is_okd_compliant':
-            log.warn('license.is_okd_compliant is deprecated - use '
-                     'od_conformance instead.')
-            return self._data['od_conformance'] == 'approved'
-        if name == 'is_osi_compliant':
-            log.warn('license.is_osi_compliant is deprecated - use '
-                     'osd_conformance instead.')
-            return self._data['osd_conformance'] == 'approved'
         try:
             return self._data[name]
         except KeyError as e:
@@ -56,41 +36,11 @@ class License(object):
             # behavior of `hasattr`
             raise AttributeError(*e.args)
 
-    @maintain.deprecated("License.__getitem__() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.", since="2.4.0")
-    def __getitem__(self, key):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        return self.__getattr__(key)
-
     def isopen(self):
         if not hasattr(self, '_isopen'):
             self._isopen = self.od_conformance == 'approved' or \
                 self.osd_conformance == 'approved'
         return self._isopen
-
-    @maintain.deprecated("License.as_dict() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.", since="2.4.0")
-    def as_dict(self):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        data = self._data.copy()
-        if 'date_created' in data:
-            value = data['date_created']
-            value = value.isoformat()
-            data['date_created'] = value
-
-        # deprecated keys
-        if 'od_conformance' in data:
-            data['is_okd_compliant'] = data['od_conformance'] == 'approved'
-        if 'osd_conformance' in data:
-            data['is_osi_compliant'] = data['osd_conformance'] == 'approved'
-
-        return data
 
 
 class LicenseRegister(object):
