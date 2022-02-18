@@ -120,16 +120,6 @@ def update_config():
         # config = plugin.update_config(config)
         plugin.update_config(config)
 
-    # Set whitelisted env vars on config object
-    # This is set up before globals are initialized
-
-    ckan_db = os.environ.get('CKAN_DB', None)
-    if ckan_db:
-        msg = 'Setting CKAN_DB as an env var is deprecated and will be' \
-            ' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
-        log.warn(msg)
-        config['sqlalchemy.url'] = ckan_db
-
     for option in CONFIG_FROM_ENV_VARS:
         from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
         if from_env:
