@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
+from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
 
 from ckan.model import meta
 from ckan.model import core
@@ -196,7 +196,7 @@ class Group(core.StatefulObjectMixin,
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
-                                     'parent_id').\
+                                     column('parent_id')).\
             from_statement(text(HIERARCHY_DOWNWARDS_CTE)).\
             params(id=self.id, type=type).all()
         return results
