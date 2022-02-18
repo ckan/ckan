@@ -9,7 +9,7 @@ factory-boy==3.2.0
 flask-debugtoolbar==0.11.0
 freezegun==1.1.0
 ipdb==0.13.7
-pip-tools==5.1.2
+pip-tools==6.5.1
 Pillow==8.4.0
 responses==0.13.3
 sphinx-rtd-theme==1.0.0

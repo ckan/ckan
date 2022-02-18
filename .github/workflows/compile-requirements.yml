@@ -1,0 +1,48 @@
+name: Compile requirements
+on:
+  workflow_dispatch:
+    inputs:
+      targetBranch:
+        description: 'Branch'
+        type: string
+        required: true
+        default: master
+
+
+jobs:
+  compile_requirements:
+    name: Compile requirements
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: "gabrielfalcao/pyenv-action@v9"
+        with:
+          default: 3.7.12
+          versions: 3.7.12, 3.8.12, 3.9.10, 3.10.2
+          command: pip install -U pip
+
+      - name: Checkout
+        env:
+          BRANCH: ${{ github.event.inputs.targetBranch }}
+        run: |
+          git checkout -B $BRANCH
+
+      - name: Compute requirements
+        run: >
+          bin/compile-requirements.sh -y -v3.7.12 -v3.8.12 -v3.9.10 -v3.10.2
+
+      - name: Debug result
+        run: cat requirements.txt
+
+      - name: commit
+        env:
+          BRANCH: ${{ github.event.inputs.targetBranch }}
+        run: |
+          git config --global user.name 'requirements-compiler'
+          git config --global user.email 'requirements-compiler@ckan.noreply.github.com'
+          git add requirements.txt
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/ckan/ckan
+          git commit -am "[action] compile requirements"
+          git --no-pager log -2 --oneline
+          git push -u origin $BRANCH
