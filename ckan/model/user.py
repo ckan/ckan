@@ -18,6 +18,14 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
+from ckan.common import config, asbool, asint, session
+
+
+def last_active_check():
+    last_active = asint(config.get('ckan.user.last_active_interval', 600))
+    calc_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=last_active)
+
+    return calc_time
 
 
 def set_api_key():
@@ -37,6 +45,7 @@ user_table = Table('user', meta.metadata,
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
+        Column('last_active', types.TIMESTAMP),
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
@@ -293,6 +302,16 @@ class User(core.StatefulObjectMixin,
                                  cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
+    def set_user_last_active(self):
+        if self.last_active:
+            session["last_active"] = self.last_active
+
+            if session["last_active"] < last_active_check():
+                self.last_active = datetime.datetime.utcnow()
+                meta.Session.commit()
+        else:
+            self.last_active = datetime.datetime.utcnow()
+            meta.Session.commit()
 
 meta.mapper(
     User, user_table,
