@@ -314,9 +314,6 @@ groups:
       - key: ckan.search.solr_commit
         type: bool
         default: true
-      - key: ckan.cache_validated_datasets
-        type: bool
-        default: true
       - key: ckan.search.show_all_types
         default: dataset
       - key: ckan.search.default_include_private
