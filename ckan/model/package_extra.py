@@ -8,7 +8,6 @@ from ckan.model import (
     meta,
     core,
     package as _package,
-    extension,
     domain_object,
     types as _types,
 )
