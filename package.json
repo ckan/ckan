@@ -17,7 +17,7 @@
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
     "qs": "^6.10.1",
-    "sass": "^1.35.2"
+    "sass": "^1.49.8"
   },
   "devDependencies": {
     "axe-core": "^4.3.3",
