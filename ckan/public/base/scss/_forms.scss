@@ -657,7 +657,7 @@ select[data-module="autocomplete"] {
 }
 
 .control-full .select2-container {
-    // Important is bad but select2 incorrectly calculates the width and sets it on the element@mixin 
+    // Important is bad but select2 incorrectly calculates the width and sets it on the element@mixin
     // Commenting out, as I cannot reproduce this problem (SS)
     //width: 520px !important;
     max-width: 100%;
@@ -770,7 +770,7 @@ select[data-module="autocomplete"] {
         margin-right: 0;
         margin-top: 2px;
         top: $grid-gutter-width;
-        right: $grid-gutter-width / 6;
+        right: math.div($grid-gutter-width, 6);
         padding: 0 12px;
         border-radius: 100px;
         .icon-remove {
