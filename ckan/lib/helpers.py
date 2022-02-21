@@ -2673,6 +2673,13 @@ def get_site_statistics() -> dict[str, int]:
 _RESOURCE_FORMATS: dict[str, Any] = {}
 
 
+def resource_formats_default_file():
+    return os.path.join(
+        os.path.dirname(os.path.realpath(ckan.config.__file__)),
+        'resource_formats.json'
+    )
+
+
 @core_helper
 def resource_formats() -> dict[str, list[str]]:
     ''' Returns the resource formats as a dict, sourced from the resource
@@ -2688,11 +2695,6 @@ def resource_formats() -> dict[str, list[str]]:
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
         format_file_path = config.get_value('ckan.resource_formats')
-        if not format_file_path:
-            format_file_path = os.path.join(
-                os.path.dirname(os.path.realpath(ckan.config.__file__)),
-                'resource_formats.json'
-            )
         with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())

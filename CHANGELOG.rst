@@ -1789,7 +1789,7 @@ Changes and deprecations
 
 * The default of allowing anyone to create datasets, groups and organizations
   has been changed to False. It is advised to ensure you set all of the
-  :ref:`config-authorization` options explicitly in your CKAN config. (#2164)
+  :ref:`authorization-settings` options explicitly in your CKAN config. (#2164)
 
 * The ``package_show`` API call does not return the ``tracking_summary``,
   keys in the dataset or resources by default any more.

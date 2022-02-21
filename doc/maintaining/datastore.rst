@@ -1,3 +1,5 @@
+.. _datastore:
+
 ===================
 DataStore extension
 ===================
