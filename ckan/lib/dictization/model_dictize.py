@@ -36,6 +36,7 @@ import ckan.lib.munge as munge
 import ckan.lib.plugins as lib_plugins
 import ckan.model as model
 from ckan.types import Context, Query
+from ckan.common import config
 
 ## package save
 
