@@ -1,5 +1,7 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from typing import Any
 from urllib.parse import urlencode
 
 from flask import Blueprint
@@ -12,7 +14,8 @@ import re
 datatablesview = Blueprint(u'datatablesview', __name__)
 
 
-def merge_filters(view_filters, user_filters_str):
+def merge_filters(view_filters: dict[str, Any],
+                  user_filters_str: str) -> dict[str, Any]:
     u'''
     view filters are built as part of the view, user filters
     are selected by the user interacting with the view. Any filters
@@ -31,7 +34,7 @@ def merge_filters(view_filters, user_filters_str):
         return filters
     user_filters = {}
     for k_v in user_filters_str.split(u'|'):
-        k, sep, v = k_v.partition(u':')
+        k, _sep, v = k_v.partition(u':')
         if k not in view_filters or v in view_filters[k]:
             user_filters.setdefault(k, []).append(v)
     for k in user_filters:
@@ -39,9 +42,9 @@ def merge_filters(view_filters, user_filters_str):
     return filters
 
 
-def ajax(resource_view_id):
+def ajax(resource_view_id: str):
     resource_view = get_action(u'resource_view_show'
-                               )(None, {
+                               )({}, {
                                    u'id': resource_view_id
                                })
 
@@ -55,7 +58,7 @@ def ajax(resource_view_id):
 
     datastore_search = get_action(u'datastore_search')
     unfiltered_response = datastore_search(
-        None, {
+        {}, {
             u"resource_id": resource_view[u'resource_id'],
             u"limit": 0,
             u"filters": view_filters,
@@ -101,7 +104,7 @@ def ajax(resource_view_id):
 
     try:
         response = datastore_search(
-            None, {
+            {}, {
                 u"q": search_text,
                 u"resource_id": resource_view[u'resource_id'],
                 u'plain': False,
@@ -134,10 +137,10 @@ def ajax(resource_view_id):
     return json.dumps(dtdata)
 
 
-def filtered_download(resource_view_id):
+def filtered_download(resource_view_id: str):
     params = json.loads(request.form[u'params'])
     resource_view = get_action(u'resource_view_show'
-                               )(None, {
+                               )({}, {
                                    u'id': resource_view_id
                                })
 
@@ -148,7 +151,7 @@ def filtered_download(resource_view_id):
 
     datastore_search = get_action(u'datastore_search')
     unfiltered_response = datastore_search(
-        None, {
+        {}, {
             u"resource_id": resource_view[u'resource_id'],
             u"limit": 0,
             u"filters": view_filters,

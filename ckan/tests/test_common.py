@@ -152,7 +152,7 @@ def test_config_option_update_action_works_on_flask(reset_db, ckan_config):
 def test_params_also_works_on_flask_request(test_request_context):
     with test_request_context(u"/?a=1"):
         assert u"a" in ckan_request.args
-        assert u"a" in ckan_request.params
+        assert u"a" in ckan_request.args
 
 
 def test_other_missing_attributes_raise_attributeerror_exceptions(

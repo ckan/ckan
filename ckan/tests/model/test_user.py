@@ -8,7 +8,6 @@ import six
 
 from passlib.hash import pbkdf2_sha512
 
-
 import ckan.model as model
 import ckan.tests.factories as factories
 
@@ -163,6 +162,7 @@ class TestUser:
         assert len(user.apikey) == 36
         assert user.fullname == data["fullname"]
         assert user.email == data["email"]
+        assert user.last_active is None
 
     def test_get(self):
         brian = factories.User(fullname="Brian")
@@ -230,3 +230,30 @@ class TestUser:
 
         user1.number_created_packages() == 1
         user2.number_created_packages() == 0
+
+    def test_user_last_active(self, app):
+        import datetime
+        from ckan.lib.helpers import url_for
+        from freezegun import freeze_time
+
+        frozen_time = datetime.datetime.utcnow()
+        data = factories.User()
+        dataset = factories.Dataset()
+        env = {"REMOTE_USER": str(data["name"])}
+
+        with freeze_time(frozen_time):
+            user = model.User.get(data["id"])
+            assert user.last_active is None
+            app.get(url_for("dataset.search"), extra_environ=env)
+            assert isinstance(user.last_active, datetime.datetime)
+            assert user.last_active == datetime.datetime.utcnow()
+
+        with freeze_time(frozen_time + datetime.timedelta(seconds=540)):
+            user = model.User.get(data["id"])
+            app.get(url_for("user.read", id=user.id), extra_environ=env)
+            assert user.last_active != datetime.datetime.utcnow()
+
+        with freeze_time(frozen_time + datetime.timedelta(seconds=660)):
+            user = model.User.get(data["id"])
+            app.get(url_for("dataset.read", id=dataset["id"]), extra_environ=env)
+            assert user.last_active == datetime.datetime.utcnow()
