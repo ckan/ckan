@@ -72,7 +72,7 @@ Create a new plugin named ``ckanext-extrafields`` and create a class named
 ``DefaultDatasetForm``.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
-    :end-before: def create_package_schema(self):
+    :end-before: def create_package_schema(self) -> Schema:
 
 Updating the CKAN schema
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -133,7 +133,7 @@ IConfigurer interface
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v2.py
     :emphasize-lines: 3
     :start-after: import ckan.plugins.toolkit as tk
-    :end-before: def create_package_schema(self):
+    :end-before: def create_package_schema(self) -> Schema:
 
 This interface allows to implement a function
 :py:meth:`~ckan.plugins.interfaces.IDatasetForm.update_config` that allows us
@@ -202,7 +202,7 @@ with:
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v3.py
     :start-after: p.implements(p.IDatasetForm)
-    :end-before: def show_package_schema(self):
+    :end-before: def show_package_schema(self) -> Schema:
 
 
 .. _custom-validators:
@@ -323,7 +323,7 @@ The validator has to be registered. Example:
 
 .. literalinclude:: ../../ckanext/example_ivalidators/plugin.py
     :start-after: from ckan.plugins.toolkit import Invalid
-    :end-before: def equals_fortytwo(value):
+    :end-before: def equals_fortytwo(value: Any):
 
 Tag vocabularies
 ----------------
@@ -388,7 +388,7 @@ function defined for this interface.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :start-after: p.implements(p.IConfigurer)
-    :end-before: def _modify_package_schema(self, schema):
+    :end-before: def _modify_package_schema(self, schema: Schema):
 
 Our intention here is to tie our country_code fetching/creation to when they
 are used in the templates. Add the code below to

@@ -5,6 +5,7 @@ import logging
 from collections import OrderedDict
 from typing import (
     Any,
+    Container,
     Dict,
     Iterator,
     List,
@@ -12,14 +13,15 @@ from typing import (
     Set,
     Union,
     TYPE_CHECKING,
+    cast,
 )
 
 from .key import Key, Pattern, Wildcard
 from .option import Option, Annotation, Flag, T
 
-from .load import load, DeclarationDict
-from .describe import describe
-from .serialize import serialize
+from .load import loader, DeclarationDict
+from .describe import describer
+from .serialize import serializer
 
 if TYPE_CHECKING:
     from ckan.common import CKANConfig
@@ -27,6 +29,8 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 __all__ = ["Declaration", "Key"]
+
+_non_iterable = Flag.non_iterable()
 
 
 class Declaration:
@@ -55,16 +59,16 @@ class Declaration:
     def __getitem__(self, key: Key) -> Option[Any]:
         return self._mapping[key]
 
-    def get(self, key: Union[str, Key]) -> Optional[Option]:
-        key = Key._as_key(key)
-        if key in self:
-            return self[key]
+    def get(self, key: Union[str, Key]) -> Optional[Option[Any]]:
+        k = Key._as_key(key)
+        if k in self:
+            return self[k]
 
     def iter_options(
         self,
         *,
         pattern: Union[str, Pattern] = "*",
-        exclude: Flag = Flag.non_iterable(),
+        exclude: Flag = _non_iterable,
     ) -> Iterator[Key]:
         if isinstance(pattern, str):
             pattern = Pattern.from_string(pattern)
@@ -109,7 +113,7 @@ class Declaration:
 
             assert k not in errors, f"Invalid value for {k}: {v}"
 
-            if k not in self:
+            if k not in cast(Container[str], self):
                 # it either __extra or __junk
                 continue
 
@@ -121,7 +125,7 @@ class Declaration:
 
         return True
 
-    def validate(self, config):
+    def validate(self, config: "CKANConfig"):
         import ckan.lib.navl.dictization_functions as df
 
         schema = self.into_schema()
@@ -143,26 +147,29 @@ class Declaration:
             log.debug("Declaration for core is already loaded")
             return
 
-        load(self, "core")
+        loader(self, "core")
         self._core_loaded = True
 
     def load_plugin(self, name: str):
         if name in self._plugins:
             log.debug("Declaration for plugin %s is already loaded", name)
             return
-        load(self, "plugin", name)
+        loader(self, "plugin", name)
 
     def load_dict(self, data: DeclarationDict):
-        load(self, "dict", data)
+        loader(self, "dict", data)
 
-    def into_ini(self, minimal: bool, no_comments: bool = False) -> str:
-        return serialize(self, "ini", minimal, no_comments)
+    def into_ini(self, minimal: bool, verbose: bool = False) -> str:
+        return serializer(self, "ini", minimal, verbose)
 
     def into_schema(self) -> Dict[str, Any]:
-        return serialize(self, "validation_schema")
+        return serializer(self, "validation_schema")
+
+    def into_docs(self) -> str:
+        return serializer(self, "rst")
 
     def describe(self, fmt: str) -> str:
-        return describe(self, fmt)
+        return describer(self, fmt)
 
     def declare(
         self, key: Union[Key, str], default: Optional[T] = None
@@ -209,7 +216,7 @@ class Declaration:
                 for fragment in key
             ]
         )
-        option = self.declare(key, default)
+        option: Option[Any] = self.declare(key, default)
         return option
 
     def annotate(self, annotation: str):

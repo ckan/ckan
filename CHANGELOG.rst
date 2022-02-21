@@ -38,7 +38,7 @@ Bugfixes
 Minor changes
 -------------
 
-- Add timeouts to requests calls (see :ref:`ckan.requests.timeout`) (`#6408 <https://github.com/ckan/ckan/pull/6408>`_)
+- Add timeouts to requests calls (see `ckan.requests.timeout`) (`#6408 <https://github.com/ckan/ckan/pull/6408>`_)
 - Types of file uploads for group and user imags can be restricted via the `ckan.upload.{object_type}.types` and `ckan.upload.{object_type}.mimetypes`  config options (eg :ref:`ckan.upload.group.types`,  :ref:`ckan.upload.user.mimetypes`) (`#6477 <https://github.com/ckan/ckan/pull/6477>`_)
 - Allow children elements on select2 lists (`#6503 <https://github.com/ckan/ckan/pull/6503>`_)
 - Enable ``minimumInputLength`` and fix loading message in select2 (`#6554 <https://github.com/ckan/ckan/pull/6554>`_)
@@ -522,7 +522,7 @@ v.2.8.10 2022-01-19
 
 Fixes:
 
-* Add timeouts to requests calls (see :ref:`ckan.requests.timeout`) (`#6408 <https://github.com/ckan/ckan/pull/6408>`_)
+* Add timeouts to requests calls (see `ckan.requests.timeout`) (`#6408 <https://github.com/ckan/ckan/pull/6408>`_)
 * Fix user create/edit email validators (`#6399 <https://github.com/ckan/ckan/pull/6399>`_)
 * Allow children elements on select2 lists (`#6503 <https://github.com/ckan/ckan/pull/6503>`_)
 
@@ -1789,7 +1789,7 @@ Changes and deprecations
 
 * The default of allowing anyone to create datasets, groups and organizations
   has been changed to False. It is advised to ensure you set all of the
-  :ref:`config-authorization` options explicitly in your CKAN config. (#2164)
+  :ref:`authorization-settings` options explicitly in your CKAN config. (#2164)
 
 * The ``package_show`` API call does not return the ``tracking_summary``,
   keys in the dataset or resources by default any more.

@@ -2,13 +2,15 @@
 
 """Additional middleware used by the Flask app stack."""
 import hashlib
+from typing import Any
 
 import six
 from urllib.parse import unquote, urlparse
 
 import sqlalchemy as sa
 
-from ckan.common import config
+from ckan.common import CKANConfig, config
+from ckan.types import CKANApp
 
 
 class RootPathMiddleware(object):
@@ -18,10 +20,10 @@ class RootPathMiddleware(object):
     path and ckan addes the root url causing a duplication of the root path.
     This is a middleware to ensure that even redirects use this logic.
     '''
-    def __init__(self, app, config):
+    def __init__(self, app: CKANApp):
         self.app = app
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ: Any, start_response: Any):
         # Prevents the variable interfering with the root_path logic
         if 'SCRIPT_NAME' in environ:
             environ['SCRIPT_NAME'] = ''
@@ -31,11 +33,11 @@ class RootPathMiddleware(object):
 
 class TrackingMiddleware(object):
 
-    def __init__(self, app, config):
+    def __init__(self, app: CKANApp, config: CKANConfig):
         self.app = app
         self.engine = sa.create_engine(config.get_value('sqlalchemy.url'))
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ: Any, start_response: Any) -> Any:
         path = environ['PATH_INFO']
         method = environ.get('REQUEST_METHOD')
         if path == '/_tracking' and method == 'POST':
@@ -71,10 +73,10 @@ class HostHeaderMiddleware(object):
         Prevent the `Host` header from the incoming request to be used
         in the `Location` header of a redirect.
     '''
-    def __init__(self, app):
+    def __init__(self, app: CKANApp):
         self.app = app
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ: Any, start_response: Any) -> Any:
         path_info = environ[u'PATH_INFO']
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',

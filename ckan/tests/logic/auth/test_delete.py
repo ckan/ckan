@@ -213,7 +213,8 @@ class TestPackageMemberDeleteAuth(object):
             "user": user if isinstance(user, str) else user.get("name"),
         }
 
-    def setup(self):
+    @pytest.fixture(autouse=True)
+    def setup(self, clean_db):
 
         self.org_admin = factories.User()
         self.org_editor = factories.User()
