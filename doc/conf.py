@@ -286,13 +286,13 @@ def config_defaults_from_declaration():
     from ckan.config.declaration import Declaration
     decl = Declaration()
     decl.load_core_declaration()
-    decl.load_plugin("datastore")
-    decl.load_plugin("datapusher")
     decl.load_plugin("resource_proxy")
     decl.load_plugin("text_view")
     decl.load_plugin("image_view")
     decl.load_plugin("recline_view")
     decl.load_plugin("datatables_view")
+    decl.load_plugin("datastore")
+    decl.load_plugin("datapusher")
 
     return {
         f"config:{k}": "``{}``".format(

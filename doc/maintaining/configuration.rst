@@ -1471,6 +1471,25 @@ Format as a space-separated list of the plugin names. The plugin name is the key
         they're implemented in.
 
 
+.. _ckan.download_proxy:
+
+ckan.download_proxy
+^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.download_proxy = http://proxy:3128
+
+Specifies a HTTP proxy to be used by extensions such as XLoader or Archiver
+when downloading remote files. This may be useful for enabling access to
+restricted network locations, or restricting access to privileged ones, eg
+[preventing Server Side Request Forgery](https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/).
+It will not be used by CKAN core.
+
+If this value is not present, extensions should use the Python defaults.
+If it is present but blank, extensions should not use a proxy.
+
+
 .. _ckan.resource_proxy.max_file_size:
 
 ckan.resource_proxy.max_file_size
@@ -2347,6 +2366,22 @@ Default value: ``home.index``
 
 This controls the page where users will be sent after requesting a password reset.
 This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+.. _ckan.user.last_active_interval:
+
+ckan.user.last_active_interval
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user.last_active_interval = 600
+
+Default value: 600 (10 min)
+
+Minimum interval since the last record to store the timestamp a user has been active on the site.
+So if a user has been recorded as active on the site, they won't be recorded as active until this
+time pasess. The time is measured in seconds.
+
 
 Activity Streams Settings
 -------------------------

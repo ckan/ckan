@@ -1,10 +1,11 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import contextlib
 import os
 import json
 import shutil
-from typing import Type
+from typing import Optional
 
 import alembic.command
 import click
@@ -39,7 +40,7 @@ def generate():
               help=u"Location to put the generated "
               u"template.",
               default=u'.')
-def extension(output_dir):
+def extension(output_dir: str):
     """Generate empty extension files to expand CKAN.
     """
     try:
@@ -144,7 +145,7 @@ def remove_code_examples(root: str):
 @click.argument(u'output_path', nargs=1)
 @click.option('-i', '--include-plugin', multiple=True,
               help="Include config declaration from the given plugin")
-def make_config(output_path, include_plugin):
+def make_config(output_path: str, include_plugin: list[str]):
     u"""Generate a new CKAN configuration ini file."""
 
     # Output to current directory if no path is specified
@@ -180,26 +181,25 @@ def make_config(output_path, include_plugin):
 @click.option(u"-m",
               u"--message",
               help=u"Message string to use with `revision`.")
-def migration(plugin, message):
+def migration(plugin: str, message: str):
     """Create new alembic revision for DB migration.
     """
-    import ckan.model
     if not config:
         error_shout(u'Config is not loaded')
         raise click.Abort()
     alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
+    assert alembic_config.config_file_name
     migration_dir = os.path.dirname(alembic_config.config_file_name)
-    alembic_config.set_main_option(u"sqlalchemy.url",
-                                   str(ckan.model.repo.metadata.bind.url))
+    alembic_config.set_main_option("sqlalchemy.url", "")
     alembic_config.set_main_option(u'script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
         alembic.command.init(alembic_config, migration_dir)
 
     rev = alembic.command.revision(alembic_config, message)
+    rev_path = rev.path  # type: ignore
     click.secho(
-        u"Revision file created. Now, you need to update it: \n\t{}".format(
-            rev.path),
+        f"Revision file created. Now, you need to update it: \n\t{rev_path}",
         fg=u"green")
 
 
@@ -227,7 +227,8 @@ _factories = {
 @click.option("-n", "--fake-count", type=int, default=1,
               help="Number of entities to create")
 @click.pass_context
-def fake_data(ctx, category, factory_class, fake_count):
+def fake_data(ctx: click.Context, category: Optional[str],
+              factory_class: Optional[str], fake_count: int):
     """Generate random entities of the given category.
 
     Either positional `category` or named `--factory-class`/`-f` argument must
@@ -261,7 +262,6 @@ def fake_data(ctx, category, factory_class, fake_count):
         error_shout("\tpip install -r dev-requirements.txt")
         raise click.Abort()
 
-    factory: Type[CKANFactory]
     if not factory_class:
         if not category:
             error_shout(

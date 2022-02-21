@@ -1,18 +1,19 @@
 # encoding: utf-8
 
 import json
-
-import six
-
+from typing import Any
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 
 from ckan.common import _, aslist
+from ckan.types import (
+    Context, DataValidator, FlattenDataDict, FlattenErrorDict, FlattenKey)
 
 
-def convert_to_extras(key, data, errors, context):
+def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
+                      errors: FlattenErrorDict, context: Context) -> Any:
 
     # Get the current extras index
     current_indexes = [k[1] for k in data.keys()
@@ -24,11 +25,12 @@ def convert_to_extras(key, data, errors, context):
     data[('extras', new_index, 'value')] = data[key]
 
 
-def convert_from_extras(key, data, errors, context):
+def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
+                        errors: FlattenErrorDict, context: Context) -> Any:
 
-    def remove_from_extras(data, key):
+    def remove_from_extras(data: FlattenDataDict, key: FlattenKey):
         to_remove = []
-        for data_key, data_value in data.items():
+        for data_key, _data_value in data.items():
             if (data_key[0] == 'extras'
                 and data_key[1] == key):
                 to_remove.append(data_key)
@@ -45,12 +47,14 @@ def convert_from_extras(key, data, errors, context):
         return
     remove_from_extras(data, data_key[1])
 
-def extras_unicode_convert(extras, context):
+def extras_unicode_convert(extras: FlattenDataDict, context: Context):
     for extra in extras:
         extras[extra] = str(extras[extra])
     return extras
 
-def free_tags_only(key, data, errors, context):
+
+def free_tags_only(key: FlattenKey, data: FlattenDataDict,
+                   errors: FlattenErrorDict, context: Context) -> Any:
     tag_number = key[1]
     if not data.get(('tags', tag_number, 'vocabulary_id')):
         return
@@ -58,8 +62,9 @@ def free_tags_only(key, data, errors, context):
         if k[0] == 'tags' and k[1] == tag_number:
             del data[k]
 
-def convert_to_tags(vocab):
-    def callable(key, data, errors, context):
+def convert_to_tags(vocab: Any) -> DataValidator:
+    def func(key: FlattenKey, data: FlattenDataDict,
+             errors: FlattenErrorDict, context: Context):
         new_tags = data.get(key)
         if not new_tags:
             return
@@ -83,10 +88,11 @@ def convert_to_tags(vocab):
         for num, tag in enumerate(new_tags):
             data[('tags', num + n, 'name')] = tag
             data[('tags', num + n, 'vocabulary_id')] = v.id
-    return callable
+    return func
 
-def convert_from_tags(vocab):
-    def callable(key, data, errors, context):
+def convert_from_tags(vocab: Any) -> DataValidator:
+    def func(key: FlattenKey, data: FlattenDataDict,
+             errors: FlattenErrorDict, context: Context):
         v = model.Vocabulary.get(vocab)
         if not v:
             raise df.Invalid(_('Tag vocabulary "%s" does not exist') % vocab)
@@ -98,9 +104,11 @@ def convert_from_tags(vocab):
                     name = data[k].get('display_name', data[k]['name'])
                     tags.append(name)
         data[key] = tags
-    return callable
+    return func
 
-def convert_user_name_or_id_to_id(user_name_or_id, context):
+
+def convert_user_name_or_id_to_id(user_name_or_id: Any,
+                                  context: Context) -> Any:
     '''Return the user id for the given user name or id.
 
     The point of this function is to convert user names to ids. If you have
@@ -124,7 +132,9 @@ def convert_user_name_or_id_to_id(user_name_or_id, context):
         raise df.Invalid('%s: %s' % (_('Not found'), _('User')))
     return result.id
 
-def convert_package_name_or_id_to_id(package_name_or_id, context):
+
+def convert_package_name_or_id_to_id(package_name_or_id: Any,
+                                     context: Context) -> Any:
     '''Return the package id for the given package name or id.
 
     The point of this function is to convert package names to ids. If you have
@@ -149,7 +159,9 @@ def convert_package_name_or_id_to_id(package_name_or_id, context):
         raise df.Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return result.id
 
-def convert_group_name_or_id_to_id(group_name_or_id, context):
+
+def convert_group_name_or_id_to_id(group_name_or_id: Any,
+                                   context: Context) -> Any:
     '''Return the group id for the given group name or id.
 
     The point of this function is to convert group names to ids. If you have
@@ -175,7 +187,7 @@ def convert_group_name_or_id_to_id(group_name_or_id, context):
     return result.id
 
 
-def convert_to_json_if_string(value, context):
+def convert_to_json_if_string(value: Any, context: Context) -> Any:
     if isinstance(value, str):
         try:
             return json.loads(value)
@@ -185,17 +197,17 @@ def convert_to_json_if_string(value, context):
         return value
 
 
-def as_list(value):
+def as_list(value: Any):
     return aslist(value)
 
 
-def convert_to_list_if_string(value, context=None):
+def convert_to_list_if_string(value: Any) -> Any:
     if isinstance(value, str):
         return [value]
     else:
         return value
 
-def json_or_string(value):
+def json_or_string(value: Any) -> Any:
     """
     parse string values as json, return string if that fails
     """
@@ -206,7 +218,7 @@ def json_or_string(value):
             pass
     return value
 
-def json_list_or_string(value):
+def json_list_or_string(value: Any) -> Any:
     """
     parse string values as json or comma-separated lists, return
     string as a one-element list if that fails
@@ -220,7 +232,7 @@ def json_list_or_string(value):
     return value
 
 
-def remove_whitespace(value, context):
+def remove_whitespace(value: Any, context: Context) -> Any:
     if isinstance(value, str):
         return value.strip()
     return value
