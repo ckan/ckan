@@ -5,7 +5,7 @@ import glob
 import itertools
 import logging
 import warnings
-from typing import Optional
+from typing import Iterable, Optional
 
 import click
 from werkzeug.serving import run_simple
@@ -47,7 +47,7 @@ DEFAULT_PORT = 5000
     " automatically generate a new one (on each server reload).")
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
-        threaded: bool, extra_files: list[str], processes: int,
+        threaded: bool, extra_files: Iterable[str], processes: int,
         ssl_cert: Optional[str], ssl_key: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
