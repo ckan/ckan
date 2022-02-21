@@ -3,6 +3,7 @@
 # This file is code to do with vdm revisions, which was removed from CKAN after
 # version 2.8. It is only used by a migration and its tests.
 
+from typing import Any
 import uuid
 import six
 import datetime
@@ -586,7 +587,7 @@ def make_revision(instances):
 
 # Revision tables (singleton)
 class RevisionTableMappings(object):
-    _instance = None
+    _instance: Any = None
 
     @classmethod
     def instance(cls):
@@ -668,7 +669,7 @@ class RevisionTableMappings(object):
 # It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
 # revision model is separate from the main model.
 try:
-    model.PackageExtraRevision
+    model.PackageExtraRevision  # type: ignore
     # CKAN<=2.8
     revision_model = model
 except AttributeError:

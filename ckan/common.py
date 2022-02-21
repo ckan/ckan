@@ -11,7 +11,11 @@ from __future__ import annotations
 
 import logging
 from collections.abc import MutableMapping
-from typing import Any, Container, Optional, Union
+
+from typing import (
+    Any, Iterable, Optional, TYPE_CHECKING,
+    TypeVar, cast, overload, Container, Union)
+from typing_extensions import Literal
 
 import flask
 
@@ -20,9 +24,14 @@ from werkzeug.local import Local, LocalProxy
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json  # noqa: re-export
+import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration, Key
+
+if TYPE_CHECKING:
+    # starting from python 3.7 the following line can be used without any
+    # conditions after `annotation` import from `__future__`
+    MutableMapping = MutableMapping[str, Any]
 
 log = logging.getLogger(__name__)
 current_app = flask.current_app
@@ -36,8 +45,9 @@ def is_flask_request():
     return True
 
 
-def streaming_response(
-        data, mimetype=u'application/octet-stream', with_context=False):
+def streaming_response(data: Iterable[Any],
+                       mimetype: str = u'application/octet-stream',
+                       with_context: bool = False) -> flask.Response:
     iter_data = iter(data)
 
     if with_context:
@@ -47,15 +57,15 @@ def streaming_response(
     return resp
 
 
-def ugettext(*args, **kwargs):
-    return flask_ugettext(*args, **kwargs)
+def ugettext(*args: Any, **kwargs: Any) -> str:
+    return cast(str, flask_ugettext(*args, **kwargs))
 
 
 _ = ugettext
 
 
-def ungettext(*args, **kwargs):
-    return flask_ungettext(*args, **kwargs)
+def ungettext(*args: Any, **kwargs: Any) -> str:
+    return cast(str, flask_ungettext(*args, **kwargs))
 
 
 class CKANConfig(MutableMapping):
@@ -68,12 +78,13 @@ class CKANConfig(MutableMapping):
     `load_environment` method with the values of the ini file or env vars.
 
     '''
+    store: dict[str, Any]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         self.store = dict()
         self.update(dict(*args, **kwargs))
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self.store[key]
 
     def __iter__(self):
@@ -85,31 +96,31 @@ class CKANConfig(MutableMapping):
     def __repr__(self):
         return self.store.__repr__()
 
-    def copy(self):
+    def copy(self) -> dict[str, Any]:
         return self.store.copy()
 
-    def clear(self):
+    def clear(self) -> None:
         self.store.clear()
         try:
             flask.current_app.config.clear()
         except RuntimeError:
             pass
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any):
         self.store[key] = value
         try:
             flask.current_app.config[key] = value
         except RuntimeError:
             pass
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str):
         del self.store[key]
         try:
             del flask.current_app.config[key]
         except RuntimeError:
             pass
 
-    def get_value(self, key: Union[str, Key]) -> Any:
+    def get_value(self, key: str) -> Any:
         if self.get("config.mode") == "strict":
             return self[key]
 
@@ -123,9 +134,10 @@ class CKANConfig(MutableMapping):
 
     def subset(
             self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = frozenset()
+            exclude: Optional[Container[Union[str, Key]]] = None
     ) -> dict[str, Any]:
         subset = {}
+        exclude = exclude or set()
         for k, v in self.store.items():
             if k in exclude or pattern != k:
                 continue
@@ -144,18 +156,18 @@ class CKANRequest(LocalProxy):
     cases for backwards compatibility.
     '''
 
-    @maintain.deprecated(since="2.10.0")
     @property
+    @maintain.deprecated('Use `request.args` instead of `request.params`',
+                         since="2.10.0")
     def params(self):
-        u''' Special case as Pylons' request.params is used all over the place.
+        '''This property is deprecated.
 
-        This function is deprecated. All new code should always use Flask's
-        request.args attribute.
+        Special case as Pylons' request.params is used all over the place.  All
+        new code meant to be run just in Flask (eg views) should always use
+        request.args
+
         '''
-        try:
-            return super(CKANRequest, self).params
-        except AttributeError:
-            return self.args
+        return cast(flask.Request, self).args
 
 
 def _get_c():
@@ -166,7 +178,7 @@ def _get_session():
     return flask.session
 
 
-def asbool(obj):
+def asbool(obj: Any) -> bool:
     if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in truthy:
@@ -178,21 +190,60 @@ def asbool(obj):
     return bool(obj)
 
 
-def asint(obj):
+def asint(obj: Any) -> int:
     try:
         return int(obj)
     except (TypeError, ValueError):
         raise ValueError(u"Bad integer value: {}".format(obj))
 
 
-def aslist(obj, sep=None, strip=True):
+T = TypeVar('T')
+SequenceT = TypeVar('SequenceT', "list[Any]", "tuple[Any]")
+
+
+@overload
+def aslist(obj: str,
+           sep: Optional[str] = None,
+           strip: bool = True) -> list[str]:
+    ...
+
+
+@overload
+def aslist(obj: list[T],
+           sep: Optional[str] = None,
+           strip: bool = True) -> list[T]:
+    ...
+
+
+@overload
+def aslist(obj: tuple[T],
+           sep: Optional[str] = None,
+           strip: bool = True) -> tuple[T]:
+    ...
+
+
+@overload
+def aslist(obj: SequenceT,
+           sep: Optional[str] = None,
+           strip: bool = True) -> SequenceT:
+    ...
+
+
+@overload
+def aslist(obj: Literal[None],
+           sep: Optional[str] = None,
+           strip: bool = True) -> list[str]:
+    ...
+
+
+def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
     if isinstance(obj, str):
         lst = obj.split(sep)
         if strip:
             lst = [v.strip() for v in lst]
         return lst
     elif isinstance(obj, (list, tuple)):
-        return obj
+        return cast(Any, obj)
     elif obj is None:
         return []
     else:
@@ -211,10 +262,11 @@ local("config_declaration")
 config_declaration = local.config_declaration = Declaration()
 
 # Proxies to already thread-local safe objects
-request = CKANRequest(_get_request)
+request = cast(flask.Request, CKANRequest(_get_request))
 # Provide a `c`  alias for `g` for backwards compatibility
-g = c = LocalProxy(_get_c)
-session = LocalProxy(_get_session)
+g: Any = LocalProxy(_get_c)
+c = g
+session: Any = LocalProxy(_get_session)
 
 truthy = frozenset([u'true', u'yes', u'on', u'y', u't', u'1'])
 falsy = frozenset([u'false', u'no', u'off', u'n', u'f', u'0'])
