@@ -2,7 +2,7 @@
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
-import ckanext.example_blanket_implementation as current
+import ckanext.example_blanket_implementation.views as views
 from ckanext.example_blanket_implementation.logic import auth, action
 from ckanext.example_blanket_implementation.logic.validators import is_blanket
 
@@ -34,7 +34,7 @@ class ExampleBlanketActionPlugin(p.SingletonPlugin):
     pass
 
 
-@tk.blanket.blueprints(lambda: current.views.get_blueprints())
+@tk.blanket.blueprints(lambda: views.get_blueprints())
 class ExampleBlanketBlueprintPlugin(p.SingletonPlugin):
     pass
 

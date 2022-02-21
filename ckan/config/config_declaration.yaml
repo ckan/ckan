@@ -158,6 +158,9 @@ groups:
 
   - annotation: Session settings
     options:
+      - key: ckan.user.last_active_interval
+        type: int
+        default: 600
       - key: cache_dir
         placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
@@ -309,9 +312,6 @@ groups:
       - key: solr_user
       - key: solr_password
       - key: ckan.search.solr_commit
-        type: bool
-        default: true
-      - key: ckan.cache_validated_datasets
         type: bool
         default: true
       - key: ckan.search.show_all_types

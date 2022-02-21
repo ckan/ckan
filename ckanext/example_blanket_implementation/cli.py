@@ -9,7 +9,7 @@ def blanket_helper():
     pass
 
 
-def _hidden_helper():
+def _hidden_helper():  # type: ignore
     pass
 
 

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import enum
 from typing import Any, Generic, Optional, TypeVar, Dict
+
+from ckan.types import Validator
 
 
 T = TypeVar("T")
@@ -138,7 +141,7 @@ class Option(Generic[T]):
 # (https://github.com/ckan/ckanext-scheming/blob/release-2.1.0/ckanext/scheming/validation.py#L407-L426).
 # This syntax is familiar for everyone and it we can switch to the original
 # when scheming become a part of core.
-def _validators_from_string(s: str):
+def _validators_from_string(s: str) -> list[Validator]:
     """
     convert a schema validators string to a list of validators
     e.g. "if_empty_same_as(name) unicode" becomes:
@@ -151,7 +154,7 @@ def _validators_from_string(s: str):
     for p in parts:
         if "(" in p and p[-1] == ")":
             name, args = p.split("(", 1)
-            args = args[:-1].split(",")  # trim trailing ')', break up
+            args: Any = args[:-1].split(",")  # trim trailing ')', break up
             v = get_validator(name)(*args)
         else:
             v = get_validator(p)
