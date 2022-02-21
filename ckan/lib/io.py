@@ -5,6 +5,7 @@ Utility functions for I/O.
 '''
 
 import sys
+from typing import Any, Union
 
 import six
 
@@ -13,7 +14,7 @@ _FILESYSTEM_ENCODING = str(
 )
 
 
-def encode_path(p):
+def encode_path(p: Union[str, Any]) -> bytes:
     u'''
     Convert a Unicode path string to a byte string.
 
@@ -35,7 +36,7 @@ def encode_path(p):
     return six.ensure_text(p).encode(_FILESYSTEM_ENCODING)
 
 
-def decode_path(p):
+def decode_path(p: Union[bytes, Any]) -> str:
     u'''
     Convert a byte path string to a Unicode string.
 

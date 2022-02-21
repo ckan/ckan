@@ -1,9 +1,12 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from ckan.types import Context
 import logging
 import json
 import datetime
 import time
+from typing import Any, cast
 
 from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
@@ -25,7 +28,7 @@ _validate = ckan.lib.navl.dictization_functions.validate
 TIMEOUT = config.get_value('ckan.requests.timeout')
 
 
-def datapusher_submit(context, data_dict):
+def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     ''' Submit a job to the datapusher. The datapusher is a service that
     imports tabular data into the datastore.
 
@@ -61,7 +64,7 @@ def datapusher_submit(context, data_dict):
     except logic.NotFound:
         return False
 
-    datapusher_url = config.get_value('ckan.datapusher.url')
+    datapusher_url: str = config.get_value('ckan.datapusher.url')
 
     callback_url_base = config.get_value(
         'ckan.datapusher.callback_url_base'
@@ -151,16 +154,16 @@ def datapusher_submit(context, data_dict):
                     'original_url': resource_dict.get('url'),
                 }
             }))
-        r.raise_for_status()
     except requests.exceptions.ConnectionError as e:
-        error = {'message': 'Could not connect to DataPusher.',
-                 'details': str(e)}
+        error: dict[str, Any] = {'message': 'Could not connect to DataPusher.',
+                                 'details': str(e)}
         task['error'] = json.dumps(error)
         task['state'] = 'error'
         task['last_updated'] = str(datetime.datetime.utcnow()),
         p.toolkit.get_action('task_status_update')(context, task)
         raise p.toolkit.ValidationError(error)
-
+    try:
+        r.raise_for_status()
     except requests.exceptions.HTTPError as e:
         m = 'An Error occurred while sending the job: {0}'.format(str(e))
         try:
@@ -189,7 +192,7 @@ def datapusher_submit(context, data_dict):
     return True
 
 
-def datapusher_hook(context, data_dict):
+def datapusher_hook(context: Context, data_dict: dict[str, Any]):
     ''' Update datapusher task. This action is typically called by the
     datapusher whenever the status of a job changes.
 
@@ -229,7 +232,8 @@ def datapusher_hook(context, data_dict):
             context, {'id': resource_dict['package_id']})
 
         for plugin in p.PluginImplementations(interfaces.IDataPusher):
-            plugin.after_upload(context, resource_dict, dataset_dict)
+            plugin.after_upload(cast("dict[str, Any]", context),
+                                resource_dict, dataset_dict)
 
         logic.get_action('resource_create_default_resource_views')(
             context,
@@ -270,7 +274,8 @@ def datapusher_hook(context, data_dict):
             context, {'resource_id': res_id})
 
 
-def datapusher_status(context, data_dict):
+def datapusher_status(
+        context: Context, data_dict: dict[str, Any]) -> dict[str, Any]:
     ''' Get the status of a datapusher job for a certain resource.
 
     :param resource_id: The resource id of the resource that you want the

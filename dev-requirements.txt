@@ -13,7 +13,8 @@ pip-tools==5.1.2
 Pillow==8.4.0
 responses==0.13.3
 sphinx-rtd-theme==0.4.3
-sphinx==1.8.5
+sqlalchemy-stubs==0.4
+sphinx==4.4.0
 towncrier==21.3.0
 
 pytest==6.2.2

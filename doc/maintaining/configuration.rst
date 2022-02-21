@@ -2367,6 +2367,22 @@ Default value: ``home.index``
 This controls the page where users will be sent after requesting a password reset.
 This is ordinarily the home page, but specific sites may prefer somewhere else.
 
+.. _ckan.user.last_active_interval:
+
+ckan.user.last_active_interval
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user.last_active_interval = 600
+
+Default value: 600 (10 min)
+
+Minimum interval since the last record to store the timestamp a user has been active on the site.
+So if a user has been recorded as active on the site, they won't be recorded as active until this
+time pasess. The time is measured in seconds.
+
+
 Activity Streams Settings
 -------------------------
 
