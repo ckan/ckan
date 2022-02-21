@@ -516,7 +516,7 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
-    def error_handler(e: Exception) -> tuple[str, Optional[int]]:
+    def error_handler(e: Exception) -> Union[Response, tuple[str, Optional[int]]]:
         debug = config.get_value('debug')
 
         if request.path.endswith('/'):
