@@ -72,7 +72,7 @@ class Key:
 
         return super().__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any):
         if isinstance(other, str):
             return str(self) < other
         elif isinstance(other, Key):
@@ -85,7 +85,7 @@ class Key:
     def __radd__(self, other: Any):
         return self._combine(other, self)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int):
         fragment = self._path[idx]
         if isinstance(fragment, tuple):
             return self.__class__(fragment)

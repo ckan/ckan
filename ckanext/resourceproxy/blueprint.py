@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from typing import cast
+from ckan.types import Context, DataDict
 from logging import getLogger
 
 import requests
@@ -18,7 +20,7 @@ TIMEOUT = config.get_value('ckan.resource_proxy.timeout')
 resource_proxy = Blueprint(u'resource_proxy', __name__)
 
 
-def proxy_resource(context, data_dict):
+def proxy_resource(context: Context, data_dict: DataDict):
     u'''Chunked proxy for resources. To make sure that the file is not too
     large, first, we try to get the content length from the headers.
     If the headers to not contain a content length (if it is a chinked
@@ -98,13 +100,13 @@ def proxy_resource(context, data_dict):
     return response
 
 
-def proxy_view(id, resource_id):
+def proxy_view(id: str, resource_id: str):
     data_dict = {u'resource_id': resource_id}
-    context = {
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': c.user
-    }
+    })
     return proxy_resource(context, data_dict)
 
 

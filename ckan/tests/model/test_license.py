@@ -87,32 +87,7 @@ def test_access_via_attribute():
     assert license.od_conformance == "approved"
 
 
-def test_access_via_key():
-    license = LicenseRegister()["cc-by"]
-    assert license["od_conformance"] == "approved"
-
-
-def test_access_via_dict():
-    license = LicenseRegister()["cc-by"]
-    license_dict = license.as_dict()
-    assert license_dict["od_conformance"] == "approved"
-    assert license_dict["osd_conformance"] == "not reviewed"
-
-
 def test_access_via_attribute_2():
     license = LicenseRegister()["cc-by"]
-    assert license.is_okd_compliant
-    assert not license.is_osi_compliant
-
-
-def test_access_via_key_2():
-    license = LicenseRegister()["cc-by"]
-    assert license["is_okd_compliant"]
-    assert not license["is_osi_compliant"]
-
-
-def test_access_via_dict_2():
-    license = LicenseRegister()["cc-by"]
-    license_dict = license.as_dict()
-    assert license_dict["is_okd_compliant"]
-    assert not license_dict["is_osi_compliant"]
+    assert license.od_conformance
+    assert license.osd_conformance == "not reviewed"

@@ -1,11 +1,16 @@
 # encoding: utf-8
 
+from typing import Optional
+from ckan.types import AuthResult, Context, DataDict
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.config.declaration import Declaration, Key
 
 
-def group_create(context, data_dict=None):
+def group_create(
+        context: Context,
+        data_dict: Optional[DataDict] = None) -> AuthResult:
 
     # Get the value of the ckan.iauthfunctions.users_can_create_groups
     # setting from the CKAN config file as a string, or False if the setting

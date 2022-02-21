@@ -1,18 +1,22 @@
 # encoding: utf-8
 
-from functools import wraps
 import inspect
+from functools import wraps
+from typing import Any, Callable, Iterable, cast
 
 import ckan.model
 import ckan.plugins as plugins
 from ckan.logic import get_validator
+from ckan.types import (
+    ComplexSchemaFunc, PlainSchemaFunc, Schema, Validator, ValidatorFactory
+)
 
 
-def validator_args(fn):
+def validator_args(fn: ComplexSchemaFunc) -> PlainSchemaFunc:
     u'''collect validator names from argument names
     and pass them to wrapped function'''
 
-    args = inspect.getargspec(fn).args
+    args = inspect.signature(fn).parameters
 
     @wraps(fn)
     def wrapper():
@@ -26,10 +30,12 @@ def validator_args(fn):
 
 @validator_args
 def default_resource_schema(
-        ignore_empty, unicode_safe, ignore, ignore_missing,
-        remove_whitespace, if_empty_guess_format, clean_format, isodate,
-        int_validator, extras_valid_json, keep_extras):
-    return {
+        ignore_empty: Validator, unicode_safe: Validator, ignore: Validator,
+        ignore_missing: Validator, remove_whitespace: Validator,
+        if_empty_guess_format: Validator, clean_format: Validator,
+        isodate: Validator, int_validator: Validator,
+        extras_valid_json: Validator, keep_extras: Validator):
+    return cast(Schema, {
         'id': [ignore_empty, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
@@ -52,21 +58,23 @@ def default_resource_schema(
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_valid_json, keep_extras],
-    }
+    })
 
 
 @validator_args
-def default_update_resource_schema(ignore):
+def default_update_resource_schema():
     schema = default_resource_schema()
     return schema
 
 
 @validator_args
-def default_tags_schema(
-        not_missing, not_empty, unicode_safe, tag_length_validator,
-        tag_name_validator, ignore_missing, vocabulary_id_exists,
-        ignore):
-    return {
+def default_tags_schema(not_missing: Validator, not_empty: Validator,
+                        unicode_safe: Validator,
+                        tag_length_validator: Validator,
+                        tag_name_validator: Validator,
+                        ignore_missing: Validator,
+                        vocabulary_id_exists: Validator, ignore: Validator):
+    return cast(Schema, {
         'name': [not_missing,
                  not_empty,
                  unicode_safe,
@@ -79,13 +87,15 @@ def default_tags_schema(
         'revision_timestamp': [ignore],
         'state': [ignore],
         'display_name': [ignore],
-    }
+    })
 
 
 @validator_args
-def default_create_tag_schema(
-        not_missing, not_empty, unicode_safe, vocabulary_id_exists,
-        tag_not_in_vocabulary, empty):
+def default_create_tag_schema(not_missing: Validator, not_empty: Validator,
+                              unicode_safe: Validator,
+                              vocabulary_id_exists: Validator,
+                              tag_not_in_vocabulary: Validator,
+                              empty: Validator):
     schema = default_tags_schema()
     # When creating a tag via the tag_create() logic action function, a
     # vocabulary_id _must_ be given (you cannot create free tags via this
@@ -99,13 +109,18 @@ def default_create_tag_schema(
 
 @validator_args
 def default_create_package_schema(
-        duplicate_extras_key, ignore, empty_if_not_sysadmin, ignore_missing,
-        unicode_safe, package_id_does_not_exist, not_empty, name_validator,
-        package_name_validator, if_empty_same_as, strip_value, email_validator,
-        package_version_validator, ignore_not_package_admin,
-        boolean_validator, datasets_with_no_organization_cannot_be_private,
-        empty, tag_string_convert, owner_org_validator, no_http):
-    return {
+        duplicate_extras_key: Validator, ignore: Validator,
+        empty_if_not_sysadmin: Validator, ignore_missing: Validator,
+        unicode_safe: Validator, package_id_does_not_exist: Validator,
+        not_empty: Validator, name_validator: Validator,
+        package_name_validator: Validator, strip_value: Validator,
+        if_empty_same_as: ValidatorFactory,
+        email_validator: Validator, package_version_validator: Validator,
+        ignore_not_package_admin: Validator, boolean_validator: Validator,
+        datasets_with_no_organization_cannot_be_private: Validator,
+        empty: Validator, tag_string_convert: Validator,
+        owner_org_validator: Validator, no_http: Validator):
+    return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
                package_id_does_not_exist],
@@ -144,13 +159,14 @@ def default_create_package_schema(
             'title': [ignore_missing, unicode_safe],
             '__extras': [ignore],
         }
-    }
+    })
 
 
 @validator_args
 def default_update_package_schema(
-        ignore_missing, package_id_not_changed, name_validator,
-        package_name_validator, unicode_safe, owner_org_validator):
+        ignore_missing: Validator, package_id_not_changed: Validator,
+        name_validator: Validator, package_name_validator: Validator,
+        unicode_safe: Validator, owner_org_validator: Validator):
     schema = default_create_package_schema()
 
     schema['resources'] = default_update_resource_schema()
@@ -174,8 +190,10 @@ def default_update_package_schema(
 
 
 @validator_args
-def default_show_package_schema(
-        keep_extras, ignore_missing, clean_format, unicode_safe, not_empty):
+def default_show_package_schema(keep_extras: Validator,
+                                ignore_missing: Validator,
+                                clean_format: Validator,
+                                unicode_safe: Validator, not_empty: Validator):
     schema = default_create_package_schema()
 
     # Don't strip ids from package dicts when validating them.
@@ -186,7 +204,7 @@ def default_show_package_schema(
 
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
-    schema['resources'].update({
+    cast(Schema, schema['resources']).update({
         'format': [ignore_missing, clean_format, unicode_safe],
         'created': [ignore_missing],
         'position': [not_empty],
@@ -210,7 +228,7 @@ def default_show_package_schema(
         'license_url': [ignore_missing],
     })
 
-    schema['groups'].update({
+    cast(Schema, schema['groups']).update({
         'description': [ignore_missing],
         'display_name': [ignore_missing],
         'image_display_url': [ignore_missing],
@@ -245,10 +263,13 @@ def default_show_package_schema(
 
 
 @validator_args
-def default_group_schema(
-        ignore_missing, unicode_safe, ignore, not_empty, name_validator,
-        group_name_validator, package_id_or_name_exists,
-        no_loops_in_hierarchy, ignore_not_group_admin):
+def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
+                         ignore: Validator, not_empty: Validator,
+                         name_validator: Validator,
+                         group_name_validator: Validator,
+                         package_id_or_name_exists: Validator,
+                         no_loops_in_hierarchy: Validator,
+                         ignore_not_group_admin: Validator) -> Schema:
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
@@ -285,26 +306,27 @@ def default_group_schema(
 
 
 @validator_args
-def group_form_schema(
-        not_empty, unicode_safe, ignore_missing, ignore):
+def group_form_schema(not_empty: Validator, unicode_safe: Validator,
+                      ignore_missing: Validator, ignore: Validator):
     schema = default_group_schema()
     # schema['extras_validation'] = [duplicate_extras_key, ignore]
-    schema['packages'] = {
+    schema['packages'] = cast(Schema, {
         "name": [not_empty, unicode_safe],
         "title": [ignore_missing],
         "__extras": [ignore]
-    }
-    schema['users'] = {
+    })
+    schema['users'] = cast(Schema, {
         "name": [not_empty, unicode_safe],
         "capacity": [ignore_missing],
         "__extras": [ignore]
-    }
+    })
     return schema
 
 
 @validator_args
-def default_update_group_schema(
-        ignore_missing, group_name_validator, unicode_safe):
+def default_update_group_schema(ignore_missing: Validator,
+                                group_name_validator: Validator,
+                                unicode_safe: Validator):
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
     return schema
@@ -312,27 +334,28 @@ def default_update_group_schema(
 
 @validator_args
 def default_show_group_schema(
-        keep_extras, ignore_missing):
+        keep_extras: Validator, ignore_missing: Validator):
     schema = default_group_schema()
 
     # make default show schema behave like when run with no validation
     schema['num_followers'] = []
     schema['created'] = []
     schema['display_name'] = []
-    schema['extras'] = {'__extras': [keep_extras]}
+    schema['extras'] = cast(Schema, {'__extras': [keep_extras]})
     schema['package_count'] = [ignore_missing]
-    schema['packages'] = {'__extras': [keep_extras]}
+    schema['packages'] = cast(Schema, {'__extras': [keep_extras]})
     schema['state'] = []
-    schema['users'] = {'__extras': [keep_extras]}
+    schema['users'] = cast(Schema, {'__extras': [keep_extras]})
 
     return schema
 
 
 @validator_args
-def default_extras_schema(
-        ignore, not_empty, extra_key_not_in_root_schema, unicode_safe,
-        not_missing, ignore_missing):
-    return {
+def default_extras_schema(ignore: Validator, not_empty: Validator,
+                          extra_key_not_in_root_schema: Validator,
+                          unicode_safe: Validator, not_missing: Validator,
+                          ignore_missing: Validator):
+    return cast(Schema, {
         'id': [ignore],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
         'value': [not_missing],
@@ -340,13 +363,15 @@ def default_extras_schema(
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
         '__extras': [ignore],
-    }
+    })
 
 
 @validator_args
-def default_relationship_schema(
-        ignore_missing, unicode_safe, not_empty, one_of, ignore):
-    return {
+def default_relationship_schema(ignore_missing: Validator,
+                                unicode_safe: Validator, not_empty: Validator,
+                                one_of: ValidatorFactory,
+                                ignore: Validator):
+    return cast(Schema, {
         'id': [ignore_missing, unicode_safe],
         'subject': [ignore_missing, unicode_safe],
         'object': [ignore_missing, unicode_safe],
@@ -354,12 +379,13 @@ def default_relationship_schema(
                  one_of(ckan.model.PackageRelationship.get_all_types())],
         'comment': [ignore_missing, unicode_safe],
         'state': [ignore],
-    }
+    })
 
 
 @validator_args
-def default_create_relationship_schema(
-        empty, not_empty, unicode_safe, package_id_or_name_exists):
+def default_create_relationship_schema(empty: Validator, not_empty: Validator,
+                                       unicode_safe: Validator,
+                                       package_id_or_name_exists: Validator):
     schema = default_relationship_schema()
     schema['id'] = [empty]
     schema['subject'] = [not_empty, unicode_safe, package_id_or_name_exists]
@@ -370,7 +396,7 @@ def default_create_relationship_schema(
 
 @validator_args
 def default_update_relationship_schema(
-        ignore_missing, package_id_not_changed):
+        ignore_missing: Validator, package_id_not_changed: Validator):
     schema = default_relationship_schema()
     schema['id'] = [ignore_missing, package_id_not_changed]
 
@@ -385,11 +411,15 @@ def default_update_relationship_schema(
 
 @validator_args
 def default_user_schema(
-        ignore_missing, unicode_safe, name_validator, user_name_validator,
-        user_password_validator, user_password_not_empty, email_is_unique,
-        ignore_not_sysadmin, not_empty, strip_value, email_validator,
-        user_about_validator, ignore, boolean_validator, json_object):
-    return {
+        ignore_missing: Validator, unicode_safe: Validator,
+        name_validator: Validator, user_name_validator: Validator,
+        user_password_validator: Validator, user_password_not_empty: Validator,
+        email_is_unique: Validator, ignore_not_sysadmin: Validator,
+        not_empty: Validator, strip_value: Validator,
+        email_validator: Validator, user_about_validator: Validator,
+        ignore: Validator, boolean_validator: Validator,
+        json_object: Validator):
+    return cast(Schema, {
         'id': [ignore_missing, unicode_safe],
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
@@ -409,13 +439,13 @@ def default_user_schema(
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
-    }
+    })
 
 
 @validator_args
 def user_new_form_schema(
-        unicode_safe, user_both_passwords_entered,
-        user_password_validator, user_passwords_match):
+        unicode_safe: Validator, user_both_passwords_entered: Validator,
+        user_password_validator: Validator, user_passwords_match: Validator):
     schema = default_user_schema()
 
     schema['password1'] = [unicode_safe, user_both_passwords_entered,
@@ -427,8 +457,8 @@ def user_new_form_schema(
 
 @validator_args
 def user_edit_form_schema(
-        ignore_missing, unicode_safe, user_password_validator,
-        user_passwords_match):
+        ignore_missing: Validator, unicode_safe: Validator,
+        user_password_validator: Validator, user_passwords_match: Validator):
     schema = default_user_schema()
 
     schema['password'] = [ignore_missing]
@@ -441,9 +471,9 @@ def user_edit_form_schema(
 
 @validator_args
 def default_update_user_schema(
-        ignore_missing, name_validator, user_name_validator,
-        unicode_safe, user_password_validator, email_is_unique,
-        not_empty, strip_value, email_validator):
+        ignore_missing: Validator, name_validator: Validator,
+        user_name_validator: Validator, unicode_safe: Validator,
+        user_password_validator: Validator):
     schema = default_user_schema()
 
     schema['name'] = [
@@ -456,18 +486,20 @@ def default_update_user_schema(
 
 @validator_args
 def default_user_invite_schema(
-        not_empty, email_validator, email_is_unique, unicode_safe):
-    return {
+        not_empty: Validator, email_validator: Validator,
+        email_is_unique: Validator, unicode_safe: Validator):
+    return cast(Schema, {
         'email': [not_empty, email_validator, email_is_unique, unicode_safe],
         'group_id': [not_empty],
         'role': [not_empty],
-    }
+    })
 
 
 @validator_args
-def default_task_status_schema(
-        ignore, not_empty, unicode_safe, ignore_missing):
-    return {
+def default_task_status_schema(ignore: Validator, not_empty: Validator,
+                               unicode_safe: Validator,
+                               ignore_missing: Validator):
+    return cast(Schema, {
         'id': [ignore],
         'entity_id': [not_empty, unicode_safe],
         'entity_type': [not_empty, unicode_safe],
@@ -477,13 +509,15 @@ def default_task_status_schema(
         'state': [ignore_missing],
         'last_updated': [ignore_missing],
         'error': [ignore_missing]
-    }
+    })
 
 
 @validator_args
-def default_vocabulary_schema(
-        ignore_missing, unicode_safe, vocabulary_id_exists,
-        not_empty, vocabulary_name_validator):
+def default_vocabulary_schema(ignore_missing: Validator,
+                              unicode_safe: Validator,
+                              vocabulary_id_exists: Validator,
+                              not_empty: Validator,
+                              vocabulary_name_validator: Validator) -> Schema:
     return {
         'id': [ignore_missing, unicode_safe, vocabulary_id_exists],
         'name': [not_empty, unicode_safe, vocabulary_name_validator],
@@ -492,8 +526,7 @@ def default_vocabulary_schema(
 
 
 @validator_args
-def default_create_vocabulary_schema(
-        empty):
+def default_create_vocabulary_schema(empty: Validator):
     schema = default_vocabulary_schema()
     schema['id'] = [empty]
     return schema
@@ -501,8 +534,8 @@ def default_create_vocabulary_schema(
 
 @validator_args
 def default_update_vocabulary_schema(
-        ignore_missing, vocabulary_id_not_changed,
-        vocabulary_name_validator):
+        ignore_missing: Validator, vocabulary_id_not_changed: Validator,
+        vocabulary_name_validator: Validator):
     schema = default_vocabulary_schema()
     schema['id'] = [ignore_missing, vocabulary_id_not_changed]
     schema['name'] = [ignore_missing, vocabulary_name_validator]
@@ -511,10 +544,11 @@ def default_update_vocabulary_schema(
 
 @validator_args
 def default_create_activity_schema(
-        ignore, not_missing, not_empty, unicode_safe,
-        convert_user_name_or_id_to_id, object_id_validator,
-        activity_type_exists, ignore_empty, ignore_missing):
-    return {
+        ignore: Validator, not_missing: Validator, not_empty: Validator,
+        unicode_safe: Validator, convert_user_name_or_id_to_id: Validator,
+        object_id_validator: Validator, activity_type_exists: Validator,
+        ignore_empty: Validator, ignore_missing: Validator):
+    return cast(Schema, {
         'id': [ignore],
         'timestamp': [ignore],
         'user_id': [not_missing, not_empty, unicode_safe,
@@ -524,73 +558,77 @@ def default_create_activity_schema(
         'activity_type': [not_missing, not_empty, unicode_safe,
                           activity_type_exists],
         'data': [ignore_empty, ignore_missing],
-    }
+    })
 
 
 @validator_args
-def default_follow_user_schema(
-        not_missing, not_empty, unicode_safe, convert_user_name_or_id_to_id,
-        ignore_missing):
-    return {
+def default_follow_user_schema(not_missing: Validator, not_empty: Validator,
+                               unicode_safe: Validator,
+                               convert_user_name_or_id_to_id: Validator,
+                               ignore_missing: Validator):
+    return cast(Schema, {
         'id': [not_missing, not_empty, unicode_safe,
                convert_user_name_or_id_to_id],
         'q': [ignore_missing]
-    }
+    })
 
 
 @validator_args
 def default_follow_dataset_schema(
-        not_missing, not_empty, unicode_safe,
-        convert_package_name_or_id_to_id):
-    return {
+        not_missing: Validator, not_empty: Validator, unicode_safe: Validator,
+        convert_package_name_or_id_to_id: Validator):
+    return cast(Schema, {
         'id': [not_missing, not_empty, unicode_safe,
                convert_package_name_or_id_to_id]
-    }
+    })
 
 
 @validator_args
-def member_schema(
-        not_missing, group_id_or_name_exists, unicode_safe,
-        user_id_or_name_exists, role_exists):
-    return {
+def member_schema(not_missing: Validator, group_id_or_name_exists: Validator,
+                  unicode_safe: Validator, user_id_or_name_exists: Validator,
+                  role_exists: Validator):
+    return cast(Schema, {
         'id': [not_missing, group_id_or_name_exists, unicode_safe],
         'username': [not_missing, user_id_or_name_exists, unicode_safe],
         'role': [not_missing, role_exists, unicode_safe],
-    }
+    })
 
 
 @validator_args
 def default_follow_group_schema(
-        not_missing, not_empty, unicode_safe,
-        convert_group_name_or_id_to_id):
-    return {
+        not_missing: Validator, not_empty: Validator, unicode_safe: Validator,
+        convert_group_name_or_id_to_id: Validator):
+    return cast(Schema, {
         'id': [not_missing, not_empty, unicode_safe,
                convert_group_name_or_id_to_id]
-    }
+    })
 
 
 @validator_args
-def default_package_list_schema(
-        ignore_missing, natural_number_validator, is_positive_integer):
-    return {
+def default_package_list_schema(ignore_missing: Validator,
+                                natural_number_validator: Validator,
+                                is_positive_integer: Validator):
+    return cast(Schema, {
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator],
         'page': [ignore_missing, is_positive_integer]
-    }
+    })
 
 
 @validator_args
-def default_pagination_schema(ignore_missing, natural_number_validator):
-    return {
+def default_pagination_schema(ignore_missing: Validator,
+                              natural_number_validator: Validator):
+    return cast(Schema, {
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator]
-    }
+    })
 
 
 @validator_args
 def default_dashboard_activity_list_schema(
-        configured_default, natural_number_validator,
-        limit_to_configured_maximum):
+        configured_default: ValidatorFactory,
+        natural_number_validator: Validator,
+        limit_to_configured_maximum: ValidatorFactory):
     schema = default_pagination_schema()
     schema['limit'] = [
         configured_default('ckan.activity_list_limit', 31),
@@ -601,10 +639,13 @@ def default_dashboard_activity_list_schema(
 
 @validator_args
 def default_activity_list_schema(
-        not_missing, unicode_safe, configured_default,
-        natural_number_validator, limit_to_configured_maximum,
-        ignore_missing, boolean_validator, ignore_not_sysadmin,
-        list_of_strings):
+        not_missing: Validator, unicode_safe: Validator,
+        configured_default: ValidatorFactory,
+        natural_number_validator: Validator,
+        limit_to_configured_maximum: ValidatorFactory,
+        ignore_missing: Validator, boolean_validator: Validator,
+        ignore_not_sysadmin: Validator, list_of_strings: Validator):
+
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
     schema['limit'] = [
@@ -619,21 +660,26 @@ def default_activity_list_schema(
 
 
 @validator_args
-def default_autocomplete_schema(
-        not_missing, unicode_safe, ignore_missing, natural_number_validator):
-    return {
+def default_autocomplete_schema(not_missing: Validator,
+                                unicode_safe: Validator,
+                                ignore_missing: Validator,
+                                natural_number_validator: Validator):
+    return cast(Schema, {
         'q': [not_missing, unicode_safe],
         'ignore_self': [ignore_missing],
         'limit': [ignore_missing, natural_number_validator]
-    }
+    })
 
 
 @validator_args
 def default_package_search_schema(
-        ignore_missing, unicode_safe, list_of_strings,
-        natural_number_validator, int_validator, convert_to_json_if_string,
-        convert_to_list_if_string, limit_to_configured_maximum, default):
-    return {
+        ignore_missing: Validator, unicode_safe: Validator,
+        list_of_strings: Validator, natural_number_validator: Validator,
+        int_validator: Validator, convert_to_json_if_string: Validator,
+        convert_to_list_if_string: Validator,
+        limit_to_configured_maximum: ValidatorFactory,
+        default: ValidatorFactory):
+    return cast(Schema, {
         'q': [ignore_missing, unicode_safe],
         'fl': [ignore_missing, convert_to_list_if_string],
         'fq': [ignore_missing, unicode_safe],
@@ -649,23 +695,24 @@ def default_package_search_schema(
                         list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr,
                                     # but useful for extensions
-    }
+    })
 
 
 @validator_args
-def default_resource_search_schema(
-        ignore_missing, unicode_safe, natural_number_validator):
-    schema = {
+def default_resource_search_schema(ignore_missing: Validator,
+                                   unicode_safe: Validator,
+                                   natural_number_validator: Validator):
+    schema = cast(Schema, {
         'query': [ignore_missing],  # string or list of strings
         'fields': [ignore_missing],  # dict of fields
         'order_by': [ignore_missing, unicode_safe],
         'offset': [ignore_missing, natural_number_validator],
         'limit': [ignore_missing, natural_number_validator]
-    }
+    })
     return schema
 
 
-def create_schema_for_required_keys(keys):
+def create_schema_for_required_keys(keys: Iterable[str]) -> Schema:
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
     '''
@@ -673,7 +720,7 @@ def create_schema_for_required_keys(keys):
     return {x: [not_missing] for x in keys}
 
 
-def default_create_resource_view_schema(resource_view):
+def default_create_resource_view_schema(resource_view: Any):
     if resource_view.info().get('filterable'):
         return default_create_resource_view_schema_filtered()
     return default_create_resource_view_schema_unfiltered()
@@ -681,21 +728,22 @@ def default_create_resource_view_schema(resource_view):
 
 @validator_args
 def default_create_resource_view_schema_unfiltered(
-        not_empty, resource_id_exists, unicode_safe, ignore_missing, empty):
-    return {
+        not_empty: Validator, resource_id_exists: Validator,
+        unicode_safe: Validator, ignore_missing: Validator, empty: Validator):
+    return cast(Schema, {
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
         'view_type': [not_empty, unicode_safe],
         '__extras': [empty],
-    }
+    })
 
 
 @validator_args
 def default_create_resource_view_schema_filtered(
-        ignore_missing, convert_to_list_if_string,
-        filter_fields_and_values_should_have_same_length,
-        filter_fields_and_values_exist_and_are_valid):
+        ignore_missing: Validator, convert_to_list_if_string: Validator,
+        filter_fields_and_values_should_have_same_length: Validator,
+        filter_fields_and_values_exist_and_are_valid: Validator):
     schema = default_create_resource_view_schema_unfiltered()
     schema['filter_fields'] = [
         ignore_missing,
@@ -706,29 +754,33 @@ def default_create_resource_view_schema_filtered(
     return schema
 
 
-def default_update_resource_view_schema(resource_view):
+def default_update_resource_view_schema(resource_view: Any):
     schema = default_create_resource_view_schema(resource_view)
     schema.update(default_update_resource_view_schema_changes())
     return schema
 
 
 @validator_args
-def default_update_resource_view_schema_changes(
-        not_missing, not_empty, unicode_safe, resource_id_exists, ignore,
-        ignore_missing):
-    return {
+def default_update_resource_view_schema_changes(not_missing: Validator,
+                                                not_empty: Validator,
+                                                unicode_safe: Validator,
+                                                resource_id_exists: Validator,
+                                                ignore: Validator,
+                                                ignore_missing: Validator):
+    return cast(Schema, {
         'id': [not_missing, not_empty, unicode_safe],
         'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode_safe],
         'view_type': [ignore],  # cannot change after create
         'package_id': [ignore]
-    }
+    })
 
 
 @validator_args
-def default_update_configuration_schema(
-        unicode_safe, is_positive_integer, ignore_missing):
-    return {
+def default_update_configuration_schema(unicode_safe: Validator,
+                                        is_positive_integer: Validator,
+                                        ignore_missing: Validator):
+    return cast(Schema, {
         'ckan.site_title': [ignore_missing, unicode_safe],
         'ckan.site_logo': [ignore_missing, unicode_safe],
         'ckan.site_url': [ignore_missing, unicode_safe],
@@ -740,7 +792,7 @@ def default_update_configuration_schema(
         'ckan.homepage_style': [ignore_missing, is_positive_integer],
         'logo_upload': [ignore_missing, unicode_safe],
         'clear_logo_upload': [ignore_missing, unicode_safe],
-    }
+    })
 
 
 def update_configuration_schema():
@@ -772,36 +824,41 @@ def update_configuration_schema():
 
 
 @validator_args
-def job_list_schema(ignore_missing, list_of_strings):
-    return {
+def job_list_schema(ignore_missing: Validator, list_of_strings: Validator):
+    return cast(Schema, {
         u'queues': [ignore_missing, list_of_strings],
-    }
+    })
 
 
 @validator_args
-def job_clear_schema(ignore_missing, list_of_strings):
-    return {
+def job_clear_schema(ignore_missing: Validator, list_of_strings: Validator):
+    return cast(Schema, {
         u'queues': [ignore_missing, list_of_strings],
-    }
+    })
 
 
 @validator_args
-def default_create_api_token_schema(
-        not_empty, unicode_safe,
-        ignore_missing, json_object, ignore_not_sysadmin):
-    return {
+def default_create_api_token_schema(not_empty: Validator,
+                                    unicode_safe: Validator,
+                                    ignore_missing: Validator,
+                                    json_object: Validator,
+                                    ignore_not_sysadmin: Validator):
+    return cast(Schema, {
         u'name': [not_empty, unicode_safe],
         u'user': [not_empty, unicode_safe],
         u'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
-    }
+    })
 
 
 @validator_args
-def package_revise_schema(
-        ignore_missing, list_of_strings,
-        collect_prefix_validate, json_or_string,
-        json_list_or_string, dict_only):
-    return {
+def package_revise_schema(ignore_missing: Validator,
+                          list_of_strings: Validator,
+                          collect_prefix_validate: Callable[[str, str],
+                                                            Validator],
+                          json_or_string: Validator,
+                          json_list_or_string: Validator,
+                          dict_only: Validator):
+    return cast(Schema, {
         u'__before': [
             collect_prefix_validate(
                 u'match__', u'json_or_string'),
@@ -818,28 +875,31 @@ def package_revise_schema(
         # collect_prefix moves values to these, always dicts:
         u'match__': [],
         u'update__': [],
-    }
+    })
 
 
 @validator_args
 def config_declaration_v1(
-        ignore_missing, unicode_safe, not_empty, default, boolean_validator,
-        dict_only, one_of, ignore_empty):
+        ignore_missing: Validator, unicode_safe: Validator,
+        not_empty: Validator, default: ValidatorFactory,
+        boolean_validator: Validator,
+        dict_only: Validator, one_of: ValidatorFactory,
+        ignore_empty: Validator):
     from ckan.config.declaration import Key
     from ckan.config.declaration.load import option_types
 
-    def key_from_string(s):
+    def key_from_string(s: str):
         return Key.from_string(s)
 
-    def importable_string(value):
+    def importable_string(value: str):
         from werkzeug.utils import import_string, ImportStringError
         from ckan.logic.validators import Invalid
         try:
             return import_string(value)
         except ImportStringError as e:
-            raise Invalid(e)
+            raise Invalid(str(e))
 
-    return {
+    return cast(Schema, {
         "groups": {
             "annotation": [default(""), unicode_safe],
             "options": {
@@ -859,4 +919,4 @@ def config_declaration_v1(
                 "required": [default(False), boolean_validator],
             }
         }
-    }
+    })
