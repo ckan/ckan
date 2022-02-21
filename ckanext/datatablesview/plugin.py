@@ -1,10 +1,14 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from ckan.common import CKANConfig
+from typing import Any, cast
+from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
 
-default = toolkit.get_validator(u'default')
+default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
 boolean_validator = toolkit.get_validator(u'boolean_validator')
 natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
@@ -26,7 +30,7 @@ class DataTablesView(p.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
         u'''
         Set up the resource library, public directory and
         template directory for the view
@@ -55,11 +59,12 @@ class DataTablesView(p.SingletonPlugin):
 
     # IResourceView
 
-    def can_view(self, data_dict):
+    def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
         return resource.get(u'datastore_active')
 
-    def setup_template_variables(self, context, data_dict):
+    def setup_template_variables(self, context: Context,
+                                 data_dict: dict[str, Any]) -> dict[str, Any]:
         return {u'page_length_choices': self.page_length_choices,
                 u'state_saving': self.state_saving,
                 u'state_duration': self.state_duration,
@@ -68,13 +73,13 @@ class DataTablesView(p.SingletonPlugin):
                 u'date_format': self.date_format,
                 u'default_view': self.default_view}
 
-    def view_template(self, context, data_dict):
+    def view_template(self, context: Context, data_dict: dict[str, Any]):
         return u'datatables/datatables_view.html'
 
-    def form_template(self, context, data_dict):
+    def form_template(self, context: Context, data_dict: dict[str, Any]):
         return u'datatables/datatables_form.html'
 
-    def info(self):
+    def info(self) -> dict[str, Any]:
         return {
             u'name': u'datatables_view',
             u'title': u'Table',

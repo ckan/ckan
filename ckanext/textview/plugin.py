@@ -1,8 +1,11 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from ckan.types import Context
 import logging
+from typing import Any
 
-from ckan.common import json
+from ckan.common import CKANConfig, json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
@@ -10,7 +13,7 @@ import ckan.lib.datapreview as datapreview
 log = logging.getLogger(__name__)
 
 
-def get_formats(config):
+def get_formats(config: CKANConfig) -> dict[str, list[str]]:
     out = {}
 
     out["text_formats"] = config.get_value(
@@ -42,7 +45,7 @@ class TextView(p.SingletonPlugin):
     jsonp_formats = []
     no_jsonp_formats = []
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
 
         formats = get_formats(config)
         for key, value in formats.items():
@@ -63,7 +66,7 @@ class TextView(p.SingletonPlugin):
                 'default_title': p.toolkit._('Text'),
                 }
 
-    def can_view(self, data_dict):
+    def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
         format_lower = resource.get('format', '').lower()
         proxy_enabled = p.plugin_loaded('resource_proxy')
@@ -74,7 +77,8 @@ class TextView(p.SingletonPlugin):
             return proxy_enabled or same_domain
         return False
 
-    def setup_template_variables(self, context, data_dict):
+    def setup_template_variables(self, context: Context,
+                                 data_dict: dict[str, Any]):
         metadata = {'text_formats': self.text_formats,
                     'json_formats': self.json_formats,
                     'jsonp_formats': self.jsonp_formats,
@@ -89,8 +93,8 @@ class TextView(p.SingletonPlugin):
                 'resource_json': json.dumps(data_dict['resource']),
                 'resource_url': json.dumps(url)}
 
-    def view_template(self, context, data_dict):
+    def view_template(self, context: Context, data_dict: dict[str, Any]):
         return 'text_view.html'
 
-    def form_template(self, context, data_dict):
+    def form_template(self, context: Context, data_dict: dict[str, Any]):
         return 'text_form.html'

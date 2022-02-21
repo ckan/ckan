@@ -41,12 +41,6 @@ if parse_version(setuptools_version) < min_setuptools_version:
 
 
 entry_points = {
-    'paste.app_factory': [
-        'main = ckan.config.middleware:make_app',
-    ],
-    'paste.app_install': [
-        'main = ckan.config.install:CKANInstaller',
-    ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
     ],
@@ -160,7 +154,6 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
-        'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
         'session_plugin = tests.plugins.ckantestplugins:SessionPlugin',
@@ -230,15 +223,16 @@ setup(
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     extras_require=extras_require,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )

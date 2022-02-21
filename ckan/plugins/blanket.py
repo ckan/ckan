@@ -114,6 +114,7 @@ Or just a dict with the items required by the interface::
         pass
 
 """
+from __future__ import annotations
 
 from __future__ import annotations
 
@@ -127,7 +128,9 @@ import yaml
 import toml
 
 from importlib import import_module
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Type, Union
+from typing import (
+    Any, Callable, NamedTuple, Optional, Type, Union, Dict, overload
+)
 
 import flask
 
@@ -146,10 +149,12 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 
-Subject = Union[
-    types.FunctionType, types.ModuleType, Dict[str, Any], List[Any], str
-]
-ModuleHarvester = Callable[[types.ModuleType], Dict[str, Any]]
+PluginSubject = Type[p.SingletonPlugin]
+SimpleSubject = Union[types.ModuleType, "dict[str, Any]", "list[Any]", str]
+SubjectFactory = Callable[..., Any]
+
+Subject = Union[PluginSubject, SimpleSubject, SubjectFactory]
+ModuleHarvester = Callable[[types.ModuleType], "dict[str, Any]"]
 
 
 class Blanket(enum.Flag):
@@ -279,8 +284,8 @@ def _as_implementation(
 
     def func(
         self: p.SingletonPlugin, *args: Any, **kwargs: Any
-    ) -> Union[dict[str, Any], List[Any]]:
-        if isinstance(subject, types.FunctionType):
+    ) -> Union[dict[str, Any], list[Any]]:
+        if callable(subject):
             return subject(*args, **kwargs)
         elif isinstance(subject, types.ModuleType):
             result = harvester(subject)
@@ -307,7 +312,7 @@ def _declaration_implementation(subject: Subject) -> Callable[..., None]:
         ".toml": toml.load,
     }
 
-    def func(plugin: p.SingletonPlugin, declaration: Any, key: Any) -> None:
+    def func(plugin: p.SingletonPlugin, declaration: Any, key: Any):
         if isinstance(subject, types.FunctionType):
             return subject(declaration, key)
         elif isinstance(subject, dict):
@@ -403,7 +408,7 @@ def _get_public_members(module: types.ModuleType) -> dict[str, Any]:
 
 def _blanket_implementation(
     group: Blanket,
-) -> Callable[[Optional[Subject]], Callable[..., Any]]:
+):
     """Generator of blanket types.
 
     Unless blanket requires something fancy, this function should be
@@ -412,8 +417,19 @@ def _blanket_implementation(
 
     """
 
-    def decorator(subject: Optional[Subject] = None) -> Callable[..., Any]:
-        def wrapper(plugin: Type[p.SingletonPlugin]):
+    @overload
+    def decorator(subject: PluginSubject) -> PluginSubject: ...
+
+    @overload
+    def decorator(
+            subject: Union[SimpleSubject, SubjectFactory, None]
+    ) -> types.FunctionType: ...
+
+    def decorator(
+            subject: Optional[Subject] = None
+    ) -> Union[PluginSubject, Callable[[PluginSubject], PluginSubject]]:
+
+        def wrapper(plugin: PluginSubject) -> PluginSubject:
             for key in Blanket:
                 if key & group:
                     # short version of the trick performed by
@@ -426,13 +442,13 @@ def _blanket_implementation(
                     key.implement(plugin, subject)
             return plugin
 
-        if isinstance(subject, type) and issubclass(
-            subject, p.SingletonPlugin
-        ):
-            plugin = subject
-            subject = None
-            return wrapper(plugin)
-        return wrapper
+        if not isinstance(subject, type) or not issubclass(
+                subject, p.SingletonPlugin):
+            return wrapper
+
+        plugin = subject
+        subject = None
+        return wrapper(plugin)
 
     return decorator
 

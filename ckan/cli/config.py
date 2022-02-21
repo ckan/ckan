@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import itertools
-from typing import Iterable, Set, Tuple
+from typing import Iterable
 import click
 
 from ckan.config.declaration import Declaration, Flag
@@ -44,7 +45,7 @@ def config():
     default="python",
     help="Output the config declaration in this format",
 )
-def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
+def describe(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
     """Print out config declarations for the given plugins."""
     decl = _declaration(plugins, core, enabled)
     if decl:
@@ -76,7 +77,7 @@ def describe(plugins: Tuple[str, ...], core: bool, enabled: bool, fmt: str):
     help="Print only mandatory options",
 )
 def declaration(
-    plugins: Tuple[str, ...],
+    plugins: tuple[str, ...],
     core: bool,
     enabled: bool,
     verbose: bool,
@@ -123,7 +124,7 @@ def declaration(
 )
 def search(
     pattern: str,
-    plugins: Tuple[str, ...],
+    plugins: tuple[str, ...],
     with_default: bool,
     with_current: bool,
     custom_only: bool,
@@ -138,7 +139,7 @@ def search(
             continue
         option = decl[key]
         default = option.default
-        current = option._normalize(cfg.get(key, default))
+        current = option._normalize(cfg.get(str(key), default))
         if no_custom and default != current:
             continue
         if custom_only and default == current:
@@ -175,7 +176,7 @@ def search(
     multiple=True,
     help="Include this plugin even if disabled",
 )
-def undeclared(plugins: Tuple[str, ...]):
+def undeclared(plugins: tuple[str, ...]):
     """Print config options that have no declaration.
 
     This command includes options from the config file as well as options set
@@ -187,7 +188,7 @@ def undeclared(plugins: Tuple[str, ...]):
     declared = set(decl.iter_options(exclude=Flag.none()))
     patterns = {key for key in declared if isinstance(key, Pattern)}
     declared -= patterns
-    available: Set[str] = set(cfg)
+    available = set(cfg)
 
     undeclared = {
         s
@@ -207,7 +208,7 @@ def undeclared(plugins: Tuple[str, ...]):
     multiple=True,
     help="Include this plugin even if disabled",
 )
-def validate(plugins: Tuple[str, ...]):
+def validate(plugins: tuple[str, ...]):
     """Validate the global configuration object against the declaration."""
     decl = _declaration(plugins, True, True)
     _, errors = decl.validate(cfg)

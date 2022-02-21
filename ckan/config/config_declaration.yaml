@@ -247,6 +247,9 @@ groups:
 
   - annotation: Session settings
     options:
+      - key: ckan.user.last_active_interval
+        type: int
+        default: 600
       - key: cache_dir
         placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
@@ -656,9 +659,6 @@ groups:
           enabled to improve dataset update/create speed (however there may be
           a slight delay before dataset gets seen in results).
 
-      - key: ckan.cache_validated_datasets
-        type: bool
-        default: true
       - key: ckan.search.show_all_types
         default: dataset
         example: dataset
