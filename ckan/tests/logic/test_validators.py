@@ -193,6 +193,19 @@ class TestValidators(object):
                 return validators.name_validator(*args, **kwargs)
             call_validator(invalid_value, context={})
 
+    def test_strip_value_with_valid_value():
+        valid_values = [
+            " test@example.com",
+            "  test@example.com",
+            "test@example.com ",
+            "test@example.com  ",
+            " test@example.com ",
+            "  test@example.com  ",
+        ]
+
+        for valid_value in valid_values:
+            assert validators.strip_value(valid_value) == "test@example.com"
+
     def test_name_validator_with_valid_value(self):
         '''If given a valid string name_validator() should do nothing and
         return the string.
