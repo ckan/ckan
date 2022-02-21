@@ -142,6 +142,19 @@ The location of these named volumes needs to be backed up in a production enviro
 To migrate CKAN data between different hosts, simply transfer the content of the named volumes.
 A detailed use case of data transfer will be discussed in step 5.
 
+You can use environment variables rather than hard coding docker container name. For example,
+if you want to remove hardcode "db" docker container name replace "db" with name of your 
+choice in docker-compose.yml as below:
+
+     links:
+      - db
+
+     depends_on:
+      - db
+
+     db:
+       container_name: ${POSTGRES_HOST}
+
 c. Convenience: paths to named volumes
 
 The files inside named volumes reside on a long-ish path on the host.
