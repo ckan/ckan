@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
 
   db:
-    container_name: db
+    container_name: ${POSTGRES_HOST}
     build:
       context: ../../
       dockerfile: contrib/docker/postgresql/Dockerfile  
