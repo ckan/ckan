@@ -125,7 +125,6 @@ import inspect
 import pathlib
 import json
 import yaml
-import toml
 
 from importlib import import_module
 from typing import (
@@ -304,13 +303,16 @@ def _as_implementation(
 
 
 def _declaration_implementation(subject: Subject) -> Callable[..., None]:
-
     loaders = {
         ".json": json.load,
         ".yaml": yaml.safe_load,
         ".yml": yaml.safe_load,
-        ".toml": toml.load,
     }
+    try:
+        import toml
+        loaders[".toml"] = toml.load
+    except ImportError:
+        pass
 
     def func(plugin: p.SingletonPlugin, declaration: Any, key: Any):
         if isinstance(subject, types.FunctionType):
