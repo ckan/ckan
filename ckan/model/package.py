@@ -110,7 +110,6 @@ class Package(core.StatefulObjectMixin,
     state: str
 
     package_tags: list["PackageTag"]
-    package_tag_all: list["PackageTag"]
 
     resources_all: list["Resource"]
     _extras: dict[str, Any]  # list['PackageExtra']
@@ -562,10 +561,6 @@ meta.mapper(Package, package_table, properties={
         ),
     })
 
-meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
-    'pkg':orm.relation(Package, backref='package_tag_all',
-        cascade='none',
-        )
-    })
+meta.mapper(tag.PackageTag, tag.package_tag_table)
 
 meta.mapper(PackageMember, package_member_table)
