@@ -40,7 +40,7 @@
       {% endif %}
     {% endblock %}
     {% block previous_button %}
-      <button class="btn btn-default" name="save" value="previous" type="submit">{{ _('Previous') }}</button>
+      <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">{% block save_text %}{{ h.humanize_entity_type('organization', group_type, 'save label') or _('Save Organization') }}{% endblock %}</button>
   </div>
