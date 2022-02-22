@@ -1,16 +1,20 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from ckan.common import CKANConfig
+from typing import Any, cast
+from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
-from ckan.config.declaration import Declaration, Key
 
-default = toolkit.get_validator(u'default')
+default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
 boolean_validator = toolkit.get_validator(u'boolean_validator')
 natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
+@toolkit.blanket.config_declarations
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -18,7 +22,6 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IConfigDeclaration)
 
     # IBlueprint
 
@@ -27,7 +30,7 @@ class DataTablesView(p.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
         u'''
         Set up the resource library, public directory and
         template directory for the view
@@ -56,11 +59,12 @@ class DataTablesView(p.SingletonPlugin):
 
     # IResourceView
 
-    def can_view(self, data_dict):
+    def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
         return resource.get(u'datastore_active')
 
-    def setup_template_variables(self, context, data_dict):
+    def setup_template_variables(self, context: Context,
+                                 data_dict: dict[str, Any]) -> dict[str, Any]:
         return {u'page_length_choices': self.page_length_choices,
                 u'state_saving': self.state_saving,
                 u'state_duration': self.state_duration,
@@ -69,13 +73,13 @@ class DataTablesView(p.SingletonPlugin):
                 u'date_format': self.date_format,
                 u'default_view': self.default_view}
 
-    def view_template(self, context, data_dict):
+    def view_template(self, context: Context, data_dict: dict[str, Any]):
         return u'datatables/datatables_view.html'
 
-    def form_template(self, context, data_dict):
+    def form_template(self, context: Context, data_dict: dict[str, Any]):
         return u'datatables/datatables_form.html'
 
-    def info(self):
+    def info(self) -> dict[str, Any]:
         return {
             u'name': u'datatables_view',
             u'title': u'Table',
@@ -93,24 +97,3 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.datatables
-
-        declaration.annotate("datatables_view settings")
-
-        declaration.declare_list(
-            section.page_length_choices, [20, 50, 100, 500, 1000]
-        ).set_description(
-            "https://datatables.net/examples/advanced_init/length_menu.html"
-        )
-        declaration.declare_bool(section.state_saving, True)
-        declaration.declare_int(section.state_duration, 7200)
-        declaration.declare_bool(section.data_dictionary_labels, True)
-        declaration.declare_int(section.ellipsis_length, 100)
-        declaration.declare(section.date_format, "llll").set_description(
-            "see Moment.js cheatsheet https://devhints.io/moment"
-        )
-        declaration.declare(section.default_view, "table")

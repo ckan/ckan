@@ -2,6 +2,8 @@
 
 import copy
 import uuid
+from typing import Any
+
 import simplejson as json
 
 from sqlalchemy import types
@@ -11,20 +13,20 @@ __all__ = ['make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
 
 
-def make_uuid():
+def make_uuid() -> str:
     return str(uuid.uuid4())
 
 
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
-    def process_bind_param(self, value, engine):
+    def process_bind_param(self, value: Any, dialect: Any):
         return str(value)
 
-    def process_result_value(self, value, engine):
+    def process_result_value(self, value: Any, dialect: Any):
         return value
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return UuidType(self.impl.length)
 
     @classmethod
@@ -41,7 +43,7 @@ class JsonType(types.TypeDecorator):
     '''
     impl = types.UnicodeText
 
-    def process_bind_param(self, value, engine):
+    def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
             return None
@@ -49,19 +51,19 @@ class JsonType(types.TypeDecorator):
         # ensure_ascii=False => allow unicode but still need to convert
         return str(json.dumps(value, ensure_ascii=False))
 
-    def process_result_value(self, value, engine):
+    def process_result_value(self, value: Any, dialect: Any) -> Any:
         if value is None:
             return {}
 
         return json.loads(value)
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return JsonType(self.impl.length)
 
     def is_mutable(self):
         return True
 
-    def copy_value(self, value):
+    def copy_value(self, value: Any):
         return copy.copy(value)
 
 
@@ -69,7 +71,7 @@ class JsonDictType(JsonType):
 
     impl = types.UnicodeText
 
-    def process_bind_param(self, value, engine):
+    def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
             return None
@@ -79,5 +81,5 @@ class JsonDictType(JsonType):
 
         return str(json.dumps(value, ensure_ascii=False))
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return JsonDictType(self.impl.length)
