@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from ckan.common import CKANConfig
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 
@@ -24,7 +25,7 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
 
     # IConfigurer
 
-    def update_config(self, config_):
+    def update_config(self, config_: CKANConfig):
         tk.add_template_directory(config_, 'templates')
 
     # IGroupForm
@@ -50,7 +51,7 @@ class ExampleIGroupFormPlugin_DefaultGroupType(plugins.SingletonPlugin,  # noqa
 
     # IConfigurer
 
-    def update_config(self, config_):
+    def update_config(self, config_: CKANConfig):
         tk.add_template_directory(config_, 'templates')
 
     # IGroupForm
@@ -76,7 +77,7 @@ class ExampleIGroupFormOrganizationPlugin(plugins.SingletonPlugin,
 
     # IConfigurer
 
-    def update_config(self, config_):
+    def update_config(self, config_: CKANConfig):
         tk.add_template_directory(config_, 'templates')
 
     # IGroupForm

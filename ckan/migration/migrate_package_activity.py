@@ -31,12 +31,13 @@ from __future__ import print_function
 from __future__ import absolute_import
 import argparse
 from collections import defaultdict
+from typing import Any
 
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
 
-_context = None
+_context: Any = None
 
 
 def get_context():
@@ -278,7 +279,7 @@ if __name__ == u'__main__':
         make_app(load_config(args.config))
     except ImportError:
         # for CKAN 2.6 and earlier
-        def load_config(config):
+        def load_config(config):  # type: ignore
             from ckan.lib.cli import CkanCommand
             cmd = CkanCommand(name=None)
 
@@ -293,7 +294,7 @@ if __name__ == u'__main__':
         migrate_all_datasets()
         wipe_activity_detail(delete_activity_detail=args.delete)
     else:
-        errors = defaultdict(int)
+        errors: Any = defaultdict(int)
         with PackageDictizeMonkeyPatch():
             migrate_dataset(args.dataset, errors)
         print_errors(errors)

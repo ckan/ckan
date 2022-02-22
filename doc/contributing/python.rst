@@ -265,7 +265,7 @@ Use ``:raises:`` to document exceptions raised by public functions. The
 docstring should say what type of exception is raised and under what
 conditions. Use ``:py:class:`` to reference exception types. For example::
 
-    def member_list(context, data_dict=None):
+    def member_list(context, data_dict):
         '''Return the members of a group.
 
         ... (parameters and return values documented here) ...

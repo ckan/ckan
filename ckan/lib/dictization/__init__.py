@@ -1,30 +1,30 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import datetime
-import sqlalchemy
+from typing import Any, Callable, Iterable
 
-from sqlalchemy.orm import class_mapper
+import sqlalchemy
+from sqlalchemy import Table
 from sqlalchemy.engine import Row
+from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
-
-try:
-    long        # Python 2
-except NameError:
-    long = int  # Python 3
+from ckan.types import Context
 
 
-# NOTE
-# The functions in this file contain very generic methods for dictizing objects
-# and saving dictized objects. If a specialised use is needed please do NOT extend
-# these functions.  Copy code from here as needed.
+# NOTE The functions in this file contain very generic methods for dictizing
+# objects and saving dictized objects. If a specialised use is needed please do
+# NOT extend these functions.  Copy code from here as needed.
 
-legacy_dict_sort = lambda x: (len(x), dict.items(x))
+legacy_dict_sort: Callable[[dict[str, Any]],
+                           Any] = lambda x: (len(x), dict.items(x))
 
-def table_dictize(obj, context, **kw):
+
+def table_dictize(obj: Any, context: Context, **kw: Any) -> dict[str, Any]:
     '''Get any model object and represent it as a dict'''
 
-    result_dict = {}
+    result_dict: dict[str, Any] = {}
 
     if isinstance(obj, Row):
         fields = obj.keys()
@@ -46,8 +46,6 @@ def table_dictize(obj, context, **kw):
             result_dict[name] = value
         elif isinstance(value, int):
             result_dict[name] = value
-        elif isinstance(value, long):
-            result_dict[name] = value
         elif isinstance(value, datetime.datetime):
             result_dict[name] = value.isoformat()
         elif isinstance(value, list):
@@ -60,7 +58,11 @@ def table_dictize(obj, context, **kw):
     return result_dict
 
 
-def obj_list_dictize(obj_list, context, sort_key=legacy_dict_sort):
+def obj_list_dictize(
+        obj_list: list[Any],
+        context: Context,
+        sort_key: Callable[..., Any] = legacy_dict_sort
+) -> list[dict[str, Any]]:
     '''Get a list of model object and represent it as a list of dicts'''
 
     result_list = []
@@ -78,22 +80,26 @@ def obj_list_dictize(obj_list, context, sort_key=legacy_dict_sort):
 
     return sorted(result_list, key=sort_key)
 
-def obj_dict_dictize(obj_dict, context, sort_key=lambda x:x):
+
+def obj_dict_dictize(
+        obj_dict: dict[str, Any],
+        context: Context,
+        sort_key: Callable[..., Any] = lambda x: x) -> list[dict[str, Any]]:
     '''Get a dict whose values are model objects
     and represent it as a list of dicts'''
 
-    result_list = []
+    result_list: list[dict[str, Any]] = []
 
-    for key, obj in obj_dict.items():
+    for obj in obj_dict.values():
         result_list.append(table_dictize(obj, context))
 
     return sorted(result_list, key=sort_key)
 
 
-def get_unique_constraints(table, context):
+def get_unique_constraints(table: Table, context: Context) -> list[list[str]]:
     '''Get a list of unique constraints for a sqlalchemy table'''
 
-    list_of_constraints = []
+    list_of_constraints: list[list[str]] = []
 
     for contraint in table.constraints:
         if isinstance(contraint, sqlalchemy.UniqueConstraint):
@@ -102,13 +108,15 @@ def get_unique_constraints(table, context):
 
     return list_of_constraints
 
-def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
+
+def table_dict_save(table_dict: dict[str, Any],
+                    ModelClass: Any,
+                    context: Context,
+                    extra_attrs: Iterable[str] = ()) -> Any:
     '''Given a dict and a model class, update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique
     constraints are met. e.g supplying just a tag name will get out that tag obj.
     '''
-
-    model = context["model"]
     session = context["session"]
 
     table = class_mapper(ModelClass).persist_selectable
@@ -126,7 +134,8 @@ def table_dict_save(table_dict, ModelClass, context, extra_attrs=()):
             params = dict((key, table_dict.get(key)) for key in constraint)
             obj = session.query(ModelClass).filter_by(**params).first()
             if obj:
-                if 'name' in params and getattr(obj, 'state', None) == State.DELETED:
+                if 'name' in params and getattr(
+                        obj, 'state', None) == State.DELETED:
                     obj.name = obj.id
                     obj = None
                 else:

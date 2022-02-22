@@ -1,5 +1,8 @@
 # encoding: utf-8
+from __future__ import annotations
+
 import logging
+from typing import Any, Optional, cast
 
 from flask import Blueprint
 
@@ -9,6 +12,7 @@ import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g, request
 from ckan.views.user import _extra_template_variables
+from ckan.types import Context
 
 log = logging.getLogger(__name__)
 
@@ -16,22 +20,31 @@ dashboard = Blueprint(u'dashboard', __name__, url_prefix=u'/dashboard')
 
 
 @dashboard.before_request
-def before_request():
+def before_request() -> None:
     if not g.userobj:
         h.flash_error(_(u'Not authorized to see this page'))
-        return h.redirect_to(u'user.login')
+
+        # flask types do not mention that it's possible to return a response
+        # from the `before_request` callback
+        return h.redirect_to(u'user.login')  # type: ignore
 
     try:
-        context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
+        context = cast(Context, {
+            "model": model, "user": g.user, "auth_user_obj": g.userobj
+        })
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
+    return None
 
 
-def _get_dashboard_context(filter_type=None, filter_id=None, q=None):
+def _get_dashboard_context(
+        filter_type: Optional[str] = None,
+        filter_id: Optional[str] = None,
+        q: Optional[str] = None) -> dict[str, Any]:
     u'''Return a dict needed by the dashboard view to determine context.'''
 
-    def display_name(followee):
+    def display_name(followee: dict[str, Any]) -> Optional[str]:
         u'''Return a display name for a user, group or dataset dict.'''
         display_name = followee.get(u'display_name')
         fullname = followee.get(u'fullname')
@@ -40,14 +53,16 @@ def _get_dashboard_context(filter_type=None, filter_id=None, q=None):
         return display_name or fullname or title or name
 
     if (filter_type and filter_id):
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
             u'for_view': True
-        }
-        data_dict = {u'id': filter_id, u'include_num_followers': True}
+        })
+        data_dict: dict[str, Any] = {
+            u'id': filter_id,
+            u'include_num_followers': True}
         followee = None
 
         action_functions = {
@@ -56,10 +71,11 @@ def _get_dashboard_context(filter_type=None, filter_id=None, q=None):
             u'group': u'group_show',
             u'organization': u'organization_show',
         }
-        action_function = logic.get_action(action_functions.get(filter_type))
-        # Is this a valid type?
-        if action_function is None:
+        action_name = action_functions.get(filter_type)
+        if action_name is None:
             base.abort(404, _(u'Follow item not found'))
+
+        action_function = logic.get_action(action_name)
         try:
             followee = action_function(context, data_dict)
         except (logic.NotFound, logic.NotAuthorized):
@@ -83,15 +99,17 @@ def _get_dashboard_context(filter_type=None, filter_id=None, q=None):
     }
 
 
-def index(offset=0):
-    context = {
+def index(offset: int = 0) -> str:
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj,
         u'for_view': True
-    }
-    data_dict = {u'user_obj': g.userobj, u'offset': offset}
+    })
+    data_dict: dict[str, Any] = {
+        u'user_obj': g.userobj,
+        u'offset': offset}
     extra_vars = _extra_template_variables(context, data_dict)
 
     q = request.args.get(u'q', u'')
@@ -115,22 +133,27 @@ def index(offset=0):
     return base.render(u'user/dashboard.html', extra_vars)
 
 
-def datasets():
-    context = {u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
-    data_dict = {u'user_obj': g.userobj, u'include_datasets': True}
+def datasets() -> str:
+    context: Context = {
+        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+    data_dict: dict[str, Any] = {
+        u'user_obj': g.userobj,
+        u'include_datasets': True}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_datasets.html', extra_vars)
 
 
-def organizations():
-    context = {u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+def organizations() -> str:
+    context: Context = {
+        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
     data_dict = {u'user_obj': g.userobj}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_organizations.html', extra_vars)
 
 
-def groups():
-    context = {u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+def groups() -> str:
+    context: Context = {
+        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
     data_dict = {u'user_obj': g.userobj}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_groups.html', extra_vars)

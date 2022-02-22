@@ -92,11 +92,13 @@ Factory-fixtures are generated using ``pytest-factoryboy``:
 https://pytest-factoryboy.readthedocs.io/en/latest/
 
 """
+from __future__ import annotations
+
 import string
 import unittest.mock as mock
 
 from functools import partial
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import factory
 from faker import Faker
@@ -108,7 +110,7 @@ import ckan.tests.helpers as helpers
 fake = Faker()
 
 
-def _get_action_user_name(kwargs: Dict[str, Any]) -> Optional[str]:
+def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
     """Return the name of the user in kwargs, defaulting to the site user
 
     It can be overriden by explictly setting {'user': None} in the keyword
