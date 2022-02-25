@@ -1681,8 +1681,11 @@ def render_datetime(datetime_, date_format=None, with_hours=False,
                                           datetime_.second)
 
             return datetime_.strftime(date_format)
-
-        return datetime_.strftime(date_format)
+        # return datetime_.strftime(date_format)
+        return formatters.localised_nice_date(datetime_, show_date=True,
+                                              with_hours=with_hours,
+                                              with_seconds=with_seconds,
+                                              format=date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
                                           with_hours=with_hours,

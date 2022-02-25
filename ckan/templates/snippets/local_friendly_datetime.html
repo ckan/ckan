@@ -9,6 +9,6 @@ Example:
     {% snippet 'snippets/local_friendly_datetime, datetime=pkg_dict.metadata_created %}
 
 #}
-<span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(datetime_obj, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+<span class="automatic-local-datetime" data-datetime="{{ h.render_datetime(datetime_obj, date_format='%Y-%m-%dT%H:%M:%S%z', with_hours=True, with_seconds=True) }}">
     {{ h.render_datetime(datetime_obj, with_hours=True) }}
 </span>

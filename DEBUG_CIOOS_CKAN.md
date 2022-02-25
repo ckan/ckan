@@ -23,6 +23,7 @@ source ../bin/activate; ckan-pip install debugpy
 ## Install debugpy on host
 ```bash
 python -m pip install --upgrade debugpy
+python3 -m pip install --upgrade debugpy
 python2.7 -m pip install --upgrade debugpy
 ```
 
