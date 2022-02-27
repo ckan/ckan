@@ -2399,19 +2399,26 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
     site_id = config.get_value('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
+        #To be removed in next release
         apikey = str(uuid.uuid4())
         user = model.User(name=site_id,
                           password=apikey,
                           apikey=apikey)
+       
         # make sysadmin
         user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
         if not context.get('defer_commit'):
             model.repo.commit()
+            
+    # make token 
+    api_token = logic.get_action("api_token_create")(context, 
+                                {'user': user.id, 'name': 'API access'})
 
     return {'name': user.name,
-            'apikey': user.apikey}
+            'apikey': user.apikey,
+            'api_token': api_token['token']}
 
 
 def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusShow:
