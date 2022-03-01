@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install python deps
