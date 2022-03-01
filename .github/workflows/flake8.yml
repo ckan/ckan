@@ -6,14 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
-          python-version: '3.7'
+          python-version: '3.10'
       - name: Install requirements
-        run: pip install flake8 pycodestyle
+        run: pip install bandit flake8
       - name: Check syntax
         # Stop the build if there are Python syntax errors or undefined names
         run: flake8 --count --statistics --show-source
-
       - name: Warnings
         run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-exclude=""
+      - name: Security
+        run: bandit --recursive  --skip B101,B104,B105,B106,B108,B110,B318,B324,B404,B405,B408,B603,B607,B608 .
