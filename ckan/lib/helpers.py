@@ -2695,6 +2695,9 @@ def resource_formats() -> dict[str, list[str]]:
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
         format_file_path = config.get_value('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = resource_formats_default_file()
+
         with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
