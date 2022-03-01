@@ -586,9 +586,9 @@ class TestResourceCreate:
             "resource_create",
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={u"someotherkey": u"alt234"},  # this isnt
+            extras={u"someotherkey": u"alt234"},  # this isn't
             subobject={u"hello": u"there"},  # JSON objects supported
-            sublist=[1, 2, 3],  # JSON lists suppoted
+            sublist=[1, 2, 3],  # JSON lists supported
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
@@ -920,7 +920,7 @@ class TestDatasetCreate(object):
                     "alt_url": u"alt123",
                     "description": u"Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {u"someotherkey": u"alt234"},  # this isnt
+                    "extras": {u"someotherkey": u"alt234"},  # this isn't
                     "format": u"plain text",
                     "hash": u"abc123",
                     "position": 0,
