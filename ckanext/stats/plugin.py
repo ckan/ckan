@@ -16,7 +16,9 @@ class StatsPlugin(p.SingletonPlugin):
     p.implements(p.IBlueprint)
 
     def update_config(self, config: CKANConfig):
-        p.toolkit.add_template_directory(config, u'templates')
+        templates_base = config.get_value('ckan.base_templates_folder')
+
+        p.toolkit.add_template_directory(config, templates_base)
         p.toolkit.add_public_directory(config, u'public')
         p.toolkit.add_resource(u'public/ckanext/stats', u'ckanext_stats')
 
