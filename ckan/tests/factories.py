@@ -3,7 +3,7 @@
 """This is a collection of factory classes for building CKAN users, datasets,
 etc.
 
-Factories can be either used directly or via corresponding pytes fixtures to
+Factories can be either used directly or via corresponding pytest fixtures to
 create any objects that are needed for the tests. These factories are written
 using ``factory_boy``:
 
