@@ -714,7 +714,7 @@ def package_collaborator_create_for_groups(
 def package_collaborator_create(
         context: Context,
         data_dict: DataDict) -> Union[
-                ActionResult.PackageCollaboratorCreate, 
+                ActionResult.PackageCollaboratorCreate,
                 None
             ]:
     '''Make a user a collaborator in a dataset.
