@@ -284,6 +284,16 @@ def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': user.name == context['user']}
 
 
+def package_collaborator_create_for_groups(context: Context,
+                                            data_dict: DataDict) -> AuthResult:
+    '''Checks if a user is allowed to add collaborators to a dataset
+
+    See :py:func:`~ckan.authz.can_manage_collaborators` for details
+    '''
+
+    return package_collaborator_create(context, data_dict)
+
+
 
 def package_collaborator_create(context: Context,
                                 data_dict: DataDict) -> AuthResult:

@@ -675,7 +675,7 @@ def package_collaborator_create_for_groups(
             'message': _('Role must be one of "{}"').format(', '.join(
                 allowed_capacities))})
 
-    _check_access('package_collaborator_create', context, data_dict)
+    _check_access('package_collaborator_create_for_groups', context, data_dict)
 
     package = model.Package.get(package_id)
     if not package:
