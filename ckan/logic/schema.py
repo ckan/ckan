@@ -905,6 +905,7 @@ def config_declaration_v1(
             "options": {
                 "key": [not_empty, key_from_string],
                 "default": [ignore_missing],
+                "example": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "placeholder_callable": [ignore_empty, importable_string],
                 "callable_args": [ignore_empty, dict_only],

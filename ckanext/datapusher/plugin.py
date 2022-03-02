@@ -12,27 +12,18 @@ import ckanext.datapusher.views as views
 import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
-from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
-
-_default_formats = [
-    "csv", "xls", "xlsx", "tsv", "application/csv",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "ods",
-    "application/vnd.oasis.opendocument.spreadsheet"
-]
 
 
 class DatastoreException(Exception):
     pass
 
 
+@p.toolkit.blanket.config_declarations
 class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IConfigDeclaration)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
     p.implements(p.IResourceUrlChange)
@@ -162,13 +153,3 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def get_blueprint(self):
         return views.get_blueprints()
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        datapusher = key.ckan.datapusher
-        declaration.annotate("Datapusher settings")
-        declaration.declare_list(datapusher.formats, _default_formats)
-        declaration.declare(datapusher.url)
-        declaration.declare(datapusher.callback_url_base)
-        declaration.declare_int(datapusher.assume_task_stale_after, 3600)

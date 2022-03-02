@@ -15,6 +15,7 @@ _validators = {u"is_blanket": is_blanket}
 @tk.blanket.blueprints
 @tk.blanket.cli
 @tk.blanket.validators
+@tk.blanket.config_declarations
 class ExampleBlanketPlugin(p.SingletonPlugin):
     pass
 
@@ -46,4 +47,9 @@ class ExampleBlanketCliPlugin(p.SingletonPlugin):
 
 @tk.blanket.validators(_validators)
 class ExampleBlanketValidatorPlugin(p.SingletonPlugin):
+    pass
+
+
+@tk.blanket.config_declarations
+class ExampleBlanketConfigDeclarationPlugin(p.SingletonPlugin):
     pass

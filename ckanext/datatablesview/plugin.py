@@ -7,7 +7,6 @@ from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
-from ckan.config.declaration import Declaration, Key
 
 default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -15,6 +14,7 @@ natural_number_validator = toolkit.get_validator(u'natural_number_validator')
 ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
+@toolkit.blanket.config_declarations
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -22,7 +22,6 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IConfigDeclaration)
 
     # IBlueprint
 
@@ -98,24 +97,3 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.datatables
-
-        declaration.annotate("datatables_view settings")
-
-        declaration.declare_list(
-            section.page_length_choices, [20, 50, 100, 500, 1000]
-        ).set_description(
-            "https://datatables.net/examples/advanced_init/length_menu.html"
-        )
-        declaration.declare_bool(section.state_saving, True)
-        declaration.declare_int(section.state_duration, 7200)
-        declaration.declare_bool(section.data_dictionary_labels, True)
-        declaration.declare_int(section.ellipsis_length, 100)
-        declaration.declare(section.date_format, "llll").set_description(
-            "see Moment.js cheatsheet https://devhints.io/moment"
-        )
-        declaration.declare(section.default_view, "table")

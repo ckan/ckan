@@ -146,6 +146,7 @@ entry_points = {
         'example_blanket_blueprint = ckanext.example_blanket_implementation.plugin:ExampleBlanketBlueprintPlugin',
         'example_blanket_cli = ckanext.example_blanket_implementation.plugin:ExampleBlanketCliPlugin',
         'example_blanket_validator = ckanext.example_blanket_implementation.plugin:ExampleBlanketValidatorPlugin',
+        'example_blanket_config_declaration = ckanext.example_blanket_implementation.plugin:ExampleBlanketConfigDeclarationPlugin',
         'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
