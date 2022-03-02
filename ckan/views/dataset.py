@@ -1331,7 +1331,7 @@ class CollaboratorEditView(MethodView):
                     data_dict: dict[str, Any] = {
                         u'id': id,
                         u'user_ids': user_ids,
-                        u'capacity': form_dict[u'capacity'] 
+                        u'capacity': form_dict[u'capacity']
                     }
 
             else:

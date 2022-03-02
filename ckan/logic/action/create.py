@@ -704,7 +704,7 @@ def package_collaborator_create_for_groups(
             collaborator.modified = datetime.datetime.utcnow()
             model.Session.add(collaborator)
             model.repo.commit()
-            
+
             log.info('User {} added as collaborator in package {} ({})'.format(
                 user.name, package.id, capacity))
 
@@ -713,7 +713,10 @@ def package_collaborator_create_for_groups(
 
 def package_collaborator_create(
         context: Context,
-        data_dict: DataDict) -> Union[ActionResult.PackageCollaboratorCreate, None]:
+        data_dict: DataDict) -> Union[
+                ActionResult.PackageCollaboratorCreate, 
+                None
+            ]:
     '''Make a user a collaborator in a dataset.
 
     If the user is already a collaborator in the dataset then their
@@ -740,7 +743,7 @@ def package_collaborator_create(
     '''
 
     model = context['model']
-    
+
     if isinstance(data_dict.get('user_ids'), list):
         return package_collaborator_create_for_groups(context, data_dict)
 
