@@ -46,7 +46,7 @@ describe('ckan.modules.DashboardModule()', function () {
       this.module.button.click();
       assert.equal(this.fixture.children().length, 1);
       assert.equal(this.fixture.find('#followee-filter').length, 1);
-      assert.equal(this.fixture.find('#followee-filter .btn-group input').length, 1);
+      assert.equal(this.fixture.find('#followee-filter .input-group input').length, 1);
     });
   })
 
@@ -54,10 +54,11 @@ describe('ckan.modules.DashboardModule()', function () {
     it('should filter based on query', function() {
       this.module.initialize();
       this.module.button.click();
-      cy.get('#fixture #followee-filter .btn-group li').should('have.length', 3)
-      cy.get('#fixture #followee-filter input.inited').type('test')
-      cy.get('#fixture #followee-filter .btn-group li[data-search="not valid"]').should('not.be.visible')
-      cy.get('#fixture #followee-filter .btn-group li[data-search="test followee"]').should('be.visible')
+      cy.get('#fixture #followee-filter #followee-content').invoke('removeAttr', 'style');
+      cy.get('#fixture #followee-filter .nav li').should('have.length', 3);
+      cy.get('#fixture #followee-filter .input-group input.inited').type('text');
+      cy.get('#fixture #followee-filter .nav li[data-search="not valid"]').should('be.visible');
+      cy.get('#fixture #followee-filter .nav li[data-search="test followee"]').should('be.visible');
     })
   })
 })

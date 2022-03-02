@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from ckan.types import Schema
+
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 
@@ -13,7 +15,7 @@ boolean_validator = get_validator('boolean_validator')
 unicode_safe = get_validator('unicode_safe')
 
 
-def datapusher_submit_schema():
+def datapusher_submit_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],
         'id': [ignore_missing],

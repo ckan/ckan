@@ -1,18 +1,20 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import inspect
 import logging
 import os
 import contextlib
+from typing import Optional
 
 import click
 from itertools import groupby
 
 import ckan.migration as migration_repo
 import ckan.plugins as p
-import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.common import config
+from . import error_shout
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ def init():
     try:
         model.repo.init_db()
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     else:
         click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
 
@@ -50,7 +52,7 @@ def clean():
     try:
         model.repo.clean_db()
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     else:
         click.secho(u'Cleaning DB: SUCCESS', fg=u'green', bold=True)
 
@@ -58,7 +60,7 @@ def clean():
 @db.command()
 @click.option(u'-v', u'--version', help=u'Migration version', default=u'head')
 @applies_to_plugin
-def upgrade(version, plugin):
+def upgrade(version: str, plugin: str):
     """Upgrade the database.
     """
     _run_migrations(plugin, version)
@@ -68,7 +70,7 @@ def upgrade(version, plugin):
 @db.command()
 @click.option(u'-v', u'--version', help=u'Migration version', default=u'base')
 @applies_to_plugin
-def downgrade(version, plugin):
+def downgrade(version: str, plugin: str):
     """Downgrade the database.
     """
     _run_migrations(plugin, version, False)
@@ -77,7 +79,7 @@ def downgrade(version, plugin):
 
 @db.command()
 @click.option("--apply", is_flag=True, help="Apply all pending migrations")
-def pending_migrations(apply):
+def pending_migrations(apply: bool):
     """List all sources with unapplied migrations.
     """
     pending = _get_pending_plugins()
@@ -91,7 +93,7 @@ def pending_migrations(apply):
             _run_migrations(plugin)
 
 
-def _get_pending_plugins():
+def _get_pending_plugins() -> dict[str, int]:
     from alembic.command import history
     plugins = [(plugin, state)
                for plugin, state
@@ -114,7 +116,7 @@ def _get_pending_plugins():
     return pending
 
 
-def _run_migrations(plugin, version="head", forward=True):
+def _run_migrations(plugin: str, version: str = "head", forward: bool = True):
     if not version:
         version = "head" if forward else "base"
     with _repo_for_plugin(plugin) as repo:
@@ -126,10 +128,10 @@ def _run_migrations(plugin, version="head", forward=True):
 
 @db.command()
 @applies_to_plugin
-def version(plugin):
+def version(plugin: str):
     """Returns current version of data schema.
     """
-    current = current_revision(plugin)
+    current = current_revision(plugin) or ''
     try:
         current = _version_hash_to_ordinal(current)
     except ValueError:
@@ -139,7 +141,7 @@ def version(plugin):
                 bold=True)
 
 
-def current_revision(plugin):
+def current_revision(plugin: str) -> Optional[str]:
     with _repo_for_plugin(plugin) as repo:
         repo.setup_migration_version_control()
         return repo.current_version()
@@ -167,12 +169,12 @@ def duplicate_emails():
                     s.format(k, len(users), u", ".join(users)),
                     fg=u"green", bold=True)
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     if not duplicates_found:
         click.secho(u"No duplicate emails found", fg=u"green")
 
 
-def _version_hash_to_ordinal(version):
+def _version_hash_to_ordinal(version: str):
     if u'base' == version:
         return 0
     versions_dir = os.path.join(os.path.dirname(migration_repo.__file__),
@@ -185,17 +187,19 @@ def _version_hash_to_ordinal(version):
     for name in versions:
         if version in name:
             return int(name.split(u'_')[0])
-    tk.error_shout(u'Version `{}` was not found in {}'.format(
+    error_shout(u'Version `{}` was not found in {}'.format(
         version, versions_dir))
 
 
-def _resolve_alembic_config(plugin):
+def _resolve_alembic_config(plugin: str):
     if plugin:
         plugin_obj = p.get_plugin(plugin)
         if plugin_obj is None:
-            tk.error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
+            error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
             raise click.Abort()
-        plugin_dir = os.path.dirname(inspect.getsourcefile(type(plugin_obj)))
+        source = inspect.getsourcefile(type(plugin_obj))
+        assert source
+        plugin_dir = os.path.dirname(source)
 
         # if there is `plugin` folder instead of single_file, find
         # plugin's parent dir
@@ -211,7 +215,7 @@ def _resolve_alembic_config(plugin):
 
 
 @contextlib.contextmanager
-def _repo_for_plugin(plugin):
+def _repo_for_plugin(plugin: str):
     original = model.repo._alembic_ini
     model.repo._alembic_ini = _resolve_alembic_config(plugin)
     try:

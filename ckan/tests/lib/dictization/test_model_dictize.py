@@ -1,12 +1,12 @@
 # encoding: utf-8
 
 import datetime
+import operator
 import copy
 from pprint import pformat
 
 import pytest
 
-from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.logic.schema import (
     default_create_package_schema,
@@ -20,53 +20,56 @@ from ckan.lib.dictization.model_dictize import package_dictize, group_dictize
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupListDictize:
     def test_group_list_dictize(self):
-        group = factories.Group()
-        group_list = model.Session.query(model.Group).filter_by().all()
+        group = factories.Group.model()
         context = {"model": model, "session": model.Session}
 
-        group_dicts = model_dictize.group_list_dictize(group_list, context)
+        group_dicts = model_dictize.group_list_dictize([group], context)
 
         assert len(group_dicts) == 1
-        assert group_dicts[0]["name"] == group["name"]
+        assert group_dicts[0]["name"] == group.name
         assert group_dicts[0]["package_count"] == 0
         assert "extras" not in group_dicts[0]
         assert "tags" not in group_dicts[0]
         assert "groups" not in group_dicts[0]
 
     def test_group_list_dictize_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
-        group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group_list = [model.Group.get(group2["name"]), model.Group.get(group1["name"])]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(group_list, context)
 
         # list is resorted by name
-        assert group_dicts[0]["name"] == "aa"
-        assert group_dicts[1]["name"] == "bb"
+        assert group_dicts[0]["name"] == group1["name"]
+        assert group_dicts[1]["name"] == group2["name"]
 
     def test_group_list_dictize_reverse_sorted(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
-        group_list = [model.Group.get(u"aa"), model.Group.get(u"bb")]
+        # we need to set the title because group_list_dictze by default sorts
+        # them per display_name
+        group1 = factories.Group(title="aa")
+        group2 = factories.Group(title="bb")
+        group_list = [model.Group.get(group1["name"]), model.Group.get(group2["name"])]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
             group_list, context, reverse=True
         )
 
-        assert group_dicts[0]["name"] == "bb"
-        assert group_dicts[1]["name"] == "aa"
+        assert group_dicts[0]["name"] == group2["name"]
+        assert group_dicts[1]["name"] == group1["name"]
 
     def test_group_list_dictize_sort_by_package_count(self):
-        factories.Group(name="aa")
-        factories.Group(name="bb")
-        factories.Dataset(groups=[{"name": "aa"}, {"name": "bb"}])
-        factories.Dataset(groups=[{"name": "bb"}])
-        group_list = [model.Group.get(u"bb"), model.Group.get(u"aa")]
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Dataset(groups=[{"name": group1["name"]}, {"name": group2["name"]}])
+        factories.Dataset(groups=[{"name": group2["name"]}])
+        group_list = [model.Group.get(group2["name"]), model.Group.get(group1["name"])]
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
@@ -77,8 +80,8 @@ class TestGroupListDictize:
         )
 
         # list is resorted by package counts
-        assert group_dicts[0]["name"] == "aa"
-        assert group_dicts[1]["name"] == "bb"
+        assert group_dicts[0]["name"] == group1["name"]
+        assert group_dicts[1]["name"] == group2["name"]
 
     def test_group_list_dictize_without_package_count(self):
         group_ = factories.Group()
@@ -93,85 +96,75 @@ class TestGroupListDictize:
         assert "packages" not in group_dicts[0]
 
     def test_group_list_dictize_including_extras(self):
-        factories.Group(extras=[{"key": "k1", "value": "v1"}])
-        group_list = model.Session.query(model.Group).filter_by().all()
+        group = factories.Group.model(extras=[{"key": "k1", "value": "v1"}])
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
-            group_list, context, include_extras=True
+            [group], context, include_extras=True
         )
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
     def test_group_list_dictize_including_tags(self):
-        factories.Group()
-        # group tags aren't in the group_create schema, so its slightly more
-        # convoluted way to create them
-        group_obj = model.Session.query(model.Group).first()
-        tag = model.Tag(name="t1")
-        model.Session.add(tag)
-        model.Session.commit()
-        tag = model.Session.query(model.Tag).first()
-        group_obj = model.Session.query(model.Group).first()
+        group = factories.Group.model()
+        tag = factories.Tag.model()
         member = model.Member(
-            group=group_obj, table_id=tag.id, table_name="tag"
+            group=group, table_id=tag.id, table_name="tag"
         )
         model.Session.add(member)
         model.Session.commit()
-        group_list = model.Session.query(model.Group).filter_by().all()
         context = {"model": model, "session": model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
-            group_list, context, include_tags=True
+            [group], context, include_tags=True
         )
 
-        assert group_dicts[0]["tags"][0]["name"] == "t1"
+        assert group_dicts[0]["tags"][0]["name"] == tag.name
 
+    @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
-        factories.Group(name="parent")
-        factories.Group(name="child", groups=[{"name": "parent"}])
-        group_list = [model.Group.get(u"parent"), model.Group.get(u"child")]
+        parent = factories.Group(tile="Parent")
+        child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
+        group_list = [model.Group.get(parent["name"]), model.Group.get(child["name"])]
         context = {"model": model, "session": model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
-            group_list, context, include_groups=True
+            group_list, context, sort_key=operator.itemgetter("title"),
+            include_groups=True
         )
 
-        assert parent_dict["name"] == "parent"
-        assert child_dict["name"] == "child"
+        assert parent_dict["name"] == parent["name"]
+        assert child_dict["name"] == child["name"]
         assert parent_dict["groups"] == []
-        assert child_dict["groups"][0]["name"] == "parent"
+        assert child_dict["groups"][0]["name"] == parent["name"]
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupDictize:
     def test_group_dictize(self):
-        group = factories.Group(name="test_dictize")
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
-        assert group["name"] == "test_dictize"
+        assert group["name"] == group_obj.name
         assert group["packages"] == []
         assert group["extras"] == []
         assert group["tags"] == []
         assert group["groups"] == []
 
     def test_group_dictize_group_with_dataset(self):
-        group_ = factories.Group()
-        package = factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
+        package = factories.Dataset(groups=[{"name": group_obj.name}])
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
         assert group["packages"][0]["name"] == package["name"]
-        assert group["packages"][0]["groups"][0]["name"] == group_["name"]
+        assert group["packages"][0]["groups"][0]["name"] == group_obj.name
 
     def test_group_dictize_group_with_extra(self):
-        factories.Group(extras=[{"key": "k1", "value": "v1"}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model(extras=[{"key": "k1", "value": "v1"}])
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
@@ -179,23 +172,21 @@ class TestGroupDictize:
         assert group["extras"][0]["key"] == "k1"
 
     def test_group_dictize_group_with_parent_group(self):
-        factories.Group(name="parent")
-        factories.Group(name="child", groups=[{"name": "parent"}])
-        group_obj = model.Group.get("child")
+        parent = factories.Group(title="Parent")
+        group_obj = factories.Group.model(title="Child", groups=[{"name": parent["name"]}])
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
         assert len(group["groups"]) == 1
-        assert group["groups"][0]["name"] == "parent"
+        assert group["groups"][0]["name"] == parent["name"]
         assert group["groups"][0]["package_count"] == 0
 
     def test_group_dictize_without_packages(self):
         # group_list_dictize might not be interested in packages at all
         # so sets these options. e.g. it is not all_fields nor are the results
         # sorted by the number of packages.
-        factories.Group()
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(
@@ -205,14 +196,13 @@ class TestGroupDictize:
         assert "packages" not in group
 
     def test_group_dictize_with_package_list(self):
-        group_ = factories.Group()
-        package = factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
+        package = factories.Dataset(groups=[{"name": group_obj.name}])
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
-        assert type(group["packages"]) == list
+        assert isinstance(group["packages"], list)
         assert len(group["packages"]) == 1
         assert group["packages"][0]["name"] == package["name"]
 
@@ -220,10 +210,9 @@ class TestGroupDictize:
         """
         Packages returned in group are limited by context var.
         """
-        group_ = factories.Group()
-        for _ in range(10):
-            factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
+        for _ in range(5):
+            factories.Dataset(groups=[{"name": group_obj.name}])
         # limit packages to 4
         context = {
             "model": model,
@@ -239,10 +228,9 @@ class TestGroupDictize:
         """
         Packages limit is set higher than number of packages in group.
         """
-        group_ = factories.Group()
+        group_obj = factories.Group.model()
         for _ in range(3):
-            factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+            factories.Dataset(groups=[{"name": group_obj.name}])
         # limit packages to 4
         context = {
             "model": model,
@@ -256,10 +244,10 @@ class TestGroupDictize:
 
     @pytest.mark.ckan_config("ckan.search.rows_max", "4")
     def test_group_dictize_with_package_list_limited_by_config(self):
-        group_ = factories.Group()
+        group_obj = factories.Group.model()
         for _ in range(5):
-            factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+            factories.Dataset(groups=[{"name": group_obj.name}])
+
         context = {"model": model, "session": model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
@@ -269,11 +257,10 @@ class TestGroupDictize:
 
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
-        group_ = factories.Group()
-        other_group_ = factories.Group()
-        factories.Dataset(groups=[{"name": group_["name"]}])
-        factories.Dataset(groups=[{"name": other_group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
+        other_group_obj = factories.Group.model()
+        factories.Dataset(groups=[{"name": group_obj.name}])
+        factories.Dataset(groups=[{"name": other_group_obj.name}])
         context = {
             "model": model,
             "session": model.Session,
@@ -289,9 +276,8 @@ class TestGroupDictize:
         self,
     ):
         # logic.get.group_show calls it like this when not include_datasets
-        group_ = factories.Group()
-        factories.Dataset(groups=[{"name": group_["name"]}])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Group.model()
+        factories.Dataset(groups=[{"name": group_obj.name}])
         context = {"model": model, "session": model.Session}
         # not supplying dataset_counts in this case either
 
@@ -303,9 +289,8 @@ class TestGroupDictize:
         assert group["package_count"] == 1
 
     def test_group_dictize_for_org_with_package_list(self):
-        org_ = factories.Organization()
-        package = factories.Dataset(owner_org=org_["id"])
-        group_obj = model.Session.query(model.Group).filter_by().first()
+        group_obj = factories.Organization.model()
+        package = factories.Dataset(owner_org=group_obj.id)
         context = {"model": model, "session": model.Session}
 
         org = model_dictize.group_dictize(group_obj, context)
@@ -316,11 +301,10 @@ class TestGroupDictize:
 
     def test_group_dictize_for_org_with_package_count(self):
         # group_list_dictize calls it like this by default
-        org_ = factories.Organization()
+        org_obj = factories.Organization.model()
         other_org_ = factories.Organization()
-        factories.Dataset(owner_org=org_["id"])
+        factories.Dataset(owner_org=org_obj.id)
         factories.Dataset(owner_org=other_org_["id"])
-        org_obj = model.Session.query(model.Group).filter_by().first()
         context = {
             "model": model,
             "session": model.Session,
@@ -334,7 +318,7 @@ class TestGroupDictize:
         assert org["package_count"] == 1
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageDictize:
     def remove_changable_values(self, dict_):
         dict_ = copy.deepcopy(dict_)
@@ -369,7 +353,6 @@ class TestPackageDictize:
 
     def test_package_dictize_basic(self):
         dataset = factories.Dataset(
-            name="test_dataset_dictize",
             notes="Some *description*",
             url="http://example.com",
         )
@@ -386,31 +369,31 @@ class TestPackageDictize:
         assert result["metadata_created"].startswith(today)
         assert result["creator_user_id"] == dataset_obj.creator_user_id
         expected_dict = {
-            "author": None,
-            "author_email": None,
-            "extras": [],
-            "groups": [],
-            "isopen": False,
-            "license_id": None,
-            "license_title": None,
-            "maintainer": None,
-            "maintainer_email": None,
-            "name": u"test_dataset_dictize",
-            "notes": "Some *description*",
-            "num_resources": 0,
-            "num_tags": 0,
-            "organization": None,
-            "owner_org": None,
-            "private": False,
-            "relationships_as_object": [],
-            "relationships_as_subject": [],
-            "resources": [],
-            "state": u"active",
-            "tags": [],
-            "title": u"Test Dataset",
-            "type": u"dataset",
-            "url": "http://example.com",
-            "version": None,
+            "author": dataset["author"],
+            "author_email": dataset["author_email"],
+            "extras": dataset["extras"],
+            "groups": dataset["groups"],
+            "isopen": dataset["isopen"],
+            "license_id": dataset["license_id"],
+            "license_title": dataset["license_title"],
+            "maintainer": dataset["maintainer"],
+            "maintainer_email": dataset["maintainer_email"],
+            "name": dataset["name"],
+            "notes": dataset["notes"],
+            "num_resources": dataset["num_resources"],
+            "num_tags": dataset["num_tags"],
+            "organization": dataset["organization"],
+            "owner_org": dataset["owner_org"],
+            "private": dataset["private"],
+            "relationships_as_object": dataset["relationships_as_object"],
+            "relationships_as_subject": dataset["relationships_as_subject"],
+            "resources": dataset["resources"],
+            "state": dataset["state"],
+            "tags": dataset["tags"],
+            "title": dataset["title"],
+            "type": dataset["type"],
+            "url": dataset["url"],
+            "version": dataset["version"],
         }
         self.assert_equals_expected(expected_dict, result)
 
@@ -451,21 +434,21 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["resources"][0], resource, "name", "url")
         expected_dict = {
-            u"cache_last_updated": None,
-            u"cache_url": None,
-            u"description": u"Just another test resource.",
-            u"format": u"res_format",
-            u"hash": u"",
-            u"last_modified": None,
-            u"mimetype": None,
-            u"mimetype_inner": None,
-            u"name": u"test_pkg_dictize",
-            u"position": 0,
-            u"resource_type": None,
-            u"size": None,
-            u"state": u"active",
-            u"url": u"http://link.to.some.data",
-            u"url_type": None,
+            u"cache_last_updated": resource["cache_last_updated"],
+            u"cache_url": resource["cache_url"],
+            u"description": resource["description"],
+            u"format": resource["format"],
+            u"hash": resource["hash"],
+            u"last_modified": resource["last_modified"],
+            u"mimetype": resource["mimetype"],
+            u"mimetype_inner": resource["mimetype_inner"],
+            u"name": resource["name"],
+            u"position": resource["position"],
+            u"resource_type": resource["resource_type"],
+            u"size": resource["size"],
+            u"state": resource["state"],
+            u"url": resource["url"],
+            u"url_type": resource["url_type"],
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
@@ -502,16 +485,17 @@ class TestPackageDictize:
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_tags(self):
-        dataset = factories.Dataset(tags=[{"name": "fish"}])
+        tag = factories.Tag.stub().name
+        dataset = factories.Dataset(tags=[{"name": tag}])
         dataset_obj = model.Package.get(dataset["id"])
         context = {"model": model, "session": model.Session}
 
         result = model_dictize.package_dictize(dataset_obj, context)
 
-        assert result["tags"][0]["name"] == "fish"
+        assert result["tags"][0]["name"] == tag
         expected_dict = {
-            "display_name": u"fish",
-            u"name": u"fish",
+            "display_name": tag,
+            u"name": tag,
             u"state": u"active",
         }
         self.assert_equals_expected(expected_dict, result["tags"][0])
@@ -534,7 +518,7 @@ class TestPackageDictize:
 
     def test_package_dictize_group(self):
         group = factories.Group(
-            name="test_group_dictize", title="Test Group Dictize"
+            title="Test Group Dictize"
         )
         dataset = factories.Dataset(groups=[{"name": group["name"]}])
         dataset_obj = model.Package.get(dataset["id"])
@@ -544,22 +528,22 @@ class TestPackageDictize:
 
         assert_equal_for_keys(result["groups"][0], group, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"capacity": u"public",
-            u"description": u"A test description for this test group.",
-            "display_name": u"Test Group Dictize",
-            "image_display_url": u"",
-            u"image_url": u"",
-            u"is_organization": False,
-            u"name": u"test_group_dictize",
-            u"state": u"active",
-            u"title": u"Test Group Dictize",
-            u"type": u"group",
+            u"approval_status": group["approval_status"],
+            u"capacity": "public",
+            u"description": group["description"],
+            "display_name": group["display_name"],
+            "image_display_url": group["image_display_url"],
+            u"image_url": group["image_url"],
+            u"is_organization": group["is_organization"],
+            u"name": group["name"],
+            u"state": group["state"],
+            u"title": group["title"],
+            u"type": group["type"],
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 
     def test_package_dictize_owner_org(self):
-        org = factories.Organization(name="test_package_dictize")
+        org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"])
         dataset_obj = model.Package.get(dataset["id"])
         context = {"model": model, "session": model.Session}
@@ -569,14 +553,14 @@ class TestPackageDictize:
         assert result["owner_org"] == org["id"]
         assert_equal_for_keys(result["organization"], org, "name")
         expected_dict = {
-            u"approval_status": u"approved",
-            u"description": u"Just another test organization.",
-            u"image_url": u"https://placekitten.com/g/200/100",
-            u"is_organization": True,
-            u"name": u"test_package_dictize",
-            u"state": u"active",
-            u"title": u"Test Organization",
-            u"type": u"organization",
+            u"approval_status": org["approval_status"],
+            u"description": org["description"],
+            u"image_url": org["image_url"],
+            u"is_organization": org["is_organization"],
+            u"name": org["name"],
+            u"state": org["state"],
+            u"title": org["title"],
+            u"type": org["type"],
         }
         self.assert_equals_expected(expected_dict, result["organization"])
 
@@ -592,15 +576,16 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTagDictize(object):
     """Unit tests for the tag_dictize() function."""
 
     def test_tag_dictize_including_datasets(self):
         """By default a dictized tag should include the tag's datasets."""
+        tag_name = factories.Tag.stub().name
         # Make a dataset in order to have a tag created.
-        factories.Dataset(tags=[dict(name="test_tag")])
-        tag = model.Tag.get("test_tag")
+        factories.Dataset(tags=[dict(name=tag_name)])
+        tag = model.Tag.get(tag_name)
 
         tag_dict = model_dictize.tag_dictize(tag, context={"model": model})
 
@@ -608,9 +593,10 @@ class TestTagDictize(object):
 
     def test_tag_dictize_not_including_datasets(self):
         """include_datasets=False should exclude datasets from tag dicts."""
+        tag_name = factories.Tag.stub().name
         # Make a dataset in order to have a tag created.
-        factories.Dataset(tags=[dict(name="test_tag")])
-        tag = model.Tag.get("test_tag")
+        factories.Dataset(tags=[dict(name=tag_name)])
+        tag = model.Tag.get(tag_name)
 
         tag_dict = model_dictize.tag_dictize(
             tag, context={"model": model}, include_datasets=False
@@ -624,8 +610,10 @@ class TestVocabularyDictize(object):
 
     def test_vocabulary_dictize_including_datasets(self):
         """include_datasets=True should include datasets in vocab dicts."""
+        tag1 = factories.Tag.stub().name
+        tag2 = factories.Tag.stub().name
         vocab_dict = factories.Vocabulary(
-            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")]
+            tags=[dict(name=tag1), dict(name=tag2)]
         )
         factories.Dataset(tags=vocab_dict["tags"])
         vocab_obj = model.Vocabulary.get(vocab_dict["name"])
@@ -640,8 +628,11 @@ class TestVocabularyDictize(object):
 
     def test_vocabulary_dictize_not_including_datasets(self):
         """By default datasets should not be included in vocab dicts."""
+        tag1 = factories.Tag.stub().name
+        tag2 = factories.Tag.stub().name
+
         vocab_dict = factories.Vocabulary(
-            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")]
+            tags=[dict(name=tag1), dict(name=tag2)]
         )
         factories.Dataset(tags=vocab_dict["tags"])
         vocab_obj = model.Vocabulary.get(vocab_dict["name"])
@@ -655,7 +646,7 @@ class TestVocabularyDictize(object):
             assert len(tag.get("packages", [])) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestActivityDictize(object):
     def test_include_data(self):
         dataset = factories.Dataset()
@@ -696,7 +687,7 @@ class TestActivityDictize(object):
         assert dictized["data"] == {"package": {"title": dataset["title"]}}
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageSchema(object):
     def remove_changable_columns(self, dict):
         for key, value in list(dict.items()):
@@ -711,38 +702,21 @@ class TestPackageSchema(object):
         return dict
 
     def test_package_schema(self):
-        CreateTestData.create()
-        context = {"model": model, "session": model.Session}
-        pkg = (
-            model.Session.query(model.Package)
-            .filter_by(name="annakarenina")
-            .first()
-        )
-
-        package_id = pkg.id
-        result = package_dictize(pkg, context)
-        self.remove_changable_columns(result)
-
-        result["name"] = "anna2"
-        # we need to remove these as they have been added
-        del result["relationships_as_object"]
-        del result["relationships_as_subject"]
-
-        converted_data, errors = validate(
-            result, default_create_package_schema(), context
-        )
-
+        group1 = factories.Group(title="Dave's books")
+        group2 = factories.Group(title="Roger's books")
+        first_name = factories.Dataset.stub().name
+        second_name = factories.Dataset.stub().name
         expected_data = {
             "extras": [
                 {"key": u"genre", "value": u"romantic novel"},
                 {"key": u"original media", "value": u"book"},
             ],
             "groups": [
-                {u"name": u"david", u"title": u"Dave's books"},
-                {u"name": u"roger", u"title": u"Roger's books"},
+                {u"name": group1["name"], u"title": group1["title"]},
+                {u"name": group2["name"], u"title": group2["title"]},
             ],
             "license_id": u"other-open",
-            "name": u"anna2",
+            "name": first_name,
             "type": u"dataset",
             "notes": u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
             "private": False,
@@ -764,21 +738,36 @@ class TestPackageSchema(object):
                     "url": u"http://datahub.io/index.json",
                 },
             ],
-            "tags": [
-                {"name": u"Flexible \u30a1"},
-                {"name": u"russian"},
-                {"name": u"tolstoy"},
-            ],
+            "tags": sorted([
+                {"name": factories.Tag.stub().name},
+                {"name": factories.Tag.stub().name},
+                {"name": factories.Tag.stub().name},
+            ], key=operator.itemgetter("name")),
             "title": u"A Novel By Tolstoy",
             "url": u"http://datahub.io",
             "version": u"0.7a",
+            "relationships_as_subject": [],
+            "relationships_as_object": [],
         }
+
+        context = {"model": model, "session": model.Session}
+        pkg = factories.Dataset.model(**expected_data)
+
+        package_id = pkg.id
+        result = package_dictize(pkg, context)
+        self.remove_changable_columns(result)
+
+        result["name"] = second_name
+        expected_data["name"] = second_name
+        converted_data, errors = validate(
+            result, default_create_package_schema(), context
+        )
 
         assert converted_data == expected_data, pformat(converted_data)
         assert not errors, errors
 
         data = converted_data
-        data["name"] = u"annakarenina"
+        data["name"] = first_name
         data.pop("title")
         data["resources"][0]["url"] = "fsdfafasfsaf"
         data["resources"][1].pop("url")
@@ -806,9 +795,10 @@ class TestPackageSchema(object):
 
     @pytest.mark.usefixtures("clean_index")
     def test_group_schema(self):
-        CreateTestData.create()
+        group = factories.Group.model()
         context = {"model": model, "session": model.Session}
-        group = model.Session.query(model.Group).first()
+        factories.Dataset.create_batch(2, groups=[{"name": group.name}])
+
         data = group_dictize(group, context)
 
         # we don't want these here
@@ -821,20 +811,20 @@ class TestPackageSchema(object):
             data, default_group_schema(), context
         )
         assert not errors
-        group_pack = sorted(group.packages(), key=lambda x: x.id)
+        group_pack = sorted(group.packages(), key=operator.attrgetter("id"))
 
         converted_data["packages"] = sorted(
-            converted_data["packages"], key=lambda x: x["id"]
+            converted_data["packages"], key=operator.itemgetter("id")
         )
 
         expected = {
-            "description": u"These are books that David likes.",
+            "description": group.description,
             "id": group.id,
-            "name": u"david",
+            "name": group.name,
             "is_organization": False,
             "type": u"group",
-            "image_url": u"",
-            "image_display_url": u"",
+            "image_url": group.image_url,
+            "image_display_url": group.image_url,
             "packages": sorted(
                 [
                     {
@@ -848,16 +838,16 @@ class TestPackageSchema(object):
                         "title": group_pack[1].title,
                     },
                 ],
-                key=lambda x: x["id"],
+                key=operator.itemgetter("id"),
             ),
-            "title": u"Dave's books",
+            "title": group.title,
             "approval_status": u"approved",
         }
 
         assert converted_data == expected, pformat(converted_data)
 
         data["packages"].sort(key=lambda x: x["id"])
-        data["packages"][0]["id"] = "fjdlksajfalsf"
+        data["packages"][0]["id"] = factories.Dataset.stub().name
         data["packages"][1].pop("id")
         data["packages"][1].pop("name")
 

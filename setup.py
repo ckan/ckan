@@ -41,12 +41,6 @@ if parse_version(setuptools_version) < min_setuptools_version:
 
 
 entry_points = {
-    'paste.app_factory': [
-        'main = ckan.config.middleware:make_app',
-    ],
-    'paste.app_install': [
-        'main = ckan.config.install:CKANInstaller',
-    ],
     'console_scripts': [
         'ckan = ckan.cli.cli:ckan',
     ],
@@ -74,7 +68,6 @@ entry_points = {
         'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
-        'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_view = ckanext.textview.plugin:TextView',
         'recline_view = ckanext.reclineview.plugin:ReclineView',
@@ -86,14 +79,9 @@ entry_points = {
         'audio_view = ckanext.audioview.plugin:AudioView',
         'video_view = ckanext.videoview.plugin:VideoView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
-        # FIXME: Remove deprecated resource previews below. You should use the
-        # versions as *_view instead.
-        'text_preview = ckanext.textview.plugin:TextView',
-        'recline_preview = ckanext.reclineview.plugin:ReclineView',
         'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map = ckanext.reclineview.plugin:ReclineMapView',
-        # End of deprecated previews
         'example_itemplatehelpers = ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin',
         'example_idatasetform = ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin',
         'example_idatasetform_v1 = ckanext.example_idatasetform.plugin_v1:ExampleIDatasetFormPlugin',
@@ -151,6 +139,14 @@ entry_points = {
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
         'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
+        'example_blanket = ckanext.example_blanket_implementation.plugin:ExampleBlanketPlugin',
+        'example_blanket_helper = ckanext.example_blanket_implementation.plugin:ExampleBlanketHelperPlugin',
+        'example_blanket_auth = ckanext.example_blanket_implementation.plugin:ExampleBlanketAuthPlugin',
+        'example_blanket_action = ckanext.example_blanket_implementation.plugin:ExampleBlanketActionPlugin',
+        'example_blanket_blueprint = ckanext.example_blanket_implementation.plugin:ExampleBlanketBlueprintPlugin',
+        'example_blanket_cli = ckanext.example_blanket_implementation.plugin:ExampleBlanketCliPlugin',
+        'example_blanket_validator = ckanext.example_blanket_implementation.plugin:ExampleBlanketValidatorPlugin',
+        'example_blanket_config_declaration = ckanext.example_blanket_implementation.plugin:ExampleBlanketConfigDeclarationPlugin',
         'example_isignal = ckanext.example_isignal.plugin:ExampleISignalPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
         'example_humanizer = ckanext.example_humanizer.plugin:ExampleHumanizerPlugin',
@@ -158,21 +154,16 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
-        'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
     ],
     'ckan.test_plugins': [
-        'routes_plugin = tests.plugins.ckantestplugins:RoutesPlugin',
-        'mapper_plugin = tests.plugins.ckantestplugins:MapperPlugin',
         'session_plugin = tests.plugins.ckantestplugins:SessionPlugin',
-        'mapper_plugin2 = tests.plugins.ckantestplugins:MapperPlugin2',
         'authorizer_plugin = tests.plugins.ckantestplugins:AuthorizerPlugin',
         'test_observer_plugin = tests.plugins.ckantestplugins:PluginObserverPlugin',
         'action_plugin = tests.plugins.ckantestplugins:ActionPlugin',
         'auth_plugin = tests.plugins.ckantestplugins:AuthPlugin',
         'test_group_plugin = tests.plugins.ckantestplugins:MockGroupControllerPlugin',
         'test_package_controller_plugin = tests.plugins.ckantestplugins:MockPackageControllerPlugin',
-        'test_resource_preview = tests.plugins.ckantestplugins:MockResourcePreviewExtension',
-        'test_json_resource_preview = tests.plugins.ckantestplugins:JsonMockResourcePreviewExtension',
+        'test_resource_view = tests.plugins.ckantestplugins:MockResourceViewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'example_datastore_deleted_with_count_plugin = ckanext.datastore.tests.test_chained_action:ExampleDataStoreDeletedWithCountPlugin',
         'example_data_store_search_sql_plugin = ckanext.datastore.tests.test_chained_auth_functions:ExampleDataStoreSearchSQLPlugin',
@@ -181,7 +172,6 @@ entry_points = {
         'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
         'test_flash_plugin = ckan.tests.config.test_sessions:FlashMessagePlugin',
-        'test_helpers_plugin = ckan.tests.lib.test_helpers:HelpersTestPlugin',
         'test_feed_plugin = ckan.tests.controllers.test_feed:MockFeedPlugin',
         'test_js_translations_plugin = ckan.tests.lib.test_i18n:JSTranslationsTestPlugin',
         'mock_search_plugin = ckan.tests.logic.action.test_init:MockPackageSearchPlugin',
@@ -233,15 +223,16 @@ setup(
     entry_points=entry_points,
     # setup.py test command needs a TestSuite so does not work with py.test
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     extras_require=extras_require,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )

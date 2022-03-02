@@ -1,9 +1,12 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
+from typing import Any, Union, cast
 
 from flask import Blueprint
 from flask.views import MethodView
+from flask.wrappers import Response
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
@@ -11,8 +14,11 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
+import ckan.logic.schema
 from ckan.common import g, _, config, request
 from ckan.views.home import CACHE_PARAMETERS
+
+from ckan.types import Context, Query
 
 
 log = logging.getLogger(__name__)
@@ -20,13 +26,15 @@ log = logging.getLogger(__name__)
 admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
 
-def _get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin.is_(True),
-                                               model.User.state == u'active')
+def _get_sysadmins() -> "Query[model.User]":
+    q = model.Session.query(model.User).filter(
+        # type_ignore_reason: incomplete SQLAlchemy types
+        model.User.sysadmin.is_(True),  # type: ignore
+        model.User.state == u'active')
     return q
 
 
-def _get_config_options():
+def _get_config_options() -> dict[str, list[dict[str, str]]]:
     homepages = [{
         u'value': u'1',
         u'text': (u'Introductory area, search, featured'
@@ -43,7 +51,7 @@ def _get_config_options():
     return dict(homepages=homepages)
 
 
-def _get_config_items():
+def _get_config_items() -> list[str]:
     return [
         u'ckan.site_title', u'ckan.main_css', u'ckan.site_description',
         u'ckan.site_logo', u'ckan.site_about', u'ckan.site_intro_text',
@@ -52,26 +60,29 @@ def _get_config_items():
 
 
 @admin.before_request
-def before_request():
+def before_request() -> None:
     try:
-        context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
+        context = cast(
+            Context,
+            {"model": model, "user": g.user, "auth_user_obj": g.userobj}
+        )
         logic.check_access(u'sysadmin', context)
     except logic.NotAuthorized:
         base.abort(403, _(u'Need to be system administrator to administer'))
 
 
-def index():
+def index() -> str:
     data = dict(sysadmins=[a.name for a in _get_sysadmins()])
     return base.render(u'admin/index.html', extra_vars=data)
 
 
 class ResetConfigView(MethodView):
-    def get(self):
+    def get(self) -> Union[str, Response]:
         if u'cancel' in request.args:
             return h.redirect_to(u'admin.config')
         return base.render(u'admin/confirm_reset.html', extra_vars={})
 
-    def post(self):
+    def post(self) -> Response:
         # remove sys info items
         for item in _get_config_items():
             model.delete_system_info(item)
@@ -81,20 +92,20 @@ class ResetConfigView(MethodView):
 
 
 class ConfigView(MethodView):
-    def get(self):
+    def get(self) -> str:
         items = _get_config_options()
-        schema = logic.schema.update_configuration_schema()
+        schema = ckan.logic.schema.update_configuration_schema()
         data = {}
         for key in schema:
             data[key] = config.get(key)
 
-        vars = dict(data=data, errors={}, **items)
+        vars: dict[str, Any] = dict(data=data, errors={}, **items)
 
         return base.render(u'admin/config.html', extra_vars=vars)
 
-    def post(self):
+    def post(self) -> Union[str, Response]:
         try:
-            req = request.form.copy()
+            req: dict[str, Any] = request.form.copy()
             req.update(request.files.to_dict())
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
@@ -123,6 +134,8 @@ class ConfigView(MethodView):
 
 
 class TrashView(MethodView):
+    deleted_entities: dict[str, Query[Any]]
+
     def __init__(self):
         self.deleted_packages = model.Session.query(
             model.Package).filter_by(state=model.State.DELETED)
@@ -156,7 +169,7 @@ class TrashView(MethodView):
             }
         }
 
-    def get(self):
+    def get(self) -> str:
         ent_type = request.args.get(u'name')
 
         if ent_type:
@@ -168,11 +181,11 @@ class TrashView(MethodView):
         data = dict(data=self.deleted_entities, messages=self.messages)
         return base.render(u'admin/trash.html', extra_vars=data)
 
-    def post(self):
+    def post(self) -> Response:
         if u'cancel' in request.form:
             return h.redirect_to(u'admin.trash')
 
-        req_action = request.form.get(u'action')
+        req_action = request.form.get(u'action', '')
         if req_action == u'all':
             self.purge_all()
         elif req_action in (u'package', u'organization', u'group'):
@@ -197,7 +210,7 @@ class TrashView(MethodView):
             model.Session.remove()
         h.flash_success(_(u'Massive purge complete'))
 
-    def purge_entity(self, ent_type):
+    def purge_entity(self, ent_type: str):
         entities = self.deleted_entities[ent_type]
         number = entities.count()
 
@@ -213,14 +226,14 @@ class TrashView(MethodView):
         ))
 
     @staticmethod
-    def _get_purge_action(ent_type):
+    def _get_purge_action(ent_type: str) -> str:
         actions = {
             "package": "dataset_purge",
             "organization": "organization_purge",
             "group": "group_purge",
         }
 
-        return actions.get(ent_type)
+        return actions[ent_type]
 
 
 admin.add_url_rule(

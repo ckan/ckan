@@ -5,15 +5,15 @@
 
 {% block page_primary_action %}
   <div class="dropdown btn-group">
-    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+    <a class="btn btn-primary dropdown-toggle" role="button" id="dropdownView" data-bs-toggle="dropdown" aria-expanded="false" href="#">
       <i class="fa fa-plus-square"></i>
       {{ _('New view') }}
       <span class="caret"></span>
     </a>
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu" aria-labelledby="dropdownView">
       {% for option in h.get_allowed_view_types(resource, pkg_dict)  %}
         {% set url = h.url_for(pkg_dict.type ~ '_resource.edit_view', id=pkg_dict.name, resource_id=resource.id, view_type=option[0]) %}
-        <li><a href="{{ url }}"><i class="fa fa-{{ option[2] }}"></i> {{ option[1] }}</a></li>
+        <li><a href="{{ url }}" class="dropdown-item"><i class="fa fa-{{ option[2] }}"></i> {{ option[1] }}</a></li>
       {% endfor %}
     </ul>
   </div>
@@ -22,7 +22,7 @@
 
 {% block primary_content_inner %}
   {% if views %}
-    {% snippet "package/snippets/resource_views_list.html", views=views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + resource.id, extra_class='resource-view-list nav-pills nav-stacked' %}
+    {% snippet "package/snippets/resource_views_list.html", views=views, pkg=pkg, is_edit=true, extra_attributes='data-module = resource-view-reorder data-module-id=' + resource.id, extra_class='flex-column resource-view-list nav-pills nav-stacked' %}
   {% else %}
     <p class="empty">{{ _('This resource has no views') }}</p>
   {% endif %}

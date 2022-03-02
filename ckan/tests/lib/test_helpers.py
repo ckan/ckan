@@ -8,14 +8,13 @@ import os
 import pytz
 import tzlocal
 from babel import Locale
-from six import text_type
+import flask_babel
+
 import pytest
 
 import ckan.lib.helpers as h
-import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
-import ckan.lib.base as base
 
 
 CkanUrlException = ckan.exceptions.CkanUrlException
@@ -104,6 +103,7 @@ class TestHelpersUrlFor(BaseUrlFor):
                 {"qualified": True, "locale": "de"},
                 "http://example.com/de/dataset/my_dataset",
             ),
+            ({"__no_cache__": True}, "/dataset/my_dataset?__no_cache__=True"),
         ],
     )
     def test_url_for_default(self, extra, exp):
@@ -160,6 +160,32 @@ class TestHelpersUrlFor(BaseUrlFor):
         expected = "/my/custom/path/_debug_toolbar/static/test.js"
         url = url_for('_debug_toolbar.static', filename='test.js')
         assert url == expected
+
+    @pytest.mark.parametrize(
+        "extra,exp",
+        [
+            ({"param": "foo"}, "/dataset/my_dataset?param=foo"),
+            ({"param": 27}, "/dataset/my_dataset?param=27"),
+            ({"param": 27.3}, "/dataset/my_dataset?param=27.3"),
+            ({"param": True}, "/dataset/my_dataset?param=True"),
+            ({"param": None}, "/dataset/my_dataset"),
+            ({"param": {}}, "/dataset/my_dataset?param=%7B%7D"),
+        ],
+    )
+    def test_url_for_string_route_with_query_param(self, extra, exp):
+        assert (
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            exp
+        )
+
+    def test_url_for_string_route_with_list_query_param(self):
+        extra = {'multi': ['foo', 27, 27.3, True, None]}
+        assert (
+            h.url_for("/dataset/my_dataset", **extra) ==
+            h.url_for("dataset.read", id="my_dataset", **extra) ==
+            "/dataset/my_dataset?multi=foo&multi=27&multi=27.3&multi=True"
+        )
 
 
 class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
@@ -403,15 +429,15 @@ class TestHelpersRemoveLineBreaks(object):
         ), '"remove_linebreaks" should remove line breaks'
 
     def test_remove_linebreaks_casts_into_unicode(self):
-        class UnicodeLike(text_type):
+        class UnicodeLike(str):
             pass
 
         test_string = UnicodeLike("foo")
         result = h.remove_linebreaks(test_string)
 
-        strType = u"".__class__
+        str_type = u"".__class__
         assert (
-            result.__class__ == strType
+            result.__class__ == str_type
         ), '"remove_linebreaks" casts into unicode()'
 
 
@@ -441,7 +467,6 @@ def test_unified_resource_format(fmt, exp):
 
 
 class TestGetDisplayTimezone(object):
-    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
         assert h.get_display_timezone() == pytz.timezone("utc")
 
@@ -586,7 +611,7 @@ class TestBuildNavMain(object):
                 '<li><a href="/about">About</a></li>'
             )
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_active_in_resource_controller(self, test_request_context):
 
         dataset = factories.Dataset()
@@ -623,162 +648,16 @@ class TestBuildNavMain(object):
                 '<li><a href="/about">About</a></li>'
             )
 
-    def test_legacy_pylon_routes(self):
-        menu = (
-            ("home", "Home"),
-            ("search", "Datasets"),
-            ("organizations_index", "Organizations"),
-            ("group_index", "Groups"),
-            ("about", "About"),
-        )
-        assert h.build_nav_main(*menu) == (
-            '<li class="active"><a href="/">Home</a></li>'
-            '<li><a href="/dataset/">Datasets</a></li>'
-            '<li><a href="/organization/">Organizations</a></li>'
-            '<li><a href="/group/">Groups</a></li>'
-            '<li><a href="/about">About</a></li>'
-        )
+    def test_link_to(self):
+        link = h.link_to("Example Link", "https://www.example.com", cls='css-class', target='_blank')
+        assert link == '<a class="css-class" href="https://www.example.com" target="_blank">Example Link</a>'
 
-    def test_active_in_legacy_pylon_routes(self, test_request_context):
+        link2 = h.link_to('display_name', h.url_for('dataset.search', tags='name'), class_='tag')
+        link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
-        with test_request_context(u'/organization'):
-            menu = (
-                ("home", "Home"),
-                ("search", "Datasets", ['dataset', 'resource']),
-                ("organizations_index", "Organizations"),
-                ("group_index", "Groups"),
-                ("about", "About"),
-            )
-            assert h.build_nav_main(*menu) == (
-                '<li><a href="/">Home</a></li>'
-                '<li><a href="/dataset/">Datasets</a></li>'
-                '<li class="active"><a href="/organization/">Organizations</a></li>'
-                '<li><a href="/group/">Groups</a></li>'
-                '<li><a href="/about">About</a></li>'
-            )
-
-    @pytest.mark.usefixtures("clean_db")
-    def test_active_in_resource_controller_legacy_pylon_routes(self, test_request_context):
-
-        dataset = factories.Dataset()
-        with test_request_context(u'/dataset/' + dataset['id']):
-            menu = (
-                ("home", "Home"),
-                ("search", "Datasets", ['dataset', 'resource']),
-                ("organizations_index", "Organizations"),
-                ("group_index", "Groups"),
-                ("about", "About"),
-            )
-            assert h.build_nav_main(*menu) == (
-                '<li><a href="/">Home</a></li>'
-                '<li class="active"><a href="/dataset/">Datasets</a></li>'
-                '<li><a href="/organization/">Organizations</a></li>'
-                '<li><a href="/group/">Groups</a></li>'
-                '<li><a href="/about">About</a></li>'
-            )
-
-        resource = factories.Resource(name="some_resource")
-        with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
-            menu = (
-                ("home", "Home"),
-                ("search", "Datasets", ['dataset', 'resource']),
-                ("organizations_index", "Organizations"),
-                ("group_index", "Groups"),
-                ("about", "About"),
-            )
-            assert h.build_nav_main(*menu) == (
-                '<li><a href="/">Home</a></li>'
-                '<li class="active"><a href="/dataset/">Datasets</a></li>'
-                '<li><a href="/organization/">Organizations</a></li>'
-                '<li><a href="/group/">Groups</a></li>'
-                '<li><a href="/about">About</a></li>'
-            )
-
-    def test_dataset_navigation_legacy_routes(self):
-        dataset_name = "test-dataset"
-        assert (
-            h.build_nav_icon("dataset_read", "Datasets", id=dataset_name)
-            == '<li><a href="/dataset/test-dataset">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon("dataset_groups", "Groups", id=dataset_name)
-            == '<li><a href="/dataset/groups/test-dataset">Groups</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "dataset_activity", "Activity Stream", id=dataset_name
-            )
-            == '<li><a href="/dataset/activity/test-dataset">Activity Stream</a></li>'
-        )
-
-    def test_group_navigation_legacy_routes(self):
-        group_name = "test-group"
-        assert (
-            h.build_nav_icon("group_read", "Datasets", id=group_name)
-            == '<li><a href="/group/test-group">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "group_activity", "Activity Stream", id=group_name
-            )
-            == '<li><a href="/group/activity/test-group">Activity Stream</a></li>'
-        )
-        assert (
-            h.build_nav_icon("group_about", "About", id=group_name)
-            == '<li><a href="/group/about/test-group">About</a></li>'
-        )
-
-    def test_organization_navigation_legacy_routes(self):
-        org_name = "test-org"
-        assert (
-            h.build_nav_icon("organization_read", "Datasets", id=org_name)
-            == '<li><a href="/organization/test-org">Datasets</a></li>'
-        )
-        assert (
-            h.build_nav_icon(
-                "organization_activity", "Activity Stream", id=org_name
-            )
-            == '<li><a href="/organization/activity/test-org">Activity Stream</a></li>'
-        )
-        assert (
-            h.build_nav_icon("organization_about", "About", id=org_name)
-            == '<li><a href="/organization/about/test-org">About</a></li>'
-        )
-
-
-class HelpersTestPlugin(p.SingletonPlugin):
-
-    p.implements(p.IRoutes, inherit=True)
-
-    controller = "ckan.tests.lib.test_helpers:TestHelperController"
-
-    def after_map(self, _map):
-
-        _map.connect(
-            "/broken_helper_as_attribute",
-            controller=self.controller,
-            action="broken_helper_as_attribute",
-        )
-
-        _map.connect(
-            "/broken_helper_as_item",
-            controller=self.controller,
-            action="broken_helper_as_item",
-        )
-
-        _map.connect(
-            "/helper_as_attribute",
-            controller=self.controller,
-            action="helper_as_attribute",
-        )
-
-        _map.connect(
-            "/helper_as_item",
-            controller=self.controller,
-            action="helper_as_item",
-        )
-
-        return _map
+    def test_build_nav_icon(self):
+        link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -827,8 +706,15 @@ class TestActivityListSelect(object):
         assert str(html).startswith(u'<option value="&#34;&gt;" >')
 
 
-class TestAddUrlParam(object):
+class TestRemoveUrlParam:
+    def test_current_url(self, test_request_context):
+        base = "/organization/name"
+        with test_request_context(base + "?q=search"):
+            assert h.remove_url_param("q") == base
+            assert h.remove_url_param("q", replace="test") == base + "?q=test"
 
+
+class TestAddUrlParam(object):
     @pytest.mark.parametrize(u'url,params,expected', [
         (u'/dataset', {u'a': u'2'}, u'/dataset/?a=2'),
         (u'/dataset?a=1', {u'a': u'2'}, u'/dataset/?a=1&a=2'),
@@ -883,15 +769,15 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    WITH_HTML = u"""Data exposed: &mdash;
+    with_html = u"""Data exposed: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
 
-    WITH_UNICODE = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
+    with_unicode = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
 
-    assert "Data exposed" in h.markdown_extract(WITH_HTML)
-    assert "collects information" in h.markdown_extract(WITH_UNICODE)
+    assert "Data exposed" in h.markdown_extract(with_html)
+    assert "collects information" in h.markdown_extract(with_unicode)
 
 
 @pytest.mark.parametrize("string, date", [
@@ -914,6 +800,25 @@ def test_date_str_to_datetime_invalid(string):
         h.date_str_to_datetime(string)
 
 
+@pytest.mark.parametrize("dict_in,dict_out", [
+    ({"number_bool": True}, {"number bool": "True"}),
+    ({"number_bool": False}, {"number bool": "False"}),
+    ({"number_int": 0}, {"number int": "0"}),
+    ({"number_int": 42}, {"number int": "42"}),
+    ({"number_float": 0.0}, {"number float": "0"}),
+    ({"number_float": 0.1}, {"number float": "0.1"}),
+    ({"number_float": "0.10"}, {"number float": "0.1"}),
+    ({"string_basic": "peter"}, {"string basic": "peter"}),
+    ({"string_empty": ""}, {}),  # empty strings are ignored
+    ({"name": "hans"}, {}),  # blocked string
+])
+def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
+    # set locale to en (formatting of decimals)
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: "en")
+    items_out = h.format_resource_items(dict_in.items())
+    assert items_out == list(dict_out.items())
+
+
 def test_gravatar():
     email = "zephod@gmail.com"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
@@ -926,7 +831,7 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get("ckan.gravatar_default", "identicon")
+    default = ckan_config.get_value("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
@@ -987,7 +892,6 @@ def test_get_pkg_dict_extra():
 
     from ckan.lib.create_test_data import CreateTestData
     from ckan import model
-    from ckan.logic import get_action
 
     CreateTestData.create()
 

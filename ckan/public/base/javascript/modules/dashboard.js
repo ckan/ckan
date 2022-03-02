@@ -23,18 +23,20 @@ this.ckan.module('dashboard', function ($) {
         on('click', this._onShowFolloweeDropdown);
       var title = this.button.prop('title');
 
-      var myDefaultWhiteList = $.fn.popover.Constructor.DEFAULTS.whiteList
-      myDefaultWhiteList.input = []
-      myDefaultWhiteList.li = ['data-search']
-
       this.button.popover({
           placement: 'bottom',
-          title: 'Filter',
           html: true,
-          content: $('#followee-popover').html()
+          template: '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body followee-container"></div></div>',
+          sanitizeFn: function (content) {
+            return DOMPurify.sanitize(content, { ALLOWED_TAGS: [
+              "form", "div", "input", "footer", "header", "h1", "h2", "h3", "h4",
+              "small", "span", "strong", "i", 'a', 'li', 'ul','p'
+           
+            ]});
+          },
+          content: $('#followee-content').html()
         });
       this.button.prop('title', title);
-      this.popover = this.button.data('bs.popover').tip().addClass('popover-followee');
     },
 
     /* Handles click event on the 'show me:' dropdown button

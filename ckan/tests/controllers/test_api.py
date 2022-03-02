@@ -8,11 +8,10 @@ import re
 
 import pytest
 import six
-
+from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
 @pytest.mark.parametrize(
@@ -33,7 +32,7 @@ def test_readonly_is_get_able_with_normal_url_params(app):
     populated from the url parameters.
     """
     params = {"q": "russian"}
-    resp = app.get(
+    app.get(
         url_for("api.action", logic_function="package_search", ver=3),
         params=params,
         status=200,
@@ -65,7 +64,6 @@ class TestApiController(object):
         self, app, monkeypatch, tmpdir, ckan_config
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
         user = factories.User()
         pkg = factories.Dataset(creator_user_id=user["id"])
@@ -77,8 +75,8 @@ class TestApiController(object):
         )
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
-        content = six.ensure_binary("upload-content")
-        upload_content = six.BytesIO(content)
+        content = six.ensure_binary('upload-content')
+        upload_content = BytesIO(content)
         postparams = {
             "name": "test-flask-upload",
             "package_id": pkg["id"],
@@ -180,7 +178,7 @@ class TestApiController(object):
         )
 
     def test_group_autocomplete_by_name(self, app):
-        org = factories.Group(name="rivers", title="Bridges")
+        factories.Group(name="rivers", title="Bridges")
         url = url_for("api.group_autocomplete", ver=2)
         assert url == "/api/2/util/group/autocomplete"
 
@@ -196,7 +194,7 @@ class TestApiController(object):
         )
 
     def test_group_autocomplete_by_title(self, app):
-        org = factories.Group(name="frogs", title="Bugs")
+        factories.Group(name="frogs", title="Bugs")
         url = url_for("api.group_autocomplete", ver=2)
 
         response = app.get(url=url, query_string={"q": u"bug"}, status=200)
@@ -222,7 +220,7 @@ class TestApiController(object):
         )
 
     def test_organization_autocomplete_by_title(self, app):
-        org = factories.Organization(title="Simple dummy org")
+        factories.Organization(title="Simple dummy org")
         url = url_for("api.organization_autocomplete", ver=2)
 
         response = app.get(
@@ -335,4 +333,16 @@ class TestApiController(object):
             url_for("api.format_autocomplete", ver=2, incomplete=incomplete)
         )
         result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
+
         assert result == expected
+
+
+def test_i18n_only_known_locales_are_accepted(app):
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="fr")
+
+    assert app.get(url).status_code == 200
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
+    r = app.get(url, status=400)
+    assert "Bad request - Unknown locale" in r.get_data(as_text=True)

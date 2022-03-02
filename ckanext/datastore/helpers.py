@@ -1,25 +1,30 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import json
 import logging
+from typing import (
+    Any, Iterable, Optional, Sequence, Union, cast, overload
+)
+from typing_extensions import Literal
 
-import ckan.common as converters
 import sqlparse
 import six
 
-from six import string_types
+import ckan.common as converters
+import ckan.plugins.toolkit as tk
+from ckan.types import Context
 
-from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
 
 log = logging.getLogger(__name__)
 
 
-def is_single_statement(sql):
+def is_single_statement(sql: str):
     '''Returns True if received SQL string contains at most one statement'''
     return len(sqlparse.split(sql)) <= 1
 
 
-def is_valid_field_name(name):
+def is_valid_field_name(name: str):
     '''
     Check that field name is valid:
     * can't start or end with whitespace characters
@@ -32,13 +37,24 @@ def is_valid_field_name(name):
             '"' not in name)
 
 
-def is_valid_table_name(name):
+def is_valid_table_name(name: str):
     if '%' in name:
         return False
     return is_valid_field_name(name)
 
 
-def get_list(input, strip_values=True):
+@overload
+def get_list(input: Literal[None], strip_values: bool = ...) -> Literal[None]:
+    ...
+
+
+@overload
+def get_list(input: Union[str, "Sequence[Any]"],
+             strip_values: bool = ...) -> list[str]:
+    ...
+
+
+def get_list(input: Any, strip_values: bool = True) -> Optional[list[str]]:
     '''Transforms a string or list to a list'''
     if input is None:
         return
@@ -52,7 +68,7 @@ def get_list(input, strip_values=True):
         return converters_list
 
 
-def validate_int(i, non_negative=False):
+def validate_int(i: Any, non_negative: bool = False):
     try:
         i = int(i)
     except ValueError:
@@ -60,17 +76,17 @@ def validate_int(i, non_negative=False):
     return i >= 0 or not non_negative
 
 
-def _strip(s):
-    if isinstance(s, string_types) and len(s) and s[0] == s[-1]:
+def _strip(s: Any):
+    if isinstance(s, str) and len(s) and s[0] == s[-1]:
         return s.strip().strip('"')
     return s
 
 
-def should_fts_index_field_type(field_type):
+def should_fts_index_field_type(field_type: str):
     return field_type.lower() in ['tsvector', 'text', 'number']
 
 
-def get_table_and_function_names_from_sql(context, sql):
+def get_table_and_function_names_from_sql(context: Context, sql: str):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table and
     function names
 
@@ -90,8 +106,8 @@ def get_table_and_function_names_from_sql(context, sql):
     '''
 
     queries = [sql]
-    table_names = []
-    function_names = []
+    table_names: list[str] = []
+    function_names: list[str] = []
 
     while queries:
         sql = queries.pop()
@@ -119,7 +135,8 @@ def get_table_and_function_names_from_sql(context, sql):
     return table_names, function_names
 
 
-def _parse_query_plan(plan):
+def _parse_query_plan(
+        plan: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
     '''
     Given a Postgres Query Plan object (parsed from the output of an EXPLAIN
     query), returns a tuple with three items:
@@ -129,9 +146,9 @@ def _parse_query_plan(plan):
     * A list of function names involved
     '''
 
-    table_names = []
-    queries = []
-    functions = []
+    table_names: list[str] = []
+    queries: list[str] = []
+    functions: list[str] = []
 
     if plan.get('Relation Name'):
         table_names.append(plan['Relation Name'])
@@ -156,13 +173,13 @@ def _parse_query_plan(plan):
     return table_names, queries, functions
 
 
-def _get_function_names_from_sql(sql):
-    function_names = []
+def _get_function_names_from_sql(sql: str):
+    function_names: list[str] = []
 
-    def _get_function_names(tokens):
+    def _get_function_names(tokens: Iterable[Any]):
         for token in tokens:
             if isinstance(token, sqlparse.sql.Function):
-                function_name = token.get_name()
+                function_name = cast(str, token.get_name())
                 if function_name not in function_names:
                     function_names.append(function_name)
             if hasattr(token, 'tokens'):
@@ -174,7 +191,7 @@ def _get_function_names_from_sql(sql):
     return function_names
 
 
-def _get_subquery_from_crosstab_call(ct):
+def _get_subquery_from_crosstab_call(ct: str):
     """
     Crosstabs are a useful feature some sites choose to enable on
     their datastore databases. To support the sql parameter passed
@@ -189,17 +206,17 @@ def _get_subquery_from_crosstab_call(ct):
     return ct.replace("''", "'")
 
 
-def datastore_dictionary(resource_id):
+def datastore_dictionary(resource_id: str):
     """
     Return the data dictionary info for a resource
     """
     try:
         return [
-            f for f in get_action('datastore_search')(
-                None, {
+            f for f in tk.get_action('datastore_search')(
+                {}, {
                     u'resource_id': resource_id,
                     u'limit': 0,
                     u'include_total': False})['fields']
             if not f['id'].startswith(u'_')]
-    except (ObjectNotFound, NotAuthorized):
+    except (tk.ObjectNotFound, tk.NotAuthorized):
         return []
