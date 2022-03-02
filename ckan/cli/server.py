@@ -54,6 +54,12 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
     if config.get_value("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
 
+    # passthrough_errors overrides conflicting options
+    if passthrough_errors:
+        disable_reloader = False
+        threaded = False
+        processes = 1
+
     # Reloading
     use_reloader = not disable_reloader
     config_extra_files = config.get_value(u"ckan.devserver.watch_patterns")
