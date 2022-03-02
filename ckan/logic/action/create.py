@@ -641,7 +641,7 @@ def member_create(context: Context,
 def package_collaborator_create_for_groups(
         context: Context,
         data_dict: DataDict) -> None:
-    '''Make a users in a group, collaborators in a dataset.
+    '''Make users in a group, collaborators in a dataset.
 
     If the users are already collaborators in the dataset, then their
     capacity will be updated.
