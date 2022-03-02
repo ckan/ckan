@@ -22,6 +22,14 @@
               {{ _('If you wish to add an existing user, search for their username below.') }}
             </p>
           {% endif %}
+          <div class="form-group control-medium">
+            <label class="control-label" for="group">
+              {{_('Existing Group')}}
+            </label>
+            <p>
+              {{ _('If you wish to add an existing group, search for their group name below.') }}
+            </p>
+          </div>
           <div class="controls">
             {% if user %}
               <input type="hidden" name="username" value="{{ user.name }}" />
@@ -31,6 +39,11 @@
                 <input id="username" type="text" name="username" placeholder="{{ _('Username') }}"
               value="" class="control-medium" data-module="autocomplete"
               data-module-source="/api/2/util/user/autocomplete?q=?">
+              <br>
+              <br>
+              <input id="group" type="text" name="group" placeholder="{{ _('Group') }}"
+              value="" class="control-medium" data-module="autocomplete"
+              data-module-source="/api/2/util/group/autocomplete?q=?">
             {% endif %}
           </div>
         </div>

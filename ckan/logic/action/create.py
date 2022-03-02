@@ -638,9 +638,82 @@ def member_create(context: Context,
     return model_dictize.member_dictize(member, context)
 
 
+def package_collaborator_create_for_groups(
+        context: Context,
+        data_dict: DataDict) -> None:
+    '''Make a users in a group, collaborators in a dataset.
+
+    If the users are already collaborators in the dataset, then their
+    capacity will be updated.
+
+    Currently you must be an Admin on the dataset owner organization to
+    manage collaborators.
+
+    Note: This action requires the collaborators feature to be enabled with
+    the :ref:`ckan.auth.allow_dataset_collaborators` configuration option.
+
+    :param id: the id or name of the dataset
+    :type id: string
+    :param user_ids: the ids of the users to add or edit
+    :type user_id: list
+    :param capacity: the capacity or role of the membership. Must be one of
+        "editor" or "member". Additionally
+        if :ref:`ckan.auth.allow_admin_collaborators` is set to True, "admin"
+        is also allowed.
+    :type capacity: string
+
+    :returns: the newly created (or updated) collaborator
+    :rtype: dictionary
+    '''
+
+    model = context['model']
+    package_id, capacity = _get_or_bust(data_dict, ['id', 'capacity'])
+
+    allowed_capacities = authz.get_collaborator_capacities()
+    if capacity not in allowed_capacities:
+        raise ValidationError({
+            'message': _('Role must be one of "{}"').format(', '.join(
+                allowed_capacities))})
+
+    _check_access('package_collaborator_create', context, data_dict)
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise NotFound(_('Dataset not found'))
+
+    if not authz.check_config_permission('allow_dataset_collaborators'):
+        raise ValidationError({
+            'message': _('Dataset collaborators not enabled')})
+
+    for id in data_dict['user_ids']:
+        user = model.User.get(id)
+        if not user:
+            raise NotFound(_('User not found'))
+
+        # exclude sysadmin
+        if not user.sysadmin:
+            # Check if collaborator already exists
+            collaborator = model.Session.query(model.PackageMember). \
+                filter(model.PackageMember.package_id == package.id). \
+                filter(model.PackageMember.user_id == user.id).one_or_none()
+            if not collaborator:
+                collaborator = model.PackageMember(
+                    package_id=package.id,
+                    user_id=user.id)
+            collaborator.capacity = capacity
+            collaborator.modified = datetime.datetime.utcnow()
+            model.Session.add(collaborator)
+            model.repo.commit()
+            
+            log.info('User {} added as collaborator in package {} ({})'.format(
+                user.name, package.id, capacity))
+
+            model_dictize.member_dictize(collaborator, context)
+
+
 def package_collaborator_create(
         context: Context,
-        data_dict: DataDict) -> ActionResult.PackageCollaboratorCreate:
+        data_dict: DataDict) -> Union[ActionResult.PackageCollaboratorCreate, None]:
     '''Make a user a collaborator in a dataset.
 
     If the user is already a collaborator in the dataset then their
@@ -667,6 +740,9 @@ def package_collaborator_create(
     '''
 
     model = context['model']
+    
+    if isinstance(data_dict.get('user_ids'), list):
+        return package_collaborator_create_for_groups(context, data_dict)
 
     package_id, user_id, capacity = _get_or_bust(
         data_dict,

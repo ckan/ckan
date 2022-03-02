@@ -1314,22 +1314,36 @@ class CollaboratorEditView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:  # noqa
         context = cast(Context, {u'model': model, u'user': g.user})
-
+        data_dict = dict()
+        user_ids = list()
         try:
             form_dict = logic.clean_dict(
                 dict_fns.unflatten(
                     logic.tuplize_dict(
                         logic.parse_params(request.form))))
 
-            user = get_action(u'user_show')(
-                context, {u'id': form_dict[u'username']}
-            )
+            if form_dict['group']:
+                group = get_action(u'group_show')(
+                    context, {'id': form_dict['group']}
+                )
+                for user in group['users']:
+                    user_ids.append(user['id'])
+                    data_dict: dict[str, Any] = {
+                        u'id': id,
+                        u'user_ids': user_ids,
+                        u'capacity': form_dict[u'capacity'] 
+                    }
 
-            data_dict: dict[str, Any] = {
-                u'id': id,
-                u'user_id': user[u'id'],
-                u'capacity': form_dict[u'capacity']
-            }
+            else:
+                user = get_action(u'user_show')(
+                    context, {u'id': form_dict[u'username']}
+                )
+
+                data_dict: dict[str, Any] = {
+                    u'id': id,
+                    u'user_id': user[u'id'],
+                    u'capacity': form_dict[u'capacity']
+                }
 
             get_action(u'package_collaborator_create')(
                 context, data_dict)
