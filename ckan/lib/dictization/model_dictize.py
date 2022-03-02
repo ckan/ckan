@@ -367,9 +367,9 @@ def group_dictize(group: model.Group, context: Context,
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
                     q['include_private'] = True
-
-            if config.get('ckan.auth.allow_dataset_collaborators'):
-                q['include_private'] = True
+                else:
+                    if config.get('ckan.auth.allow_dataset_collaborators'):
+                        q['include_private'] = True
 
             if not just_the_count:
                 # package_search limits 'rows' anyway, so this is only if you
