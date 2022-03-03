@@ -1,0 +1,28 @@
+{% extends "user/dashboard.html" %}
+
+{% set group_type = h.default_group_type('group') %}
+
+{% block dashboard_activity_stream_context %}{% endblock %}
+
+{% block page_primary_action %}
+  {% if h.check_access('group_create') %}
+    {% link_for h.humanize_entity_type('group', group_type, 'add link') or _('Add Group'), named_route=group_type ~ '.new', class_="btn btn-primary", icon="plus-square" %}
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'my label') or _('My Groups') }}</h2>
+  {% set groups = h.groups_available(am_member=True) %}
+  {% if groups %}
+    <div class="wide">
+      {% snippet "group/snippets/group_list.html", groups=groups %}
+    </div>
+  {% else %}
+    <p class="empty">
+      {{ h.humanize_entity_type('group', group_type, 'you not member') or _('You are not a member of any groups.') }}
+      {% if h.check_access('group_create') %}
+        {% link_for _('Create one now?'), named_route=group_type ~ '.new' %}
+      {% endif %}
+    </p>
+  {% endif %}
+{% endblock %}

@@ -92,17 +92,25 @@ Factory-fixtures are generated using ``pytest-factoryboy``:
 https://pytest-factoryboy.readthedocs.io/en/latest/
 
 """
+from __future__ import annotations
+
 import string
-from typing import Any, Dict, Optional
-import factory
 import unittest.mock as mock
+
+from functools import partial
+from typing import Any, Optional
+
+import factory
+from faker import Faker
 
 import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
 
+fake = Faker()
 
-def _get_action_user_name(kwargs: Dict[str, Any]) -> Optional[str]:
+
+def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
     """Return the name of the user in kwargs, defaulting to the site user
 
     It can be overriden by explictly setting {'user': None} in the keyword
@@ -129,8 +137,7 @@ def _generate_reset_key(user):
 
 
 def _name(type_):
-    return factory.Faker(
-        "pystr_format",
+    return fake.unique.pystr_format(
         string_format=type_ + "-????-####-????",
         letters=string.ascii_lowercase,
     )
@@ -215,12 +222,14 @@ class User(CKANFactory):
         action = "user_create"
 
     # These are the default params that will be used to create new users.
-    fullname = factory.Faker("name")
-    password = factory.Faker("password")
-    about = factory.Faker("text", max_nb_chars=60)
-    image_url = factory.Faker("image_url")
-    name = factory.Faker("user_name")
-    email = factory.Faker("email", domain="ckan.example.com")
+    fullname = factory.LazyFunction(fake.name)
+    password = factory.LazyFunction(fake.password)
+    about = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
+    name = factory.LazyFunction(fake.unique.user_name)
+    email = factory.LazyFunction(
+        lambda: fake.unique.email(domain="ckan.example.com")
+    )
     reset_key = None
     sysadmin = False
 
@@ -232,10 +241,11 @@ class Resource(CKANFactory):
         model = ckan.model.Resource
         action = "resource_create"
 
-    name = _name("resource")
-    description = factory.Faker("text", max_nb_chars=60)
-    format = factory.Faker("file_extension")
-    url = factory.Faker("url")
+    name = factory.LazyFunction(partial(_name, "resource"))
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    format = factory.LazyFunction(fake.file_extension)
+    url = factory.LazyFunction(fake.url)
+    url_type = None
     package_id = factory.LazyFunction(lambda: Dataset()["id"])
 
 
@@ -257,8 +267,8 @@ class ResourceView(CKANFactory):
         model = ckan.model.ResourceView
         action = "resource_view_create"
 
-    title = _name("resource-view")
-    description = factory.Faker("text", max_nb_chars=60)
+    title = factory.LazyFunction(partial(_name, "resource-view"))
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
     view_type = "image_view"
     resource_id = factory.LazyFunction(lambda: Resource()["id"])
 
@@ -276,11 +286,11 @@ class Group(CKANFactory):
         model = ckan.model.Group
         action = "group_create"
 
-    name = _name("group")
-    title = factory.Faker("company")
+    name = factory.LazyFunction(partial(_name, "group"))
+    title = factory.LazyFunction(fake.company)
 
-    description = factory.Faker("text", max_nb_chars=60)
-    image_url = factory.Faker("image_url")
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
 
 
 class Organization(Group):
@@ -289,7 +299,7 @@ class Organization(Group):
     class Meta:
         action = "organization_create"
 
-    name = _name("organization")
+    name = factory.LazyFunction(partial(_name, "organization"))
     is_organization = True
     type = "organization"
 
@@ -301,9 +311,9 @@ class Dataset(CKANFactory):
         model = ckan.model.Package
         action = "package_create"
 
-    name = _name("dataset")
-    title = factory.Faker("sentence", nb_words=5)
-    notes = factory.Faker("text", max_nb_chars=60)
+    name = factory.LazyFunction(partial(_name, "dataset"))
+    title = factory.LazyFunction(lambda: fake.sentence(nb_words=5))
+    notes = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
 
 
 class Vocabulary(CKANFactory):
@@ -313,7 +323,18 @@ class Vocabulary(CKANFactory):
         model = ckan.model.Vocabulary
         action = "vocabulary_create"
 
-    name = _name("vocabulary")
+    name = factory.LazyFunction(partial(_name, "vocabulary"))
+
+
+class Tag(CKANFactory):
+    """A factory class for creating tag vocabularies."""
+
+    class Meta:
+        model = ckan.model.Tag
+        action = "tag_create"
+
+    name = factory.LazyFunction(partial(_name, "tag"))
+    vocabulary_id = factory.LazyFunction(lambda: Vocabulary()["id"])
 
 
 class Activity(CKANFactory):
@@ -330,15 +351,17 @@ class MockUser(factory.Factory):
     class Meta:
         model = mock.MagicMock
 
-    fullname = factory.Faker("name")
-    password = factory.Faker("password")
-    about = factory.Faker("text", max_nb_chars=60)
-    image_url = factory.Faker("image_url")
-    name = factory.Faker("user_name")
-    email = factory.Faker("email", domain="ckan.example.com")
+    fullname = factory.LazyFunction(fake.name)
+    password = factory.LazyFunction(fake.password)
+    about = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
+    name = factory.LazyFunction(fake.unique.user_name)
+    email = factory.LazyFunction(
+        lambda: fake.unique.email(domain="ckan.example.com")
+    )
     sysadmin = False
     reset_key = factory.LazyAttribute(_generate_reset_key)
-    id = factory.Faker("uuid4")
+    id = factory.LazyFunction(fake.uuid4)
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -363,7 +386,7 @@ class SystemInfo(factory.alchemy.SQLAlchemyModelFactory):
         model = ckan.model.SystemInfo
 
     key = factory.Sequence(lambda n: "test_config_{0:02d}".format(n))
-    value = factory.Faker("pystr")
+    value = factory.LazyFunction(fake.pystr)
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
@@ -387,7 +410,7 @@ class APIToken(CKANFactory):
         model = ckan.model.ApiToken
         action = "api_token_create"
 
-    name = factory.Faker("name")
+    name = factory.LazyFunction(fake.name)
     user = factory.LazyFunction(lambda: User()["id"])
 
     @classmethod

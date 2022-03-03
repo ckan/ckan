@@ -19,7 +19,7 @@ const build = () =>
   src([
     __dirname + "/ckan/public/base/scss/main.scss",
     __dirname + "/ckan/public/base/scss/main-rtl.scss",
-  ])
+    ])
     .pipe(if_(with_sourcemaps(), sourcemaps.init()))
     .pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
     .pipe(if_(with_sourcemaps(), sourcemaps.write()))
@@ -39,14 +39,29 @@ const jquery = () =>
   );
 
 const bootstrapScss = () =>
-  src(__dirname + "/node_modules/bootstrap-sass/assets/**/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/bootstrap/")
+  src([__dirname + "/node_modules/bootstrap/scss/**/*", ]).pipe(
+    dest(__dirname + "/ckan/public/base/vendor/bootstrap/scss")
   );
+
+const bootstrapJS = () =>
+src([__dirname + "/node_modules/bootstrap/js/dist/**/*",
+    __dirname + "/node_modules/bootstrap/dist/js/**/*"
+  ]).pipe(dest(__dirname + "/ckan/public/base/vendor/bootstrap/js"));
 
 const moment = () =>
   src(__dirname + "/node_modules/moment/min/moment-with-locales.js").pipe(
     dest(__dirname + "/ckan/public/base/vendor")
   );
+
+const popOver = () =>
+  src(__dirname + "/node_modules/@popperjs/core/dist/cjs/popper.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+);
+
+const DOMPurify = () =>
+  src(__dirname + "/node_modules/dompurify/dist/purify.js").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/")
+);
 
 const fontAwesomeCss = () =>
   src(__dirname + "/node_modules/font-awesome/css/font-awesome.css").pipe(
@@ -86,11 +101,14 @@ exports.watch = watchSource;
 exports.updateVendorLibs = parallel(
   jquery,
   bootstrapScss,
+  bootstrapJS,
   moment,
   fontAwesomeCss,
   fontAwesomeFonts,
   jQueryFileUpload,
   qs,
+  DOMPurify,
+  popOver,
   highlightJs,
   highlightJsStyles
 );

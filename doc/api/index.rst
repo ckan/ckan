@@ -262,9 +262,9 @@ HTTP request. Starting from CKAN 2.9 the recommended mechanism to use are API to
 encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
 or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
 for different uses, and revoke one or multiple tokens at any time. In addition, enabling
-the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token. 
+the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token.
 
-Site maintainers can use :ref:`config-api-tokens` to configure the token generation.
+Site maintainers can use :ref:`api-token-settings` to configure the token generation.
 
 Legacy API keys (UUIDs that look like `ec5c0860-9e48-41f3-8850-4a7128b18df8`) are still supported,
 but its use is discouraged as they are not as secure as tokens and are limited to one per user.

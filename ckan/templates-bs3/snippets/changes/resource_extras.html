@@ -1,0 +1,112 @@
+<li>
+  <p>
+    {% if change.method == "add_one_value" %}
+
+      {{ _('Added field <q>{key}</q> with value <q>{value}</q> to resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key,
+        value = change.value
+        ) }}
+
+    {% elif change.method == "add_one_no_value" %}
+
+      {{ _('Added field <q>{key}</q> to resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key,
+        ) }}
+
+    {% elif change.method == "add_multiple" %}
+
+      {{ _('Added the following fields to resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True)
+        ) }}
+      <ul>
+        {% for item in change.key_list %}
+          {% if change.value_list[item] != "" %}
+            {{ _('{key} with value {value}').format(
+              key = item,
+              value = change.value_list[item]
+              )|safe }}
+          {% else %}
+            {{ _('{key}').format(
+              key = item
+              )|safe }}
+          {% endif %}
+        {% endfor %}
+      </ul>
+
+    {% elif change.method == "remove_one" %}
+
+      {{ _('Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key
+        ) }}
+
+    {% elif change.method == "remove_multiple" %}
+
+      {{ _('Removed the following fields from resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True)
+        ) }}
+      <ul>
+        {% for item in change.key_list %}
+          {{ _('{key}').format(
+            key = item
+            )|safe }}
+        {% endfor %}
+      </ul>
+
+    {% elif change.method == "change_value_with_old" %}
+
+      {{ _('Changed value of field <q>{key}</q> of resource {resource_link} to <q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key,
+        new_val = change.new_value,
+        old_val = change.old_value
+        ) }}
+
+    {% elif change.method == "change_value_no_old" %}
+
+      {{ _('Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key,
+        new_val = change.new_value
+        ) }}
+
+    {% elif change.method == "change_value_no_new" %}
+
+      {{ _('Removed the value of field <q>{key}</q> in resource {resource_link} in {pkg_link}').format(
+        pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+        resource_link = h.nav_link(
+          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          resource_id=change.resource_id, qualified=True),
+        key = change.key,
+        new_val = change.new_value
+        ) }}
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

@@ -1,10 +1,13 @@
 # encoding: utf-8
-
 '''CKAN environment configuration'''
+from __future__ import annotations
+
 import os
 import logging
 import warnings
 import pytz
+
+from typing import Union, cast
 
 import sqlalchemy
 
@@ -20,29 +23,31 @@ import ckan.authz as authz
 from ckan.lib.webassets_tools import webassets_init
 from ckan.lib.i18n import build_js_translations
 
-from ckan.common import config, config_declaration
+from ckan.common import CKANConfig, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
+from ckan.types import Config
+
 log = logging.getLogger(__name__)
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
 
 
-def load_environment(conf):
+def load_environment(conf: Union[Config, CKANConfig]):
     """
     Configure the Pylons environment via the ``pylons.config`` object. This
     code should only need to be run once.
     """
-    os.environ['CKAN_CONFIG'] = conf['__file__']
+    os.environ['CKAN_CONFIG'] = cast(str, conf['__file__'])
 
-    valid_base_public_folder_names = ['public']
+    valid_base_public_folder_names = ['public', 'public-bs3']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public".'
+            'Possible values are: "public" and "public-bs3".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -81,7 +86,7 @@ def load_environment(conf):
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
 # Start CONFIG_FROM_ENV_VARS
-CONFIG_FROM_ENV_VARS = {
+CONFIG_FROM_ENV_VARS: dict[str, str] = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
@@ -103,7 +108,7 @@ CONFIG_FROM_ENV_VARS = {
 # End CONFIG_FROM_ENV_VARS
 
 
-def update_config():
+def update_config() -> None:
     ''' This code needs to be run when the config is changed to take those
     changes into account. It is called whenever a plugin is loaded as the
     plugin might have changed the config values (for instance it might
@@ -119,16 +124,6 @@ def update_config():
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
-
-    # Set whitelisted env vars on config object
-    # This is set up before globals are initialized
-
-    ckan_db = os.environ.get('CKAN_DB', None)
-    if ckan_db:
-        msg = 'Setting CKAN_DB as an env var is deprecated and will be' \
-            ' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
-        log.warn(msg)
-        config['sqlalchemy.url'] = ckan_db
 
     for option in CONFIG_FROM_ENV_VARS:
         from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
@@ -186,14 +181,14 @@ def update_config():
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates']
-    templates = config.get_value('ckan.base_templates_folder')
+    valid_base_templates_folder_names = ['templates', 'templates-bs3']
+    templates = config.get('ckan.base_templates_folder', 'templates')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates".'
+            'Possible values are: "templates" and "templates-bs3".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
@@ -223,9 +218,12 @@ def update_config():
 
     # Here we create the site user if they are not already in the database
     try:
-        logic.get_action('get_site_user')({'ignore_auth': True}, None)
+        logic.get_action('get_site_user')({'ignore_auth': True}, {})
     except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
         # The database is not yet initialised. It happens in `ckan db init`
+        pass
+    except sqlalchemy.exc.IntegrityError:
+        # Race condition, user already exists.
         pass
 
     # Close current session and open database connections to ensure a clean

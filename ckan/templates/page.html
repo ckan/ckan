@@ -23,8 +23,8 @@
           {% block flash %}
             <div class="flash-messages">
               {% block flash_inner %}
-                {% for message in h.flash.pop_messages() | list %}
-                  <div class="alert fade in {{ message.category }}">
+                {% for category, message in h.get_flashed_messages(with_categories=true) %}
+                  <div class="alert alert-dismissible fade show {{ category }}">
                     {{ h.literal(message) }}
                   </div>
                 {% endfor %}

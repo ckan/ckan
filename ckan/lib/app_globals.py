@@ -1,16 +1,17 @@
 # encoding: utf-8
 
 ''' The application's Globals object '''
+from __future__ import annotations
 
 import logging
-from threading import Lock
 import re
-import six
-from ckan.common import config, asbool, aslist
+from threading import Lock
+from typing import Any, Union
 
 import ckan
 import ckan.model as model
-from logic.schema import update_configuration_schema
+from ckan.logic.schema import update_configuration_schema
+from ckan.common import asbool, config, aslist
 
 
 log = logging.getLogger(__name__)
@@ -20,14 +21,14 @@ DEFAULT_MAIN_CSS_FILE = '/base/css/main.css'
 
 # mappings translate between config settings and globals because our naming
 # conventions are not well defined and/or implemented
-mappings = {
+mappings: dict[str, str] = {
 #   'config_key': 'globals_key',
 }
 
 
 # This mapping is only used to define the configuration options (from the
 # `config` object) that should be copied to the `app_globals` (`g`) object.
-app_globals_from_config_details = {
+app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_title': {},
     'ckan.site_logo': {},
     'ckan.site_url': {},
@@ -58,7 +59,6 @@ app_globals_from_config_details = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
@@ -71,9 +71,9 @@ app_globals_from_config_details = {
 
 
 # A place to store the origional config options of we override them
-_CONFIG_CACHE = {}
+_CONFIG_CACHE: dict[str, Any] = {}
 
-def set_main_css(css_file):
+def set_main_css(css_file: str) -> None:
     ''' Sets the main_css.  The css_file must be of the form file.css '''
     assert css_file.endswith('.css')
     new_css = css_file
@@ -81,18 +81,19 @@ def set_main_css(css_file):
     app_globals.main_css = str(new_css)
 
 
-def set_app_global(key, value):
+def set_app_global(key: str, value: str) -> None:
     '''
     Set a new key on the app_globals (g) object
 
     It will process the value according to the options on
     app_globals_from_config_details (if any)
     '''
-    key, value = process_app_global(key, value)
-    setattr(app_globals, key, value)
+    key, new_value = process_app_global(key, value)
+    setattr(app_globals, key, new_value)
 
 
-def process_app_global(key, value):
+def process_app_global(
+        key: str, value: str) -> tuple[str, Union[bool, int, str, list[str]]]:
     '''
     Tweak a key, value pair meant to be set on the app_globals (g) object
 
@@ -100,6 +101,7 @@ def process_app_global(key, value):
     '''
     options = app_globals_from_config_details.get(key)
     key = get_globals_key(key)
+    new_value: Any = value
     if options:
         if 'name' in options:
             key = options['name']
@@ -107,16 +109,17 @@ def process_app_global(key, value):
 
         data_type = options.get('type')
         if data_type == 'bool':
-            value = asbool(value)
+            new_value = asbool(value)
         elif data_type == 'int':
-            value = int(value)
+            new_value = int(value)
         elif data_type == 'split':
-            value = aslist(value)
+            new_value = aslist(value)
+        else:
+            new_value = value
+    return key, new_value
 
-    return key, value
 
-
-def get_globals_key(key):
+def get_globals_key(key: str) -> str:
     # create our globals key
     # these can be specified in mappings or else we remove
     # the `ckan.` part this is to keep the existing namings
@@ -129,10 +132,11 @@ def get_globals_key(key):
         return key
 
 
-def reset():
+def reset() -> None:
     ''' set updatable values from config '''
-    def get_config_value(key, default=''):
-        if model.meta.engine.has_table('system_info'):
+    def get_config_value(key: str, default: str = ''):
+        # type_ignore_reason: engine theoretically uninitialized
+        if model.meta.engine.has_table('system_info'):  # type: ignore
             value = model.get_system_info(key)
         else:
             value = None
@@ -178,9 +182,13 @@ def reset():
 
 
 class _Globals(object):
-
     ''' Globals acts as a container for objects available throughout the
     life of the application. '''
+
+    main_css: str
+    site_logo: str
+    header_class: str
+    site_description: str
 
     def __init__(self):
         '''One instance of Globals is created during application
@@ -204,12 +212,11 @@ class _Globals(object):
     def _init(self):
 
         self.ckan_version = ckan.__version__
-        self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
+        self.ckan_base_version = re.sub(r'[^0-9\.]', '', self.ckan_version)
         if self.ckan_base_version == self.ckan_version:
             self.ckan_doc_version = self.ckan_version[:3]
         else:
             self.ckan_doc_version = 'latest'
-
         # process the config details to set globals
         for key in app_globals_from_config_details.keys():
             new_key, value = process_app_global(key, config.get(key) or '')

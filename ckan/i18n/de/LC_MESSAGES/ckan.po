@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
-# Ondics Githubler, 2020
+# Ondics Githubler, 2022
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Ondics Githubler, 2020\n"
+"Last-Translator: Ondics Githubler, 2022\n"
 "Language-Team: German (https://www.transifex.com/okfn/teams/11162/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2035,7 +2035,9 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
-msgstr "Autorisierung kann nicht durchgeführt werden, da "
+msgstr ""
+"Autorisierung kann nicht durchgeführt werden, da keine Datensatz-ID "
+"angegeben wurde."
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
 #: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:79
@@ -3641,9 +3643,9 @@ msgid ""
 msgstr ""
 "Data Explorer Darstellungen können langsam und ungenau sein solange die "
 "DataStore Extension nicht aktiviert ist. Weiterführende Informationen hierzu"
-" in der <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer "
-"Dokumentation</a>. "
+" in der <a href='http://docs.ckan.org/en/latest/maintaining/data-"
+"viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>Data "
+"Explorer Dokumentation</a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:85
@@ -4707,76 +4709,102 @@ msgstr "Sichtbarkeit von {pkg_link} wurd auf {visibility} gesetzt"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Beschreibung der Resource {resource_link}  in {pkg_link} wurde auf <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote> geändert"
 
 #: ckan/templates/snippets/changes/resource_desc.html:22
 msgid "Removed description from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Beschreibung der Ressource {resource_link} in {pkg_link} gelöscht"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
-"Updated description of resource {resource_link} in {pkg_link} from <br class"
-"=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class=\"line-"
-"height2\"><blockquote>{new_desc}</blockquote>"
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Beschreibung der Ressource {resource_link} in {pkg_link} wurde von  <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> in <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote> geändert"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""
 "Added field <q>{key}</q> with value <q>{value}</q> to resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Feld <q>{key}</q> hinzugefügt mit dem Wert  <q>{value}</q> zur Ressource "
+"{resource_link} in {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
 msgstr ""
+"Feld <q>{key}</q> hinzugefügt zur Ressource {resource_link} in {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
 msgstr ""
+"Die folgenden Felder wurden zur Ressource {resource_link} in {pkg_link} "
+"hinzugefügt"
 
 #: ckan/templates/snippets/changes/resource_extras.html:70
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
 msgstr ""
+"Feld <q>{key}</q> wurde von der Ressource {resource_link} in {pkg_link} "
+"entfernt"
 
 #: ckan/templates/snippets/changes/resource_extras.html:87
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
+"Die folgenden Felder wurden von der Ressource {resource_link} in {pkg_link} "
+"entfernt"
 
 #: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
+"Wert des Feldes <q>{key}</q> der Resource {resource_link} wurde geändert zu "
+"<q>{new_val}</q> (hatte den Wert <q>{old_val}</q>) in {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Wert des Feldes <q>{key}</q> wurde geändert zu <q>{new_val}</q> (hatte den "
+"Wert <q>{old_val}</q>) in der Ressource {resource_link} in {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
 msgstr ""
+"Feld <q>{key}</q> wurde von der Ressource {resource_link} in {pkg_link} "
+"entfernt"
 
 #: ckan/templates/snippets/changes/resource_format.html:10
 msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
 msgstr ""
+"Format der Ressource {resource_link} wurde geändert zu {format_link} in "
+"{pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
 "Set format of resource {resource_link} to {new_format_link} (previously "
 "{old_format_link}) in {pkg_link}"
 msgstr ""
+"Format der Ressource {resource_link} wurde auf {new_format_link} geändert "
+"(war bisher {old_format_link}) in {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_name.html:3
 msgid ""
 "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
+"Ressource {old_resource_link} wurde umbenannt zu {new_resource_link} in "
+"{pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:5
 msgid "Removed tag {tag_link} from {pkg_link}"
@@ -4784,7 +4812,7 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/tags.html:20
 msgid "Removed the following tags from {pkg_link}"
-msgstr ""
+msgstr "Folgende Schlagworte wurden von {pkg_link} entfernt"
 
 #: ckan/templates/snippets/changes/tags.html:31
 #: ckan/templates/snippets/changes/tags.html:70
@@ -4793,41 +4821,44 @@ msgstr "{tag_link}"
 
 #: ckan/templates/snippets/changes/tags.html:44
 msgid "Added tag {tag_link} to {pkg_link}"
-msgstr ""
+msgstr "Stichwort {tag_link} zu {pkg_link} hinzugefügt"
 
 #: ckan/templates/snippets/changes/tags.html:59
 msgid "Added the following tags to {pkg_link}"
-msgstr ""
+msgstr "Folgende Stichworte zu {pkg_link} hinzugefügt"
 
 #: ckan/templates/snippets/changes/title.html:3
 msgid "Changed title to {title_link} (previously {old_title})"
-msgstr ""
+msgstr "Überschrift geändert zu: {title_link} (alte Überschrift: {old_title})"
 
 #: ckan/templates/snippets/changes/url.html:5
 msgid "Changed the source URL of {pkg_link} from {old_link} to {new_link}"
 msgstr ""
+"Die Quellen-URL von {pkg_link} wurde von {old_link} zu {new_link} geändert"
 
 #: ckan/templates/snippets/changes/url.html:23
 msgid "Removed the source URL from {pkg_link}"
-msgstr ""
+msgstr "Die Quellen-URL von {pkg_link} wurde entfernt"
 
 #: ckan/templates/snippets/changes/url.html:33
 msgid "Changed the source URL of {pkg_link} to {new_link}"
-msgstr ""
+msgstr "Die Quellen-URL von {pkg_link} wurde zu {new_link} geändert"
 
 #: ckan/templates/snippets/changes/version.html:5
 msgid ""
 "Changed the version of {pkg_link} to {new_version} (previously "
 "{old_version})"
 msgstr ""
+"Die Version von {pkg_link} wurde zu {new_version} geändert (vorherige "
+"Version war {old_version})"
 
 #: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
-msgstr ""
+msgstr "Die Version von {pkg_link} wurde entfernt"
 
 #: ckan/templates/snippets/changes/version.html:27
 msgid "Changed the version of {pkg_link} to {new_version}"
-msgstr ""
+msgstr "Die Version von {pkg_link} wurde zu {new_version} geändert"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
@@ -5254,6 +5285,9 @@ msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
+"Das API-Token wurde erstellt: <code style=\"word-break:break-"
+"all;\">{token}</code> {copy}<br> Bitte jetzt kopieren, es kann danach nicht "
+"mehr angezeigt werden!"
 
 #: ckan/views/user.py:234
 msgid "Unauthorized to revoke API tokens."

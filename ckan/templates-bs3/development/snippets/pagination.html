@@ -1,0 +1,11 @@
+<section class="module">
+  <div class="module-content pagination-wrapper">
+    <ul class="pagination">
+      {% if current != 1 %}<li><a href="#page={{ current - 1 }}">«</a></li>{% endif %}
+      {% for index in range(1, total+1) %}
+        <li{% if index == current %} class="active"{% endif %}><a href="#page={{ index }}">{{ index }}</a></li>
+      {% endfor %}
+      {% if current != total %}<li><a href="#page={{ current + 1 }}">»</a></li>{% endif %}
+    </ul>
+  </div>
+</section>
