@@ -8,6 +8,7 @@ import os
 import pytz
 import tzlocal
 from babel import Locale
+import flask_babel
 
 import pytest
 
@@ -797,6 +798,25 @@ def test_date_str_to_datetime_valid(string, date):
 def test_date_str_to_datetime_invalid(string):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
+
+
+@pytest.mark.parametrize("dict_in,dict_out", [
+    ({"number_bool": True}, {"number bool": "True"}),
+    ({"number_bool": False}, {"number bool": "False"}),
+    ({"number_int": 0}, {"number int": "0"}),
+    ({"number_int": 42}, {"number int": "42"}),
+    ({"number_float": 0.0}, {"number float": "0"}),
+    ({"number_float": 0.1}, {"number float": "0.1"}),
+    ({"number_float": "0.10"}, {"number float": "0.1"}),
+    ({"string_basic": "peter"}, {"string basic": "peter"}),
+    ({"string_empty": ""}, {}),  # empty strings are ignored
+    ({"name": "hans"}, {}),  # blocked string
+])
+def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
+    # set locale to en (formatting of decimals)
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: "en")
+    items_out = h.format_resource_items(dict_in.items())
+    assert items_out == list(dict_out.items())
 
 
 def test_gravatar():
