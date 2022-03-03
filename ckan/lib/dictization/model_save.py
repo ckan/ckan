@@ -140,7 +140,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
 
     tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
-                            package.package_tag_all)
+                            package.package_tags)
 
     tag_package_tag_inactive = {
         tag: pt for tag,pt in tag_package_tag.items()
@@ -174,7 +174,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
         package_tag = tag_package_tag[tag]
         package_tag.state = state
 
-    package.package_tag_all[:] = tag_package_tag.values()
+    package.package_tags[:] = tag_package_tag.values()
 
 def package_membership_list_save(
         group_dicts: Optional[list[dict[str, Any]]],
