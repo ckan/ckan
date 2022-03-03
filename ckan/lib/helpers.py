@@ -2381,7 +2381,12 @@ def format_resource_items(
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
             try:
-                value = formatters.localised_filesize(int(value))
+                # type_ignore_reason: ``value`` variable got overrided and it's
+                # type skrewed as result. It's better to save localized value
+                # into a different variable, but for now let's just ignore the
+                # following line as it wrapped into try/except block.
+                value = formatters.localised_filesize(
+                    int(value))  # type: ignore
             except ValueError:
                 # Sometimes values that can't be converted to ints can sneak
                 # into the db. In this case, just leave them as they are.
@@ -2398,7 +2403,7 @@ def format_resource_items(
         elif isinstance(value, bool):
             value = str(value)
         elif isinstance(value, numbers.Number):
-            value = formatters.localised_number(value)
+            value = formatters.localised_number(cast(float, value))
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x: x[0])
