@@ -6,7 +6,8 @@ from typing import Any, Callable, Iterable
 
 import sqlalchemy
 from sqlalchemy import Table
-from sqlalchemy.engine import Row
+# type_ignore_reason: incomplete SQLAlchemy types
+from sqlalchemy.engine import Row # type: ignore
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
