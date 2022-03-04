@@ -33,7 +33,7 @@
             {% if res.url and h.is_url(res.url) %}
               <li>
                 <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+                <a class="btn btn-primary resource-url-analytics" download = "{{ res.name }}" href="{{ res.url }}">
                   {% if res.resource_type in ('listing', 'service') %}
                     <i class="fa fa-eye"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
@@ -91,7 +91,7 @@
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
-              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+              <p class="text-muted ellipsis">{{ _('URL:') }} <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}" download = "{{ res.name }}">{{ res.url }}</a></p>
             {% elif res.url %}
               <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
