@@ -3,7 +3,6 @@
 
 """
 import datetime
-from ipaddress import ip_address
 import operator
 import unittest.mock as mock
 import pytest
