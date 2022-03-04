@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Optional, Any
 
 from sqlalchemy.orm import relation
-from sqlalchemy import subquery, types, Column, Table, ForeignKey, UniqueConstraint
+from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 
 import ckan  # this import is needed
 

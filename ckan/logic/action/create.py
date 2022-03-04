@@ -9,12 +9,11 @@ import random
 import re
 import datetime
 from socket import error as socket_error
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 import six
 
 import ckan.common
-from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
