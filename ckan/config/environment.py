@@ -160,6 +160,23 @@ CONFIG_FROM_ENV_VARS = {
 }
 # End CONFIG_FROM_ENV_VARS
 
+def robust_decode(_value):
+    newValue = ''
+    log.info("START DEBUG")
+    log.info(_value)
+    log.info("END DEBUG")
+    try:
+      newValue = _value.decode('utf-8')
+    except Exception:
+        # TODO: log full exception
+        log.info(Exception.__str__)
+        try:
+            newValue = _value.decode('ascii')
+        except Exception:
+            # TODO: log full exception
+            log.info(Exception.__str__)
+            newValue = ''
+    return newValue  
 
 def update_config():
     ''' This code needs to be run when the config is changed to take those
@@ -291,6 +308,7 @@ def update_config():
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
+    env.filters['robust_decode'] = robust_decode
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
