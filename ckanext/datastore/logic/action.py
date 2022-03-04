@@ -646,7 +646,9 @@ def set_datastore_active_flag(
 
     # update extras in database for record
     extras.update(update_dict)
-    res_query.update({'extras': extras}, synchronize_session=False)
+    model.Session.query(model.Resource).\
+        filter(model.Resource.id == data_dict['resource_id']).\
+        update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
 
