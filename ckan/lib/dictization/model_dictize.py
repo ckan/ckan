@@ -546,7 +546,8 @@ def user_dictize(
     model = context['model']
 
     if context.get('with_capacity'):
-        assert isinstance(user, tuple)
+        # TODO: Fix typing issue with the user Object
+        # assert isinstance(user, tuple)
         user, capacity = user
         result_dict = d.table_dictize(user, context, capacity=capacity)
     else:
