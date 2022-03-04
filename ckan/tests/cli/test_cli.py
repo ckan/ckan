@@ -97,7 +97,7 @@ def test_ckan_config_loader_parse_two_files():
     filename = os.path.join(extension_tpl_dir, u'test-extension.ini.tpl')
     conf = CKANConfigLoader(filename).get_config()
 
-    # Debug should not be overriden by lower-level config test-core.ini.tpl
+    # Debug should not be overridden by lower-level config test-core.ini.tpl
     assert conf[u'debug'] == u'true'
     # __file__ should never be override if parsing two files
     assert conf[u'__file__'] == filename
@@ -157,7 +157,7 @@ def test_recursive_loading():
 
 
 def test_variables_in_chained_files():
-    """Variables are available accross all files in chain.
+    """Variables are available across all files in chain.
 
     When variables got redefined latest version is used, just as in python's
     class-inheritance. The only exception is the `here` variable, which
