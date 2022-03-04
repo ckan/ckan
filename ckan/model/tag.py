@@ -230,7 +230,7 @@ class Tag(domain_object.DomainObject):
         '''
         q: 'Query[ckan.model.Package]' = meta.Session.query(ckan.model.Package)
         q: 'Query[ckan.model.Package]' = q.join(PackageTag)
-        q = q.filter_by(tag_id=self.id)
+        q = q.filter(ckan.model.PackageTag.tag_id == self.id)
         q = q.filter_by(state='active')
         q = q.order_by(ckan.model.Package.name)
         packages = q.all()
