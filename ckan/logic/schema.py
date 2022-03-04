@@ -611,7 +611,8 @@ def default_dashboard_activity_list_schema(
 def default_activity_list_schema(
         not_missing, unicode_safe, configured_default,
         natural_number_validator, limit_to_configured_maximum,
-        ignore_missing, boolean_validator, ignore_not_sysadmin):
+        ignore_missing, boolean_validator, ignore_not_sysadmin,
+        activity_type_exists):
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
     schema['limit'] = [
@@ -620,6 +621,9 @@ def default_activity_list_schema(
         limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
     schema['include_hidden_activity'] = [
         ignore_missing, ignore_not_sysadmin, boolean_validator]
+    schema['activity_type'] = [
+        ignore_missing, activity_type_exists
+    ]
     return schema
 
 

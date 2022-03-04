@@ -2542,10 +2542,12 @@ def package_activity_list(context, data_dict):
 
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
+    activity_type = data_dict.get('activity_type')
 
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_type=activity_type,
     )
 
     return model_dictize.activity_list_dictize(

@@ -8,5 +8,68 @@
       {{ _('Activity Stream') }}
     {% endblock %}
   </h1>
-  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='package' %}
+
+  {# allow extensions to continue using this template without new vars #}
+  {% if activity_types is defined %}
+
+  <div 
+    id="activity_types_filter"
+    style="margin-bottom: 15px;"
+    data-module="activity-stream"
+    >
+    <label for="activity_types_filter_select">Activity type</label>
+    <select id="activity_types_filter_select">
+      <option
+        {% if not activity_type %}selected{% endif %}
+        data-url="{{ h.url_for('dataset.activity', id=id, page=0) }}"
+      >{{ _('All activity types') }}</option>
+      {% for type_ in activity_types %}
+      <option 
+        {% if activity_type == type_ %}selected{% endif %}
+        data-url="{{ h.url_for('dataset.activity', id=id, page=0, activity_type=type_) }}"
+      >{{ type_.title() }}</option>
+      {% endfor %}
+    </select>
+
+  </div>
+  {% endif %}
+
+  {% if activity_stream|length > 0 %}
+    {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='package' %}
+  {% else %}
+    <p>
+      {{ _('No activity found') }}
+      {% if activity_type %}
+        {{ _('for this type') }}.
+      {% endif %}
+    </p>
+  {% endif %}
+
+  {# allow extensions to continue using this template without new vars #}
+  {% if page is defined %}
+  
+  <div id="activity_page_buttons" style="margin-top: 25px;">
+
+  {% if page > 0 %}
+    {% set prev_page = page-1 %}
+    <a 
+      href="{{ h.url_for('dataset.activity', id=id, page=prev_page) }}"
+      class="btn btn-default btn-rounded"
+      >{{ _('Previous page') }}
+    </a>
+
+  {% endif %}
+  {% if has_more %}
+    {% set next_page = page + 1 %}
+      <a 
+        href="{{ h.url_for('dataset.activity', id=id, page=next_page) }}"
+        class="btn btn-default btn-rounded"
+        >{{ _('Next page') }}
+      </a>
+
+  {% endif %}
+  </div>  
+
+  {% endif %}
+
 {% endblock %}
