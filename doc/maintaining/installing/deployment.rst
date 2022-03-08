@@ -24,7 +24,7 @@ with NGINX on an Ubuntu server. These instructions have been tested on Ubuntu
 1. Install Nginx
 ----------------
 
-Install NGINX_ (a web server) which will proxy the content from one of the WSGI Servers 
+Install NGINX_ (a web server) which will proxy the content from one of the WSGI Servers
 and add a layer of caching::
 
     sudo apt-get install nginx
@@ -67,7 +67,11 @@ CKAN to run in).
 3. Create the WSGI Server
 -------------------------
 
-Make sure you have activated the Python virtual environment before running this command:  |activate|
+Make sure you have activated the Python virtual environment before running this command:
+
+.. parsed-literal::
+
+   |activate|
 
 uwsgi
 -----
@@ -92,7 +96,7 @@ The uwsgi configuration file can be copied from the CKAN distribution:
     harakiri        =  50
     max-requests    =  5000
     vacuum          =  true
-    callable        =  application  
+    callable        =  application
     strict          =  true
 
 
@@ -100,7 +104,7 @@ The uwsgi configuration file can be copied from the CKAN distribution:
 4. Install Supervisor for the uwsgi
 -----------------------------------
 
-Install Supervisor_ (a Process Control System) used to control starting, stopping the 
+Install Supervisor_ (a Process Control System) used to control starting, stopping the
 uwsgi or gunicorn servers::
 
   sudo apt-get install supervisor
@@ -141,7 +145,7 @@ Create the  ``/etc/supervisor/conf.d/ckan-uwsgi.conf`` file
 
     ; Required for uWSGI as it does not obey SIGTERM.
     stopsignal=QUIT
-    
+
 
 --------------------------
 5. Install an email server
@@ -235,7 +239,7 @@ different to that described in the `official CKAN 2.8 deployment instructions
 your setup.
 
 We now recommend you activate the Python virtual environment in a different
-place, compared to earlier CKAN versions. For the WSGI server, activation is done 
+place, compared to earlier CKAN versions. For the WSGI server, activation is done
 in the uwsgi server config file (/etc/ckan/default/ckan-uwsgi.ini).
 
 (In CKAN 2.8.x and earlier, the virtual environment was activated in the WSGI

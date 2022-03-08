@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import six
-
+import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 
@@ -41,13 +40,22 @@ def pytest_sessionstart(session):
     _tests_test_request_context = flask_app.test_request_context()
 
 
+def pytest_runtestloop(session):
+    """When all the tests collected, extra plugin may be enabled because python
+    interpreter visits their files.
+
+    Make sure only configured plugins are active when test loop starts.
+    """
+    plugins.load_all()
+
+
 def pytest_runtest_setup(item):
     """Automatically apply `ckan_config` fixture if test has `ckan_config`
     mark.
 
     `ckan_config` mark itself does nothing(as any mark). All actual
     config changes performed inside `ckan_config` fixture. So let's
-    implicitely use `ckan_config` fixture inside any test that patches
+    implicitly use `ckan_config` fixture inside any test that patches
     config object. This will save us from adding
     `@mark.usefixtures("ckan_config")` every time.
 

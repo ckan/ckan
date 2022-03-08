@@ -1,26 +1,30 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
-from collections import defaultdict
 import datetime
+from typing import Any, Optional, Union, cast
 
-from six import string_types, text_type
+
 
 import ckan.model as model
+from ckan.logic import get_action
+from ckan.types import Context
+
 
 log = logging.getLogger(__name__)
 
 class CreateTestData(object):
     # keep track of the objects created by this class so that
     # tests can easy call delete() method to delete them all again.
-    pkg_names = []
-    tag_names = []
-    group_names = set()
-    user_refs = []
+    pkg_names: list[str] = []
+    tag_names: list[str] = []
+    group_names: set[str] = set()
+    user_refs: list[str] = []
 
-    author = u'tester'
+    author: str = u'tester'
 
-    pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
+    pkg_core_fields: list[str] = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
                        'private',
@@ -34,17 +38,18 @@ class CreateTestData(object):
         cls.create_arbitrary(search_items)
 
     @classmethod
-    def create_gov_test_data(cls, extra_users=[]):
+    def create_gov_test_data(cls, extra_users: list[str] = []):
         cls.create_arbitrary(gov_items, extra_user_names=extra_users)
 
     @classmethod
-    def create_family_test_data(cls, extra_users=[]):
+    def create_family_test_data(cls, extra_users: list[str] = []):
         cls.create_arbitrary(family_items,
                               relationships=family_relationships,
                               extra_user_names=extra_users)
 
     @classmethod
-    def create_group_hierarchy_test_data(cls, extra_users=[]):
+    def create_group_hierarchy_test_data(
+            cls, extra_users: list[dict[str, Any]] = []):
         cls.create_users(group_hierarchy_users)
         cls.create_groups(group_hierarchy_groups)
         cls.create_arbitrary(group_hierarchy_datasets)
@@ -53,8 +58,7 @@ class CreateTestData(object):
     def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
-            tester = model.User(name=u'tester', apikey=u'tester',
-                password=u'tester')
+            tester = model.User(name=u'tester', password=u'tester')
             model.Session.add(tester)
             model.Session.commit()
         model.Session.remove()
@@ -67,7 +71,7 @@ class CreateTestData(object):
 
         sysadmin_user = ckan.model.User.get('testsysadmin')
         package = ckan.model.Package.get('annakarenina')
-
+        assert package and sysadmin_user
         # Add some new tags to the package.
         # These tags are codes that are meant to be always translated before
         # display, if not into the user's current language then into the
@@ -85,12 +89,12 @@ class CreateTestData(object):
                             'term_translation': translations[term],
                             'lang_code': lang_code,
                             }
-                    context = {
+                    context = cast(Context, {
                         'model': ckan.model,
                         'session': ckan.model.Session,
                         'user': sysadmin_user.name,
-                    }
-                    ckan.logic.action.update.term_translation_update(context,
+                    })
+                    get_action('term_translation_update')(context,
                             data_dict)
 
         ckan.model.Session.commit()
@@ -102,26 +106,27 @@ class CreateTestData(object):
         sysadmin_user = ckan.model.User.get('testsysadmin')
         annakarenina = ckan.model.Package.get('annakarenina')
         warandpeace = ckan.model.Package.get('warandpeace')
+        assert sysadmin_user and annakarenina and warandpeace
 
         # Create a couple of vocabularies.
-        context = {
+        context = cast(Context, {
                 'model': ckan.model,
                 'session': ckan.model.Session,
                 'user': sysadmin_user.name
-                }
+                })
         data_dict = {
                 'name': 'Genre',
                 'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
                     {'name': 'Mystery'}],
                 }
-        ckan.logic.action.create.vocabulary_create(context, data_dict)
+        get_action('vocabulary_create')(context, data_dict)
 
         data_dict = {
                 'name': 'Actors',
                 'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
                     {'name': 'alessio-boni'}],
                 }
-        ckan.logic.action.create.vocabulary_create(context, data_dict)
+        get_action('vocabulary_create')(context, data_dict)
 
         # Add some vocab tags to some packages.
         genre_vocab = ckan.model.Vocabulary.get('Genre')
@@ -133,8 +138,11 @@ class CreateTestData(object):
         warandpeace.add_tag_by_name('alessio-boni', vocab=actors_vocab)
 
     @classmethod
-    def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[]):
+    def create_arbitrary(
+            cls, package_dicts: Union[dict[str, Any], list[dict[str, Any]]],
+            relationships: list[dict[str, Any]] = [],
+            extra_user_names: list[str] = [],
+            extra_group_names: list[str] = []):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
@@ -158,7 +166,7 @@ class CreateTestData(object):
                 pkg_dict = {}
                 for field in cls.pkg_core_fields:
                     if field in item:
-                        pkg_dict[field] = text_type(item[field])
+                        pkg_dict[field] = str(item[field])
                 if model.Package.by_name(pkg_dict['name']):
                     log.warning('Cannot create package "%s" as it already exists.' % \
                                     (pkg_dict['name']))
@@ -167,13 +175,13 @@ class CreateTestData(object):
                 model.Session.add(pkg)
                 for attr, val in item.items():
                     if isinstance(val, str):
-                        val = text_type(val)
+                        val = str(val)
                     if attr=='name':
                         continue
                     if attr in cls.pkg_core_fields:
                         pass
                     elif attr == 'download_url':
-                        pkg.add_resource(text_type(val))
+                        pkg.add_resource(str(val))
                     elif attr == 'resources':
                         assert isinstance(val, (list, tuple))
                         for res_dict in val:
@@ -181,19 +189,19 @@ class CreateTestData(object):
                             for k, v in res_dict.items():
                                 if k != 'extras':
                                     if not isinstance(v, datetime.datetime):
-                                        v = text_type(v)
+                                        v = str(v)
                                     non_extras[str(k)] = v
-                            extras = {str(k): text_type(v) for k, v in res_dict.get('extras', {}).items()}
+                            extras = {str(k): str(v) for k, v in res_dict.get('extras', {}).items()}
                             pkg.add_resource(extras=extras, **non_extras)
                     elif attr == 'tags':
-                        if isinstance(val, string_types):
+                        if isinstance(val, str):
                             tags = val.split()
                         elif isinstance(val, list):
                             tags = val
                         else:
                             raise NotImplementedError
                         for tag_name in tags:
-                            tag_name = text_type(tag_name)
+                            tag_name = str(tag_name)
                             tag = model.Tag.by_name(tag_name)
                             if not tag:
                                 tag = model.Tag(name=tag_name)
@@ -203,18 +211,18 @@ class CreateTestData(object):
                             model.Session.flush()
                     elif attr == 'groups':
                         model.Session.flush()
-                        if isinstance(val, string_types):
+                        if isinstance(val, str):
                             group_names = val.split()
                         elif isinstance(val, list):
                             group_names = val
                         else:
                             raise NotImplementedError
                         for group_name in group_names:
-                            group = model.Group.by_name(text_type(group_name))
+                            group = model.Group.by_name(str(group_name))
                             if not group:
                                 if not group_name in new_groups:
                                     group = model.Group(name=
-                                                        text_type(group_name))
+                                                        str(group_name))
                                     model.Session.add(group)
                                     new_group_names.add(group_name)
                                     new_groups[group_name] = group
@@ -249,7 +257,7 @@ class CreateTestData(object):
         needs_commit = False
 
         for group_name in extra_group_names:
-            group = model.Group(name=text_type(group_name))
+            group = model.Group(name=str(group_name))
             model.Session.add(group)
             new_group_names.add(group_name)
             needs_commit = True
@@ -260,8 +268,8 @@ class CreateTestData(object):
 
         # create users that have been identified as being needed
         for user_name in new_user_names:
-            if not model.User.by_name(text_type(user_name)):
-                user = model.User(name=text_type(user_name))
+            if not model.User.by_name(str(user_name)):
+                user = model.User(name=str(user_name))
                 model.Session.add(user)
                 cls.user_refs.append(user_name)
                 needs_commit = True
@@ -272,7 +280,7 @@ class CreateTestData(object):
 
         # setup authz for groups just created
         for group_name in new_group_names:
-            group = model.Group.by_name(text_type(group_name))
+            group = model.Group.by_name(str(group_name))
             cls.group_names.add(group_name)
             needs_commit = True
 
@@ -281,18 +289,23 @@ class CreateTestData(object):
             needs_commit = False
 
         if relationships:
-            def pkg(pkg_name):
-                return model.Package.by_name(text_type(pkg_name))
+            def get_pkg(pkg_name: str):
+                pkg = model.Package.by_name(str(pkg_name))
+                assert pkg
+                return pkg
             for subject_name, relationship, object_name in relationships:
-                pkg(subject_name).add_relationship(
-                    text_type(relationship), pkg(object_name))
+                get_pkg(subject_name).add_relationship(
+                    str(relationship), get_pkg(object_name))
                 needs_commit = True
 
             model.repo.commit_and_remove()
 
 
     @classmethod
-    def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
+    def create_groups(
+            cls, group_dicts: list[dict[str, Any]],
+            admin_user_name: Optional[str] = None,
+            auth_profile: str = ""):
         '''A more featured interface for creating groups.
         All group fields can be filled, packages added, can have
         an admin user and be a member of other groups.'''
@@ -304,12 +317,12 @@ class CreateTestData(object):
         group_attributes = set(('name', 'title', 'description', 'parent_id',
                                 'type', 'is_organization'))
         for group_dict in group_dicts:
-            if model.Group.by_name(text_type(group_dict['name'])):
+            if model.Group.by_name(str(group_dict['name'])):
                 log.warning('Cannot create group "%s" as it already exists.' %
                             group_dict['name'])
                 continue
             pkg_names = group_dict.pop('packages', [])
-            group = model.Group(name=text_type(group_dict['name']))
+            group = model.Group(name=str(group_dict['name']))
             group.type = auth_profile or 'group'
             for key in group_dict:
                 if key in group_attributes:
@@ -318,7 +331,7 @@ class CreateTestData(object):
                     group.extras[key] = group_dict[key]
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
-                pkg = model.Package.by_name(text_type(pkg_name))
+                pkg = model.Package.by_name(str(pkg_name))
                 assert pkg, pkg_name
                 member = model.Member(group=group, table_id=pkg.id,
                                       table_name='package')
@@ -328,12 +341,14 @@ class CreateTestData(object):
                       for user_name in group_dict.get('admins', [])] + \
                      admin_users
             for admin in admins:
+                assert admin
                 member = model.Member(group=group, table_id=admin.id,
                                       table_name='user', capacity='admin')
                 model.Session.add(member)
             editors = [model.User.by_name(user_name)
                        for user_name in group_dict.get('editors', [])]
             for editor in editors:
+                assert editor
                 member = model.Member(group=group, table_id=editor.id,
                                       table_name='user', capacity='editor')
                 model.Session.add(member)
@@ -345,7 +360,7 @@ class CreateTestData(object):
             model.Session.commit()
             # add it to a parent's group
             if 'parent' in group_dict:
-                parent = model.Group.by_name(text_type(group_dict['parent']))
+                parent = model.Group.by_name(str(group_dict['parent']))
                 assert parent, group_dict['parent']
                 member = model.Member(group=group, table_id=parent.id,
                                       table_name='group', capacity='parent')
@@ -354,16 +369,11 @@ class CreateTestData(object):
         model.repo.commit_and_remove()
 
     @classmethod
-    def create(cls, auth_profile="", package_type=None):
+    def create(cls, auth_profile: str = "",
+               package_type: Optional[str] = None):
         model.Session.remove()
-        if auth_profile == "publisher":
-            organization_group = model.Group(name=u"organization_group",
-                                             type="organization")
-
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
-        if auth_profile == "publisher":
-            pkg1.group = organization_group
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
@@ -417,9 +427,6 @@ left arrow <
         tag1 = model.Tag(name=u'russian')
         tag2 = model.Tag(name=u'tolstoy')
 
-        if auth_profile == "publisher":
-            pkg2.group = organization_group
-
         # Flexible tag, allows spaces, upper-case,
         # and all punctuation except commas
         tag3 = model.Tag(name=u'Flexible \u30a1')
@@ -459,7 +466,7 @@ left arrow <
         sysadmin = model.User(name=u'testsysadmin', password=u'testsysadmin')
         sysadmin.sysadmin = True
         model.Session.add_all([
-            model.User(name=u'tester', apikey=u'tester', password=u'tester'),
+            model.User(name=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
             model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
@@ -476,7 +483,7 @@ left arrow <
 
     # method used in DGU and all good tests elsewhere
     @classmethod
-    def create_users(cls, user_dicts):
+    def create_users(cls, user_dicts: list[dict[str, Any]]):
         needs_commit = False
         for user_dict in user_dicts:
             user = cls._create_user_without_commit(**user_dict)
@@ -486,7 +493,8 @@ left arrow <
             model.repo.commit_and_remove()
 
     @classmethod
-    def _create_user_without_commit(cls, name='', **user_dict):
+    def _create_user_without_commit(cls, name: str = '',
+                                    **user_dict: Any):
         if model.User.by_name(name):
             log.warning('Cannot create user "%s" as it already exists.' %
                         name or user_dict['name'])
@@ -500,25 +508,27 @@ left arrow <
                     user_dict[k] = v
                 else:
                     # avoid unicode warnings
-                    user_dict[k] = text_type(v)
-        user = model.User(name=text_type(name), **user_dict)
+                    user_dict[k] = str(v)
+        user = model.User(name=str(name), **user_dict)
         model.Session.add(user)
         cls.user_refs.append(user_ref)
         return user
 
     @classmethod
-    def create_user(cls, name='', **kwargs):
+    def create_user(cls, name: str = '', **kwargs: Any):
         user = cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
         return user
 
     @classmethod
-    def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
-                          user_names=[]):
+    def flag_for_deletion(
+            cls, pkg_names: Union[str, list[str]] = [],
+            tag_names: list[str] = [], group_names: list[str] = [],
+            user_names: list[str] = []):
         '''If you create a domain object manually in your test then you
         can name it here (flag it up) and it will be deleted when you next
         call CreateTestData.delete().'''
-        if isinstance(pkg_names, string_types):
+        if isinstance(pkg_names, str):
             pkg_names = [pkg_names]
         cls.pkg_names.extend(pkg_names)
         cls.tag_names.extend(tag_names)
@@ -530,27 +540,19 @@ left arrow <
         '''Purges packages etc. that were created by this class.'''
         for pkg_name in cls.pkg_names:
             model.Session().autoflush = False
-            pkg = model.Package.by_name(text_type(pkg_name))
+            pkg = model.Package.by_name(str(pkg_name))
             if pkg:
                 pkg.purge()
         for tag_name in cls.tag_names:
-            tag = model.Tag.by_name(text_type(tag_name))
+            tag = model.Tag.by_name(str(tag_name))
             if tag:
                 tag.purge()
         for group_name in cls.group_names:
-            group = model.Group.by_name(text_type(group_name))
+            group = model.Group.by_name(str(group_name))
             if group:
                 model.Session.delete(group)
-        revs = model.Session.query(model.Revision).filter_by(author=cls.author)
-        for rev in revs:
-            for pkg in rev.packages:
-                pkg.purge()
-            for grp in rev.groups:
-                grp.purge()
-            model.Session.commit()
-            model.Session.delete(rev)
         for user_name in cls.user_refs:
-            user = model.User.get(text_type(user_name))
+            user = model.User.get(str(user_name))
             if user:
                 user.purge()
         model.Session.commit()
@@ -587,7 +589,9 @@ left arrow <
         tollbooth_tag = model.Tag(name="tollbooth")
         model.Session.add(tollbooth_tag)
         # We have to add free tags to a package or they won't show up in tag results.
-        model.Package.get('warandpeace').add_tags((tolkien_tag, toledo_tag,
+        pkg = model.Package.get('warandpeace')
+        assert pkg
+        pkg.add_tags((tolkien_tag, toledo_tag,
             tolerance_tag, tollbooth_tag))
 
         # Create some tags that belong to vocabularies.
@@ -622,8 +626,12 @@ left arrow <
         nerdcore_tag = model.Tag(name='nerdcore', vocabulary_id=genre_vocab.id)
         model.Session.add(nerdcore_tag)
 
-        model.Package.get('warandpeace').add_tag(bach_tag)
-        model.Package.get('annakarenina').add_tag(sonata_tag)
+        pkg = model.Package.get('warandpeace')
+        assert pkg
+        pkg.add_tag(bach_tag)
+        pkg = model.Package.get('annakarenina')
+        assert pkg
+        pkg.add_tag(sonata_tag)
 
         model.Session.commit()
 

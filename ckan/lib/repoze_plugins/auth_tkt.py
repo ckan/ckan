@@ -1,15 +1,15 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
 import math
 import os
-
-import six
+from typing import Any, Optional, Union
 
 try:
     from http.cookies import SimpleCookie
 except ImportError:
-    from Cookie import SimpleCookie
+    from Cookie import SimpleCookie  # type: ignore
 
 from ckan.common import config
 from repoze.who.plugins import auth_tkt as repoze_auth_tkt
@@ -24,20 +24,23 @@ log = logging.getLogger(__name__)
 _ckan_userid_type_decoders = dict(
     repoze_auth_tkt.AuthTktCookiePlugin.userid_type_decoders
 )
-if six.PY3:
-    _ckan_userid_type_decoders.pop('unicode')
+_ckan_userid_type_decoders.pop('unicode')
 
 
 class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
 
+    httponly: bool
+    samesite: str
+
     userid_type_decoders = _ckan_userid_type_decoders
 
-    def __init__(self, httponly, samesite, *args, **kwargs):
+    def __init__(
+            self, httponly: bool, samesite: str, *args: Any, **kwargs: Any):
         super(CkanAuthTktCookiePlugin, self).__init__(*args, **kwargs)
         self.httponly = httponly
         self.samesite = samesite
 
-    def _get_cookies(self, *args, **kwargs):
+    def _get_cookies(self, *args: Any, **kwargs: Any) -> list[SimpleCookie]:
         u'''
         Override method in superclass to ensure HttpOnly is set appropriately.
         '''
@@ -49,11 +52,13 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
             cookie = SimpleCookie(str(v))
             morsel = list(cookie.values())[0]
             # SameSite was only added on Python 3.8
-            morsel._reserved['samesite'] = 'SameSite'
+            # type_ignore_reason: custom property
+            morsel._reserved['samesite'] = 'SameSite'  # type: ignore
             # Keep old case as it's the one used in tests, it should make no
             # difference in the browser
-            morsel._reserved['httponly'] = 'HttpOnly'
-            morsel._reserved['secure'] = 'Secure'
+            # type_ignore_reason: custom property
+            morsel._reserved['httponly'] = 'HttpOnly'  # type: ignore
+            morsel._reserved['secure'] = 'Secure'  # type: ignore
 
             if self.httponly:
                 cookie[self.cookie_name]['HttpOnly'] = True
@@ -70,14 +75,14 @@ class CkanAuthTktCookiePlugin(repoze_auth_tkt.AuthTktCookiePlugin):
         return cookies
 
 
-def make_plugin(secret=None,
-                secretfile=None,
-                cookie_name='auth_tkt',
-                secure=False,
-                include_ip=False,
-                timeout=None,
-                reissue_time=None,
-                userid_checker=None):
+def make_plugin(secret: Optional[str] = None,
+                secretfile: Optional[str] = None,
+                cookie_name: str = 'auth_tkt',
+                secure: bool = False,
+                include_ip: bool = False,
+                timeout: Optional[Union[str, int]] = None,
+                reissue_time: Optional[Union[str, int]] = None,
+                userid_checker: Optional[Any] = None):
     from repoze.who.utils import resolveDotted
 
     # ckan specifics:
@@ -85,18 +90,18 @@ def make_plugin(secret=None,
     if secret is None or secret == u'somesecret':
         secret = config[u'beaker.session.secret']
     # Session timeout and reissue time for auth cookie
-    if timeout is None and config.get(u'who.timeout'):
-        timeout = config.get(u'who.timeout')
-    if reissue_time is None and config.get(u'who.reissue_time'):
-        reissue_time = config.get(u'who.reissue_time')
+    if timeout is None and config.get_value(u'who.timeout'):
+        timeout = config[u'who.timeout']
+    if reissue_time is None and config.get_value(u'who.reissue_time'):
+        reissue_time = config['who.reissue_time']
     if timeout is not None and reissue_time is None:
         reissue_time = int(math.ceil(int(timeout) * 0.1))
     # Set httponly based on config value. Default is True
-    httponly = _bool(config.get(u'who.httponly', True))
+    httponly = config.get_value(u'who.httponly')
     # Set secure based on config value. Default is False
-    secure = _bool(config.get(u'who.secure', False))
+    secure = config.get_value(u'who.secure')
     # Set samesite based on config value. Default is lax
-    samesite = config.get(u'who.samesite', 'lax').lower()
+    samesite = config.get_value(u'who.samesite').lower()
     if samesite == 'none' and not secure:
         raise ValueError(
             'SameSite=None requires the Secure attribute,'

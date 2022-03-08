@@ -1,13 +1,14 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import warnings
 import logging
 import os
 import re
 from time import sleep
-from os.path import splitext
+from typing import Any, Optional
 
-from sqlalchemy import MetaData, __version__ as sqav, Table
+from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -17,13 +18,10 @@ from alembic.command import (
 )
 from alembic.config import Config as AlembicConfig
 
-from ckan.model import meta
+import ckan.model.meta as meta
 
-from ckan.model.meta import (
-    Session,
-    engine_is_sqlite,
-    engine_is_pg,
-)
+from ckan.model.meta import Session
+
 from ckan.model.core import (
     State,
 )
@@ -79,11 +77,7 @@ from ckan.model.tracking import (
     TrackingSummary,
     tracking_raw_table
 )
-from ckan.model.rating import (
-    Rating,
-    MIN_RATING,
-    MAX_RATING,
-)
+
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
@@ -131,14 +125,38 @@ from ckan.model.api_token import (
 
 import ckan.migration
 from ckan.common import config
+from sqlalchemy.engine import Engine
+from ckan.types import AlchemySession
 
+__all__ = [
+    "Session", "State", "System", "Package", "PackageMember",
+    "PACKAGE_NAME_MIN_LENGTH", "PACKAGE_NAME_MAX_LENGTH",
+    "PACKAGE_VERSION_MAX_LENGTH", "package_table", "package_member_table",
+    "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
+    "package_tag_table", "User", "user_table", "Member", "Group",
+    "group_table", "member_table",
+    "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
+    "Resource", "DictProxy", "resource_table",
+    "ResourceView", "resource_view_table",
+    "tracking_summary_table", "TrackingSummary", "tracking_raw_table",
+    "PackageRelationship", "package_relationship_table",
+    "TaskStatus", "task_status_table",
+    "Vocabulary", "VOCABULARY_NAME_MAX_LENGTH", "VOCABULARY_NAME_MIN_LENGTH",
+    "Activity", "ActivityDetail", "activity_table", "activity_detail_table",
+    "term_translation_table", "UserFollowingUser", "UserFollowingDataset",
+    "UserFollowingGroup", "system_info_table", "SystemInfo",
+    "get_system_info", "set_system_info", "delete_system_info",
+    "DomainObjectOperation", "DomainObject", "Dashboard", "ApiToken",
+    "init_model", "Repository",
+    "repo", "is_id", "parse_db_config"
+]
 
 log = logging.getLogger(__name__)
 
-DB_CONNECT_RETRIES = 10
+DB_CONNECT_RETRIES: int = 10
 
 
-def init_model(engine):
+def init_model(engine: Engine) -> None:
     '''Call me before using any of the tables or classes in the model'''
     meta.Session.remove()
     meta.Session.configure(bind=engine)
@@ -161,26 +179,31 @@ def init_model(engine):
 
 
 class Repository():
-    _alembic_ini = os.path.join(
+    metadata: MetaData
+    session: AlchemySession
+    commit: Any
+
+    _alembic_ini: str = os.path.join(
         os.path.dirname(ckan.migration.__file__),
         u"alembic.ini"
     )
+    _alembic_output: list[tuple[str, ...]]
 
     # note: tables_created value is not sustained between instantiations
     #       so only useful for tests. The alternative is to use
     #       are_tables_created().
-    tables_created_and_initialised = False
+    tables_created_and_initialised: bool = False
 
-    def __init__(self, metadata, session):
+    def __init__(self, metadata: MetaData, session: AlchemySession) -> None:
         self.metadata = metadata
         self.session = session
         self.commit = session.commit
 
-    def commit_and_remove(self):
+    def commit_and_remove(self) -> None:
         self.session.commit()
         self.session.remove()
 
-    def init_db(self):
+    def init_db(self) -> None:
         '''Ensures tables, const data and some default config is created.
         This method MUST be run before using CKAN for the first time.
         Before this method is run, you can either have a clean db or tables
@@ -190,20 +213,13 @@ class Repository():
         warnings.filterwarnings('ignore', 'SAWarning')
         self.session.rollback()
         self.session.remove()
-        # sqlite database needs to be recreated each time as the
-        # memory database is lost.
 
-        if self.metadata.bind.engine.url.drivername == 'sqlite':
-            # this creates the tables, which isn't required inbetween tests
-            # that have simply called rebuild_db.
-            self.create_db()
-        else:
-            if not self.tables_created_and_initialised:
-                self.upgrade_db()
-                self.tables_created_and_initialised = True
+        if not self.tables_created_and_initialised:
+            self.upgrade_db()
+            self.tables_created_and_initialised = True
         log.info('Database initialised')
 
-    def clean_db(self):
+    def clean_db(self) -> None:
         self.commit_and_remove()
         meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
@@ -214,7 +230,7 @@ class Repository():
         self.tables_created_and_initialised = False
         log.info('Database tables dropped')
 
-    def create_db(self):
+    def create_db(self) -> None:
         '''Ensures tables, const data and some default config is created.
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
@@ -222,7 +238,7 @@ class Repository():
         self.metadata.create_all(bind=self.metadata.bind)
         log.info('Database tables created')
 
-    def rebuild_db(self):
+    def rebuild_db(self) -> None:
         '''Clean and init the db'''
         if self.tables_created_and_initialised:
             # just delete data, leaving tables - this is faster
@@ -235,15 +251,12 @@ class Repository():
         self.session.flush()
         log.info('Database rebuilt')
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         '''Delete all data from all tables.'''
         self.session.remove()
         ## use raw connection for performance
-        connection = self.session.connection()
-        if sqav.startswith("0.4"):
-            tables = self.metadata.table_iterator()
-        else:
-            tables = reversed(self.metadata.sorted_tables)
+        connection: Any = self.session.connection()
+        tables = reversed(self.metadata.sorted_tables)
         for table in tables:
             if table.name == 'alembic_version':
                 continue
@@ -251,22 +264,25 @@ class Repository():
         self.session.commit()
         log.info('Database table data deleted')
 
-    def reset_alembic_output(self):
+    def reset_alembic_output(self) -> None:
         self._alembic_output = []
 
-    def add_alembic_output(self, *args):
+    def add_alembic_output(self, *args: str) -> None:
         self._alembic_output.append(args)
 
-    def take_alembic_output(self, with_reset=True):
+    def take_alembic_output(self,
+                            with_reset: bool=True) -> list[tuple[str, ...]]:
         output = self._alembic_output
-        self._alembic_config = []
+        if with_reset:
+            self.reset_alembic_output()
         return output
 
-    def setup_migration_version_control(self):
+    def setup_migration_version_control(self) -> None:
+        assert isinstance(self.metadata.bind, Engine)
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
-            "sqlalchemy.url", config.get("sqlalchemy.url")
+            "sqlalchemy.url", config.get_value("sqlalchemy.url")
         )
         try:
             sqlalchemy_migrate_version = self.metadata.bind.execute(
@@ -286,25 +302,37 @@ class Repository():
 
         self.alembic_config = alembic_config
 
-    def current_version(self):
+    def current_version(self) -> Optional[str]:
+        """Returns current revision of the migration repository.
+
+        Returns None for plugins that has no migrations and "base" for plugins
+        that has migrations but none of them were applied. If current revision
+        is the newest one, ` (head)` suffix added to the result
+
+        """
+        from alembic.util.exc import CommandError
         try:
             alembic_current(self.alembic_config)
             return self.take_alembic_output()[0][0]
         except (TypeError, IndexError):
             # alembic is not initialized yet
             return 'base'
+        except CommandError:
+            # trying to get revision of plugin without migrations
+            return None
 
-    def downgrade_db(self, version='base'):
+    def downgrade_db(self, version: str='base') -> None:
         self.setup_migration_version_control()
         alembic_downgrade(self.alembic_config, version)
         log.info(u'CKAN database version set to: %s', version)
 
-    def upgrade_db(self, version='head'):
+    def upgrade_db(self, version: str='head') -> None:
         '''Upgrade db using sqlalchemy migrations.
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        _assert_engine_msg = (
+        assert meta.engine
+        _assert_engine_msg: str = (
             u'Database migration - only Postgresql engine supported (not %s).'
         ) % meta.engine.name
         assert meta.engine.name in (
@@ -324,7 +352,7 @@ class Repository():
         else:
             log.info(u'CKAN database version remains as: %s', version_after)
 
-    def are_tables_created(self):
+    def are_tables_created(self) -> bool:
         meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
@@ -335,13 +363,14 @@ class Repository():
 repo = Repository(meta.metadata, meta.Session)
 
 
-def is_id(id_string):
+def is_id(id_string: str) -> bool:
     '''Tells the client if the string looks like a revision id or not'''
     reg_ex = '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     return bool(re.match(reg_ex, id_string))
 
 
-def parse_db_config(config_key=u'sqlalchemy.url'):
+def parse_db_config(
+        config_key: str=u'sqlalchemy.url') -> Optional[dict[str, str]]:
     u''' Takes a config key for a database connection url and parses it into
     a dictionary. Expects a url like:
 
@@ -357,5 +386,5 @@ def parse_db_config(config_key=u'sqlalchemy.url'):
     ]
     db_details_match = re.match(u''.join(regex), url)
     if not db_details_match:
-        return
+        return None
     return db_details_match.groupdict()

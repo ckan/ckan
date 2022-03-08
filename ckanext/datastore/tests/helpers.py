@@ -14,7 +14,7 @@ def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
 
 
-def clear_db(Session):
+def clear_db(Session):  # noqa
     drop_tables = u"""select 'drop table "' || tablename || '" cascade;'
                     from pg_tables where schemaname = 'public' """
     c = Session.connection()
@@ -36,7 +36,7 @@ def clear_db(Session):
     Session.remove()
 
 
-def rebuild_all_dbs(Session):
+def rebuild_all_dbs(Session):  # noqa
     """ If the tests are running on the same db, we have to make sure that
     the ckan tables are recrated.
     """
@@ -51,7 +51,7 @@ def rebuild_all_dbs(Session):
 
 
 def set_url_type(resources, user):
-    context = {"user": user.name}
+    context = {"user": user["name"]}
     for resource in resources:
         resource = p.toolkit.get_action("resource_show")(
             context, {"id": resource.id}

@@ -1,18 +1,16 @@
 # encoding: utf-8
 
-import re
-
 from flask import Blueprint
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import _, request
-
+from ckan.types import Response
 
 util = Blueprint(u'util', __name__)
 
 
-def internal_redirect():
+def internal_redirect() -> Response:
     u''' Redirect to the url parameter.
     Only internal URLs are allowed'''
 
@@ -26,7 +24,7 @@ def internal_redirect():
         base.abort(403, _(u'Redirecting to external site is not allowed.'))
 
 
-def primer():
+def primer() -> str:
     u''' Render all HTML components out onto a single page.
     This is useful for development/styling of CKAN. '''
 

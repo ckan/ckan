@@ -11,7 +11,7 @@ from ckan.logic.action.get import package_list as core_package_list
 package_list_message = u"The content of this message is largely irrelevant"
 
 
-class TestActionException(Exception):
+class ActionTestException(Exception):
     pass
 
 
@@ -32,7 +32,7 @@ def datastore_delete(up_func, context, data_dict):
 def package_list(next_func, context, data_dict):
     # check it's received the core function as the first arg
     assert next_func == core_package_list
-    raise TestActionException(package_list_message)
+    raise ActionTestException(package_list_message)
 
 
 class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
@@ -93,6 +93,6 @@ class TestChainedAction(object):
     )
     @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_chain_core_action(self):
-        with pytest.raises(TestActionException) as raise_context:
+        with pytest.raises(ActionTestException) as raise_context:
             helpers.call_action(u"package_list", {})
         assert raise_context.value.args == (package_list_message, )

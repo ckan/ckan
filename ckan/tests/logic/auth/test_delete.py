@@ -4,18 +4,43 @@
 """
 
 import pytest
-from six import string_types
 
 import ckan.logic.auth.delete as auth_delete
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan import model
+from ckan import authz, model
 
 logic = helpers.logic
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDeleteAuth:
+    def test_auth_deleted_users_are_always_unauthorized(self):
+        def always_success(x, y):
+            return {"success": True}
+
+        authz._AuthFunctions._build()
+        authz._AuthFunctions._functions["always_success"] = always_success
+        username = "deleted_user"
+        user = factories.User()
+        username = user["name"]
+        user = model.User.get(username)
+        user.delete()
+        assert not authz.is_authorized_boolean(
+            "always_success", {"user": username}
+        )
+        del authz._AuthFunctions._functions["always_success"]
+
+    def test_only_sysadmins_can_delete_users(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            assert not helpers.call_auth("user_delete", context=context, id=user["id"])
+
+        context = {"model": model, "user": sysadmin["name"]}
+        assert helpers.call_auth("user_delete", context=context, id=user["id"])
+
     def test_anon_cant_delete(self):
         context = {"user": None, "model": model}
         params = {}
@@ -111,7 +136,7 @@ def test_anon_cant_clear():
         helpers.call_auth("resource_view_clear", context=context, **params)
 
 
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_normal_user_cant_clear():
     user = factories.User()
 
@@ -121,7 +146,7 @@ def test_normal_user_cant_clear():
         helpers.call_auth("resource_view_clear", context=context)
 
 
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_sysadmin_user_can_clear():
     user = factories.User(sysadmin=True)
 
@@ -135,23 +160,23 @@ class TestApiToken(object):
     def test_anon_is_not_allowed_to_revoke_tokens(self):
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth(
-                u"api_token_revoke",
-                {u"user": None, u"model": model}
+                u"api_token_revoke", {u"user": None, u"model": model}
             )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_tokens(self):
         user = factories.User()
         token = model.ApiToken(user[u"id"])
         model.Session.add(token)
         model.Session.commit()
 
-        helpers.call_auth(u"api_token_revoke", {
-            u"model": model,
-            u"user": user[u"name"]
-        }, jti=token.id)
+        helpers.call_auth(
+            u"api_token_revoke",
+            {u"model": model, u"user": user[u"name"]},
+            jti=token.id,
+        )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_unowned_tokens(self):
         owner = factories.User()
         not_owner = factories.User()
@@ -160,34 +185,36 @@ class TestApiToken(object):
         model.Session.commit()
 
         with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(u"api_token_revoke", {
-                u"model": model,
-                u"user": not_owner[u"name"]
-            }, jti=token.id)
+            helpers.call_auth(
+                u"api_token_revoke",
+                {u"model": model, u"user": not_owner[u"name"]},
+                jti=token.id,
+            )
 
-    @pytest.mark.usefixtures(u"clean_db")
+    @pytest.mark.usefixtures(u"non_clean_db")
     def test_auth_user_is_allowed_to_revoke_unexisting_tokens(self):
         user = factories.User()
 
         with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(u"api_token_revoke", {
-                u"model": model,
-                u"user": user[u"name"]
-            }, jti='not-exists')
+            helpers.call_auth(
+                u"api_token_revoke",
+                {u"model": model, u"user": user[u"name"]},
+                jti="not-exists",
+            )
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config(u"ckan.auth.allow_dataset_collaborators", True)
 class TestPackageMemberDeleteAuth(object):
-
     def _get_context(self, user):
 
         return {
-            'model': model,
-            'user': user if isinstance(user, string_types) else user.get('name')
+            "model": model,
+            "user": user if isinstance(user, str) else user.get("name"),
         }
 
-    def setup(self):
+    @pytest.fixture(autouse=True)
+    def setup(self, clean_db):
 
         self.org_admin = factories.User()
         self.org_editor = factories.User()
