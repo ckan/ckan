@@ -7,7 +7,6 @@ from six import text_type
 from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
 import re
-from HTMLParser import HTMLParser
 
 class DataTablesController(BaseController):
     def ajax(self, resource_view_id):
@@ -19,7 +18,7 @@ class DataTablesController(BaseController):
         offset = int(request.params['start'])
         limit = int(request.params['length'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = text_type(HTMLParser().unescape(unquote(request.params['filters'].decode('utf-8'))))
+        user_filters = unquote(str(request.params['filters']))
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')
