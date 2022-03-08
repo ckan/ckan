@@ -371,6 +371,11 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
+        default:
+          - stats
+          - text_view
+          - image_view
+          - recline_view
         required: true
         type: list
         description: |-
@@ -380,6 +385,20 @@ groups:
       - key: ckan.resource_proxy.timeout
         type: int
         default: 5
+
+  - annotation: Datapusher Settings
+    options:
+      - key: ckan.datapusher.formats
+        default:
+          - csv
+          - xls
+          - xlsx
+          - tsv
+          - application/csv
+          - application/vnd.ms-excel
+          - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        required: true
+        type: list
 
   - annotation: Front-End Settings
     options:
@@ -413,7 +432,6 @@ groups:
         default: identicon
       - key: ckan.debug_supress_header
         type: bool
-
       - key: ckan.homepage_style
         default: "1"
       - key: ckan.site_custom_css
@@ -425,6 +443,7 @@ groups:
         type: list
         default:
           - image_view
+          - text_view
           - recline_view
         description: >-
           Define which views should be created by default (plugins must be

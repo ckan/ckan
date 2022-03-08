@@ -104,7 +104,7 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB',
     'ckan.activity_streams_enabled': 'CKAN_ACTIVITY_STREAMS_ENABLED',
     'ckan.activity_streams_email_notifications': 
-            'CKAN_ACTIVITY_STREAMS_NOTIFIY'
+        'CKAN_ACTIVITY_STREAMS_NOTIFIY'
 }
 # End CONFIG_FROM_ENV_VARS
 
