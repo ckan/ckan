@@ -35,6 +35,7 @@ import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context, Query
+from ckan.common import config
 
 ## package save
 
@@ -360,13 +361,15 @@ def group_dictize(group: model.Group, context: Context,
             else:
                 q['fq'] = '+groups:"{0}"'.format(group_.name)
 
-            # Allow members of organizations to see private datasets.
             if group_.is_organization:
                 is_group_member = (context.get('user') and
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
                     q['include_private'] = True
+                else:
+                    if config.get('ckan.auth.allow_dataset_collaborators'):
+                        q['include_private'] = True
 
             if not just_the_count:
                 # package_search limits 'rows' anyway, so this is only if you
