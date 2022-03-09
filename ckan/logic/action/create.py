@@ -406,10 +406,12 @@ def resource_view_create(
     if context.get('preview'):
         return data
 
-    last_view = model.Session.query(model.ResourceView).\
-        filter_by(resource_id=resource_id).\
-        order_by(model.ResourceView.order.desc()).\
-        first()
+    last_view = model.Session.query(model.ResourceView)\
+        .filter_by(resource_id=resource_id) \
+        .order_by(
+            # type_ignore_reason: incomplete SQLAlchemy types
+            model.ResourceView.order.desc() # type: ignore
+        ).first()
 
     if not last_view:
         order = 0
