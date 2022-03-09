@@ -410,7 +410,7 @@ def resource_view_create(
         .filter_by(resource_id=resource_id) \
         .order_by(
             # type_ignore_reason: incomplete SQLAlchemy types
-            model.ResourceView.order.desc() # type: ignore
+            model.ResourceView.order.desc()  # type: ignore
         ).first()
 
     if not last_view:

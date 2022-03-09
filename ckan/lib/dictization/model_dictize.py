@@ -547,7 +547,7 @@ def user_dictize(
 
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
-        user, capacity = user #type: ignore
+        user, capacity = user  #type: ignore
         result_dict = d.table_dictize(user, context, capacity=capacity)
     else:
         result_dict = d.table_dictize(user, context)
