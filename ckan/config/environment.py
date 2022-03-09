@@ -10,7 +10,6 @@ from functools import partial
 import logging
 import warnings
 from urlparse import urlparse
-from urllib import quote
 import pytz
 
 import jinja2
@@ -291,8 +290,6 @@ def update_config():
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
-    # custom functions
-    env.globals['url_quote'] = quote
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block page %}
-  {% set filters = url_quote(request.params.get('filters', '').encode('utf-8')).encode('ascii')|e if request.params is defined else url_quote(request.args.get('filters', '').encode('utf-8')).encode('ascii')|e %}
+  {% set filters = h.get_filters(encode=True) %}
   <table id="dtprv"
       class="table table-striped table-bordered"
       data-module="datatables_view"

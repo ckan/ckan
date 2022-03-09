@@ -5,6 +5,7 @@ from logging import getLogger
 from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from ckanext.datatablesview import helpers
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -18,6 +19,7 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.ITemplateHelpers, inherit=True)
 
     def update_config(self, config):
         '''
@@ -30,6 +32,11 @@ class DataTablesView(p.SingletonPlugin):
     def can_view(self, data_dict):
         resource = data_dict['resource']
         return resource.get(u'datastore_active')
+
+    def get_helpers(self):
+        return{
+            'get_filters': helpers.get_filters
+        }
 
     def view_template(self, context, data_dict):
         return u'datatables/datatables_view.html'
