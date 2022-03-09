@@ -24,7 +24,6 @@ def notify():
 )
 def replay():
     dome = DomainObjectModificationExtension()
-    breakpoint()
     for package in Session.query(Package):
         dome.notify(package, DomainObjectOperation.changed)
 
