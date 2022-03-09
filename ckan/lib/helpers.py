@@ -12,7 +12,6 @@ import datetime
 import logging
 import re
 import os
-from xml.dom import ValidationErr
 import pytz
 import tzlocal
 import pprint
