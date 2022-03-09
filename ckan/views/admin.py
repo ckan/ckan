@@ -12,7 +12,6 @@ import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.model as model
 import ckan.logic.schema
