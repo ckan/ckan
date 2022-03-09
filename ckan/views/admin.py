@@ -184,19 +184,17 @@ class TrashView(MethodView):
         )
 
     def _get_deleted_datasets_from_search_index(self) -> List[Any]:
-        query = search.query_for(model.Package)
+        package_search = logic.get_action('package_search')
         search_params = {
             'fq': '+state:deleted',
-            'df': 'text',
-            'fl': 'id name title dataset_type',
+            'include_private': True,
         }
-        query.run(search_params)
+        base_results = package_search(
+            {'ignore_auth': True},
+            search_params
+        )
 
-        results = []
-        for result in query.results:
-            result['type'] = result['dataset_type']
-            results.append(result)
-        return results
+        return base_results['results']
 
     def get(self) -> str:
         ent_type = request.args.get(u'name')
