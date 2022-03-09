@@ -26,7 +26,6 @@ def replay():
 @click.pass_context
 def send_emails(ctx: click.Context):
     import ckan.logic as logic
-    import ckan.model as model
     import ckan.lib.mailer as mailer
     from ckan.types import Context
     from typing import cast
@@ -35,7 +34,7 @@ def send_emails(ctx: click.Context):
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
     context = cast(
         Context,
-        {"user": site_user["name"], "model": model, "session": model.Session},
+        {"user": site_user["name"]}
     )
     with flask_app.test_request_context():
         try:
