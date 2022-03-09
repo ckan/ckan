@@ -32,10 +32,7 @@ def send_emails(ctx: click.Context):
 
     flask_app = ctx.meta["flask_app"]
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
-    context = cast(
-        Context,
-        {"user": site_user["name"]}
-    )
+    context = cast(Context, {"user": site_user["name"]})
     with flask_app.test_request_context():
         try:
             logic.get_action("send_email_notifications")(context, {})
