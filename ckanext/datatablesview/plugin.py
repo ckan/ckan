@@ -35,7 +35,7 @@ class DataTablesView(p.SingletonPlugin):
 
     def get_helpers(self):
         return{
-            'get_filters': helpers.get_filters
+            'encode_datatables_request_filters': helpers.encode_datatables_request_filters
         }
 
     def view_template(self, context, data_dict):

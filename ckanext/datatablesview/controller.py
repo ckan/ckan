@@ -6,7 +6,7 @@ from six import text_type
 
 from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
-from ckanext.datatablesview.helpers import get_filters
+from ckanext.datatablesview.helpers import decode_datatables_request_filters
 import re
 
 class DataTablesController(BaseController):
@@ -19,7 +19,7 @@ class DataTablesController(BaseController):
         offset = int(request.params['start'])
         limit = int(request.params['length'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = get_filters(decode=True)
+        user_filters = decode_datatables_request_filters()
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')
