@@ -780,28 +780,6 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _make_safe_id_component(idstring: str) -> str:
-    """Make a string safe for including in an id attribute.
-
-    The HTML spec says that id attributes 'must begin with
-    a letter ([A-Za-z]) and may be followed by any number
-    of letters, digits ([0-9]), hyphens ("-"), underscores
-    ("_"), colons (":"), and periods (".")'. These regexps
-    are slightly over-zealous, in that they remove colons
-    and periods unnecessarily.
-
-    Whitespace is transformed into underscores, and then
-    anything which is not a hyphen or a character that
-    matches \\w (alphanumerics and underscore) is removed.
-
-    """
-    # Transform all whitespace to underscore
-    idstring = re.sub(r'\s', "_", '%s' % idstring)
-    # Remove everything that is not a hyphen or a member of \w
-    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
-    return idstring
-
-
 @core_helper
 def link_to(label: str, url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
