@@ -546,7 +546,7 @@ class IPackageController(Interface):
         parameters, and should return a modified (or not) object with the
         same structure::
 
-            {'count': '', 'results': '', 'facets': ''}
+            {'count': '', 'results': '', 'search_facets': ''}
 
         Note that count and facets may need to be adjusted if the extension
         changed the results for some reason.

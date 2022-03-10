@@ -1270,7 +1270,7 @@ class TestCurrentPackageList(object):
 
     def test_current_package_list_private_datasets_anonoymous_user(self):
         """
-        Test current_package_list_with_resources with an anoymous user and
+        Test current_package_list_with_resources with an anonymous user and
         a private dataset
         """
         user = factories.User()

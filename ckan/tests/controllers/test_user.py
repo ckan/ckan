@@ -429,7 +429,7 @@ class TestUser(object):
         user_pass = "TestPassword1"
         user = factories.User(password=user_pass)
 
-        # Have to do an actual login as this test relys on repoze cookie handling.
+        # Have to do an actual login as this test relies on repoze cookie handling.
         # get the form
         response = app.post(
             "/login_generic?came_from=/user/logged_in",
@@ -455,7 +455,7 @@ class TestUser(object):
         user_pass = "TestPassword1"
         user = factories.User(password=user_pass)
 
-        # Have to do an actual login as this test relys on repoze cookie handling.
+        # Have to do an actual login as this test relies on repoze cookie handling.
         # get the form
         response = app.post(
             "/login_generic?came_from=/user/logged_in",
@@ -481,7 +481,7 @@ class TestUser(object):
         user_pass = "TestPassword1"
         user = factories.User(password=user_pass)
 
-        # Have to do an actual login as this test relys on repoze cookie handling.
+        # Have to do an actual login as this test relies on repoze cookie handling.
         # get the form
         response = app.post(
             "/login_generic?came_from=/user/logged_in",

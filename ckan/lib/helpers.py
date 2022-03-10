@@ -10,7 +10,6 @@ from __future__ import annotations
 import email.utils
 import datetime
 import logging
-import numbers
 import re
 import os
 import pytz
@@ -2290,7 +2289,8 @@ def format_resource_items(
     reg_ex_float = r'^-?\d{1,}\.\d{1,}$'
     for key, value in items:
         if (key in blacklist
-                or (not isinstance(value, numbers.Number) and not value)):
+                or (not isinstance(value, (int, float))
+                    and not value)):
             # Ignore blocked keys and values that evaluate to
             # `bool(value) == False` (e.g. `""`, `[]` or `{}`),
             # with the exception of numbers such as `False`, `0`,`0.0`.
@@ -2314,8 +2314,8 @@ def format_resource_items(
                 value = formatters.localised_number(int(value))
         elif isinstance(value, bool):
             value = str(value)
-        elif isinstance(value, numbers.Number):
-            value = formatters.localised_number(value)
+        elif isinstance(value, (int, float)):
+            value = formatters.localised_number(float(value))
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x: x[0])
@@ -2618,6 +2618,9 @@ def resource_formats() -> dict[str, list[str]]:
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
         format_file_path = config.get_value('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = resource_formats_default_file()
+
         with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
