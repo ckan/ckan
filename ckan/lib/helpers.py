@@ -802,17 +802,6 @@ def _make_safe_id_component(idstring: str) -> str:
     return idstring
 
 
-def _input_tag(
-        type: str, name: str, value: Any = None,
-        id: Optional[str] = None, **attrs: Any):
-    attrs = _preprocess_dom_attrs(attrs)
-    attrs.update(type=type, name=name, value=value)
-    if u"id" not in attrs:
-        attrs[u"id"] = id if id else _make_safe_id_component(name)
-
-    return dom_tags.input_(**attrs)
-
-
 @core_helper
 def link_to(label: str, url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
