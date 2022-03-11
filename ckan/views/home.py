@@ -104,6 +104,7 @@ for rule, view_func in util_rules:
 locales_mapping: List[Tuple[str, str]] = [
     ('zh_TW', 'zh_Hant_TW'),
     ('zh_CN', 'zh_Hans_CN'),
+    ('no', 'nb_NO'),
 ]
 
 for locale in locales_mapping:
