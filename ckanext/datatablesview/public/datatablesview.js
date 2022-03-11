@@ -12,49 +12,54 @@ var run_query = function(params, format) {
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
-      var datatables_lang = {};
-      if (this.options.lang === 'fr') {
-        datatables_lang = {
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/fr_fr.json'
+      let langCode = this.options.lang;
+      let module = this;
+      let datatable = jQuery('#dtprv').DataTable({
+        initComplete: function( _settings, _json ){
+          // Adds download dropdown to buttons menu
+          let tableInstance = jQuery('#dtprv').DataTable();
+          tableInstance.button().add(2, {
+            text: module._('Download'),
+            extend: 'collection',
+            buttons: [{
+              text: module._('CSV'),
+              action: function (e, dt, button, config) {
+                var params = tableInstance.ajax.params();
+                params.visible = tableInstance.columns().visible().toArray();
+                run_query(params, 'csv');
+              }
+            }, {
+              text: module._('TSV'),
+              action: function (e, dt, button, config) {
+                var params = tableInstance.ajax.params();
+                params.visible = tableInstance.columns().visible().toArray();
+                run_query(params, 'tsv');
+              }
+            }, {
+              text: module._('JSON'),
+              action: function (e, dt, button, config) {
+                var params = tableInstance.ajax.params();
+                params.visible = tableInstance.columns().visible().toArray();
+                run_query(params, 'json');
+              }
+            }, {
+              text: module._('XML'),
+              action: function (e, dt, button, config) {
+                var params = tableInstance.ajax.params();
+                params.visible = tableInstance.columns().visible().toArray();
+                run_query(params, 'xml');
+              }
+            }]
+          });
+        },
+        language: function(){
+          if (langCode === 'fr') {
+            return {
+              url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/fr_fr.json'
+            };
           }
-        };
-      }
-      var datatable = jQuery('#dtprv').DataTable(datatables_lang);
-
-      // Adds download dropdown to buttons menu
-      datatable.button().add(2, {
-        text: 'Download',
-        extend: 'collection',
-        buttons: [{
-          text: 'CSV',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'csv');
-          }
-        }, {
-          text: 'TSV',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'tsv');
-          }
-        }, {
-          text: 'JSON',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'json');
-          }
-        }, {
-          text: 'XML',
-          action: function (e, dt, button, config) {
-            var params = datatable.ajax.params();
-            params.visible = datatable.columns().visible().toArray();
-            run_query(params, 'xml');
-          }
-        }]
+          return {};
+        }
       });
     }
   }
