@@ -160,7 +160,6 @@ CONFIG_FROM_ENV_VARS = {
 }
 # End CONFIG_FROM_ENV_VARS
 
-
 def update_config():
     ''' This code needs to be run when the config is changed to take those
     changes into account. It is called whenever a plugin is loaded as the
