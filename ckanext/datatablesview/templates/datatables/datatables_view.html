@@ -10,6 +10,7 @@
 {#- pass the datadictionary to javascript, so we can init columns there -#}
 {%- set datadictionary = h.datastore_dictionary(resource.id) -%}
 {%- set nbspval = "&nbsp;"|safe -%}
+{% set filters = h.encode_datatables_request_filters() %}
 <script type=text/javascript>
     const gdataDict = {{ datadictionary|tojson }}
     const gresviewId = '{{ resource_view.id }}'
@@ -28,7 +29,7 @@
       data-languagecode="{{ h.lang() }}"
       data-languagefile="{{ h.url_for_static('vendor/DataTables/i18n/' + h.lang() + '.json') }}"
       data-ajaxurl="{{ h.url_for('datatablesview.ajax', resource_view_id=resource_view.id) }}"
-      data-ckanfilters="{{ request.args.get('filters', '')|e }}"
+      data-ckanfilters="{{ filters }}"
       data-responsive-flag="{{ resource_view.get('responsive')|lower }}"
       data-page-length-choices="{{ page_length_choices }}"
       data-resource-url="{{ h.url_for('resource.read', id=package.name, resource_id=resource.id ) }}">
@@ -70,7 +71,7 @@
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
                                                                   'datatablesview.filtered_download',
                                                                   resource_view_id=resource_view.id) -}}">
-    <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e -}}" />
+    <input type="hidden" name="filters" value="{{ filters -}}" />
   </form>
 </div>
 
