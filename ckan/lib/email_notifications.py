@@ -11,10 +11,12 @@ from __future__ import annotations
 import datetime
 import re
 from typing import Any, cast
+from jinja2 import Environment
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.lib.base as base
+import ckan.lib.helpers as helpers
+import ckan.lib.jinja_extensions as jinja_extensions
 
 from ckan.common import ungettext, config
 from ckan.types import Context
@@ -99,21 +101,28 @@ def _notifications_for_activities(
     if not user_dict.get('activity_streams_email_notifications'):
         return []
 
+    activities[0]['h'] = helpers
+    activities[0]['ungettext'] = ungettext
+    activities[0]['site_title'] = config.get_value('ckan.site_title')
+
     # We just group all activities into a single "new activity" email that
     # doesn't say anything about _what_ new activities they are.
     # TODO: Here we could generate some smarter content for the emails e.g.
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
+
+    template_name = 'activity_streams/activity_stream_email_notifications.text'
+    env = Environment(**jinja_extensions.get_jinja_env_options())
+    template = env.get_template(template_name)
+
     subject = ungettext(
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
                 site_title=config.get_value('ckan.site_title'),
                 n=len(activities))
-    body = base.render(
-            'activity_streams/activity_stream_email_notifications.text',
-            extra_vars={'activities': activities})
+    body = template.render({'activities': activities})
     notifications = [{
         'subject': subject,
         'body': body

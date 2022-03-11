@@ -23,18 +23,16 @@ def replay():
 
 
 @notify.command(name="send_emails", short_help="Send out Email notifications.")
-@click.pass_context
-def send_emails(ctx: click.Context):
+def send_emails():
     import ckan.logic as logic
     import ckan.lib.mailer as mailer
     from ckan.types import Context
     from typing import cast
 
-    flask_app = ctx.meta["flask_app"]
+
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
     context = cast(Context, {"user": site_user["name"]})
-    with flask_app.test_request_context():
-        try:
-            logic.get_action("send_email_notifications")(context, {})
-        except (NotAuthorized, ValidationError, mailer.MailerException) as e:
-            log.error(e)
+    try:
+        logic.get_action("send_email_notifications")(context, {})
+    except (NotAuthorized, ValidationError, mailer.MailerException) as e:
+        log.error(e)
