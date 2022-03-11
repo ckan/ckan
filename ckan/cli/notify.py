@@ -29,7 +29,6 @@ def send_emails():
     from ckan.types import Context
     from typing import cast
 
-
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
     context = cast(Context, {"user": site_user["name"]})
     try:
