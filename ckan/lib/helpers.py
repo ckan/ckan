@@ -3013,10 +3013,3 @@ def can_update_owner_org(
         return True
 
     return False
-
-
-@core_helper
-def generate_url_to_root_path() -> str:
-    site_url = config.get_value('ckan.site_url')
-    root_path = config.get_value('ckan.root_path')
-    return site_url + root_path if root_path else site_url
