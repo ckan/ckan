@@ -33,7 +33,8 @@ from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
-                                                      HostHeaderMiddleware)
+                                                      HostHeaderMiddleware,
+                                                      RootPathMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins.toolkit as toolkit
@@ -183,6 +184,7 @@ def make_flask_stack(conf):
         session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
             data_dir=cache_dir)
 
+    app.wsgi_app = RootPathMiddleware(app.wsgi_app, session_opts)
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
 
@@ -197,6 +199,7 @@ def make_flask_stack(conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
+    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -213,7 +216,7 @@ def make_flask_stack(conf):
         (_ckan_i18n_dir, u'ckan')
     ] + [
         (p.i18n_directory(), p.i18n_domain())
-        for p in PluginImplementations(ITranslation)
+        for p in reversed(list(PluginImplementations(ITranslation)))
     ]
 
     i18n_dirs, i18n_domains = zip(*pairs)
@@ -221,6 +224,7 @@ def make_flask_stack(conf):
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -362,6 +366,8 @@ def ckan_before_request():
     '''
     response = None
 
+    g.__timer = time.time()
+
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
@@ -374,7 +380,6 @@ def ckan_before_request():
     set_controller_and_action()
 
     set_ckan_current_url(request.environ)
-    g.__timer = time.time()
 
     return response
 
@@ -402,8 +407,9 @@ def ckan_after_request(response):
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
+    status_code = response.status_code
 
-    log.debug(' %s render time %.3f seconds' % (url, r_time))
+    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
     return response
 
@@ -420,6 +426,11 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
+
+
+def request_object():
+    u"""Use CKANRequest object implicitly in templates"""
+    return dict(request=request)
 
 
 class CKAN_Rule(Rule):
@@ -527,8 +538,9 @@ def _register_error_handler(app):
     u'''Register error handler'''
 
     def error_handler(e):
-        log.error(e, exc_info=sys.exc_info)
+        debug = asbool(config.get('debug', config.get('DEBUG', False)))
         if isinstance(e, HTTPException):
+            log.debug(e, exc_info=sys.exc_info) if debug else log.info(e)
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
@@ -537,6 +549,7 @@ def _register_error_handler(app):
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
+        log.error(e, exc_info=sys.exc_info)
         extra_vars = {u'code': [500], u'content': u'Internal server error'}
         return base.render(u'error_document_template.html', extra_vars), 500
 
@@ -574,6 +587,7 @@ def _setup_error_mail_handler(app):
         secure=secure
     )
 
+    mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(logging.Formatter('''
 Time:               %(asctime)s
 URL:                %(url)s

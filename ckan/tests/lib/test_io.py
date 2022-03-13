@@ -8,7 +8,7 @@ import pytest
 import six
 from six import text_type
 
-import ckan.lib.io as ckan_io
+import ckan.lib.io_ as ckan_io
 
 
 def test_decode_path_fails_for_unicode():

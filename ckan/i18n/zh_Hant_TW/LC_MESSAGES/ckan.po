@@ -1,0 +1,5063 @@
+# Translations template for ckan.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the ckan project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# 
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Cheng-Jen Lee <u103133.u103135@gmail.com>, 2022
+# Monica Mu, 2022
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ckan 2.9.0b0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-07-21 11:43+0200\n"
+"PO-Revision-Date: 2020-07-09 15:07+0000\n"
+"Last-Translator: Monica Mu, 2022\n"
+"Language-Team: Chinese (Taiwan) (https://www.transifex.com/okfn/teams/11162/zh_TW/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
+msgid "Audio"
+msgstr "音訊"
+
+#: ckanext/audioview/theme/templates/audio_form.html:3
+msgid "Audio url"
+msgstr "音訊網址"
+
+#: ckanext/audioview/theme/templates/audio_form.html:3
+msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
+msgstr "例如：http://example.com/audio.mp3（若保持空白則使用資源的網址）"
+
+#: ckanext/audioview/theme/templates/audio_view.html:5
+#, python-format
+msgid ""
+"Your browser does not support the <code>audio</code> element. But don't "
+"worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
+msgstr ""
+"您的瀏覽器不支援 <code>音訊 </code> 元素。但別擔心，您還是可以 <a href=\"%(res_url)s\" alt=\"video "
+"url\">下載它 </a>."
+
+#: ckan/controllers/package.py:612 ckan/controllers/package.py:1079
+#: ckan/controllers/package.py:1099 ckan/controllers/package.py:1165
+#: ckan/controllers/package.py:1348 ckan/controllers/package.py:1426
+#: ckan/controllers/package.py:1457 ckan/controllers/package.py:1565
+#: ckan/controllers/package.py:1616 ckan/views/dataset.py:1307
+#: ckan/views/dataset.py:1327 ckan/views/resource.py:96
+#: ckan/views/resource.py:170 ckan/views/resource.py:402
+#: ckan/views/resource.py:479 ckan/views/resource.py:496
+#: ckan/views/resource.py:545 ckan/views/resource.py:590
+#: ckan/views/resource.py:643 ckan/views/resource.py:842
+#: ckan/views/resource.py:920 ckanext/datapusher/blueprint.py:45
+#: ckanext/datastore/blueprint.py:115 ckanext/resourceproxy/blueprint.py:37
+msgid "Resource not found"
+msgstr "資源不存在"
+
+#: ckan/controllers/api.py:63 ckan/controllers/group.py:157
+#: ckan/controllers/home.py:27 ckan/controllers/package.py:144
+#: ckan/controllers/package.py:315 ckan/controllers/user.py:58
+#: ckan/controllers/user.py:85 ckan/controllers/user.py:116
+#: ckan/controllers/user.py:597 ckan/controllers/user.py:668
+#: ckan/views/dashboard.py:21 ckan/views/dashboard.py:28
+#: ckan/views/dataset.py:215 ckan/views/group.py:146 ckan/views/user.py:62
+#: ckan/views/user.py:87 ckan/views/user.py:110 ckan/views/user.py:569
+#: ckanext/datapusher/blueprint.py:56
+msgid "Not authorized to see this page"
+msgstr "沒有權限瀏覽此頁面"
+
+#: ckanext/datapusher/helpers.py:21
+msgid "Complete"
+msgstr "完成"
+
+#: ckanext/datapusher/helpers.py:22
+msgid "Pending"
+msgstr "等待中"
+
+#: ckanext/datapusher/helpers.py:23
+msgid "Submitting"
+msgstr "上傳中"
+
+#: ckan/controllers/package.py:684 ckan/views/resource.py:231
+#: ckanext/datapusher/helpers.py:24
+msgid "Error"
+msgstr "錯誤"
+
+#: ckanext/datapusher/helpers.py:29
+msgid "Not Uploaded Yet"
+msgstr "尚未上傳"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:12
+#: ckanext/datapusher/templates/datapusher/resource_data.html:12
+msgid "Upload to DataStore"
+msgstr "上傳至 DataStore"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:19
+#: ckanext/datapusher/templates/datapusher/resource_data.html:19
+msgid "Upload error:"
+msgstr "上傳錯誤:"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:25
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:27
+#: ckanext/datapusher/templates/datapusher/resource_data.html:25
+#: ckanext/datapusher/templates/datapusher/resource_data.html:27
+msgid "Error:"
+msgstr "錯誤："
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
+#: ckanext/datapusher/templates/datapusher/resource_data.html:36
+msgid "Error traceback:"
+msgstr "錯誤追蹤："
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
+#: ckanext/datapusher/templates/datapusher/resource_data.html:48
+msgid "Status"
+msgstr "狀態"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:52
+#: ckanext/datapusher/templates/datapusher/resource_data.html:52
+msgid "Last updated"
+msgstr "最後更新"
+
+#: ckan/templates/user/snippets/api_token_list.html:32
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
+#: ckanext/datapusher/templates/datapusher/resource_data.html:56
+msgid "Never"
+msgstr "從未"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:62
+#: ckanext/datapusher/templates/datapusher/resource_data.html:62
+msgid "Upload Log"
+msgstr "上傳紀錄"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:76
+#: ckanext/datapusher/templates/datapusher/resource_data.html:76
+msgid "Details"
+msgstr "細節"
+
+#: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
+#: ckanext/datapusher/templates/datapusher/resource_data.html:83
+msgid "End of log"
+msgstr "紀錄尾端"
+
+#: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
+#: ckanext/datapusher/templates/package/resource_edit_base.html:5
+msgid "DataStore"
+msgstr "DataStore"
+
+#: ckanext/datastore/blueprint.py:89
+msgid "DataStore resource not found"
+msgstr "資料儲存之資源不存在"
+
+#: ckanext/datastore/blueprint.py:151
+msgid ""
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
+msgstr "已儲存資料字典，下次將資源上載到DataStore時，任何類型覆蓋都將生效"
+
+#: ckanext/datastore/backend/postgres.py:1067
+msgid "The data was invalid: {}"
+msgstr "資料無效：{}"
+
+#: ckanext/datastore/logic/action.py:277 ckanext/datastore/logic/action.py:309
+#: ckanext/datastore/logic/action.py:373 ckanext/datastore/logic/action.py:509
+msgid "Resource \"{0}\" was not found."
+msgstr "資源 \"{0}\" 不存在。"
+
+#: ckanext/datastore/logic/auth.py:18
+msgid "User {0} not authorized to update resource {1}"
+msgstr "使用者{0}沒有權限更新資源{1}"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:19
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:21
+msgid "CKAN Data API"
+msgstr "CKAN資料API"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:25
+msgid "Access resource data via a web API with powerful query support"
+msgstr "透過一擁有強大查詢功能支援的網路API來存取資源之資料"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:24
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:26
+msgid ""
+"Further information in the <a "
+"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
+msgstr " 進一步的資訊位於  CKAN Data API 及 DataStore 文件</a>.</p> "
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:35
+msgid "Endpoints"
+msgstr "終端點"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:37
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:39
+msgid ""
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr "可使用下列之CKAN action API所提供的功能來存取資料API。"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:44
+msgid "Create"
+msgstr "建立"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:46
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:48
+msgid "Update / Insert"
+msgstr "更新 / 插入"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:50
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:52
+msgid "Query"
+msgstr "查詢"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:54
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:56
+msgid "Query (via SQL)"
+msgstr "查詢 (透過SQL)"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:68
+msgid "Querying"
+msgstr "查詢"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:70
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:72
+msgid "Query example (first 5 results)"
+msgstr "查詢之範例 (前5個結果)"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:75
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:77
+msgid "Query example (results containing 'jones')"
+msgstr "查詢之範例 (包含字串 'jones' 的結果)"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:80
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:82
+msgid "Query example (via SQL statement)"
+msgstr "查詢之範例 (透過SQL指令敘述)"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:93
+msgid "Example: Javascript"
+msgstr "範例：Javascript"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:95
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:97
+msgid "A simple ajax (JSONP) request to the data API using jQuery."
+msgstr "使用jQuery對資料API發出一個簡單的ajax(JSONP)請求。"
+
+#: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:116
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:118
+msgid "Example: Python"
+msgstr "範例：Python"
+
+#: ckan/templates/group/member_new.html:73
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:32
+#: ckanext/datastore/templates/datastore/dictionary.html:18
+msgid "Save"
+msgstr "儲存"
+
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:15
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:3
+msgid "Field {num}."
+msgstr "欄位 {num}."
+
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:17
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
+msgid "Type Override"
+msgstr "覆蓋類型"
+
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:24
+#: ckanext/datastore/templates-bs2/package/resource_read.html:20
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:20
+#: ckanext/datastore/templates/package/resource_read.html:21
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:18
+msgid "Label"
+msgstr "標籤"
+
+#: ckan/templates/group/snippets/group_form.html:20
+#: ckan/templates/organization/snippets/organization_form.html:20
+#: ckan/templates/package/snippets/package_basic_fields.html:19
+#: ckan/templates/package/snippets/resource_form.html:34
+#: ckan/templates/package/snippets/view_form.html:9
+#: ckanext/datastore/templates-bs2/datastore/dictionary.html:27
+#: ckanext/datastore/templates-bs2/package/resource_read.html:21
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
+#: ckanext/datastore/templates/package/resource_read.html:22
+msgid "Description"
+msgstr "說明"
+
+#: ckanext/datastore/templates-bs2/package/resource_edit_base.html:6
+#: ckanext/datastore/templates-bs2/package/resource_read.html:14
+#: ckanext/datastore/templates/package/resource_edit_base.html:6
+#: ckanext/datastore/templates/package/resource_read.html:14
+msgid "Data Dictionary"
+msgstr "資料字典"
+
+#: ckanext/datastore/templates-bs2/package/resource_read.html:18
+#: ckanext/datastore/templates/package/resource_read.html:19
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:17
+msgid "Column"
+msgstr "欄位"
+
+#: ckanext/datastore/templates-bs2/package/resource_read.html:19
+#: ckanext/datastore/templates/package/resource_read.html:20
+msgid "Type"
+msgstr "型式"
+
+#: ckan/public/base/javascript/modules/activity-stream.js:97
+#: ckan/public/base/javascript/modules/activity-stream.min.js:2
+#: ckan/public/base/javascript/modules/popover-context.js:62
+#: ckan/public/base/javascript/modules/popover-context.min.js:2
+#: ckan/templates/tests/mock_json_resource_preview_template.html:7
+#: ckan/templates/tests/mock_resource_preview_template.html:7
+#: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:7
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:7
+#: ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v18_snippet_api/fanstatic/example_theme_popover.min.js:1
+#: ckanext/example_theme_docs/v19_01_error/fanstatic/example_theme_popover.js:21
+#: ckanext/example_theme_docs/v19_01_error/fanstatic/example_theme_popover.min.js:1
+#: ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v19_02_error_handling/fanstatic/example_theme_popover.min.js:1
+#: ckanext/example_theme_docs/v20_pubsub/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v20_pubsub/fanstatic/example_theme_popover.min.js:1
+#: ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js:8
+#: ckanext/example_theme_docs/v21_custom_jquery_plugin/fanstatic/example_theme_popover.min.js:1
+#: ckanext/reclineview/theme/templates/recline_view.html:15
+#: ckanext/textview/theme/templates/text_view.html:9
+msgid "Loading..."
+msgstr "讀取中..."
+
+#: ckanext/datastore/templates-bs2/package/snippets/data_api_button.html:9
+#: ckanext/datastore/templates/package/snippets/data_api_button.html:9
+msgid "Data API"
+msgstr "資料API"
+
+#: ckanext/datatablesview/plugin.py:54 ckanext/reclineview/plugin.py:142
+msgid "Table"
+msgstr "表格"
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:6
+msgid "Responsive display"
+msgstr "響應式顯示"
+
+#: ckanext/datatablesview/templates/datatables/datatables_form.html:12
+msgid "Show Columns"
+msgstr "顯示欄位"
+
+#: ckanext/datatablesview/templates/datatables/datatables_view.html:30
+msgid "Hide/Unhide Columns"
+msgstr "隱藏/顯示欄位"
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:11
+msgid "Datasets per page"
+msgstr "每頁顯示資料集數量"
+
+#: ckanext/example_iconfigurer/templates/admin/config.html:13
+msgid "Test conf"
+msgstr "測試設定"
+
+#: ckan/templates/group/read.html:13 ckan/templates/organization/read.html:19
+#: ckan/templates/package/search.html:29
+#: ckan/templates/snippets/sort_by.html:14
+#: ckanext/example_idatasetform/templates/package/search.html:12
+msgid "Relevance"
+msgstr "關聯"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:14
+#: ckan/templates/organization/bulk_process.html:27
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:20
+#: ckan/templates/package/search.html:30
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:15
+#: ckanext/example_idatasetform/templates/package/search.html:13
+msgid "Name Ascending"
+msgstr "根據名稱遞增排序"
+
+#: ckan/templates/group/index.html:20 ckan/templates/group/read.html:15
+#: ckan/templates/organization/bulk_process.html:28
+#: ckan/templates/organization/index.html:20
+#: ckan/templates/organization/read.html:21
+#: ckan/templates/package/search.html:31
+#: ckan/templates/snippets/search_form.html:4
+#: ckan/templates/snippets/simple_search.html:10
+#: ckan/templates/snippets/sort_by.html:16
+#: ckanext/example_idatasetform/templates/package/search.html:14
+msgid "Name Descending"
+msgstr "根據名稱遞減排序"
+
+#: ckan/templates/group/read.html:16
+#: ckan/templates/organization/bulk_process.html:29
+#: ckan/templates/organization/read.html:22
+#: ckan/templates/package/search.html:32
+#: ckan/templates/package/snippets/resource_form.html:53
+#: ckan/templates/snippets/sort_by.html:17
+#: ckanext/example_idatasetform/templates/package/search.html:15
+msgid "Last Modified"
+msgstr "最後修改"
+
+#: ckanext/example_idatasetform/templates/package/search.html:16
+msgid "Custom Field Ascending"
+msgstr "客製化欄位（遞增排序）"
+
+#: ckanext/example_idatasetform/templates/package/search.html:17
+msgid "Custom Field Descending"
+msgstr "客製化欄位（遞減排序）"
+
+#: ckan/templates/group/read.html:17 ckan/templates/organization/read.html:23
+#: ckan/templates/package/search.html:33
+#: ckan/templates/snippets/package_item.html:50
+#: ckan/templates/snippets/popular.html:3
+#: ckan/templates/snippets/sort_by.html:19
+#: ckanext/example_idatasetform/templates/package/search.html:18
+msgid "Popular"
+msgstr "熱門的"
+
+#: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "Custom Text"
+msgstr "客製化文本"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
+msgid "custom text"
+msgstr "客製化文本"
+
+#: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
+msgid "Country Code"
+msgstr "國家/地區代碼"
+
+#: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
+msgid "custom resource text"
+msgstr "客製化的資源描述"
+
+#: ckanext/example_itranslation/templates/home/index.html:4
+msgid "This is an untranslated string"
+msgstr "此為未被翻譯的字串"
+
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
+msgid "This group has no description"
+msgstr "此群組沒有說明"
+
+#: ckan/templates/group/snippets/group_item.html:32
+#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num}個資料集"
+
+#: ckan/templates/group/snippets/group_item.html:34
+#: ckan/templates/organization/snippets/organization_item.html:33
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
+msgid "0 Datasets"
+msgstr "0資料集"
+
+#: ckanext/example_theme_docs/v12_extra_public_dir/templates/home/snippets/promoted.html:4
+msgid "CKAN's data previewing tool has many powerful features"
+msgstr "CKAN 的資料預覽工具提供許多強大功能"
+
+#: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:6
+#: ckan/templates/group/snippets/info.html:34
+#: ckan/templates/package/followers.html:3
+#: ckan/templates/package/followers.html:6
+#: ckan/templates/package/snippets/info.html:24
+#: ckan/templates/snippets/context/group.html:13
+#: ckan/templates/snippets/context/user.html:15
+#: ckan/templates/snippets/organization.html:57
+#: ckan/templates/user/followers.html:3 ckan/templates/user/followers.html:7
+#: ckan/templates/user/read_base.html:52
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:12
+msgid "Followers"
+msgstr "追蹤者"
+
+#: ckan/logic/__init__.py:103 ckan/logic/action/__init__.py:62
+#: ckan/templates/package/edit_base.html:18
+#: ckan/templates/package/resources.html:5
+#: ckan/templates/package/snippets/resources.html:21
+#: ckan/templates/snippets/context/dataset.html:13
+#: ckanext/example_theme_docs/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html:15
+msgid "Resources"
+msgstr "資源"
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:6
+msgid "Second"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:7
+msgid "Minute"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:8
+msgid "Hour"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:9
+msgid "Day"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:15
+msgid "Expires in"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/api_tokens.html:16
+msgid "Units"
+msgstr ""
+
+#: ckanext/expire_api_token/templates/user/snippets/api_token_list.html:5
+msgid "Expires at"
+msgstr ""
+
+#: ckan/public/base/javascript/modules/image-upload.js:87
+#: ckan/public/base/javascript/modules/image-upload.min.js:7
+#: ckan/templates/macros/form.html:434 ckanext/imageview/plugin.py:27
+#: ckanext/imageview/plugin.py:32
+msgid "Image"
+msgstr "圖片"
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "Image url"
+msgstr "圖片網址"
+
+#: ckanext/imageview/theme/templates/image_form.html:3
+msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
+msgstr "例如：http://example.com/image.jpg（若保持空白則使用資源的網址）"
+
+#: ckanext/reclineview/plugin.py:113
+msgid "Data Explorer"
+msgstr "資料瀏覽器"
+
+#: ckanext/reclineview/plugin.py:185
+#: ckanext/reclineview/theme/public/recline_view.js:204
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Graph"
+msgstr "圖表"
+
+#: ckanext/reclineview/plugin.py:245
+#: ckanext/reclineview/theme/public/recline_view.js:211
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Map"
+msgstr "地圖"
+
+#: ckanext/reclineview/theme/public/recline_view.js:29
+#: ckanext/reclineview/theme/public/recline_view.min.js:1
+msgid "error loading view"
+msgstr "讀取資料檢視發生錯誤"
+
+#: ckanext/reclineview/theme/public/recline_view.js:79
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "Could not load view"
+msgstr "無法載入檢視器"
+
+#: ckanext/reclineview/theme/public/recline_view.js:81
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "DataStore returned an error"
+msgstr "DataStore 錯誤"
+
+#: ckanext/reclineview/theme/public/recline_view.js:83
+#: ckanext/reclineview/theme/public/recline_view.min.js:5
+msgid "DataProxy returned an error"
+msgstr "DataProxy 錯誤"
+
+#: ckanext/reclineview/theme/public/recline_view.js:197
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Grid"
+msgstr "網格"
+
+#: ckan/templates/package/snippets/view_form_filters.html:46
+#: ckanext/reclineview/theme/public/recline_view.js:219
+#: ckanext/reclineview/theme/public/recline_view.min.js:14
+msgid "Filters"
+msgstr "篩選條件"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "Row offset"
+msgstr "資料列偏移量"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:3
+#: ckanext/reclineview/theme/templates/recline_map_form.html:3
+msgid "eg: 0"
+msgstr "例如：0"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "Number of rows"
+msgstr "顯示資料列數量"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:4
+#: ckanext/reclineview/theme/templates/recline_map_form.html:4
+msgid "eg: 100"
+msgstr "例如：100"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:6
+msgid "Graph type"
+msgstr "圖表類型"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:7
+msgid "Group (Axis 1)"
+msgstr "群組（軸 1）"
+
+#: ckanext/reclineview/theme/templates/recline_graph_form.html:8
+msgid "Series (Axis 2)"
+msgstr "數列（軸 2）"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:6
+msgid "Field type"
+msgstr "欄位類型"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:7
+msgid "Latitude field"
+msgstr "緯度欄位"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:8
+msgid "Longitude field"
+msgstr "經度欄位"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:9
+msgid "GeoJSON field"
+msgstr "GeoJSON 欄位"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:10
+msgid "Auto zoom to features"
+msgstr "自動縮放至圖徵 (features)"
+
+#: ckanext/reclineview/theme/templates/recline_map_form.html:11
+msgid "Cluster markers"
+msgstr "將附近的圖徵 (features) 標記為叢集"
+
+#: ckanext/resourceproxy/blueprint.py:42
+msgid "Invalid URL."
+msgstr "無效的網址"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:11
+#: ckanext/stats/templates/ckanext/stats/index.html:107
+msgid "Top Rated Datasets"
+msgstr "評分最高的資料集"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:17
+msgid "Average rating"
+msgstr "平均評分"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:18
+msgid "Number of ratings"
+msgstr "參與評分的人數"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:32
+msgid "No ratings"
+msgstr "無人參與評分"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:37
+#: ckanext/stats/templates/ckanext/stats/index.html:109
+msgid "Largest Groups"
+msgstr "擁有最多資料集的的群組"
+
+#: ckan/logic/converters.py:174 ckan/logic/validators.py:268
+#: ckanext/stats/templates/ckanext/stats/index.html:42
+msgid "Group"
+msgstr "群組"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:43
+msgid "Number of datasets"
+msgstr "資料集數目"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:56
+msgid "No groups"
+msgstr "沒有群組"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:61
+#: ckanext/stats/templates/ckanext/stats/index.html:110
+msgid "Top Tags"
+msgstr "最熱門的標籤"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:65
+msgid "Tag Name"
+msgstr "標籤名稱"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:66
+#: ckanext/stats/templates/ckanext/stats/index.html:86
+msgid "Number of Datasets"
+msgstr "資料集數量"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:81
+#: ckanext/stats/templates/ckanext/stats/index.html:111
+msgid "Users Creating Most Datasets"
+msgstr "建立最多資料集的使用者"
+
+#: ckan/logic/converters.py:124 ckan/logic/validators.py:238
+#: ckan/logic/validators.py:255 ckan/logic/validators.py:733
+#: ckan/templates/group/members.html:14
+#: ckan/templates/organization/members.html:19
+#: ckan/templates/package/collaborators/collaborators.html:19
+#: ckanext/stats/templates/ckanext/stats/index.html:85
+msgid "User"
+msgstr "使用者"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:104
+msgid "Statistics Menu"
+msgstr "統計目錄"
+
+#: ckanext/stats/templates/ckanext/stats/index.html:108
+msgid "Most Edited Datasets"
+msgstr "最多編輯次數的資料集"
+
+#: ckanext/textview/plugin.py:69 ckanext/textview/plugin.py:71
+msgid "Text"
+msgstr "文字檔案"
+
+#: ckanext/textview/theme/public/text_view.js:70
+#: ckanext/textview/theme/public/text_view.min.js:3
+msgid "An error occured during AJAX request. Could not load view."
+msgstr ""
+
+#: ckanext/videoview/plugin.py:25 ckanext/videoview/plugin.py:31
+msgid "Video"
+msgstr "影片"
+
+#: ckanext/videoview/theme/templates/video_form.html:3
+msgid "Video url"
+msgstr "影片網址"
+
+#: ckanext/videoview/theme/templates/video_form.html:3
+msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
+msgstr "例如：http://example.com/video.mpeg（若保持空白則使用資源的網址）"
+
+#: ckanext/videoview/theme/templates/video_form.html:4
+msgid "Poster url"
+msgstr "預覽圖網址"
+
+#: ckanext/videoview/theme/templates/video_form.html:4
+msgid "eg. http://example.com/poster.jpg"
+msgstr "例如：http://example.com/poster.jpg"
+
+#: ckanext/videoview/theme/templates/video_view.html:7
+#, python-format
+msgid ""
+"Sorry, your browser doesn't support embedded videos, but don't worry, you "
+"can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
+"with your favorite video player!"
+msgstr ""
+
+#: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
+msgid "Website"
+msgstr "網站"
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "Web Page url"
+msgstr "網頁網址"
+
+#: ckanext/webpageview/theme/templates/webpage_form.html:3
+msgid "eg. http://example.com  (if blank uses resource url)"
+msgstr "例如： http://example.com（若保持空白則使用資源的網址）"
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:23
+#: ckan/templates/package/snippets/resource_view.html:62
+#: ckanext/webpageview/theme/templates/webpage_view.html:2
+msgid "Your browser does not support iframes."
+msgstr "你的瀏覽器不支援此頁框"
+
+#: ckan/authz.py:223
+#, python-format
+msgid "Authorization function not found: %s"
+msgstr "授權功能未找到：%s"
+
+#: ckan/authz.py:242 ckan/templates/header.html:11
+msgid "Admin"
+msgstr "管理者"
+
+#: ckan/authz.py:246
+msgid "Editor"
+msgstr "編輯"
+
+#: ckan/authz.py:250
+msgid "Member"
+msgstr "成員"
+
+#: ckan/controllers/admin.py:33 ckan/views/admin.py:76
+msgid "Need to be system administrator to administer"
+msgstr "需要系統管理員來管理"
+
+#: ckan/controllers/admin.py:49 ckan/templates/admin/config.html:14
+msgid "Site Title"
+msgstr "網站標題"
+
+#: ckan/controllers/admin.py:50 ckan/templates/admin/config.html:16
+msgid "Style"
+msgstr "樣式"
+
+#: ckan/controllers/admin.py:51 ckan/templates/admin/config.html:18
+msgid "Site Tag Line"
+msgstr "網站簡述"
+
+#: ckan/controllers/admin.py:52
+msgid "Site Tag Logo"
+msgstr "網站 LOGO"
+
+#: ckan/controllers/admin.py:54 ckan/templates/admin/config.html:25
+#: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
+#: ckan/templates/header.html:92 ckan/templates/home/about.html:3
+#: ckan/templates/home/about.html:6 ckan/templates/home/about.html:16
+#: ckan/templates/organization/about.html:3
+#: ckan/templates/organization/read_base.html:19
+#: ckan/templates/user/edit_user_form.html:14
+msgid "About"
+msgstr "關於"
+
+#: ckan/controllers/admin.py:54 ckan/templates/admin/config.html:25
+msgid "About page text"
+msgstr "關於頁面文字"
+
+#: ckan/controllers/admin.py:55 ckan/templates/admin/config.html:27
+msgid "Intro Text"
+msgstr "簡介文字"
+
+#: ckan/controllers/admin.py:55 ckan/templates/admin/config.html:27
+msgid "Text on home page"
+msgstr "首頁的文字"
+
+#: ckan/controllers/admin.py:56 ckan/templates/admin/config.html:29
+msgid "Custom CSS"
+msgstr "客製化CSS"
+
+#: ckan/controllers/admin.py:56 ckan/templates/admin/config.html:29
+msgid "Customisable css inserted into the page header"
+msgstr "在頁首可自行定義的CSS"
+
+#: ckan/controllers/admin.py:57 ckan/templates/admin/config.html:31
+msgid "Homepage"
+msgstr "首頁"
+
+#: ckan/controllers/admin.py:160
+#, python-format
+msgid ""
+"Cannot purge package %s as associated revision %s includes non-deleted "
+"packages %s"
+msgstr "無法清除 Package %s 相關的修訂版本 %s 包含未刪除的 Packages %s"
+
+#: ckan/controllers/admin.py:182
+#, python-format
+msgid "Problem purging revision %s: %s"
+msgstr "程式淨化版本%s: %s"
+
+#: ckan/controllers/admin.py:184
+msgid "Purge complete"
+msgstr "清除完成"
+
+#: ckan/controllers/admin.py:186 ckan/views/admin.py:216
+msgid "Action not implemented."
+msgstr "操作未執行"
+
+#: ckan/controllers/api.py:124 ckan/controllers/api.py:215
+#: ckan/views/api.py:115 ckan/views/api.py:304
+msgid "Access denied"
+msgstr "拒絕存取"
+
+#: ckan/controllers/api.py:130 ckan/controllers/api.py:224
+#: ckan/logic/action/create.py:973 ckan/logic/converters.py:124
+#: ckan/logic/converters.py:149 ckan/logic/converters.py:174
+#: ckan/logic/validators.py:173 ckan/logic/validators.py:194
+#: ckan/logic/validators.py:215 ckan/logic/validators.py:224
+#: ckan/logic/validators.py:238 ckan/logic/validators.py:255
+#: ckan/logic/validators.py:268 ckan/logic/validators.py:292
+#: ckan/logic/validators.py:733 ckan/views/api.py:122 ckan/views/api.py:313
+msgid "Not found"
+msgstr "找不到資料"
+
+#: ckan/controllers/api.py:136 ckan/views/api.py:129
+msgid "Bad request"
+msgstr "錯誤請求"
+
+#: ckan/controllers/api.py:164
+#, python-format
+msgid "Action name not known: %s"
+msgstr "未知的指令名稱：%s"
+
+#: ckan/controllers/api.py:185 ckan/views/api.py:273
+#, python-format
+msgid "JSON Error: %s"
+msgstr "錯誤的JSON：%s"
+
+#: ckan/controllers/api.py:191 ckan/views/api.py:279
+#, python-format
+msgid "Bad request data: %s"
+msgstr "錯誤請求的資料：%s"
+
+#: ckan/controllers/feed.py:236 ckan/controllers/group.py:129
+#: ckan/controllers/group.py:231 ckan/controllers/group.py:406
+#: ckan/controllers/group.py:516 ckan/controllers/group.py:549
+#: ckan/controllers/group.py:579 ckan/controllers/group.py:590
+#: ckan/controllers/group.py:644 ckan/controllers/group.py:670
+#: ckan/controllers/group.py:726 ckan/controllers/group.py:758
+#: ckan/controllers/group.py:791 ckan/controllers/group.py:848
+#: ckan/controllers/group.py:947 ckan/controllers/package.py:1267
+#: ckan/controllers/package.py:1282 ckan/logic/action/create.py:1468
+#: ckan/views/dataset.py:1027 ckan/views/dataset.py:1044
+#: ckan/views/feed.py:206 ckan/views/group.py:396 ckan/views/group.py:427
+#: ckan/views/group.py:469 ckan/views/group.py:536 ckan/views/group.py:590
+#: ckan/views/group.py:720 ckan/views/group.py:760 ckan/views/group.py:857
+#: ckan/views/group.py:929 ckan/views/group.py:950 ckan/views/group.py:969
+#: ckan/views/group.py:1029 ckan/views/group.py:1099
+msgid "Group not found"
+msgstr "群組不存在"
+
+#: ckan/controllers/feed.py:247 ckan/logic/action/create.py:1468
+#: ckan/views/feed.py:223
+msgid "Organization not found"
+msgstr "組織不存在"
+
+#: ckan/controllers/group.py:131 ckan/controllers/group.py:593
+msgid "Incorrect group type"
+msgstr "錯誤的群組類型"
+
+#: ckan/controllers/group.py:317 ckan/controllers/home.py:61
+#: ckan/controllers/package.py:256 ckan/lib/helpers.py:1249
+#: ckan/templates/header.html:90
+#: ckan/templates/organization/base_form_page.html:4
+#: ckan/templates/organization/edit_base.html:5
+#: ckan/templates/organization/edit_base.html:8
+#: ckan/templates/organization/index.html:3
+#: ckan/templates/organization/index.html:6
+#: ckan/templates/organization/index.html:18
+#: ckan/templates/organization/read_base.html:3
+#: ckan/templates/organization/read_base.html:6
+#: ckan/templates/package/base.html:16 ckan/views/dataset.py:284
+#: ckan/views/group.py:304 ckan/views/home.py:49
+msgid "Organizations"
+msgstr "組織"
+
+#: ckan/controllers/group.py:318 ckan/controllers/home.py:62
+#: ckan/controllers/package.py:257 ckan/lib/helpers.py:1250
+#: ckan/templates/group/base_form_page.html:4 ckan/templates/group/edit.html:4
+#: ckan/templates/group/edit_base.html:3 ckan/templates/group/edit_base.html:8
+#: ckan/templates/group/index.html:3 ckan/templates/group/index.html:6
+#: ckan/templates/group/index.html:18 ckan/templates/group/members.html:3
+#: ckan/templates/group/read_base.html:3 ckan/templates/group/read_base.html:6
+#: ckan/templates/header.html:91 ckan/templates/package/group_list.html:5
+#: ckan/templates/package/read_base.html:22
+#: ckan/tests/config/test_middleware.py:120 ckan/views/dataset.py:285
+#: ckan/views/group.py:305 ckan/views/home.py:50
+msgid "Groups"
+msgstr "群組"
+
+#: ckan/controllers/group.py:319 ckan/controllers/home.py:63
+#: ckan/controllers/package.py:258 ckan/lib/helpers.py:1251
+#: ckan/logic/__init__.py:114
+#: ckan/templates/package/snippets/package_basic_fields.html:24
+#: ckan/templates/snippets/context/dataset.html:17
+#: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
+#: ckan/templates/tag/index.html:12 ckan/views/dataset.py:286
+#: ckan/views/group.py:306 ckan/views/home.py:51
+msgid "Tags"
+msgstr "標籤"
+
+#: ckan/controllers/group.py:320 ckan/controllers/home.py:64
+#: ckan/controllers/package.py:259 ckan/lib/helpers.py:1252
+#: ckan/views/dataset.py:287 ckan/views/group.py:307 ckan/views/home.py:52
+msgid "Formats"
+msgstr "格式"
+
+#: ckan/controllers/group.py:321 ckan/controllers/home.py:65
+#: ckan/controllers/package.py:260 ckan/lib/helpers.py:1253
+#: ckan/views/dataset.py:288 ckan/views/group.py:308 ckan/views/home.py:53
+msgid "Licenses"
+msgstr "授權"
+
+#: ckan/controllers/group.py:408 ckan/controllers/group.py:525
+#: ckan/controllers/package.py:345 ckan/controllers/package.py:575
+#: ckan/controllers/package.py:792 ckan/controllers/package.py:1411
+#: ckan/controllers/package.py:1445 ckan/views/dataset.py:396
+#: ckan/views/dataset.py:797 ckan/views/group.py:763
+#: ckan/views/resource.py:347 ckan/views/resource.py:527
+#: ckan/views/resource.py:627
+#, python-format
+msgid "User %r not authorized to edit %s"
+msgstr "使用者 %r 無權修改 %s"
+
+#: ckan/controllers/group.py:455 ckan/views/group.py:811
+msgid "Not authorized to perform bulk update"
+msgstr "未被授權批次更新"
+
+#: ckan/controllers/group.py:473 ckan/views/group.py:838
+#: ckan/views/group.py:927
+msgid "Unauthorized to create a group"
+msgstr "沒有權限建立群組"
+
+#: ckan/controllers/group.py:551 ckan/controllers/group.py:581
+#: ckan/controllers/package.py:947 ckan/controllers/package.py:995
+#: ckan/controllers/user.py:245 ckan/controllers/user.py:369
+#: ckan/controllers/user.py:550 ckan/views/dataset.py:552
+#: ckan/views/dataset.py:721 ckan/views/dataset.py:1302
+#: ckan/views/group.py:859 ckan/views/group.py:952 ckan/views/user.py:282
+#: ckan/views/user.py:389 ckan/views/user.py:738
+msgid "Integrity Error"
+msgstr "完整性錯誤"
+
+#: ckan/controllers/group.py:607
+#, python-format
+msgid "User %r not authorized to edit %s authorizations"
+msgstr "使用者 %r 無權修改 %s 的權限"
+
+#: ckan/controllers/group.py:627 ckan/controllers/group.py:642
+#: ckan/views/group.py:1010 ckan/views/group.py:1027
+#, python-format
+msgid "Unauthorized to delete group %s"
+msgstr "沒有刪除%s群組的權限"
+
+#: ckan/controllers/group.py:633 ckan/views/group.py:1019
+msgid "Organization has been deleted."
+msgstr "此組織已被刪除"
+
+#: ckan/controllers/group.py:635 ckan/views/group.py:1021
+msgid "Group has been deleted."
+msgstr "此群組已被刪除"
+
+#: ckan/controllers/group.py:637 ckan/views/group.py:1024
+#, python-format
+msgid "%s has been deleted."
+msgstr "%s 已被刪除。"
+
+#: ckan/controllers/group.py:661 ckan/views/group.py:539
+#, python-format
+msgid "User %r not authorized to edit members of %s"
+msgstr "使用者 %r 無權修改 %s 的成員"
+
+#: ckan/controllers/group.py:682 ckan/views/group.py:1071
+#, python-format
+msgid "Unauthorized to create group %s members"
+msgstr "無法授權 %s 為群組成員"
+
+#: ckan/controllers/group.py:724 ckan/views/group.py:1097
+#, python-format
+msgid "Unauthorized to add member to group %s"
+msgstr "沒有在群組%s中新增成員的權限"
+
+#: ckan/controllers/group.py:743 ckan/controllers/group.py:756
+#: ckan/views/group.py:567 ckan/views/group.py:588
+#, python-format
+msgid "Unauthorized to delete group %s members"
+msgstr "沒有刪除群組%s中成員的權限"
+
+#: ckan/controllers/group.py:750 ckan/views/group.py:576
+msgid "Group member has been deleted."
+msgstr "群組成員已被刪除"
+
+#: ckan/controllers/group.py:774 ckan/controllers/package.py:435
+msgid "Select two revisions before doing the comparison."
+msgstr "挑選兩種版本，然後進行比對。"
+
+#: ckan/controllers/group.py:798
+msgid "CKAN Group Revision History"
+msgstr "CKAN群組版本歷史紀錄"
+
+#: ckan/controllers/group.py:802
+msgid "Recent changes to CKAN Group: "
+msgstr "CKAN群組最近的更新："
+
+#: ckan/controllers/group.py:823 ckan/controllers/package.py:486
+msgid "Log message: "
+msgstr "記錄檔訊息："
+
+#: ckan/controllers/group.py:873 ckan/controllers/package.py:1195
+#: ckan/controllers/user.py:723 ckan/views/dataset.py:921
+#: ckan/views/group.py:614 ckan/views/user.py:768
+msgid "You are now following {0}"
+msgstr "你正在關注{0}"
+
+#: ckan/controllers/group.py:894 ckan/controllers/package.py:1214
+#: ckan/controllers/user.py:743 ckan/views/dataset.py:949
+#: ckan/views/group.py:634 ckan/views/user.py:790
+msgid "You are no longer following {0}"
+msgstr "你已取消關注{0}"
+
+#: ckan/controllers/group.py:915 ckan/controllers/user.py:583
+#: ckan/views/group.py:654 ckan/views/user.py:814
+#, python-format
+msgid "Unauthorized to view followers %s"
+msgstr "沒有檢視跟隨者%s的權限"
+
+#: ckan/controllers/home.py:35
+msgid "This site is currently off-line. Database is not initialised."
+msgstr "本網站目前無法運作。資料庫沒有初始化。"
+
+#: ckan/controllers/home.py:73 ckan/views/home.py:61
+#, python-format
+msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
+msgstr "請 <a href=\"%s\">更新你的個人資料</a> 並輸入你的電子郵件地址。"
+
+#: ckan/controllers/home.py:75 ckan/views/home.py:63
+#, python-format
+msgid "%s uses your email address if you need to reset your password."
+msgstr "%s 使用你的電子郵件地址，如果你需要重設密碼。"
+
+#: ckan/controllers/package.py:304 ckan/views/dataset.py:335
+msgid "Invalid search query: {error_message}"
+msgstr "無效的搜尋：{error_message}"
+
+#: ckan/controllers/package.py:323
+msgid "Parameter \"{parameter_name}\" is not an integer"
+msgstr "參數\"{parameter_name}\"並不是整數"
+
+#: ckan/controllers/package.py:343 ckan/controllers/package.py:351
+#: ckan/controllers/package.py:389 ckan/controllers/package.py:455
+#: ckan/controllers/package.py:778 ckan/controllers/package.py:826
+#: ckan/controllers/package.py:844 ckan/controllers/package.py:945
+#: ckan/controllers/package.py:993 ckan/controllers/package.py:1045
+#: ckan/controllers/package.py:1092 ckan/controllers/package.py:1239
+#: ckan/controllers/package.py:1255 ckan/controllers/package.py:1318
+#: ckan/controllers/package.py:1417 ckan/controllers/package.py:1452
+#: ckan/controllers/package.py:1559 ckan/logic/action/create.py:667
+#: ckan/views/dataset.py:392 ckan/views/dataset.py:403
+#: ckan/views/dataset.py:437 ckan/views/dataset.py:458
+#: ckan/views/dataset.py:606 ckan/views/dataset.py:742
+#: ckan/views/dataset.py:776 ckan/views/dataset.py:865
+#: ckan/views/dataset.py:880 ckan/views/dataset.py:978
+#: ckan/views/dataset.py:1011 ckan/views/dataset.py:1098
+#: ckan/views/dataset.py:1252 ckan/views/resource.py:63
+#: ckan/views/resource.py:74 ckan/views/resource.py:534
+#: ckan/views/resource.py:585 ckan/views/resource.py:635
+msgid "Dataset not found"
+msgstr "資料集不存在"
+
+#: ckan/controllers/package.py:377 ckan/controllers/package.py:379
+#: ckan/controllers/package.py:381
+#, python-format
+msgid "Invalid revision format: %r"
+msgstr "無效的版本格式：%r"
+
+#: ckan/controllers/package.py:414 ckan/views/dataset.py:512
+msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
+msgstr "資料集閱讀器 \"{package_type}\" 無法解讀 ({file_!r})."
+
+#: ckan/controllers/package.py:453 ckan/controllers/package.py:842
+#: ckan/controllers/package.py:943 ckan/controllers/package.py:991
+#: ckan/controllers/package.py:1241 ckan/views/dataset.py:740
+#: ckan/views/dataset.py:980
+#, python-format
+msgid "Unauthorized to read package %s"
+msgstr "沒有權限讀取組件%s"
+
+#: ckan/controllers/package.py:462
+msgid "CKAN Dataset Revision History"
+msgstr "CKAN資料集版本歷史紀錄"
+
+#: ckan/controllers/package.py:465
+msgid "Recent changes to CKAN Dataset: "
+msgstr "CKAN資料集最近的更新："
+
+#: ckan/controllers/package.py:521 ckan/views/dataset.py:537
+msgid "Unauthorized to create a package"
+msgstr "沒有權限建立組件"
+
+#: ckan/controllers/package.py:597 ckan/views/resource.py:377
+msgid "Unauthorized to edit this resource"
+msgstr "沒有編輯該資源的權限"
+
+#: ckan/controllers/package.py:665 ckan/views/resource.py:219
+msgid "Unauthorized to update dataset"
+msgstr "沒有更新資料集的權限"
+
+#: ckan/controllers/package.py:667 ckan/controllers/package.py:708
+#: ckan/controllers/package.py:734 ckan/views/resource.py:223
+#: ckan/views/resource.py:261 ckan/views/resource.py:298
+msgid "The dataset {id} could not be found."
+msgstr "找不到 {id} 資料集."
+
+#: ckan/controllers/package.py:675 ckan/views/resource.py:227
+msgid "You must add at least one data resource"
+msgstr "您必須至少新增一個資源"
+
+#: ckan/controllers/package.py:706 ckan/views/resource.py:258
+msgid "Unauthorized to create a resource"
+msgstr "沒有建立資源的權限"
+
+#: ckan/controllers/package.py:739 ckan/views/resource.py:306
+msgid "Unauthorized to create a resource for this package"
+msgstr "沒有為此資料集建立資源的權限"
+
+#: ckan/controllers/package.py:953 ckan/views/dataset.py:614
+msgid "Unable to add package to search index."
+msgstr "無法在搜尋索引中添加組件"
+
+#: ckan/controllers/package.py:1001 ckan/views/dataset.py:750
+msgid "Unable to update search index."
+msgstr "無法更新搜尋索引"
+
+#: ckan/controllers/package.py:1038 ckan/views/dataset.py:872
+msgid "Dataset has been deleted."
+msgstr "資料集已被刪除"
+
+#: ckan/controllers/package.py:1043 ckan/controllers/package.py:1061
+#: ckan/views/dataset.py:869 ckan/views/dataset.py:884
+#: ckan/views/resource.py:450
+#, python-format
+msgid "Unauthorized to delete package %s"
+msgstr "沒有刪除%s組件的權限"
+
+#: ckan/controllers/package.py:1066 ckan/views/resource.py:464
+msgid "Resource has been deleted."
+msgstr "此資源已被刪除"
+
+#: ckan/controllers/package.py:1077 ckan/views/resource.py:476
+#: ckan/views/resource.py:493
+#, python-format
+msgid "Unauthorized to delete resource %s"
+msgstr "沒有刪除資源%s的權限"
+
+#: ckan/controllers/package.py:1135 ckan/controllers/package.py:1578
+#: ckan/views/resource.py:123 ckan/views/resource.py:602
+msgid "Resource view not found"
+msgstr "資源檢視不存在"
+
+#: ckan/controllers/package.py:1174
+msgid "Resource data not found"
+msgstr "找不到資料"
+
+#: ckan/controllers/package.py:1183 ckan/views/resource.py:177
+msgid "No download is available"
+msgstr "下載不存在"
+
+#: ckan/controllers/package.py:1320 ckan/views/dataset.py:1100
+#, python-format
+msgid "Unauthorized to read dataset %s"
+msgstr "沒有讀取資料集%s的權限"
+
+#: ckan/controllers/package.py:1428 ckan/views/resource.py:547
+#, python-format
+msgid "Unauthorized to read resource %s"
+msgstr "沒有權限讀取資源%s"
+
+#: ckan/controllers/package.py:1492 ckan/views/resource.py:697
+msgid "Unauthorized to edit resource"
+msgstr "沒有編輯資源的權限"
+
+#: ckan/controllers/package.py:1510 ckan/views/resource.py:738
+msgid "View not found"
+msgstr "資料檢視不存在"
+
+#: ckan/controllers/package.py:1516 ckan/views/resource.py:747
+msgid "View Type Not found"
+msgstr "資料檢視類型不存在"
+
+#: ckan/controllers/package.py:1572 ckan/views/resource.py:597
+msgid "Bad resource view data"
+msgstr "資源檢視描述不正確"
+
+#: ckan/controllers/package.py:1581 ckan/views/resource.py:605
+msgid "Resource view not supplied"
+msgstr "沒有可用的資源檢視"
+
+#: ckan/controllers/package.py:1610 ckan/views/resource.py:908
+msgid "No preview has been defined."
+msgstr "已設定為無預覽"
+
+#: ckan/controllers/user.py:83 ckan/controllers/user.py:228
+#: ckan/controllers/user.py:243 ckan/controllers/user.py:310
+#: ckan/controllers/user.py:367 ckan/controllers/user.py:522
+#: ckan/controllers/user.py:548 ckan/logic/action/delete.py:366
+#: ckan/logic/auth/update.py:195 ckan/views/user.py:60 ckan/views/user.py:309
+#: ckan/views/user.py:337 ckan/views/user.py:404 ckan/views/user.py:545
+#: ckan/views/user.py:691 ckan/views/user.py:736
+msgid "User not found"
+msgstr "使用者不存在"
+
+#: ckan/controllers/user.py:157 ckan/views/user.py:374
+msgid "Unauthorized to register as a user."
+msgstr "無權登錄為用戶."
+
+#: ckan/controllers/user.py:175
+msgid "Unauthorized to create a user"
+msgstr "沒有權限建立使用者"
+
+#: ckan/controllers/user.py:206 ckan/views/user.py:515
+msgid "Unauthorized to delete user with id \"{user_id}\"."
+msgstr "沒有刪除使用者 id \"{user_id}\" 的權限。"
+
+#: ckan/controllers/user.py:220 ckan/controllers/user.py:283
+#: ckan/views/user.py:252 ckan/views/user.py:537
+msgid "No user specified"
+msgstr "沒有使用者的詳細說明"
+
+#: ckan/controllers/user.py:226 ckan/controllers/user.py:308
+#: ckan/controllers/user.py:365 ckan/controllers/user.py:546
+#: ckan/views/user.py:307 ckan/views/user.py:335 ckan/views/user.py:543
+#: ckan/views/user.py:734
+#, python-format
+msgid "Unauthorized to edit user %s"
+msgstr "沒有權限修改使用者%s"
+
+#: ckan/controllers/user.py:230 ckan/controllers/user.py:357
+#: ckan/views/user.py:315 ckan/views/user.py:547
+msgid "Profile updated"
+msgstr "個人資料已更新"
+
+#: ckan/controllers/user.py:241 ckan/views/user.py:402
+#, python-format
+msgid "Unauthorized to create user %s"
+msgstr "沒有權限建立使用者%s"
+
+#: ckan/controllers/user.py:247 ckan/views/user.py:395
+msgid "Bad Captcha. Please try again."
+msgstr "驗證碼錯誤，請再試一次。"
+
+#: ckan/controllers/user.py:261 ckan/views/user.py:414
+#, python-format
+msgid ""
+"User \"%s\" is now registered but you are still logged in as \"%s\" from "
+"before"
+msgstr "使用者 \"%s\" 已經註冊，但你仍以 \"%s\" 登入中"
+
+#: ckan/controllers/user.py:289 ckan/views/user.py:258
+msgid "Unauthorized to edit a user."
+msgstr "無權修改使用者."
+
+#: ckan/controllers/user.py:375 ckan/views/user.py:299
+msgid "Password entered was incorrect"
+msgstr "輸入密碼錯誤"
+
+#: ckan/controllers/user.py:376 ckan/templates/user/edit_user_form.html:34
+#: ckan/views/user.py:301
+msgid "Old Password"
+msgstr "舊密碼"
+
+#: ckan/controllers/user.py:376 ckan/views/user.py:301
+msgid "incorrect password"
+msgstr "錯誤的密碼"
+
+#: ckan/controllers/user.py:416 ckan/views/user.py:475
+msgid "Login failed. Bad username or password."
+msgstr "登入失敗，使用者名稱或密碼錯誤。"
+
+#: ckan/controllers/user.py:449 ckan/views/user.py:598
+msgid "Unauthorized to request reset password."
+msgstr "無權要求重設密碼."
+
+#: ckan/controllers/user.py:454 ckan/views/user.py:604
+msgid "Email is required"
+msgstr "電子郵件是必須的"
+
+#: ckan/controllers/user.py:492 ckan/views/user.py:656
+msgid ""
+"Error sending the email. Try again later or contact an administrator for "
+"help"
+msgstr "發送電子郵件時出現錯誤。請稍後再試或向管理員聯繫並尋求幫助"
+
+#: ckan/controllers/user.py:500 ckan/views/user.py:664
+msgid ""
+"A reset link has been emailed to you (unless the account specified does not "
+"exist)"
+msgstr "重設連結已通過電子郵件發送給您（除非指定的帳號不存在）"
+
+#: ckan/controllers/user.py:514 ckan/views/user.py:686
+msgid "Unauthorized to reset password."
+msgstr "無權重設密碼."
+
+#: ckan/controllers/user.py:526 ckan/views/user.py:695
+msgid "Invalid reset key. Please try again."
+msgstr "無效的重設金鑰，請再試一次。"
+
+#: ckan/controllers/user.py:543 ckan/views/user.py:731
+msgid "Your password has been reset."
+msgstr "你的密碼已經重設。"
+
+#: ckan/controllers/user.py:565
+msgid "Your password must be 4 characters or longer."
+msgstr "你的密碼必須在四個字元以上。"
+
+#: ckan/controllers/user.py:568 ckan/views/user.py:710
+msgid "The passwords you entered do not match."
+msgstr "你輸入的密碼不正確"
+
+#: ckan/controllers/user.py:571 ckan/views/user.py:713
+msgid "You must provide a password"
+msgstr "你必須提供一組密碼"
+
+#: ckan/controllers/user.py:639 ckan/views/dashboard.py:62
+msgid "Follow item not found"
+msgstr "跟隨的物件不存在"
+
+#: ckan/controllers/user.py:643 ckan/views/dashboard.py:66
+msgid "{0} not found"
+msgstr "{0}不存在"
+
+#: ckan/controllers/user.py:657 ckan/views/dashboard.py:80
+msgid "Everything"
+msgstr "所有事物"
+
+#: ckan/lib/datapreview.py:266 ckan/templates/group/edit_base.html:16
+#: ckan/templates/organization/edit_base.html:17
+#: ckan/templates/package/resource_read.html:38
+#: ckan/templates/package/resource_views.html:4
+msgid "View"
+msgstr "瀏覽"
+
+#: ckan/lib/email_notifications.py:103
+msgid "{n} new activity from {site_title}"
+msgid_plural "{n} new activities from {site_title}"
+msgstr[0] "{site_title} 有 {n} 個新的活動"
+
+#: ckan/lib/formatters.py:49
+msgid "Just now"
+msgstr "立刻"
+
+#: ckan/lib/formatters.py:74
+msgid "{bytes} bytes"
+msgstr "{bytes} bytes"
+
+#: ckan/lib/formatters.py:76
+msgid "{kibibytes} KiB"
+msgstr "{kibibytes} KiB"
+
+#: ckan/lib/formatters.py:78
+msgid "{mebibytes} MiB"
+msgstr "{mebibytes} MiB"
+
+#: ckan/lib/formatters.py:80
+msgid "{gibibytes} GiB"
+msgstr "{gibibytes} GiB"
+
+#: ckan/lib/formatters.py:82
+msgid "{tebibytes} TiB"
+msgstr "{tebibytes} TiB"
+
+#: ckan/lib/formatters.py:94
+msgid "{n}"
+msgstr "{n}"
+
+#: ckan/lib/formatters.py:96
+msgid "{k}k"
+msgstr "{k}k"
+
+#: ckan/lib/formatters.py:98
+msgid "{m}M"
+msgstr "{m}M"
+
+#: ckan/lib/formatters.py:100
+msgid "{g}G"
+msgstr "{g}G"
+
+#: ckan/lib/formatters.py:102
+msgid "{t}T"
+msgstr "{t}T"
+
+#: ckan/lib/formatters.py:104
+msgid "{p}P"
+msgstr "{p}P"
+
+#: ckan/lib/formatters.py:106
+msgid "{e}E"
+msgstr "{e}E"
+
+#: ckan/lib/formatters.py:108
+msgid "{z}Z"
+msgstr "{z}Z"
+
+#: ckan/lib/formatters.py:110
+msgid "{y}Y"
+msgstr "{y}Y"
+
+#: ckan/lib/helpers.py:1764
+msgid "Unknown"
+msgstr "未知的"
+
+#: ckan/lib/helpers.py:1817
+#: ckan/templates/snippets/changes/new_resource.html:10
+msgid "Unnamed resource"
+msgstr "佚名的資源"
+
+#: ckan/lib/helpers.py:1856
+msgid "Created new dataset."
+msgstr "建立新的資料集"
+
+#: ckan/lib/helpers.py:1858
+msgid "Edited resources."
+msgstr "編輯資源"
+
+#: ckan/lib/helpers.py:1860
+msgid "Edited settings."
+msgstr "編輯設定"
+
+#: ckan/lib/helpers.py:2096
+msgid "{number} view"
+msgid_plural "{number} views"
+msgstr[0] "瀏覽次數：{number}"
+
+#: ckan/lib/helpers.py:2098
+msgid "{number} recent view"
+msgid_plural "{number} recent views"
+msgstr[0] "目前瀏覽數：{number}"
+
+#: ckan/lib/mailer.py:58
+#, python-format
+msgid "%s <%s>"
+msgstr "%s <%s>"
+
+#: ckan/lib/mailer.py:132
+msgid "No recipient email address available!"
+msgstr "沒有收件人的電子郵件地址！"
+
+#: ckan/lib/mailer.py:150 ckan/templates/home/snippets/stats.html:17
+msgid "organization"
+msgstr "組織"
+
+#: ckan/lib/mailer.py:151 ckan/templates/home/snippets/stats.html:23
+msgid "group"
+msgstr "群組"
+
+#: ckan/lib/navl/dictization_functions.py:13
+#: ckan/lib/navl/dictization_functions.py:16
+#: ckan/lib/navl/dictization_functions.py:19
+#: ckan/lib/navl/dictization_functions.py:22
+#: ckan/lib/navl/dictization_functions.py:25
+#: ckan/lib/navl/dictization_functions.py:28
+#: ckan/lib/navl/dictization_functions.py:31
+#: ckan/lib/navl/dictization_functions.py:34 ckan/lib/navl/validators.py:28
+#: ckan/lib/navl/validators.py:35 ckan/lib/navl/validators.py:55
+#: ckan/logic/action/get.py:2052 ckan/logic/action/update.py:245
+#: ckan/logic/action/update.py:461 ckan/logic/validators.py:635
+msgid "Missing value"
+msgstr "值(value)遺失"
+
+#: ckan/lib/navl/validators.py:69
+#, python-format
+msgid "The input field %(name)s was not expected."
+msgstr "輸入的字串 %(name)s 不是被預期的"
+
+#: ckan/lib/navl/validators.py:133
+msgid "Please enter an integer value"
+msgstr "請輸入一個整數"
+
+#: ckan/lib/navl/validators.py:139
+msgid "Must be a Unicode string value"
+msgstr "需為Unicode編碼文字"
+
+#: ckan/logic/__init__.py:103 ckan/logic/action/__init__.py:62
+msgid "Package resource(s) invalid"
+msgstr "Package 的資源無效"
+
+#: ckan/logic/__init__.py:110 ckan/logic/__init__.py:112
+#: ckan/logic/action/__init__.py:64 ckan/logic/action/__init__.py:66
+msgid "Extras"
+msgstr "擴充物件"
+
+#: ckan/logic/converters.py:77 ckan/logic/converters.py:92
+#, python-format
+msgid "Tag vocabulary \"%s\" does not exist"
+msgstr "標籤字串 \"%s\" 不存在"
+
+#: ckan/logic/converters.py:149 ckan/logic/validators.py:173
+#: ckan/logic/validators.py:215 ckan/templates/package/read_base.html:21
+#: ckan/tests/config/test_middleware.py:107
+msgid "Dataset"
+msgstr "資料集"
+
+#: ckan/logic/converters.py:183
+msgid "Could not parse as valid JSON"
+msgstr "錯誤的JSON格式"
+
+#: ckan/logic/validators.py:40 ckan/logic/validators.py:49
+msgid "An organization must be provided"
+msgstr "必須提供一個組織"
+
+#: ckan/logic/validators.py:67
+msgid "You cannot move this dataset to another organization"
+msgstr "您無法將此資料集移動至其他組織"
+
+#: ckan/logic/validators.py:71
+msgid "Organization does not exist"
+msgstr "組織不存在"
+
+#: ckan/logic/validators.py:76
+msgid "You cannot add a dataset to this organization"
+msgstr "你無法在這個組織中建立資料集"
+
+#: ckan/logic/validators.py:116
+msgid "Invalid integer"
+msgstr "無效的整數"
+
+#: ckan/logic/validators.py:121
+msgid "Must be a natural number"
+msgstr "必須是整數"
+
+#: ckan/logic/validators.py:127
+msgid "Must be a postive integer"
+msgstr "必須是正整數"
+
+#: ckan/logic/validators.py:154
+msgid "Date format incorrect"
+msgstr "日期格式不正確"
+
+#: ckan/logic/validators.py:163
+msgid "No links are allowed in the log_message."
+msgstr "log_message中沒有被允許的連結。"
+
+#: ckan/logic/validators.py:183
+msgid "Dataset id already exists"
+msgstr "資料集 id 已經被使用"
+
+#: ckan/logic/validators.py:224
+msgid "Resource"
+msgstr "資源"
+
+#: ckan/logic/validators.py:278
+msgid "That group name or ID does not exist."
+msgstr "此群組名稱或ID不存在。"
+
+#: ckan/logic/validators.py:292
+msgid "Activity type"
+msgstr "指令類型"
+
+#: ckan/logic/validators.py:355
+msgid "Names must be strings"
+msgstr "名子必須是字串"
+
+#: ckan/logic/validators.py:359
+msgid "That name cannot be used"
+msgstr "此名稱無法使用"
+
+#: ckan/logic/validators.py:362
+#, python-format
+msgid "Must be at least %s characters long"
+msgstr "長度必須至少要 %s 個字元"
+
+#: ckan/logic/validators.py:364 ckan/logic/validators.py:651
+#, python-format
+msgid "Name must be a maximum of %i characters long"
+msgstr "名稱字串長度的最大值是 %i "
+
+#: ckan/logic/validators.py:367
+msgid ""
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
+msgstr "必須是小寫英文字母 (ascii編碼)、數字、符號 '-' 及 '_'"
+
+#: ckan/logic/validators.py:385
+msgid "That URL is already in use."
+msgstr "此網址已經被使用"
+
+#: ckan/logic/validators.py:390
+#, python-format
+msgid "Name \"%s\" length is less than minimum %s"
+msgstr "名稱 \"%s\" 字串長度小於最小值 %s"
+
+#: ckan/logic/validators.py:394
+#, python-format
+msgid "Name \"%s\" length is more than maximum %s"
+msgstr "名稱 \"%s\" 字串長度大於最大值 %s"
+
+#: ckan/logic/validators.py:400
+#, python-format
+msgid "Version must be a maximum of %i characters long"
+msgstr "版本名稱長度最大值為 %i"
+
+#: ckan/logic/validators.py:418
+#, python-format
+msgid "Duplicate key \"%s\""
+msgstr "重複的Key \"%s\""
+
+#: ckan/logic/validators.py:434
+msgid "Group name already exists in database"
+msgstr "群組名稱已經被使用"
+
+#: ckan/logic/validators.py:440
+#, python-format
+msgid "Tag \"%s\" length is less than minimum %s"
+msgstr "標籤 \"%s\" 的長度小於最小值%s"
+
+#: ckan/logic/validators.py:444
+#, python-format
+msgid "Tag \"%s\" length is more than maximum %i"
+msgstr "標籤 \"%s\" 字串長度大於最大值 %i"
+
+#: ckan/logic/validators.py:452
+#, python-format
+msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
+msgstr "標籤 \"%s\" 必須是英文字母、數字、符號'-'及'_'"
+
+#: ckan/logic/validators.py:460
+#, python-format
+msgid "Tag \"%s\" must not be uppercase"
+msgstr "標籤 \"%s\" 不能有大寫字母"
+
+#: ckan/logic/validators.py:568
+msgid "User names must be strings"
+msgstr "使用者名稱必須是字串"
+
+#: ckan/logic/validators.py:583
+msgid "That login name is not available."
+msgstr "此登入名稱無法使用"
+
+#: ckan/logic/validators.py:587
+msgid "That login name can not be modified."
+msgstr "此登入名稱無法修改"
+
+#: ckan/logic/validators.py:598
+msgid "Please enter both passwords"
+msgstr "請輸入兩組密碼"
+
+#: ckan/logic/validators.py:606
+msgid "Passwords must be strings"
+msgstr "密碼必須是字串"
+
+#: ckan/logic/validators.py:610
+msgid "Your password must be 8 characters or longer"
+msgstr "密碼長度至少要8個字元"
+
+#: ckan/logic/validators.py:619
+msgid "The passwords you entered do not match"
+msgstr "你輸入的密碼不正確"
+
+#: ckan/logic/validators.py:639
+msgid ""
+"Edit not allowed as it looks like spam. Please avoid links in your "
+"description."
+msgstr "不允許編輯，因為你編輯的內容被判定為疑似廣告內容。請避免在說明中使用連結。"
+
+#: ckan/logic/validators.py:648
+#, python-format
+msgid "Name must be at least %s characters long"
+msgstr "使用者名稱長度必須至少要%s個字元"
+
+#: ckan/logic/validators.py:656
+msgid "That vocabulary name is already in use."
+msgstr "該詞彙表的名稱已經被使用。"
+
+#: ckan/logic/validators.py:662
+#, python-format
+msgid "Cannot change value of key from %s to %s. This key is read-only"
+msgstr "無法將Key的值從 %s 變更為 %s。 這個Key是唯讀的"
+
+#: ckan/logic/validators.py:671
+msgid "Tag vocabulary was not found."
+msgstr "標籤詞彙不存在"
+
+#: ckan/logic/validators.py:684
+#, python-format
+msgid "Tag %s does not belong to vocabulary %s"
+msgstr "標籤%s不屬於詞彙表%s"
+
+#: ckan/logic/validators.py:690
+msgid "No tag name"
+msgstr "無標籤名稱"
+
+#: ckan/logic/validators.py:703
+#, python-format
+msgid "Tag %s already belongs to vocabulary %s"
+msgstr "標籤%s已經包含於詞彙表%s"
+
+#: ckan/logic/validators.py:725
+msgid "Please provide a valid URL"
+msgstr "請提供一個有效的網址"
+
+#: ckan/logic/validators.py:739
+msgid "role does not exist."
+msgstr "角色不存在"
+
+#: ckan/logic/validators.py:768
+msgid "Datasets with no organization can't be private."
+msgstr "非組織的資料集不能私有."
+
+#: ckan/logic/validators.py:774
+msgid "Not a list"
+msgstr "不是列表"
+
+#: ckan/logic/validators.py:777
+msgid "Not a string"
+msgstr "不是字串"
+
+#: ckan/logic/validators.py:811
+msgid "This parent would create a loop in the hierarchy"
+msgstr "此父項目可能會於階層中形成迴圈"
+
+#: ckan/logic/validators.py:821
+msgid "\"filter_fields\" and \"filter_values\" should have the same length"
+msgstr "「篩選條件」與「篩選值」需具備相同數量"
+
+#: ckan/logic/validators.py:832
+msgid "\"filter_fields\" is required when \"filter_values\" is filled"
+msgstr "當「篩選值」存在時必須提供「篩選條件」"
+
+#: ckan/logic/validators.py:835
+msgid "\"filter_values\" is required when \"filter_fields\" is filled"
+msgstr "當「篩選條件」存在時必須提供「篩選值」"
+
+#: ckan/logic/validators.py:849
+msgid "There is a schema field with the same name"
+msgstr "已有一個 schema 欄位具有相同名稱"
+
+#: ckan/logic/validators.py:879
+msgid "Email {email} is not a valid format"
+msgstr "電子郵件 {email} 格式錯誤"
+
+#: ckan/logic/validators.py:919
+msgid "Must be a dict"
+msgstr "必須是一個 dict"
+
+#: ckan/logic/validators.py:940
+msgid "The email address '{email}' belongs to a registered user."
+msgstr "電子郵件地址 '{email}' 已被註冊。"
+
+#: ckan/logic/validators.py:947
+msgid "Value must be one of {}"
+msgstr ""
+
+#: ckan/logic/validators.py:958
+msgid "The value should be a valid JSON object"
+msgstr "該值應該是一個有效的 JSON"
+
+#: ckan/logic/validators.py:960
+msgid "Could not parse the value as a valid JSON object"
+msgstr "無法將該值解析為有效的 JSON"
+
+#: ckan/logic/validators.py:970
+msgid "Could not parse extra '{name}' as valid JSON"
+msgstr ""
+
+#: ckan/logic/action/__init__.py:64 ckan/views/util.py:21
+msgid "Missing Value"
+msgstr "遺漏的值"
+
+#: ckan/logic/action/create.py:660
+msgid "Role must be one of \"{}\""
+msgstr ""
+
+#: ckan/logic/action/create.py:671
+msgid "Not allowed to add collaborators"
+msgstr "不允許新增協作者"
+
+#: ckan/logic/action/create.py:674 ckan/logic/action/delete.py:358
+#: ckan/logic/action/get.py:268 ckan/logic/action/get.py:311
+msgid "Dataset collaborators not enabled"
+msgstr "資料集協作者功能未啟用"
+
+#: ckan/logic/action/create.py:869
+msgid "Trying to create an organization as a group"
+msgstr "嘗試建立一個組織，就像群組一樣"
+
+#: ckan/logic/action/create.py:958
+msgid "You must supply a package id or name (parameter \"package\")."
+msgstr "你必須提供一個組件ID或名稱(參數\"組件\")。"
+
+#: ckan/logic/action/create.py:961
+msgid "You must supply a rating (parameter \"rating\")."
+msgstr "你必須留下評分(參數\"評分\")。"
+
+#: ckan/logic/action/create.py:966
+msgid "Rating must be an integer value."
+msgstr "評分必須是一個整數。"
+
+#: ckan/logic/action/create.py:970
+#, python-format
+msgid "Rating must be between %i and %i."
+msgstr "評分必須介於%i 及 %i 之間。"
+
+#: ckan/logic/action/create.py:1175
+msgid "Error sending the invite email, the user was not created: {0}"
+msgstr "寄送邀請電子郵件時發生錯誤，使用者：{0} 未被建立"
+
+#: ckan/logic/action/create.py:1349 ckan/logic/action/create.py:1356
+msgid "You must be logged in to follow users"
+msgstr "你必須登入才能關注使用者"
+
+#: ckan/logic/action/create.py:1369
+msgid "You cannot follow yourself"
+msgstr "你無法追蹤自己"
+
+#: ckan/logic/action/create.py:1377 ckan/logic/action/create.py:1434
+#: ckan/logic/action/create.py:1573
+msgid "You are already following {0}"
+msgstr "你正在關注{0}"
+
+#: ckan/logic/action/create.py:1408 ckan/logic/action/create.py:1416
+msgid "You must be logged in to follow a dataset."
+msgstr "你必須登入才能關注資料集"
+
+#: ckan/logic/action/create.py:1474
+msgid "User {username} does not exist."
+msgstr " 使用者 {username} 不存在."
+
+#: ckan/logic/action/create.py:1549 ckan/logic/action/create.py:1557
+msgid "You must be logged in to follow a group."
+msgstr "你必須登入才能關注群組"
+
+#: ckan/logic/action/delete.py:362 ckan/logic/action/get.py:263
+msgid "Package not found"
+msgstr "找不到 Package"
+
+#: ckan/logic/action/delete.py:418
+msgid "Organization cannot be deleted while it still has datasets"
+msgstr "不能刪除還有資料集的組織"
+
+#: ckan/logic/action/delete.py:635 ckan/logic/action/delete.py:661
+#: ckan/logic/action/get.py:2455 ckan/logic/action/update.py:1084
+msgid "id not in data"
+msgstr "在資料中找不到ID"
+
+#: ckan/logic/action/delete.py:639 ckan/logic/action/get.py:2458
+#: ckan/logic/action/update.py:1088
+#, python-format
+msgid "Could not find vocabulary \"%s\""
+msgstr "詞彙表\"%s\" 不存在"
+
+#: ckan/logic/action/delete.py:669
+#, python-format
+msgid "Could not find tag \"%s\""
+msgstr "標籤 \"%s\" 不存在"
+
+#: ckan/logic/action/delete.py:682 ckan/logic/action/delete.py:686
+msgid "You must be logged in to unfollow something."
+msgstr "你必須登入才能取消關注"
+
+#: ckan/logic/action/delete.py:697
+msgid "You are not following {0}."
+msgstr "你並沒有關注{0}"
+
+#: ckan/logic/action/get.py:275 ckan/logic/action/get.py:323
+msgid "Capacity must be one of \"{}\""
+msgstr ""
+
+#: ckan/logic/action/get.py:317
+msgid "Not allowed to retrieve collaborators"
+msgstr "不允許取得協作者資訊"
+
+#: ckan/logic/action/get.py:1097 ckan/logic/action/update.py:76
+#: ckan/logic/action/update.py:90
+msgid "Resource was not found."
+msgstr "資源不存在"
+
+#: ckan/logic/action/get.py:1176
+msgid "Parameter is not an bool"
+msgstr ""
+
+#: ckan/logic/action/get.py:2056
+msgid "Do not specify if using \"query\" parameter"
+msgstr "若使用\"query\"參數則不要詳細說明"
+
+#: ckan/logic/action/get.py:2065
+msgid "Must be <field>:<value> pair(s)"
+msgstr "<field>:<value>必須是一對"
+
+#: ckan/logic/action/get.py:2097
+msgid "Field \"{field}\" not recognised in resource_search."
+msgstr "在 resource_search 裡無法辨識欄位 \"{field}\"。"
+
+#: ckan/logic/action/update.py:249 ckan/logic/action/update.py:1169
+msgid "Package was not found."
+msgstr "組件不存在"
+
+#: ckan/logic/action/update.py:944
+msgid "TaskStatus was not found."
+msgstr "任務狀態不存在"
+
+#: ckan/logic/action/update.py:1173
+msgid "Organization was not found."
+msgstr "組織不存在"
+
+#: ckan/logic/auth/create.py:27 ckan/logic/auth/create.py:45
+#, python-format
+msgid "User %s not authorized to create packages"
+msgstr "使用者 %s 沒有權限建立組件"
+
+#: ckan/logic/auth/create.py:31 ckan/logic/auth/update.py:56
+#, python-format
+msgid "User %s not authorized to edit these groups"
+msgstr "使用者 %s 沒有權限編輯群組"
+
+#: ckan/logic/auth/create.py:38
+#, python-format
+msgid "User %s not authorized to add dataset to this organization"
+msgstr "使用者 %s 沒授權增加資料集到這個組織"
+
+#: ckan/logic/auth/create.py:61
+msgid "No dataset id provided, cannot check auth."
+msgstr "此資料集的 id 不存在，無法確認權限。"
+
+#: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
+#: ckan/logic/auth/get.py:137 ckan/logic/auth/update.py:79
+msgid "No package found for this resource, cannot check auth."
+msgstr "此資源的 Package 不存在，無法確認權限。"
+
+#: ckan/logic/auth/create.py:76
+#, python-format
+msgid "User %s not authorized to create resources on dataset %s"
+msgstr "使用者 %s 沒有於資料集 %s 中建立資源的權限"
+
+#: ckan/logic/auth/create.py:108
+#, python-format
+msgid "User %s not authorized to edit these packages"
+msgstr "使用者 %s 沒有權限編輯組件"
+
+#: ckan/logic/auth/create.py:119
+#, python-format
+msgid "User %s not authorized to create groups"
+msgstr "使用者 %s 沒有權限建立群組"
+
+#: ckan/logic/auth/create.py:129
+#, python-format
+msgid "User %s not authorized to create organizations"
+msgstr "使用者%s沒有權限建立組織"
+
+#: ckan/logic/auth/create.py:145
+msgid "User {user} not authorized to create users via the API"
+msgstr "使用者 {user} 沒有權限透過 API 建立使用者"
+
+#: ckan/logic/auth/create.py:148
+msgid "Not authorized to create users"
+msgstr "沒有權限建立使用者"
+
+#: ckan/logic/auth/create.py:191
+msgid "Group was not found."
+msgstr "群組不存在"
+
+#: ckan/logic/auth/create.py:225
+#, python-format
+msgid "User %s not authorized to add members"
+msgstr "使用者%s沒有權限新增成員"
+
+#: ckan/logic/auth/create.py:252 ckan/logic/auth/update.py:131
+#, python-format
+msgid "User %s not authorized to edit group %s"
+msgstr "使用者 %s 沒有權限編輯群組 %s"
+
+#: ckan/logic/auth/create.py:280
+#, python-format
+msgid "User %s not authorized to add collaborators to this dataset"
+msgstr "使用者 %s 沒有權限於此資料集新增協作者"
+
+#: ckan/logic/auth/delete.py:40
+#, python-format
+msgid "User %s not authorized to delete resource %s"
+msgstr "使用者 %s 沒有權限刪除資源 %s"
+
+#: ckan/logic/auth/delete.py:56 ckan/logic/auth/get.py:154
+msgid "Resource view not found, cannot check auth."
+msgstr "此資源檢視不存在，無法確認權限。"
+
+#: ckan/logic/auth/delete.py:73
+#, python-format
+msgid "User %s not authorized to delete relationship %s"
+msgstr "使用者 %s 沒有權限刪除關連性 %s"
+
+#: ckan/logic/auth/delete.py:82
+#, python-format
+msgid "User %s not authorized to delete groups"
+msgstr "使用者%s沒有權限刪除群組"
+
+#: ckan/logic/auth/delete.py:86
+#, python-format
+msgid "User %s not authorized to delete group %s"
+msgstr "使用者 %s 沒有權限刪除群組 %s"
+
+#: ckan/logic/auth/delete.py:103
+#, python-format
+msgid "User %s not authorized to delete organizations"
+msgstr "使用者%s沒有權限刪除組織"
+
+#: ckan/logic/auth/delete.py:107
+#, python-format
+msgid "User %s not authorized to delete organization %s"
+msgstr "使用者%s沒有權限刪除組織%s"
+
+#: ckan/logic/auth/delete.py:120
+#, python-format
+msgid "User %s not authorized to delete task_status"
+msgstr "使用者 %s 沒有權限刪除任務狀態"
+
+#: ckan/logic/auth/delete.py:156
+#, python-format
+msgid "User %s not authorized to remove collaborators from this dataset"
+msgstr "使用者 %s 沒有權限移除此資料集的協作者"
+
+#: ckan/logic/auth/get.py:15 ckan/logic/auth/get.py:370
+msgid "Not authorized"
+msgstr "沒有權限"
+
+#: ckan/logic/auth/get.py:108
+#, python-format
+msgid "User %s not authorized to read these packages"
+msgstr "使用者 %s 沒有權限讀取這些組件"
+
+#: ckan/logic/auth/get.py:124
+#, python-format
+msgid "User %s not authorized to read package %s"
+msgstr "使用者 %s 沒有權限讀取組件 %s"
+
+#: ckan/logic/auth/get.py:143
+#, python-format
+msgid "User %s not authorized to read resource %s"
+msgstr "使用者 %s 沒有權限讀取資源 %s"
+
+#: ckan/logic/auth/get.py:177
+#, python-format
+msgid "User %s not authorized to read group %s"
+msgstr "使用者 %s 沒有權限讀取群組 %s"
+
+#: ckan/logic/auth/get.py:249
+msgid "You must be logged in to access your dashboard."
+msgstr "你必須登入才能使用控制台"
+
+#: ckan/logic/auth/get.py:460
+#, python-format
+msgid "User %s not authorized to list collaborators from this dataset"
+msgstr "使用者 %s 沒有權限列出此資料集的協作者"
+
+#: ckan/logic/auth/update.py:50
+#, python-format
+msgid "User %s not authorized to edit package %s"
+msgstr "使用者 %s 沒有權限編輯組件 %s"
+
+#: ckan/logic/auth/update.py:87
+#, python-format
+msgid "User %s not authorized to edit resource %s"
+msgstr "使用者 %s 沒有權限編輯資源 %s"
+
+#: ckan/logic/auth/update.py:116
+#, python-format
+msgid "User %s not authorized to change state of package %s"
+msgstr "使用者 %s 沒有權限更改組件的狀態 %s"
+
+#: ckan/logic/auth/update.py:144
+#, python-format
+msgid "User %s not authorized to edit organization %s"
+msgstr "使用者%s沒有權限編輯組織%s"
+
+#: ckan/logic/auth/update.py:161
+#, python-format
+msgid "User %s not authorized to change state of group %s"
+msgstr "使用者 %s 沒有權限改變群組的狀態 %s"
+
+#: ckan/logic/auth/update.py:178
+#, python-format
+msgid "User %s not authorized to edit permissions of group %s"
+msgstr "使用者 %s 沒有權限編輯群組的許可 %s"
+
+#: ckan/logic/auth/update.py:206
+msgid "Have to be logged in to edit user"
+msgstr "需經登入以編輯用戶"
+
+#: ckan/logic/auth/update.py:214
+#, python-format
+msgid "User %s not authorized to edit user %s"
+msgstr "使用者 %s 沒有權限編輯使用者 %s"
+
+#: ckan/logic/auth/update.py:225
+msgid "User {0} not authorized to update user {1}"
+msgstr "使用者 {0} 沒有權限更新使用者 {1}"
+
+#: ckan/logic/auth/update.py:233
+#, python-format
+msgid "User %s not authorized to change state of revision"
+msgstr "使用者 %s 沒有權限更改版本狀態"
+
+#: ckan/logic/auth/update.py:242
+#, python-format
+msgid "User %s not authorized to update task_status table"
+msgstr "使用者 %s 沒有權限更新任務狀態表格"
+
+#: ckan/logic/auth/update.py:256
+#, python-format
+msgid "User %s not authorized to update term_translation table"
+msgstr "使用者 %s 沒有權限更新翻譯字詞表格"
+
+#: ckan/model/license.py:145
+msgid "title"
+msgstr ""
+
+#: ckan/model/license.py:240
+msgid "License not specified"
+msgstr "授權類型未指定"
+
+#: ckan/model/license.py:250
+msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
+msgstr "開放資料共用公共領域貢獻和授權條款 (PDDL)"
+
+#: ckan/model/license.py:260
+msgid "Open Data Commons Open Database License (ODbL)"
+msgstr "Open Data Commons Open Database License (ODbL)"
+
+#: ckan/model/license.py:270
+msgid "Open Data Commons Attribution License"
+msgstr "Open Data Commons Attribution License"
+
+#: ckan/model/license.py:281
+msgid "Creative Commons CCZero"
+msgstr "Creative Commons CCZero"
+
+#: ckan/model/license.py:290
+msgid "Creative Commons Attribution"
+msgstr "Creative Commons Attribution"
+
+#: ckan/model/license.py:300
+msgid "Creative Commons Attribution Share-Alike"
+msgstr "Creative Commons Attribution Share-Alike"
+
+#: ckan/model/license.py:309
+msgid "GNU Free Documentation License"
+msgstr "GNU Free Documentation License"
+
+#: ckan/model/license.py:319
+msgid "Other (Open)"
+msgstr "其他(開放)"
+
+#: ckan/model/license.py:329
+msgid "Other (Public Domain)"
+msgstr "其他(公共領域)"
+
+#: ckan/model/license.py:339
+msgid "Other (Attribution)"
+msgstr "其他(歸因)"
+
+#: ckan/model/license.py:351
+msgid "UK Open Government Licence (OGL)"
+msgstr "UK Open Government Licence (OGL)"
+
+#: ckan/model/license.py:359
+msgid "Creative Commons Non-Commercial (Any)"
+msgstr "Creative Commons Non-Commercial (Any)"
+
+#: ckan/model/license.py:367
+msgid "Other (Non-Commercial)"
+msgstr "其他(非商業)"
+
+#: ckan/model/license.py:375
+msgid "Other (Not Open)"
+msgstr "其他(非開放)"
+
+#: ckan/model/package_relationship.py:51
+#, python-format
+msgid "depends on %s"
+msgstr "根據 %s"
+
+#: ckan/model/package_relationship.py:51
+#, python-format
+msgid "is a dependency of %s"
+msgstr "是取決於%s"
+
+#: ckan/model/package_relationship.py:52
+#, python-format
+msgid "derives from %s"
+msgstr "來自於%s"
+
+#: ckan/model/package_relationship.py:52
+#, python-format
+msgid "has derivation %s"
+msgstr "擁有來源%s"
+
+#: ckan/model/package_relationship.py:53
+#, python-format
+msgid "links to %s"
+msgstr "連結至%s"
+
+#: ckan/model/package_relationship.py:53
+#, python-format
+msgid "is linked from %s"
+msgstr "從%s連結而來"
+
+#: ckan/model/package_relationship.py:54
+#, python-format
+msgid "is a child of %s"
+msgstr "是%s的子項目"
+
+#: ckan/model/package_relationship.py:54
+#, python-format
+msgid "is a parent of %s"
+msgstr "是%s的父項目"
+
+#: ckan/model/package_relationship.py:58
+#, python-format
+msgid "has sibling %s"
+msgstr "擁有同層級項目%s"
+
+#: ckan/public/base/javascript/modules/api-info.js:96
+#: ckan/public/base/javascript/modules/api-info.min.js:2
+msgid "There is no API data to load for this resource"
+msgstr "這個資源中沒有 API 資料可供讀取"
+
+#: ckan/public/base/javascript/modules/api-info.js:124
+#: ckan/public/base/javascript/modules/api-info.min.js:4
+msgid "Failed to load data API information"
+msgstr "讀取API資訊失敗"
+
+#: ckan/public/base/javascript/modules/autocomplete.js:211
+#: ckan/public/base/javascript/modules/autocomplete.min.js:7
+msgid "Start typing…"
+msgstr "開始輸入.."
+
+#: ckan/public/base/javascript/modules/autocomplete.js:211
+#: ckan/public/base/javascript/modules/autocomplete.min.js:7
+msgid "No matches found"
+msgstr "沒有匹配的資料"
+
+#: ckan/public/base/javascript/modules/autocomplete.js:220
+#: ckan/public/base/javascript/modules/autocomplete.min.js:7
+#, python-format
+msgid "Input is too short, must be at least one character"
+msgid_plural "Input is too short, must be at least %(num)d characters"
+msgstr[0] "輸入內容必須至少要 %(num)d 字元"
+
+#: ckan/public/base/javascript/modules/basic-form.js:4
+#: ckan/public/base/javascript/modules/basic-form.min.js:1
+msgid "There are unsaved modifications to this form"
+msgstr "此表格有未保存的修改"
+
+#: ckan/public/base/javascript/modules/confirm-action.js:118
+#: ckan/public/base/javascript/modules/confirm-action.min.js:2
+msgid "Please Confirm Action"
+msgstr "請確認操作"
+
+#: ckan/public/base/javascript/modules/confirm-action.js:121
+#: ckan/public/base/javascript/modules/confirm-action.min.js:2
+msgid "Are you sure you want to perform this action?"
+msgstr "確定要執行此操作嗎？"
+
+#: ckan/public/base/javascript/modules/confirm-action.js:123
+#: ckan/public/base/javascript/modules/confirm-action.min.js:2
+#: ckan/templates/user/new_user_form.html:9
+#: ckan/templates/user/perform_reset.html:26
+msgid "Confirm"
+msgstr "確認"
+
+#: ckan/public/base/javascript/modules/confirm-action.js:124
+#: ckan/public/base/javascript/modules/confirm-action.min.js:2
+#: ckan/public/base/javascript/modules/resource-reorder.js:68
+#: ckan/public/base/javascript/modules/resource-reorder.min.js:1
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:58
+#: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
+#: ckan/templates/admin/confirm_reset.html:9
+#: ckan/templates/group/confirm_delete.html:14
+#: ckan/templates/group/confirm_delete_member.html:15
+#: ckan/templates/organization/confirm_delete.html:14
+#: ckan/templates/organization/confirm_delete_member.html:15
+#: ckan/templates/package/confirm_delete.html:15
+#: ckan/templates/package/confirm_delete_resource.html:14
+msgid "Cancel"
+msgstr "取消"
+
+#: ckan/public/base/javascript/modules/follow.js:70
+#: ckan/public/base/javascript/modules/follow.min.js:1
+#: ckan/templates/snippets/follow_button.html:4
+msgid "Unfollow"
+msgstr "取消追蹤"
+
+#: ckan/public/base/javascript/modules/follow.js:73
+#: ckan/public/base/javascript/modules/follow.min.js:1
+#: ckan/templates/snippets/follow_button.html:9
+msgid "Follow"
+msgstr "跟隨"
+
+#: ckan/public/base/javascript/modules/image-upload.js:62
+#: ckan/public/base/javascript/modules/image-upload.min.js:3
+msgid "Link"
+msgstr "連結"
+
+#: ckan/public/base/javascript/modules/image-upload.js:63
+#: ckan/public/base/javascript/modules/image-upload.min.js:3
+msgid "Link to a URL on the internet (you can also link to an API)"
+msgstr "連結至網際網路上的網址（您也可以連結至 API）"
+
+#: ckan/public/base/javascript/modules/image-upload.js:70
+#: ckan/public/base/javascript/modules/image-upload.min.js:4
+msgid "Upload"
+msgstr "上傳"
+
+#: ckan/public/base/javascript/modules/image-upload.js:75
+#: ckan/public/base/javascript/modules/image-upload.min.js:5
+msgid "Please select the file to upload again"
+msgstr "請再次選擇要上傳的檔案"
+
+#: ckan/public/base/javascript/modules/image-upload.js:79
+#: ckan/public/base/javascript/modules/image-upload.min.js:6
+#: ckan/templates/group/snippets/group_item.html:43
+#: ckan/templates/macros/form.html:251
+#: ckan/templates/snippets/search_form.html:69
+msgid "Remove"
+msgstr "移除"
+
+#: ckan/public/base/javascript/modules/image-upload.js:94
+#: ckan/public/base/javascript/modules/image-upload.min.js:7
+msgid "Upload a file on your computer"
+msgstr "從您的電腦上傳檔案"
+
+#: ckan/public/base/javascript/modules/image-upload.js:117
+#: ckan/public/base/javascript/modules/image-upload.js:185
+#: ckan/public/base/javascript/modules/image-upload.min.js:8
+#: ckan/public/base/javascript/modules/image-upload.min.js:11
+#: ckan/public/base/javascript/modules/slug-preview.js:56
+#: ckan/public/base/javascript/modules/slug-preview.min.js:2
+#: ckan/templates/group/snippets/group_form.html:18
+#: ckan/templates/organization/snippets/organization_form.html:18
+#: ckan/templates/package/snippets/package_basic_fields.html:13
+#: ckan/templates/package/snippets/resource_form.html:26
+msgid "URL"
+msgstr "網址"
+
+#: ckan/public/base/javascript/modules/image-upload.js:126
+#: ckan/public/base/javascript/modules/image-upload.js:226
+#: ckan/public/base/javascript/modules/image-upload.min.js:8
+#: ckan/public/base/javascript/modules/image-upload.min.js:12
+msgid "File"
+msgstr "檔案"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:42
+#: ckan/public/base/javascript/modules/resource-reorder.min.js:1
+msgid "Reorder resources"
+msgstr "重新排序資源"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:43
+#: ckan/public/base/javascript/modules/resource-reorder.min.js:1
+msgid ""
+"You can rearrange the resources by dragging them using the arrow icon. Drag "
+"the resource to the right and place it to the desired location on the list. "
+"When you are done, click the \"Save order\" -button."
+msgstr "您可以使用箭頭圖示來拖曳資源，以重新排列它們。將資源拖曳到右側，並將其放置在您想要的位置上。完成後，點選「儲存排序」按鈕。"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:65
+#: ckan/public/base/javascript/modules/resource-reorder.min.js:1
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:55
+#: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
+msgid "Save order"
+msgstr "儲存排序"
+
+#: ckan/public/base/javascript/modules/resource-reorder.js:78
+#: ckan/public/base/javascript/modules/resource-reorder.min.js:1
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:68
+#: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
+msgid "Saving..."
+msgstr "儲存中..."
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:57
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
+msgid "Upload a file"
+msgstr "上傳檔案"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:144
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
+msgid "An Error Occurred"
+msgstr "發生錯誤"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:204
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
+msgid "Unable to upload file"
+msgstr "無法上傳檔案"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:255
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
+msgid "Unable to authenticate upload"
+msgstr "無法驗證上傳"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:263
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
+msgid "Resource uploaded"
+msgstr "資源已上傳"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:269
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
+msgid "Unable to get data for uploaded file"
+msgstr "無法取得上傳檔案的資料"
+
+#: ckan/public/base/javascript/modules/resource-upload-field.js:275
+#: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
+msgid ""
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "您現在正在上傳一個檔案，確定要離開當前頁面及停止上傳檔案嗎？"
+
+#: ckan/public/base/javascript/modules/resource-view-filters.js:9
+#: ckan/public/base/javascript/modules/resource-view-filters.min.js:1
+#: ckan/templates/package/snippets/view_form_filters.html:16
+msgid "Add Filter"
+msgstr "新增篩選條件"
+
+#: ckan/public/base/javascript/modules/resource-view-filters.js:52
+#: ckan/public/base/javascript/modules/resource-view-filters.min.js:3
+msgid "Select a field"
+msgstr "選擇1個欄位"
+
+#: ckan/public/base/javascript/modules/slug-preview.js:57
+#: ckan/public/base/javascript/modules/slug-preview.min.js:2
+#: ckan/templates/group/edit_base.html:20 ckan/templates/group/members.html:28
+#: ckan/templates/organization/bulk_process.html:75
+#: ckan/templates/organization/edit.html:3
+#: ckan/templates/organization/edit_base.html:22
+#: ckan/templates/organization/members.html:33
+#: ckan/templates/package/collaborators/collaborators.html:33
+#: ckan/templates/package/edit_base.html:8
+#: ckan/templates/package/resource_edit.html:3
+#: ckan/templates/package/resource_edit_base.html:12
+#: ckan/templates/package/snippets/resource_item.html:70
+msgid "Edit"
+msgstr "編輯"
+
+#: ckan/public/base/javascript/modules/table-toggle-more.js:25
+#: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
+msgid "Show more"
+msgstr "顯示更多"
+
+#: ckan/public/base/javascript/modules/table-toggle-more.js:26
+#: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
+msgid "Hide"
+msgstr "隱藏"
+
+#: ckan/templates/error_document_template.html:3
+#, python-format
+msgid "Error %(error_code)s"
+msgstr "錯誤 %(error_code)s"
+
+#: ckan/templates/footer.html:9
+msgid "About {0}"
+msgstr "關於{0}"
+
+#: ckan/templates/footer.html:15
+msgid "CKAN API"
+msgstr "CKAN API"
+
+#: ckan/templates/footer.html:16
+msgid "CKAN Association"
+msgstr "CKAN 協會"
+
+#: ckan/templates/footer.html:24
+msgid ""
+"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
+msgstr ""
+"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
+
+#: ckan/templates/header.html:9
+msgid "Sysadmin settings"
+msgstr "系統管理員設置"
+
+#: ckan/templates/header.html:16
+msgid "View profile"
+msgstr "瀏覽個人資料"
+
+#: ckan/templates/header.html:23
+#, python-format
+msgid "Dashboard (%(num)d new item)"
+msgid_plural "Dashboard (%(num)d new items)"
+msgstr[0] "控制台(%(num)d 個新物件)"
+
+#: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
+msgid "Dashboard"
+msgstr "控制台"
+
+#: ckan/templates/header.html:33 ckan/templates/header.html:35
+#: ckan/templates/user/dashboard.html:16
+msgid "Profile settings"
+msgstr "設定個人資料"
+
+#: ckan/templates/header.html:40 ckan/templates/header.html:42
+msgid "Log out"
+msgstr "登出"
+
+#: ckan/templates/header.html:49
+msgid "Account"
+msgstr "帳號"
+
+#: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
+msgid "Log in"
+msgstr "登入"
+
+#: ckan/templates/header.html:54 ckan/templates/user/new.html:3
+msgid "Register"
+msgstr "註冊"
+
+#: ckan/templates/group/read_base.html:17
+#: ckan/templates/group/snippets/info.html:38 ckan/templates/header.html:89
+#: ckan/templates/organization/bulk_process.html:20
+#: ckan/templates/organization/edit_base.html:23
+#: ckan/templates/organization/read_base.html:17
+#: ckan/templates/package/snippets/new_package_breadcrumb.html:1
+#: ckan/templates/snippets/context/group.html:17
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/snippets/organization.html:61
+#: ckan/templates/user/read.html:11 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:56
+msgid "Datasets"
+msgstr "資料集"
+
+#: ckan/templates/header.html:99
+msgid "Search Datasets"
+msgstr "搜尋資料集"
+
+#: ckan/templates/header.html:100 ckan/templates/home/snippets/search.html:11
+#: ckan/templates/snippets/simple_search.html:5
+#: ckan/templates/user/snippets/user_search.html:6
+msgid "Search"
+msgstr "搜尋"
+
+#: ckan/templates/header.html:100 ckan/templates/home/snippets/search.html:8
+msgid "Search datasets"
+msgstr "搜尋資料集"
+
+#: ckan/templates/header.html:101 ckan/templates/snippets/search_form.html:16
+msgid "Submit"
+msgstr ""
+
+#: ckan/templates/page.html:6
+msgid "Skip to content"
+msgstr "跳至內容"
+
+#: ckan/templates/page.html:36
+msgid "Breadcrumb"
+msgstr ""
+
+#: ckan/templates/activity_streams/activity_stream_items.html:9
+msgid "Load less"
+msgstr "讀取較少"
+
+#: ckan/templates/activity_streams/activity_stream_items.html:17
+msgid "Load more"
+msgstr "讀取更多"
+
+#: ckan/templates/activity_streams/activity_stream_items.html:23
+msgid "No activities are within this activity stream"
+msgstr "任何活動都在此活動串之中"
+
+#: ckan/templates/admin/base.html:3
+msgid "Administration"
+msgstr "管理"
+
+#: ckan/templates/admin/base.html:8
+msgid "Sysadmins"
+msgstr "系統管理員"
+
+#: ckan/templates/admin/base.html:9
+msgid "Config"
+msgstr "設置"
+
+#: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:27
+msgid "Trash"
+msgstr "垃圾桶"
+
+#: ckan/templates/admin/config.html:23 ckan/templates/macros/autoform.html:62
+msgid "Site logo"
+msgstr "網站 LOGO"
+
+#: ckan/templates/admin/config.html:35
+#: ckan/templates/admin/confirm_reset.html:7
+msgid "Are you sure you want to reset the config?"
+msgstr "確定要重設設置嗎？"
+
+#: ckan/templates/admin/config.html:35
+msgid "Reset"
+msgstr "重設"
+
+#: ckan/templates/admin/config.html:36
+msgid "Update Config"
+msgstr "更新設定檔"
+
+#: ckan/templates/admin/config.html:45
+msgid "CKAN config options"
+msgstr "CKAN 設置選項"
+
+#: ckan/templates/admin/config.html:52
+#, python-format
+msgid ""
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+"Text:</strong> This text will appear on this CKAN instances <a "
+"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
+"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
+"target=\"_blank\">reading the documentation</a>.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p>"
+msgstr ""
+"<p><strong>網站標題：</strong> 這是 CKAN 網站標題的範例，將會出現在 CKAN 的許多地方</p> "
+"<p><strong>樣式：</strong> 您可以從現有的配色方案清單中選擇，做些簡單的變化，快速的讓客製化主題運作。</p> "
+"<p><strong>網站 LOGO：</strong>這是會出現在所有 CKAN 網站模板的 logo。</p> "
+"<p><strong>關於：</strong>此段文字將出現在此 CKAN 網站的<a "
+"href=\"%(about_url)s\">｢關於｣</a>頁面 。</p> <p><strong>簡介文字：</strong>此段文字將作為此 "
+"CKAN 網站<a href=\"%(home_url)s\">首頁</a>的歡迎訊息。</p> <p><strong>客製化 "
+"CSS：</strong>這是一個 CSS 區塊，將會出現在有<code>&lt;head&gt;</code>標籤的每個頁面。 "
+"若您需要更完整的客製化範例，建議您閱讀<a href=\"%(docs_url)s\" target=\"_blank\">此文件</a>。</p> "
+"<p><strong>首頁：</strong>您可以選擇顯示於首頁的模組佈局。</p>"
+
+#: ckan/templates/admin/confirm_reset.html:3
+#: ckan/templates/admin/confirm_reset.html:10
+msgid "Confirm Reset"
+msgstr "重設確認"
+
+#: ckan/templates/admin/index.html:15
+msgid "Administer CKAN"
+msgstr "CKAN 系統管理者"
+
+#: ckan/templates/admin/index.html:20
+#, python-format
+msgid ""
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
+" href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p>"
+msgstr ""
+"<p>身為系統管理者，您具有對此 CKAN 網站的所有控制權。請小心操作！</p> <p>關於系統管理功能，請見 CKAN <a "
+"href=\"%(docs_url)s\" target=\"_blank\">系統管理者指南</a>。</p>"
+
+#: ckan/templates/admin/trash.html:12
+msgid "Are you sure you want to purge everything?"
+msgstr "您確定要清除所有內容嗎？"
+
+#: ckan/templates/admin/trash.html:13
+msgid "Purge all"
+msgstr "全部清除"
+
+#: ckan/templates/admin/trash.html:31
+msgid ""
+"Purge deleted datasets, organizations or groups forever and irreversibly."
+msgstr "永久且不可逆地清除已刪除的資料集、組織或群組。"
+
+#: ckan/templates/admin/snippets/confirm_delete.html:3
+#: ckan/templates/admin/snippets/confirm_delete.html:17
+#: ckan/templates/group/confirm_delete.html:3
+#: ckan/templates/group/confirm_delete.html:15
+#: ckan/templates/group/confirm_delete_member.html:3
+#: ckan/templates/group/confirm_delete_member.html:16
+#: ckan/templates/organization/confirm_delete.html:3
+#: ckan/templates/organization/confirm_delete.html:15
+#: ckan/templates/organization/confirm_delete_member.html:3
+#: ckan/templates/organization/confirm_delete_member.html:16
+#: ckan/templates/package/confirm_delete.html:3
+#: ckan/templates/package/confirm_delete.html:16
+#: ckan/templates/package/confirm_delete_resource.html:3
+#: ckan/templates/package/confirm_delete_resource.html:15
+msgid "Confirm Delete"
+msgstr "確認刪除"
+
+#: ckan/templates/admin/snippets/data_type.html:7
+msgid "Deleted datasets"
+msgstr "已刪除的資料集"
+
+#: ckan/templates/admin/snippets/data_type.html:9
+msgid "Deleted organizations"
+msgstr "已刪除的組織"
+
+#: ckan/templates/admin/snippets/data_type.html:11
+msgid "Deleted groups"
+msgstr "已刪除的群組"
+
+#: ckan/templates/admin/snippets/data_type.html:41
+msgid "Purge"
+msgstr "清空"
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:9
+msgid "This resource can not be previewed at the moment."
+msgstr "此資源目前無法預覽"
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:11
+#: ckan/templates/package/resource_read.html:145
+#: ckan/templates/package/snippets/resource_view.html:34
+msgid "Click here for more information."
+msgstr "點選此處獲得更多資訊"
+
+#: ckan/templates/dataviewer/snippets/data_preview.html:18
+#: ckan/templates/package/snippets/resource_view.html:41
+msgid "Download resource"
+msgstr "下載資源"
+
+#: ckan/templates/dataviewer/snippets/no_preview.html:3
+msgid "No preview available."
+msgstr "無法預覽"
+
+#: ckan/templates/dataviewer/snippets/no_preview.html:5
+msgid "More details..."
+msgstr "更多詳細資料..."
+
+#: ckan/templates/dataviewer/snippets/no_preview.html:12
+#, python-format
+msgid "No handler defined for data type: %(type)s."
+msgstr "沒有處理程序定義的資料類型：%(type)s"
+
+#: ckan/templates/development/snippets/form.html:5
+msgid "Standard"
+msgstr "標準"
+
+#: ckan/templates/development/snippets/form.html:5
+msgid "Standard Input"
+msgstr "標準輸入"
+
+#: ckan/templates/development/snippets/form.html:6
+msgid "Medium"
+msgstr "中等"
+
+#: ckan/templates/development/snippets/form.html:6
+msgid "Medium Width Input"
+msgstr "中等寬度輸入"
+
+#: ckan/templates/development/snippets/form.html:7
+msgid "Full"
+msgstr "完整"
+
+#: ckan/templates/development/snippets/form.html:7
+msgid "Full Width Input"
+msgstr "完整寬度輸入"
+
+#: ckan/templates/development/snippets/form.html:8
+msgid "Large"
+msgstr "大型"
+
+#: ckan/templates/development/snippets/form.html:8
+msgid "Large Input"
+msgstr "大型輸入"
+
+#: ckan/templates/development/snippets/form.html:9
+msgid "Prepend"
+msgstr "前置"
+
+#: ckan/templates/development/snippets/form.html:9
+msgid "Prepend Input"
+msgstr "前置輸入"
+
+#: ckan/templates/development/snippets/form.html:13
+msgid "Custom Field (empty)"
+msgstr "客製化欄位(空)"
+
+#: ckan/templates/development/snippets/form.html:19
+#: ckan/templates/snippets/custom_form_fields.html:20
+#: ckan/templates/snippets/custom_form_fields.html:37
+msgid "Custom Field"
+msgstr "客製化欄位"
+
+#: ckan/templates/development/snippets/form.html:22
+msgid "Markdown"
+msgstr "Markdown標記"
+
+#: ckan/templates/development/snippets/form.html:23
+msgid "Textarea"
+msgstr "文字區塊"
+
+#: ckan/templates/development/snippets/form.html:24
+msgid "Select"
+msgstr "選取"
+
+#: ckan/templates/group/activity_stream.html:3
+#: ckan/templates/group/activity_stream.html:8
+#: ckan/templates/group/read_base.html:18
+#: ckan/templates/organization/activity_stream.html:3
+#: ckan/templates/organization/activity_stream.html:8
+#: ckan/templates/organization/read_base.html:18
+#: ckan/templates/package/activity.html:3
+#: ckan/templates/package/activity.html:8
+#: ckan/templates/package/read_base.html:23
+#: ckan/templates/user/activity_stream.html:3
+#: ckan/templates/user/activity_stream.html:8
+#: ckan/templates/user/read_base.html:20
+msgid "Activity Stream"
+msgstr "動態牆"
+
+#: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
+#: ckan/templates/organization/admins.html:3
+#: ckan/templates/organization/admins.html:6
+msgid "Administrators"
+msgstr "管理者"
+
+#: ckan/templates/group/base_form_page.html:5
+msgid "Add a Group"
+msgstr "增加一個群組"
+
+#: ckan/templates/group/base_form_page.html:10
+msgid "Group Form"
+msgstr "群組表單"
+
+#: ckan/templates/group/confirm_delete.html:11
+msgid "Are you sure you want to delete group - {name}?"
+msgstr "確定要刪除群組：{name}嗎？"
+
+#: ckan/templates/group/confirm_delete_member.html:11
+#: ckan/templates/organization/confirm_delete_member.html:11
+msgid "Are you sure you want to delete member - {name}?"
+msgstr "確定要刪除成員：{name}嗎？"
+
+#: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
+#: ckan/templates/group/edit_base.html:11
+#: ckan/templates/group/read_base.html:12
+#: ckan/templates/organization/edit_base.html:11
+#: ckan/templates/organization/read_base.html:12
+#: ckan/templates/package/read_base.html:15
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
+msgid "Manage"
+msgstr "管理"
+
+#: ckan/templates/group/edit.html:12
+msgid "Edit Group"
+msgstr "編輯群組"
+
+#: ckan/templates/group/edit_base.html:21 ckan/templates/group/members.html:3
+#: ckan/templates/organization/edit_base.html:24
+#: ckan/templates/organization/members.html:3
+msgid "Members"
+msgstr "成員"
+
+#: ckan/templates/group/index.html:13
+#: ckan/templates/user/dashboard_groups.html:7
+msgid "Add Group"
+msgstr "新增群組"
+
+#: ckan/templates/group/index.html:20
+msgid "Search groups..."
+msgstr "搜尋群組"
+
+#: ckan/templates/group/index.html:29
+msgid "There are currently no groups for this site"
+msgstr "此網站上目前沒有任何群組"
+
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
+msgid "How about creating one?"
+msgstr "建立一個群組如何？"
+
+#: ckan/templates/group/member_new.html:8
+#: ckan/templates/organization/member_new.html:10
+msgid "Back to all members"
+msgstr "回到所有成員"
+
+#: ckan/templates/group/member_new.html:10
+#: ckan/templates/organization/member_new.html:7
+#: ckan/templates/organization/member_new.html:12
+msgid "Edit Member"
+msgstr "編輯成員"
+
+#: ckan/templates/group/member_new.html:10
+#: ckan/templates/group/member_new.html:77 ckan/templates/group/members.html:6
+#: ckan/templates/organization/member_new.html:7
+#: ckan/templates/organization/member_new.html:12
+#: ckan/templates/organization/member_new.html:79
+#: ckan/templates/organization/members.html:8
+msgid "Add Member"
+msgstr "新增成員"
+
+#: ckan/templates/group/member_new.html:19
+#: ckan/templates/organization/member_new.html:21
+#: ckan/templates/package/collaborators/collaborator_new.html:19
+msgid "Existing User"
+msgstr "已存在的使用者"
+
+#: ckan/templates/group/member_new.html:22
+#: ckan/templates/organization/member_new.html:24
+#: ckan/templates/package/collaborators/collaborator_new.html:22
+msgid "If you wish to add an existing user, search for their username below."
+msgstr "若您欲新增已存在之使用者，請在下面搜尋。"
+
+#: ckan/templates/group/member_new.html:41
+#: ckan/templates/organization/member_new.html:43
+msgid "or"
+msgstr "或"
+
+#: ckan/templates/group/member_new.html:47
+#: ckan/templates/organization/member_new.html:49
+msgid "New User"
+msgstr "新使用者"
+
+#: ckan/templates/group/member_new.html:50
+#: ckan/templates/organization/member_new.html:52
+msgid "If you wish to invite a new user, enter their email address."
+msgstr "請在此輸入電子郵件位址，以邀請使用者加入"
+
+#: ckan/templates/group/member_new.html:62
+#: ckan/templates/group/member_new.html:66
+#: ckan/templates/group/members.html:15
+#: ckan/templates/organization/member_new.html:64
+#: ckan/templates/organization/member_new.html:68
+#: ckan/templates/organization/members.html:20
+#: ckan/templates/package/collaborators/collaborator_new.html:41
+#: ckan/templates/package/collaborators/collaborators.html:20
+msgid "Role"
+msgstr "角色"
+
+#: ckan/templates/group/member_new.html:71
+#: ckan/templates/group/members.html:31
+#: ckan/templates/organization/member_new.html:73
+#: ckan/templates/organization/members.html:36
+msgid "Are you sure you want to delete this member?"
+msgstr "確定要刪除這個成員嗎？"
+
+#: ckan/templates/group/member_new.html:71
+#: ckan/templates/group/members.html:31
+#: ckan/templates/group/snippets/group_form.html:38
+#: ckan/templates/organization/bulk_process.html:57
+#: ckan/templates/organization/member_new.html:73
+#: ckan/templates/organization/members.html:36
+#: ckan/templates/organization/snippets/organization_form.html:38
+#: ckan/templates/package/collaborators/collaborator_new.html:44
+#: ckan/templates/package/collaborators/collaborators.html:36
+#: ckan/templates/package/edit_view.html:19
+#: ckan/templates/package/snippets/package_form.html:39
+#: ckan/templates/package/snippets/resource_form.html:67
+#: ckan/templates/user/edit_user_form.html:50
+msgid "Delete"
+msgstr "刪除"
+
+#: ckan/templates/group/member_new.html:90
+#: ckan/templates/organization/member_new.html:92
+msgid "What are roles?"
+msgstr "腳色是什麼？"
+
+#: ckan/templates/group/member_new.html:93
+msgid ""
+"<p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
+"datasets from groups</p>"
+msgstr ""
+"<p><strong>管理者：</strong> 可以編輯群組資訊，以及管理群組成員。</p> "
+"<p><strong>一般成員：</strong>可以瀏覽群組的私有資料集，但無法新增資料集。</p>"
+
+#: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
+#: ckan/templates/group/new.html:7
+msgid "Create a Group"
+msgstr "建立一個群組"
+
+#: ckan/templates/group/new_group_form.html:17
+msgid "Update Group"
+msgstr "更新群組"
+
+#: ckan/templates/group/new_group_form.html:19
+msgid "Create Group"
+msgstr "建立群組"
+
+#: ckan/templates/group/read.html:19 ckan/templates/organization/read.html:25
+#: ckan/templates/snippets/search_form.html:3
+msgid "Search datasets..."
+msgstr "搜尋資料集"
+
+#: ckan/templates/group/snippets/feeds.html:2
+msgid "Datasets in group: {group}"
+msgstr "群組{group}中的資料集"
+
+#: ckan/templates/group/snippets/group_form.html:10
+#: ckan/templates/organization/snippets/organization_form.html:10
+#: ckan/templates/package/snippets/resource_form.html:30
+msgid "Name"
+msgstr "名稱"
+
+#: ckan/templates/group/snippets/group_form.html:10
+msgid "My Group"
+msgstr "我的群組"
+
+#: ckan/templates/group/snippets/group_form.html:20
+msgid "A little information about my group..."
+msgstr "關於我的群組的資訊..."
+
+#: ckan/templates/group/snippets/group_form.html:38
+msgid "Are you sure you want to delete this Group?"
+msgstr "確定要刪除這個群組嗎？"
+
+#: ckan/templates/group/snippets/group_form.html:41
+msgid "Save Group"
+msgstr "儲存群組"
+
+#: ckan/templates/group/snippets/group_item.html:38
+#: ckan/templates/group/snippets/group_item.html:39
+msgid "View {name}"
+msgstr "瀏覽 {name}"
+
+#: ckan/templates/group/snippets/group_item.html:43
+msgid "Remove dataset from this group"
+msgstr "從此群組移除資料集"
+
+#: ckan/templates/group/snippets/helper.html:4
+msgid "What are Groups?"
+msgstr "什麼是群組？"
+
+#: ckan/templates/group/snippets/helper.html:8
+msgid ""
+"You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets."
+msgstr "您可以使用 CKAN 群組建立並管理多個資料集。群組可以代表一個主題、專案或是小組，可以幫助使用者快速找尋資料集。 "
+
+#: ckan/templates/group/snippets/info.html:16
+#: ckan/templates/organization/bulk_process.html:82
+#: ckan/templates/package/read.html:29
+#: ckan/templates/package/snippets/package_basic_fields.html:121
+#: ckan/templates/snippets/organization.html:37
+#: ckan/templates/snippets/package_item.html:42
+msgid "Deleted"
+msgstr "刪除"
+
+#: ckan/templates/group/snippets/info.html:26
+#: ckan/templates/snippets/organization.html:47
+msgid "read more"
+msgstr "讀取更多"
+
+#: ckan/templates/home/index.html:4
+msgid "Welcome"
+msgstr "歡迎"
+
+#: ckan/templates/home/snippets/about_text.html:1
+msgid ""
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
+"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
+"government portals, as well as city and municipal sites in the US, UK, "
+"Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
+"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
+"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
+"overview: <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
+msgstr ""
+" <p>CKAN是世界上開放原始碼資料入口平台的領導者。</p> <p>CKAN是一個瀏覽和使用資料完整現成的軟體– "
+"透過提供工具以簡化發布、分享、查找和使用資料(包含儲存資料以及強大的資料API)。CKAN的目的是讓資料的發布者(國家和地區的政府、企業和組織)想要使他們的資料開放、可用。</p>"
+" <p>CKAN在世界各地的官方及民間組織的資料網站被廣泛的使用，如英國的<a "
+"href=\"http://data.gov.uk\">data.gov.uk</a>以及歐盟的<a "
+"href=\"http://publicdata.eu/\">publicdata.eu</a>、巴西的<a "
+"href=\"http://dados.gov.br/\">dados.gov.br</a>、荷蘭政府入口網站以及美國、英國、阿根廷、芬蘭和許多其他國家的城市地方政府網站。</p>"
+" <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN試用: <a"
+" href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> 其他相關資料： <a "
+"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+
+#: ckan/templates/home/snippets/promoted.html:8
+msgid "Welcome to CKAN"
+msgstr "歡迎來到CKAN"
+
+#: ckan/templates/home/snippets/promoted.html:10
+msgid ""
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will"
+msgstr "這裡是關於 CKAN 或本網站的簡介。目前沒有文案，但很快就會有"
+
+#: ckan/templates/home/snippets/promoted.html:19
+msgid "This is a featured section"
+msgstr "這是一個特色區塊"
+
+#: ckan/templates/home/snippets/search.html:2
+msgid "E.g. environment"
+msgstr "例如：環境"
+
+#: ckan/templates/home/snippets/search.html:6
+msgid "Search data"
+msgstr "搜尋資料"
+
+#: ckan/templates/home/snippets/search.html:16
+msgid "Popular tags"
+msgstr "熱門標籤"
+
+#: ckan/templates/home/snippets/stats.html:5
+msgid "{0} statistics"
+msgstr "{0}項統計"
+
+#: ckan/templates/home/snippets/stats.html:11
+msgid "dataset"
+msgstr "資料集"
+
+#: ckan/templates/home/snippets/stats.html:11
+msgid "datasets"
+msgstr "個資料集"
+
+#: ckan/templates/home/snippets/stats.html:17
+msgid "organizations"
+msgstr "組織"
+
+#: ckan/templates/home/snippets/stats.html:23
+msgid "groups"
+msgstr "群組"
+
+#: ckan/templates/macros/form.html:54 ckan/templates/macros/form.html:287
+msgid "This field is required"
+msgstr "此欄位必填"
+
+#: ckan/templates/macros/form.html:136
+#, python-format
+msgid ""
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">Markdown formatting</a> here"
+msgstr ""
+"您可以在此使用 <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"html=\"true\">Markdown 格式</a>"
+
+#: ckan/templates/macros/form.html:243
+msgid "Key"
+msgstr ""
+
+#: ckan/templates/macros/form.html:255
+#: ckan/templates/package/resource_read.html:180
+#: ckan/templates/package/snippets/additional_info.html:7
+#: ckan/templates/snippets/additional_info.html:12
+msgid "Value"
+msgstr "值"
+
+#: ckan/templates/macros/form.html:287
+msgid "Custom"
+msgstr "客製"
+
+#: ckan/templates/macros/form.html:312
+msgid "The form contains invalid entries:"
+msgstr "此表格包含無效條目："
+
+#: ckan/templates/macros/form.html:417
+msgid "Required field"
+msgstr "需要的欄位"
+
+#: ckan/templates/macros/form.html:432
+msgid "http://example.com/my-image.jpg"
+msgstr "http://example.com/my-image.jpg"
+
+#: ckan/templates/macros/form.html:433
+msgid "Image URL"
+msgstr "圖片 URL"
+
+#: ckan/templates/macros/form.html:459
+msgid "Clear Upload"
+msgstr "清除已上傳檔案"
+
+#: ckan/templates/organization/base_form_page.html:5
+msgid "Add an Organization"
+msgstr "新增一個組織"
+
+#: ckan/templates/organization/base_form_page.html:10
+msgid "Organization Form"
+msgstr "組織表單"
+
+#: ckan/templates/organization/bulk_process.html:3
+#: ckan/templates/organization/bulk_process.html:11
+msgid "Edit datasets"
+msgstr "編輯資料集"
+
+#: ckan/templates/organization/bulk_process.html:16
+msgid " found for \"{query}\""
+msgstr "根據 \"{query}\" 找到"
+
+#: ckan/templates/organization/bulk_process.html:18
+msgid "Sorry no datasets found for \"{query}\""
+msgstr "根據\"{query}\"找不到任何資料集"
+
+#: ckan/templates/organization/bulk_process.html:47
+msgid "Make public"
+msgstr "設為公開"
+
+#: ckan/templates/organization/bulk_process.html:51
+msgid "Make private"
+msgstr "設為非公開"
+
+#: ckan/templates/organization/bulk_process.html:80
+#: ckan/templates/package/read.html:26
+#: ckan/templates/snippets/package_item.html:40
+msgid "Draft"
+msgstr "草稿"
+
+#: ckan/templates/organization/bulk_process.html:85
+#: ckan/templates/package/read.html:9
+#: ckan/templates/package/snippets/package_basic_fields.html:101
+#: ckan/templates/snippets/package_item.html:31
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:81 ckan/templates/user/read_base.html:95
+msgid "Private"
+msgstr "非公開"
+
+#: ckan/templates/organization/bulk_process.html:98
+msgid "This organization has no datasets associated to it"
+msgstr "沒有任何資料集和這個組織有關聯"
+
+#: ckan/templates/organization/confirm_delete.html:11
+msgid "Are you sure you want to delete organization - {name}?"
+msgstr "你確定要刪除組織-{name}嗎？"
+
+#: ckan/templates/organization/edit.html:6
+#: ckan/templates/organization/snippets/info.html:13
+#: ckan/templates/organization/snippets/info.html:16
+msgid "Edit Organization"
+msgstr "編輯組織"
+
+#: ckan/templates/organization/index.html:13
+#: ckan/templates/user/dashboard_organizations.html:7
+msgid "Add Organization"
+msgstr "新增組織"
+
+#: ckan/templates/organization/index.html:20
+msgid "Search organizations..."
+msgstr "搜尋組織"
+
+#: ckan/templates/organization/index.html:29
+msgid "There are currently no organizations for this site"
+msgstr "此網站目前沒有任何組織"
+
+#: ckan/templates/organization/member_new.html:33
+#: ckan/templates/package/collaborators/collaborator_new.html:31
+#: ckan/templates/user/edit_user_form.html:8
+#: ckan/templates/user/logout_first.html:10
+#: ckan/templates/user/new_user_form.html:5
+#: ckan/templates/user/perform_reset.html:22
+#: ckan/templates/user/read_base.html:75
+#: ckan/templates/user/snippets/login_form.html:20
+msgid "Username"
+msgstr "使用者名稱"
+
+#: ckan/templates/organization/member_new.html:55
+msgid "Email address"
+msgstr "電子郵件地址"
+
+#: ckan/templates/organization/member_new.html:75
+msgid "Update Member"
+msgstr "更新成員"
+
+#: ckan/templates/organization/member_new.html:95
+msgid ""
+"<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
+"manage organization members.</p> <p><strong>Editor:</strong> Can add and "
+"edit datasets, but not manage organization members.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p>"
+msgstr ""
+" <p><strong>管理者：</strong>可以新增/編輯和刪除資料集，以及管理組織成員。</p> <p><strong>編輯：</strong>"
+" 可以新增和編輯資料集，但無法管理組織成員。</p> <p><strong>一般成員：</strong> "
+"可以瀏覽組織的私有資料集，但無法新增資料集。</p> "
+
+#: ckan/templates/organization/members.html:14
+msgid "{count} member"
+msgid_plural "{count} members"
+msgstr[0] "{count} 位成員"
+
+#: ckan/templates/organization/new.html:3
+#: ckan/templates/organization/new.html:5
+#: ckan/templates/organization/new.html:7
+msgid "Create an Organization"
+msgstr "建立一個組織"
+
+#: ckan/templates/organization/new_organization_form.html:17
+msgid "Update Organization"
+msgstr "更新組織"
+
+#: ckan/templates/organization/new_organization_form.html:19
+msgid "Create Organization"
+msgstr "建立組織"
+
+#: ckan/templates/organization/snippets/feeds.html:2
+msgid "Datasets in organization: {group}"
+msgstr "組織 {group} 中的資料集"
+
+#: ckan/templates/organization/snippets/help.html:4
+#: ckan/templates/organization/snippets/helper.html:4
+msgid "What are Organizations?"
+msgstr "組織是什麼？"
+
+#: ckan/templates/organization/snippets/help.html:7
+msgid ""
+"<p>Organizations act like publishing departments for datasets (for example, "
+"the Department of Health). This means that datasets can be published by and "
+"belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p>"
+msgstr ""
+"<p>組織扮演部門、單位發布資料集的角色（例如：衛生部門）。這意味著資料集是屬於一個部門，而不是屬於單一使用者。</p> "
+"<p>在組織中，管理員可以分配角色，並授權其成員，讓個人使用者有權從特定組織發布資料集（例如：國家檔案管理局）。</p>"
+
+#: ckan/templates/organization/snippets/helper.html:8
+msgid ""
+"CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish."
+msgstr "您可以使用 CKAN 組織來建立、管理與發佈多個資料集。在組織中，每位使用者可擁有不同角色，而得以建立、編輯與發佈資料集。 "
+
+#: ckan/templates/organization/snippets/organization_form.html:10
+msgid "My Organization"
+msgstr "我的組織"
+
+#: ckan/templates/organization/snippets/organization_form.html:20
+msgid "A little information about my organization..."
+msgstr "一些關於我的組織的資訊..."
+
+#: ckan/templates/organization/snippets/organization_form.html:38
+msgid ""
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
+msgstr "你確定要刪除這個組織嗎？這樣會刪除屬於這個組織的所有公開和非公開之資料集。"
+
+#: ckan/templates/organization/snippets/organization_form.html:41
+msgid "Save Organization"
+msgstr "儲存組織"
+
+#: ckan/templates/organization/snippets/organization_item.html:42
+#: ckan/templates/organization/snippets/organization_item.html:43
+msgid "View {organization_name}"
+msgstr "查看 {organization_name}"
+
+#: ckan/templates/package/base.html:24 ckan/templates/package/new.html:9
+#: ckan/templates/package/snippets/new_package_breadcrumb.html:2
+msgid "Create Dataset"
+msgstr "建立資料集"
+
+#: ckan/templates/package/base_form_page.html:22
+msgid "What are datasets?"
+msgstr "資料集是什麼？"
+
+#: ckan/templates/package/base_form_page.html:25
+msgid ""
+"A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data."
+msgstr ""
+"CKAN 資料集是眾多資料（例如：檔案）的集合，通常伴隨著對該資料集的描述、其他資訊，以及一個固定網址。資料集亦是使用者進行搜尋時所回傳的結果單位。"
+
+#: ckan/templates/package/changes.html:9
+#: ckan/templates/package/changes.html:17
+#: ckan/templates/snippets/activities/changed_package.html:20
+msgid "Changes"
+msgstr "變更"
+
+#: ckan/templates/package/confirm_delete.html:12
+msgid "Are you sure you want to delete dataset - {name}?"
+msgstr "你確定要刪除資料集-{name}嗎？"
+
+#: ckan/templates/package/confirm_delete_resource.html:11
+msgid "Are you sure you want to delete resource - {name}?"
+msgstr "您確定要刪除資源 - {name} 嗎？"
+
+#: ckan/templates/package/edit_base.html:13
+msgid "View dataset"
+msgstr "瀏覽資料集"
+
+#: ckan/templates/package/edit_base.html:17
+msgid "Edit metadata"
+msgstr "編輯後設資料"
+
+#: ckan/templates/package/collaborators/collaborators.html:3
+#: ckan/templates/package/edit_base.html:20
+msgid "Collaborators"
+msgstr "協作者"
+
+#: ckan/templates/package/edit_view.html:3
+#: ckan/templates/package/edit_view.html:4
+#: ckan/templates/package/edit_view.html:8
+#: ckan/templates/package/edit_view.html:12
+msgid "Edit view"
+msgstr "編輯檢視"
+
+#: ckan/templates/package/edit_view.html:20
+#: ckan/templates/package/new_view.html:28
+#: ckan/templates/package/snippets/resource_item.html:46
+msgid "Preview"
+msgstr "預覽"
+
+#: ckan/templates/package/edit_view.html:21
+msgid "Update"
+msgstr "更新"
+
+#: ckan/templates/package/group_list.html:14
+msgid "Associate this group with this dataset"
+msgstr "將資料集加入此群組"
+
+#: ckan/templates/package/group_list.html:14
+msgid "Add to group"
+msgstr "加入群組"
+
+#: ckan/templates/package/group_list.html:23
+msgid "There are no groups associated with this dataset"
+msgstr "沒有群組跟此資料集有關聯"
+
+#: ckan/templates/package/new_package_form.html:13
+msgid "Update Dataset"
+msgstr "更新資料集"
+
+#: ckan/templates/package/new_resource.html:5
+msgid "Add data to the dataset"
+msgstr "在資料集中新增資料"
+
+#: ckan/templates/package/new_resource.html:11
+#: ckan/templates/package/new_resource_not_draft.html:8
+msgid "Add New Resource"
+msgstr "新增資源"
+
+#: ckan/templates/package/new_resource_not_draft.html:3
+#: ckan/templates/package/new_resource_not_draft.html:4
+msgid "Add resource"
+msgstr "加入資源"
+
+#: ckan/templates/package/new_resource_not_draft.html:16
+msgid "New resource"
+msgstr "新資源"
+
+#: ckan/templates/package/new_view.html:3
+#: ckan/templates/package/new_view.html:4
+#: ckan/templates/package/new_view.html:8
+#: ckan/templates/package/new_view.html:12
+msgid "Add view"
+msgstr "新增檢視"
+
+#: ckan/templates/package/new_view.html:19
+msgid ""
+"Data Explorer views may be slow and unreliable unless the DataStore "
+"extension is enabled. For more information, please see the <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>."
+msgstr ""
+"若 DataStore 擴充套件未啟用，資料瀏覽檢視可能會較為緩慢且不穩定。進一步資訊請參考 <a "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>資料瀏覽檢視說明</a>。"
+
+#: ckan/templates/package/new_view.html:29
+#: ckan/templates/package/snippets/resource_form.html:85
+msgid "Add"
+msgstr "新增"
+
+#: ckan/templates/package/read.html:15
+#: ckan/templates/package/resource_read.html:77
+#, python-format
+msgid ""
+"You're currently viewing an old version of this dataset. To see the current "
+"version, click <a href=\"%(url)s\">here</a>."
+msgstr ""
+
+#: ckan/templates/package/resource_edit_base.html:17
+msgid "All resources"
+msgstr "全部資源"
+
+#: ckan/templates/package/resource_edit_base.html:19
+msgid "View resource"
+msgstr "瀏覽資源"
+
+#: ckan/templates/package/resource_edit_base.html:24
+#: ckan/templates/package/resource_edit_base.html:30
+msgid "Edit resource"
+msgstr "編輯資源"
+
+#: ckan/templates/package/resource_edit_base.html:26
+msgid "Views"
+msgstr "檢視"
+
+#: ckan/templates/package/resource_read.html:40
+msgid "API Endpoint"
+msgstr "API終端"
+
+#: ckan/templates/package/resource_read.html:42
+#: ckan/templates/package/snippets/resource_item.html:61
+msgid "Go to resource"
+msgstr "前往存取資源"
+
+#: ckan/templates/package/resource_read.html:44
+#: ckan/templates/package/snippets/resource_item.html:58
+msgid "Download"
+msgstr "下載"
+
+#: ckan/templates/package/resource_read.html:87
+#: ckan/templates/package/resource_read.html:89
+msgid "URL:"
+msgstr "網址："
+
+#: ckan/templates/package/resource_read.html:97
+msgid "Dataset description:"
+msgstr "資料集描述："
+
+#: ckan/templates/package/resource_read.html:99
+#, python-format
+msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
+msgstr "來源：<a href=\"%(url)s\">%(dataset)s</a>"
+
+#: ckan/templates/package/resource_read.html:139
+msgid "There are no views created for this resource yet."
+msgstr "此資源沒有可用的檢視。"
+
+#: ckan/templates/package/resource_read.html:143
+msgid "Not seeing the views you were expecting?"
+msgstr "沒有看到您預期的檢視嗎？"
+
+#: ckan/templates/package/resource_read.html:148
+msgid "Here are some reasons you may not be seeing expected views:"
+msgstr "這裡列出一些可能造成無法檢視的原因："
+
+#: ckan/templates/package/resource_read.html:150
+msgid "No view has been created that is suitable for this resource"
+msgstr "沒有適用於此資源的檢視"
+
+#: ckan/templates/package/resource_read.html:151
+msgid "The site administrators may not have enabled the relevant view plugins"
+msgstr "系統管理者可能並未啟用相關的檢視擴充套件"
+
+#: ckan/templates/package/resource_read.html:152
+msgid ""
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
+msgstr ""
+"若此檢視需要 DataStore 支援，則可能為 DataStore 擴充套件未啟用、資料並未上傳至 DataStore，或 DataStore "
+"上傳作業尚未完成"
+
+#: ckan/templates/package/resource_read.html:175
+msgid "Additional Information"
+msgstr "其他資訊"
+
+#: ckan/templates/package/resource_read.html:179
+#: ckan/templates/package/snippets/additional_info.html:6
+#: ckan/templates/snippets/additional_info.html:11
+msgid "Field"
+msgstr "欄位"
+
+#: ckan/templates/package/resource_read.html:185
+msgid "Data last updated"
+msgstr "最後更新資料"
+
+#: ckan/templates/package/resource_read.html:186
+#: ckan/templates/package/resource_read.html:190
+#: ckan/templates/package/resource_read.html:194
+#: ckan/templates/package/resource_read.html:198
+#: ckan/templates/snippets/activity_stream.html:10
+#: ckan/templates/snippets/activity_stream.html:17
+#: ckan/templates/snippets/activity_stream.html:30
+msgid "unknown"
+msgstr "未知的"
+
+#: ckan/templates/package/resource_read.html:189
+msgid "Metadata last updated"
+msgstr "最後更新的後設資料"
+
+#: ckan/templates/package/resource_read.html:193
+#: ckan/templates/package/snippets/additional_info.html:70
+msgid "Created"
+msgstr "建立"
+
+#: ckan/templates/package/resource_read.html:197
+#: ckan/templates/package/snippets/resource_form.html:39
+#: ckan/templates/package/snippets/resource_info.html:19
+msgid "Format"
+msgstr "格式"
+
+#: ckan/templates/package/resource_read.html:201
+#: ckan/templates/package/snippets/package_basic_fields.html:30
+#: ckan/templates/snippets/license.html:20
+msgid "License"
+msgstr "授權"
+
+#: ckan/templates/package/resource_views.html:10
+msgid "New view"
+msgstr "新增檢視"
+
+#: ckan/templates/package/resource_views.html:27
+msgid "This resource has no views"
+msgstr "此資源沒有檢視"
+
+#: ckan/templates/package/resources.html:8
+msgid "Add new resource"
+msgstr "加入新資源"
+
+#: ckan/templates/package/resources.html:20
+#: ckan/templates/package/snippets/resources_list.html:27
+#, python-format
+msgid ""
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p>"
+msgstr "<p class=\"empty\">此資料集中沒有資料，<a href=\"%(url)s\">新增一些如何？</a></p>"
+
+#: ckan/templates/package/search.html:52
+msgid "API"
+msgstr "API (應用程式介面)"
+
+#: ckan/templates/package/search.html:53
+msgid "API Docs"
+msgstr "API 文件"
+
+#: ckan/templates/package/search.html:55
+msgid "full {format} dump"
+msgstr "永久 {format} 刪除"
+
+#: ckan/templates/package/search.html:56
+#, python-format
+msgid ""
+"You can also access this registry using the %(api_link)s (see "
+"%(api_doc_link)s) or download a %(dump_link)s."
+msgstr "您也可以使用%(api_link)s (see %(api_doc_link)s)或下載%(dump_link)s註冊。"
+
+#: ckan/templates/package/search.html:60
+#, python-format
+msgid ""
+"You can also access this registry using the %(api_link)s (see "
+"%(api_doc_link)s)."
+msgstr "您也可以使用%(api_link)s (see %(api_doc_link)s)註冊。"
+
+#: ckan/templates/package/view_edit_base.html:9
+msgid "All views"
+msgstr "所有檢視"
+
+#: ckan/templates/package/view_edit_base.html:12
+msgid "View view"
+msgstr "瀏覽檢視"
+
+#: ckan/templates/package/view_edit_base.html:37
+msgid "View preview"
+msgstr "預覽檢視"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:5
+#: ckan/templates/package/collaborators/collaborator_new.html:10
+msgid "Edit Collaborator"
+msgstr "編輯協作者"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:5
+#: ckan/templates/package/collaborators/collaborator_new.html:10
+#: ckan/templates/package/collaborators/collaborator_new.html:50
+msgid "Add Collaborator"
+msgstr "新增協作者"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:8
+msgid "Back to all collaborators"
+msgstr "回到所有協作者"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:44
+#: ckan/templates/package/collaborators/collaborators.html:36
+msgid "Are you sure you want to delete this collaborator?"
+msgstr "您確定要刪除這個協作者嗎？"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:46
+msgid "Update Collaborator"
+msgstr "更新協作者"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:63
+msgid "What are the available roles?"
+msgstr "角色是什麼？"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:67
+msgid ""
+"<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
+"add and remove collaborators from a dataset.</p>"
+msgstr "<p><strong>管理者：</strong>除管理資料集，管理者也可以新增和移除資料集協作者。</p>"
+
+#: ckan/templates/package/collaborators/collaborator_new.html:71
+msgid ""
+"<p><strong>Editor:</strong> Editors can edit the dataset and its resources, "
+"as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
+"Members can access the dataset if private, but not edit it.</p>"
+msgstr ""
+"<p><strong>編輯：</strong>可以編輯和刪除資料集與資源，也可以瀏覽設為非公開的資料集。</p> "
+"<p><strong>成員：</strong>可以瀏覽設為非公開的資料集，但無法編輯。</p>"
+
+#: ckan/templates/package/collaborators/collaborators.html:7
+msgid "Add Collaborators"
+msgstr "新增協作者"
+
+#: ckan/templates/package/collaborators/collaborators.html:14
+msgid "{count} collaborator"
+msgid_plural "{count} collaborators"
+msgstr[0] "{count} 位協作者"
+
+#: ckan/templates/package/snippets/additional_info.html:2
+#: ckan/templates/snippets/additional_info.html:7
+msgid "Additional Info"
+msgstr "額外的資訊"
+
+#: ckan/templates/package/snippets/additional_info.html:14
+#: ckan/templates/package/snippets/package_metadata_fields.html:6
+msgid "Source"
+msgstr "來源"
+
+#: ckan/templates/package/snippets/additional_info.html:25
+#: ckan/templates/package/snippets/additional_info.html:30
+#: ckan/templates/package/snippets/package_metadata_fields.html:14
+msgid "Author"
+msgstr "作者"
+
+#: ckan/templates/package/snippets/additional_info.html:37
+#: ckan/templates/package/snippets/additional_info.html:42
+#: ckan/templates/package/snippets/package_metadata_fields.html:20
+msgid "Maintainer"
+msgstr "維護者"
+
+#: ckan/templates/package/snippets/additional_info.html:49
+#: ckan/templates/package/snippets/package_metadata_fields.html:10
+msgid "Version"
+msgstr "版本"
+
+#: ckan/templates/package/snippets/additional_info.html:56
+#: ckan/templates/package/snippets/package_basic_fields.html:117
+#: ckan/templates/user/read_base.html:90
+msgid "State"
+msgstr "狀態"
+
+#: ckan/templates/package/snippets/additional_info.html:62
+msgid "Last Updated"
+msgstr "最後更新"
+
+#: ckan/templates/package/snippets/cannot_create_package.html:10
+msgid "Before you can create a dataset you need to create an organization."
+msgstr "在建立資料集之前必須先建立組織。"
+
+#: ckan/templates/package/snippets/cannot_create_package.html:13
+msgid "Create a new organization"
+msgstr "建立一個新的組織"
+
+#: ckan/templates/package/snippets/cannot_create_package.html:18
+msgid "There are no organizations to which you can assign this dataset."
+msgstr "此資料集沒有可隸屬的組織。"
+
+#: ckan/templates/package/snippets/cannot_create_package.html:19
+msgid ""
+"Ask a system administrator to create an organization before you can "
+"continue."
+msgstr "請聯繫系統管理員建立一個新的組織後，方可繼續。"
+
+#: ckan/templates/package/snippets/change_item.html:1
+#, python-format
+msgid "On %(timestamp)s, %(username)s:"
+msgstr ""
+
+#: ckan/templates/package/snippets/package_basic_fields.html:4
+#: ckan/templates/package/snippets/view_form.html:8
+msgid "Title"
+msgstr "標題"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:4
+msgid "eg. A descriptive title"
+msgstr "例如：一個描述性的標題"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:13
+msgid "eg. my-dataset"
+msgstr "例如：我的資料集"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:19
+msgid "eg. Some useful notes about the data"
+msgstr "例如：此資料一些有用的紀錄"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:24
+msgid "eg. economy, mental health, government"
+msgstr "例如：經濟、醫療衛生、政府"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:36
+msgid "Please select the license"
+msgstr "請選擇授權"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:47
+msgid ""
+"License definitions and additional information can be found at <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr ""
+"使用協定以及其他相關資訊請見<a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+
+#: ckan/templates/package/snippets/package_basic_fields.html:79
+#: ckan/templates/snippets/organization.html:23
+msgid "Organization"
+msgstr "組織"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:83
+msgid "No organization"
+msgstr "沒有此組織"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:98
+msgid "Visibility"
+msgstr "可見的"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:101
+msgid "Public"
+msgstr "公開"
+
+#: ckan/templates/package/snippets/package_basic_fields.html:120
+msgid "Active"
+msgstr "啟動"
+
+#: ckan/templates/package/snippets/package_form.html:28
+msgid ""
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
+msgstr ""
+"您所選取的<i>資料授權條款</i>僅適用於您上傳至本資料集的所有資源（檔案）。當您送出此表單時，代表您已同意以 <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a> 釋出本資料集之<i>後設資料</i>。"
+
+#: ckan/templates/package/snippets/package_form.html:39
+msgid "Are you sure you want to delete this dataset?"
+msgstr "你確定要刪除這個資料集嗎？"
+
+#: ckan/templates/package/snippets/package_form.html:43
+msgid "Next: Add Data"
+msgstr "下一步：新增資料"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:6
+msgid "http://example.com/dataset.json"
+msgstr "http://example.com/dataset.json"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:10
+msgid "1.0"
+msgstr "1.0"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:14
+#: ckan/templates/package/snippets/package_metadata_fields.html:20
+#: ckan/templates/user/new_user_form.html:6
+msgid "Joe Bloggs"
+msgstr "Joe Bloggs"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:16
+msgid "Author Email"
+msgstr "作者的電子郵件"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:16
+#: ckan/templates/package/snippets/package_metadata_fields.html:22
+#: ckan/templates/user/new_user_form.html:7
+msgid "joe@example.com"
+msgstr "joe@example.com"
+
+#: ckan/templates/package/snippets/package_metadata_fields.html:22
+msgid "Maintainer Email"
+msgstr "維運者的電子郵件"
+
+#: ckan/templates/package/snippets/resource_edit_form.html:12
+msgid "Update Resource"
+msgstr "更新資源"
+
+#: ckan/templates/package/snippets/resource_form.html:26
+msgid "Data"
+msgstr "檔案"
+
+#: ckan/templates/package/snippets/resource_form.html:26
+msgid "http://example.com/external-data.csv"
+msgstr "http://example.com/external-data.csv"
+
+#: ckan/templates/package/snippets/resource_form.html:30
+msgid "eg. January 2011 Gold Prices"
+msgstr "例如： 2011年1月金價"
+
+#: ckan/templates/package/snippets/resource_form.html:34
+msgid "Some useful notes about the data"
+msgstr "一些與此資料有關的紀錄"
+
+#: ckan/templates/package/snippets/resource_form.html:39
+msgid "eg. CSV, XML or JSON"
+msgstr "例如：CSV, XML or JSON"
+
+#: ckan/templates/package/snippets/resource_form.html:42
+msgid "This will be guessed automatically. Leave blank if you wish"
+msgstr "通常狀況下將自動生成，可以保持空白。"
+
+#: ckan/templates/package/snippets/resource_form.html:53
+msgid "eg. 2012-06-05"
+msgstr "例如：2012-06-05"
+
+#: ckan/templates/package/snippets/resource_form.html:55
+msgid "File Size"
+msgstr "檔案大小"
+
+#: ckan/templates/package/snippets/resource_form.html:55
+msgid "eg. 1024"
+msgstr "例如： 1024"
+
+#: ckan/templates/package/snippets/resource_form.html:57
+#: ckan/templates/package/snippets/resource_form.html:59
+msgid "MIME Type"
+msgstr "MIME格式"
+
+#: ckan/templates/package/snippets/resource_form.html:57
+#: ckan/templates/package/snippets/resource_form.html:59
+msgid "eg. application/json"
+msgstr "例如：application/json"
+
+#: ckan/templates/package/snippets/resource_form.html:67
+msgid "Are you sure you want to delete this resource?"
+msgstr "您確定要刪除此資源嗎？"
+
+#: ckan/templates/package/snippets/resource_form.html:73
+msgid "Previous"
+msgstr "先前的"
+
+#: ckan/templates/package/snippets/resource_form.html:77
+msgid "Save & add another"
+msgstr "儲存並新增其他項目"
+
+#: ckan/templates/package/snippets/resource_form.html:81
+msgid "Finish"
+msgstr "完成"
+
+#: ckan/templates/package/snippets/resource_help.html:2
+msgid "What's a resource?"
+msgstr "資源是什麼？"
+
+#: ckan/templates/package/snippets/resource_help.html:4
+msgid "A resource can be any file or link to a file containing useful data."
+msgstr "任何包含了實用資料的檔案或連結都可以作為資源。"
+
+#: ckan/templates/package/snippets/resource_item.html:37
+msgid "Explore"
+msgstr "探索"
+
+#: ckan/templates/package/snippets/resource_item.html:49
+msgid "More information"
+msgstr "更多資訊"
+
+#: ckan/templates/package/snippets/resource_view.html:10
+msgid "Fullscreen"
+msgstr "全螢幕"
+
+#: ckan/templates/package/snippets/resource_view.html:18
+msgid "Embed"
+msgstr "嵌入"
+
+#: ckan/templates/package/snippets/resource_view.html:32
+msgid "This resource view is not available at the moment."
+msgstr "此資源目前無法瀏覽"
+
+#: ckan/templates/package/snippets/resource_view.html:72
+msgid "Embed resource view"
+msgstr "嵌入資源檢視"
+
+#: ckan/templates/package/snippets/resource_view.html:75
+msgid ""
+"You can copy and paste the embed code into a CMS or blog software that "
+"supports raw HTML"
+msgstr "您可以將此程式碼複製並貼上至支援 HTML 的內容管理系統或部落格"
+
+#: ckan/templates/package/snippets/resource_view.html:78
+msgid "Width"
+msgstr "寬度"
+
+#: ckan/templates/package/snippets/resource_view.html:81
+msgid "Height"
+msgstr "高度"
+
+#: ckan/templates/package/snippets/resource_view.html:84
+msgid "Code"
+msgstr "程式碼"
+
+#: ckan/templates/package/snippets/resource_views_list.html:8
+msgid "Resource Preview"
+msgstr "資源預覽"
+
+#: ckan/templates/package/snippets/resources_list.html:14
+msgid "Data and Resources"
+msgstr "資料與資源"
+
+#: ckan/templates/package/snippets/resources_list.html:31
+msgid "This dataset has no data"
+msgstr "此資料集沒有資料"
+
+#: ckan/templates/package/snippets/stages.html:23
+#: ckan/templates/package/snippets/stages.html:25
+msgid "Create dataset"
+msgstr "建立資料集"
+
+#: ckan/templates/package/snippets/stages.html:30
+#: ckan/templates/package/snippets/stages.html:34
+#: ckan/templates/package/snippets/stages.html:36
+msgid "Add data"
+msgstr "新增資料"
+
+#: ckan/templates/package/snippets/view_form.html:8
+msgid "eg. My View"
+msgstr "例如：我的檢視"
+
+#: ckan/templates/package/snippets/view_form.html:9
+msgid "eg. Information about my view"
+msgstr "例如：一些關於我的檢視的資訊"
+
+#: ckan/templates/package/snippets/view_form_filters.html:28
+msgid "Remove Filter"
+msgstr "移除篩選條件"
+
+#: ckan/templates/package/snippets/view_help.html:2
+msgid "What's a view?"
+msgstr "檢視是什麼？"
+
+#: ckan/templates/package/snippets/view_help.html:4
+msgid "A view is a representation of the data held against a resource"
+msgstr "檢視是資源的呈現方式"
+
+#: ckan/templates/snippets/add_dataset.html:6
+msgid "Add Dataset"
+msgstr "新增資料集"
+
+#: ckan/templates/snippets/datapusher_status.html:8
+msgid "Datapusher status: {status}."
+msgstr "Datapusher 狀態：{status}。"
+
+#: ckan/templates/snippets/disqus_trackback.html:2
+msgid "Trackback URL"
+msgstr "引用網址"
+
+#: ckan/templates/snippets/facet_list.html:85
+msgid "Show More {facet_type}"
+msgstr "顯示更多 {facet_type}"
+
+#: ckan/templates/snippets/facet_list.html:88
+msgid "Show Only Popular {facet_type}"
+msgstr "僅顯示熱門的 {facet_type}"
+
+#: ckan/templates/snippets/facet_list.html:92
+msgid "There are no {facet_type} that match this search"
+msgstr "沒有 {facet_type} 符合這個搜尋結果"
+
+#: ckan/templates/snippets/home_breadcrumb_item.html:2
+msgid "Home"
+msgstr "首頁"
+
+#: ckan/templates/snippets/language_selector.html:3
+msgid "Language"
+msgstr "語言"
+
+#: ckan/templates/snippets/language_selector.html:11
+#: ckan/templates/snippets/search_form.html:42
+#: ckan/templates/snippets/simple_search.html:15
+#: ckan/templates/snippets/sort_by.html:22
+msgid "Go"
+msgstr "前往"
+
+#: ckan/templates/snippets/license.html:8
+msgid "No License Provided"
+msgstr "沒有可使用的許可"
+
+#: ckan/templates/snippets/license.html:27
+msgid "This dataset satisfies the Open Definition."
+msgstr "此資料集符合開放的定義"
+
+#: ckan/templates/snippets/organization.html:50
+msgid "There is no description for this organization"
+msgstr "此組織沒有任何說明"
+
+#: ckan/templates/snippets/package_item.html:57
+msgid "This dataset has no description"
+msgstr "此資料集沒有說明"
+
+#: ckan/templates/snippets/search_form.html:33
+#: ckan/templates/snippets/simple_search.html:8
+#: ckan/templates/snippets/sort_by.html:12
+msgid "Order by"
+msgstr "排序依照"
+
+#: ckan/templates/snippets/search_form.html:74
+msgid "Filter Results"
+msgstr "篩選結果"
+
+#: ckan/templates/snippets/search_form.html:81
+msgid "<p class=\"extra\">Please try another search.</p>"
+msgstr " <p class=\"extra\">請嘗試其他的搜尋關鍵字</p> "
+
+#: ckan/templates/snippets/search_form.html:87
+msgid ""
+"<p id=\"search-error\"><strong>There was an error while searching.</strong> "
+"Please try again.</p>"
+msgstr "<p id=\"search-error\"><strong>搜尋時發生錯誤。</strong> 請再試一次。</p>"
+
+#: ckan/templates/snippets/search_result_text.html:15
+msgid "{number} dataset found for \"{query}\""
+msgid_plural "{number} datasets found for \"{query}\""
+msgstr[0] "根據\"{query}\"找到{number}個資料集"
+
+#: ckan/templates/snippets/search_result_text.html:16
+msgid "No datasets found for \"{query}\""
+msgstr "找不到符合 \"{query}\" 的資料集"
+
+#: ckan/templates/snippets/search_result_text.html:17
+msgid "{number} dataset found"
+msgid_plural "{number} datasets found"
+msgstr[0] "找到{number}個資料集"
+
+#: ckan/templates/snippets/search_result_text.html:18
+msgid "No datasets found"
+msgstr "找不到資料集"
+
+#: ckan/templates/snippets/search_result_text.html:21
+msgid "{number} group found for \"{query}\""
+msgid_plural "{number} groups found for \"{query}\""
+msgstr[0] "根據\"{query}\"找到{number}個群組"
+
+#: ckan/templates/snippets/search_result_text.html:22
+msgid "No groups found for \"{query}\""
+msgstr "找不到符合 \"{query}\" 的群組"
+
+#: ckan/templates/snippets/search_result_text.html:23
+msgid "{number} group found"
+msgid_plural "{number} groups found"
+msgstr[0] "找到{number}個群組"
+
+#: ckan/templates/snippets/search_result_text.html:24
+msgid "No groups found"
+msgstr "找不到群組"
+
+#: ckan/templates/snippets/search_result_text.html:27
+msgid "{number} organization found for \"{query}\""
+msgid_plural "{number} organizations found for \"{query}\""
+msgstr[0] "根據\"{query}\"找到{number}個組織"
+
+#: ckan/templates/snippets/search_result_text.html:28
+msgid "No organizations found for \"{query}\""
+msgstr "找不到符合 \"{query}\" 的組織"
+
+#: ckan/templates/snippets/search_result_text.html:29
+msgid "{number} organization found"
+msgid_plural "{number} organizations found"
+msgstr[0] "找到{number}個組織"
+
+#: ckan/templates/snippets/search_result_text.html:30
+msgid "No organizations found"
+msgstr "找不到組織"
+
+#: ckan/templates/snippets/social.html:5
+msgid "Social"
+msgstr "社交"
+
+#: ckan/templates/snippets/subscribe.html:2
+msgid "Subscribe"
+msgstr "訂閱"
+
+#: ckan/templates/snippets/subscribe.html:4
+#: ckan/templates/user/edit_user_form.html:12
+#: ckan/templates/user/new_user_form.html:7
+#: ckan/templates/user/read_base.html:81
+msgid "Email"
+msgstr "電子郵件"
+
+#: ckan/templates/snippets/subscribe.html:5
+msgid "RSS"
+msgstr "RSS"
+
+#: ckan/templates/snippets/activities/added_tag.html:4
+msgid "{actor} added the tag {tag} to the dataset {dataset}"
+msgstr "{actor}在{dataset}資料集中新增了{tag}標籤"
+
+#: ckan/templates/snippets/activities/changed_group.html:4
+msgid "{actor} updated the group {group}"
+msgstr "{actor}更新了{group}群組"
+
+#: ckan/templates/snippets/activities/changed_organization.html:4
+msgid "{actor} updated the organization {organization}"
+msgstr "{actor}更新了{organization}組織"
+
+#: ckan/templates/snippets/activities/changed_package.html:6
+msgid "{actor} updated the dataset {dataset}"
+msgstr "{actor}更新了{dataset}"
+
+#: ckan/templates/snippets/activities/changed_package.html:16
+#: ckan/templates/snippets/activities/new_package.html:15
+msgid "View this version"
+msgstr "查看此版本"
+
+#: ckan/templates/snippets/activities/changed_resource.html:4
+msgid "{actor} updated the resource {resource} in the dataset {dataset}"
+msgstr "{actor} 更新了 {dataset} 資料集中的 {resource} 資源"
+
+#: ckan/templates/snippets/activities/changed_user.html:4
+msgid "{actor} updated their profile"
+msgstr "{actor} 更新了基本資料"
+
+#: ckan/templates/snippets/activities/deleted_group.html:4
+msgid "{actor} deleted the group {group}"
+msgstr "{actor}刪除了{group}群組"
+
+#: ckan/templates/snippets/activities/deleted_organization.html:4
+msgid "{actor} deleted the organization {organization}"
+msgstr "{actor}刪除了{organization}組織"
+
+#: ckan/templates/snippets/activities/deleted_package.html:4
+msgid "{actor} deleted the dataset {dataset}"
+msgstr "{actor}刪除了{dataset}資料集"
+
+#: ckan/templates/snippets/activities/deleted_resource.html:4
+msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
+msgstr "{actor} 刪除了 {dataset} 資料集中的 {resource} 資源"
+
+#: ckan/templates/snippets/activities/fallback.html:14
+msgid "{actor} {activity_type}"
+msgstr ""
+
+#: ckan/templates/snippets/activities/follow_dataset.html:4
+msgid "{actor} started following {dataset}"
+msgstr "{actor}開始關注{dataset}資料集"
+
+#: ckan/templates/snippets/activities/follow_group.html:4
+msgid "{actor} started following {group}"
+msgstr "{actor}開始關注{group}群組"
+
+#: ckan/templates/snippets/activities/follow_user.html:4
+msgid "{actor} started following {user}"
+msgstr "{actor}開始關注{user}使用者"
+
+#: ckan/templates/snippets/activities/new_group.html:4
+msgid "{actor} created the group {group}"
+msgstr "{actor}建立了{group}群組"
+
+#: ckan/templates/snippets/activities/new_organization.html:4
+msgid "{actor} created the organization {organization}"
+msgstr "{actor}建立了{organization}組織"
+
+#: ckan/templates/snippets/activities/new_package.html:5
+msgid "{actor} created the dataset {dataset}"
+msgstr "{actor}建立了{dataset}資料集"
+
+#: ckan/templates/snippets/activities/new_resource.html:4
+msgid "{actor} added the resource {resource} to the dataset {dataset}"
+msgstr "{actor} 在 {dataset} 資料集中新增了 {resource} 資源"
+
+#: ckan/templates/snippets/activities/new_user.html:4
+msgid "{actor} signed up"
+msgstr "{actor} 已登錄"
+
+#: ckan/templates/snippets/activities/removed_tag.html:4
+msgid "{actor} removed the tag {tag} from the dataset {dataset}"
+msgstr "{actor}移除了{dataset}資料集中的{tag}標籤"
+
+#: ckan/templates/snippets/changes/author.html:5
+msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/author.html:17
+msgid "Set author of {pkg_link} to {new_author}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/author.html:28
+msgid "Removed author from {pkg_link}"
+msgstr "移除 {pkg_link} 的作者"
+
+#: ckan/templates/snippets/changes/author.html:38
+#: ckan/templates/snippets/changes/author_email.html:45
+#: ckan/templates/snippets/changes/extra_fields.html:109
+#: ckan/templates/snippets/changes/maintainer.html:38
+#: ckan/templates/snippets/changes/maintainer_email.html:47
+#: ckan/templates/snippets/changes/no_change.html:3
+#: ckan/templates/snippets/changes/notes.html:38
+#: ckan/templates/snippets/changes/org.html:54
+#: ckan/templates/snippets/changes/resource_desc.html:56
+#: ckan/templates/snippets/changes/resource_extras.html:164
+#: ckan/templates/snippets/changes/resource_format.html:54
+#: ckan/templates/snippets/changes/tags.html:83
+#: ckan/templates/snippets/changes/url.html:47
+#: ckan/templates/snippets/changes/version.html:38
+msgid "No fields were updated. See the metadata diff for more details."
+msgstr "未更新任何欄位。請參閱後設資料差異以獲得更多詳細資訊。"
+
+#: ckan/templates/snippets/changes/author_email.html:5
+msgid ""
+"Set author email of {pkg_link} to {new_author_email} (previously "
+"{old_author_email})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/author_email.html:23
+msgid "Set author email of {pkg_link} to {new_author_email}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/author_email.html:36
+msgid "Removed author email from {pkg_link}"
+msgstr "移除 {pkg_link} 的作者電子郵件"
+
+#: ckan/templates/snippets/changes/delete_resource.html:3
+msgid "Deleted resource {resource_link} from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extension_fields.html:3
+msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:5
+msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:17
+msgid "Added field <q>{key}</q> to {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:28
+msgid "Added the following fields to {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:39
+#: ckan/templates/snippets/changes/resource_extras.html:56
+msgid "{key} with value {value}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:44
+#: ckan/templates/snippets/changes/resource_extras.html:61
+#: ckan/templates/snippets/changes/resource_extras.html:102
+msgid "{key}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:54
+msgid ""
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
+"<q>{old_val}</q>) in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:67
+msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:79
+msgid "Removed field <q>{key}</q> from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:90
+msgid "Removed the following fields from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/extra_fields.html:100
+msgid "<q>{key}</q>"
+msgstr ""
+
+#: ckan/templates/snippets/changes/license.html:6
+msgid ""
+"Changed the license of {pkg_link} to {new_link} (previously {old_link})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/license.html:25
+msgid ""
+"Changed the license of {pkg_link} to {new_link} (previously {old_title})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/license.html:41
+msgid ""
+"Changed the license of {pkg_link} to {new_title} (previously {old_link})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/license.html:58
+msgid ""
+"Changed the license of {pkg_link} to {new_title} (previously {old_title})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer.html:5
+msgid ""
+"Set maintainer of {pkg_link} to {new_maintainer} (previously "
+"{old_maintainer})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer.html:17
+msgid "Set maintainer of {pkg_link} to {new_maintainer}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer.html:28
+msgid "Removed maintainer from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer_email.html:5
+msgid ""
+"Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer_email.html:23
+msgid "Set maintainer email of {pkg_link} to {new_email}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/maintainer_email.html:37
+msgid "Removed maintainer email from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/name.html:3
+msgid "Moved {pkg_link} from {old_link} to {new_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/new_file.html:3
+msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/new_resource.html:15
+msgid "Added resource {resource_link} to {pkg_link}"
+msgstr "新增資源 {resource_link} 至 {pkg_link}"
+
+#: ckan/templates/snippets/changes/notes.html:5
+msgid ""
+"Updated description of {pkg_link} from <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
+msgstr ""
+
+#: ckan/templates/snippets/changes/notes.html:17
+msgid ""
+"Updated description of {pkg_link} to <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
+msgstr ""
+
+#: ckan/templates/snippets/changes/notes.html:28
+msgid "Removed description from {pkg_link}"
+msgstr "移除 {pkg_link} 的描述"
+
+#: ckan/templates/snippets/changes/org.html:5
+msgid ""
+"Moved {pkg_link} from organization {old_org_link} to organization "
+"{new_org_link}"
+msgstr "將 {pkg_link} 從組織 {old_org_link} 移至組織 {new_org_link}"
+
+#: ckan/templates/snippets/changes/org.html:25
+msgid "Removed {pkg_link} from organization {old_org_link}"
+msgstr "從組織 {old_org_link} 中移除 {pkg_link}"
+
+#: ckan/templates/snippets/changes/org.html:40
+msgid "Added {pkg_link} to organization {new_org_link}"
+msgstr "新增 {pkg_link} 至組織 {new_org_link}"
+
+#: ckan/templates/snippets/changes/private.html:3
+msgid "Set visibility of {pkg_link} to {visibility}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_desc.html:5
+msgid ""
+"Updated description of resource {resource_link} in {pkg_link} to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+msgstr ""
+"更新屬於資料集 {pkg_link} 的資源 {resource_link} 的說明為 <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
+
+#: ckan/templates/snippets/changes/resource_desc.html:22
+msgid "Removed description from resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_desc.html:38
+msgid ""
+"Updated description of resource {resource_link} in {pkg_link} from <br "
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+msgstr ""
+"更新屬於資料集 {pkg_link} 的資源 {resource_link} 的說明，由<br class=\"line-"
+"height2\"><blockquote>{old_desc}</blockquote> 改為 <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
+
+#: ckan/templates/snippets/changes/resource_extras.html:5
+msgid ""
+"Added field <q>{key}</q> with value <q>{value}</q> to resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:23
+msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:40
+msgid "Added the following fields to resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:70
+msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:87
+msgid ""
+"Removed the following fields from resource {resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:110
+msgid ""
+"Changed value of field <q>{key}</q> of resource {resource_link} to "
+"<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:129
+msgid ""
+"Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
+"{resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_extras.html:147
+msgid ""
+"Removed the value of field <q>{key}</q> in resource {resource_link} in "
+"{pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_format.html:10
+msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_format.html:30
+msgid ""
+"Set format of resource {resource_link} to {new_format_link} (previously "
+"{old_format_link}) in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/resource_name.html:3
+msgid ""
+"Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/tags.html:5
+msgid "Removed tag {tag_link} from {pkg_link}"
+msgstr "移除 {pkg_link} 的標籤 {tag_link}"
+
+#: ckan/templates/snippets/changes/tags.html:20
+msgid "Removed the following tags from {pkg_link}"
+msgstr "從 {pkg_link} 中移除下列標籤"
+
+#: ckan/templates/snippets/changes/tags.html:31
+#: ckan/templates/snippets/changes/tags.html:70
+msgid "{tag_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/tags.html:44
+msgid "Added tag {tag_link} to {pkg_link}"
+msgstr "新增標籤 {tag_link} 至 {pkg_link}"
+
+#: ckan/templates/snippets/changes/tags.html:59
+msgid "Added the following tags to {pkg_link}"
+msgstr "新增下列標籤至 {pkg_link}"
+
+#: ckan/templates/snippets/changes/title.html:3
+msgid "Changed title to {title_link} (previously {old_title})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/url.html:5
+msgid "Changed the source URL of {pkg_link} from {old_link} to {new_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/url.html:23
+msgid "Removed the source URL from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/url.html:33
+msgid "Changed the source URL of {pkg_link} to {new_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/version.html:5
+msgid ""
+"Changed the version of {pkg_link} to {new_version} (previously "
+"{old_version})"
+msgstr ""
+
+#: ckan/templates/snippets/changes/version.html:17
+msgid "Removed the version from {pkg_link}"
+msgstr ""
+
+#: ckan/templates/snippets/changes/version.html:27
+msgid "Changed the version of {pkg_link} to {new_version}"
+msgstr ""
+
+#: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
+msgid "Search Tags"
+msgstr "搜尋標籤"
+
+#: ckan/templates/user/api_tokens.html:19
+msgid "Create API Token"
+msgstr "建立 API Token"
+
+#: ckan/templates/user/api_tokens.html:29
+#: ckan/templates/user/read_base.html:22
+msgid "API Tokens"
+msgstr ""
+
+#: ckan/templates/user/api_tokens.html:37
+msgid "You haven't created any API Tokens."
+msgstr "您尚未建立任何 API Token"
+
+#: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
+msgid "News feed"
+msgstr "新聞消息來源"
+
+#: ckan/templates/user/dashboard.html:20
+#: ckan/templates/user/dashboard_datasets.html:12
+msgid "My Datasets"
+msgstr "我的資料集"
+
+#: ckan/templates/user/dashboard.html:21
+#: ckan/templates/user/dashboard_organizations.html:12
+msgid "My Organizations"
+msgstr "我的組織"
+
+#: ckan/templates/user/dashboard.html:22
+#: ckan/templates/user/dashboard_groups.html:12
+msgid "My Groups"
+msgstr "我的群組"
+
+#: ckan/templates/user/dashboard.html:39
+msgid "Activity from items that I'm following"
+msgstr "來自我所追蹤項目的最新動態"
+
+#: ckan/templates/user/dashboard_datasets.html:17
+#: ckan/templates/user/read.html:20
+msgid "You haven't created any datasets."
+msgstr "您尚未建立任何資料集"
+
+#: ckan/templates/user/dashboard_datasets.html:19
+#: ckan/templates/user/dashboard_groups.html:22
+#: ckan/templates/user/dashboard_organizations.html:23
+#: ckan/templates/user/read.html:22
+msgid "Create one now?"
+msgstr "馬上建立一個？"
+
+#: ckan/templates/user/dashboard_groups.html:20
+msgid "You are not a member of any groups."
+msgstr "你不屬於任何群組之成員。"
+
+#: ckan/templates/user/dashboard_organizations.html:21
+msgid "You are not a member of any organizations."
+msgstr "你不屬於任何組織之成員。"
+
+#: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
+#: ckan/templates/user/read_base.html:5 ckan/templates/user/read_base.html:8
+#: ckan/templates/user/snippets/user_search.html:2
+msgid "Users"
+msgstr "使用者"
+
+#: ckan/templates/user/edit.html:17
+msgid "Account Info"
+msgstr "帳號資訊"
+
+#: ckan/templates/user/edit.html:19
+msgid ""
+"Your profile lets other CKAN users know about who you are and what you do."
+msgstr "您的個人資料：讓其他CKAN使用者了解你是誰以及你從事什麼。"
+
+#: ckan/templates/user/edit_user_form.html:7
+msgid "Change details"
+msgstr "修改資料"
+
+#: ckan/templates/user/edit_user_form.html:10
+msgid "Full name"
+msgstr "全名"
+
+#: ckan/templates/user/edit_user_form.html:10
+msgid "eg. Joe Bloggs"
+msgstr "例如：Joe Bloggs"
+
+#: ckan/templates/user/edit_user_form.html:12
+msgid "eg. joe@example.com"
+msgstr "例如：joe@example.com"
+
+#: ckan/templates/user/edit_user_form.html:14
+msgid "A little information about yourself"
+msgstr "一些關於你自己的資訊"
+
+#: ckan/templates/user/edit_user_form.html:17
+msgid "Subscribe to notification emails"
+msgstr "訂閱通知郵件"
+
+#: ckan/templates/user/edit_user_form.html:26
+#: ckan/templates/user/new_user_form.html:14
+msgid "Profile picture"
+msgstr "個人資料圖片"
+
+#: ckan/templates/user/edit_user_form.html:26
+#: ckan/templates/user/new_user_form.html:14
+msgid "Profile picture URL"
+msgstr "個人資料圖片網址"
+
+#: ckan/templates/user/edit_user_form.html:31
+msgid "Change password"
+msgstr "變更密碼"
+
+#: ckan/templates/user/edit_user_form.html:34
+msgid "Sysadmin Password"
+msgstr "系統管理員密碼"
+
+#: ckan/templates/user/edit_user_form.html:42
+#: ckan/templates/user/logout_first.html:11
+#: ckan/templates/user/new_user_form.html:8
+#: ckan/templates/user/perform_reset.html:25
+#: ckan/templates/user/snippets/login_form.html:22
+msgid "Password"
+msgstr "密碼"
+
+#: ckan/templates/user/edit_user_form.html:44
+msgid "Confirm Password"
+msgstr "確認密碼"
+
+#: ckan/templates/user/edit_user_form.html:50
+msgid "Are you sure you want to delete this User?"
+msgstr "確定要刪除這個成員嗎？"
+
+#: ckan/templates/user/edit_user_form.html:55
+msgid "Are you sure you want to regenerate the API key?"
+msgstr "您確定要重新產生 API 金鑰嗎？"
+
+#: ckan/templates/user/edit_user_form.html:55
+msgid "Regenerate API Key"
+msgstr "重新產生 API 金鑰"
+
+#: ckan/templates/user/edit_user_form.html:59
+msgid "Update Profile"
+msgstr "更新個人資料"
+
+#: ckan/templates/user/list.html:3
+#: ckan/templates/user/snippets/user_search.html:11
+msgid "All Users"
+msgstr "所有使用者"
+
+#: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
+#: ckan/templates/user/login.html:12
+#: ckan/templates/user/snippets/login_form.html:28
+msgid "Login"
+msgstr "登入"
+
+#: ckan/templates/user/login.html:25
+msgid "Need an Account?"
+msgstr "需要帳號嗎？"
+
+#: ckan/templates/user/login.html:27
+msgid "Then sign right up, it only takes a minute."
+msgstr "那就馬上註冊吧，只需花費幾分鐘！"
+
+#: ckan/templates/user/login.html:30
+msgid "Create an Account"
+msgstr "建立帳號"
+
+#: ckan/templates/user/login.html:42
+msgid "Forgotten your password?"
+msgstr "忘記密碼？"
+
+#: ckan/templates/user/login.html:44
+msgid "No problem, use our password recovery form to reset it."
+msgstr "不要擔心，使用我們的密碼重置功能。"
+
+#: ckan/templates/user/login.html:47
+msgid "Forgot your password?"
+msgstr "忘記密碼？"
+
+#: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
+msgid "Logged Out"
+msgstr "登出"
+
+#: ckan/templates/user/logout.html:11
+msgid "You are now logged out."
+msgstr "您已經登出。"
+
+#: ckan/templates/user/logout_first.html:9
+msgid "You're already logged in as {user}."
+msgstr "您已經以{user}的身分登入。"
+
+#: ckan/templates/user/logout_first.html:9
+msgid "Logout"
+msgstr "登出"
+
+#: ckan/templates/user/logout_first.html:12
+#: ckan/templates/user/snippets/login_form.html:24
+msgid "Remember me"
+msgstr "記住我"
+
+#: ckan/templates/user/logout_first.html:20
+msgid "You're already logged in"
+msgstr "您已經登入"
+
+#: ckan/templates/user/logout_first.html:22
+msgid "You need to log out before you can log in with another account."
+msgstr "您必須先登出才能用其他帳號登入。"
+
+#: ckan/templates/user/logout_first.html:23
+msgid "Log out now"
+msgstr "馬上登出"
+
+#: ckan/templates/user/new.html:6
+msgid "Registration"
+msgstr "註冊"
+
+#: ckan/templates/user/new.html:14
+msgid "Register for an Account"
+msgstr "註冊一個帳號"
+
+#: ckan/templates/user/new.html:26
+msgid "Why Sign Up?"
+msgstr "何不馬上註冊？"
+
+#: ckan/templates/user/new.html:28
+msgid "Create datasets, groups and other exciting things"
+msgstr "建立資料集、群組以及其他有趣的事物"
+
+#: ckan/templates/user/new_user_form.html:5
+msgid "username"
+msgstr "使用者名稱"
+
+#: ckan/templates/user/new_user_form.html:6
+msgid "Full Name"
+msgstr "全名"
+
+#: ckan/templates/user/new_user_form.html:27
+msgid "Create Account"
+msgstr "建立帳號"
+
+#: ckan/templates/user/perform_reset.html:4
+#: ckan/templates/user/perform_reset.html:15
+msgid "Reset Your Password"
+msgstr "重設您的密碼"
+
+#: ckan/templates/user/perform_reset.html:7
+#: ckan/templates/user/request_reset.html:6
+msgid "Password Reset"
+msgstr "密碼重設"
+
+#: ckan/templates/user/perform_reset.html:21
+msgid "You can also change username. It can not be modified later."
+msgstr "現在可以更改用戶名，但以後不能修改"
+
+#: ckan/templates/user/perform_reset.html:29
+msgid "Update Password"
+msgstr "更新密碼"
+
+#: ckan/templates/user/perform_reset.html:43
+#: ckan/templates/user/request_reset.html:36
+msgid "How does this work?"
+msgstr "這樣如何？"
+
+#: ckan/templates/user/perform_reset.html:45
+msgid "Simply enter a new password and we'll update your account"
+msgstr "簡單地輸入新密碼即可更新您的帳號"
+
+#: ckan/templates/user/read.html:27
+msgid "User hasn't created any datasets."
+msgstr "使用者尚未建立任何資料集。"
+
+#: ckan/templates/user/read_base.html:42
+msgid "You have not provided a biography."
+msgstr "您尚未提供自我介紹。"
+
+#: ckan/templates/user/read_base.html:44
+msgid "This user has no biography."
+msgstr "此使用者沒有自我介紹。"
+
+#: ckan/templates/user/read_base.html:72
+msgid "Open ID"
+msgstr "Open ID"
+
+#: ckan/templates/user/read_base.html:81 ckan/templates/user/read_base.html:95
+msgid "This means only you can see this"
+msgstr "這表示只有你自己有權限瀏覽"
+
+#: ckan/templates/user/read_base.html:86
+msgid "Member Since"
+msgstr "會員註冊日"
+
+#: ckan/templates/user/read_base.html:95
+msgid "API Key"
+msgstr "API Key"
+
+#: ckan/templates/user/request_reset.html:3
+#: ckan/templates/user/request_reset.html:13
+msgid "Reset your password"
+msgstr "重設您的密碼"
+
+#: ckan/templates/user/request_reset.html:17
+msgid "Email or username"
+msgstr "電子郵件或使用者名稱"
+
+#: ckan/templates/user/request_reset.html:22
+msgid "Request Reset"
+msgstr "請求重設"
+
+#: ckan/templates/user/request_reset.html:38
+msgid ""
+"Enter your email address or username into the box and we will send you an "
+"email with a link to enter a new password."
+msgstr ""
+
+#: ckan/templates/user/snippets/api_token_list.html:13
+msgid "Token"
+msgstr ""
+
+#: ckan/templates/user/snippets/api_token_list.html:14
+msgid "Last access"
+msgstr "最後存取"
+
+#: ckan/templates/user/snippets/api_token_list.html:15
+msgid "Actions"
+msgstr "操作"
+
+#: ckan/templates/user/snippets/api_token_list.html:40
+msgid "Revoke"
+msgstr "撤銷"
+
+#: ckan/templates/user/snippets/followee_dropdown.html:15
+#: ckan/templates/user/snippets/followee_dropdown.html:16
+msgid "Activity from:"
+msgstr "活動從："
+
+#: ckan/templates/user/snippets/followee_dropdown.html:23
+msgid "Search list..."
+msgstr "搜尋清單..."
+
+#: ckan/templates/user/snippets/followee_dropdown.html:44
+msgid "You are not following anything"
+msgstr "您沒有訂閱任何內容"
+
+#: ckan/templates/user/snippets/followers.html:9
+msgid "No followers"
+msgstr "沒有跟隨者"
+
+#: ckan/templates/user/snippets/user_search.html:5
+msgid "Search Users"
+msgstr "搜尋使用者"
+
+#: ckan/views/admin.py:203
+msgid "Massive purge complete"
+msgstr "全部清除完成"
+
+#: ckan/views/admin.py:212
+msgid "success"
+msgstr ""
+
+#: ckan/views/dataset.py:360
+msgid "Parameter u\"{parameter_name}\" is not an integer"
+msgstr ""
+
+#: ckan/views/dataset.py:451 ckan/views/dataset.py:469
+#: ckan/views/dataset.py:1132 ckan/views/dataset.py:1213
+#: ckan/views/resource.py:81
+msgid "Activity not found"
+msgstr ""
+
+#: ckan/views/dataset.py:453 ckan/views/dataset.py:1134
+#: ckan/views/dataset.py:1215
+msgid "Unauthorized to view activity data"
+msgstr ""
+
+#: ckan/views/dataset.py:462
+msgid "The detail of this dataset activity is not available"
+msgstr ""
+
+#: ckan/views/dataset.py:604
+msgid "Unauthorized to read package"
+msgstr ""
+
+#: ckan/views/dataset.py:1249
+msgid "Unauthorized to read collaborators {}"
+msgstr "沒有權限讀取協作者 {}"
+
+#: ckan/views/dataset.py:1267
+msgid "Unauthorized to delete collaborators {}"
+msgstr "沒有刪除協作者 {} 的權限"
+
+#: ckan/views/dataset.py:1272
+msgid "User removed from collaborators"
+msgstr "協作者已被刪除"
+
+#: ckan/views/dataset.py:1304
+msgid "Unauthorized to edit collaborators {}"
+msgstr "沒有編輯協作者 {} 的權限"
+
+#: ckan/views/dataset.py:1311
+msgid "User added to collaborators"
+msgstr "已新增協作者"
+
+#: ckan/views/user.py:169
+msgid "Unauthorized to view API tokens."
+msgstr "沒有檢視 API Token 的權限"
+
+#: ckan/views/user.py:203
+msgid "Unauthorized to create API tokens."
+msgstr "沒有建立 API Token 的權限"
+
+#: ckan/views/user.py:218
+msgid ""
+"API Token created: <code style=\"word-break:break-all;\">{token}</code> "
+"{copy}<br>Make sure to copy it now, you won't be able to see it again!"
+msgstr ""
+"已建立 API Token：<code style=\"word-break:break-all;\">{token}</code> "
+"{copy}<br>請務必立刻把它複製下來，此 Token 將不會再顯示！"
+
+#: ckan/views/user.py:234
+msgid "Unauthorized to revoke API tokens."
+msgstr "沒有撤銷 API Token 的權限"
+
+#: ckan/views/user.py:706
+msgid "Your password must be 8 characters or longer."
+msgstr "密碼長度至少要8個字元"
+
+#: ckan/views/util.py:26
+msgid "Redirecting to external site is not allowed."
+msgstr "禁止重新導向至外部網站。"

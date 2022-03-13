@@ -155,6 +155,7 @@ entry_points = {
         'example_iapitoken = ckanext.example_iapitoken.plugin:ExampleIApiTokenPlugin',
         'example_iclick = ckanext.example_iclick.plugin:ExampleIClickPlugin',
         'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
+        'example_database_migrations = ckanext.example_database_migrations.plugin:ExampleDatabaseMigrationsPlugin',
     ],
     'ckan.system_plugins': [
         'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',

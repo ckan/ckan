@@ -73,3 +73,7 @@ contrib/docker/src/OWSLib
 contrib/docker/src/ckanext-repeating
 
 contrib/docker/src/ckanext-composite
+
+ckan/i18n/zh_Hant_TW/LC_MESSAGES/ckan.po
+
+ckan/i18n/zh_Hant_TW/LC_MESSAGES/ckan.mo
