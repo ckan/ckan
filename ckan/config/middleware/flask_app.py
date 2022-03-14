@@ -297,7 +297,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     login_manager.init_app(app)
 
     @login_manager.user_loader
-    def load_user(user_id: Optional[str]):
+    def load_user(user_id: Any) -> Union[model.User, None]:
         return model.User.get(user_id)
 
     # Initialize repoze.who
