@@ -2979,7 +2979,7 @@ class TestActivityShow(object):
             < 10
         )
         assert activity_shown["object_id"] == dataset["id"]
-        assert activity_shown["data"] == {"package": {"title": dataset["title"]}}
+        assert activity_shown["data"] == {"package": {"title": dataset["title"], "type": "dataset"}}
         assert activity_shown["activity_type"] == "new package"
 
     def test_simple_with_data(self):

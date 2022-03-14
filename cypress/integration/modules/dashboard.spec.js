@@ -1,6 +1,6 @@
 describe('ckan.modules.DashboardModule()', function () {
   before(() => {
-    cy.visit('/');
+    cy.visit('/', { timeout: 600000 });
     cy.window().then(win => {
       cy.wrap(win.ckan.module.registry['dashboard']).as('dashboard');
       win.jQuery('<div id="fixture">').appendTo(win.document.body)
