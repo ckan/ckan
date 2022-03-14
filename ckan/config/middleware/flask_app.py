@@ -26,12 +26,10 @@ from werkzeug.local import LocalProxy
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from ckan.common import asbool
 from flask_login import LoginManager
+from ckan.common import CKANConfig, asbool
 # from repoze.who.config import WhoConfig
 # from repoze.who.middleware import PluggableAuthenticationMiddleware
-from ckan.common import CKANConfig, asbool
-
 
 import ckan.model as model
 from ckan.lib import base

@@ -251,7 +251,7 @@ class TestUser(object):
                 "save": "",
                 "name": user["user_dict"]["name"],
                 "fullname": "new full name",
-                "email": stub.email,
+                "email": 'user@ckan.org',
                 "about": "new about",
                 "activity_streams_email_notifications": True,
                 "old_password": "correct123",
@@ -263,7 +263,7 @@ class TestUser(object):
         user = model.Session.query(model.User).get(user["user_dict"]["id"])
 
         assert user.fullname == "new full name"
-        assert user.email == stub.email
+        assert user.email == 'user@ckan.org'
         assert user.about == "new about"
         assert user.activity_streams_email_notifications
 
@@ -279,7 +279,7 @@ class TestUser(object):
         response = app.post(
             url=url_for("user.edit"),
             data={
-                "email": stub.email,
+                "email": factories.User.stub().email,
                 "save": "",
                 "old_password": "Wrong-pass1",
                 "password1": "",
@@ -304,13 +304,13 @@ class TestUser(object):
         assert "Profile updated" in response
 
     def test_email_change_on_existed_email(self, app, user):
-        factories.User(email="existed@email.com")
+        user2 = factories.User(email="existed@email.com")
         helpers.login_user(app, user["identity"])
 
         response = app.post(
             url=url_for("user.edit"),
             data={
-                "email": stub.email,
+                "email": user2["email"],
                 "save": "",
                 "old_password": "correct123",
                 "password1": "",
