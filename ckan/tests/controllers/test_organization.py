@@ -9,7 +9,6 @@ from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
 
-<<<<<<< HEAD
 @pytest.fixture
 def user():
     data = factories.User(password="correct123")
@@ -27,9 +26,6 @@ def initial_data(user):
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-=======
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
->>>>>>> master
 class TestOrganizationNew(object):
 
     def test_not_logged_in(self, app):

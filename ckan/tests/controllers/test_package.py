@@ -49,12 +49,7 @@ class TestPackageNew(object):
         plugin = p.get_plugin("test_package_controller_plugin")
         app.post(
             url_for("dataset.new"),
-<<<<<<< HEAD
             data={"name": u"plugged", "save": ""},
-=======
-            extra_environ={"REMOTE_USER": user["name"]},
-            data={"name": factories.Dataset.stub().name, "save": ""},
->>>>>>> master
             follow_redirects=False,
         )
         assert plugin.calls["edit"] == 0, plugin.calls
@@ -67,12 +62,7 @@ class TestPackageNew(object):
         plugin = p.get_plugin("test_package_controller_plugin")
         app.post(
             url_for("dataset.new"),
-<<<<<<< HEAD
             data={"name": u"plugged2", "save": ""},
-=======
-            extra_environ={"REMOTE_USER": user["name"]},
-            data={"name": factories.Dataset.stub().name, "save": ""},
->>>>>>> master
             follow_redirects=False,
         )
         assert plugin.calls["after_dataset_update"] == 0, plugin.calls
@@ -88,12 +78,7 @@ class TestPackageNew(object):
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
-<<<<<<< HEAD
             new_package_name = u"new-package-missing-solr"
-=======
-            new_package_name = factories.Dataset.stub().name
-
->>>>>>> master
             offset = url_for("dataset.new")
             res = app.post(
                 offset,
@@ -151,16 +136,9 @@ class TestPackageNew(object):
 
     def test_first_page_creates_draft_package(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         app.post(url, data={
             "name": "first-page-creates-draft",
-=======
-        name = factories.Dataset.stub().name
-
-        app.post(url, environ_overrides=user_env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -169,14 +147,9 @@ class TestPackageNew(object):
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         name = "one-resource-required"
         helpers.login_user(app, user)
         response = app.post(url, data={
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
->>>>>>> master
             "name": name,
             "save": "",
             "_ckan_phase": 1
@@ -191,15 +164,9 @@ class TestPackageNew(object):
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "complete-package-with-one-resource",
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
 
@@ -217,15 +184,9 @@ class TestPackageNew(object):
 
     def test_complete_package_with_two_resources(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "complete-package-with-two-resources",
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -249,14 +210,9 @@ class TestPackageNew(object):
 
     def test_previous_button_works(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-button-works",
-=======
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": factories.Dataset.stub().name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -271,15 +227,9 @@ class TestPackageNew(object):
 
     def test_previous_button_populates_form(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-button-populates-form",
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -295,15 +245,9 @@ class TestPackageNew(object):
 
     def test_previous_next_maintains_draft_state(self, app, user):
         url = url_for("dataset.new")
-<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-next-maintains-draft",
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -327,7 +271,6 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
-<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
@@ -336,16 +279,6 @@ class TestPackageNew(object):
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
-=======
-            name=factories.Organization.stub().name, users=[{"name": user["id"], "capacity": "admin"}]
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        name = factories.Dataset.stub().name
-        url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
-            "name": name,
->>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -380,7 +313,6 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
-<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
@@ -389,16 +321,6 @@ class TestPackageNew(object):
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
-=======
-            users=[{"name": user["id"], "capacity": "admin"}]
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        name = factories.Dataset.stub().name
-        url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
-            "name": name,
->>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -431,21 +353,12 @@ class TestPackageNew(object):
         organizations available to them.
         """
         # user isn't admin of org.
-<<<<<<< HEAD
         org = factories.Organization(name="my-org")
 
         helpers.login_user(app, user)
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
-=======
-        org = factories.Organization()
-        name = factories.Dataset.stub().name
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
-            "name": name,
->>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -476,11 +389,7 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
-<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
-=======
-            users=[{"name": user["id"], "capacity": "admin"}]
->>>>>>> master
         )
 
         # user in env is sysadmin
@@ -489,15 +398,9 @@ class TestPackageNew(object):
         response = app.get(url=url)
         # organization dropdown available in create page.
         assert 'id="field-organizations"' in response
-<<<<<<< HEAD
 
         response = app.post(url, data={
             "name": "my-dataset",
-=======
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=env, data={
-            "name": name,
->>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1

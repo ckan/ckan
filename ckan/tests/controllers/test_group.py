@@ -59,7 +59,6 @@ class TestGroupController(object):
             app.get(url=group_url)
 
 
-<<<<<<< HEAD
 @pytest.fixture
 def sysadmin():
     data = factories.Sysadmin(password="correct123")
@@ -81,9 +80,6 @@ def user():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
-=======
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
->>>>>>> master
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -329,10 +325,6 @@ class TestGroupMembership(object):
 
     def test_membership_list(self, app, user):
         """List group admins and members"""
-<<<<<<< HEAD
-=======
-        user_one = factories.User(fullname="User One")
->>>>>>> master
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
@@ -363,26 +355,14 @@ class TestGroupMembership(object):
 
     def test_membership_add(self, app, user):
         """Member can be added via add member page"""
-<<<<<<< HEAD
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"])
-=======
-        owner = factories.User(fullname="My Owner")
-        uname = factories.User.stub().name
-        factories.User(fullname="My Fullname", name=uname)
-        group = self._create_group(owner["name"])
->>>>>>> master
 
         helpers.login_user(app, user["identity"])
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-<<<<<<< HEAD
             data={"save": "", "username": "my-user", "role": "member"},
-=======
-            environ_overrides=env,
-            data={"save": "", "username": uname, "role": "member"},
->>>>>>> master
         )
 
         assert "2 members" in add_response.body
@@ -421,14 +401,8 @@ class TestGroupMembership(object):
 
     def test_membership_edit_page(self, app, user):
         """If `user` parameter provided, render edit page."""
-<<<<<<< HEAD
         member = factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"], users=[
-=======
-        owner = factories.User(fullname="My Owner")
-        member = factories.User(fullname="My Fullname")
-        group = self._create_group(owner["name"], users=[
->>>>>>> master
             {'name': member['name'], 'capacity': 'admin'}
         ])
 
@@ -444,26 +418,14 @@ class TestGroupMembership(object):
 
     def test_admin_add(self, app, user):
         """Admin can be added via add member page"""
-<<<<<<< HEAD
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"])
-=======
-        owner = factories.User(fullname="My Owner")
-        uname = factories.User.stub().name
-        factories.User(fullname="My Fullname", name=uname)
-        group = self._create_group(owner["name"])
->>>>>>> master
 
         helpers.login_user(app, user["identity"])
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-<<<<<<< HEAD
             data={"save": "", "username": "my-user", "role": "admin"},
-=======
-            environ_overrides=env,
-            data={"save": "", "username": uname, "role": "admin"},
->>>>>>> master
         )
 
         assert "2 members" in add_response
@@ -485,10 +447,6 @@ class TestGroupMembership(object):
 
     def test_remove_member(self, app, user):
         """Member can be removed from group"""
-<<<<<<< HEAD
-=======
-        user_one = factories.User(fullname="User One")
->>>>>>> master
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
