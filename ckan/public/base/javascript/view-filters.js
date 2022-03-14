@@ -71,8 +71,6 @@ this.ckan.views.filters = (function (queryString) {
 
   function _redirectTo(url) {
 
-    console.log(url);
-
     var urlBase = url.split('?')[0],
         urlQueryString = url.split('?')[1] || '',
         defaultParams = Qs.parse(urlQueryString, { ignoreQueryPrefix: true }),
@@ -81,15 +79,11 @@ this.ckan.views.filters = (function (queryString) {
 
     destinationUrl = urlBase + '?' + queryString;
 
-    console.log(destinationUrl);
-
     api._setLocationHref(destinationUrl);
   }
 
   function _encodedParams(defaultParams) {
     var params = $.extend({}, defaultParams || {}, api._searchParams);
-
-    console.log(params.filters);
 
     if (params.filters) {
       params.filters = $.map(params.filters, function (fields, filter) {
@@ -97,21 +91,13 @@ this.ckan.views.filters = (function (queryString) {
           fields = [fields];
         }
         // Encode ':' and '|' as '#:' and '#|' to avoid conflicts when splitting filters.
-        
-        console.log(filter);
-
         var fieldsStr = $.map(fields, function (field) {
-
-          console.log(filter.replace(/(?<!#):/g, '#:') + ':' + field.replace(/(?<!#)\|/g, '#|').replace(/(?<!#):/g, '#:'))
-
           return filter.replace(/(?<!#):/g, '#:') + ':' + field.replace(/(?<!#)\|/g, '#|').replace(/(?<!#):/g, '#:');
         });
 
         return fieldsStr.join('|');
       }).join('|');
     }
-
-    console.log($.param(params));
 
     return $.param(params);
   }
