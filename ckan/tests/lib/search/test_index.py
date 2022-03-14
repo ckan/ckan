@@ -38,7 +38,7 @@ class TestSearchIndex(object):
 
     def test_search_all(self):
         self.package_index.index_package(self.base_package_dict)
-        assert len(self.solr_client.search("*:*")) == 1
+        assert len(self.solr_client.search(q="*:*", fq=self.fq)) == 1
 
     def test_index_basic(self):
 
