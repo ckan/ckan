@@ -136,9 +136,10 @@ class TestPackageNew(object):
 
     def test_first_page_creates_draft_package(self, app, user):
         url = url_for("dataset.new")
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         app.post(url, data={
-            "name": "first-page-creates-draft",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -164,9 +165,10 @@ class TestPackageNew(object):
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         response = app.post(url, data={
-            "name": "complete-package-with-one-resource",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
 
@@ -184,9 +186,10 @@ class TestPackageNew(object):
 
     def test_complete_package_with_two_resources(self, app, user):
         url = url_for("dataset.new")
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         response = app.post(url, data={
-            "name": "complete-package-with-two-resources",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -227,9 +230,10 @@ class TestPackageNew(object):
 
     def test_previous_button_populates_form(self, app, user):
         url = url_for("dataset.new")
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         response = app.post(url, data={
-            "name": "previous-button-populates-form",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -245,9 +249,10 @@ class TestPackageNew(object):
 
     def test_previous_next_maintains_draft_state(self, app, user):
         url = url_for("dataset.new")
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         response = app.post(url, data={
-            "name": "previous-next-maintains-draft",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -276,9 +281,10 @@ class TestPackageNew(object):
 
         helpers.login_user(app, user)
 
+        name = factories.Dataset.stub().name
         url = url_for("dataset.new")
         response = app.post(url, data={
-            "name": "my-dataset",
+            "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -318,9 +324,10 @@ class TestPackageNew(object):
 
         helpers.login_user(app, user)
 
+        name = factories.Dataset.stub().name
         url = url_for("dataset.new")
         response = app.post(url, data={
-            "name": "my-dataset",
+            "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -354,11 +361,11 @@ class TestPackageNew(object):
         """
         # user isn't admin of org.
         org = factories.Organization(name="my-org")
-
+        name = factories.Dataset.stub().name
         helpers.login_user(app, user)
         url = url_for("dataset.new")
         response = app.post(url, data={
-            "name": "my-dataset",
+            "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -398,9 +405,10 @@ class TestPackageNew(object):
         response = app.get(url=url)
         # organization dropdown available in create page.
         assert 'id="field-organizations"' in response
+        name = factories.Dataset.stub().name
 
         response = app.post(url, data={
-            "name": "my-dataset",
+            "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -1836,6 +1844,7 @@ class TestPackageFollow(object):
 
         helpers.login_user(app, user)
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
+
         unfollow_response = app.post(unfollow_url)
 
         assert (

@@ -354,10 +354,11 @@ def get_locale() -> str:
 def remote_user() -> None:
     header = "REMOTE_USER"
 
-    if "_user_id" in request.environ.get("beaker.session"):
+    if "_user_id" in request.environ.get("beaker.session", ""):
         user_id = request.environ["beaker.session"]["_user_id"]
         userobj = model.Session.query(model.User).get(user_id)
-        request.environ[header] = userobj.name
+        if userobj:
+            request.environ[header] = userobj.name
 
 
 def ckan_before_request() -> Optional[Response]:

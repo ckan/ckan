@@ -23,7 +23,7 @@ import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
 from flask_login import login_user, logout_user
-from ckan.types import Context, ErrorDict, Schema, Response
+from ckan.types import Context, Schema, Response
 from ckan.lib import signals
 
 log = logging.getLogger(__name__)
@@ -455,8 +455,9 @@ class RegisterView(MethodView):
 
         # log the user in programatically
         g.userobj = model.User.get(user_dict["id"])
-        g.user = g.userobj.name
-        login_user(g.userobj)
+        if g.userobj:
+            g.user = g.userobj.name
+            login_user(g.userobj)
 
         resp = h.redirect_to(u'user.me')
         return resp
@@ -534,7 +535,7 @@ def logout() -> Response:
     if not g.user:
         return h.redirect_to('user.login')
 
-    came_from = request.params.get('came_from', '')
+    came_from = request.args.get('came_from', '')
     logout_user()
     g.userobj = None
     g.user = None
