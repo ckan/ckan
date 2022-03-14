@@ -8,7 +8,7 @@ from ckan.logic import _actions
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins", u"with_request_context")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins", u"with_request_context")
 def test_resource_data(app, monkeypatch):
     import ckan.tests.helpers as helpers
 

@@ -5,10 +5,10 @@
     "family": "",
     "title": "Creative Commons Attribution",
     "domain_data": "False",
-    "is_okd_compliant": "True",
+    "od_conformance": "approved",
     "is_generic": "False",
     "url": "http://www.opendefinition.org/licenses/cc-by",
-    "is_osi_compliant": "False",
+    "osd_conformance": "approved",
     "domain_content": "False",
     "domain_software": "False",
     "id": "cc-by"

@@ -24,7 +24,7 @@ def test_apitoken_missing(app):
     app.get("/dataset/new", headers=request_headers, status=403)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
     user_token = factories.APIToken(user=user["id"], context={})
@@ -35,7 +35,7 @@ def test_apitoken_in_authorization_header(app):
     app.get("/dataset/new", headers=request_headers)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
     user_token = factories.APIToken(user=user["id"], context={})

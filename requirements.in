@@ -22,7 +22,7 @@ python-magic==0.4.24
 pysolr==3.6.0
 python-dateutil==2.8.2
 pytz==2021.3
-PyUtilib==6.0.0 
+PyUtilib==6.0.0
 pyyaml==6.0
 repoze.who==2.4
 requests==2.26.0

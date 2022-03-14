@@ -8,7 +8,6 @@ import ckan.tests.helpers as helpers
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestHome(object):
     def test_home_renders(self, app):
         response = app.get(url_for("home.index"))
@@ -29,14 +28,18 @@ class TestHome(object):
         response = app.get(url_for("home.index"))
         assert test_html in response.body
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_nag(self, app):
         # before CKAN 1.6, users were allowed to have no email addresses
         # can't use factory to create user as without email it fails validation
         from ckan import model
 
+<<<<<<< HEAD
         user = model.user.User(name="has-no-email", password="correct123")
         data = {"login": user.name, "password": "correct123"}
+=======
+        user = model.user.User(name=factories.User.stub().name)
+>>>>>>> master
         model.Session.add(user)
         model.Session.commit()
 
@@ -47,10 +50,15 @@ class TestHome(object):
         assert str(url_for("user.edit")) in response.body
         assert " and add your email address." in response.body
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_no_nag(self, app):
+<<<<<<< HEAD
         user = factories.User(email="filled_in@nicely.com")
         data = {"login": user["name"], "password": "correct123"}
+=======
+        user = factories.User(email=factories.User.stub().email)
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+>>>>>>> master
 
         helpers.login_user(app, data)
         response = app.get(url=url_for("home.index"))

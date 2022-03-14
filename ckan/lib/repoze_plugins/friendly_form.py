@@ -9,7 +9,7 @@
 # # * Replace usage of paster methods with webob ones
 # #
 
-# #############################################################################
+# ##############################################################################
 # #
 # # Copyright (c) 2009-2010, Gustavo Narea <me@gustavonarea.net> and
 # # contributors.
@@ -18,21 +18,23 @@
 # # This software is subject to the provisions of the BSD-like license at
 # # http://www.repoze.org/LICENSE.txt.  A copy of the license should accompany
 # # this distribution.  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL
-# # EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED
-# # TO, THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT,
-# # AND FITNESS FOR A PARTICULAR PURPOSE.
+# # EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO,
+# # THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
+# # FITNESS FOR A PARTICULAR PURPOSE.
 # #
-# #############################################################################
+# ##############################################################################
 
 # u'''Collection of :mod:`repoze.who` friendly forms'''
+# from __future__ import annotations
 
+# from typing import Any, Optional, cast
 # from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
 # from webob import Request
 # try:
 #     from webob.multidict import MultiDict
 # except ImportError:
-#     from webob import UnicodeMultiDict as MultiDict
+#     from webob import UnicodeMultiDict as MultiDict  # type: ignore
 
 # from webob.exc import HTTPFound, HTTPUnauthorized
 # from zope.interface import implementer
@@ -42,7 +44,7 @@
 # __all__ = [u'FriendlyFormPlugin']
 
 
-# def construct_url(environ):
+# def construct_url(environ: Any) -> str:
 #     return Request(environ).url
 
 
@@ -64,23 +66,27 @@
 #       will allow developers not using a post-login page to handle logins that
 #       fail/succeed.
 
-#     You should keep in mind that if you're using a post-login or a
-#     post-logout page, that page will receive the referrer URL as a query
-#     string variable whose name is 'came_from'.
+#     You should keep in mind that if you're using a post-login or a post-logout
+#     page, that page will receive the referrer URL as a query string variable
+#     whose name is 'came_from'.
 
 #     Forms can be submitted with any encoding (non-ASCII credentials are
 #     supported) and ISO-8859-1 (aka 'Latin-1') is the default one.
 
 #     '''
 
+#     login_counter_name: str
+
 #     classifications = {
 #         IIdentifier: [u'browser'],
 #         IChallenger: [u'browser'],
 #     }
 
-#     def __init__(self, login_form_url, login_handler_path, post_login_url,
-#                  logout_handler_path, post_logout_url, rememberer_name,
-#                  login_counter_name=None, charset=u'iso-8859-1'):
+#     def __init__(self, login_form_url: str, login_handler_path: str,
+#                  post_login_url: str, logout_handler_path: str,
+#                  post_logout_url: str, rememberer_name: str,
+#                  login_counter_name: Optional[str] = None,
+#                  charset: str = u'iso-8859-1'):
 #         u'''
 
 #         :param login_form_url: The URL/path where the login form is located.
@@ -88,10 +94,10 @@
 #         :param login_handler_path: The URL/path where the login form is
 #             submitted to (where it is processed by this plugin).
 #         :type login_handler_path: str
-#         :param post_login_url: The URL/path where the user should be
-#           redirected to after login (even if wrong credentials were provided)
+#         :param post_login_url: The URL/path where the user should be redirected
+#             to after login (even if wrong credentials were provided).
 #         :type post_login_url: str
-#         :param logout_handler_path: The URL/path where the user is logged out
+#         :param logout_handler_path: The URL/path where the user is logged out.
 #         :type logout_handler_path: str
 #         :param post_logout_url: The URL/path where the user should be
 #             redirected to after logout.
@@ -99,8 +105,8 @@
 #         :param rememberer_name: The name of the repoze.who identifier which
 #             acts as rememberer.
 #         :type rememberer_name: str
-#         :param login_counter_name: The name of the query string variable
-#             which will represent the login counter.
+#         :param login_counter_name: The name of the query string variable which
+#             will represent the login counter.
 #         :type login_counter_name: str
 #         :param charset: The character encoding to be assumed when the user
 #             agent does not submit the form with an explicit charset.
@@ -119,17 +125,15 @@
 #         self.logout_handler_path = logout_handler_path
 #         self.post_logout_url = post_logout_url
 #         self.rememberer_name = rememberer_name
-#         self.login_counter_name = login_counter_name
-#         if not login_counter_name:
-#             self.login_counter_name = u'__logins'
+#         self.login_counter_name = login_counter_name or u'__logins'
 #         self.charset = charset
 
 #     # IIdentifier
-#     def identify(self, environ):
+#     def identify(self, environ: Any):
 #         u'''
 #         Override the parent's identifier to introduce a login counter
-#         (possibly along with a post-login page) and load the login counter
-#         into the ``environ``.
+#         (possibly along with a post-login page) and load the login counter into
+#         the ``environ``.
 
 #         '''
 #         request = Request(environ, charset=self.charset)
@@ -160,12 +164,12 @@
 #                     credentials = {u'login': login, u'password': password}
 
 #             try:
-#                 credentials[u'max_age'] = form[u'remember']
+#                 credentials[u'max_age'] = form[u'remember']  # type: ignore
 #             except KeyError:
 #                 pass
 
 #             referer = environ.get(u'HTTP_REFERER', script_name)
-#             destination = form.get(u'came_from', referer)
+#             destination = cast(str, form.get(u'came_from', referer))
 
 #             if self.post_login_url:
 #                 # There's a post-login page, so we have to replace the
@@ -173,11 +177,11 @@
 #                 destination = self._get_full_path(self.post_login_url,
 #                                                   environ)
 #                 if u'came_from' in query:
-#                     # There's a referrer URL defined, so we have to pass it
-#                     # to the post-login page as a GET variable.
+#                     # There's a referrer URL defined, so we have to pass it to
+#                     # the post-login page as a GET variable.
 #                     destination = self._insert_qs_variable(destination,
 #                                                            u'came_from',
-#                                                          query[u'came_from'])
+#                                                            query[u'came_from'])
 #             failed_logins = self._get_logins(environ, True)
 #             new_dest = self._set_logins_in_url(destination, failed_logins)
 #             environ[u'repoze.who.application'] = HTTPFound(location=new_dest)
@@ -199,10 +203,9 @@
 #         elif path_info == self.login_form_url or self._get_logins(environ):
 #             #  We are on the URL that displays the from OR any other page  #
 #             #   where the login counter is included in the query string.   #
-#             # So let's load the counter into the environ and then hide it
-#             # from the query string (it will cause problems in frameworks
-#             # like TG2, where this unexpected variable would be passed
-#             # to the controller)
+#             # So let's load the counter into the environ and then hide it from
+#             # the query string (it will cause problems in frameworks like TG2,
+#             # where this unexpected variable would be passed to the controller)
 #             environ[u'repoze.who.logins'] = self._get_logins(environ, True)
 #             # Hiding the GET variable in the environ:
 #             if self.login_counter_name in query:
@@ -210,7 +213,8 @@
 #                 environ[u'QUERY_STRING'] = urlencode(query, doseq=True)
 
 #     # IChallenger
-#     def challenge(self, environ, status, app_headers, forget_headers):
+#     def challenge(self, environ: Any, status: Any,
+#                   app_headers: Any, forget_headers: Any):
 #         u'''
 #         Override the parent's challenge to avoid challenging the user on
 #         logout, introduce a post-logout page and/or pass the login counter
@@ -258,20 +262,20 @@
 #         return HTTPFound(location=destination, headers=headers)
 
 #     # IIdentifier
-#     def remember(self, environ, identity):
+#     def remember(self, environ: Any, identity: Any):
 #         rememberer = self._get_rememberer(environ)
 #         return rememberer.remember(environ, identity)
 
 #     # IIdentifier
-#     def forget(self, environ, identity):
+#     def forget(self, environ: Any, identity: Any):
 #         rememberer = self._get_rememberer(environ)
 #         return rememberer.forget(environ, identity)
 
-#     def _get_rememberer(self, environ):
+#     def _get_rememberer(self, environ: Any):
 #         rememberer = environ[u'repoze.who.plugins'][self.rememberer_name]
 #         return rememberer
 
-#     def _get_full_path(self, path, environ):
+#     def _get_full_path(self, path: str, environ: Any):
 #         u'''
 #         Return the full path to ``path`` by prepending the SCRIPT_NAME.
 
@@ -282,7 +286,7 @@
 #             path = environ.get(u'SCRIPT_NAME', u'') + path
 #         return path
 
-#     def _get_logins(self, environ, force_typecast=False):
+#     def _get_logins(self, environ: Any, force_typecast: bool = False):
 #         u'''
 #         Return the login counter from the query string in the ``environ``.
 
@@ -298,7 +302,7 @@
 #             # Webob 1.8.5 (py3)
 #             variables = Request(environ).params
 
-#         failed_logins = variables.get(self.login_counter_name)
+#         failed_logins: Any = variables.get(self.login_counter_name)
 #         if force_typecast:
 #             try:
 #                 failed_logins = int(failed_logins)
@@ -306,7 +310,7 @@
 #                 failed_logins = 0
 #         return failed_logins
 
-#     def _set_logins_in_url(self, url, logins):
+#     def _set_logins_in_url(self, url: str, logins: list[str]):
 #         u'''
 #         Insert the login counter variable with the ``logins`` value into
 #         ``url`` and return the new URL.
@@ -314,10 +318,11 @@
 #         '''
 #         return self._insert_qs_variable(url, self.login_counter_name, logins)
 
-#     def _insert_qs_variable(self, url, var_name, var_value):
+#     def _insert_qs_variable(self, url: str, var_name: str,
+#                             var_value: list[str]):
 #         u'''
-#         Insert the variable ``var_name`` with value ``var_value`` in the
-#         query string of ``url`` and return the new URL.
+#         Insert the variable ``var_name`` with value ``var_value`` in the query
+#         string of ``url`` and return the new URL.
 
 #         '''
 #         url_parts = list(urlparse(url))

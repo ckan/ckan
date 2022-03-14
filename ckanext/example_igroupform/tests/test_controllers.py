@@ -27,7 +27,7 @@ def _get_group_new_page(app, user, group_type):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestGroupController(object):
     def test_about(self, app, user):
         group = factories.Group(user=user["data"], type=custom_group_type)
@@ -61,7 +61,7 @@ class TestGroupController(object):
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<label class="input-group-text">/{}/</label>'.format(
                 custom_group_type
             ),
         )
@@ -108,7 +108,7 @@ class TestOrganizationController(object):
 
         assert helpers.body_contains(
             response,
-            '<span class="input-group-addon">/{}/</span>'.format(
+            '<label class="input-group-text">/{}/</label>'.format(
                 custom_group_type
             ),
         )
@@ -285,6 +285,6 @@ class TestCustomGroupBlueprint(object):
     def test_default_group_type(self, app):
         resp = app.get("/", status=200)
         page = bs4.BeautifulSoup(resp.body)
-        link = page.select_one('.masthead .nav a[href="/grup/"]')
+        link = page.select_one('.masthead .navbar-nav a[href="/grup/"]')
         assert link
         assert link.text == 'Grups'

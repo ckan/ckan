@@ -49,7 +49,12 @@ class TestPackageNew(object):
         plugin = p.get_plugin("test_package_controller_plugin")
         app.post(
             url_for("dataset.new"),
+<<<<<<< HEAD
             data={"name": u"plugged", "save": ""},
+=======
+            extra_environ={"REMOTE_USER": user["name"]},
+            data={"name": factories.Dataset.stub().name, "save": ""},
+>>>>>>> master
             follow_redirects=False,
         )
         assert plugin.calls["edit"] == 0, plugin.calls
@@ -62,7 +67,12 @@ class TestPackageNew(object):
         plugin = p.get_plugin("test_package_controller_plugin")
         app.post(
             url_for("dataset.new"),
+<<<<<<< HEAD
             data={"name": u"plugged2", "save": ""},
+=======
+            extra_environ={"REMOTE_USER": user["name"]},
+            data={"name": factories.Dataset.stub().name, "save": ""},
+>>>>>>> master
             follow_redirects=False,
         )
         assert plugin.calls["after_dataset_update"] == 0, plugin.calls
@@ -78,7 +88,12 @@ class TestPackageNew(object):
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
+<<<<<<< HEAD
             new_package_name = u"new-package-missing-solr"
+=======
+            new_package_name = factories.Dataset.stub().name
+
+>>>>>>> master
             offset = url_for("dataset.new")
             res = app.post(
                 offset,
@@ -136,20 +151,32 @@ class TestPackageNew(object):
 
     def test_first_page_creates_draft_package(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         app.post(url, data={
             "name": "first-page-creates-draft",
+=======
+        name = factories.Dataset.stub().name
+
+        app.post(url, environ_overrides=user_env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
-        pkg = model.Package.by_name(u"first-page-creates-draft")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "draft"
 
     def test_resource_required(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         name = "one-resource-required"
         helpers.login_user(app, user)
         response = app.post(url, data={
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=user_env, data={
+>>>>>>> master
             "name": name,
             "save": "",
             "_ckan_phase": 1
@@ -164,9 +191,15 @@ class TestPackageNew(object):
 
     def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "complete-package-with-one-resource",
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=user_env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
 
@@ -178,15 +211,21 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"complete-package-with-one-resource")
+        pkg = model.Package.by_name(name)
         assert pkg.resources[0].url == u"http://example.com/resource"
         assert pkg.state == "active"
 
     def test_complete_package_with_two_resources(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "complete-package-with-two-resources",
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=user_env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -201,7 +240,7 @@ class TestPackageNew(object):
             "url": "http://example.com/resource1",
             "save": "go-metadata"
         })
-        pkg = model.Package.by_name(u"complete-package-with-two-resources")
+        pkg = model.Package.by_name(name)
         assert pkg.resources[0].url == u"http://example.com/resource1"
         assert pkg.resources[1].url == u"http://example.com/resource0"
         assert pkg.state == "active"
@@ -210,9 +249,14 @@ class TestPackageNew(object):
 
     def test_previous_button_works(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-button-works",
+=======
+        response = app.post(url, environ_overrides=user_env, data={
+            "name": factories.Dataset.stub().name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -227,9 +271,15 @@ class TestPackageNew(object):
 
     def test_previous_button_populates_form(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-button-populates-form",
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=user_env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -241,13 +291,19 @@ class TestPackageNew(object):
         })
 
         assert 'name="title"' in response
-        assert 'value="previous-button-populates-form"'
+        assert f'value="{name}"'
 
     def test_previous_next_maintains_draft_state(self, app, user):
         url = url_for("dataset.new")
+<<<<<<< HEAD
         helpers.login_user(app, user)
         response = app.post(url, data={
             "name": "previous-next-maintains-draft",
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=user_env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -258,7 +314,7 @@ class TestPackageNew(object):
             "save": "go-dataset"
         })
 
-        pkg = model.Package.by_name(u"previous-next-maintains-draft")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "draft"
 
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
@@ -271,6 +327,7 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
+<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
@@ -279,6 +336,16 @@ class TestPackageNew(object):
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
+=======
+            name=factories.Organization.stub().name, users=[{"name": user["id"], "capacity": "admin"}]
+        )
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        name = factories.Dataset.stub().name
+        url = url_for("dataset.new")
+        response = app.post(url, environ_overrides=env, data={
+            "name": name,
+>>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -290,7 +357,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "active"
 
         # edit package page response
@@ -313,6 +380,7 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
+<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
@@ -321,6 +389,16 @@ class TestPackageNew(object):
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
+=======
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        name = factories.Dataset.stub().name
+        url = url_for("dataset.new")
+        response = app.post(url, environ_overrides=env, data={
+            "name": name,
+>>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -332,7 +410,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "active"
         assert pkg.owner_org == org["id"]
         assert pkg.owner_org is not None
@@ -340,7 +418,7 @@ class TestPackageNew(object):
         url = url_for("dataset.edit", id=pkg.id)
         app.post(url=url, data={"owner_org": ""}, follow_redirects=False)
 
-        post_edit_pkg = model.Package.by_name(u"my-dataset")
+        post_edit_pkg = model.Package.by_name(name)
         assert post_edit_pkg.owner_org is None
         assert post_edit_pkg.owner_org != org["id"]
 
@@ -353,12 +431,21 @@ class TestPackageNew(object):
         organizations available to them.
         """
         # user isn't admin of org.
+<<<<<<< HEAD
         org = factories.Organization(name="my-org")
 
         helpers.login_user(app, user)
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": "my-dataset",
+=======
+        org = factories.Organization()
+        name = factories.Dataset.stub().name
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("dataset.new")
+        response = app.post(url, environ_overrides=env, data={
+            "name": name,
+>>>>>>> master
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
@@ -369,12 +456,12 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "active"
 
         # edit package response
         url = url_for(
-            "dataset.edit", id=model.Package.by_name(u"my-dataset").id
+            "dataset.edit", id=model.Package.by_name(name).id
         )
         pkg_edit_response = app.get(url=url)
         # A field with the correct id is in the response
@@ -389,7 +476,11 @@ class TestPackageNew(object):
         """
         # user is admin of org.
         org = factories.Organization(
+<<<<<<< HEAD
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
+=======
+            users=[{"name": user["id"], "capacity": "admin"}]
+>>>>>>> master
         )
 
         # user in env is sysadmin
@@ -398,9 +489,15 @@ class TestPackageNew(object):
         response = app.get(url=url)
         # organization dropdown available in create page.
         assert 'id="field-organizations"' in response
+<<<<<<< HEAD
 
         response = app.post(url, data={
             "name": "my-dataset",
+=======
+        name = factories.Dataset.stub().name
+        response = app.post(url, environ_overrides=env, data={
+            "name": name,
+>>>>>>> master
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
@@ -412,7 +509,7 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
 
-        pkg = model.Package.by_name(u"my-dataset")
+        pkg = model.Package.by_name(name)
         assert pkg.state == "active"
 
         # edit package page response
@@ -455,7 +552,7 @@ class TestPackageNew(object):
         assert form.select_one('[name=notes]').text == "notes"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageEdit(object):
     def test_redirect_after_edit_using_param(self, app, sysadmin):
         return_url = "http://random.site.com/dataset/<NAME>?test=param"
@@ -566,7 +663,7 @@ class TestPackageEdit(object):
         assert 404 == response.status_code
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageOwnerOrgList(object):
 
     owner_org_select = '<select id="field-organizations" name="owner_org"'
@@ -647,7 +744,7 @@ class TestPackageOwnerOrgList(object):
         assert updated_dataset['owner_org'] == organization2['id']
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageRead(object):
     def test_read(self, app):
         dataset = factories.Dataset()
@@ -789,7 +886,7 @@ class TestPackageRead(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageDelete(object):
     def test_owner_delete(self, app, user):
         owner_org = factories.Organization(
@@ -892,7 +989,7 @@ class TestPackageDelete(object):
         assert plugin.calls["after_dataset_delete"] == 2
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestResourceNew(object):
     def test_manage_dataset_resource_listing_page(self, app):
         user = factories.User(password="correct123")
@@ -1087,7 +1184,7 @@ class TestResourceNew(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestResourceDownload(object):
 
     def test_resource_download_content_type(self, create_with_upload, app):
@@ -1111,7 +1208,7 @@ class TestResourceDownload(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestResourceView(object):
     def test_resource_view_create(self, app, user):
         helpers.login_user(app, user)
@@ -1209,7 +1306,7 @@ class TestResourceView(object):
         assert helpers.body_contains(response, "Some <strong>Markdown</strong>")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestResourceRead(object):
     def test_existing_resource_with_not_associated_dataset(self, app):
 
@@ -1326,7 +1423,7 @@ class TestResourceRead(object):
         assert 404 == response.status_code
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestResourceDelete(object):
     def test_dataset_owners_can_delete_resources(self, app, user):
         owner_org = factories.Organization(
@@ -1793,7 +1890,7 @@ class TestSearch(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageFollow(object):
     def test_package_follow(self, app, user):
 
@@ -1869,7 +1966,7 @@ class TestPackageFollow(object):
         assert user_one["display_name"] in followers_response
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestDatasetRead(object):
     def test_dataset_read(self, app):
 
@@ -2273,7 +2370,7 @@ class TestActivity(object):
         assert "changed datastore" in response
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestChanges(object):  # i.e. the diff
     def test_simple(self, app):
         user = factories.User(password="correct123")
@@ -2291,7 +2388,7 @@ class TestChanges(object):  # i.e. the diff
         assert helpers.body_contains(response, "Second")
 
 
-@pytest.mark.usefixtures('clean_db', 'with_request_context')
+@pytest.mark.usefixtures('non_clean_db', 'with_request_context')
 class TestCollaborators(object):
 
     def test_collaborators_tab_not_shown(self, app, sysadmin):
@@ -2341,7 +2438,11 @@ class TestCollaborators(object):
         assert '<option value="admin">' in response
 
 
+<<<<<<< HEAD
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
+=======
+@pytest.mark.usefixtures('non_clean_db')
+>>>>>>> master
 class TestResourceListing(object):
     def test_resource_listing_premissions_sysadmin(self, app, sysadmin):
         org = factories.Organization()
@@ -2370,7 +2471,11 @@ class TestResourceListing(object):
         app.get(url_for("dataset.resources", id=pkg["name"]), status=403)
 
 
+<<<<<<< HEAD
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
+=======
+@pytest.mark.usefixtures('non_clean_db')
+>>>>>>> master
 class TestNonActivePackages:
     def test_read(self, app):
         pkg = factories.Dataset(state="deleted")

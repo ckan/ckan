@@ -483,7 +483,7 @@ now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
    :start-after: # Declare that this plugin will implement ITemplateHelpers.
-   :end-before: def update_config(self, config):
+   :end-before: def update_config(self, config: CKANConfig):
 
 Finally, we implemented the
 :py:meth:`~ckan.plugins.interfaces.ITemplateHelpers.get_helpers` method from

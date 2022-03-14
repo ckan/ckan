@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures bellow available anywhere under the root of CKAN
+All fixtures below available anywhere under the root of CKAN
 repository. Any external CKAN extension should be able to include them
 by adding next lines under root `conftest.py`
 
@@ -23,7 +23,7 @@ There are three type of fixtures available in CKAN:
   test). But presence of these fixtures in test usually signals that
   is's a good time to refactor this test.
 
-Deeper expanation can be found in `official documentation
+Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
@@ -46,7 +46,7 @@ import ckan.tests.factories as factories
 import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
-
+import ckan.model as model
 from ckan.common import config
 
 
@@ -77,6 +77,11 @@ class PackageFactory(factories.Dataset):
 
 @register
 class VocabularyFactory(factories.Vocabulary):
+    pass
+
+
+@register
+class TagFactory(factories.Tag):
     pass
 
 
@@ -187,6 +192,7 @@ def reset_db():
     If possible use the ``clean_db`` fixture instead.
 
     """
+    factories.fake.unique.clear()
     return test_helpers.reset_db
 
 
@@ -323,7 +329,33 @@ def with_extended_cli(ckan_config, monkeypatch):
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+    monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
+
+
+@pytest.fixture(scope="session")
+def _reset_db_once(reset_db):
+    """Internal fixture that cleans DB only the first time it's used.
+    """
+    reset_db()
+
+
+@pytest.fixture
+def non_clean_db(_reset_db_once):
+    """Guarantees that DB is initialized.
+
+    This fixture either initializes DB if it hasn't been done yet or does
+    nothing otherwise. If there is some data in DB, it stays intact. If your
+    tests need empty database, use `clean_db` instead, which is much slower,
+    but guarantees that there are no data left from the previous test session.
+
+    Example::
+
+        @pytest.mark.usefixtures("non_clean_db")
+        def test_example():
+            assert factories.User()
+
+    """
+    model.repo.init_db()
 
 
 class FakeFileStorage(FlaskFileStorage):
@@ -347,7 +379,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     argument. Default value: `upload`.
 
     In addition, accepts named argument `context` which will be passed
-    to `ckan.tests.helpers.call_action` and arbitary number of
+    to `ckan.tests.helpers.call_action` and arbitrary number of
     additional named arguments, that will be used as resource
     properties.
 
@@ -364,7 +396,6 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
         action = kwargs.pop(u"action", u"resource_create")

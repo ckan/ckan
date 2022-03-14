@@ -12,7 +12,6 @@ from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
 @pytest.mark.parametrize(
@@ -65,7 +64,6 @@ class TestApiController(object):
         self, app, monkeypatch, tmpdir, ckan_config
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
         user = factories.User(password="correct123")
         identity = {"login": user["name"], "password": "correct123"}
@@ -327,4 +325,16 @@ class TestApiController(object):
             url_for("api.format_autocomplete", ver=2, incomplete=incomplete)
         )
         result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
+
         assert result == expected
+
+
+def test_i18n_only_known_locales_are_accepted(app):
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="fr")
+
+    assert app.get(url).status_code == 200
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
+    r = app.get(url, status=400)
+    assert "Bad request - Unknown locale" in r.get_data(as_text=True)

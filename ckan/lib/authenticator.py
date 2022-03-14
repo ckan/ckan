@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+from typing import Any, Mapping, Optional
 
 from ckan.model import User
 from . import signals
@@ -10,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class UsernamePasswordAuthenticator(object):
 
-    def authenticate(self, identity):
+    def authenticate(self, identity: 'Mapping[str, Any]') -> Optional[str]:
         if not ('login' in identity and 'password' in identity):
             return None
 

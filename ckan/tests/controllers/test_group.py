@@ -59,6 +59,7 @@ class TestGroupController(object):
             app.get(url=group_url)
 
 
+<<<<<<< HEAD
 @pytest.fixture
 def sysadmin():
     data = factories.Sysadmin(password="correct123")
@@ -80,6 +81,9 @@ def user():
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
+=======
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+>>>>>>> master
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -137,7 +141,7 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=description]').text == "description"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -177,7 +181,6 @@ class TestGroupControllerEdit(object):
     def test_display_name_shown(self, app, user):
         helpers.login_user(app, user["identity"])
         group = factories.Group(
-            name="display-name",
             title="Display name",
             user=user["data"]
         )
@@ -203,7 +206,7 @@ class TestGroupControllerEdit(object):
         assert all([part.text for part in breadcrumbs])
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
@@ -224,7 +227,8 @@ class TestGroupRead(object):
         assert location == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        group = factories.Group(id="abc", name="abc")
+        name = factories.Group.stub().name
+        group = factories.Group(id=name, name=name)
 
         # 200 == no redirect
         app.get(url_for("group.read", id=group["id"]), status=200)
@@ -248,7 +252,7 @@ class TestGroupRead(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupDelete(object):
 
     def test_owner_delete(self, app, user):
@@ -304,7 +308,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -313,7 +317,7 @@ class TestGroupMembership(object):
             users = []
         context = {"user": owner_username, "ignore_auth": True}
         group = helpers.call_action(
-            "group_create", context=context, name="test-group", users=users
+            "group_create", context=context, name=factories.Group.stub().name, users=users
         )
         return group
 
@@ -325,6 +329,10 @@ class TestGroupMembership(object):
 
     def test_membership_list(self, app, user):
         """List group admins and members"""
+<<<<<<< HEAD
+=======
+        user_one = factories.User(fullname="User One")
+>>>>>>> master
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
@@ -355,14 +363,26 @@ class TestGroupMembership(object):
 
     def test_membership_add(self, app, user):
         """Member can be added via add member page"""
+<<<<<<< HEAD
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"])
+=======
+        owner = factories.User(fullname="My Owner")
+        uname = factories.User.stub().name
+        factories.User(fullname="My Fullname", name=uname)
+        group = self._create_group(owner["name"])
+>>>>>>> master
 
         helpers.login_user(app, user["identity"])
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
+<<<<<<< HEAD
             data={"save": "", "username": "my-user", "role": "member"},
+=======
+            environ_overrides=env,
+            data={"save": "", "username": uname, "role": "member"},
+>>>>>>> master
         )
 
         assert "2 members" in add_response.body
@@ -401,8 +421,14 @@ class TestGroupMembership(object):
 
     def test_membership_edit_page(self, app, user):
         """If `user` parameter provided, render edit page."""
+<<<<<<< HEAD
         member = factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"], users=[
+=======
+        owner = factories.User(fullname="My Owner")
+        member = factories.User(fullname="My Fullname")
+        group = self._create_group(owner["name"], users=[
+>>>>>>> master
             {'name': member['name'], 'capacity': 'admin'}
         ])
 
@@ -418,14 +444,26 @@ class TestGroupMembership(object):
 
     def test_admin_add(self, app, user):
         """Admin can be added via add member page"""
+<<<<<<< HEAD
         factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(user["data"]["name"])
+=======
+        owner = factories.User(fullname="My Owner")
+        uname = factories.User.stub().name
+        factories.User(fullname="My Fullname", name=uname)
+        group = self._create_group(owner["name"])
+>>>>>>> master
 
         helpers.login_user(app, user["identity"])
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
+<<<<<<< HEAD
             data={"save": "", "username": "my-user", "role": "admin"},
+=======
+            environ_overrides=env,
+            data={"save": "", "username": uname, "role": "admin"},
+>>>>>>> master
         )
 
         assert "2 members" in add_response
@@ -447,6 +485,10 @@ class TestGroupMembership(object):
 
     def test_remove_member(self, app, user):
         """Member can be removed from group"""
+<<<<<<< HEAD
+=======
+        user_one = factories.User(fullname="User One")
+>>>>>>> master
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
@@ -517,7 +559,7 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupFollow:
     def test_group_follow(self, app, user):
 
@@ -598,9 +640,9 @@ class TestGroupSearch(object):
         """Requesting group search (index) returns list of groups and search
         form."""
 
-        factories.Group(name="grp-one", title="AGrp One")
-        factories.Group(name="grp-two", title="AGrp Two")
-        factories.Group(name="grp-three", title="Grp Three")
+        factories.Group(title="AGrp One")
+        factories.Group(title="AGrp Two")
+        factories.Group(title="Grp Three")
         index_response = app.get(url_for("group.index"))
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
@@ -615,9 +657,9 @@ class TestGroupSearch(object):
 
     def test_group_search_results(self, app):
         """Searching via group search form returns list of expected groups."""
-        factories.Group(name="grp-one", title="AGrp One")
-        factories.Group(name="grp-two", title="AGrp Two")
-        factories.Group(name="grp-three", title="Grp Three")
+        factories.Group(title="AGrp One")
+        factories.Group(title="AGrp Two")
+        factories.Group(title="Grp Three")
 
         search_response = app.get(
             url_for("group.index"), query_string={"q": "AGrp"}
@@ -636,9 +678,9 @@ class TestGroupSearch(object):
     def test_group_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
 
-        factories.Group(name="grp-one", title="AGrp One")
-        factories.Group(name="grp-two", title="AGrp Two")
-        factories.Group(name="grp-three", title="Grp Three")
+        factories.Group(title="AGrp One")
+        factories.Group(title="AGrp Two")
+        factories.Group(title="Grp Three")
 
         search_response = app.get(
             url_for("group.index"), query_string={"q": "No Results Here"}
@@ -662,13 +704,13 @@ class TestGroupInnerSearch(object):
         """Group read page request returns list of datasets owned by group."""
         grp = factories.Group()
         factories.Dataset(
-            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+            title="Dataset One", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+            title="Dataset Two", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+            title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
         grp_url = url_for("group.read", id=grp["name"])
@@ -691,13 +733,13 @@ class TestGroupInnerSearch(object):
 
         grp = factories.Group()
         factories.Dataset(
-            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+            title="Dataset One", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+            title="Dataset Two", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+            title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
         grp_url = url_for("group.read", id=grp["name"])
@@ -723,13 +765,13 @@ class TestGroupInnerSearch(object):
 
         grp = factories.Group()
         factories.Dataset(
-            name="ds-one", title="Dataset One", groups=[{"id": grp["id"]}]
+            title="Dataset One", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", groups=[{"id": grp["id"]}]
+            title="Dataset Two", groups=[{"id": grp["id"]}]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", groups=[{"id": grp["id"]}]
+            title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
         grp_url = url_for("group.read", id=grp["name"])
@@ -787,7 +829,7 @@ class TestGroupIndex(object):
         assert "Test Group 20" not in response
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestActivity:
     def test_simple(self, app, user):
         """Checking the template shows the activity stream."""
