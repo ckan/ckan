@@ -13,37 +13,36 @@ this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
       let langCode = this.options.lang;
-      let module = this;
       let datatable = jQuery('#dtprv').DataTable({
         initComplete: function( _settings, _json ){
           // Adds download dropdown to buttons menu
           let tableInstance = jQuery('#dtprv').DataTable();
           tableInstance.button().add(2, {
-            text: module._('Download'),
+            text: ckan.i18n._('Download'),
             extend: 'collection',
             buttons: [{
-              text: module._('CSV'),
+              text: 'CSV',
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'csv');
               }
             }, {
-              text: module._('TSV'),
+              text: 'TSV',
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'tsv');
               }
             }, {
-              text: module._('JSON'),
+              text: 'JSON',
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'json');
               }
             }, {
-              text: module._('XML'),
+              text: 'XML',
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
