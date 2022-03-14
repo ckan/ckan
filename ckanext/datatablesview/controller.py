@@ -19,7 +19,7 @@ class DataTablesController(BaseController):
         offset = int(request.params['start'])
         limit = int(request.params['length'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = decode_datatables_request_filters()
+        user_filters = text_type(request.params['filters'])
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block page %}
-  {% set filters = h.encode_datatables_request_filters() %}
+  {% set filters = request.params.get('filters', '')|e if request.params is defined else request.args.get('filters', '')|e %}
   <table id="dtprv"
       class="table table-striped table-bordered"
       data-module="datatables_view"
