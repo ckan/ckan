@@ -70,6 +70,9 @@ this.ckan.views.filters = (function (queryString) {
   }
 
   function _redirectTo(url) {
+
+    console.log(url);
+
     var urlBase = url.split('?')[0],
         urlQueryString = url.split('?')[1] || '',
         defaultParams = Qs.parse(urlQueryString, { ignoreQueryPrefix: true }),
@@ -78,11 +81,15 @@ this.ckan.views.filters = (function (queryString) {
 
     destinationUrl = urlBase + '?' + queryString;
 
+    console.log(destinationUrl);
+
     api._setLocationHref(destinationUrl);
   }
 
   function _encodedParams(defaultParams) {
     var params = $.extend({}, defaultParams || {}, api._searchParams);
+
+    console.log(params.filters);
 
     if (params.filters) {
       params.filters = $.map(params.filters, function (fields, filter) {
