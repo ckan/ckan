@@ -90,13 +90,21 @@ this.ckan.views.filters = (function (queryString) {
           fields = [fields];
         }
         // Encode ':' and '|' as '#:' and '#|' to avoid conflicts when splitting filters.
+        
+        console.log(filter);
+
         var fieldsStr = $.map(fields, function (field) {
+
+          console.log(filter.replace(/(?<!#):/g, '#:') + ':' + field.replace(/(?<!#)\|/g, '#|').replace(/(?<!#):/g, '#:'))
+
           return filter.replace(/(?<!#):/g, '#:') + ':' + field.replace(/(?<!#)\|/g, '#|').replace(/(?<!#):/g, '#:');
         });
 
         return fieldsStr.join('|');
       }).join('|');
     }
+
+    console.log($.param(params));
 
     return $.param(params);
   }
