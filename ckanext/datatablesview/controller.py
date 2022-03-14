@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from urllib import urlencode, unquote
+from urllib import urlencode
 
 from six import text_type
 
@@ -8,7 +8,6 @@ from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
 from ckanext.datatablesview.helpers import decode_datatables_request_filters
 import re
-
 class DataTablesController(BaseController):
     def ajax(self, resource_view_id):
         resource_view = get_action(u'resource_view_show')(
