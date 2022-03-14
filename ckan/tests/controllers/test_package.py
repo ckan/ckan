@@ -2341,11 +2341,7 @@ class TestCollaborators(object):
         assert '<option value="admin">' in response
 
 
-<<<<<<< HEAD
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
-=======
-@pytest.mark.usefixtures('non_clean_db')
->>>>>>> master
 class TestResourceListing(object):
     def test_resource_listing_premissions_sysadmin(self, app, sysadmin):
         org = factories.Organization()
@@ -2374,11 +2370,7 @@ class TestResourceListing(object):
         app.get(url_for("dataset.resources", id=pkg["name"]), status=403)
 
 
-<<<<<<< HEAD
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
-=======
-@pytest.mark.usefixtures('non_clean_db')
->>>>>>> master
 class TestNonActivePackages:
     def test_read(self, app):
         pkg = factories.Dataset(state="deleted")
