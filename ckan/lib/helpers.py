@@ -2888,3 +2888,29 @@ def can_update_owner_org(
         return True
 
     return False
+
+
+@core_helper
+def check_ckan_version(min_version: Optional[str] = None,
+                       max_version: Optional[str] = None):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)
