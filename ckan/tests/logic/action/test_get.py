@@ -1917,36 +1917,52 @@ class TestPackageSearch(object):
 
         assert [r["name"] for r in results] == [private_dataset["name"]]
 
+    @pytest.mark.parametrize("remove_deleted_setting", [True, False])
     def test_package_search_private_with_include_private_wont_show_other_orgs_private(
-        self,
+        self, remove_deleted_setting
     ):
-        user = factories.User()
-        user2 = factories.User()
-        factories.Organization(user=user)
-        org2 = factories.Organization(user=user2)
-        factories.Dataset(
-            user=user2, private=True, owner_org=org2["name"]
-        )
+        with helpers.changed_config("ckan.search.remove_deleted_packages", remove_deleted_setting):
+            user = factories.User()
+            user2 = factories.User()
+            factories.Organization(user=user)
+            org2 = factories.Organization(user=user2)
+            # create a deleted dataset if we expect them to be indexed
+            factories.Dataset(
+                user=user2,
+                private=True,
+                owner_org=org2["name"],
+                state="active" if remove_deleted_setting else "deleted",
+            )
 
-        results = logic.get_action("package_search")(
-            {"user": user["name"]}, {"include_private": True}
-        )["results"]
+            # include deleted datasets if we expect them to be indexed
+            results = logic.get_action("package_search")(
+                {"user": user["name"]},
+                {"include_private": True, "include_deleted": not remove_deleted_setting},
+            )["results"]
 
-        assert [r["name"] for r in results] == []
+            assert [r["name"] for r in results] == []
 
-    def test_package_search_private_with_include_private_syadmin(self):
-        user = factories.User()
-        sysadmin = factories.Sysadmin()
-        org = factories.Organization(user=user)
-        private_dataset = factories.Dataset(
-            user=user, private=True, owner_org=org["name"]
-        )
+    @pytest.mark.parametrize("remove_deleted_setting", [True, False])
+    def test_package_search_private_with_include_private_syadmin(self, remove_deleted_setting):
+        with helpers.changed_config("ckan.search.remove_deleted_packages", remove_deleted_setting):
+            user = factories.User()
+            sysadmin = factories.Sysadmin()
+            org = factories.Organization(user=user)
+            # create a deleted dataset if we expect them to be indexed
+            private_dataset = factories.Dataset(
+                user=user,
+                private=True,
+                owner_org=org["name"],
+                state="active" if remove_deleted_setting else "deleted",
+            )
 
-        results = logic.get_action("package_search")(
-            {"user": sysadmin["name"]}, {"include_private": True}
-        )["results"]
+            # include deleted datasets if we expect them to be indexed
+            results = logic.get_action("package_search")(
+                {"user": sysadmin["name"]},
+                {"include_private": True, "include_deleted": not remove_deleted_setting}
+            )["results"]
 
-        assert [r["name"] for r in results] == [private_dataset["name"]]
+            assert [r["name"] for r in results] == [private_dataset["name"]]
 
     def test_package_works_without_user_in_context(self):
         """

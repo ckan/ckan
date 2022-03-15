@@ -1659,8 +1659,7 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": created_user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras_from_db == {
