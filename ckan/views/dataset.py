@@ -258,9 +258,6 @@ def search(package_type: str) -> str:
 
     pager_url = partial(_pager_url, params_nopage, package_type)
 
-    search_url_params = urlencode(_encode_params(params_nopage))
-    extra_vars[u'search_url_params'] = search_url_params
-
     details = _get_search_details()
     extra_vars[u'fields'] = details[u'fields']
     extra_vars[u'fields_grouped'] = details[u'fields_grouped']
