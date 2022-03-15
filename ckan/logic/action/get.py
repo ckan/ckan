@@ -2506,7 +2506,6 @@ def user_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     _check_access('user_activity_list', context, data_dict)
 
     model = context['model']
@@ -2522,9 +2521,7 @@ def user_activity_list(
     activity_objects = model_activity.user_activity_list(
         user.id, limit=limit, offset=offset)
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2563,7 +2560,6 @@ def package_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     activity_types = data_dict.pop('activity_types', None)
     exclude_activity_types = data_dict.pop('exclude_activity_types', None)
@@ -2590,8 +2586,7 @@ def package_activity_list(
         exclude_activity_types=exclude_activity_types
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context, include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2642,9 +2637,7 @@ def group_activity_list(
         include_hidden_activity=include_hidden_activity,
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2677,7 +2670,6 @@ def organization_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     _check_access('organization_activity_list', context, data_dict)
 
@@ -2694,9 +2686,7 @@ def organization_activity_list(
         include_hidden_activity=include_hidden_activity,
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
@@ -2720,16 +2710,13 @@ def recently_changed_packages_activity_list(
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     offset = data_dict.get('offset', 0)
-    data_dict['include_data'] = False
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     activity_objects = \
         model_activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 def _follower_count(
