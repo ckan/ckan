@@ -17,6 +17,8 @@
       </button>
     </h2>
 
+{# entities list can be of different types #}
+{% set items = [] %}
 
     <!-- expanded by default to prevent problems with disabled js -->
     <div id="{{ ent_type }}" class="accordion-collapse collapse show p-2" aria-labelledby="heading-{{ ent_type }}"
@@ -24,6 +26,7 @@
       <ul class="{{ ent_type }}-list">
         {% for entity in entities %}
         {% set title = entity.title or entity.name %}
+          {% do items.append(title) %}
         <li>
           <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}">
             {{ title|truncate(80) }}
@@ -37,7 +40,7 @@
       </ul>
 
       <!-- show button only if there is entity to purge -->
-      {% if entities.first() %}
+      {% if items|length > 0 %}
       <form method="POST" class="d-flex justify-content-end" action="{{ h.url_for('admin.trash') }}"
         id="form-purge-{{ ent_type }}">
         <input type="hidden" name="action" value="{{ent_type}}">

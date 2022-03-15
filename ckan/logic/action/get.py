@@ -1761,6 +1761,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: bool
+    :param include_deleted: if ``True``, deleted datasets will be included in the
+        results (site configuration "ckan.search.remove_deleted_packages" must
+        be set to False). Optional, the default is ``False``.
+    :type include_deleted: bool
     :param include_private: if ``True``, private datasets will be included in
         the results. Only private datasets from the user's organizations will
         be returned and sysadmins will be returned all private datasets.
@@ -1890,14 +1894,23 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         else:
             data_dict['fl'] = ' '.join(result_fl)
 
+        data_dict.setdefault('fq', '')
+
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
-        data_dict.setdefault('fq', '')
+        include_deleted = asbool(data_dict.pop('include_deleted', False))
+        
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
-        if include_drafts:
-            data_dict['fq'] += ' +state:(active OR draft)'
+
+        if '+state' not in data_dict['fq']:
+            states = ['active']
+            if include_drafts:
+                states.append('draft')
+            if include_deleted:
+                states.append('deleted')
+            data_dict['fq'] += ' +state:({})'.format(' OR '.join(states))
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)

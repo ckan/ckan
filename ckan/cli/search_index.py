@@ -43,7 +43,7 @@ def rebuild(
                 only_missing=only_missing,
                 force=force,
                 defer_commit=(not commit_each),
-                quiet=quiet,
+                quiet=quiet and not verbose,
                 clear=clear)
     except Exception as e:
         error_shout(e)
