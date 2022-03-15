@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 # must be ignored by blanket
-from random import randrange
+from random import randrange  # type: ignore # noqa: test
 
 
 def blanket_helper():
     pass
 
 
-def _hidden_helper():
+def _hidden_helper():  # type: ignore
     pass
 
 

@@ -7,7 +7,7 @@ import ckan.tests.factories as factories
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_humanizer")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins", u"with_request_context")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins")
 class TestExampleHumanizer(object):
     @pytest.mark.parametrize(u"url, breadcrumb, button", [
         (u'/dataset', u"Datasets", u"Add Dataset"),
@@ -21,4 +21,4 @@ class TestExampleHumanizer(object):
         resp = app.get(url, extra_environ=env)
         page = bs4.BeautifulSoup(resp.body)
         assert page.select_one(u'.toolbar .active').text == breadcrumb
-        btn = page.select_one(u'.page_primary_action').text.strip() == button
+        page.select_one(u'.page_primary_action').text.strip() == button

@@ -23,7 +23,7 @@ def _pending_task(resource_id):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestSubmit:
     def test_submit(self, monkeypatch):
         """Auto-submit when creating a resource with supported format.
@@ -44,10 +44,9 @@ class TestSubmit:
 
         func.assert_called()
 
+    @pytest.mark.ckan_config("ckan.views.default_views", "")
+    @pytest.mark.flaky(reruns=2)
     def test_submit_when_url_changes(self, monkeypatch):
-        """Auto-submit when URL changes from unsupported to supported one.
-
-        """
         dataset = factories.Dataset()
         func = mock.Mock()
         monkeypatch.setitem(_actions, 'datapusher_submit', func)

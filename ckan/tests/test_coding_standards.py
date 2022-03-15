@@ -20,11 +20,9 @@ import subprocess
 import sys
 import pytest
 import six
-import pycodestyle
 
-from six import text_type
 
-FILESYSTEM_ENCODING = text_type(
+FILESYSTEM_ENCODING = str(
     sys.getfilesystemencoding() or sys.getdefaultencoding()
 )
 
@@ -245,54 +243,20 @@ def test_building_the_docs():
         ), u"Building the docs failed with return code: {code}".format(
             code=err.returncode
         )
-    output_lines = output.split(six.b(u"\n"))
+    output_lines = output.decode("utf8").split("\n")
 
-    errors = [line for line in output_lines if six.b(u"ERROR") in line]
+    errors = [line for line in output_lines if "ERROR" in line]
     if errors:
         assert False, (
-            u"Don't add any errors to the Sphinx build: "
-            u"{errors}".format(errors=errors)
+            u"Don't add any errors to the Sphinx build: \n"
+            u"{errors}".format(errors="\n".join(errors))
         )
 
-    warnings = [line for line in output_lines if six.b(u"WARNING") in line]
-
-    # Some warnings have been around for a long time and aren't easy to fix.
-    # These are allowed, but no more should be added.
-    allowed_warnings = [
-        u"WARNING: duplicate label ckan.auth.create_user_via_web",
-        u"WARNING: duplicate label ckan.auth.create_unowned_dataset",
-        u"WARNING: duplicate label ckan.auth.user_create_groups",
-        u"WARNING: duplicate label ckan.auth.anon_create_dataset",
-        u"WARNING: duplicate label ckan.auth.user_delete_organizations",
-        u"WARNING: duplicate label ckan.auth.create_user_via_api",
-        u"WARNING: duplicate label ckan.auth.create_dataset_if_not_in_organization",
-        u"WARNING: duplicate label ckan.auth.user_delete_groups",
-        u"WARNING: duplicate label ckan.auth.user_create_organizations",
-        u"WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups",
-        u"WARNING: duplicate label ckan.auth.public_user_details",
-        u"WARNING: duplicate label ckan.auth.public_activity_stream_detail",
-        u"WARNING: duplicate label ckan.auth.allow_dataset_collaborators",
-        u"WARNING: duplicate label ckan.auth.allow_admin_collaborators",
-        u"WARNING: duplicate label ckan.auth.allow_collaborators_to_change_owner_org",
-        u"WARNING: duplicate label ckan.auth.create_default_api_keys",
-    ]
-
-    # Remove the allowed warnings from the list of collected warnings.
-    # Be sure to only remove one warning for each allowed warning.
-    warnings_to_remove = []
-    for allowed_warning in allowed_warnings:
-        for warning in warnings:
-            if six.b(allowed_warning) in warning:
-                warnings_to_remove.append(warning)
-                break
-    new_warnings = [
-        warning for warning in warnings if warning not in warnings_to_remove
-    ]
-
-    if new_warnings:
+    warnings = [line for line in output_lines if "WARNING" in line]
+    if warnings:
         assert False, (
-            u"Don't add any new warnings to the Sphinx build: "
-            u"{warnings}".format(warnings=new_warnings)
+            u"Don't add any new warnings to the Sphinx build: \n"
+            u"{warnings}".format(warnings="\n".join(warnings))
         )
 
 
@@ -335,162 +299,11 @@ def test_source_files_specify_encoding():
         assert False, u"\n\n".join(msgs)
 
 
-class TestPep8(object):
-    """Check that .py files are pep8 compliant"""
-
-    # PEP8 File exceptions
-    #
-    # The following files have known PEP8 errors.  When the files get to a
-    # point of not having any such errors they should be removed from this
-    # list to prevent new errors being added to the file.
-
-    PEP8_BLACKLIST_FILES = [
-        "bin/running_stats.py",
-        "ckan/__init__.py",
-        "ckan/config/middleware.py",
-        "ckan/lib/app_globals.py",
-        "ckan/lib/cli.py",
-        "ckan/lib/create_test_data.py",
-        "ckan/lib/dictization/__init__.py",
-        "ckan/lib/dictization/model_dictize.py",
-        "ckan/lib/dictization/model_save.py",
-        "ckan/lib/email_notifications.py",
-        "ckan/lib/hash.py",
-        "ckan/lib/jinja_extensions.py",
-        "ckan/lib/jsonp.py",
-        "ckan/lib/maintain.py",
-        "ckan/lib/navl/validators.py",
-        "ckan/lib/package_saver.py",
-        "ckan/lib/plugins.py",
-        "ckan/lib/render.py",
-        "ckan/lib/search/__init__.py",
-        "ckan/lib/search/index.py",
-        "ckan/lib/search/query.py",
-        "ckan/lib/search/sql.py",
-        "ckan/logic/action/__init__.py",
-        "ckan/logic/action/delete.py",
-        "ckan/logic/action/get.py",
-        "ckan/logic/action/update.py",
-        "ckan/logic/auth/create.py",
-        "ckan/logic/auth/delete.py",
-        "ckan/logic/auth/get.py",
-        "ckan/logic/auth/update.py",
-        "ckan/logic/converters.py",
-        "ckan/logic/validators.py",
-        "ckan/misc.py",
-        "ckan/model/__init__.py",
-        "ckan/model/activity.py",
-        "ckan/model/dashboard.py",
-        "ckan/model/domain_object.py",
-        "ckan/model/follower.py",
-        "ckan/model/group.py",
-        "ckan/model/group_extra.py",
-        "ckan/model/license.py",
-        "ckan/model/meta.py",
-        "ckan/model/misc.py",
-        "ckan/model/modification.py",
-        "ckan/model/package.py",
-        "ckan/model/package_extra.py",
-        "ckan/model/package_relationship.py",
-        "ckan/model/rating.py",
-        "ckan/model/resource.py",
-        "ckan/model/system_info.py",
-        "ckan/model/tag.py",
-        "ckan/model/task_status.py",
-        "ckan/model/term_translation.py",
-        "ckan/model/tracking.py",
-        "ckan/model/user.py",
-        "ckan/model/vocabulary.py",
-        "ckan/authz.py",
-        "ckanext/datastore/logic/action.py",
-        "ckanext/datastore/tests/test_create.py",
-        "ckanext/example_idatasetform/plugin.py",
-        "ckanext/example_itemplatehelpers/plugin.py",
-        "ckanext/multilingual/plugin.py",
-        "ckanext/stats/stats.py",
-        "ckanext/test_tag_vocab_plugin.py",
-        "ckanext/tests/plugin.py",
-        "doc/conf.py",
-        "setup.py",
-        "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/setup.py",
-        "contrib/cookiecutter/ckan_extension/hooks/post_gen_project.py",
-        "contrib/cookiecutter/ckan_extension/"
-        "{{cookiecutter.project}}/ckanext/{{cookiecutter.project_shortname}}"
-        "/tests/test_plugin.py",
-        "contrib/cookiecutter/ckan_extension/{{cookiecutter.project}}"
-        "/ckanext/{{cookiecutter.project_shortname}}/plugin.py",
-    ]
-
-    @pytest.fixture(scope="class")
-    def results(self):
-        blacklist = self.PEP8_BLACKLIST_FILES
-        fails = {}
-        passes = []
-        for path, filename in walk_python_files():
-            errors = self.find_pep8_errors(filename=path)
-            if errors and filename not in blacklist:
-                fails[filename] = output_errors(filename, errors)
-            elif not errors and filename in blacklist:
-                passes.append(filename)
-        return fails, passes
-
-    def test_pep8_fails(self, results):
-        msg = "The following files have pep8 issues that need resolving"
-        msg += "\nThey need removing from the test blacklist"
-        show_fails(msg, results[0])
-
-    def test_pep8_pass(self, results):
-        msg = "The following files passed pep8 but are blacklisted"
-        show_passing(msg, results[1])
-
-    def find_pep8_errors(self, filename=None, lines=None):
-        try:
-            sys.stdout = io.StringIO()
-            config = {
-                "ignore": [
-                    # W503/W504 - breaking before/after binary operators is agreed
-                    # to not be a concern and was changed to be ignored by default.
-                    # However we overwrite the ignore list here, so add it back in.
-                    # See: https://github.com/PyCQA/pycodestyle/issues/498
-                    "W503",
-                    "W504",
-                ]
-            }
-
-            # Ignore long lines on test files, as the test names can get long
-            # when following our test naming standards.
-            if self._is_test(filename):
-                config["ignore"].append("E501")
-
-            checker = pycodestyle.Checker(
-                filename=filename, lines=lines, **config
-            )
-            checker.check_all()
-            output = sys.stdout.getvalue()
-        finally:
-            sys.stdout = sys.__stdout__
-
-        errors = []
-        for line in output.split("\n"):
-            parts = line.split(" ", 2)
-            if len(parts) == 3:
-                location, error, desc = parts
-                line_no = location.split(":")[1]
-                errors.append("%s ln:%s %s" % (error, line_no, desc))
-        return errors
-
-    def _is_test(self, filename):
-        return bool(re.search(r"(^|\W)test_.*\.py$", filename, re.IGNORECASE))
-
-
 class TestActionAuth(object):
     """These tests check the logic auth/action functions are compliant. The
     main tests are that each action has a corresponding auth function and
     that each auth function has an action.  We check the function only
     accepts (context, data_dict) as parameters."""
-
-    ACTION_FN_SIGNATURES_BLACKLIST = ["create: activity_create"]
 
     ACTION_NO_AUTH_BLACKLIST = [
         "create: follow_dataset",
@@ -602,14 +415,9 @@ class TestActionAuth(object):
     def test_fn_signatures(self, results):
         errors = []
         for name, fn in six.iteritems(results[0]):
-            args_info = inspect.getargspec(fn)
-            if (
-                args_info.args != ["context", "data_dict"]
-                or args_info.varargs is not None
-                or args_info.keywords is not None
-            ):
-                if name not in self.ACTION_FN_SIGNATURES_BLACKLIST:
-                    errors.append(name)
+            params = inspect.signature(fn).parameters
+            if list(params) != ["context", "data_dict"]:
+                errors.append(name)
         assert not errors, (
             "These action functions have the wrong function"
             + " signature, should be (context, data_dict)\n%s"

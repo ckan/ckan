@@ -16,7 +16,7 @@ def token():
     return token
 
 
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestApiToken(object):
     def test_new_token_not_accessed(self, token):
         assert token.last_access is None

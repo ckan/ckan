@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 import pytest
+
 from pprint import pformat
-from six import text_type
 from ckan.lib.navl.dictization_functions import (
     validate,
     Invalid,
@@ -24,7 +24,6 @@ from ckan.lib.navl.dictization_functions import (
 )
 
 from ckan.lib.navl.validators import (
-    identity_converter,
     empty,
     unicode_safe,
     not_empty,
@@ -33,6 +32,12 @@ from ckan.lib.navl.validators import (
     convert_int,
     ignore,
 )
+
+
+def identity_converter(key, data, errors, context):
+    """This validator removes `__`-fields and leaves everything else.
+    """
+    return
 
 
 class TestValidate(object):
@@ -614,7 +619,44 @@ class TestDictization:
 
         converted_data, errors = validate(data, schema)
 
-        assert errors == {"numbers": [{"code": [u"Missing value"]}]}
+        assert errors == {"numbers": [{"code": [u"Missing value"]}, {}]}
+
+    def test_error_list_position(self):
+        data = {
+            "name": "fred",
+            "cats": [{"name": "rita"}, {"name": "otis"}],
+            "numbers": [
+                {"number": "432423432", "code": "+44"},
+                {"number": "13221312"},
+                {"number": "432423432", "code": "+44"},
+                {"number": "13221312"},
+                {"number": "432423432", "code": "+44"},
+            ],
+        }
+
+        schema = {
+            "name": [not_empty],
+            "cats": {
+                "name": [not_empty],
+            },
+            "numbers": {
+                "number": [convert_int],
+                "code": [not_empty],
+                "__extras": [ignore],
+            },
+        }
+
+        converted_data, errors = validate(data, schema)
+
+        assert errors == {
+            "numbers": [
+                {},
+                {"code": [u"Missing value"]},
+                {},
+                {"code": [u"Missing value"]},
+                {},
+            ]
+        }
 
     def test_simple_converter_types(self):
         schema = {
@@ -633,7 +675,7 @@ class TestDictization:
             "name": u"fred",
         }, converted_data
 
-        assert isinstance(converted_data["name"], text_type)
+        assert isinstance(converted_data["name"], str)
         assert isinstance(converted_data["gender"], str)
 
 

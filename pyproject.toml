@@ -33,6 +33,7 @@ showcontent = true
 
 [tool.black]
 line-length = 79
+experimental-string-processing = true
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -48,3 +49,104 @@ markers = [
 
 testpaths = ["ckan", "ckanext"]
 addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb -p no:ckan"
+
+[tool.pyright]
+pythonVersion = "3.7"
+include = ["ckan", "ckanext"]
+exclude = [
+    "**/test*",
+    "**/migration",
+    "ckan/lib/create_test_data.py"
+]
+strict = []
+
+strictParameterNoneValue = true # type must be Optional if default value is None
+
+# Check the meaning of rules here
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+reportFunctionMemberAccess = true # non-standard member accesses for functions
+reportMissingImports = true
+reportMissingModuleSource = true
+reportMissingTypeStubs = false
+reportImportCycles = false
+reportUnusedImport = true
+reportUnusedClass = true
+reportUnusedFunction = true
+reportUnusedVariable = true
+reportDuplicateImport = true
+reportOptionalSubscript = true
+reportOptionalMemberAccess = true
+reportOptionalCall = true
+reportOptionalIterable = true
+reportOptionalContextManager = true
+reportOptionalOperand = true
+reportTypedDictNotRequiredAccess = false # We are using Context in a way that conflicts with this check
+reportConstantRedefinition = true
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = true
+reportOverlappingOverload = true
+reportUntypedFunctionDecorator = false
+reportUnknownParameterType = true
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownMemberType = false
+reportMissingTypeArgument = true
+reportInvalidTypeVarUse = true
+reportCallInDefaultInitializer = true
+reportUnknownVariableType = false
+reportUntypedBaseClass = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryCast = true
+reportUnnecessaryComparison = true
+reportAssertAlwaysTrue = true
+reportSelfClsParameterName = true
+reportUnusedCallResult = false # allow function calls for side-effect only (like logic.check_acces)
+useLibraryCodeForTypes = true
+reportGeneralTypeIssues = true
+reportPropertyTypeMismatch = true
+reportWildcardImportFromLibrary = true
+reportUntypedClassDecorator = false # authenticator relies on repoze.who class-decorator
+reportUntypedNamedTuple = true
+reportPrivateUsage = false # TODO: do not access private members in CKAN's codebase
+reportPrivateImportUsage = true
+reportInconsistentConstructor = true
+reportMissingSuperCall = false
+reportUninitializedInstanceVariable = false
+reportInvalidStringEscapeSequence = true
+reportMissingParameterType = true
+reportImplicitStringConcatenation = false
+reportUndefinedVariable = true
+reportUnboundVariable = true
+reportInvalidStubStatement = true
+reportIncompleteStub = true
+reportUnsupportedDunderAll = true
+reportUnusedCoroutine = true
+reportUnnecessaryTypeIgnoreComment = true
+reportMatchNotExhaustive = true
+
+[tool.mypy]
+plugins = "sqlmypy"
+files = "ckan"
+exclude = "ckan/(pastertemplates|tests|migration)"
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+    "babel.*",
+    "beaker.*",
+    "blinker.*",
+    "cookiecutter.*",
+    "dominate.*",
+    "feedgen.*",
+    "flask_babel.*",
+    "flask_debugtoolbar.*",
+    "flask_multistatic.*",
+    "passlib.*",
+    "pysolr.*",
+    "pyutilib.*",
+    "repoze.*",
+    "rq.*",
+    "webassets.*",
+    "webob.*",
+    "zope.*",
+]

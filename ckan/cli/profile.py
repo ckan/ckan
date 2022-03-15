@@ -4,15 +4,14 @@ import re
 import traceback
 
 import click
-
-from ckan.cli import error_shout
+from . import error_shout
 
 
 @click.group(
     short_help=u"Code speed profiler.", invoke_without_command=True,
 )
 @click.pass_context
-def profile(ctx):
+def profile(ctx: click.Context):
     """Provide a ckan url and it will make the request and record how
     long each function call took in a file that can be read by
     pstats.Stats (command-line) or runsnakerun (gui).
@@ -30,21 +29,21 @@ def profile(ctx):
 
     """
     if ctx.invoked_subcommand is None:
-        ctx.invoke(profile)
+        ctx.invoke(main)
 
 
-@profile.command(short_help=u"Code speed profiler.",)
+@profile.command('profile', short_help=u"Code speed profiler.",)
 @click.argument(u"url")
 @click.argument(u"user", required=False, default=u"visitor")
-def profile(url, user):
+def main(url: str, user: str):
     import cProfile
     from ckan.tests.helpers import _get_test_app
 
     app = _get_test_app()
 
-    def profile_url(url):
+    def profile_url(url: str):  # type: ignore # noqa
         try:
-            res = app.get(
+            app.get(
                 url, status=[200], extra_environ={u"REMOTE_USER": str(user)}
             )
         except KeyboardInterrupt:

@@ -6,61 +6,6 @@ import ckan.plugins as p
 import ckan.tests.plugins.mock_plugin as mock_plugin
 
 
-class MapperPlugin(p.SingletonPlugin):
-    p.implements(p.IMapper, inherit=True)
-
-    def __init__(self, *args, **kw):
-        self.calls = []
-
-    def _get_instance_name(self, instance):
-        return getattr(instance, "name", None)
-
-    def before_insert(self, mapper, conn, instance):
-        self.calls.append(("before_insert", self._get_instance_name(instance)))
-
-    def after_insert(self, mapper, conn, instance):
-        self.calls.append(("after_insert", self._get_instance_name(instance)))
-
-    def before_delete(self, mapper, conn, instance):
-        self.calls.append(("before_delete", self._get_instance_name(instance)))
-
-    def after_delete(self, mapper, conn, instance):
-        self.calls.append(("after_delete", self._get_instance_name(instance)))
-
-
-class MapperPlugin2(MapperPlugin):
-    p.implements(p.IMapper)
-
-
-class SessionPlugin(p.SingletonPlugin):
-    p.implements(p.ISession, inherit=True)
-
-    def __init__(self, *args, **kw):
-        self.added = []
-        self.deleted = []
-
-    def before_insert(self, mapper, conn, instance):
-        self.added.append(instance)
-
-    def before_delete(self, mapper, conn, instance):
-        self.deleted.append(instance)
-
-
-class RoutesPlugin(p.SingletonPlugin):
-    p.implements(p.IRoutes, inherit=True)
-
-    def __init__(self, *args, **kw):
-        self.calls_made = []
-
-    def before_map(self, map):
-        self.calls_made.append("before_map")
-        return map
-
-    def after_map(self, map):
-        self.calls_made.append("after_map")
-        return map
-
-
 class PluginObserverPlugin(mock_plugin.MockSingletonPlugin):
     p.implements(p.IPluginObserver)
 
@@ -120,38 +65,38 @@ class MockPackageControllerPlugin(p.SingletonPlugin):
     def delete(self, entity):
         self.calls["delete"] += 1
 
-    def before_search(self, search_params):
-        self.calls["before_search"] += 1
+    def before_dataset_search(self, search_params):
+        self.calls["before_dataset_search"] += 1
         return search_params
 
-    def after_search(self, search_results, search_params):
-        self.calls["after_search"] += 1
+    def after_dataset_search(self, search_results, search_params):
+        self.calls["after_dataset_search"] += 1
         return search_results
 
-    def before_index(self, data_dict):
-        self.calls["before_index"] += 1
+    def before_dataset_index(self, data_dict):
+        self.calls["before_dataset_index"] += 1
         return data_dict
 
-    def before_view(self, data_dict):
-        self.calls["before_view"] += 1
+    def before_dataset_view(self, data_dict):
+        self.calls["before_dataset_view"] += 1
         return data_dict
 
-    def after_create(self, context, data_dict):
-        self.calls["after_create"] += 1
+    def after_dataset_create(self, context, data_dict):
+        self.calls["after_dataset_create"] += 1
         self.id_in_dict = "id" in data_dict
 
         return data_dict
 
-    def after_update(self, context, data_dict):
-        self.calls["after_update"] += 1
+    def after_dataset_update(self, context, data_dict):
+        self.calls["after_dataset_update"] += 1
         return data_dict
 
-    def after_delete(self, context, data_dict):
-        self.calls["after_delete"] += 1
+    def after_dataset_delete(self, context, data_dict):
+        self.calls["after_dataset_delete"] += 1
         return data_dict
 
-    def after_show(self, context, data_dict):
-        self.calls["after_show"] += 1
+    def after_dataset_show(self, context, data_dict):
+        self.calls["after_dataset_show"] += 1
         return data_dict
 
     def update_facet_titles(self, facet_titles):

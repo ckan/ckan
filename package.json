@@ -4,8 +4,10 @@
   "description": "CKAN: The Open Source Data Portal Software ==========================================",
   "dependencies": {
     "@highlightjs/cdn-assets": "^10.7.3",
+    "@popperjs/core": "^2.10.2",
     "blueimp-file-upload": "^10.31.0",
-    "bootstrap-sass": "^3.4.1",
+    "bootstrap": "^5.0.2",
+    "dompurify": "^2.3.3",
     "font-awesome": "^4.7.0",
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",
@@ -14,13 +16,14 @@
     "gulp-sourcemaps": "^2.6.5",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
+    "pyright": "^1.1.186",
     "qs": "^6.10.1",
     "sass": "^1.35.2"
   },
   "devDependencies": {
-    "axe-core": "^4.3.0",
-    "cypress": "^6.9.1",
-    "cypress-axe": "^0.12.2"
+    "axe-core": "^4.3.3",
+    "cypress": "^8.7.0",
+    "cypress-axe": "^0.13.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

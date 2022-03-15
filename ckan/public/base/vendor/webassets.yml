@@ -33,6 +33,8 @@ vendor:
     - jed.js
     - moment-with-locales.js
     - select2/select2.js
+    - popperjs.js
+    - purify.js
 
 bootstrap:
   filters: rjsmin
@@ -42,7 +44,7 @@ bootstrap:
       - vendor/font-awesome
       - vendor/jquery
   contents:
-    - bootstrap/javascripts/bootstrap.js
+    - bootstrap/js/bootstrap.js
 
 fileupload:
   filters: rjsmin

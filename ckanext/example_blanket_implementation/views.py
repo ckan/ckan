@@ -7,11 +7,9 @@ __all__ = [u"blanket"]
 blanket = Blueprint(u"blanket", __name__)
 
 
+@blanket.route("/sleep")
 def dream():
-    pass
-
-
-blanket.add_url_rule(u"/sleep", view_func=dream)
+    return ""
 
 
 def get_blueprints():

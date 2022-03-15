@@ -7,7 +7,7 @@ from ckan.tests import helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_itranslation")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestExampleITranslationPlugin(object):
 
     def test_translated_string_in_extensions_templates(self, app):

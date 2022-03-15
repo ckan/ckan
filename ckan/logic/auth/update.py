@@ -7,10 +7,11 @@ from ckan.common import _
 
 # FIXME this import is evil and should be refactored
 from ckan.logic.auth.create import _check_group_auth
+from ckan.types import Context, DataDict, AuthResult
 
 
 @logic.auth_allow_anonymous_access
-def package_update(context, data_dict):
+def package_update(context: Context, data_dict: DataDict) -> AuthResult:
     model = context['model']
     user = context.get('user')
 
@@ -59,20 +60,22 @@ def package_update(context, data_dict):
     return {'success': True}
 
 
-def package_revise(context, data_dict):
+def package_revise(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_update', context, data_dict['update'])
 
 
-def package_resource_reorder(context, data_dict):
+def package_resource_reorder(context: Context,
+                             data_dict: DataDict) -> AuthResult:
     ## the action function runs package update so no need to run it twice
     return {'success': True}
 
-def resource_update(context, data_dict):
+def resource_update(context: Context, data_dict: DataDict) -> AuthResult:
     model = context['model']
     user = context.get('user')
     resource = logic_auth.get_resource_object(context, data_dict)
 
     # check authentication against package
+    assert resource.package_id
     pkg = model.Package.get(resource.package_id)
     if not pkg:
         raise logic.NotFound(
@@ -90,19 +93,21 @@ def resource_update(context, data_dict):
         return {'success': True}
 
 
-def resource_view_update(context, data_dict):
+def resource_view_update(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
-def resource_view_reorder(context, data_dict):
+def resource_view_reorder(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
-def package_relationship_update(context, data_dict):
+
+def package_relationship_update(context: Context,
+                                data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_relationship_create',
                                    context,
                                    data_dict)
 
 
-def package_change_state(context, data_dict):
+def package_change_state(context: Context, data_dict: DataDict) -> AuthResult:
     user = context['user']
     package = logic_auth.get_package_object(context, data_dict)
 
@@ -120,7 +125,7 @@ def package_change_state(context, data_dict):
         return {'success': True}
 
 
-def group_update(context, data_dict):
+def group_update(context: Context, data_dict: DataDict) -> AuthResult:
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(group.id,
@@ -134,7 +139,7 @@ def group_update(context, data_dict):
         return {'success': True}
 
 
-def organization_update(context, data_dict):
+def organization_update(context: Context, data_dict: DataDict) -> AuthResult:
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(
@@ -147,7 +152,7 @@ def organization_update(context, data_dict):
         return {'success': True}
 
 
-def group_change_state(context, data_dict):
+def group_change_state(context: Context, data_dict: DataDict) -> AuthResult:
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
 
@@ -165,7 +170,7 @@ def group_change_state(context, data_dict):
         return {'success': True}
 
 
-def group_edit_permissions(context, data_dict):
+def group_edit_permissions(context: Context, data_dict: DataDict) -> AuthResult:
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
 
@@ -183,7 +188,7 @@ def group_edit_permissions(context, data_dict):
 
 
 @logic.auth_allow_anonymous_access
-def user_update(context, data_dict):
+def user_update(context: Context, data_dict: DataDict) -> AuthResult:
     user = context['user']
 
     # FIXME: We shouldn't have to do a try ... except here, validation should
@@ -215,17 +220,7 @@ def user_update(context, data_dict):
                         (user, user_obj.id)}
 
 
-def user_generate_apikey(context, data_dict):
-    user = context['user']
-    user_obj = logic_auth.get_user_object(context, data_dict)
-    if user == user_obj.name:
-        # Allow users to update only their own user accounts.
-        return {'success': True}
-    return {'success': False, 'msg': _('User {0} not authorized to update user'
-            ' {1}'.format(user, user_obj.id))}
-
-
-def task_status_update(context, data_dict):
+def task_status_update(context: Context, data_dict: DataDict) -> AuthResult:
     # sysadmins only
     user = context['user']
     return {
@@ -234,12 +229,13 @@ def task_status_update(context, data_dict):
     }
 
 
-def vocabulary_update(context, data_dict):
+def vocabulary_update(context: Context, data_dict: DataDict) -> AuthResult:
     # sysadmins only
     return {'success': False}
 
 
-def term_translation_update(context, data_dict):
+def term_translation_update(context: Context,
+                            data_dict: DataDict) -> AuthResult:
     # sysadmins only
     user = context['user']
     return {
@@ -248,23 +244,26 @@ def term_translation_update(context, data_dict):
     }
 
 
-def dashboard_mark_activities_old(context, data_dict):
+def dashboard_mark_activities_old(context: Context,
+                                  data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('dashboard_activity_list',
                                    context,
                                    data_dict)
 
 
-def send_email_notifications(context, data_dict):
+def send_email_notifications(context: Context,
+                             data_dict: DataDict) -> AuthResult:
     # Only sysadmins are authorized to send email notifications.
     return {'success': False}
 
 
-def package_owner_org_update(context, data_dict):
+def package_owner_org_update(context: Context,
+                             data_dict: DataDict) -> AuthResult:
     # sysadmins only
     return {'success': False}
 
 
-def bulk_update_private(context, data_dict):
+def bulk_update_private(context: Context, data_dict: DataDict) -> AuthResult:
     org_id = data_dict.get('org_id')
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(
@@ -274,7 +273,7 @@ def bulk_update_private(context, data_dict):
     return {'success': True}
 
 
-def bulk_update_public(context, data_dict):
+def bulk_update_public(context: Context, data_dict: DataDict) -> AuthResult:
     org_id = data_dict.get('org_id')
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(
@@ -284,7 +283,7 @@ def bulk_update_public(context, data_dict):
     return {'success': True}
 
 
-def bulk_update_delete(context, data_dict):
+def bulk_update_delete(context: Context, data_dict: DataDict) -> AuthResult:
     org_id = data_dict.get('org_id')
     user = context['user']
     authorized = authz.has_user_permission_for_group_or_org(
@@ -294,7 +293,7 @@ def bulk_update_delete(context, data_dict):
     return {'success': True}
 
 
-def config_option_update(context, data_dict):
+def config_option_update(context: Context, data_dict: DataDict) -> AuthResult:
     '''Update the runtime-editable configuration options
 
        Only sysadmins can do it

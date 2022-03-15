@@ -7,7 +7,7 @@ import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_flask_iblueprint")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+@pytest.mark.usefixtures(u"with_plugins")
 class TestFlaskIBlueprint(object):
 
     def test_plugin_route(self, app):
@@ -42,11 +42,3 @@ class TestFlaskIBlueprint(object):
         """
         with pytest.raises(HelperError):
             app.get(u"/helper_not_here")
-
-    def test_flask_request_in_template(self, app):
-        u"""
-        Test that we are using Flask request wrapped with CKANRequest
-        params is should be accessible for backward compatibility
-        """
-        res = app.get(u"/flask_request?test=it_works")
-        assert helpers.body_contains(res, 'it_works')

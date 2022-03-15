@@ -1,0 +1,3 @@
+Legacy API keys are no longer supported for Authentication and have been removed
+from the UI. API Tokens should be used instead. See :ref:`api authentication` for
+more details

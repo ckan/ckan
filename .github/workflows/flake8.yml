@@ -1,5 +1,6 @@
 name: Lint
-on: [push, pull_request]
+on: [pull_request]
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -7,11 +8,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.6'
+          python-version: '3.7'
       - name: Install requirements
         run: pip install flake8 pycodestyle
       - name: Check syntax
         # Stop the build if there are Python syntax errors or undefined names
-        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude ./ckan/include/rjsmin.py,./contrib/cookiecutter/*
+        run: flake8 --count --statistics --show-source
+
       - name: Warnings
-        run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-exclude=""

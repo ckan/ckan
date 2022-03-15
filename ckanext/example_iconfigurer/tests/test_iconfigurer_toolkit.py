@@ -1,10 +1,8 @@
 # encoding: utf-8
 
-import pytest
 import ckan.plugins.toolkit as toolkit
 
 
-@pytest.mark.usefixtures("clean_db")
 class TestIConfigurerToolkitAddCkanAdminTab(object):
 
     """

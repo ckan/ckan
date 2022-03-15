@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-from six import text_type
+
 
 from ckan.lib.munge import (
     munge_filename_legacy,
@@ -66,10 +66,10 @@ def test_munge_filename_pass(original, expected):
     """Munging filename multiple times produces same result."""
     first_munge = munge_filename(original)
     assert first_munge == expected
-    assert isinstance(first_munge, text_type)
+    assert isinstance(first_munge, str)
     second_munge = munge_filename(first_munge)
     assert second_munge == expected
-    assert isinstance(second_munge, text_type)
+    assert isinstance(second_munge, str)
 
 
 @pytest.mark.parametrize(

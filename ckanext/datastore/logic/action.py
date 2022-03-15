@@ -1,17 +1,18 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from ckan.types import Context
 import logging
-import json
+from typing import Any, cast
 
 import sqlalchemy
 import six
-from six import text_type
+
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-from ckan.common import config
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
 from ckanext.datastore.backend import (
@@ -26,7 +27,7 @@ _validate = ckan.lib.navl.dictization_functions.validate
 WHITELISTED_RESOURCES = ['_table_metadata']
 
 
-def datastore_create(context, data_dict):
+def datastore_create(context: Context, data_dict: dict[str, Any]):
     '''Adds a new table to the DataStore.
 
     The datastore_create action allows you to post JSON data to be
@@ -122,7 +123,6 @@ def datastore_create(context, data_dict):
         resource_dict = p.toolkit.get_action('resource_create')(
             context, data_dict['resource'])
         data_dict['resource_id'] = resource_dict['id']
-
         # create resource from file
         if has_url:
             if not p.plugin_loaded('datapusher'):
@@ -138,7 +138,8 @@ def datastore_create(context, data_dict):
 
         # create empty resource
         else:
-            # no need to set the full url because it will be set in before_show
+            # no need to set the full url because it will be set
+            # in before_resource_show
             resource_dict['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, resource_dict)
     else:
@@ -147,7 +148,7 @@ def datastore_create(context, data_dict):
             _check_read_only(context, resource_id)
 
     # validate aliases
-    aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases', [])) or []
     for alias in aliases:
         if not datastore_helpers.is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
@@ -157,19 +158,19 @@ def datastore_create(context, data_dict):
     try:
         result = backend.create(context, data_dict)
     except InvalidDataError as err:
-        raise p.toolkit.ValidationError(text_type(err))
+        raise p.toolkit.ValidationError({'message': str(err)})
 
     if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])
+        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(context, 'model')
+    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
     if resobj.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
-        set_datastore_active_flag(model, data_dict, True)
+        set_datastore_active_flag(context, data_dict, True)
 
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -177,7 +178,7 @@ def datastore_create(context, data_dict):
     return result
 
 
-def datastore_run_triggers(context, data_dict):
+def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
     ''' update each record with trigger
 
     The datastore_run_triggers API action allows you to re-apply existing
@@ -195,12 +196,12 @@ def datastore_run_triggers(context, data_dict):
     res_id = data_dict['resource_id']
     p.toolkit.check_access('datastore_run_triggers', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
-    connection = backend._get_write_engine().connect()
+    connection = backend._get_write_engine().connect()  # type: ignore
 
     sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
                           identifier(res_id)))
     try:
-        results = connection.execute(sql)
+        results: Any = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
         message = six.ensure_text(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
@@ -208,7 +209,7 @@ def datastore_run_triggers(context, data_dict):
     return results.rowcount
 
 
-def datastore_upsert(context, data_dict):
+def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     '''Updates or inserts into a table in the DataStore
 
     The datastore_upsert API action allows you to add or edit records to
@@ -284,12 +285,12 @@ def datastore_upsert(context, data_dict):
     result.pop('connection_url', None)
 
     if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])
+        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     return result
 
 
-def datastore_info(context, data_dict):
+def datastore_info(context: Context, data_dict: dict[str, Any]):
     '''
     Returns detailed metadata about a resource.
 
@@ -346,7 +347,7 @@ def datastore_info(context, data_dict):
     return info
 
 
-def datastore_delete(context, data_dict):
+def datastore_delete(context: Context, data_dict: dict[str, Any]):
     '''Deletes a table or a set of records from the DataStore.
 
     :param resource_id: resource id that the data will be deleted from.
@@ -409,10 +410,10 @@ def datastore_delete(context, data_dict):
     p.toolkit.signals.datastore_delete.send(
         res_id, result=result, data_dict=data_dict)
     if data_dict.get('calculate_record_count', False):
-        backend.calculate_record_count(data_dict['resource_id'])
+        backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(context, 'model')
+    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (not data_dict.get('filters') and
@@ -422,7 +423,7 @@ def datastore_delete(context, data_dict):
             'Setting datastore_active=False on resource {0}'.format(
                 resource.id)
         )
-        set_datastore_active_flag(model, data_dict, False)
+        set_datastore_active_flag(context, data_dict, False)
 
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -430,7 +431,7 @@ def datastore_delete(context, data_dict):
 
 
 @logic.side_effect_free
-def datastore_search(context, data_dict):
+def datastore_search(context: Context, data_dict: dict[str, Any]):
     '''Search a DataStore resource.
 
     The datastore_search action allows you to search data in a resource. By
@@ -559,7 +560,7 @@ def datastore_search(context, data_dict):
 
 
 @logic.side_effect_free
-def datastore_search_sql(context, data_dict):
+def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
     '''Execute SQL queries on the DataStore.
 
     The datastore_search_sql action allows a user to search data in a resource
@@ -601,7 +602,7 @@ def datastore_search_sql(context, data_dict):
     '''
     backend = DatastoreBackend.get_active_backend()
 
-    def check_access(table_names):
+    def check_access(table_names: list[str]):
         '''
         Raise NotAuthorized if current user is not allowed to access
         any of the tables passed
@@ -610,18 +611,19 @@ def datastore_search_sql(context, data_dict):
         '''
         p.toolkit.check_access(
             'datastore_search_sql',
-            dict(context, table_names=table_names),
+            cast(Context, dict(context, table_names=table_names)),
             data_dict)
 
     result = backend.search_sql(
-        dict(context, check_access=check_access),
+        cast(Context, dict(context, check_access=check_access)),
         data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
     return result
 
 
-def set_datastore_active_flag(model, data_dict, flag):
+def set_datastore_active_flag(
+        context: Context, data_dict: dict[str, Any], flag: bool):
     '''
     Set appropriate datastore_active flag on CKAN resource.
 
@@ -630,44 +632,37 @@ def set_datastore_active_flag(model, data_dict, flag):
     # We're modifying the resource extra directly here to avoid a
     # race condition, see issue #3245 for details and plan for a
     # better fix
+    model = context['model']
     update_dict = {'datastore_active': flag}
 
-    # get extras(for entity update) and package_id(for search index update)
-    res_query = model.Session.query(
-        model.resource_table.c.extras,
-        model.resource_table.c.package_id
-    ).filter(
-        model.Resource.id == data_dict['resource_id']
-    )
-    extras, package_id = res_query.one()
+    q = model.Session.query(model.Resource). \
+        filter(model.Resource.id == data_dict['resource_id'])
+    resource = q.one()
 
     # update extras in database for record
+    extras = resource.extras
     extras.update(update_dict)
-    res_query.update({'extras': extras}, synchronize_session=False)
+    q.update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
 
-    # get package with  updated resource from solr
+    # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    solr_query = search.PackageSearchQuery()
-    q = {
-        'q': 'id:"{0}"'.format(package_id),
-        'fl': 'data_dict',
-        'wt': 'json',
-        'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
-        'rows': 1
-    }
-    for record in solr_query.run(q)['results']:
-        solr_data_dict = json.loads(record['data_dict'])
-        for resource in solr_data_dict['resources']:
+    try:
+        _data_dict = p.toolkit.get_action('package_show')(context, {
+            'id': resource.package_id
+        })
+        for resource in _data_dict['resources']:
             if resource['id'] == data_dict['resource_id']:
                 resource.update(update_dict)
-                psi.index_package(solr_data_dict)
+                psi.index_package(_data_dict)
                 break
+    except (logic.NotAuthorized, logic.NotFound) as e:
+        log.error(e.message)
 
 
-def _check_read_only(context, resource_id):
+def _check_read_only(context: Context, resource_id: str):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
     '''
@@ -681,7 +676,7 @@ def _check_read_only(context, resource_id):
 
 
 @logic.validate(dsschema.datastore_function_create_schema)
-def datastore_function_create(context, data_dict):
+def datastore_function_create(context: Context, data_dict: dict[str, Any]):
     u'''
     Create a trigger function for use with datastore_create
 
@@ -707,7 +702,7 @@ def datastore_function_create(context, data_dict):
 
 
 @logic.validate(dsschema.datastore_function_delete_schema)
-def datastore_function_delete(context, data_dict):
+def datastore_function_delete(context: Context, data_dict: dict[str, Any]):
     u'''
     Delete a trigger function
 

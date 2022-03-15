@@ -3,7 +3,6 @@
 import pytest
 import six
 from bs4 import BeautifulSoup
-from unittest.mock import patch
 
 import ckan.authz as authz
 from ckan import model
@@ -11,7 +10,7 @@ from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
@@ -28,7 +27,7 @@ class TestOrganizationNew(object):
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user_env):
-        response = app.post(
+        app.post(
             url=url_for("organization.new"), extra_environ=user_env,
             data={"save": "", "name": "saved"}
         )
@@ -38,7 +37,7 @@ class TestOrganizationNew(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, user_env):
-        response = app.post(
+        app.post(
             url=url_for("organization.new"), extra_environ=user_env,
             data={
                 "name": u"all-fields-saved",
@@ -55,7 +54,7 @@ class TestOrganizationNew(object):
 
 @pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
         self, monkeypatch, app
     ):
@@ -67,14 +66,14 @@ class TestOrganizationList(object):
         self.user_env = {"REMOTE_USER": six.ensure_str(self.user["name"])}
         self.organization_list_url = url_for("organization.index")
 
-        response = app.get(
+        app.get(
             url=self.organization_list_url,
             extra_environ=self.user_env,
             status=403,
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -92,13 +91,14 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        org = factories.Organization(id="abc", name="abc")
+        name = factories.Organization.stub().name
+        org = factories.Organization(id=name, name=name)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationEdit(object):
     @pytest.fixture
     def initial_data(self):
@@ -114,7 +114,7 @@ class TestOrganizationEdit(object):
         app.get(url=url, extra_environ=initial_data["user_env"], status=404)
 
     def test_saved(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
@@ -125,12 +125,11 @@ class TestOrganizationEdit(object):
         group = helpers.call_action(
             "organization_show", id=initial_data["organization"]["id"]
         )
-        assert group["title"] == u"Test Organization"
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.edit", id=initial_data["organization"]["id"]
             ),
@@ -151,7 +150,7 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -163,7 +162,7 @@ class TestOrganizationDelete(object):
         }
 
     def test_owner_delete(self, app, initial_data):
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
@@ -178,7 +177,7 @@ class TestOrganizationDelete(object):
     def test_sysadmin_delete(self, app, initial_data):
         sysadmin = factories.Sysadmin()
         extra_environ = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
@@ -227,10 +226,9 @@ class TestOrganizationDelete(object):
     def test_delete_organization_with_datasets(self, app, initial_data):
         """ Test deletion of organization that has datasets"""
         text = "Organization cannot be deleted while it still has datasets"
-        datasets = [
+        for i in range(0, 5):
             factories.Dataset(owner_org=initial_data["organization"]["id"])
-            for i in range(0, 5)
-        ]
+
         response = app.post(
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
@@ -259,7 +257,7 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app):
         self.user = factories.User()
@@ -273,7 +271,7 @@ class TestOrganizationBulkProcess(object):
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.private"] = "private"
 
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -296,7 +294,7 @@ class TestOrganizationBulkProcess(object):
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.public"] = "public"
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -318,7 +316,7 @@ class TestOrganizationBulkProcess(object):
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.delete"] = "delete"
 
-        response = app.post(
+        app.post(
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
@@ -340,9 +338,9 @@ class TestOrganizationSearch(object):
         """Requesting organization search (index) returns list of
         organizations and search form."""
 
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         index_response = app.get(url_for("organization.index"))
         index_response_html = BeautifulSoup(index_response.body)
@@ -359,9 +357,9 @@ class TestOrganizationSearch(object):
     def test_organization_search_results(self, app):
         """Searching via organization search form returns list of expected
         organizations."""
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         search_response = app.get(
             url_for("organization.index"),
@@ -381,9 +379,9 @@ class TestOrganizationSearch(object):
 
     def test_organization_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         search_response = app.get(
             url_for("organization.index"),
@@ -412,13 +410,13 @@ class TestOrganizationInnerSearch(object):
         organization."""
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -428,7 +426,7 @@ class TestOrganizationInnerSearch(object):
         ds_titles = org_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert "3 datasets found" in org_response
         assert len(ds_titles) == 3
@@ -441,13 +439,13 @@ class TestOrganizationInnerSearch(object):
         results."""
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -462,7 +460,7 @@ class TestOrganizationInnerSearch(object):
         ds_titles = search_response_html.select(
             ".dataset-list " ".dataset-item " ".dataset-heading a"
         )
-        ds_titles = [t.string for t in ds_titles]
+        ds_titles = [t.string.strip() for t in ds_titles]
 
         assert len(ds_titles) == 1
         assert "Dataset One" in ds_titles
@@ -475,13 +473,13 @@ class TestOrganizationInnerSearch(object):
 
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -502,7 +500,7 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app):
 
@@ -580,7 +578,7 @@ class TestOrganizationMembership(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestActivity(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -589,7 +587,7 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert "Mr. Test User" in response
+        assert user["fullname"] in response
         assert "created the organization" in response
 
     def test_create_organization(self, app):
@@ -599,11 +597,11 @@ class TestActivity(object):
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the organization" in response
         assert (
-            '<a href="/organization/{}">Test Organization'.format(org["name"])
+            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
             in response
         )
 
@@ -624,7 +622,7 @@ class TestActivity(object):
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the organization" in response
         assert (
@@ -644,7 +642,7 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env, status=404)
+        app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
         # Therefore you can't render the activity stream of that org. You'd
@@ -664,11 +662,11 @@ class TestActivity(object):
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the organization" in response
         assert (
-            '<a href="/organization/{}">Test Organization'.format(org["name"])
+            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
             in response
         )
 
@@ -680,14 +678,14 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app):
         user = factories.User()
@@ -701,16 +699,14 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Dataset with changed title'.format(
-                dataset["id"]
-            )
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
         user = factories.User()
@@ -723,11 +719,11 @@ class TestActivity(object):
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
+        page = BeautifulSoup(response.body)
+        href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">Mr. Test User'.format(user["name"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the dataset" in response
-        assert (
-            '<a href="/dataset/{}">Test Dataset'.format(dataset["id"])
-            in response
-        )
+        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
+        assert dataset["title"] in href.text.strip()

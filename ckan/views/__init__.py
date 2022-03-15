@@ -1,10 +1,13 @@
 # encoding: utf-8
+from __future__ import annotations
+
+from typing import Any, Optional
 
 from sqlalchemy import inspect
-from ckan.common import asbool
 import six
-from six import text_type
-from six.moves.urllib.parse import quote
+
+from urllib.parse import quote
+from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
@@ -16,11 +19,8 @@ import ckan.plugins as p
 import logging
 log = logging.getLogger(__name__)
 
-APIKEY_HEADER_NAME_KEY = u'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = u'X-CKAN-API-Key'
 
-
-def check_session_cookie(response):
+def check_session_cookie(response: Response) -> Response:
     u'''
     The cookies for auth (auth_tkt) and session (ckan) are separate. This
     checks whether a user is logged in, and determines the validity of the
@@ -50,35 +50,34 @@ def check_session_cookie(response):
     return response
 
 
-def set_cors_headers_for_response(response):
+def set_cors_headers_for_response(response: Response) -> Response:
     u'''
     Set up Access Control Allow headers if either origin_allow_all is True, or
     the request Origin is in the origin_whitelist.
     '''
-    if config.get(u'ckan.cors.origin_allow_all') \
-       and request.headers.get(u'Origin'):
-
+    if request.headers.get(u'Origin'):
         cors_origin_allowed = None
-        if asbool(config.get(u'ckan.cors.origin_allow_all')):
-            cors_origin_allowed = b'*'
-        elif config.get(u'ckan.cors.origin_whitelist') and \
-                request.headers.get(u'Origin') \
-                in config[u'ckan.cors.origin_whitelist'].split(u' '):
+        allow_all = config.get_value(u'ckan.cors.origin_allow_all')
+        whitelisted = request.headers.get(u'Origin') in config.get_value(
+            u'ckan.cors.origin_whitelist')
+        if allow_all:
+            cors_origin_allowed = '*'
+        elif whitelisted:
             # set var to the origin to allow it.
-            cors_origin_allowed = request.headers.get(u'Origin')
+            cors_origin_allowed: Optional[str] = request.headers.get(u'Origin')
 
         if cors_origin_allowed is not None:
-            response.headers[b'Access-Control-Allow-Origin'] = \
+            response.headers['Access-Control-Allow-Origin'] = \
                 cors_origin_allowed
-            response.headers[b'Access-Control-Allow-Methods'] = \
-                b'POST, PUT, GET, DELETE, OPTIONS'
-            response.headers[b'Access-Control-Allow-Headers'] = \
-                b'X-CKAN-API-KEY, Authorization, Content-Type'
+            response.headers['Access-Control-Allow-Methods'] = \
+                'POST, PUT, GET, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = \
+                'X-CKAN-API-KEY, Authorization, Content-Type'
 
     return response
 
 
-def set_cache_control_headers_for_response(response):
+def set_cache_control_headers_for_response(response: Response) -> Response:
 
     # __no_cache__ should not be present when caching is allowed
     allow_cache = u'__no_cache__' not in request.environ
@@ -89,7 +88,7 @@ def set_cache_control_headers_for_response(response):
     if allow_cache:
         response.cache_control.public = True
         try:
-            cache_expire = int(config.get(u'ckan.cache_expires', 0))
+            cache_expire = config.get_value(u'ckan.cache_expires')
             response.cache_control.max_age = cache_expire
             response.cache_control.must_revalidate = True
         except ValueError:
@@ -100,7 +99,7 @@ def set_cache_control_headers_for_response(response):
     return response
 
 
-def identify_user():
+def identify_user() -> Optional[Response]:
     u'''Try to identify the user
     If the user is identified then:
       g.user = user name (unicode)
@@ -146,10 +145,12 @@ def identify_user():
 
     # general settings
     if g.user:
+        if g.userobj:
+            g.userobj.set_user_last_active()
         g.author = g.user
     else:
         g.author = g.remote_addr
-    g.author = text_type(g.author)
+    g.author = str(g.author)
 
 
 def _identify_user_default():
@@ -185,42 +186,40 @@ def _identify_user_default():
                               u'logout_handler_path')
                 redirect(pth)
     else:
-        g.userobj = _get_user_for_apikey()
+        g.userobj = _get_user_for_apitoken()
         if g.userobj is not None:
             g.user = g.userobj.name
 
 
-def _get_user_for_apikey():
-    apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
-                                    APIKEY_HEADER_NAME_DEFAULT)
-    apikey = request.headers.get(apikey_header_name, u'')
-    if not apikey:
-        apikey = request.environ.get(apikey_header_name, u'')
-    if not apikey:
-        # For misunderstanding old documentation (now fixed).
-        apikey = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not apikey:
-        apikey = request.environ.get(u'Authorization', u'')
-        # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apikey:
-            apikey = u''
-    if not apikey:
-        return None
-    apikey = six.ensure_text(apikey, errors=u"ignore")
-    log.debug(u'Received API Key: %s' % apikey)
-    query = model.Session.query(model.User)
-    user = query.filter_by(apikey=apikey).first()
+def _get_user_for_apitoken() -> Optional[model.User]:
+    apitoken_header_name = config.get_value("apikey_header_name")
 
-    if not user:
-        user = api_token.get_user_from_token(apikey)
+    apitoken: str = request.headers.get(apitoken_header_name, u'')
+    if not apitoken:
+        apitoken = request.environ.get(apitoken_header_name, u'')
+    if not apitoken:
+        # For misunderstanding old documentation (now fixed).
+        apitoken = request.environ.get(u'HTTP_AUTHORIZATION', u'')
+    if not apitoken:
+        apitoken = request.environ.get(u'Authorization', u'')
+        # Forget HTTP Auth credentials (they have spaces).
+        if u' ' in apitoken:
+            apitoken = u''
+    if not apitoken:
+        return None
+    apitoken = six.ensure_text(apitoken, errors=u"ignore")
+    log.debug(u'Received API Token: %s' % apitoken)
+
+    user = api_token.get_user_from_token(apitoken)
+
     return user
 
 
-def set_controller_and_action():
+def set_controller_and_action() -> None:
     g.controller, g.action = p.toolkit.get_endpoint()
 
 
-def handle_i18n(environ=None):
+def handle_i18n(environ: Optional[dict[str, Any]] = None) -> None:
     u'''
     Strips the locale code from the requested url
     (eg '/sk/about' -> '/about') and sets environ variables for the
@@ -231,8 +230,9 @@ def handle_i18n(environ=None):
         * CKAN_CURRENT_URL is set to the current application url
     '''
     environ = environ or request.environ
+    assert environ
     locale_list = get_locales_from_config()
-    default_locale = config.get(u'ckan.locale_default', u'en')
+    default_locale = config.get_value(u'ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc
@@ -253,7 +253,7 @@ def handle_i18n(environ=None):
         set_ckan_current_url(environ)
 
 
-def set_ckan_current_url(environ):
+def set_ckan_current_url(environ: Any) -> None:
     # Current application url
     path_info = environ[u'PATH_INFO']
     # sort out weird encodings

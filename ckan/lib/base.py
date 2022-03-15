@@ -4,9 +4,12 @@
 
 Provides the BaseController class for subclassing.
 """
-import logging
+from __future__ import annotations
 
-from jinja2.exceptions import TemplateNotFound
+import logging
+from typing import Any, NoReturn, Optional
+
+from jinja2.exceptions import TemplateNotFound, TemplatesNotFound
 
 from flask import (
     render_template as flask_render_template,
@@ -16,8 +19,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import (request, config,
-                         session, asbool)
+from ckan.common import request, config, session
 
 
 log = logging.getLogger(__name__)
@@ -26,7 +28,10 @@ APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 
-def abort(status_code=None, detail='', headers=None, comment=None):
+def abort(status_code: int,
+          detail: str = '',
+          headers: Optional[dict[str, Any]] = None,
+          comment: Optional[str] = None) -> NoReturn:
     '''Abort the current request immediately by returning an HTTP exception.
 
     This is a wrapper for :py:func:`flask.abort` that adds
@@ -47,7 +52,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     flask_abort(status_code, detail)
 
 
-def render_snippet(*template_names, **kw):
+def render_snippet(*template_names: str, **kw: Any) -> str:
     ''' Helper function for rendering snippets. Rendered html has
     comment tags added to show the template used. NOTE: unlike other
     render functions this takes a list of keywords instead of a dict for
@@ -65,7 +70,7 @@ def render_snippet(*template_names, **kw):
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.get('debug'):
+            if config.get_value('debug'):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
@@ -80,10 +85,11 @@ def render_snippet(*template_names, **kw):
             # a nested template doesn't exist - don't fallback
             raise exc
     else:
-        raise last_exc or TemplateNotFound
+        raise last_exc or TemplatesNotFound(template_names)
 
 
-def render(template_name, extra_vars=None):
+def render(template_name: str,
+           extra_vars: Optional[dict[str, Any]] = None) -> str:
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
@@ -101,7 +107,7 @@ def render(template_name, extra_vars=None):
     return flask_render_template(template_name, **extra_vars)
 
 
-def _allow_caching(cache_force=None):
+def _allow_caching(cache_force: Optional[bool] = None):
     # Caching Logic
 
     allow_cache = True
@@ -118,10 +124,10 @@ def _allow_caching(cache_force=None):
     elif request.environ.get('__no_cache__'):
         allow_cache = False
     # Don't cache if we have set the __no_cache__ param in the query string.
-    elif request.params.get('__no_cache__'):
+    elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not asbool(config.get('ckan.cache_enabled', False)):
+    elif not config.get_value('ckan.cache_enabled'):
         allow_cache = False
 
     if not allow_cache:
@@ -129,7 +135,7 @@ def _allow_caching(cache_force=None):
         request.environ['__no_cache__'] = True
 
 
-def _is_valid_session_cookie_data():
+def _is_valid_session_cookie_data() -> bool:
     is_valid_cookie_data = False
     for key, value in session.items():
         if not key.startswith(u'_') and value:
