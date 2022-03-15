@@ -89,15 +89,6 @@ def search_url(params: Params, package_type: Optional[str] = None) -> str:
     return url_with_params(url, params)
 
 
-def drill_down_url(alternative_url: Optional[str] = None, **by: Any) -> str:
-    return h.add_url_param(
-        alternative_url=alternative_url,
-        controller=u'dataset',
-        action=u'search',
-        new_params=by
-    )
-
-
 def remove_field(package_type: Optional[str],
                  key: str,
                  value: Optional[str] = None,
@@ -242,7 +233,6 @@ def search(package_type: str) -> str:
     params_nopage = [(k, v) for k, v in request.args.items(multi=True)
                      if k != u'page']
 
-    extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
 
     sort_by = request.args.get(u'sort', None)
