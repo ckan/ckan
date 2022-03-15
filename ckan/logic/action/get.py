@@ -3322,15 +3322,11 @@ def activity_show(context: Context,
 
     :param id: the id of the activity
     :type id: string
-    :param include_data: include the data field, containing a full object dict
-        (otherwise the data field is only returned with the object's title)
-    :type include_data: boolean
 
     :rtype: dictionary
     '''
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:
@@ -3339,8 +3335,7 @@ def activity_show(context: Context,
 
     _check_access(u'activity_show', context, data_dict)
 
-    activity = model_dictize.activity_dictize(activity, context,
-                                              include_data=include_data)
+    activity = model_dictize.activity_dictize(activity, context)
     return activity
 
 
@@ -3371,8 +3366,7 @@ def activity_data_show(
 
     _check_access(u'activity_data_show', context, data_dict)
 
-    activity = model_dictize.activity_dictize(activity, context,
-                                              include_data=True)
+    activity = model_dictize.activity_dictize(activity, context)
     try:
         activity_data = activity['data']
     except KeyError:
@@ -3451,8 +3445,7 @@ def activity_diff(context: Context,
     else:
         raise ValidationError({'message': 'diff_type not recognized'})
 
-    activities = [model_dictize.activity_dictize(activity_obj, context,
-                                                 include_data=True)
+    activities = [model_dictize.activity_dictize(activity_obj, context)
                   for activity_obj in activity_objs]
 
     return {
