@@ -1,20 +1,27 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import datetime
 import uuid
 import logging
-
-from sqlalchemy.orm import class_mapper
-import six
-from six import string_types
+from typing import (
+    Any, Collection, Optional, TYPE_CHECKING, Type, Union, cast, overload
+)
 
 import ckan.lib.dictization as d
 import ckan.authz as authz
+from ckan.types import Context
+
+if TYPE_CHECKING:
+    import ckan.model as model
+    import ckan.model.follower as follower_
+
 
 log = logging.getLogger(__name__)
 
 
-def resource_dict_save(res_dict, context):
+def resource_dict_save(res_dict: dict[str, Any],
+                       context: Context) -> 'model.Resource':
     model = context["model"]
     session = context["session"]
 
@@ -27,9 +34,6 @@ def resource_dict_save(res_dict, context):
         obj = model.Resource()
     else:
         new = False
-
-    table = class_mapper(model.Resource).mapped_table
-    fields = [field.name for field in table.c]
 
     # Strip the full url for resources of type 'upload'
     if res_dict.get('url') and res_dict.get('url_type') == u'upload':
@@ -54,7 +58,9 @@ def resource_dict_save(res_dict, context):
     return obj
 
 
-def package_resource_list_save(res_dicts, package, context):
+def package_resource_list_save(
+        res_dicts: Optional[list[dict[str, Any]]],
+        package: 'model.Package', context: Context) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
     if res_dicts is None and allow_partial_update:
         return
@@ -86,7 +92,9 @@ def package_resource_list_save(res_dicts, package, context):
         resource_list.append(resource)
 
 
-def package_extras_save(extra_dicts, pkg, context):
+def package_extras_save(
+        extra_dicts: Optional[list[dict[str, Any]]], pkg: 'model.Package',
+        context: Context) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
     if extra_dicts is None and allow_partial_update:
         return
@@ -95,7 +103,7 @@ def package_extras_save(extra_dicts, pkg, context):
 
     old_extras = pkg._extras
 
-    new_extras = {}
+    new_extras: dict[str, Any] = {}
     for extra_dict in extra_dicts or []:
         if extra_dict.get("deleted"):
             continue
@@ -121,7 +129,8 @@ def package_extras_save(extra_dicts, pkg, context):
         session.delete(extra)
 
 
-def package_tag_list_save(tag_dicts, package, context):
+def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
+                          package: 'model.Package', context: Context) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
     if tag_dicts is None and allow_partial_update:
         return
@@ -131,15 +140,17 @@ def package_tag_list_save(tag_dicts, package, context):
 
     tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
-                            package.package_tag_all)
+                            package.package_tags)
 
-    tag_package_tag_inactive = {tag: pt for tag,pt in tag_package_tag.items() if
-            pt.state in ['deleted']}
+    tag_package_tag_inactive = {
+        tag: pt for tag,pt in tag_package_tag.items()
+        if pt.state in ['deleted']}
 
-    tag_name_vocab = set()
-    tags = set()
+    tag_name_vocab: set[tuple[str, str]] = set()
+    tags: set[model.Tag] = set()
     for tag_dict in tag_dicts or []:
-        if (tag_dict.get('name'), tag_dict.get('vocabulary_id')) not in tag_name_vocab:
+        name_vocab = (tag_dict.get('name'), tag_dict.get('vocabulary_id'))
+        if name_vocab not in tag_name_vocab:
             tag_obj = d.table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
             tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
@@ -163,9 +174,11 @@ def package_tag_list_save(tag_dicts, package, context):
         package_tag = tag_package_tag[tag]
         package_tag.state = state
 
-    package.package_tag_all[:] = tag_package_tag.values()
+    package.package_tags[:] = tag_package_tag.values()
 
-def package_membership_list_save(group_dicts, package, context):
+def package_membership_list_save(
+        group_dicts: Optional[list[dict[str, Any]]],
+        package: 'model.Package', context: Context) -> None:
 
     allow_partial_update = context.get("allow_partial_update", False)
     if group_dicts is None and allow_partial_update:
@@ -174,7 +187,7 @@ def package_membership_list_save(group_dicts, package, context):
     capacity = 'public'
     model = context["model"]
     session = context["session"]
-    user = context.get('user')
+    user = context.get('user', '')
 
     members = session.query(model.Member) \
             .filter(model.Member.table_id == package.id) \
@@ -183,7 +196,7 @@ def package_membership_list_save(group_dicts, package, context):
     group_member = dict((member.group, member)
                          for member in
                          members)
-    groups = set()
+    groups: set[model.Group] = set()
     for group_dict in group_dicts or []:
         id = group_dict.get("id")
         name = group_dict.get("name")
@@ -232,14 +245,15 @@ def package_membership_list_save(group_dicts, package, context):
             session.add(member_obj)
 
 
-def relationship_list_save(relationship_dicts, package, attr, context):
+def relationship_list_save(
+        relationship_dicts: Optional[list[dict[str, Any]]],
+        package: 'model.Package', attr: str, context: Context) -> None:
 
     allow_partial_update = context.get("allow_partial_update", False)
     if relationship_dicts is None and allow_partial_update:
         return
 
     model = context["model"]
-    session = context["session"]
 
     relationship_list = getattr(package, attr)
     old_list = relationship_list[:]
@@ -256,10 +270,10 @@ def relationship_list_save(relationship_dicts, package, attr, context):
         relationship.state = 'deleted'
         relationship_list.append(relationship)
 
-def package_dict_save(pkg_dict, context):
+def package_dict_save(
+        pkg_dict: dict[str, Any], context: Context) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
-    allow_partial_update = context.get("allow_partial_update", False)
     if package:
         pkg_dict["id"] = package.id
     Package = model.Package
@@ -291,11 +305,13 @@ def package_dict_save(pkg_dict, context):
 
     return pkg
 
-def group_member_save(context, group_dict, member_table_name):
+def group_member_save(context: Context, group_dict: dict[str, Any],
+                      member_table_name: str) -> dict[str, Any]:
     model = context["model"]
     session = context["session"]
     group = context['group']
-    entity_list = group_dict.get(member_table_name, None)
+    assert group is not None
+    entity_list: list[dict[str, Any]] = group_dict.get(member_table_name, None)
 
     if entity_list is None:
         if context.get('allow_partial_update', False):
@@ -303,7 +319,7 @@ def group_member_save(context, group_dict, member_table_name):
         else:
             entity_list = []
 
-    entities = {}
+    entities: dict[tuple[str, str], Any] = {}
     Member = model.Member
 
     classname = member_table_name[:-1].capitalize()
@@ -323,12 +339,18 @@ def group_member_save(context, group_dict, member_table_name):
         group_id=group.id,
     ).all()
 
-    processed = {
+    processed: dict['str', list[Any]] = {
         'added': [],
         'removed': []
     }
 
-    entity_member = dict(((member.table_id, member.capacity), member) for member in members)
+    entity_member: dict[tuple[str, str], Any] = dict(
+        (
+            (cast(str, member.table_id), member.capacity),
+            member
+        )
+        for member in members
+    )
     for entity_id in set(entity_member.keys()) - set(entities.keys()):
         if entity_member[entity_id].state != 'deleted':
             processed['removed'].append(entity_id[0])
@@ -351,13 +373,13 @@ def group_member_save(context, group_dict, member_table_name):
     return processed
 
 
-def group_dict_save(group_dict, context, prevent_packages_update=False):
+def group_dict_save(group_dict: dict[str, Any], context: Context,
+                    prevent_packages_update: bool=False) -> 'model.Group':
     from ckan.lib.search import rebuild
 
     model = context["model"]
     session = context["session"]
     group = context.get("group")
-    allow_partial_update = context.get("allow_partial_update", False)
 
     Group = model.Group
     if group:
@@ -376,7 +398,7 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     if not prevent_packages_update:
         pkgs_edited = group_member_save(context, group_dict, 'packages')
     else:
-        pkgs_edited = {
+        pkgs_edited: dict[str, list[Any]] = {
             'added': [],
             'removed': []
         }
@@ -410,10 +432,10 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
     return group
 
 
-def user_dict_save(user_dict, context):
+def user_dict_save(
+        user_dict: dict[str, Any], context: Context) -> 'model.User':
 
     model = context['model']
-    session = context['session']
     user = context.get('user_obj')
 
     User = model.User
@@ -433,30 +455,33 @@ def user_dict_save(user_dict, context):
     return user
 
 
-def package_api_to_dict(api1_dict, context):
+def package_api_to_dict(
+        api1_dict: dict[str, Union[str, Collection[str]]],
+        context: Context) -> dict[str, Any]:
 
     package = context.get("package")
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
 
-    dictized = {}
+    dictized: dict[str, Any] = {}
 
-    for key, value in six.iteritems(api1_dict):
+    for key, value in api1_dict.items():
         new_value = value
         if key == 'tags':
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 new_value = [{"name": item} for item in value.split()]
             else:
                 new_value = [{"name": item} for item in value]
         if key == 'extras':
-            updated_extras = {}
+            updated_extras: dict[str, Any] = {}
             if package:
                 updated_extras.update(package.extras)
+            assert isinstance(value, dict)
             updated_extras.update(value)
 
             new_value = []
 
-            for extras_key, extras_value in six.iteritems(updated_extras):
+            for extras_key, extras_value in updated_extras.items():
                 new_value.append({"key": extras_key,
                                   "value": extras_value})
 
@@ -476,11 +501,12 @@ def package_api_to_dict(api1_dict, context):
 
     return dictized
 
-def group_api_to_dict(api1_dict, context):
+def group_api_to_dict(api1_dict: dict[str, Any],
+                      context: Context) -> dict[str, Any]:
 
-    dictized = {}
+    dictized: dict[str, Any] = {}
 
-    for key, value in six.iteritems(api1_dict):
+    for key, value in api1_dict.items():
         new_value = value
         if key == 'packages':
             new_value = [{"id": item} for item in value]
@@ -491,17 +517,19 @@ def group_api_to_dict(api1_dict, context):
 
     return dictized
 
-def task_status_dict_save(task_status_dict, context):
+def task_status_dict_save(task_status_dict: dict[str, Any],
+                          context: Context) -> 'model.TaskStatus':
     model = context["model"]
     task_status = context.get("task_status")
-    allow_partial_update = context.get("allow_partial_update", False)
     if task_status:
         task_status_dict["id"] = task_status.id
 
-    task_status = d.table_dict_save(task_status_dict, model.TaskStatus, context)
+    task_status = d.table_dict_save(
+        task_status_dict, model.TaskStatus, context)
     return task_status
 
-def activity_dict_save(activity_dict, context):
+def activity_dict_save(activity_dict: dict[str, Any],
+                       context: Context) -> 'model.Activity':
 
     model = context['model']
     session = context['session']
@@ -520,7 +548,9 @@ def activity_dict_save(activity_dict, context):
 
     return activity_obj
 
-def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
+def vocabulary_tag_list_save(
+        new_tag_dicts: list[dict[str, Any]],
+        vocabulary_obj: 'model.Vocabulary', context: Context) -> None:
     model = context['model']
     session = context['session']
 
@@ -537,7 +567,8 @@ def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
             # then add it.
             tag_dict_save(tag_dict, {'model': model, 'session': session})
 
-def vocabulary_dict_save(vocabulary_dict, context):
+def vocabulary_dict_save(vocabulary_dict: dict[str, Any],
+                         context: Context) -> 'model.Vocabulary':
     model = context['model']
     session = context['session']
     vocabulary_name = vocabulary_dict['name']
@@ -551,13 +582,13 @@ def vocabulary_dict_save(vocabulary_dict, context):
 
     return vocabulary_obj
 
-def vocabulary_dict_update(vocabulary_dict, context):
+def vocabulary_dict_update(vocabulary_dict: dict[str, Any],
+                           context: Context) -> 'model.Vocabulary':
 
     model = context['model']
-    session = context['session']
 
-    vocabulary_obj = model.vocabulary.Vocabulary.get(vocabulary_dict['id'])
-
+    vocabulary_obj = model.Vocabulary.get(vocabulary_dict['id'])
+    assert vocabulary_obj
     if 'name' in vocabulary_dict:
         vocabulary_obj.name = vocabulary_dict['name']
 
@@ -567,7 +598,7 @@ def vocabulary_dict_update(vocabulary_dict, context):
 
     return vocabulary_obj
 
-def tag_dict_save(tag_dict, context):
+def tag_dict_save(tag_dict: dict[str, Any], context: Context) -> 'model.Tag':
     model = context['model']
     tag = context.get('tag')
     if tag:
@@ -575,23 +606,53 @@ def tag_dict_save(tag_dict, context):
     tag = d.table_dict_save(tag_dict, model.Tag, context)
     return tag
 
-def follower_dict_save(data_dict, context, FollowerClass):
+@overload
+def follower_dict_save(
+    data_dict: dict[str, Any], context: Context,
+    FollowerClass: Type['follower_.UserFollowingUser']
+) -> 'follower_.UserFollowingUser':
+    ...
+
+
+@overload
+def follower_dict_save(
+    data_dict: dict[str, Any], context: Context,
+    FollowerClass: Type['follower_.UserFollowingGroup']
+) -> 'follower_.UserFollowingGroup':
+    ...
+
+
+@overload
+def follower_dict_save(
+    data_dict: dict[str, Any], context: Context,
+    FollowerClass: Type['follower_.UserFollowingDataset']
+) -> 'follower_.UserFollowingDataset':
+    ...
+
+
+def follower_dict_save(
+    data_dict: dict[str, Any], context: Context,
+    FollowerClass: Type['follower_.ModelFollowingModel[Any, Any]']
+) -> 'follower_.ModelFollowingModel[Any, Any]':
     model = context['model']
     session = context['session']
+    user = model.User.get(context['user'])
+    assert user
     follower_obj = FollowerClass(
-            follower_id=model.User.get(context['user']).id,
-            object_id=data_dict['id'])
+        follower_id=user.id,
+        object_id=data_dict['id'])
     session.add(follower_obj)
     return follower_obj
 
 
-def resource_view_dict_save(data_dict, context):
+def resource_view_dict_save(data_dict: dict[str, Any],
+                            context: Context) -> 'model.ResourceView':
     model = context['model']
     resource_view = context.get('resource_view')
     if resource_view:
         data_dict['id'] = resource_view.id
     config = {}
-    for key, value in six.iteritems(data_dict):
+    for key, value in data_dict.items():
         if key not in model.ResourceView.get_columns():
             config[key]  = value
     data_dict['config'] = config
@@ -600,11 +661,14 @@ def resource_view_dict_save(data_dict, context):
     return d.table_dict_save(data_dict, model.ResourceView, context)
 
 
-def api_token_save(data_dict, context):
+def api_token_save(data_dict: dict[str, Any],
+                   context: Context) -> 'model.ApiToken':
     model = context[u"model"]
+    user = model.User.get(data_dict['user'])
+    assert user
     return d.table_dict_save(
         {
-            u"user_id": model.User.get(data_dict['user']).id,
+            u"user_id": user.id,
             u"name": data_dict[u"name"]
         },
         model.ApiToken, context

@@ -1,43 +1,49 @@
 # encoding: utf-8
 
+from typing import Any, Callable, NoReturn
 import six
-from six import text_type
+
 
 import ckan.lib.navl.dictization_functions as df
 
 from ckan.common import _, json, config
+from ckan.types import (
+    Context, FlattenDataDict, FlattenErrorDict, FlattenKey, Validator
+)
 
 missing = df.missing
 StopOnError = df.StopOnError
 Invalid = df.Invalid
 
 
-def identity_converter(key, data, errors, context):
-    return
-
-def keep_extras(key, data, errors, context):
+def keep_extras(key: FlattenKey, data: FlattenDataDict,
+                errors: FlattenErrorDict, context: Context) -> None:
 
     extras = data.pop(key, {})
-    for extras_key, value in six.iteritems(extras):
+    for extras_key, value in extras.items():
         data[key[:-1] + (extras_key,)] = value
 
-def not_missing(key, data, errors, context):
+
+def not_missing(key: FlattenKey, data: FlattenDataDict,
+                errors: FlattenErrorDict, context: Context) -> None:
 
     value = data.get(key)
     if value is missing:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
-def not_empty(key, data, errors, context):
+
+def not_empty(key: FlattenKey, data: FlattenDataDict,
+              errors: FlattenErrorDict, context: Context) -> None:
 
     value = data.get(key)
     if not value or value is missing:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
-def if_empty_same_as(other_key):
-
-    def callable(key, data, errors, context):
+def if_empty_same_as(other_key: str) -> Callable[..., Any]:
+    def callable(key: FlattenKey, data: FlattenDataDict,
+                 errors: FlattenErrorDict, context: Context):
         value = data.get(key)
         if not value or value is missing:
             data[key] = data[key[:-1] + (other_key,)]
@@ -45,9 +51,10 @@ def if_empty_same_as(other_key):
     return callable
 
 
-def both_not_empty(other_key):
+def both_not_empty(other_key: str) -> Validator:
 
-    def callable(key, data, errors, context):
+    def callable(key: FlattenKey, data: FlattenDataDict,
+                 errors: FlattenErrorDict, context: Context):
         value = data.get(key)
         other_value = data.get(key[:-1] + (other_key,))
         if (not value or value is missing and
@@ -57,7 +64,9 @@ def both_not_empty(other_key):
 
     return callable
 
-def empty(key, data, errors, context):
+
+def empty(key: FlattenKey, data: FlattenDataDict,
+          errors: FlattenErrorDict, context: Context) -> None:
 
     value = data.pop(key, None)
 
@@ -69,16 +78,19 @@ def empty(key, data, errors, context):
         errors[key].append(_(
             'The input field %(name)s was not expected.') % {"name": key_name})
 
-def ignore(key, data, errors, context):
 
-    value = data.pop(key, None)
+def ignore(key: FlattenKey, data: FlattenDataDict,
+           errors: FlattenErrorDict, context: Context) -> NoReturn:
+
+    data.pop(key, None)
     raise StopOnError
 
-def default(default_value):
+def default(default_value: Any) -> Validator:
     '''When key is missing or value is an empty string or None, replace it with
     a default value'''
 
-    def callable(key, data, errors, context):
+    def callable(key: FlattenKey, data: FlattenDataDict,
+                 errors: FlattenErrorDict, context: Context):
 
         value = data.get(key)
         if value is None or value == '' or value is missing:
@@ -86,7 +98,9 @@ def default(default_value):
 
     return callable
 
-def configured_default(config_name, default_value_if_not_configured):
+
+def configured_default(config_name: str,
+                       default_value_if_not_configured: Any) -> Validator:
     '''When key is missing or value is an empty string or None, replace it with
     a default value from config, or if that isn't set from the
     default_value_if_not_configured.'''
@@ -96,7 +110,9 @@ def configured_default(config_name, default_value_if_not_configured):
         default_value = default_value_if_not_configured
     return default(default_value)
 
-def ignore_missing(key, data, errors, context):
+
+def ignore_missing(key: FlattenKey, data: FlattenDataDict,
+                   errors: FlattenErrorDict, context: Context) -> None:
     '''If the key is missing from the data, ignore the rest of the key's
     schema.
 
@@ -117,7 +133,9 @@ def ignore_missing(key, data, errors, context):
         data.pop(key, None)
         raise StopOnError
 
-def ignore_empty(key, data, errors, context):
+
+def ignore_empty(key: FlattenKey, data: FlattenDataDict,
+                 errors: FlattenErrorDict, context: Context) -> None:
 
     value = data.get(key)
 
@@ -125,21 +143,21 @@ def ignore_empty(key, data, errors, context):
         data.pop(key, None)
         raise StopOnError
 
-def convert_int(value, context):
+def convert_int(value: Any) -> int:
 
     try:
         return int(value)
     except ValueError:
         raise Invalid(_('Please enter an integer value'))
 
-def unicode_only(value):
+def unicode_only(value: Any) -> str:
     '''Accept only unicode values'''
 
-    if not isinstance(value, text_type):
+    if not isinstance(value, str):
         raise Invalid(_('Must be a Unicode string value'))
     return value
 
-def unicode_safe(value):
+def unicode_safe(value: Any) -> str:
     '''
     Make sure value passed is treated as unicode, but don't raise
     an error if it's not, just make a reasonable attempt to
@@ -152,7 +170,7 @@ def unicode_safe(value):
     converts binary strings assuming either UTF-8 or CP1252
     encodings (not ASCII, with occasional decoding errors)
     '''
-    if isinstance(value, text_type):
+    if isinstance(value, str):
         return value
     if hasattr(value, 'filename'):
         # cgi.FieldStorage instance for uploaded files, show the name
@@ -171,21 +189,23 @@ def unicode_safe(value):
     except Exception:
         # at this point we have given up. Just don't error out
         try:
-            return text_type(value)
+            return str(value)
         except Exception:
             return u'\N{REPLACEMENT CHARACTER}'
 
-def limit_to_configured_maximum(config_option, default_limit):
+
+def limit_to_configured_maximum(config_option: str,
+                                default_limit: int) -> Validator:
     '''
     If the value is over a limit, it changes it to the limit. The limit is
     defined by a configuration option, or if that is not set, a given int
     default_limit.
     '''
-    def callable(key, data, errors, context):
-
-        value = convert_int(data.get(key), context)
+    def callable(value: Any):
+        value = convert_int(value)
         limit = int(config.get(config_option, default_limit))
         if value > limit:
-            data[key] = limit
+            return limit
+        return value
 
     return callable

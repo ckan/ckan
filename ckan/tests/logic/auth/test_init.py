@@ -6,6 +6,7 @@ import ckan.logic as logic
 import ckan.logic.auth as logic_auth
 import ckan.model as core_model
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 
 
 def _get_function(obj_type):
@@ -90,13 +91,15 @@ def test_get_group_object_id_none():
     _get_object_id_none("group")
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestInit(object):
     def test_get_package_object_with_id(self):
 
         user_name = helpers.call_action("get_site_user")["name"]
         dataset = helpers.call_action(
-            "package_create", context={"user": user_name}, name="test_dataset"
+            "package_create",
+            context={"user": user_name},
+            name=factories.Dataset.stub().name,
         )
         context = {"model": core_model}
         obj = logic_auth.get_package_object(context, {"id": dataset["id"]})
@@ -108,7 +111,9 @@ class TestInit(object):
 
         user_name = helpers.call_action("get_site_user")["name"]
         dataset = helpers.call_action(
-            "package_create", context={"user": user_name}, name="test_dataset"
+            "package_create",
+            context={"user": user_name},
+            name=factories.Dataset.stub().name,
         )
         resource = helpers.call_action(
             "resource_create",
@@ -126,11 +131,12 @@ class TestInit(object):
     def test_get_user_object_with_id(self):
 
         user_name = helpers.call_action("get_site_user")["name"]
+        stub = factories.User.stub()
         user = helpers.call_action(
             "user_create",
             context={"user": user_name},
-            name="test_user",
-            email="a@a.com",
+            name=stub.name,
+            email=stub.email,
             password="TestPassword1",
         )
         context = {"model": core_model}
@@ -143,7 +149,9 @@ class TestInit(object):
 
         user_name = helpers.call_action("get_site_user")["name"]
         group = helpers.call_action(
-            "group_create", context={"user": user_name}, name="test_group"
+            "group_create",
+            context={"user": user_name},
+            name=factories.Group.stub().name,
         )
         context = {"model": core_model}
         obj = logic_auth.get_group_object(context, {"id": group["id"]})

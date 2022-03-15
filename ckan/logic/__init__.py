@@ -1,13 +1,20 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import functools
 import logging
 import re
-from collections import defaultdict
+import importlib
 
-from werkzeug.local import LocalProxy
+from collections import defaultdict
+from typing import (Any, Callable, Container, Iterable, Optional,
+                    TypeVar, Union, cast, overload)
+from typing_extensions import Literal
+
+from werkzeug.datastructures import MultiDict
+
 import six
-from six import string_types, text_type
+
 
 import ckan.model as model
 import ckan.authz as authz
@@ -15,6 +22,12 @@ import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
 from ckan.common import _, c
+from ckan.types import (
+    Action, ChainedAction, Model,
+    ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
+    Schema, Validator, ValidatorFactory)
+
+Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
@@ -29,14 +42,15 @@ class UsernamePasswordError(Exception):
 
 
 class ActionError(Exception):
+    message: Optional[str]
 
-    def __init__(self, message=''):
+    def __init__(self, message: Optional[str] = '') -> None:
         self.message = message
         super(ActionError, self).__init__(message)
 
     def __str__(self):
         msg = self.message
-        if not isinstance(msg, six.string_types):
+        if not isinstance(msg, str):
             msg = str(msg)
         return six.ensure_text(msg)
 
@@ -67,13 +81,20 @@ class ValidationError(ActionError):
     ``data_dict`` fails.
 
     '''
-    def __init__(self, error_dict, error_summary=None, extra_msg=None):
-        if not isinstance(error_dict, dict):
-            error_dict = {'message': error_dict}
+    error_dict: ErrorDict
+
+    def __init__(self,
+                 errors: Union[str, ErrorDict],
+                 error_summary: Optional[dict[str, str]] = None,
+                 extra_msg: Optional[str] = None) -> None:
+        if not isinstance(errors, dict):
+            error_dict: ErrorDict = {'message': errors}
+        else:
+            error_dict = errors
         # tags errors are a mess so let's clean them up
         if 'tags' in error_dict:
-            tag_errors = []
-            for error in error_dict['tags']:
+            tag_errors: list[Union[str, dict[str, Any]]] = []
+            for error in cast("list[dict[str, Any]]", error_dict['tags']):
                 try:
                     tag_errors.append(', '.join(error['name']))
                 except KeyError:
@@ -86,33 +107,36 @@ class ValidationError(ActionError):
         super(ValidationError, self).__init__(extra_msg)
 
     @property
-    def error_summary(self):
+    def error_summary(self) -> dict[str, str]:
         ''' autogenerate the summary if not supplied '''
-        def summarise(error_dict):
+        def summarise(error_dict: ErrorDict) -> dict[str, str]:
             ''' Do some i18n stuff on the error_dict keys '''
 
-            def prettify(field_name):
+            def prettify(field_name: str):
                 field_name = re.sub(r'(?<!\w)[Uu]rl(?!\w)', 'URL',
                                     field_name.replace('_', ' ').capitalize())
                 return _(field_name.replace('_', ' '))
 
             summary = {}
 
-            for key, error in six.iteritems(error_dict):
+            for key, error in error_dict.items():
                 if key == 'resources':
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
                     errors_extras = []
-                    for item in error:
+                    for item in cast("list[dict[str, Any]]", error):
                         if (item.get('key') and
                                 item['key'][0] not in errors_extras):
-                            errors_extras.append(item.get('key')[0])
+                            errors_extras.append(item['key'][0])
                     summary[_('Extras')] = ', '.join(errors_extras)
                 elif key == 'extras_validation':
+                    assert isinstance(error, list)
                     summary[_('Extras')] = error[0]
                 elif key == 'tags':
+                    assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
                 else:
+                    assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]
             return summary
 
@@ -126,10 +150,10 @@ class ValidationError(ActionError):
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 
-log = logging.getLogger(__name__)
-
-
-def parse_params(params, ignore_keys=None):
+def parse_params(
+    params: 'MultiDict[str, Any]',
+    ignore_keys: Optional['Container[str]'] = None
+) -> dict[str, Union[str, list[str]]]:
     '''Takes a dict and returns it with some values standardised.
     This is done on a dict before calling tuplize_dict on it.
     '''
@@ -140,7 +164,8 @@ def parse_params(params, ignore_keys=None):
         # flask request has `getlist` instead of pylons' `getall`
 
         if hasattr(params, 'getall'):
-            value = params.getall(key)
+            # type_ignore_reason: pylons legacy
+            value = params.getall(key)  # type: ignore
         else:
             value = params.getlist(key)
 
@@ -154,7 +179,7 @@ def parse_params(params, ignore_keys=None):
     return parsed
 
 
-def clean_dict(data_dict):
+def clean_dict(data_dict: dict[str, Any]) -> dict[str, Any]:
     '''Takes a dict and if any of the values are lists of dicts,
     the empty dicts are stripped from the lists (recursive).
 
@@ -176,11 +201,11 @@ def clean_dict(data_dict):
      'state': u'active'}
 
     '''
-    for key, value in data_dict.items():
+    for value in data_dict.values():
         if not isinstance(value, list):
             continue
         for inner_dict in value[:]:
-            if isinstance(inner_dict, string_types):
+            if isinstance(inner_dict, str):
                 break
             if not any(inner_dict.values()):
                 value.remove(inner_dict)
@@ -189,7 +214,7 @@ def clean_dict(data_dict):
     return data_dict
 
 
-def tuplize_dict(data_dict):
+def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
     '''Takes a dict with keys of the form 'table__0__key' and converts them
     to a tuple like ('table', 0, 'key').
 
@@ -198,9 +223,9 @@ def tuplize_dict(data_dict):
 
     May raise a DataError if the format of the key is incorrect.
     '''
-    tuplized_dict = {}
-    for key, value in six.iteritems(data_dict):
-        key_list = key.split('__')
+    tuplized_dict: FlattenDataDict = {}
+    for k, value in data_dict.items():
+        key_list = cast("list[Union[str, int]]", k.split('__'))
         for num, key in enumerate(key_list):
             if num % 2 == 1:
                 try:
@@ -211,41 +236,46 @@ def tuplize_dict(data_dict):
     return tuplized_dict
 
 
-def untuplize_dict(tuplized_dict):
+def untuplize_dict(tuplized_dict: FlattenDataDict) -> dict[str, Any]:
 
     data_dict = {}
-    for key, value in six.iteritems(tuplized_dict):
+    for key, value in tuplized_dict.items():
         new_key = '__'.join([str(item) for item in key])
         data_dict[new_key] = value
     return data_dict
 
 
-def flatten_to_string_key(dict):
+def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 
     flattented = df.flatten_dict(dict)
     return untuplize_dict(flattented)
 
 
-def _prepopulate_context(context):
+def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', model)
+    context.setdefault('model', cast(Model, model))
     context.setdefault('session', model.Session)
+
     try:
-        context.setdefault('user', c.user)
+        user = c.user
     except AttributeError:
         # c.user not set
-        pass
+        user = ""
     except RuntimeError:
         # Outside of request context
-        pass
+        user = ""
     except TypeError:
         # c not registered
-        pass
+        user = ""
+
+    context.setdefault('user', user)
     return context
 
 
-def check_access(action, context, data_dict=None):
+def check_access(action: str,
+                 context: Context,
+                 data_dict: Optional[dict[str, Any]] = None) -> Literal[True]:
     '''Calls the authorization function for the provided action
 
     This is the only function that should be called to determine whether a
@@ -285,58 +315,81 @@ def check_access(action, context, data_dict=None):
     # Auth Auditing.  We remove this call from the __auth_audit stack to show
     # we have called the auth function
     try:
-        audit = context.get('__auth_audit', [])[-1]
+        audit: Optional[tuple[str, int]] = context.get('__auth_audit', [])[-1]
     except IndexError:
-        audit = ''
+        audit = None
     if audit and audit[0] == action:
         context['__auth_audit'].pop()
 
-    user = context.get('user')
+    if 'auth_user_obj' not in context:
+        context['auth_user_obj'] = None
 
+    context = _prepopulate_context(context)
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            if context["user"] and not context["auth_user_obj"]:
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
     try:
-        if 'auth_user_obj' not in context:
-            context['auth_user_obj'] = None
-
-        if not context.get('ignore_auth'):
-            if not context.get('__auth_user_obj_checked'):
-                if context.get('user') and not context.get('auth_user_obj'):
-                    context['auth_user_obj'] = \
-                        model.User.by_name(context['user'])
-                context['__auth_user_obj_checked'] = True
-
-        context = _prepopulate_context(context)
-
-        logic_authorization = authz.is_authorized(action, context,
-                                                  data_dict)
+        logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
-            msg = logic_authorization.get('msg', '')
+            msg = cast(str, logic_authorization.get('msg', ''))
             raise NotAuthorized(msg)
     except NotAuthorized as e:
         log.debug(u'check access NotAuthorized - %s user=%s "%s"',
-                  action, user, text_type(e))
+                  action, context["user"], str(e))
         raise
 
-    log.debug('check access OK - %s user=%s', action, user)
+    log.debug('check access OK - %s user=%s', action, context["user"])
     return True
 
 
-_actions = {}
+_actions: dict[str, Action] = {}
 
 
-def clear_actions_cache():
+def clear_actions_cache() -> None:
     _actions.clear()
 
 
-def chained_action(func):
-    func.chained_action = True
+def chained_action(func: ChainedAction) -> ChainedAction:
+    '''Decorator function allowing action function to be chained.
+
+    This allows a plugin to modify the behaviour of an existing action
+    function. A Chained action function must be defined as
+    ``action_function(original_action, context, data_dict)`` where the
+    first parameter will be set to the action function in the next plugin
+    or in core ckan. The chained action may call the original_action
+    function, optionally passing different values, handling exceptions,
+    returning different values and/or raising different exceptions
+    to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_action
+
+        @chained_action
+        @side_effect_free
+        def package_search(original_action, context, data_dict):
+            return original_action(context, data_dict)
+
+    :param func: chained action function
+    :type func: callable
+
+    :returns: chained action function
+    :rtype: callable
+
+    '''
+    # type_ignore_reason: custom attribute
+    func.chained_action = True  # type: ignore
+
     return func
 
 
-def _is_chained_action(func):
+def _is_chained_action(func: Action) -> bool:
     return getattr(func, 'chained_action', False)
 
 
-def get_action(action):
+def get_action(action: str) -> Action:
     '''Return the named :py:mod:`ckan.logic.action` function.
 
     For example ``get_action('package_create')`` will normally return the
@@ -389,34 +442,25 @@ def get_action(action):
     if _actions:
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
-        return _actions.get(action)
-    # Otherwise look in all the plugins to resolve all possible
-    # First get the default ones in the ckan/logic/action directory
-    # Rather than writing them out in full will use __import__
+        return _actions[action]
+    # Otherwise look in all the plugins to resolve all possible First
+    # get the default ones in the ckan/logic/action directory Rather
+    # than writing them out in full will use importlib.import_module
     # to load anything from ckan.logic.action that looks like it might
     # be an action
     for action_module_name in ['get', 'create', 'update', 'delete', 'patch']:
-        module_path = 'ckan.logic.action.' + action_module_name
-        module = __import__(module_path)
-        for part in module_path.split('.')[1:]:
-            module = getattr(module, part)
-        for k, v in module.__dict__.items():
-            if not k.startswith('_') and not isinstance(v, LocalProxy):
-                # Only load functions from the action module or already
-                # replaced functions.
-                if (hasattr(v, '__call__') and
-                        (v.__module__ == module_path or
-                         hasattr(v, '__replaced'))):
-                    _actions[k] = v
-
-                    # Whitelist all actions defined in logic/action/get.py as
-                    # being side-effect free.
-                    if action_module_name == 'get' and \
-                       not hasattr(v, 'side_effect_free'):
-                        v.side_effect_free = True
+        module = importlib.import_module(
+            '.' + action_module_name, 'ckan.logic.action')
+        for k, v in authz.get_local_functions(module):
+            _actions[k] = v
+            # Whitelist all actions defined in logic/action/get.py as
+            # being side-effect free.
+            if action_module_name == 'get' and \
+               not hasattr(v, 'side_effect_free'):
+                v.side_effect_free = True
 
     # Then overwrite them with any specific ones in the plugins:
-    resolved_action_plugins = {}
+    resolved_action_plugins: dict[str, str] = {}
     fetched_actions = {}
     chained_actions = defaultdict(list)
     for plugin in p.PluginImplementations(p.IActions):
@@ -434,9 +478,10 @@ def get_action(action):
                 resolved_action_plugins[name] = plugin.name
                 # Extensions are exempted from the auth audit for now
                 # This needs to be resolved later
-                action_function.auth_audit_exempt = True
+                # type_ignore_reason: custom attribute
+                action_function.auth_audit_exempt = True  # type: ignore
                 fetched_actions[name] = action_function
-    for name, func_list in six.iteritems(chained_actions):
+    for name, func_list in chained_actions.items():
         if name not in fetched_actions and name not in _actions:
             # nothing to override from plugins or core
             raise NotFound('The action %r is not found for chained action' % (
@@ -446,7 +491,7 @@ def get_action(action):
             prev_func = fetched_actions.get(name, _actions.get(name))
             new_func = functools.partial(func, prev_func)
             # persisting attributes to the new partial function
-            for attribute, value in six.iteritems(func.__dict__):
+            for attribute, value in func.__dict__.items():
                 setattr(new_func, attribute, value)
             fetched_actions[name] = new_func
 
@@ -455,8 +500,9 @@ def get_action(action):
 
     # wrap the functions
     for action_name, _action in _actions.items():
-        def make_wrapped(_action, action_name):
-            def wrapped(context=None, data_dict=None, **kw):
+        def make_wrapped(_action: Action, action_name: str):
+            def wrapped(context: Optional[Context],
+                        data_dict: DataDict, **kw: Any):
                 if kw:
                     log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
@@ -489,27 +535,36 @@ def get_action(action):
                         context['__auth_audit'].pop()
                 except IndexError:
                     pass
+
                 return result
             return wrapped
-
-        # If we have been called multiple times for example during tests then
-        # we need to make sure that we do not rewrap the actions.
-        if hasattr(_action, '__replaced'):
-            _actions[action_name] = _action.__replaced
-            continue
 
         fn = make_wrapped(_action, action_name)
         # we need to mirror the docstring
         fn.__doc__ = _action.__doc__
         # we need to retain the side effect free behaviour
         if getattr(_action, 'side_effect_free', False):
-            fn.side_effect_free = True
+            # type_ignore_reason: custom attribute
+            fn.side_effect_free = True  # type: ignore
         _actions[action_name] = fn
 
-    return _actions.get(action)
+    return _actions[action]
 
 
-def get_or_bust(data_dict, keys):
+@overload
+def get_or_bust(data_dict: dict[str, Any], keys: str) -> Any:
+    ...
+
+
+@overload
+def get_or_bust(
+        data_dict: dict[str, Any], keys: Iterable[str]) -> tuple[Any, ...]:
+    ...
+
+
+def get_or_bust(
+        data_dict: dict[str, Any],
+        keys: Union[str, Iterable[str]]) -> Union[Any, tuple[Any, ...]]:
     '''Return the value(s) from the given data_dict for the given key(s).
 
     Usage::
@@ -530,11 +585,11 @@ def get_or_bust(data_dict, keys):
         not in the given dictionary
 
     '''
-    if isinstance(keys, string_types):
+    if isinstance(keys, str):
         keys = [keys]
 
-    import ckan.logic.schema as schema
-    schema = schema.create_schema_for_required_keys(keys)
+    from ckan.logic.schema import create_schema_for_required_keys
+    schema = create_schema_for_required_keys(keys)
 
     data_dict, errors = _validate(data_dict, schema)
 
@@ -548,12 +603,13 @@ def get_or_bust(data_dict, keys):
     return tuple(values)
 
 
-def validate(schema_func, can_skip_validator=False):
+def validate(schema_func: Callable[[], Schema],
+             can_skip_validator: bool = False) -> Callable[[Action], Action]:
     ''' A decorator that validates an action function against a given schema
     '''
-    def action_decorator(action):
+    def action_decorator(action: Action) -> Action:
         @functools.wraps(action)
-        def wrapper(context, data_dict):
+        def wrapper(context: Context, data_dict: DataDict):
             if can_skip_validator:
                 if context.get('skip_validation'):
                     return action(context, data_dict)
@@ -567,7 +623,7 @@ def validate(schema_func, can_skip_validator=False):
     return action_decorator
 
 
-def side_effect_free(action):
+def side_effect_free(action: Decorated) -> Decorated:
     '''A decorator that marks the given action function as side-effect-free.
 
     Action functions decorated with this decorator can be called with an HTTP
@@ -591,11 +647,12 @@ def side_effect_free(action):
     your action function with CKAN.)
 
     '''
-    action.side_effect_free = True
+    # type_ignore_reason: custom attribute
+    action.side_effect_free = True  # type: ignore
     return action
 
 
-def auth_sysadmins_check(action):
+def auth_sysadmins_check(action: Decorated) -> Decorated:
     '''A decorator that prevents sysadmins from being automatically authorized
     to call an action function.
 
@@ -609,17 +666,19 @@ def auth_sysadmins_check(action):
     sysadmin.
 
     '''
-    action.auth_sysadmins_check = True
+    # type_ignore_reason: custom attribute
+    action.auth_sysadmins_check = True  # type: ignore
     return action
 
 
-def auth_audit_exempt(action):
+def auth_audit_exempt(action: Decorated) -> Decorated:
     ''' Dirty hack to stop auth audit being done '''
-    action.auth_audit_exempt = True
+    # type_ignore_reason: custom attribute
+    action.auth_audit_exempt = True  # type: ignore
     return action
 
 
-def auth_allow_anonymous_access(action):
+def auth_allow_anonymous_access(action: Decorated) -> Decorated:
     ''' Flag an auth function as not requiring a logged in user
 
     This means that check_access won't automatically raise a NotAuthorized
@@ -627,26 +686,56 @@ def auth_allow_anonymous_access(action):
     auth function can still return False if for some reason access is not
     granted).
     '''
-    action.auth_allow_anonymous_access = True
+    # type_ignore_reason: custom attribute
+    action.auth_allow_anonymous_access = True  # type: ignore
     return action
 
 
-def auth_disallow_anonymous_access(action):
+def auth_disallow_anonymous_access(action: Decorated) -> Decorated:
     ''' Flag an auth function as requiring a logged in user
 
     This means that check_access will automatically raise a NotAuthorized
     exception if an authenticated user is not provided in the context, without
     calling the actual auth function.
     '''
-    action.auth_allow_anonymous_access = False
+    # type_ignore_reason: custom attribute
+    action.auth_allow_anonymous_access = False  # type: ignore
     return action
 
 
-def chained_auth_function(func):
+def chained_auth_function(func: ChainedAuthFunction) -> ChainedAuthFunction:
     '''
     Decorator function allowing authentication functions to be chained.
+
+    This chain starts with the last chained auth function to be registered and
+    ends with the original auth function (or a non-chained plugin override
+    version). Chained auth functions must accept an extra parameter,
+    specifically the next auth function in the chain, for example::
+
+        auth_function(next_auth, context, data_dict).
+
+    The chained auth function may call the next_auth function, optionally
+    passing different values, handling exceptions, returning different
+    values and/or raising different exceptions to the caller.
+
+    Usage::
+
+        from ckan.plugins.toolkit import chained_auth_function
+
+        @chained_auth_function
+        @auth_allow_anonymous_access
+        def user_show(next_auth, context, data_dict=None):
+            return next_auth(context, data_dict)
+
+    :param func: chained authentication function
+    :type func: callable
+
+    :returns: chained authentication function
+    :rtype: callable
+
     '''
-    func.chained_auth_function = True
+    # type_ignore_reason: custom attribute
+    func.chained_auth_function = True  # type: ignore
     return func
 
 
@@ -657,16 +746,17 @@ class UnknownValidator(Exception):
     pass
 
 
-_validators_cache = {}
+_validators_cache: dict[str, Union[Validator, ValidatorFactory]] = {}
 
 
-def clear_validators_cache():
+def clear_validators_cache() -> None:
     _validators_cache.clear()
 
 
 # This function exists mainly so that validators can be made available to
 # extensions via ckan.plugins.toolkit.
-def get_validator(validator):
+def get_validator(
+        validator: str) -> Union[Validator, ValidatorFactory]:
     '''Return a validator function by name.
 
     :param validator: the name of the validator function to return,
@@ -700,31 +790,25 @@ def get_validator(validator):
         raise UnknownValidator('Validator `%s` does not exist' % validator)
 
 
-def model_name_to_class(model_module, model_name):
+def model_name_to_class(model_module: Any, model_name: str) -> Any:
     '''Return the class in model_module that has the same name as the
     received string.
 
     Raises AttributeError if there's no model in model_module named model_name.
     '''
+    model_class_name = model_name.title()
     try:
-        model_class_name = model_name.title()
         return getattr(model_module, model_class_name)
     except AttributeError:
-        raise ValidationError("%s isn't a valid model" % model_class_name)
+        raise ValidationError({
+            "message": "%s isn't a valid model" % model_class_name})
 
 
-def _import_module_functions(module_path):
+def _import_module_functions(
+        module_path: str) -> dict[str, Callable[..., Any]]:
     '''Import a module and get the functions and return them in a dict'''
-    functions_dict = {}
-    module = __import__(module_path)
-    for part in module_path.split('.')[1:]:
-        module = getattr(module, part)
-    for k, v in module.__dict__.items():
-
-        try:
-            if v.__module__ != module_path:
-                continue
-            functions_dict[k] = v
-        except AttributeError:
-            pass
-    return functions_dict
+    module = importlib.import_module(module_path)
+    return {
+        k: v
+        for k, v in authz.get_local_functions(module)
+    }

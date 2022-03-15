@@ -68,7 +68,7 @@ Patch Releases
    CKAN 2.0.1 will no longer be supported.
 
 Releases are announced on the
-`ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
+`ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
 a low-volume list that CKAN instance maintainers can subscribe to in order to
 be up to date with upcoming releases.
 

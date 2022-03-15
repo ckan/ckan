@@ -1,0 +1,2 @@
+The ISession interface has been removed from CKAN. To extend SQLAlchemy use
+event listeners instead.

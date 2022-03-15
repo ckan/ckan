@@ -1,0 +1,14 @@
+version: 1
+groups:
+- annotation: recline_view settings
+  options:
+  - key: ckan.recline.dataproxy_url
+    default: //jsonpdataproxy.appspot.com
+    example: https://mydataproxy.example.com
+    description: >
+      Custom URL to a self-hosted DataProxy instance. The DataProxy is an
+      external service currently used to stream data in JSON format to the
+      Recline-based views when data is not on the DataStore. The main instance
+      is deprecated and will be eventually shut down, so users that require it
+      can host an instance themselves and use this configuration option to
+      point Recline to it.

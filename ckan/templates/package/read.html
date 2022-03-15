@@ -4,7 +4,7 @@
   {{ super() }}
   {% block package_description %}
     {% if pkg.private %}
-      <span class="dataset-private label label-inverse pull-right">
+      <span class="dataset-private badge badge-inverse pull-right">
         <i class="fa fa-lock"></i>
         {{ _('Private') }}
       </span>
@@ -13,8 +13,9 @@
       {% if is_activity_archive %}
         <div class="alert alert-danger">
           {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-          You're currently viewing an old version of this dataset. To see the
-          current version, click <a href="{{ url }}">here</a>.
+          You're currently viewing an old version of this dataset.
+          Data files may not match the old version of the metadata.
+          <a href="{{ url }}">View the current version</a>.
           {% endtrans %}
         </div>
       {% endif %}

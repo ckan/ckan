@@ -56,16 +56,6 @@ CKAN:
 
     sudo apt install -y libpq5 redis-server nginx supervisor
 
-   .. note:: If you want to install CKAN 2.9 running on Python 2 for backwards compatibility, you need to also install the Python 2 libraries:
-
-    .. parsed-literal::
-
-       # On Ubuntu 18.04
-       sudo apt install python2 libpython2.7
-
-       # On Ubuntu 20.04
-       sudo apt install libpython2.7
-
 #. Download the CKAN package:
 
     - On Ubuntu 18.04:
@@ -80,11 +70,6 @@ CKAN:
 
            wget \https://packaging.ckan.org/|latest_package_name_focal_py3|
 
-     - On Ubuntu 20.04, for Python 2:
-
-       .. parsed-literal::
-
-           wget \https://packaging.ckan.org/|latest_package_name_focal_py2|
 
 #. Install the CKAN package:
 
@@ -99,12 +84,6 @@ CKAN:
        .. parsed-literal::
 
            sudo dpkg -i |latest_package_name_focal_py3|
-
-   - On Ubuntu 20.04, for Python 2:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_focal_py2|
 
 
 -----------------------------------
@@ -140,10 +119,6 @@ set the correct password, database and database user.
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
    |ckan.ini| |production.ini| file to reference your |solr| server.
-
-Install |solr|, running this command in a terminal::
-
-    sudo apt install -y solr-tomcat
 
 .. include:: solr.rst
 
@@ -217,3 +192,11 @@ your CKAN site.
     You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
     and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
 
+.. note::
+
+   There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or 
+   accessing CKAN via a browser for the first time. This happens when a different user is used to execute 
+   the web server process than the user who installed CKAN and the support software. A workaround would be to 
+   open up the permissions on the ``/usr/lib/ckan/default/src/ckan/ckan/public/base/i18n/`` directory 
+   so that this user could write the .js files into it. Accessing CKAN will generate these files for a new 
+   install, or you could run ``ckan -c /etc/ckan/default/ckan.ini translation js`` to explicitly generate them.

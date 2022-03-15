@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-__version__ = '2.10.0a'
+__version__: str = '2.10.0a'
 
 __description__ = 'CKAN Software'
 __long_description__ = \
@@ -19,4 +19,5 @@ Check https://ckan.org to know more.
 __license__ = 'AGPL'
 
 # The packaging system relies on this import, please do not remove it
-import sys; sys.path.insert(0, __path__[0])
+# type_ignore_reason: pyright thinks it's iterable
+import sys; sys.path.insert(0, __path__[0])  # type: ignore
