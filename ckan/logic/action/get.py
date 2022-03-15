@@ -339,7 +339,7 @@ def _group_or_org_list(
         if errors:
             raise ValidationError(errors)
     sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
-    q = data_dict.get('q')
+    q = data_dict.get('q', '').strip()
 
     all_fields = asbool(data_dict.get('all_fields', None))
 

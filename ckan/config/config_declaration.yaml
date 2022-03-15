@@ -1069,7 +1069,7 @@ groups:
         example: templates
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one vaue: ``templates``
+          by CKAN core. It is currently unused and it only accepts one value: ``templates``
           (Bootstrap 3, the default value from CKAN 2.8 onwards).
 
       - key: ckan.default.group_type
