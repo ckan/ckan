@@ -72,6 +72,10 @@ class DatapusherPlugin(p.SingletonPlugin):
 
         self._submit_to_datapusher(resource_dict)
 
+    def after_update(self, context, resource_dict):
+
+        self._submit_to_datapusher(resource_dict)
+
     def _submit_to_datapusher(self, resource_dict: dict[str, Any]):
         context = cast(Context, {
             u'model': model,
