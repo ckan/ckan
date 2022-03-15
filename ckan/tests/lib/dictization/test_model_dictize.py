@@ -123,7 +123,7 @@ class TestGroupListDictize:
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
-        parent = factories.Group(tile="Parent")
+        parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
         group_list = [model.Group.get(parent["name"]), model.Group.get(child["name"])]
         context = {"model": model, "session": model.Session}
