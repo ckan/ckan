@@ -298,35 +298,35 @@ def activity_type_exists(activity_type):
 
 
 VALIDATORS_PACKAGE_ACTIVITY_TYPES = {
-    'new package' : package_id_exists,
-    'changed package' : package_id_exists,
-    'deleted package' : package_id_exists,
-    'follow dataset' : package_id_exists,
+    'new package': package_id_exists,
+    'changed package': package_id_exists,
+    'deleted package': package_id_exists,
+    'follow dataset': package_id_exists,
 }
 
 VALIDATORS_USER_ACTIVITY_TYPES = {
-    'new user' : user_id_exists,
-    'changed user' : user_id_exists,
-    'follow user' : user_id_exists,
+    'new user': user_id_exists,
+    'changed user': user_id_exists,
+    'follow user': user_id_exists,
 }
 
 VALIDATORS_GROUP_ACTIVITY_TYPES = {
-    'new group' : group_id_exists,
-    'changed group' : group_id_exists,
-    'deleted group' : group_id_exists,
-    'new organization' : group_id_exists,
-    'changed organization' : group_id_exists,
-    'deleted organization' : group_id_exists,
-    'follow group' : group_id_exists,
+    'new group': group_id_exists,
+    'changed group': group_id_exists,
+    'deleted group': group_id_exists,
+    'new organization': group_id_exists,
+    'changed organization': group_id_exists,
+    'deleted organization': group_id_exists,
+    'follow group': group_id_exists,
 }
 
 # A dictionary mapping activity_type values from activity dicts to functions
 # for validating the object_id values from those same activity dicts.
-object_id_validators = {
-    **VALIDATORS_PACKAGE_ACTIVITY_TYPES,
-    **VALIDATORS_USER_ACTIVITY_TYPES,
-    **VALIDATORS_GROUP_ACTIVITY_TYPES,
-}
+# Merge dicts (Python 2 compatible)
+object_id_validators = dict(**VALIDATORS_PACKAGE_ACTIVITY_TYPES)
+object_id_validators.update(**VALIDATORS_USER_ACTIVITY_TYPES)
+object_id_validators.update(**VALIDATORS_GROUP_ACTIVITY_TYPES)
+
 
 def object_id_validator(key, activity_dict, errors, context):
     '''Validate the 'object_id' value of an activity_dict.
