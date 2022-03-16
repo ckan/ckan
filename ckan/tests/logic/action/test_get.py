@@ -2975,29 +2975,6 @@ def _seconds_since_timestamp(timestamp, format_):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestActivityShow(object):
-    def test_simple_without_data(self):
-        dataset = factories.Dataset()
-        user = factories.User()
-        activity = factories.Activity(
-            user_id=user["id"],
-            object_id=dataset["id"],
-            activity_type="new package",
-            data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
-        )
-        activity_shown = helpers.call_action(
-            "activity_show", id=activity["id"], include_data=False
-        )
-        assert activity_shown["user_id"] == user["id"]
-        assert (
-            _seconds_since_timestamp(
-                activity_shown["timestamp"], "%Y-%m-%dT%H:%M:%S.%f"
-            )
-            < 10
-        )
-        assert activity_shown["object_id"] == dataset["id"]
-        assert activity_shown["data"] == {"package": {"title": dataset["title"], "type": "dataset"}}
-        assert activity_shown["activity_type"] == "new package"
-
     def test_simple_with_data(self):
         dataset = factories.Dataset()
         user = factories.User()
@@ -3008,8 +2985,7 @@ class TestActivityShow(object):
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )
         activity_shown = helpers.call_action(
-            "activity_show", id=activity["id"], include_data=True
-        )
+            "activity_show", id=activity["id"])
         assert activity_shown["user_id"] == user["id"]
         assert (
             _seconds_since_timestamp(
@@ -3048,7 +3024,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset(self):
         user = factories.User()
@@ -3097,7 +3073,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_change_extra(self):
         user = factories.User()
@@ -3119,7 +3095,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_delete_extra(self):
         user = factories.User()
@@ -3141,7 +3117,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_add_resource(self):
         user = factories.User()
