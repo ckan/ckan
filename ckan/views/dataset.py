@@ -1090,8 +1090,8 @@ def activity(package_type, id, page=0, activity_type=None):
         u'auth_user_obj': g.userobj
     }
     data_dict = {u'id': id}
-    base_limit = int(config.get('ckan.activity_list_limit', 30))
-    max_limit = int(config.get('ckan.activity_list_limit_max', 100))
+    base_limit = int(config.get(u'ckan.activity_list_limit', 30))
+    max_limit = int(config.get(u'ckan.activity_list_limit_max', 100))
     limit = min(base_limit, max_limit)
     page = int(page)
     offset = page * limit
@@ -1099,10 +1099,10 @@ def activity(package_type, id, page=0, activity_type=None):
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         activity_dict = {
-            'id': pkg_dict['id'],
-            'offset': offset,
-            'limit': limit,
-            'activity_type': activity_type
+            u'id': pkg_dict[u'id'],
+            u'offset': offset,
+            u'limit': limit,
+            u'activity_type': activity_type
         }
         pkg = context[u'package']
         package_activity_stream = get_action(
@@ -1125,18 +1125,18 @@ def activity(package_type, id, page=0, activity_type=None):
     activity_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys()
 
     return base.render(
-        'package/activity.html', {
-            'dataset_type': dataset_type,
-            'pkg_dict': pkg_dict,
-            'pkg': pkg,
-            'activity_stream': package_activity_stream,
-            'id': id,  # i.e. package's current name,
-            'limit': limit,
-            'page': page,
-            'has_more': has_more,
-            'total_pages': total_pages,
-            'activity_type': activity_type,
-            'activity_types': activity_types,
+        u'package/activity.html', {
+            u'dataset_type': dataset_type,
+            u'pkg_dict': pkg_dict,
+            u'pkg': pkg,
+            u'activity_stream': package_activity_stream,
+            u'id': id,  # i.e. package's current name,
+            u'limit': limit,
+            u'page': page,
+            u'has_more': has_more,
+            u'total_pages': total_pages,
+            u'activity_type': activity_type,
+            u'activity_types': activity_types,
         }
     )
 
