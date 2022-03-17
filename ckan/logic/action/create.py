@@ -9,12 +9,11 @@ import random
 import re
 import datetime
 from socket import error as socket_error
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 import six
 
 import ckan.common
-from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -407,13 +406,17 @@ def resource_view_create(
     if context.get('preview'):
         return data
 
-    max_order: Optional[int] = model.Session.query(
-        func.max(model.ResourceView.order)
-    ).filter_by(resource_id=resource_id).scalar()
+    last_view = model.Session.query(model.ResourceView)\
+        .filter_by(resource_id=resource_id) \
+        .order_by(
+            # type_ignore_reason: incomplete SQLAlchemy types
+            model.ResourceView.order.desc()  # type: ignore
+        ).first()
 
-    order = 0
-    if max_order is not None:
-        order = max_order + 1
+    if not last_view:
+        order = 0
+    else:
+        order = last_view.order + 1
     data['order'] = order
 
     resource_view = model_save.resource_view_dict_save(data, context)

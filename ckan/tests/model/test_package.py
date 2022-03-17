@@ -70,9 +70,11 @@ class TestPackage(object):
 
         pkg = model.Package.by_name(dataset[u"name"])
         assert pkg.state == u"deleted"
+
         # it is removed from the group
         group = model.Group.get(group["id"])
         assert [p.name for p in group.packages()] == []
+
         # other related objects don't change
         package_extra = (
             model.Session.query(model.PackageExtra)
@@ -80,18 +82,21 @@ class TestPackage(object):
             .all()[0]
         )
         assert package_extra.state == u"active"
+
         package_tag = (
             model.Session.query(model.PackageTag)
             .filter_by(package_id=pkg.id)
             .all()[0]
         )
         assert package_tag.state == u"active"
+
+        # it is removed from the tag
         tag = (
             model.Session.query(model.Tag)
             .filter_by(id=package_tag.tag_id)
             .all()[0]
         )
-        assert [p.name for p in tag.packages] == [dataset[u"name"]]
+        assert [p.name for p in tag.packages] == []
 
     def test_purge(self):
         org = factories.Organization()

@@ -151,7 +151,7 @@ class TestBlanketImplementation(object):
         assert self._config_declarations_registered(ckan_config)
 
     def test_blanket_must_be_used(self, app, cli, ckan_config):
-        """There is no accidential use of blanket implementation if module not
+        """There is no accidental use of blanket implementation if module not
         loades.
 
         """

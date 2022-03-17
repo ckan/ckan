@@ -110,7 +110,6 @@ class Package(core.StatefulObjectMixin,
     state: str
 
     package_tags: list["PackageTag"]
-    package_tag_all: list["PackageTag"]
 
     resources_all: list["Resource"]
     _extras: dict[str, Any]  # list['PackageExtra']
@@ -125,7 +124,6 @@ class Package(core.StatefulObjectMixin,
 
     @classmethod
     def search_by_name(cls, text_query: str) -> 'Query[Package]':
-        text_query = text_query
         return meta.Session.query(cls).filter(
             # type_ignore_reason: incomplete SQLAlchemy types
             cls.name.contains(text_query.lower())  # type: ignore
@@ -562,10 +560,6 @@ meta.mapper(Package, package_table, properties={
         ),
     })
 
-meta.mapper(tag.PackageTag, tag.package_tag_table, properties={
-    'pkg':orm.relation(Package, backref='package_tag_all',
-        cascade='none',
-        )
-    })
+meta.mapper(tag.PackageTag, tag.package_tag_table)
 
 meta.mapper(PackageMember, package_member_table)

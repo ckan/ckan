@@ -635,18 +635,14 @@ def set_datastore_active_flag(
     model = context['model']
     update_dict = {'datastore_active': flag}
 
-    # get extras(for entity update) and package_id(for search index update)
-    res_query = model.Session.query(
-        model.resource_table.c.extras,
-        model.resource_table.c.package_id
-    ).filter(
-        model.Resource.id == data_dict['resource_id']
-    )
-    extras, package_id = res_query.one()
+    q = model.Session.query(model.Resource). \
+        filter(model.Resource.id == data_dict['resource_id'])
+    resource = q.one()
 
     # update extras in database for record
+    extras = resource.extras
     extras.update(update_dict)
-    res_query.update({'extras': extras}, synchronize_session=False)
+    q.update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
 
@@ -655,7 +651,7 @@ def set_datastore_active_flag(
     psi = search.PackageSearchIndex()
     try:
         _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': package_id
+            'id': resource.package_id
         })
         for resource in _data_dict['resources']:
             if resource['id'] == data_dict['resource_id']:
