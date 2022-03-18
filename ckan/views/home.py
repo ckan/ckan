@@ -1,6 +1,11 @@
 # encoding: utf-8
 
-from flask import Blueprint, abort, redirect
+from __future__ import annotations
+
+from urllib.parse import urlencode
+from typing import Any, Optional, cast, List, Tuple
+
+from flask import Blueprint, abort, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -9,6 +14,8 @@ import ckan.lib.search as search
 import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
+from ckan.types import Context
+
 
 CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
 
@@ -17,29 +24,30 @@ home = Blueprint(u'home', __name__)
 
 
 @home.before_request
-def before_request():
+def before_request() -> None:
     u'''set context and check authorization'''
     try:
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'user': g.user,
-            u'auth_user_obj': g.userobj}
+            u'auth_user_obj': g.userobj})
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)
 
 
-def index():
+def index() -> str:
     u'''display home page'''
     try:
-        context = {u'model': model, u'session': model.Session,
-                   u'user': g.user, u'auth_user_obj': g.userobj}
-        data_dict = {u'q': u'*:*',
-                     u'facet.field': h.facets(),
-                     u'rows': 4,
-                     u'start': 0,
-                     u'sort': u'view_recent desc',
-                     u'fq': u'capacity:"public"'}
+        context = cast(Context, {u'model': model, u'session': model.Session,
+                                 u'user': g.user, u'auth_user_obj': g.userobj})
+        data_dict: dict[str, Any] = {
+            u'q': u'*:*',
+            u'facet.field': h.facets(),
+            u'rows': 4,
+            u'start': 0,
+            u'sort': u'view_recent desc',
+            u'fq': u'capacity:"public"'}
         query = logic.get_action(u'package_search')(context, data_dict)
         g.search_facets = query['search_facets']
         g.package_count = query['count']
@@ -77,26 +85,32 @@ def index():
     return base.render(u'home/index.html', extra_vars={})
 
 
-def about():
+def about() -> str:
     u''' display about page'''
     return base.render(u'home/about.html', extra_vars={})
 
 
-def redirect_locale(target_locale, path=None):
+def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
+
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
+
+    if request.args:
+        target += f'?{urlencode(request.args)}'
+
     return redirect(target, code=308)
 
 
-util_rules = [
+util_rules: List[Tuple[str, Any]] = [
     (u'/', index),
     (u'/about', about)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
 
-locales_mapping = [
+locales_mapping: List[Tuple[str, str]] = [
     ('zh_TW', 'zh_Hant_TW'),
     ('zh_CN', 'zh_Hans_CN'),
+    ('no', 'nb_NO'),
 ]
 
 for locale in locales_mapping:

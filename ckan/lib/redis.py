@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 _connection_pool = None
 
 
-def connect_to_redis():
+def connect_to_redis() -> Redis:  # type: ignore
     u'''
     (Lazily) connect to Redis.
 
@@ -41,7 +41,7 @@ def connect_to_redis():
     return Redis(connection_pool=_connection_pool)
 
 
-def is_redis_available():
+def is_redis_available() -> bool:
     u'''
     Check whether Redis is available.
 

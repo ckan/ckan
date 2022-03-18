@@ -1,4 +1,5 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import socket
 import string
@@ -6,15 +7,13 @@ import logging
 import collections
 import json
 import datetime
-from dateutil.parser import parse
-
 import re
+from dateutil.parser import parse
+from typing import Any, NoReturn, Optional, cast
 
 import six
 import pysolr
 from ckan.common import config
-import six
-
 
 
 from .common import SearchIndexError, make_connection
@@ -24,6 +23,7 @@ from ckan.plugins import (PluginImplementations,
 import ckan.logic as logic
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.navl.dictization_functions
+from ckan.types import Context
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description"
 # Regular expression used to strip invalid XML characters
 _illegal_xml_chars_re = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
 
-def escape_xml_illegal_chars(val, replacement=''):
+def escape_xml_illegal_chars(val: str, replacement: str='') -> str:
     '''
         Replaces any character not supported by XML with
         a replacement string (default is an empty string)
@@ -47,7 +47,7 @@ def escape_xml_illegal_chars(val, replacement=''):
     return _illegal_xml_chars_re.sub(replacement, val)
 
 
-def clear_index():
+def clear_index() -> None:
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get_value('ckan.site_id'))
     try:
@@ -71,39 +71,43 @@ class SearchIndex(object):
     only have to implement ``update_dict`` and ``remove_dict``.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def insert_dict(self, data):
+    def insert_dict(self, data: dict[str, Any]) -> None:
         """ Insert new data from a dictionary. """
         return self.update_dict(data)
 
-    def update_dict(self, data):
+    def update_dict(self, data: dict[str, Any], defer_commit: bool = False) -> None:
         """ Update data from a dictionary. """
         log.debug("NOOP Index: %s" % ",".join(data.keys()))
 
-    def remove_dict(self, data):
+    def remove_dict(self, data: dict[str, Any]) -> None:
         """ Delete an index entry uniquely identified by ``data``. """
         log.debug("NOOP Delete: %s" % ",".join(data.keys()))
 
-    def clear(self):
+    def clear(self) -> None:
         """ Delete the complete index. """
         clear_index()
 
-    def get_all_entity_ids(self):
+    def get_all_entity_ids(self) -> NoReturn:
         """ Return a list of entity IDs in the index. """
         raise NotImplemented
 
 class NoopSearchIndex(SearchIndex): pass
 
 class PackageSearchIndex(SearchIndex):
-    def remove_dict(self, pkg_dict):
+    def remove_dict(self, pkg_dict: dict[str, Any]) -> None:
         self.delete_package(pkg_dict)
 
-    def update_dict(self, pkg_dict, defer_commit=False):
+    def update_dict(self,
+                    pkg_dict: dict[str, Any],
+                    defer_commit: bool = False) -> None:
         self.index_package(pkg_dict, defer_commit)
 
-    def index_package(self, pkg_dict, defer_commit=False):
+    def index_package(self,
+                      pkg_dict: Optional[dict[str, Any]],
+                      defer_commit: bool = False) -> None:
         if pkg_dict is None:
             return
 
@@ -112,19 +116,18 @@ class PackageSearchIndex(SearchIndex):
         for r in pkg_dict.get('resources', []):
             r.pop('tracking_summary', None)
 
+        # Index validated data-dict
+        package_plugin = lib_plugins.lookup_package_plugin(
+            pkg_dict.get('type'))
+        schema = package_plugin.show_package_schema()
+        validated_pkg_dict, _errors = lib_plugins.plugin_validate(
+            package_plugin,
+            cast(Context, {'model': model, 'session': model.Session}),
+            pkg_dict, schema, 'package_show')
+        pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
+            cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
+
         data_dict_json = json.dumps(pkg_dict)
-
-        if config.get_value('ckan.cache_validated_datasets'):
-            package_plugin = lib_plugins.lookup_package_plugin(
-                pkg_dict.get('type'))
-
-            schema = package_plugin.show_package_schema()
-            validated_pkg_dict, errors = lib_plugins.plugin_validate(
-                package_plugin, {'model': model, 'session': model.Session},
-                pkg_dict, schema, 'package_show')
-            pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
-                cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
-
         pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
@@ -132,9 +135,10 @@ class PackageSearchIndex(SearchIndex):
         if title:
             pkg_dict['title_string'] = title
 
-        # delete the package if there is no state, or the state is `deleted`
-        if (not pkg_dict.get('state') or 'deleted' in pkg_dict.get('state')):
-            return self.delete_package(pkg_dict)
+        if config.get_value('ckan.search.remove_deleted_packages'):
+            # delete the package if there is no state, or the state is `deleted`
+            if pkg_dict.get('state') in [None, 'deleted']:
+                return self.delete_package(pkg_dict)
 
         index_fields = RESERVED_FIELDS + list(pkg_dict.keys())
 
@@ -154,7 +158,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context = {'model': model}
+        context = cast(Context, {'model': model})
 
         for tag in tags:
             if tag.get('vocabulary_id'):
@@ -208,15 +212,19 @@ class PackageSearchIndex(SearchIndex):
                 pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
         pkg_dict.pop('resources', None)
 
-        rel_dict = collections.defaultdict(list)
+        rel_dict: dict[str, list[Any]] = collections.defaultdict(list)
         subjects = pkg_dict.pop("relationships_as_subject", [])
         objects = pkg_dict.pop("relationships_as_object", [])
         for rel in objects:
             type = model.PackageRelationship.forward_to_reverse_type(rel['type'])
-            rel_dict[type].append(model.Package.get(rel['subject_package_id']).name)
+            pkg = model.Package.get(rel['subject_package_id'])
+            assert pkg
+            rel_dict[type].append(pkg.name)
         for rel in subjects:
             type = rel['type']
-            rel_dict[type].append(model.Package.get(rel['object_package_id']).name)
+            pkg = model.Package.get(rel['object_package_id'])
+            assert pkg
+            rel_dict[type].append(pkg.name)
         for key, value in rel_dict.items():
             if key not in pkg_dict:
                 pkg_dict[key] = value
@@ -291,6 +299,7 @@ class PackageSearchIndex(SearchIndex):
             dataset) if dataset else [] # TestPackageSearchIndex-workaround
 
         # send to solr:
+        conn = None
         try:
             conn = make_connection()
             commit = not defer_commit
@@ -303,14 +312,16 @@ class PackageSearchIndex(SearchIndex):
             )
             raise SearchIndexError(msg)
         except socket.error as e:
-            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
+            assert conn
+            err = 'Could not connect to Solr using {0}: {1}'.format(
+                conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
 
-    def commit(self):
+    def commit(self) -> None:
         try:
             conn = make_connection()
             conn.commit(waitSearcher=False)
@@ -318,7 +329,7 @@ class PackageSearchIndex(SearchIndex):
             log.exception(e)
             raise SearchIndexError(e)
 
-    def delete_package(self, pkg_dict):
+    def delete_package(self, pkg_dict: dict[str, Any]) -> None:
         conn = make_connection()
         query = "+%s:%s AND +(id:\"%s\" OR name:\"%s\") AND +site_id:\"%s\"" % \
                 (TYPE_FIELD, PACKAGE_TYPE, pkg_dict.get('id'), pkg_dict.get('id'), config.get_value('ckan.site_id'))

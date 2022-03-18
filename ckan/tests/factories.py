@@ -3,7 +3,7 @@
 """This is a collection of factory classes for building CKAN users, datasets,
 etc.
 
-Factories can be either used directly or via corresponging pytes fixtures to
+Factories can be either used directly or via corresponding pytest fixtures to
 create any objects that are needed for the tests. These factories are written
 using ``factory_boy``:
 
@@ -92,11 +92,13 @@ Factory-fixtures are generated using ``pytest-factoryboy``:
 https://pytest-factoryboy.readthedocs.io/en/latest/
 
 """
+from __future__ import annotations
+
 import string
 import unittest.mock as mock
 
 from functools import partial
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import factory
 from faker import Faker
@@ -108,10 +110,10 @@ import ckan.tests.helpers as helpers
 fake = Faker()
 
 
-def _get_action_user_name(kwargs: Dict[str, Any]) -> Optional[str]:
+def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
     """Return the name of the user in kwargs, defaulting to the site user
 
-    It can be overriden by explictly setting {'user': None} in the keyword
+    It can be overridden by explicitly setting {'user': None} in the keyword
     arguments. In that case, this method will return None.
     """
 
@@ -146,7 +148,7 @@ class CKANOptions(factory.alchemy.SQLAlchemyOptions):
 
     :param action: name of the CKAN API action used for entity creation
     :param primary_key: name of the entity's property that can be used for
-        retriving entity object from database
+        retrieving entity object from database
 
     """
 
@@ -197,7 +199,7 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     @classmethod
     def model(cls, **kwargs):
-        """Create entity via API and retrive result directly from the DB."""
+        """Create entity via API and retrieve result directly from the DB."""
         result = cls(**kwargs)
         return cls._meta.sqlalchemy_session.query(cls._meta.model).get(
             result[cls._meta.primary_key]
