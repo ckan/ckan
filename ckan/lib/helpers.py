@@ -780,39 +780,6 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _make_safe_id_component(idstring: str) -> str:
-    """Make a string safe for including in an id attribute.
-
-    The HTML spec says that id attributes 'must begin with
-    a letter ([A-Za-z]) and may be followed by any number
-    of letters, digits ([0-9]), hyphens ("-"), underscores
-    ("_"), colons (":"), and periods (".")'. These regexps
-    are slightly over-zealous, in that they remove colons
-    and periods unnecessarily.
-
-    Whitespace is transformed into underscores, and then
-    anything which is not a hyphen or a character that
-    matches \\w (alphanumerics and underscore) is removed.
-
-    """
-    # Transform all whitespace to underscore
-    idstring = re.sub(r'\s', "_", '%s' % idstring)
-    # Remove everything that is not a hyphen or a member of \w
-    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
-    return idstring
-
-
-def _input_tag(
-        type: str, name: str, value: Any = None,
-        id: Optional[str] = None, **attrs: Any):
-    attrs = _preprocess_dom_attrs(attrs)
-    attrs.update(type=type, name=name, value=value)
-    if u"id" not in attrs:
-        attrs[u"id"] = id if id else _make_safe_id_component(name)
-
-    return dom_tags.input_(**attrs)
-
-
 @core_helper
 def link_to(label: str, url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
@@ -820,19 +787,6 @@ def link_to(label: str, url: str, **attrs: Any) -> Markup:
     if label == '' or label is None:
         label = url
     return literal(str(dom_tags.a(label, **attrs)))
-
-
-@maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.',
-                     since=u'2.9.0')
-@core_helper
-def submit(name: str, value: Optional[str] = None,
-           id: Optional[str] = None, **attrs: Any) -> Markup:
-    """Create a submit field.
-
-    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
-    """
-    return literal(str(_input_tag(u"submit", name, value, id, **attrs)))
 
 
 @core_helper
@@ -1411,51 +1365,6 @@ def markdown_extract(text: str,
 
 
 @core_helper
-def icon_url(name: str) -> str:
-    return url_for_static('/images/icons/%s.png' % name)
-
-
-@core_helper
-def icon_html(url: str,
-              alt: Optional[str] = None,
-              inline: bool = True) -> Markup:
-    classes = ''
-    if inline:
-        classes += 'inline-icon '
-    return literal(('<img src="%s" height="16px" width="16px" alt="%s" ' +
-                    'class="%s" /> ') % (url, alt, classes))
-
-
-@core_helper
-def icon(name: str, alt: Optional[str] = None, inline: bool = True) -> Markup:
-    return icon_html(icon_url(name), alt, inline)
-
-
-def resource_icon(res: dict[str, Any]) -> Markup:
-    return icon(format_icon(res.get('format', '')))
-
-
-@core_helper
-def format_icon(_format: str) -> str:
-    _format = _format.lower()
-    if ('json' in _format):
-        return 'page_white_cup'
-    if ('csv' in _format):
-        return 'page_white_gear'
-    if ('xls' in _format):
-        return 'page_white_excel'
-    if ('zip' in _format):
-        return 'page_white_compressed'
-    if ('api' in _format):
-        return 'page_white_database'
-    if ('plain text' in _format):
-        return 'page_white_text'
-    if ('xml' in _format):
-        return 'page_white_code'
-    return 'page_white'
-
-
-@core_helper
 def dict_list_reduce(list_: list[dict[str, T]],
                      key: str,
                      unique: bool = True) -> list[T]:
@@ -1783,15 +1692,9 @@ def time_ago_from_timestamp(timestamp: int) -> str:
 
 
 @core_helper
-def button_attr(enable: bool, type: str = 'primary') -> str:
-    if enable:
-        return 'class="btn %s"' % type
-    return 'disabled class="btn disabled"'
-
-
-@core_helper
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
+
     if isinstance(package_or_package_dict, dict):
         return get_translated(package_or_package_dict, 'title') or \
             package_or_package_dict['name']
@@ -1878,25 +1781,6 @@ def auto_log_message() -> str:
     elif (c.action == 'edit'):
         return _('Edited settings.')
     return ''
-
-
-@core_helper
-def activity_div(template: str,
-                 activity: dict[str, Any],
-                 actor: str,
-                 object: Optional[str] = None,
-                 target: Optional[str] = None) -> Markup:
-    actor = '<span class="actor">%s</span>' % actor
-    if object:
-        object = '<span class="object">%s</span>' % object
-    if target:
-        target = '<span class="target">%s</span>' % target
-    rendered_datetime = render_datetime(activity['timestamp'])
-    date = '<span class="date">%s</span>' % rendered_datetime
-    template = template.format(actor=actor, date=date,
-                               object=object, target=target)
-    template = '<div class="activity">%s %s</div>' % (template, date)
-    return literal(template)
 
 
 @core_helper
@@ -2801,15 +2685,6 @@ def mail_to(email_address: str, name: str) -> Markup:
 
 
 @core_helper
-def radio(selected: str, id: str, checked: bool) -> Markup:
-    if checked:
-        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
-    return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
-
-
-@core_helper
 def clean_html(html: Any) -> str:
     return bleach_clean(str(html))
 
@@ -3013,3 +2888,29 @@ def can_update_owner_org(
         return True
 
     return False
+
+
+@core_helper
+def check_ckan_version(min_version: Optional[str] = None,
+                       max_version: Optional[str] = None):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)
