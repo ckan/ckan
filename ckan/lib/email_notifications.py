@@ -82,10 +82,11 @@ def string_to_timedelta(s: str) -> datetime.timedelta:
 def render_email(activities: list[dict[str, Any]]) -> str:
     from gettext import gettext, ngettext
 
-    globals = {'g.site_user': config.get_value('ckan.site_title')}
+    globals = {'site_title': config.get_value('ckan.site_title')}
     template_name = 'activity_streams/activity_stream_email_notifications.text'
 
     env = Environment(**jinja_extensions.get_jinja_env_options())
+    # Install the given gettext, ngettext callables into the environment
     env.install_gettext_callables(gettext, ngettext) # type: ignore
 
     template = env.get_template(template_name, globals=globals)
