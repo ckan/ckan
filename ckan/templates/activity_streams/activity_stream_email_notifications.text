@@ -1,12 +1,7 @@
-{% set num = activities|length %}
-{% set ungettext = activities[0]['ungettext'] %}
-{% set site_title = activities[0]['site_title'] %}
-{% set h = activities[0]['h'] %}
+{% set num = activities|length %}{{ ngettext("You have {num} new activity on your {site_title} dashboard", "You have {num} new activities on your {site_title} dashboard", num).format(site_title=site_title, num=num) }} {{ _('To view your dashboard, click on this link:') }}
 
-{{ ungettext("You have {num} new activity on your {site_title} dashboard", "You have {num} new activities on your {site_title} dashboard", num).format(site_title=site_title, num=num) }} {{ ('To view your dashboard, click on this link:') }}
+{% url_for 'dashboard.index', _external=True %}
 
-{{ h.url_for('dashboard.index', _external=True) }}
+{{ _('You can turn off these email notifications in your {site_title} preferences. To change your preferences, click on this link:').format(site_title=site_title) }}
 
-{{ ('You can turn off these email notifications in your {site_title} preferences. To change your preferences, click on this link:').format(site_title=site_title) }}
-
-{{ h.url_for('user.edit', _external=True) }}
+{% url_for 'user.edit', _external=True %}
