@@ -233,7 +233,6 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
     email_last_sent = model.Dashboard.get(user['id']).email_last_sent
     activity_stream_last_viewed = (
             model.Dashboard.get(user['id']).activity_stream_last_viewed)
-    # breakpoint()
     since = max(email_notifications_since, email_last_sent,
             activity_stream_last_viewed)
 
