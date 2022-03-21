@@ -71,16 +71,17 @@ ckan_reload() {
 }
 
 ckan_reindex() {
-    sudo docker exec -it ckan -c /etc/ckan/default/ckan.ini search-index rebuild
+    sudo docker exec -it ckan -c /etc/ckan/production.ini search-index rebuild
 }
 
 ckan_create_admin() {
-    sudo docker exec -i ckan -c /etc/ckan/default/ckan.ini sysadmin add admin
+    sudo docker exec -i ckan -c /etc/ckan/production.ini sysadmin add admin
 }
 
 ckan_upgrade() {
     cd $CKAN_DOCKER
-    sudo docker-compose down -v
+    sudo docker-compose down
+    # use down -v to remove all volumes in addition to containers
     git pull
     sudo docker-compose pull
     sudo docker-compose up -d --build
@@ -98,11 +99,13 @@ ckan_api_setup() {
         echo "Please enter the full path to your conda.sh"
         read -p CONDA_SH
         export CONDA_SH=$CONDA_SH
+    fi
     if ! command -v ckanapi &> /dev/null; then
         echo "The ckanapi command is not in the current PATH"
         echo "Which conda environment enables the ckanapi command?"
         read -p CONDA_ENV
-    if [ -z $CKAN_URL ]l
+    fi
+    if [ -z $CKAN_URL ]; then 
         echo "What is the CKAN URL?"
         read -p CKAN_URL
         export CKAN_URL=$CKAN_URL
@@ -112,10 +115,11 @@ ckan_api_setup() {
         read -p CKAN_API_KEY
         export CKAN_API_KEY=$CKAN_API_KEY
     fi
+    echo "a"
 }
 
 ckan_api() {
-    if [[ z $CONDA_SH ]] || [[ -z $CONDA_ENV ]] || [[ -z $CKAN_URL ]] || [[ -z $CKAN_API_KEY ]]; then
+    if [[ -z $CONDA_SH ]] || [[ -z $CONDA_ENV ]] || [[ -z $CKAN_URL ]] || [[ -z $CKAN_API_KEY ]]; then
         echo "A required environment variable for the CKAN API setup is not set."
         echo "Run the ckan_api_setup command to set these first."
     else 
