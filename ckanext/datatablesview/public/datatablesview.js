@@ -12,7 +12,12 @@ var run_query = function(params, format) {
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
-      let langCode = this.options.lang;
+      let langConfig = {};
+      if( this.options.lang === 'fr' ){
+        langConfig = {
+          url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/fr_fr.json'
+        };
+      }
       let datatable = jQuery('#dtprv').DataTable({
         initComplete: function( _settings, _json ){
           // Adds download dropdown to buttons menu
@@ -51,14 +56,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             }]
           });
         },
-        language: function(){
-          if (langCode === 'fr') {
-            return {
-              url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/fr_fr.json'
-            };
-          }
-          return {};
-        }
+        language: langConfig,
       });
     }
   }
