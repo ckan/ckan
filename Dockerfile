@@ -139,9 +139,6 @@ FROM base as extensions1
 #------------------------------------------------------------------------------#
 WORKDIR $CKAN_VENV/src
 
-COPY ./contrib/docker/src/ckanext-googleanalyticsbasic $CKAN_VENV/src/ckanext-googleanalyticsbasic
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-googleanalyticsbasic && python setup.py install && python setup.py develop"
-
 COPY ./contrib/docker/src/ckanext-geoview $CKAN_VENV/src/ckanext-geoview
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src/ckanext-geoview && python setup.py install && python setup.py develop"
 
