@@ -15,10 +15,9 @@ from jinja2 import Environment
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.lib.base as base
 import ckan.lib.jinja_extensions as jinja_extensions
 
-from ckan.common import ungettext, config
+from ckan.common import ungettext, ugettext, config
 from ckan.types import Context
 
 
@@ -79,15 +78,13 @@ def string_to_timedelta(s: str) -> datetime.timedelta:
     return delta
 
 
-def render_email(activities: list[dict[str, Any]]) -> str:
-    from gettext import gettext, ngettext
-
+def render_activity_email(activities: list[dict[str, Any]]) -> str:
     globals = {'site_title': config.get_value('ckan.site_title')}
     template_name = 'activity_streams/activity_stream_email_notifications.text'
 
     env = Environment(**jinja_extensions.get_jinja_env_options())
     # Install the given gettext, ngettext callables into the environment
-    env.install_gettext_callables(gettext, ngettext) # type: ignore
+    env.install_gettext_callables(ugettext, ungettext) # type: ignore
 
     template = env.get_template(template_name, globals=globals)
     return template.render({'activities': activities})
@@ -128,12 +125,8 @@ def _notifications_for_activities(
         len(activities)).format(
                 site_title=config.get_value('ckan.site_title'),
                 n=len(activities))
-    try:
-        body = base.render(
-            'activity_streams/activity_stream_email_notifications.text',
-            extra_vars={'activities': activities})
-    except RuntimeError:
-        body = render_email(activities)
+
+    body = render_activity_email(activities)
     notifications = [{
         'subject': subject,
         'body': body
