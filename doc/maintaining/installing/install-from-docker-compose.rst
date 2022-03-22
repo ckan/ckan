@@ -363,10 +363,7 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
     exit
 
     # On the host
-    docker exec -it db bash
-    #Inside the db container 
-    cd docker-entrypoint-initdb.d/
-    psql -U ckan -f 20_postgis_permissions.sql
+    docker exec -it db psql -U ckan -f /docker-entrypoint-initdb.d/20_postgis_permissions.sql
     docker exec -it ckan /usr/local/bin/ckan -c /etc/ckan/production.ini spatial initdb 
 
     sudo vim $VOL_CKAN_CONFIG/production.ini
