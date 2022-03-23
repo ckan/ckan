@@ -1168,7 +1168,7 @@ def unselected_facet_items(
 
     '''
     return get_facet_items_dict(
-        facet, c.search_facets, limit=limit, exclude_active=True)
+        facet, g.search_facets, limit=limit, exclude_active=True)
 
 
 @core_helper
@@ -1774,11 +1774,11 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 @core_helper
 def auto_log_message() -> str:
-    if (c.action == 'new'):
+    if (g.action == 'new'):
         return _('Created new dataset.')
-    elif (c.action == 'editresources'):
+    elif (g.action == 'editresources'):
         return _('Edited resources.')
-    elif (c.action == 'edit'):
+    elif (g.action == 'edit'):
         return _('Edited settings.')
     return ''
 
@@ -1831,10 +1831,10 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    if c.user:
+    if g.user:
         context = cast(
             Context,
-            {'model': model, 'session': model.Session, 'user': c.user})
+            {'model': model, 'session': model.Session, 'user': g.user})
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1861,7 +1861,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
+        Context, {'model': model, 'session': model.Session, 'user': g.user}
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -2020,7 +2020,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': c.user}
+    context: Context = {'user': g.user}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -2037,16 +2037,16 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if not c.userobj:
+    if not g.userobj:
         return False
     # sysadmins can do anything
-    if c.userobj.sysadmin:
+    if g.userobj.sysadmin:
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == c.userobj.id)
+        .filter(model.Member.table_id == g.userobj.id)
     return len(query.all()) != 0
 
 
@@ -2071,7 +2071,7 @@ def dashboard_activity_stream(user_id: str,
 
     '''
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user})
+        Context, {'model': model, 'session': model.Session, 'user': g.user})
 
     if filter_type:
         action_functions = {
@@ -2095,7 +2095,7 @@ def recently_changed_packages_activity_stream(
     else:
         data_dict = {}
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
+        Context, {'model': model, 'session': model.Session, 'user': g.user}
     )
     return logic.get_action('recently_changed_packages_activity_list')(
         context, data_dict)
@@ -2473,7 +2473,7 @@ def new_activities() -> Optional[int]:
     details.
 
     '''
-    if not c.userobj:
+    if not g.userobj:
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
@@ -2874,7 +2874,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(c.user)
+    user = model.User.get(g.user)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
