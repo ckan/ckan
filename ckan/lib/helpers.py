@@ -1071,20 +1071,16 @@ def get_facet_items_dict(
     match each facet item).
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
     '''
-    if search_facets is None:
-        search_facets = getattr(
-            c, u'search_facets', None)
-
     if not search_facets \
        or not isinstance(search_facets, dict) \
        or not search_facets.get(facet, {}).get('items'):
@@ -1121,12 +1117,12 @@ def has_more_facets(facet: str,
     limit.
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
 
@@ -1145,30 +1141,6 @@ def has_more_facets(facet: str,
     if limit is not None and len(facets) > limit:
         return True
     return False
-
-
-@core_helper
-def unselected_facet_items(
-        facet: str, limit: int = 10) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
-    by count.
-
-    Returns the list of unselected facet contraints or facet items (e.g. tag
-    names like "russian" or "tolstoy") for the given search facet (e.g.
-    "tags"), sorted by facet item count (i.e. the number of search results that
-    match each facet item).
-
-    Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
-    selected.
-
-    Arguments:
-    facet -- the name of the facet to filter.
-    limit -- the max. number of facet items to return.
-
-    '''
-    return get_facet_items_dict(
-        facet, g.search_facets, limit=limit, exclude_active=True)
 
 
 @core_helper

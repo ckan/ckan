@@ -355,10 +355,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         # compatibility with templates in existing extensions
         g.group_dict['package_count'] = query['count']
 
-        extra_vars["search_facets"] = g.search_facets = query['search_facets']
+        extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         default_limit: int = config.get_value(u'search.facets.default')
-        for facet in g.search_facets.keys():
+        for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
