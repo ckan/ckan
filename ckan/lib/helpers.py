@@ -263,15 +263,6 @@ def redirect_to(*args: Any, **kw: Any) -> Response:
     return cast(Response, _flask_redirect(_url))
 
 
-@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
-@core_helper
-def url(*args: Any, **kw: Any) -> str:
-    '''
-    Deprecated: please use `url_for` instead
-    '''
-    return url_for(*args, **kw)
-
-
 @core_helper
 def get_site_protocol_and_host() -> Union[tuple[str, str], tuple[None, None]]:
     '''Return the protocol and host of the configured `ckan.site_url`.
