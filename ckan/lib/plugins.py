@@ -553,18 +553,9 @@ class DefaultGroupForm(object):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
-        ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)
         group = context_group or getattr(g, 'group', None)
-        if group:
-            try:
-                if not context_group:
-                    context['group'] = group
-                logic.check_access('group_change_state', context)
-                g.auth_for_change_state = True
-            except logic.NotAuthorized:
-                g.auth_for_change_state = False
-        else:
+        if not group:
             # needs to be set to get template displayed when flask request
             g.group = ''
 
