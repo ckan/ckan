@@ -553,8 +553,6 @@ class DefaultGroupForm(object):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
-        g.is_sysadmin = ckan.authz.is_sysadmin(g.user)
-
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)
         group = context_group or getattr(g, 'group', None)
