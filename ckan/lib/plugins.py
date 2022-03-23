@@ -553,11 +553,7 @@ class DefaultGroupForm(object):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
-        context_group = context.get('group', None)
-        group = context_group or getattr(g, 'group', None)
-        if not group:
-            # needs to be set to get template displayed when flask request
-            g.group = ''
+        pass
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
