@@ -1235,19 +1235,6 @@ def check_access(
 
 
 @core_helper
-@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.",
-                     since="2.3.0")
-def get_action(action_name: str, data_dict: Optional[dict[str, Any]] = None):
-    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
-    if data_dict is None:
-        data_dict = {}
-    return logic.get_action(action_name)({}, data_dict)
-
-
-@core_helper
 def linked_user(user: Union[str, model.User],
                 maxlength: int = 0,
                 avatar: int = 20) -> Union[Markup, str, None]:
