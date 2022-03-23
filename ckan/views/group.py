@@ -891,15 +891,9 @@ class BulkProcessView(MethodView):
         g.group_dict = group_dict
         g.group = group
         extra_vars = _read(id, limit, group_type)
-        g.packages = g.page.items
-
-        extra_vars: dict[str, Any] = {
-            u"group_dict": group_dict,
-            u"group": group,
-            u"page": g.page,
-            u"packages": g.page.items,
-            u'group_type': group_type
-        }
+        extra_vars['packages'] = g.page.items
+        extra_vars['group_dict'] = group_dict
+        extra_vars['group'] = group
 
         return base.render(
             _get_group_template(u'bulk_process_template', group_type),
