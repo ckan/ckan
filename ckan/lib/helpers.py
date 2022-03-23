@@ -56,7 +56,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, c, g, request, json
+from ckan.common import _, ungettext, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -1098,9 +1098,9 @@ def get_facet_items_dict(
     sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
         -it['count'], it['display_name'].lower())
     facets.sort(key=sort_facets)
-    if hasattr(c, 'search_facets_limits'):
-        if c.search_facets_limits and limit is None:
-            limit = c.search_facets_limits.get(facet)
+    if hasattr(g, 'search_facets_limits'):
+        if g.search_facets_limits and limit is None:
+            limit = g.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return facets[:limit]
@@ -1136,8 +1136,8 @@ def has_more_facets(facet: str,
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if getattr(c, 'search_facets_limits', None) and limit is None:
-        limit = c.search_facets_limits.get(facet)
+    if getattr(g, 'search_facets_limits', None) and limit is None:
+        limit = g.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
     return False
