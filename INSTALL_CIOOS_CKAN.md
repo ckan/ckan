@@ -572,7 +572,7 @@ It may become necessary to reindex harvesters, especially if they no longer repo
 > **NOTE:** If modifying the harvester config you will also need to reindex to make the new config take affect and restart the ckan_fetch_harvester container
 
 ```bash
-sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex 
+sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex
 cd ~/ckan/contrib/docker
 sudo docker-compose restart ckan_fetch_harvester
 ```
@@ -718,6 +718,17 @@ sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini search-index re
 
 If you need to update CKAN to a new version you can either remove the docker_ckan_home volume or update the volume with the new ckan core files. After which you need to rebuild the CKAN image and any docker containers based on that image. If you are working with a live / production system the preferred method is to update the volume and rebuild which will result in the least amount of down time.
 
+enable volume environment variables to make accessing the volumes easier
+
+```bash
+export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_STORAGE=`sudo docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
+echo $VOL_CKAN_HOME
+echo $VOL_CKAN_CONFIG
+echo $VOL_CKAN_STORAGE
+```
+
 update local repo
 
 ```bash
@@ -750,6 +761,12 @@ sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 
 or on windows run the command directly in the ckan container
 
+restart the ckan container
+
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose restart ckan
+```
 ---
 
 # Troubleshooting
@@ -801,6 +818,7 @@ sudo cp -r src/ckanext-dcat/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 sudo cp src/cioos-siooc-schema/organization.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/organization.json
 sudo cp src/cioos-siooc-schema/ckan_license.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/ckan_license.json
+sudo cp src/cioos-siooc-schema/*.wkt $VOL_CKAN_HOME/venv/src
 ```
 
 Exporting volumes on windows does not work so another option for copying files to the volumes is to use the `docker cp` command. You must know the path of the named volume in the container you are connecting to and the container must be running for this to work
