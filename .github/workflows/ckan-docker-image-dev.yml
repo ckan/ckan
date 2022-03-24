@@ -59,10 +59,10 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.8
       # Ignore the failure of a step and avoid terminating the job.
       continue-on-error: true
-    - run: docker build -t cioos/ckan:DEV_$TAG -t cioos/ckan:latest .
+    - run: docker build -t cioos/ckan:DEV_$TAG -t cioos/ckan:DEV_latest .
     - run: docker push cioos/ckan:DEV_$TAG
     - if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-      run: docker push cioos/ckan:latest
+      run: docker push cioos/ckan:DEV_latest
     - if: github.event_name == 'pull_request'
       uses: mshick/add-pr-comment@v1
       with:
