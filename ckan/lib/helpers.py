@@ -263,15 +263,6 @@ def redirect_to(*args: Any, **kw: Any) -> Response:
     return cast(Response, _flask_redirect(_url))
 
 
-@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
-@core_helper
-def url(*args: Any, **kw: Any) -> str:
-    '''
-    Deprecated: please use `url_for` instead
-    '''
-    return url_for(*args, **kw)
-
-
 @core_helper
 def get_site_protocol_and_host() -> Union[tuple[str, str], tuple[None, None]]:
     '''Return the protocol and host of the configured `ckan.site_url`.
@@ -1241,19 +1232,6 @@ def check_access(
         authorized = False
 
     return authorized
-
-
-@core_helper
-@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.",
-                     since="2.3.0")
-def get_action(action_name: str, data_dict: Optional[dict[str, Any]] = None):
-    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
-    if data_dict is None:
-        data_dict = {}
-    return logic.get_action(action_name)({}, data_dict)
 
 
 @core_helper
