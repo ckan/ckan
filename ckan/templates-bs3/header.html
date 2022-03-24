@@ -63,7 +63,7 @@
 {% endblock %}
 <header class="navbar navbar-static-top masthead">
   {% block header_debug %} {% if g.debug and not g.debug_supress_header %}
-    <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+    <div class="debug">Controller : {{ g.controller }}<br/>Action : {{ g.action }}</div>
   {% endif %} {% endblock %}
   <div class="container">
     <div class="navbar-right">
