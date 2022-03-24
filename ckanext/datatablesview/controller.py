@@ -8,6 +8,7 @@ from ckan.plugins.toolkit import BaseController, get_action, request, h
 from ckan.common import json
 from ckanext.datatablesview.helpers import decode_datatables_request_filters
 import re
+
 class DataTablesController(BaseController):
     def ajax(self, resource_view_id):
         resource_view = get_action(u'resource_view_show')(
@@ -70,7 +71,7 @@ class DataTablesController(BaseController):
 
         search_text = text_type(params['search']['value'])
         view_filters = resource_view.get(u'filters', {})
-        user_filters = text_type(params['filters'])
+        user_filters = decode_datatables_request_filters()
         filters = merge_filters(view_filters, user_filters)
 
         datastore_search = get_action(u'datastore_search')
