@@ -14,7 +14,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.datastructures import MultiDict
 
 import ckan.model as model
-from ckan.common import json, _, g, request
+from ckan.common import json, _, g, request, config
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config
@@ -28,8 +28,6 @@ from ckan.types import Context, Response, ActionResult
 log = logging.getLogger(__name__)
 
 CONTENT_TYPES = {
-    u'text': u'text/plain;charset=utf-8',
-    u'html': u'text/html;charset=utf-8',
     u'json': u'application/json;charset=utf-8',
     u'javascript': u'application/javascript;charset=utf-8',
 }
@@ -42,87 +40,66 @@ API_MAX_VERSION = 3
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
-def _finish(status_int: int,
-            response_data: Any = None,
-            content_type: str = u'text',
-            headers: Optional[dict[str, Any]] = None) -> Response:
+def json_serializer(result: Any, headers: dict[str, Any], status_int: int):
+    if result is None:
+        return ""
+
+    headers['Content-Type'] = CONTENT_TYPES["json"]
+    response_msg = json.dumps(
+        result,
+        for_json=True,  # handle objects with for_json methods
+    )
+
+    # Support JSONP callback.
+    if (status_int == 200 and u'callback' in request.args and
+            request.method == u'GET'):
+        # escape callback to remove '<', '&', '>' chars
+        callback = html.escape(request.args[u'callback'])
+        response_msg = _wrap_jsonp(callback, response_msg)
+        headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
+
+    return response_msg
+
+
+def _finish(status_int: int, response_data: Any = None) -> Response:
     u'''When a controller method has completed, call this method
     to prepare the response.
 
     :param status_int: The HTTP status code to return
     :type status_int: int
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text` or `json`,
-        a string otherwise
-    :param content_type: One of `text`, `html` or `json`. Defaults to `text`
-    :type content_type: string
-    :param headers: Extra headers to serve with the response
-    :type headers: dict
+    :type response_data: Serializable object
 
     :rtype: response object. Return this value from the view function
         e.g. return _finish(404, 'Dataset not found')
     '''
-    assert(isinstance(status_int, int))
-    response_msg = u''
-    if headers is None:
-        headers = {}
-    if response_data is not None:
-        headers[u'Content-Type'] = CONTENT_TYPES[content_type]
-        if content_type == u'json':
-            response_msg = json.dumps(
-                response_data,
-                for_json=True)  # handle objects with for_json methods
-        else:
-            response_msg = response_data
-        # Support JSONP callback.
-        if (status_int == 200 and u'callback' in request.args and
-                request.method == u'GET'):
-            # escape callback to remove '<', '&', '>' chars
-            callback = html.escape(request.args[u'callback'])
-            response_msg = _wrap_jsonp(callback, response_msg)
-            headers[u'Content-Type'] = CONTENT_TYPES[u'javascript']
+    headers = {}
+
+    serializer = config.get_value("ckan.api.response.serializer")
+    response_msg = serializer(response_data, headers, status_int)
+
     return make_response((response_msg, status_int, headers))
 
 
-def _finish_ok(response_data: Any = None,
-               content_type: str = u'json',
-               resource_location: Optional[str] = None) -> Response:
+def _finish_ok(response_data: Any) -> Response:
     u'''If a controller method has completed successfully then
     calling this method will prepare the response.
 
     :param response_data: The body of the response
-    :type response_data: object if content_type is `text` or `json`,
-        a string otherwise
-    :param content_type: One of `text`, `html` or `json`. Defaults to `json`
-    :type content_type: string
-    :param resource_location: Specify this if a new resource has just been
-        created and you need to add a `Location` header
-    :type headers: string
+    :type response_data: Serializable object
 
     :rtype: response object. Return this value from the view function
         e.g. return _finish_ok(pkg_dict)
     '''
     status_int = 200
-    headers = None
-    if resource_location:
-        status_int = 201
-        try:
-            resource_location = str(resource_location)
-        except Exception as inst:
-            msg = \
-                u"Couldn't convert '%s' header value '%s' to string: %s" % \
-                (u'Location', resource_location, inst)
-            raise Exception(msg)
-        headers = {u'Location': resource_location}
-
-    return _finish(status_int, response_data, content_type, headers)
+    return _finish(status_int, response_data)
 
 
 def _finish_bad_request(extra_msg: Optional[str] = None) -> Response:
     response_data = _(u'Bad request')
     if extra_msg:
         response_data = u'%s - %s' % (response_data, extra_msg)
-    return _finish(400, response_data, u'json')
+    return _finish(400, response_data)
 
 
 def _wrap_jsonp(callback: str, response_msg: str) -> str:
@@ -280,7 +257,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
                                  u'message': e.error,
                                  u'data': request_data}
         return_dict[u'success'] = False
-        return _finish(400, return_dict, content_type=u'json')
+        return _finish(400, return_dict)
     except NotAuthorized as e:
         return_dict[u'error'] = {u'__type': u'Authorization Error',
                                  u'message': _(u'Access denied')}
@@ -289,14 +266,14 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
 
-        return _finish(403, return_dict, content_type=u'json')
+        return _finish(403, return_dict)
     except NotFound as e:
         return_dict[u'error'] = {u'__type': u'Not Found Error',
                                  u'message': _(u'Not found')}
         if str(e):
             return_dict[u'error'][u'message'] += u': %s' % e
         return_dict[u'success'] = False
-        return _finish(404, return_dict, content_type=u'json')
+        return _finish(404, return_dict)
     except ValidationError as e:
         error_dict = e.error_dict
         error_dict[u'__type'] = u'Validation Error'
@@ -304,32 +281,32 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         return_dict[u'success'] = False
         # CS nasty_string ignore
         log.info(u'Validation error (Action API): %r', str(e.error_dict))
-        return _finish(409, return_dict, content_type=u'json')
+        return _finish(409, return_dict)
     except SearchQueryError as e:
         return_dict[u'error'] = {u'__type': u'Search Query Error',
                                  u'message': u'Search Query is invalid: %r' %
                                  e.args}
         return_dict[u'success'] = False
-        return _finish(400, return_dict, content_type=u'json')
+        return _finish(400, return_dict)
     except SearchError as e:
         return_dict[u'error'] = {u'__type': u'Search Error',
                                  u'message': u'Search error: %r' % e.args}
         return_dict[u'success'] = False
-        return _finish(409, return_dict, content_type=u'json')
+        return _finish(409, return_dict)
     except SearchIndexError as e:
         return_dict[u'error'] = {
             u'__type': u'Search Index Error',
             u'message': u'Unable to add package to search index: %s' %
                        str(e)}
         return_dict[u'success'] = False
-        return _finish(500, return_dict, content_type=u'json')
+        return _finish(500, return_dict)
     except Exception as e:
         return_dict[u'error'] = {
             u'__type': u'Internal Server Error',
             u'message': u'Internal Server Error'}
         return_dict[u'success'] = False
         log.exception(e)
-        return _finish(500, return_dict, content_type=u'json')
+        return _finish(500, return_dict)
 
     return _finish_ok(return_dict)
 

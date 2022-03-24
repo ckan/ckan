@@ -5,10 +5,14 @@ controller itself.
 """
 import json
 import re
+import pickle
 
+import yaml
 import pytest
 import six
 from io import BytesIO
+from unittest.mock import ANY
+
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
@@ -346,3 +350,32 @@ def test_i18n_only_known_locales_are_accepted(app):
     url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
     r = app.get(url, status=400)
     assert "Bad request - Unknown locale" in r.get_data(as_text=True)
+
+
+def yaml_serializer(data, headers, status):
+    return yaml.dump(data)
+
+
+def pickle_serializer(data, headers, status):
+    headers["content-type"] = "application/octet-stream"
+    return pickle.dumps(data)
+
+
+@pytest.mark.parametrize("serializer,loader", [
+    (yaml_serializer, yaml.safe_load),
+    (pickle_serializer, pickle.loads),
+])
+def test_api_serializers(serializer, loader, app, monkeypatch, ckan_config):
+    default = helpers.call_action("status_show")
+    expected = {
+        "result": default,
+        "success": True,
+        "help": ANY
+    }
+    monkeypatch.setitem(
+        ckan_config, "ckan.api.response.serializer", serializer)
+
+    url = url_for("api.action", ver=3, logic_function="status_show")
+    resp = app.get(url)
+
+    assert loader(resp.data) == expected

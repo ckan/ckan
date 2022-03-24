@@ -1034,3 +1034,15 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
             raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                           format(name=extra))
     return extras
+
+
+def importable_string(value: Any):
+    from werkzeug.utils import import_string, ImportStringError
+
+    if not isinstance(value, str):
+        return value
+
+    try:
+        return import_string(value, silent=True)
+    except ImportStringError as e:
+        raise Invalid(str(e))
