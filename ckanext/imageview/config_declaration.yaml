@@ -1,0 +1,8 @@
+version: 1
+groups:
+- annotation: image_view settings
+  options:
+  - key: ckan.preview.image_formats
+    default: png jpeg jpg gif
+    example: png jpeg jpg gif
+    description: Space-delimited list of image-based resource formats that will be rendered by the Image view plugin

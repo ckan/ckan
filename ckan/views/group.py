@@ -260,16 +260,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
                   for k, v in params]
         return url + u'?' + urlencode(params)
 
-    def drill_down_url(**by: Any):
-        return h.add_url_param(
-            alternative_url=None,
-            controller=group_type,
-            action=u'read',
-            extras=dict(id=g.group_dict.get(u'name')),
-            new_params=by)
-
-    extra_vars["drill_down_url"] = drill_down_url
-
     def remove_field(
             key: str, value: Optional[str] = None,
             replace: Optional[str] = None):

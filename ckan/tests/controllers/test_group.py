@@ -416,10 +416,8 @@ class TestGroupMembership(object):
             status=200
         )
         assert len(mail_server.get_smtp_messages()) == 1
-        users = model.User.by_email(email)
-        assert len(users) == 1, users
-        user = users[0]
-        assert user.email == email, user
+        user = model.User.by_email(email)
+        assert user.email == email
         assert group["id"] in user.get_group_ids(capacity="member")
 
     def test_membership_edit_page(self, app):

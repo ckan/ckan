@@ -52,6 +52,7 @@ def clear_index() -> None:
     query = "+site_id:\"%s\"" % (config.get_value('ckan.site_id'))
     try:
         conn.delete(q=query)
+        conn.commit()
     except socket.error as e:
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
@@ -134,9 +135,10 @@ class PackageSearchIndex(SearchIndex):
         if title:
             pkg_dict['title_string'] = title
 
-        # delete the package if there is no state, or the state is `deleted`
-        if (not pkg_dict.get('state') or 'deleted' in pkg_dict['state']):
-            return self.delete_package(pkg_dict)
+        if config.get_value('ckan.search.remove_deleted_packages'):
+            # delete the package if there is no state, or the state is `deleted`
+            if pkg_dict.get('state') in [None, 'deleted']:
+                return self.delete_package(pkg_dict)
 
         index_fields = RESERVED_FIELDS + list(pkg_dict.keys())
 

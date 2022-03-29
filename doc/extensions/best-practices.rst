@@ -142,7 +142,7 @@ the CKAN site ID, which is available via
 
     site_id = config[u'ckan.site_id']
 
-Currently this only affects the :ref:`Redis database <ckan_redis_url>`:
+Currently this only affects the :ref:`Redis database <ckan.redis.url>`:
 
 * All *keys in the Redis database* created by your extension should be prefixed
   with both the CKAN site ID and your extension's name.

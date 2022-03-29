@@ -42,8 +42,8 @@ class ResourceDataView(MethodView):
                                           })
 
             # backward compatibility with old templates
-            toolkit.c.pkg_dict = pkg_dict
-            toolkit.c.resource = resource
+            toolkit.g.pkg_dict = pkg_dict
+            toolkit.g.resource = resource
 
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _(u'Resource not found'))
