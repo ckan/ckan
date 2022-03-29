@@ -65,7 +65,7 @@
 <header class="masthead">
   <div class="container">
     {% block header_debug %} {% if g.debug and not g.debug_supress_header %}
-    <div class="debug">Controller : {{ g.controller }}<br />Action : {{ g.action }}</div>
+    <div class="debug">Blueprint : {{ g.blueprint }}<br />View : {{ g.view }}</div>
     {% endif %} {% endblock %}
     <nav class="navbar navbar-expand-lg navbar-light">
       <hgroup class="{{ g.header_class }} navbar-left">
