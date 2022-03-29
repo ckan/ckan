@@ -274,6 +274,7 @@ class TestApiController(object):
             [dataset1["name"], dataset2["name"]]
         )
 
+
 def test_i18n_only_known_locales_are_accepted(app):
 
     url = url_for("api.i18n_js_translations", ver=2, lang="fr")
