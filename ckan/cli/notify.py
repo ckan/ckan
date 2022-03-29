@@ -25,15 +25,15 @@ def replay():
 @notify.command(name="send_emails", short_help="Send out Email notifications.")
 def send_emails():
     """
-    As currently implemented, it will only send notifications from dashboard 
+    As currently implemented, it will only send notifications from dashboard
     activity list.
 
-    It will send emails to users who have `activity_streams_email_notifications`
-    set in their profile.
+    It will send emails to users who have
+    `activity_streams_email_notifications` set in their profile.
 
-    It will send emails with updates depending on how `ckan.email_notifications_since` 
-    is configured.
-    The default value is 2 days.
+    It will send emails with updates depending on how
+    `ckan.email_notifications_since` is configured.
+    default: 2 days.
     """
     import ckan.logic as logic
     import ckan.lib.mailer as mailer
