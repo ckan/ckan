@@ -12144,7 +12144,7 @@ select[data-module=autocomplete] {
   margin-right: 0;
   margin-top: 2px;
   top: 1.5rem;
-  right: div(1.5rem, 6);
+  right: 0.25rem;
   padding: 0 12px;
   border-radius: 100px;
 }
