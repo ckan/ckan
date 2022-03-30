@@ -1,0 +1,5 @@
+Activites extracted into `activity` plugin:
+
+Import changes:
+
+* `ckan.model.Activity` -> `ckanext.activity.model.Activity`

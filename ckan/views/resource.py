@@ -66,33 +66,6 @@ def read(package_type: str, id: str, resource_id: str) -> str:
         package = get_action(u'package_show')(context, {u'id': id})
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
-    activity_id = request.args.get(u'activity_id')
-    if activity_id:
-        # view an 'old' version of the package, as recorded in the
-        # activity stream
-        current_pkg = package
-        try:
-            activity = context['session'].query(model.Activity).get(
-                activity_id
-            )
-            assert activity
-            package = activity.data['package']
-        except AttributeError:
-            base.abort(404, _(u'Dataset not found'))
-
-        if package['id'] != current_pkg['id']:
-            log.info(u'Mismatch between pkg id in activity and URL {} {}'
-                     .format(package['id'], current_pkg['id']))
-            # the activity is not for the package in the URL - don't allow
-            # misleading URLs as could be malicious
-            base.abort(404, _(u'Activity not found'))
-        # The name is used lots in the template for links, so fix it to be
-        # the current one. It's not displayed to the user anyway.
-        package['name'] = current_pkg['name']
-
-        # Don't crash on old (unmigrated) activity records, which do not
-        # include resources or extras.
-        package.setdefault(u'resources', [])
 
     resource = None
     for res in package.get(u'resources', []):
@@ -148,10 +121,7 @@ def read(package_type: str, id: str, resource_id: str) -> str:
         u'pkg_dict': package,
         u'package': package,
         u'resource': resource,
-        u'pkg': pkg,  # NB it is the current version of the dataset, so ignores
-                      # activity_id. Still used though in resource views for
-                      # backward compatibility
-        u'is_activity_archive': bool(activity_id),
+        u'pkg': pkg,
     }
 
     template = _get_pkg_template(u'resource_template', dataset_type)

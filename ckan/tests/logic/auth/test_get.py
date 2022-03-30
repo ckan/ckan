@@ -164,39 +164,6 @@ class TestGetAuth(object):
         context = {"user": fred["name"], "model": None}
         assert helpers.call_auth("config_option_list", context=context)
 
-    @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"false"
-    )
-    def test_config_option_public_activity_stream_detail_denied(self):
-        """Config option says an anon user is not authorized to get activity
-            stream data/detail.
-            """
-        dataset = factories.Dataset()
-        context = {"user": None, "model": model}
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                "package_activity_list",
-                context=context,
-                id=dataset["id"],
-                include_data=True,
-            )
-
-    @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"true"
-    )
-    def test_config_option_public_activity_stream_detail(self):
-        """Config option says an anon user is authorized to get activity
-            stream data/detail.
-            """
-        dataset = factories.Dataset()
-        context = {"user": None, "model": model}
-        helpers.call_auth(
-            "package_activity_list",
-            context=context,
-            id=dataset["id"],
-            include_data=True,
-        )
-
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestApiToken(object):

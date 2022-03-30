@@ -476,7 +476,8 @@ left arrow <
 
         # Create activities for packages
         for item in [pkg1, pkg2]:
-            activity = item.activity_stream_item('new', 'not logged in')
+            from ckanext.activity.model import Activity
+            activity = Activity.activity_stream_item(item, 'new', 'not logged in')
             model.Session.add(activity)
 
         model.repo.commit_and_remove()

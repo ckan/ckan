@@ -8,9 +8,10 @@ from ckan.tests import factories
 
 
 from ckanext.stats.stats import Stats
+from ckanext.activity.tests.conftest import ActivityFactory
 
 
-@pytest.mark.ckan_config('ckan.plugins', 'stats')
+@pytest.mark.ckan_config('ckan.plugins', 'stats activity')
 @pytest.mark.usefixtures("with_plugins", "with_request_context")
 @pytest.mark.freeze_time
 class TestStatsPlugin(object):
@@ -47,7 +48,7 @@ class TestStatsPlugin(object):
         # week 2
         freezer.move_to('2011-1-12')
         model.Package.by_name(u'test2').delete()
-        factories.Activity(
+        ActivityFactory(
             user_id=user["id"],
             object_id=dataset2["id"],
             activity_type="deleted package",
@@ -61,7 +62,7 @@ class TestStatsPlugin(object):
         dataset3['title'] = "Test 3"
         model.repo.commit_and_remove()
         dataset1['title'] = 'Test 1'
-        factories.Activity(
+        ActivityFactory(
             user_id=user["id"],
             object_id=dataset1["id"],
             activity_type="changed package",
@@ -70,7 +71,7 @@ class TestStatsPlugin(object):
         freezer.move_to('2011-1-20')
         model.repo.commit_and_remove()
         dataset4['title'] = 'Test 4'
-        factories.Activity(
+        ActivityFactory(
             user_id=user["id"],
             object_id=dataset4["id"],
             activity_type="changed package",
@@ -83,7 +84,7 @@ class TestStatsPlugin(object):
         dataset3['notes'] = "Test 3 notes"
         model.repo.commit_and_remove()
         dataset4['notes'] = 'test4 dataset'
-        factories.Activity(
+        ActivityFactory(
             user_id=user["id"],
             object_id=dataset4["id"],
             activity_type="changed package",

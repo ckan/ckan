@@ -68,6 +68,12 @@ providing new password.
 
 """
 
+
+action_succeeded = ckan.signal(u"action_succeed")
+"""This signal is sent when an action finished without an exception.
+"""
+
+
 datastore_upsert = ckanext.signal(u"datastore_upsert")
 """This signal is sent after datasetore records inserted/updated via
 `datastore_upsert`.

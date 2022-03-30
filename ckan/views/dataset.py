@@ -7,7 +7,6 @@ from collections import OrderedDict
 from functools import partial
 from typing_extensions import TypeAlias
 from urllib.parse import urlencode
-from datetime import datetime
 from typing import Any, Iterable, Optional, Union, cast
 
 from flask import Blueprint
@@ -441,7 +440,6 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         u'auth_user_obj': g.userobj
     })
     data_dict = {u'id': id, u'include_tracking': True}
-    activity_id = request.args.get(u'activity_id')
 
     # check if package exists
     try:
@@ -452,50 +450,12 @@ def read(package_type: str, id: str) -> Union[Response, str]:
 
     g.pkg_dict = pkg_dict
     g.pkg = pkg
-    # NB templates should not use g.pkg, because it takes no account of
-    # activity_id
-
-    if activity_id:
-        # view an 'old' version of the package, as recorded in the
-        # activity stream
-        try:
-            activity = get_action(u'activity_show')(
-                context, {u'id': activity_id, u'include_data': True})
-        except NotFound:
-            base.abort(404, _(u'Activity not found'))
-        except NotAuthorized:
-            base.abort(403, _(u'Unauthorized to view activity data'))
-        current_pkg = pkg_dict
-        try:
-            pkg_dict = activity[u'data'][u'package']
-        except KeyError:
-            base.abort(404, _(u'Dataset not found'))
-        if u'id' not in pkg_dict or u'resources' not in pkg_dict:
-            log.info(u'Attempt to view unmigrated or badly migrated dataset '
-                     '{} {}'.format(id, activity_id))
-            base.abort(404, _(u'The detail of this dataset activity is not '
-                              'available'))
-        if pkg_dict[u'id'] != current_pkg[u'id']:
-            log.info(u'Mismatch between pkg id in activity and URL {} {}'
-                     .format(pkg_dict[u'id'], current_pkg[u'id']))
-            # the activity is not for the package in the URL - don't allow
-            # misleading URLs as could be malicious
-            base.abort(404, _(u'Activity not found'))
-        # The name is used lots in the template for links, so fix it to be
-        # the current one. It's not displayed to the user anyway.
-        pkg_dict[u'name'] = current_pkg[u'name']
-
-        # Earlier versions of CKAN only stored the package table in the
-        # activity, so add a placeholder for resources, or the template
-        # will crash.
-        pkg_dict.setdefault(u'resources', [])
 
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:
         return h.redirect_to(u'{}.read'.format(package_type),
-                             id=pkg_dict['name'],
-                             activity_id=activity_id)
+                             id=pkg_dict['name'])
 
     # can the resources be previewed?
     for resource in pkg_dict[u'resources']:
@@ -515,9 +475,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             template, {
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
-                u'pkg': pkg,  # NB deprecated - it is the current version of
-                              # the dataset, so ignores activity_id
-                u'is_activity_archive': bool(activity_id),
+                u'pkg': pkg,
             }
         )
     except TemplateNotFound as e:
@@ -1097,169 +1055,6 @@ class GroupView(MethodView):
         )
 
 
-def activity(package_type: str, id: str) -> Union[Response, str]:  # noqa
-    """Render this package's public activity stream page.
-    """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'for_view': True,
-        u'auth_user_obj': g.userobj
-    })
-    data_dict = {u'id': id}
-    try:
-        pkg_dict = get_action(u'package_show')(context, data_dict)
-        pkg = context[u'package']
-        package_activity_stream = get_action(
-            u'package_activity_list')(
-            context, {u'id': pkg_dict[u'id']})
-        dataset_type = pkg_dict[u'type'] or u'dataset'
-    except NotFound:
-        return base.abort(404, _(u'Dataset not found'))
-    except NotAuthorized:
-        return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
-
-    # TODO: remove
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
-
-    return base.render(
-        u'package/activity.html', {
-            u'dataset_type': dataset_type,
-            u'pkg_dict': pkg_dict,
-            u'pkg': pkg,
-            u'activity_stream': package_activity_stream,
-            u'id': id,  # i.e. package's current name
-        }
-    )
-
-
-def changes(id: str,
-            package_type: Optional[str] = None) -> Union[Response, str]:  # noqa
-    '''
-    Shows the changes to a dataset in one particular activity stream item.
-    '''
-    activity_id = id
-    context = cast(Context, {
-        u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
-    })
-    try:
-        activity_diff = get_action(u'activity_diff')(
-            context, {u'id': activity_id, u'object_type': u'package',
-                      u'diff_type': u'html'})
-    except NotFound as e:
-        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
-        return base.abort(404, _(u'Activity not found'))
-    except NotAuthorized:
-        return base.abort(403, _(u'Unauthorized to view activity data'))
-
-    # 'pkg_dict' needs to go to the templates for page title & breadcrumbs.
-    # Use the current version of the package, in case the name/title have
-    # changed, and we need a link to it which works
-    pkg_id = activity_diff[u'activities'][1][u'data'][u'package'][u'id']
-    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
-    pkg_activity_list = get_action(u'package_activity_list')(
-        context, {
-            u'id': pkg_id,
-            u'limit': 100
-        }
-    )
-
-    return base.render(
-        u'package/changes.html', {
-            u'activity_diffs': [activity_diff],
-            u'pkg_dict': current_pkg_dict,
-            u'pkg_activity_list': pkg_activity_list,
-            u'dataset_type': current_pkg_dict[u'type'],
-        }
-    )
-
-
-def changes_multiple(
-        package_type: Optional[str] = None) -> Union[Response, str]:  # noqa
-    '''
-    Called when a user specifies a range of versions they want to look at
-    changes between. Verifies that the range is valid and finds the set of
-    activity diffs for the changes in the given version range, then
-    re-renders changes.html with the list.
-    '''
-
-    new_id = h.get_request_param(u'new_id')
-    old_id = h.get_request_param(u'old_id')
-
-    context = cast(Context, {
-        u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
-    })
-
-    # check to ensure that the old activity is actually older than
-    # the new activity
-    old_activity = get_action(u'activity_show')(context, {
-        u'id': old_id,
-        u'include_data': False})
-    new_activity = get_action(u'activity_show')(context, {
-        u'id': new_id,
-        u'include_data': False})
-
-    old_timestamp = old_activity[u'timestamp']
-    new_timestamp = new_activity[u'timestamp']
-
-    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
-    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
-
-    time_diff = t2 - t1
-    # if the time difference is negative, just return the change that put us
-    # at the more recent ID we were just looking at
-    # TODO: do something better here - go back to the previous page,
-    # display a warning that the user can't look at a sequence where
-    # the newest item is older than the oldest one, etc
-    if time_diff.total_seconds() < 0:
-        return changes(h.get_request_param(u'current_new_id'))
-
-    done = False
-    current_id = new_id
-    diff_list = []
-
-    while not done:
-        try:
-            activity_diff = get_action(u'activity_diff')(
-                context, {
-                    u'id': current_id,
-                    u'object_type': u'package',
-                    u'diff_type': u'html'})
-        except NotFound as e:
-            log.info(
-                u'Activity not found: {} - {}'.format(str(e), current_id)
-            )
-            return base.abort(404, _(u'Activity not found'))
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to view activity data'))
-
-        diff_list.append(activity_diff)
-
-        if activity_diff['activities'][0]['id'] == old_id:
-            done = True
-        else:
-            current_id = activity_diff['activities'][0]['id']
-
-    pkg_id: str = diff_list[0][u'activities'][1][u'data'][u'package'][u'id']
-    current_pkg_dict = get_action(u'package_show')(context, {u'id': pkg_id})
-    pkg_activity_list = get_action(u'package_activity_list')(context, {
-        u'id': pkg_id,
-        u'limit': 100})
-
-    return base.render(
-        u'package/changes.html', {
-            u'activity_diffs': diff_list,
-            u'pkg_dict': current_pkg_dict,
-            u'pkg_activity_list': pkg_activity_list,
-            u'dataset_type': current_pkg_dict[u'type'],
-        }
-    )
-
-
 def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # noqa
     context = cast(Context, {u'model': model, u'user': g.user})
     data_dict = {u'id': id}
@@ -1381,11 +1176,6 @@ class CollaboratorEditView(MethodView):
             u'package/collaborators/collaborator_new.html', extra_vars)
 
 
-# deprecated
-def history(package_type: str, id: str) -> Response:
-    return h.redirect_to(u'{}.activity'.format(package_type), id=id)
-
-
 def register_dataset_plugin_rules(blueprint: Blueprint):
     blueprint.add_url_rule(u'/', view_func=search, strict_slashes=False)
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
@@ -1407,11 +1197,6 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
     blueprint.add_url_rule(
         u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
     )
-    blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
-    blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
-    blueprint.add_url_rule(u'/<id>/history', view_func=history)
-
-    blueprint.add_url_rule(u'/changes_multiple', view_func=changes_multiple)
 
     if authz.check_config_permission(u'allow_dataset_collaborators'):
         blueprint.add_url_rule(

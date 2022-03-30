@@ -204,7 +204,7 @@ def migration(plugin: str, message: str):
 
 
 _factories = {
-    "activity": "ckan.tests.factories:Activity",
+    "activity": "ckanext.activity.tests.conftest:ActivityFactory",
     "api-token": "ckan.tests.factories:APIToken",
     "dataset": "ckan.tests.factories:Dataset",
     "group": "ckan.tests.factories:Group",
