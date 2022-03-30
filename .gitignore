@@ -30,6 +30,8 @@ fl_notes.txt
 *~
 .idea
 .vscode
+# pyevn marker created by bin/compile-requirements.sh
+.python-version
 
 # custom style
 ckan/public/base/less/custom.less
