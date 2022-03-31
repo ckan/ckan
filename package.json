@@ -16,14 +16,14 @@
     "gulp-sourcemaps": "^2.6.5",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
+    "pyright": "^1.1.186",
     "qs": "^6.10.3",
-    "sass": "^1.49.8",
-    "pyright": "^1.1.186"
+    "sass": "^1.49.8"
   },
   "devDependencies": {
     "axe-core": "^4.3.3",
-    "cypress": "^8.7.0",
-    "cypress-axe": "^0.13.0"
+    "cypress": "^9.5.1",
+    "cypress-axe": "^0.14.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
