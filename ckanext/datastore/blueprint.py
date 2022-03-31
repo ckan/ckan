@@ -14,7 +14,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, c, h
+    abort, render, g, h
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
@@ -123,8 +123,8 @@ class DictionaryView(MethodView):
         data_dict = self._prepare(id, resource_id)
 
         # global variables for backward compatibility
-        c.pkg_dict = data_dict[u'pkg_dict']
-        c.resource = data_dict[u'resource']
+        g.pkg_dict = data_dict[u'pkg_dict']
+        g.resource = data_dict[u'resource']
 
         return render(u'datastore/dictionary.html', data_dict)
 

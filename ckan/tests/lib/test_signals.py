@@ -102,3 +102,8 @@ class TestUserSignals:
                 app.post(url, data=data)
                 assert success.call_count == 1
                 assert fail.call_count == 3
+
+                data = {u"login": user["email"], u"password": "correct123"}
+                app.post(url, data=data)
+                assert success.call_count == 2
+                assert fail.call_count == 3

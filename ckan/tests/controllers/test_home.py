@@ -138,10 +138,10 @@ class TestI18nURLs(object):
                 f'http://test.ckan.net/{new_locale}'
             )
 
-            response = app.get(f'/{legacy_locale}/dataset', follow_redirects=False)
+            response = app.get(f'/{legacy_locale}/dataset?some=param', follow_redirects=False)
 
             assert response.status_code == 308
             assert (
                 response.headers['Location'] ==
-                f'http://test.ckan.net/{new_locale}/dataset'
+                f'http://test.ckan.net/{new_locale}/dataset?some=param'
             )
