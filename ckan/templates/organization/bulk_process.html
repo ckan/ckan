@@ -108,6 +108,6 @@
 {% block secondary_content %}
     {{  super() }}
     {% for facet in c.facet_titles %}
-    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}) }}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets) }}
   {% endfor %}
 {% endblock %}

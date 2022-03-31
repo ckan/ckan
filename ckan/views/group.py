@@ -355,10 +355,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         # compatibility with templates in existing extensions
         g.group_dict['package_count'] = query['count']
 
-        extra_vars["search_facets"] = g.search_facets = query['search_facets']
+        extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         default_limit: int = config.get_value(u'search.facets.default')
-        for facet in g.search_facets.keys():
+        for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
@@ -891,15 +891,9 @@ class BulkProcessView(MethodView):
         g.group_dict = group_dict
         g.group = group
         extra_vars = _read(id, limit, group_type)
-        g.packages = g.page.items
-
-        extra_vars: dict[str, Any] = {
-            u"group_dict": group_dict,
-            u"group": group,
-            u"page": g.page,
-            u"packages": g.page.items,
-            u'group_type': group_type
-        }
+        extra_vars['packages'] = g.page.items
+        extra_vars['group_dict'] = group_dict
+        extra_vars['group'] = group
 
         return base.render(
             _get_group_template(u'bulk_process_template', group_type),
