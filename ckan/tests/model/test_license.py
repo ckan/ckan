@@ -5,7 +5,6 @@ import os
 import pytest
 
 import ckan.model as model
-import ckan.tests.helpers as helpers
 from ckan.common import config
 from ckan.model.license import LicenseRegister
 from ckan.tests import factories

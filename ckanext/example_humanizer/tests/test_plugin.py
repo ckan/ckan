@@ -16,7 +16,6 @@ class TestExampleHumanizer(object):
     ])
     def test_original_translations(self, app, url, breadcrumb, button):
         user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
         env = {"REMOTE_USER": user["name"]}
         res = app.get(url, environ_overrides=env)
         page = bs4.BeautifulSoup(res.body)

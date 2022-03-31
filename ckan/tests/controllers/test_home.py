@@ -39,7 +39,7 @@ class TestHome(object):
         model.Session.add(user)
         model.Session.commit()
 
-        env={"REMOTE_USER": user.name}
+        env = {"REMOTE_USER": user.name}
         response = app.get(url=url_for("home.index"), environ_overrides=env)
 
         assert "update your profile" in response.body
