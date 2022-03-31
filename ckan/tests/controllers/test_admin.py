@@ -280,7 +280,24 @@ class TestTrashView(object):
         # no packages available to purge
         assert len(trash_org_list) == 0
 
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
     def test_trash_with_deleted_datasets(self, app, sysadmin_env):
+        """Getting the trash view with 'deleted' datasets should list the
+        datasets."""
+        factories.Dataset(state="deleted")
+        factories.Dataset(state="deleted")
+        factories.Dataset()
+
+        trash_url = url_for("admin.trash")
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
+
+        response_html = BeautifulSoup(response.body)
+        trash_pkg_list = response_html.select("ul.package-list li")
+        # Two packages in the list to purge
+        assert len(trash_pkg_list) == 2
+
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_trash_with_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_env):
         """Getting the trash view with 'deleted' datasets should list the
         datasets."""
         factories.Dataset(state="deleted")
@@ -371,7 +388,36 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 0
 
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
     def test_trash_purge_deleted_datasets(self, app, sysadmin_env):
+        """Posting the trash view with 'deleted' datasets, purges the
+        datasets."""
+        factories.Dataset(state="deleted")
+        factories.Dataset(state="deleted")
+        factories.Dataset()
+
+        # how many datasets before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        assert pkgs_before_purge == 3
+
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "package"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
+
+        # check for flash success msg
+        assert "datasets have been purged" in response.body
+
+        # how many datasets after purge
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        assert pkgs_after_purge == 1
+
+    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted")
@@ -451,7 +497,39 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_after_purge == 1
 
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
     def test_trash_purge_all(self, app, sysadmin_env):
+        """Posting the trash view with 'deleted' entities and
+        purge all button purges everything"""
+        factories.Dataset(state="deleted", type="custom_dataset")
+        factories.Group(state="deleted")
+        factories.Organization(state="deleted")
+        factories.Organization(state="deleted", type="custom_org")
+        factories.Organization()
+
+        # how many entities before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        orgs_and_grps_before_purge = model.Session.query(model.Group).count()
+        assert pkgs_before_purge + orgs_and_grps_before_purge == 5
+
+        trash_url = url_for("admin.trash")
+        response = app.post(
+            trash_url,
+            data={"action": "all"},
+            extra_environ=sysadmin_env,
+            status=200
+        )
+        # check for flash success msg
+        assert "Massive purge complete" in response
+
+        # how many entities after purge
+        pkgs_after_purge = model.Session.query(model.Package).count()
+        orgs_and_grps_after_purge = model.Session.query(model.Group).count()
+        assert pkgs_after_purge + orgs_and_grps_after_purge == 1
+
+    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_trash_purge_all_no_remove_deleted_packages(self, app, sysadmin_env):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
         factories.Dataset(state="deleted", type="custom_dataset")
