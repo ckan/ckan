@@ -21,7 +21,7 @@
     "sass": "^1.49.8"
   },
   "devDependencies": {
-    "axe-core": "^4.3.3",
+    "axe-core": "^4.4.1",
     "cypress": "^9.5.1",
     "cypress-axe": "^0.14.0"
   },
