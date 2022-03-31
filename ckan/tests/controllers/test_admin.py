@@ -316,6 +316,7 @@ class TestTrashView(object):
         # Two packages in the list to purge
         assert len(trash_pkg_list) == 2
 
+    @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
     def test_trash_with_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_env):
         """Getting the trash view with 'deleted' datasets should list the
@@ -325,7 +326,9 @@ class TestTrashView(object):
         factories.Dataset()
 
         trash_url = url_for("admin.trash")
-        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
+        env = {"REMOTE_USER": sysadmin_env["login"]}
+
+        response = app.get(trash_url, extra_environ=env, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_pkg_list = response_html.select("ul.package-list li")
@@ -443,11 +446,11 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
+        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(
             trash_url,
             data={"action": "package"},
-            extra_environ=sysadmin_env,
             status=200
         )
 
@@ -545,12 +548,11 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
-
+        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(
             trash_url,
             data={"action": "all"},
-            extra_environ=sysadmin_env,
             status=200
         )
         # check for flash success msg

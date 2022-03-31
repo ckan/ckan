@@ -789,9 +789,12 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except (NotFound, NotAuthorized) as e:
+    except NotFound as e:
         error_message = e.message or ''
-        h.flash_error(error_message)
+        base.abort(404, _(error_message))
+    except NotAuthorized as e:
+        error_message = e.message or ''
+        base.abort(403, _(error_message))
     return h.redirect_to(u'group.read', id=id)
 
 
@@ -1214,8 +1217,7 @@ class DeleteGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'{}.read'.format(group_type), id=id)
+            base.abort(403, _(e.error_dict['message']))
 
         return h.redirect_to(u'{}.index'.format(group_type))
 

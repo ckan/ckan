@@ -55,6 +55,6 @@ class TestUsernamePasswordAuthenticator(object):
         user = factories.User(password=self.password)
         identity = {"login": user["email"], "password": self.password}
         assert (
-            UsernamePasswordAuthenticator().authenticate({}, identity)
+            UsernamePasswordAuthenticator().authenticate(identity)
             == user["name"]
         )

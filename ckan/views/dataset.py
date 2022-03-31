@@ -944,7 +944,7 @@ def follow(package_type: str, id: str) -> Response:
     return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
-def unfollow(package_type: str, id: str) -> Response:
+def unfollow(package_type: str, id: str) -> Union[Response, str]:
     """Stop following this dataset.
     """
     context = cast(Context, {
@@ -961,9 +961,12 @@ def unfollow(package_type: str, id: str) -> Response:
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except (NotFound, NotAuthorized) as e:
+    except NotFound as e:
         error_message = e.message or ''
-        h.flash_error(error_message)
+        base.abort(404, _(error_message))
+    except NotAuthorized as e:
+        error_message = e.message or ''
+        base.abort(403, _(error_message))
     else:
         h.flash_success(
             _(u"You are no longer following {0}").format(

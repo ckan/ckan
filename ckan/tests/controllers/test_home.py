@@ -35,12 +35,12 @@ class TestHome(object):
         from ckan import model
 
         user = model.user.User(name="has-no-email", password="correct123")
-        data = {"login": user.name, "password": "correct123"}
+
         model.Session.add(user)
         model.Session.commit()
 
-        helpers.login_user(app, data)
-        response = app.get(url=url_for("home.index"))
+        env={"REMOTE_USER": user.name}
+        response = app.get(url=url_for("home.index"), environ_overrides=env)
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body

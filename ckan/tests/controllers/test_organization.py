@@ -226,7 +226,7 @@ class TestOrganizationDelete(object):
             url=url_for(
                 "organization.delete", id=initial_data["organization"]["id"]
             ),
-            data={"delete": ""}
+            data={"delete": ""},
         )
 
         assert helpers.body_contains(response, text)

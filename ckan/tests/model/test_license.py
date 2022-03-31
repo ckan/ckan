@@ -64,9 +64,8 @@ def test_import_v2_style_register():
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v1_style_register_i18n(app):
     sysadmin = factories.Sysadmin(password="correct123")
-    identity = {"login": sysadmin["name"], "password": "correct123"}
-    helpers.login_user(app, identity)
-    resp = app.get("/dataset/new")
+    env = {"REMOTE_USER": sysadmin["name"]}
+    resp = app.get("/dataset/new", environ_overrides=env)
     assert "Altres (Oberta)" in resp.body
 
 
@@ -77,9 +76,8 @@ def test_import_v1_style_register_i18n(app):
 @pytest.mark.ckan_config("ckan.locale_default", "ca")
 def test_import_v2_style_register_i18n(app):
     sysadmin = factories.Sysadmin(password="correct123")
-    identity = {"login": sysadmin["name"], "password": "correct123"}
-    helpers.login_user(app, identity)
-    resp = app.get("/dataset/new")
+    env = {"REMOTE_USER": sysadmin["name"]}
+    resp = app.get("/dataset/new", environ_overrides=env)
     assert "Altres (Oberta)" in resp.body
 
 

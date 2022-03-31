@@ -977,12 +977,11 @@ class TestUserImage(object):
 
         user = factories.User(
             image_url="https://example.com/mypic.png", password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
 
         url = url_for("user.read", id=user["name"])
 
-        helpers.login_user(app, identity)
-        res = app.get(url)
+        env = {"REMOTE_USER": user["name"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")
@@ -994,12 +993,11 @@ class TestUserImage(object):
     def test_fallback_to_gravatar(self, app):
 
         user = factories.User(image_url=None, password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
 
         url = url_for("user.read", id=user["name"])
 
-        helpers.login_user(app, identity)
-        res = app.get(url)
+        env = {"REMOTE_USER": user["name"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")
@@ -1012,12 +1010,11 @@ class TestUserImage(object):
     def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
 
         user = factories.User(image_url=None, password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
 
         url = url_for("user.read", id=user["name"])
 
-        helpers.login_user(app, identity)
-        res = app.get(url)
+        env = {"REMOTE_USER": user["name"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")

@@ -3,7 +3,6 @@ import pytest
 import bs4
 
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_humanizer")
@@ -18,8 +17,8 @@ class TestExampleHumanizer(object):
     def test_original_translations(self, app, url, breadcrumb, button):
         user = factories.User(password="correct123")
         identity = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
-        resp = app.get(url)
-        page = bs4.BeautifulSoup(resp.body)
+        env = {"REMOTE_USER": user["name"]}
+        res = app.get(url, environ_overrides=env)
+        page = bs4.BeautifulSoup(res.body)
         assert page.select_one(u'.toolbar .active').text == breadcrumb
         page.select_one(u'.page_primary_action').text.strip() == button
