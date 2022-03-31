@@ -87,7 +87,7 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls: Type[TUser], email: str) -> Optional["User"]:
+    def by_email(cls: Type[TUser], email: Optional[str]) -> Optional["User"]:
         return meta.Session.query(cls).filter_by(email=email).first()
 
     @classmethod

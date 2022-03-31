@@ -222,7 +222,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
-    app.session_interface = BeakerSessionInterface()
+    app.session_interface = BeakerSessionInterface() # type: ignore
 
     # Add Jinja2 extensions and filters
     app.jinja_env.filters['empty_and_escape'] = \
@@ -297,7 +297,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     login_manager.init_app(app)
 
     @login_manager.user_loader
-    def load_user(user_id: Any) -> Union[model.User, None]:
+    def load_user(user_id: str) -> Optional["model.User"]: # type: ignore
         return model.User.get(user_id)
 
     # Initialize repoze.who

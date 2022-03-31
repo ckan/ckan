@@ -497,13 +497,15 @@ def login() -> Union[Response, str]:
         return base.render("user/logout_first.html", extra_vars)
 
     if request.method == "POST":
-        username = request.form.get("login")
+        username_or_email = request.form.get("login")
         password = request.form.get("password")
         _remember = request.form.get("remember")
 
-        user = model.User.by_name(username)
+        user = model.User.by_name(username_or_email)
+        if not user:
+            user = model.User.by_email(username_or_email)
         identity = {
-            u"login": username,
+            u"login": username_or_email,
             u"password": password
         }
 
