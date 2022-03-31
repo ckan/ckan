@@ -222,7 +222,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
-    app.session_interface = BeakerSessionInterface()  # type: ignore
+    app.session_interface = BeakerSessionInterface()
 
     # Add Jinja2 extensions and filters
     app.jinja_env.filters['empty_and_escape'] = \
