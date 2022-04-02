@@ -49,7 +49,6 @@ def index() -> str:
             u'sort': u'view_recent desc',
             u'fq': u'capacity:"public"'}
         query = logic.get_action(u'package_search')(context, data_dict)
-        g.search_facets = query['search_facets']
         g.package_count = query['count']
         g.datasets = query['results']
 
