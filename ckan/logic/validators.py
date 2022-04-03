@@ -1043,6 +1043,6 @@ def importable_string(value: Any):
         return value
 
     try:
-        return import_string(value, silent=True)
+        return import_string(value)
     except ImportStringError as e:
         raise Invalid(str(e))
