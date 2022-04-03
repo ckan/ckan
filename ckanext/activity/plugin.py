@@ -22,6 +22,7 @@ class ActivityPlugin(p.SingletonPlugin):
     # IConfigurer
     def update_config(self, config: CKANConfig):
         tk.add_template_directory(config, "templates")
+        tk.add_resource("assets", "ckanext-activity")
 
     # ISignal
     def get_signal_subscriptions(self):

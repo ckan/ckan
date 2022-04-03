@@ -31,7 +31,7 @@ this.ckan.module('dashboard', function ($) {
             return DOMPurify.sanitize(content, { ALLOWED_TAGS: [
               "form", "div", "input", "footer", "header", "h1", "h2", "h3", "h4",
               "small", "span", "strong", "i", 'a', 'li', 'ul','p'
-           
+
             ]});
           },
           content: $('#followee-content').html()
