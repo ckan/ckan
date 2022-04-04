@@ -7,7 +7,7 @@ from typing import (
 )
 from typing_extensions import Literal
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_, text
+from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
 import ckan.model.meta as meta
@@ -237,7 +237,7 @@ class Group(core.StatefulObjectMixin,
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
         results: list[tuple[str, str, str, str]] = meta.Session.query(
-            Group.id, Group.name, Group.title, 'parent_id'
+            Group.id, Group.name, Group.title,  column('parent_id')
         ).from_statement(text(HIERARCHY_DOWNWARDS_CTE)).params(
             id=self.id, type=type).all()
         return results

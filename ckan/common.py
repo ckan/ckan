@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
 
 log = logging.getLogger(__name__)
-current_app = flask.current_app
 
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")

@@ -649,6 +649,16 @@ groups:
 
       - key: solr_user
       - key: solr_password
+      - key: ckan.search.remove_deleted_packages
+        type: bool
+        default: true
+        description: |
+          By default, deleted datasets are removed from the search index so are no
+          longer available in searches. To keep them in the search index, set this
+          setting to ``False``. This will enable the  ``include_deleted``
+          parameter in the  :py:func:`ckan.logic.action.get.package_search`
+          API action.
+
       - key: ckan.search.solr_commit
         type: bool
         default: true
@@ -1059,7 +1069,7 @@ groups:
         example: templates
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one vaue: ``templates``
+          by CKAN core. It is currently unused and it only accepts one value: ``templates``
           (Bootstrap 3, the default value from CKAN 2.8 onwards).
 
       - key: ckan.default.group_type

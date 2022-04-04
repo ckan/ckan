@@ -1,0 +1,2 @@
+Activities now receive the full dict of the object they refer to in their ``data`` section. This allows greater flexibility when creating custom activities from plugins.
+
