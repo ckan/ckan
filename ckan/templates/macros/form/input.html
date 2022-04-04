@@ -1,4 +1,5 @@
-{% import "macros/form/input_block.html" as input %}
+{% import "macros/form/input_block.html" as ib %}
+{% import "macros/form/attributes.html" as attr %}
 {#
 Creates all the markup required for an input element. Handles matching labels to
 inputs, error messages and other useful elements.
@@ -19,11 +20,10 @@ Examples:
 {{ form.input('title', label=_('Title'), value=data.title, error=errors.title) }}
 
 #}
-{% set input_block = input.input_block %}
 {% macro input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %}
 {%- set extra_html = caller() if caller -%}
 
-{% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %} 
-<input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+{% call ib.input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %} 
+<input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attr.attributes(attrs) }} />
 {% endcall %} 
 {% endmacro %}

@@ -1,9 +1,12 @@
 
-{% from 'macros/form/input.html' import input %}
+{% import 'macros/form/input.html' as inputs %}
 {% import 'macros/form/checkbox.html' as checkbox %}
 {% import 'macros/form/select.html' as select %}
 
-{% set input = input %}
+{% macro input(name, id, label, value, placeholder, type, error, classes, attrs, is_required) %}
+{% call inputs.input(name, id='', label='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %} 
+{% endcall %}
+{% endmacro %}
 
   {#
   Creates all the markup required for a Markdown textarea element. Handles
