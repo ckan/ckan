@@ -56,7 +56,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
 
     # passthrough_errors overrides conflicting options
     if passthrough_errors:
-        disable_reloader = False
+        disable_reloader = True
         threaded = False
         processes = 1
 
