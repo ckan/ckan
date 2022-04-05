@@ -48,7 +48,7 @@ def run(ctx, host, port, disable_reloader, passthrough_errors, threaded,
 
     # passthrough_errors overrides conflicting options
     if passthrough_errors:
-        disable_reloader = False
+        disable_reloader = True
         threaded = False
         processes = 1
 
