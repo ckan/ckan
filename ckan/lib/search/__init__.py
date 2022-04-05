@@ -219,8 +219,12 @@ def rebuild(package_id: Optional[str] = None,
             log.info('Indexing just package %r...', pkg_dict['name'])
             package_index.update_dict(pkg_dict, True)
     else:
-        package_ids = [r[0] for r in model.Session.query(model.Package.id).
-                       filter(model.Package.state != 'deleted').all()]
+        packages = model.Session.query(model.Package.id)
+        if config.get_value('ckan.search.remove_deleted_packages'):
+            packages = packages.filter(model.Package.state != 'deleted')
+        
+        package_ids = [r[0] for r in packages.all()]
+        
         if only_missing:
             log.info('Indexing only missing packages...')
             package_query = query_for(model.Package)

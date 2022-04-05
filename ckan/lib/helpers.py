@@ -56,7 +56,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, c, g, request, json
+from ckan.common import _, ungettext, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -261,15 +261,6 @@ def redirect_to(*args: Any, **kw: Any) -> Response:
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
     return cast(Response, _flask_redirect(_url))
-
-
-@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
-@core_helper
-def url(*args: Any, **kw: Any) -> str:
-    '''
-    Deprecated: please use `url_for` instead
-    '''
-    return url_for(*args, **kw)
 
 
 @core_helper
@@ -1071,20 +1062,16 @@ def get_facet_items_dict(
     match each facet item).
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
     '''
-    if search_facets is None:
-        search_facets = getattr(
-            c, u'search_facets', None)
-
     if not search_facets \
        or not isinstance(search_facets, dict) \
        or not search_facets.get(facet, {}).get('items'):
@@ -1102,9 +1089,9 @@ def get_facet_items_dict(
     sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
         -it['count'], it['display_name'].lower())
     facets.sort(key=sort_facets)
-    if hasattr(c, 'search_facets_limits'):
-        if c.search_facets_limits and limit is None:
-            limit = c.search_facets_limits.get(facet)
+    if hasattr(g, 'search_facets_limits'):
+        if g.search_facets_limits and limit is None:
+            limit = g.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return facets[:limit]
@@ -1121,12 +1108,12 @@ def has_more_facets(facet: str,
     limit.
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
 
@@ -1140,35 +1127,11 @@ def has_more_facets(facet: str,
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if getattr(c, 'search_facets_limits', None) and limit is None:
-        limit = c.search_facets_limits.get(facet)
+    if getattr(g, 'search_facets_limits', None) and limit is None:
+        limit = g.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
     return False
-
-
-@core_helper
-def unselected_facet_items(
-        facet: str, limit: int = 10) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
-    by count.
-
-    Returns the list of unselected facet contraints or facet items (e.g. tag
-    names like "russian" or "tolstoy") for the given search facet (e.g.
-    "tags"), sorted by facet item count (i.e. the number of search results that
-    match each facet item).
-
-    Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
-    selected.
-
-    Arguments:
-    facet -- the name of the facet to filter.
-    limit -- the max. number of facet items to return.
-
-    '''
-    return get_facet_items_dict(
-        facet, c.search_facets, limit=limit, exclude_active=True)
 
 
 @core_helper
@@ -1241,19 +1204,6 @@ def check_access(
         authorized = False
 
     return authorized
-
-
-@core_helper
-@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.",
-                     since="2.3.0")
-def get_action(action_name: str, data_dict: Optional[dict[str, Any]] = None):
-    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
-    if data_dict is None:
-        data_dict = {}
-    return logic.get_action(action_name)({}, data_dict)
 
 
 @core_helper
@@ -1774,11 +1724,11 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 @core_helper
 def auto_log_message() -> str:
-    if (c.action == 'new'):
+    if (g.action == 'new'):
         return _('Created new dataset.')
-    elif (c.action == 'editresources'):
+    elif (g.action == 'editresources'):
         return _('Edited resources.')
-    elif (c.action == 'edit'):
+    elif (g.action == 'edit'):
         return _('Edited settings.')
     return ''
 
@@ -1831,10 +1781,10 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    if c.user:
+    if g.user:
         context = cast(
             Context,
-            {'model': model, 'session': model.Session, 'user': c.user})
+            {'model': model, 'session': model.Session, 'user': g.user})
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1861,7 +1811,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
+        Context, {'model': model, 'session': model.Session, 'user': g.user}
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -2020,7 +1970,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': c.user}
+    context: Context = {'user': g.user}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -2037,16 +1987,16 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if not c.userobj:
+    if not g.userobj:
         return False
     # sysadmins can do anything
-    if c.userobj.sysadmin:
+    if g.userobj.sysadmin:
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == c.userobj.id)
+        .filter(model.Member.table_id == g.userobj.id)
     return len(query.all()) != 0
 
 
@@ -2071,7 +2021,7 @@ def dashboard_activity_stream(user_id: str,
 
     '''
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user})
+        Context, {'model': model, 'session': model.Session, 'user': g.user})
 
     if filter_type:
         action_functions = {
@@ -2095,7 +2045,7 @@ def recently_changed_packages_activity_stream(
     else:
         data_dict = {}
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
+        Context, {'model': model, 'session': model.Session, 'user': g.user}
     )
     return logic.get_action('recently_changed_packages_activity_list')(
         context, data_dict)
@@ -2473,7 +2423,7 @@ def new_activities() -> Optional[int]:
     details.
 
     '''
-    if not c.userobj:
+    if not g.userobj:
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
@@ -2874,7 +2824,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(c.user)
+    user = model.User.get(g.user)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
@@ -2888,3 +2838,29 @@ def can_update_owner_org(
         return True
 
     return False
+
+
+@core_helper
+def check_ckan_version(min_version: Optional[str] = None,
+                       max_version: Optional[str] = None):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)
