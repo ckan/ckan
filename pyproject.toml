@@ -147,6 +147,5 @@ module = [
     "repoze.*",
     "rq.*",
     "webassets.*",
-    "webob.*",
     "zope.*",
 ]

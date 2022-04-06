@@ -35,21 +35,6 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-# def _get_repoze_handler(handler_name: str) -> str:
-#     u'''Returns the URL that repoze.who will respond to and perform a
-#     login or logout.'''
-#     return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
-#                    handler_name)
-
-
-# def set_repoze_user(user_id: str, resp: Response) -> None:
-#     u'''Set the repoze.who cookie to match a given user_id'''
-#     if u'repoze.who.plugins' in request.environ:
-#         rememberer = request.environ[u'repoze.who.plugins'][u'friendlyform']
-#         identity = {u'repoze.who.userid': user_id}
-#         resp.headers.extend(rememberer.remember(request.environ, identity))
-
-
 def _edit_form_to_db_schema() -> Schema:
     return schema.user_edit_form_schema()
 
