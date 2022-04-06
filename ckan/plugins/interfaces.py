@@ -1731,6 +1731,9 @@ class IAuthenticator(Interface):
         to be overridden'''
         return (status_code, detail, headers, comment)
 
+    def authenticate(self, identity: Optional[dict[str, Any]]) -> Optional[str]:
+        pass
+
 
 class ITranslation(Interface):
     u'''

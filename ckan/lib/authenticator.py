@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import logging
+import ckan.plugins as plugins
 from typing import Any, Mapping, Optional
 
 from ckan.model import User
@@ -31,3 +32,13 @@ class UsernamePasswordAuthenticator(object):
             return user.name
         signals.failed_login.send(login)
         return None
+
+
+class CkanAuthenticator(object):
+
+    @classmethod
+    def __call__(cls):
+        for item in plugins.PluginImplementations(plugins.IAuthenticator):
+            return item
+
+        return UsernamePasswordAuthenticator()

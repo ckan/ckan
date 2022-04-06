@@ -494,8 +494,8 @@ def login() -> Union[Response, str]:
             u"password": password
         }
 
-        auth = authenticator.UsernamePasswordAuthenticator()
-        if auth.authenticate(identity):
+        auth = authenticator.CkanAuthenticator()
+        if auth().authenticate(identity):
             if _remember:
                 import datetime
                 dur_time = datetime.timedelta(days=5)
