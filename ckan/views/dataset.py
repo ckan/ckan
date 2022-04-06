@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import inspect
 from collections import OrderedDict
 from functools import partial
@@ -21,9 +22,11 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
+import ckan.model.activity as activity_model
 import ckan.plugins as plugins
 import ckan.authz as authz
 from ckan.common import _, config, g, request
+from ckan.logic.validators import VALIDATORS_PACKAGE_ACTIVITY_TYPES
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
@@ -1097,7 +1100,13 @@ class GroupView(MethodView):
         )
 
 
-def activity(package_type: str, id: str) -> Union[Response, str]:  # noqa
+def activity(
+    package_type: str,
+    id: str,
+    page: Union[int, str] = 0,
+    activity_type: Optional[str] = None,
+) -> Union[Response, str]:  # noqa
+
     """Render this package's public activity stream page.
     """
     context = cast(Context, {
@@ -1108,21 +1117,42 @@ def activity(package_type: str, id: str) -> Union[Response, str]:  # noqa
         u'auth_user_obj': g.userobj
     })
     data_dict = {u'id': id}
+    base_limit = int(config.get(u'ckan.activity_list_limit', 30))
+    max_limit = int(config.get(u'ckan.activity_list_limit_max', 100))
+    limit = min(base_limit, max_limit)
+    page = int(page)
+    offset = page * limit
+    activity_types = [activity_type] if activity_type else None
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
+        activity_dict = {
+            u'id': pkg_dict[u'id'],
+            u'offset': offset,
+            u'limit': limit,
+            u'activity_types': activity_types
+        }
         pkg = context[u'package']
         package_activity_stream = get_action(
             u'package_activity_list')(
-            context, {u'id': pkg_dict[u'id']})
+                context,
+                activity_dict,
+        )
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except NotFound:
         return base.abort(404, _(u'Dataset not found'))
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
 
-    # TODO: remove
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
+    all_activities = activity_model.package_activity_list(
+        pkg_dict[u'id'],
+        limit=0,
+        offset=0,
+        activity_types=activity_types
+    )
+    has_more = len(all_activities) > offset + limit
+    total_pages = int(math.ceil(len(all_activities) / limit))
+
+    activity_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys()
 
     return base.render(
         u'package/activity.html', {
@@ -1131,6 +1161,12 @@ def activity(package_type: str, id: str) -> Union[Response, str]:  # noqa
             u'pkg': pkg,
             u'activity_stream': package_activity_stream,
             u'id': id,  # i.e. package's current name
+            u'limit': limit,
+            u'page': page,
+            u'has_more': has_more,
+            u'total_pages': total_pages,
+            u'activity_type': activity_type,
+            u'activity_types': activity_types,
         }
     )
 
@@ -1408,6 +1444,11 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
         u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
     )
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
+    blueprint.add_url_rule(u'/activity/<id>/<page>', view_func=activity)
+    blueprint.add_url_rule(
+        u'/activity/<id>/<page>/<activity_type>',
+        view_func=activity
+    )
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
