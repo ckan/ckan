@@ -1724,14 +1724,19 @@ class IAuthenticator(Interface):
         '''
 
     def abort(
-        self, status_code: int, detail: str, headers: Optional[dict[str, Any]],
-        comment: Optional[str]
+        self,
+        status_code: int,
+        detail: str,
+        headers: Optional[dict[str, Any]],
+        comment: Optional[str],
     ) -> tuple[int, str, Optional[dict[str, Any]], Optional[str]]:
-        u'''Called on abort.  This allows aborts due to authorization issues
-        to be overridden'''
+        """Called on abort.  This allows aborts due to authorization issues
+        to be overridden"""
         return (status_code, detail, headers, comment)
 
-    def authenticate(self, identity: Optional[dict[str, Any]]) -> Optional[str]:
+    def authenticate(
+        self, identity: Optional[dict[str, Any]]
+    ) -> Optional[str]:
         pass
 
 
