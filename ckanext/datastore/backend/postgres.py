@@ -261,7 +261,6 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
         AND a.attnum = ANY(idx.indkey)
         AND t.relkind = 'r'
         AND idx.indisunique = true
-        AND idx.indisprimary = false
         AND t.relname = %s
     '''
     key_parts = context['connection'].execute(sql_get_unique_key,
@@ -1166,8 +1165,10 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
             raise ValidationError({
                 'table': [u'table does not have a unique key defined']
             })
-
         for num, record in enumerate(records):
+            # remove the _id if not provided when calling update method
+            if '_id' in unique_keys and '_id' not in record:
+                unique_keys.remove('_id')
             # all key columns have to be defined
             missing_fields = [field for field in unique_keys
                               if field not in record]
@@ -1184,6 +1185,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
+            if "_id" in record:
+                # _id is not a field_name so we need to append
+                field_names.append('_id')
             non_existing_filed_names = [field for field in record
                                         if field not in field_names]
             if non_existing_filed_names:
