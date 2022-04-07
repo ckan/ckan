@@ -154,12 +154,18 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
         storage_directory = uploader.get_storage_path()
         if storage_directory:
             path = os.path.join(storage_directory, 'storage')
-            try:
-                os.makedirs(path)
-            except OSError as e:
-                # errno 17 is file already exists
-                if e.errno != 17:
-                    raise
+
+            # check if the storage directory is already created by
+            # the user or third-party
+            if os.path.isdir(path):
+                pass
+            else:
+                try:
+                    os.makedirs(path)
+                except OSError as e:
+                    # errno 17 is file already exists
+                    if e.errno != 17:
+                        raise
 
             storage_app = StaticURLParser(path, cache_max_age=static_max_age)
             static_parsers.insert(0, storage_app)
