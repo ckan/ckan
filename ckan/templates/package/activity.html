@@ -20,7 +20,7 @@
     <select id="activity_types_filter_select">
       <option
         {% if not activity_type %}selected{% endif %}
-        data-url="{{ h.url_for('dataset.activity', id=id, page=0) }}"
+        data-url="{{ h.url_for('dataset.activity', id=id) }}"
       >{{ _('All activity types') }}</option>
       {% for type_ in activity_types %}
       <option 
