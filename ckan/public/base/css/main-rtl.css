@@ -12472,7 +12472,7 @@ select[data-module=autocomplete] {
 .resource-upload-field .btn-remove-url {
   position: absolute;
   margin-right: 0;
-  margin-top: 2px;
+  margin-top: 11px;
   top: 1.5rem;
   right: 0.25rem;
   padding: 0 12px;
