@@ -495,7 +495,7 @@ class CKANFlask(MultiStaticFlask):
         top_compare_key = False, -100, [(-2, 0)]
         for r in bp_rules:
             setattr(r, "ckan_core", False)
-            setattr(r, "match_compare_key",  lambda: top_compare_key)
+            setattr(r, "match_compare_key", lambda: top_compare_key)
 
 
 def _register_core_blueprints(app: CKANApp):
