@@ -69,7 +69,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
             r = requests.get(url, timeout=TIMEOUT, stream=True)
 
         response.headers[u'content-type'] = r.headers[u'content-type']
-        response.charset = r.encoding
+        response.charset = r.encoding or "utf-8"
 
         length = 0
         chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')

@@ -9,7 +9,7 @@ from hashlib import sha1, md5
 import six
 
 import passlib.utils
-from passlib.hash import pbkdf2_sha512 # type: ignore
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
