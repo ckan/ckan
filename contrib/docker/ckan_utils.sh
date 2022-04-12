@@ -47,7 +47,7 @@ ckan_start() {
     sudo docker-compose start ckan_gather_harvester
     sudo docker-compose start ckan_fetch_harvester
     sudo docker-compose start ckan_run_harvester
-    popd    
+    popd
 }
 
 ckan_down() {
@@ -87,6 +87,12 @@ ckan_upgrade() {
     sudo docker-compose up -d --build
 }
 
+ckan_compile_css(){
+  cd $CKAN_DOCKER/src/ckanext-cioos_theme/ckanext/cioos_theme/public/
+  sass --update --style=compressed cioos_atlantic.scss:cioos_atlantic.css cioos_theme.scss:cioos_theme.css
+  cd $CKAN_DOCKER
+}
+
 ckan_api_setup() {
     echo "Setting up the URL, API_KEY, and conda environment for use with the CKAN API."
     echo "For more information, see:"
@@ -105,7 +111,7 @@ ckan_api_setup() {
         echo "Which conda environment enables the ckanapi command?"
         read -p CONDA_ENV
     fi
-    if [ -z $CKAN_URL ]; then 
+    if [ -z $CKAN_URL ]; then
         echo "What is the CKAN URL?"
         read -p CKAN_URL
         export CKAN_URL=$CKAN_URL
@@ -122,7 +128,7 @@ ckan_api() {
     if [[ -z $CONDA_SH ]] || [[ -z $CONDA_ENV ]] || [[ -z $CKAN_URL ]] || [[ -z $CKAN_API_KEY ]]; then
         echo "A required environment variable for the CKAN API setup is not set."
         echo "Run the ckan_api_setup command to set these first."
-    else 
+    else
         source $CONDA_SH
         conda activate $CONDA_ENV
         ckanapi -r $CKAN_URL -a $CKAN_API_KEY "$@"
