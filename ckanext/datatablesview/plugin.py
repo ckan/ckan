@@ -2,7 +2,7 @@
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from ckanext.datatablesview import blueprint, helpers
+from ckanext.datatablesview import blueprint
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -24,14 +24,6 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.ITemplateHelpers, inherit=True)
-
-    # ITemplateHelpers
-
-    def get_helpers(self):
-        return{
-            'encode_datatables_request_filters': helpers.encode_datatables_request_filters
-        }
 
     # IBlueprint
 

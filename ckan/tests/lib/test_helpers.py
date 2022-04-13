@@ -877,13 +877,154 @@ def test_sanitize_url():
     ) == h.sanitize_url(u'http://éxàmple.com/some:path/to+a/fil[e].jpg')
 
 
+def test_extract_markdown():
+    with_html = u"""Data exposed: &mdash;
+Size of dump and data set: size?
+Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
+"""
+
+    with_unicode = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
+
+    assert "Data exposed" in h.markdown_extract(with_html)
+    assert "collects information" in h.markdown_extract(with_unicode)
+
+
+@pytest.mark.parametrize("string, date", [
+    ("2008-04-13", datetime.datetime(2008, 4, 13)),
+    ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
+    ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
+    ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+])
+def test_date_str_to_datetime_valid(string, date):
+    assert h.date_str_to_datetime(string) == date
+
+
+@pytest.mark.parametrize("string", [
+    "2008-04-13T20:40:20-01:30",
+    "2008-04-13T20:40:20-0130",
+    "2008-04-13T20:40:20foobar",
+])
+def test_date_str_to_datetime_invalid(string):
+    with pytest.raises(ValueError):
+        h.date_str_to_datetime(string)
+
+
+@pytest.mark.parametrize("dict_in,dict_out", [
+    ({"number_bool": True}, {"number bool": "True"}),
+    ({"number_bool": False}, {"number bool": "False"}),
+    ({"number_int": 0}, {"number int": "0"}),
+    ({"number_int": 42}, {"number int": "42"}),
+    ({"number_float": 0.0}, {"number float": "0"}),
+    ({"number_float": 0.1}, {"number float": "0.1"}),
+    ({"number_float": "0.10"}, {"number float": "0.1"}),
+    ({"string_basic": "peter"}, {"string basic": "peter"}),
+    ({"string_empty": ""}, {}),  # empty strings are ignored
+    ({"name": "hans"}, {}),  # blocked string
+])
+def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
+    # set locale to en (formatting of decimals)
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: "en")
+    items_out = h.format_resource_items(dict_in.items())
+    assert items_out == list(dict_out.items())
+
+
+def test_gravatar():
+    email = "zephod@gmail.com"
+    expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
+
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200, default="mm")
+    assert expected in res
+
+
+def test_gravatar_config_set_default(ckan_config):
+    """Test when default gravatar is None, it is pulled from the config file"""
+    email = "zephod@gmail.com"
+    default = ckan_config.get_value("ckan.gravatar_default")
+    expected = (
+        '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
+        % default
+    )
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200)
+    assert expected in res
+
+
+def test_gravatar_encodes_url_correctly():
+    """Test when the default gravatar is a url, it gets urlencoded"""
+    email = "zephod@gmail.com"
+    default = "http://example.com/images/avatar.jpg"
+    expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
+
+    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    res = h.gravatar(email_hash, 200, default=default)
+    assert expected in res
+
+
+def test_parse_rfc_2822_no_timezone_specified():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26" successfully.
+
+    Assuming it's UTC.
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26")
+    assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
+
+
+def test_parse_rfc_2822_gmt_case():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26 GMT" successfully.
+
+    GMT obs-zone specified
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26 GMT")
+    assert dt.isoformat() == "1994-11-15T12:45:26+00:00"
+
+
+def test_parse_rfc_2822_with_offset():
+    """
+    Parse "Tue, 15 Nov 1994 12:45:26 +0700" successfully.
+    """
+    dt = h.parse_rfc_2822_date("Tue, 15 Nov 1994 12:45:26 +0700")
+    assert dt.isoformat() == "1994-11-15T12:45:26+07:00"
+
+
+def test_escape_js():
+    input_str = '{"type":"point", "desc":"Bla bla O\'hara.\\nNew line."}'
+    expected_str = '{\\"type\\":\\"point\\", \\"desc\\":\\"Bla bla O\\\'hara.\\\\nNew line.\\"}'
+    output_str = h.escape_js(input_str)
+    assert output_str == expected_str
+
+
+@pytest.mark.usefixtures("clean_db", "with_request_context")
+def test_get_pkg_dict_extra():
+
+    from ckan.lib.create_test_data import CreateTestData
+    from ckan import model
+
+    CreateTestData.create()
+
+    pkg_dict = helpers.call_action("package_show", id="annakarenina")
+
+    assert h.get_pkg_dict_extra(pkg_dict, "genre") == "romantic novel"
+
+    assert h.get_pkg_dict_extra(pkg_dict, "extra_not_found") is None
+
+    assert (
+        h.get_pkg_dict_extra(pkg_dict, "extra_not_found", "default_value")
+        == "default_value"
+    )
+
+    model.repo.rebuild_db()
+
+@pytest.mark.usefixtures("with_request_context")
+def test_encode_view_request_filters(test_request_context):
+    
+    with test_request_context(u'?filters=Titlè:Tést|Datê:2022-01-01'):
+        assert h.encode_view_request_filters() == 'Titl%C3%A8%3AT%C3%A9st%7CDat%C3%AA%3A2022-01-01'
+
 @pytest.mark.usefixtures("with_request_context")
 def test_decode_view_request_filters(test_request_context):
 
-    with test_request_context(u'?filters=Titl%25C3%25A8:T%25C3%25A9st|Dat%25C3%25AA%2520Time:2022-01-01%252001%253A01%253A01|_id:1|_id:2|_id:3|Piped%257CFilter:Piped%257CValue'):
-        assert h.decode_view_request_filters() == {
-            'Titlè': ['Tést'],
-            'Datê Time': ['2022-01-01 01:01:01'],
-            '_id': ['1', '2', '3'],
-            'Piped|Filter': ['Piped|Value']
-        }
+    with test_request_context(u'?filters=Titl%C3%A8%3AT%C3%A9st%7CDat%C3%AA%3A2022-01-01'):
+        assert h.decode_view_request_filters() == 'Titlè:Tést|Datê:2022-01-01'
