@@ -186,7 +186,7 @@ def _get_user_for_apitoken() -> Optional[model.User]:
 
 
 def set_controller_and_action() -> None:
-    g.controller, g.action = p.toolkit.get_endpoint()
+    g.blueprint, g.view = p.toolkit.get_endpoint()
 
 
 def handle_i18n(environ: Optional[dict[str, Any]] = None) -> None:
