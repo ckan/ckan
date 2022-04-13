@@ -135,7 +135,7 @@ def _identify_user_default():
     u'''
     Identifies the user using two methods:
     a) If they logged into the web interface then flask-login will
-       set a proxy for the current user. If no user is logged in, 
+       set a proxy for the current user. If no user is logged in,
        this will be an anonymous user.
     b) For API calls they may set a header with an API token.
     '''
