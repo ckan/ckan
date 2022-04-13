@@ -34,13 +34,14 @@ class TestHome(object):
         # can't use factory to create user as without email it fails validation
         from ckan import model
 
-        user = model.user.User(name="has-no-email", password="correct123")
-
+        user = model.User(name="has-no-email", password="correct123")
         model.Session.add(user)
         model.Session.commit()
 
-        env = {"REMOTE_USER": user.name}
-        response = app.get(url=url_for("home.index"), environ_overrides=env)
+        user_token = factories.APIToken(user=user.id)
+        env = {"Authorization": user_token["token"]}
+
+        response = app.get(url=url_for("home.index"), extra_environ=env)
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body

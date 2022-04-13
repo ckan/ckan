@@ -239,7 +239,8 @@ class TestUser:
         frozen_time = datetime.datetime.utcnow()
         data = factories.User()
         dataset = factories.Dataset()
-        env = {"REMOTE_USER": str(data["name"])}
+        user_token = factories.APIToken(user=data["name"])
+        env = {"Authorization": user_token["token"]}
 
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])

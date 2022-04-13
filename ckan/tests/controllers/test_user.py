@@ -244,7 +244,8 @@ class TestUser(object):
 
     def test_edit_user(self, app, user):
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         app.post(
             url=url_for("user.edit"),
             data={
@@ -258,6 +259,7 @@ class TestUser(object):
                 "password1": "NewPass1",
                 "password2": "NewPass1",
             },
+            extra_environ=env
         )
 
         user = model.Session.query(model.User).get(user["user_dict"]["id"])
@@ -275,7 +277,8 @@ class TestUser(object):
 
     def test_email_change_without_password(self, app, user):
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit"),
             data={
@@ -285,11 +288,13 @@ class TestUser(object):
                 "password1": "",
                 "password2": "",
             },
+            extra_environ=env
         )
         assert "Old Password: incorrect password" in response
 
     def test_email_change_with_password(self, app, user):
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit"),
             data={
@@ -300,12 +305,14 @@ class TestUser(object):
                 "password2": "",
                 "name": user["user_dict"]["name"],
             },
+            extra_environ=env
         )
         assert "Profile updated" in response
 
     def test_email_change_on_existed_email(self, app, user):
         user2 = factories.User(email="existed@email.com")
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
 
         response = app.post(
             url=url_for("user.edit"),
@@ -317,12 +324,14 @@ class TestUser(object):
                 "password2": "",
                 "name": user["user_dict"]["name"],
             },
+            extra_environ=env
         )
         assert "belongs to a registered user" in response
 
     def test_edit_user_logged_in_username_change(self, app, user):
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit"),
             data={
@@ -332,13 +341,15 @@ class TestUser(object):
                 "password2": "",
                 "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_name(self, app, user):
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit", id=user["user_dict"]["name"]),
             data={
@@ -348,13 +359,15 @@ class TestUser(object):
                 "password2": "",
                 "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
 
     def test_edit_user_logged_in_username_change_by_id(self, app, user):
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit", id=user["user_dict"]["id"]),
             data={
@@ -364,6 +377,7 @@ class TestUser(object):
                 "password2": "",
                 "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
@@ -391,7 +405,8 @@ class TestUser(object):
         user password reset attempted with correct old password
         """
 
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit"),
             data={
@@ -402,6 +417,7 @@ class TestUser(object):
                 "name": user["user_dict"]["name"],
                 "email": user["user_dict"]["email"],
             },
+            extra_environ=env
         )
 
         assert "Profile updated" in response
@@ -410,7 +426,8 @@ class TestUser(object):
         """
         user password reset attempted with invalid old password
         """
-        helpers.login_user(app, user["identity"])
+        user_token = factories.APIToken(user=user['identity']['login'])
+        env = {"Authorization": user_token["token"]}
         response = app.post(
             url=url_for("user.edit"),
             data={
@@ -421,6 +438,7 @@ class TestUser(object):
                 "name": user["user_dict"]["name"],
                 "email": user["user_dict"]["email"],
             },
+            extra_environ=env
         )
         assert "Old Password: incorrect password" in response
 
@@ -980,7 +998,8 @@ class TestUserImage(object):
 
         url = url_for("user.read", id=user["name"])
 
-        env = {"REMOTE_USER": user["name"]}
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
         res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
@@ -996,7 +1015,8 @@ class TestUserImage(object):
 
         url = url_for("user.read", id=user["name"])
 
-        env = {"REMOTE_USER": user["name"]}
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
         res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
@@ -1013,7 +1033,8 @@ class TestUserImage(object):
 
         url = url_for("user.read", id=user["name"])
 
-        env = {"REMOTE_USER": user["name"]}
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
         res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)

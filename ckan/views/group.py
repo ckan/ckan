@@ -160,7 +160,7 @@ def index(group_type: str, is_organization: bool) -> str:
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if g.userobj:
+    if g.userobj and not g.userobj.is_anonymous:
         context['user_id'] = g.userobj.id
         context['user_is_admin'] = g.userobj.sysadmin
 

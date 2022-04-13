@@ -326,9 +326,9 @@ class TestTrashView(object):
         factories.Dataset()
 
         trash_url = url_for("admin.trash")
-        env = {"REMOTE_USER": sysadmin_env["login"]}
+        helpers.login_user(app, sysadmin_env)
 
-        response = app.get(trash_url, extra_environ=env, status=200)
+        response = app.get(trash_url, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_pkg_list = response_html.select("ul.package-list li")

@@ -146,10 +146,10 @@ class TestPackageNew(object):
         pkg = model.Package.by_name(name)
         assert pkg.state == "draft"
 
-    def test_resource_required(self, app, user):
+    def test_resource_required(self, app, sysadmin):
         url = url_for("dataset.new")
         name = "one-resource-required"
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": name,
             "save": "",
@@ -163,10 +163,10 @@ class TestPackageNew(object):
         })
         assert "You must add at least one data resource" in response
 
-    def test_complete_package_with_one_resource(self, app, user):
+    def test_complete_package_with_one_resource(self, app, sysadmin):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": name,
             "save": "",
@@ -184,10 +184,10 @@ class TestPackageNew(object):
         assert pkg.resources[0].url == u"http://example.com/resource"
         assert pkg.state == "active"
 
-    def test_complete_package_with_two_resources(self, app, user):
+    def test_complete_package_with_two_resources(self, app, sysadmin):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": name,
             "save": "",
@@ -212,9 +212,9 @@ class TestPackageNew(object):
 
     # resource upload is tested in TestExampleIUploaderPlugin
 
-    def test_previous_button_works(self, app, user):
+    def test_previous_button_works(self, app, sysadmin):
         url = url_for("dataset.new")
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": "previous-button-works",
             "save": "",
@@ -229,10 +229,10 @@ class TestPackageNew(object):
 
         assert '/dataset/edit/' in response.headers['location']
 
-    def test_previous_button_populates_form(self, app, user):
+    def test_previous_button_populates_form(self, app, sysadmin):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": name,
             "save": "",
@@ -248,10 +248,10 @@ class TestPackageNew(object):
         assert 'name="title"' in response
         assert f'value="{name}"'
 
-    def test_previous_next_maintains_draft_state(self, app, user):
+    def test_previous_next_maintains_draft_state(self, app, sysadmin):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        helpers.login_user(app, user)
+        helpers.login_user(app, sysadmin)
         response = app.post(url, data={
             "name": name,
             "save": "",
@@ -280,7 +280,8 @@ class TestPackageNew(object):
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
-        helpers.login_user(app, user)
+        user_token = factories.APIToken(user=user["login"])
+        env = {"Authorization": user_token["token"]}
 
         name = factories.Dataset.stub().name
         url = url_for("dataset.new")
@@ -289,7 +290,7 @@ class TestPackageNew(object):
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
         response = app.post(location, data={
             "id": "",
@@ -323,7 +324,8 @@ class TestPackageNew(object):
             name="my-org", users=[{"name": user["login"], "capacity": "admin"}]
         )
 
-        helpers.login_user(app, user)
+        user_token = factories.APIToken(user=user["login"])
+        env = {"Authorization": user_token["token"]}
 
         name = factories.Dataset.stub().name
         url = url_for("dataset.new")
@@ -332,7 +334,7 @@ class TestPackageNew(object):
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
         response = app.post(location, data={
             "id": "",
@@ -363,13 +365,14 @@ class TestPackageNew(object):
         # user isn't admin of org.
         org = factories.Organization(name="my-org")
         name = factories.Dataset.stub().name
-        helpers.login_user(app, user)
+        user_token = factories.APIToken(user=user["login"])
+        env = {"Authorization": user_token["token"]}
         url = url_for("dataset.new")
         response = app.post(url, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
         response = app.post(location, data={
             "id": "",

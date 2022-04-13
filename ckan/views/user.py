@@ -248,7 +248,7 @@ class EditView(MethodView):
             u'auth_user_obj': g.userobj
         })
         if id is None:
-            if g.userobj:
+            if g.userobj and not g.userobj.is_anonymous:
                 id = g.userobj.id
             else:
                 base.abort(400, _(u'No user specified'))
@@ -553,8 +553,9 @@ def delete(id: str) -> Response:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if g.userobj.id == id:
-        return logout()
+    if g.userobj and not g.userobj.is_anonymous:
+        if g.userobj.id == id:
+            return logout()
     else:
         user_index = h.url_for(u'user.index')
         return h.redirect_to(user_index)
