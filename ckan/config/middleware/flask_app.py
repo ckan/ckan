@@ -304,16 +304,6 @@ def get_locale() -> str:
         config.get_value(u'ckan.locale_default'))
 
 
-def remote_user() -> None:
-    header = "REMOTE_USER"
-
-    if "_user_id" in request.environ.get("beaker.session", ""):
-        user_id = request.environ["beaker.session"]["_user_id"]
-        userobj = model.Session.query(model.User).get(user_id)
-        if userobj:
-            request.environ[header] = userobj.name
-
-
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -329,9 +319,6 @@ def ckan_before_request() -> Optional[Response]:
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
-
-    # Sets REMOTE_USER in request.environ
-    remote_user()
 
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj

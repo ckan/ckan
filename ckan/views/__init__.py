@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from sqlalchemy import inspect
 import six
+from flask_login import current_user
 
 from urllib.parse import quote
 from flask.wrappers import Response
@@ -117,13 +117,14 @@ def identify_user() -> Optional[Response]:
     # that IAuthenticator extensions do not need to access the user model
     # directly.
     if g.user:
-        if not getattr(g, u'userobj', None) or inspect(g.userobj).expired:
+        if not getattr(g, u'userobj', None):
             g.userobj = model.User.by_name(g.user)
 
     # general settings
     if g.user:
         if g.userobj:
-            g.userobj.set_user_last_active()
+            userobj = model.User.by_name(g.user)
+            userobj.set_user_last_active()  # type: ignore
         g.author = g.user
     else:
         g.author = g.remote_addr
@@ -134,17 +135,15 @@ def _identify_user_default():
     u'''
     Identifies the user using two methods:
     a) If they logged into the web interface then flask-login will
-       set _user_id into beaker.session.
+       set a proxy for the current user. If no user is logged in, this will be an
+       anonymous user
     b) For API calls they may set a header with an API token.
     '''
-
-    # beaker_session['_user_id'] is set by flask-login if it authenticates a
-    # user's cookie. But flask-login doesn't check the user (still) exists
-    # in our database - we need to do that here.
-    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
-    if g.user:
-        g.userobj = model.User.by_name(g.user)
-        if g.userobj is None or not g.userobj.is_active():
+    g.user = ''
+    if not current_user.is_anonymous:  # type: ignore
+        g.user = current_user.name  # type: ignore
+        g.userobj = current_user
+        if g.userobj is None or not g.userobj.is_active():  # type: ignore
 
             # This occurs when a user that was still logged in is deleted, or
             # when you are logged in, clean db and then restart (or when you

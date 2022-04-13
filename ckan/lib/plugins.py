@@ -673,7 +673,7 @@ class DefaultPermissionLabels(object):
 
     def get_user_dataset_labels(self, user_obj: model.User) -> list[str]:
         labels = [u'public']
-        if not user_obj:
+        if user_obj.is_anonymous:
             return labels
 
         labels.append(u'creator-%s' % user_obj.id)

@@ -497,9 +497,9 @@ def login() -> Union[Response, str]:
         auth = authenticator.CkanAuthenticator()
         if auth().authenticate(identity):
             if _remember:
-                import datetime
-                dur_time = datetime.timedelta(days=5)
-                login_user(user, remember=True, duration=dur_time)
+                from datetime import timedelta
+                duration_time = timedelta(milliseconds=int(_remember))
+                login_user(user, remember=True, duration=duration_time)
                 return me()
             else:
                 login_user(user)

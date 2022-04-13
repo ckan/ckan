@@ -337,9 +337,15 @@ class User(core.StatefulObjectMixin,
         '''Needed by flask-login'''
         return str(self.id)
 
+    @property
     def is_authenticated(self) -> bool:
         '''Needed by flask-login'''
         return True
+
+    @property
+    def is_anonymous(self):
+        '''Needed by flask-login'''
+        return False
 
     def set_user_last_active(self) -> None:
         if self.last_active:
