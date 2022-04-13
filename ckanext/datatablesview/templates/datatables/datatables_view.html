@@ -10,7 +10,7 @@
 {#- pass the datadictionary to javascript, so we can init columns there -#}
 {%- set datadictionary = h.datastore_dictionary(resource.id) -%}
 {%- set nbspval = "&nbsp;"|safe -%}
-{% set filters = h.encode_datatables_request_filters() %}
+{% set filters = h.encode_view_request_filters() %}
 <script type=text/javascript>
     const gdataDict = {{ datadictionary|tojson }}
     const gresviewId = '{{ resource_view.id }}'

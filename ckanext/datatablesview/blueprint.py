@@ -8,8 +8,8 @@ from flask import Blueprint
 
 
 from ckan.common import json
+from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
-from ckanext.datatablesview.helpers import decode_datatables_request_filters
 import re
 
 datatablesview = Blueprint(u'datatablesview', __name__)
@@ -54,7 +54,7 @@ def ajax(resource_view_id: str):
     offset = int(request.form[u'start'])
     limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = decode_datatables_request_filters()
+    user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
@@ -147,7 +147,7 @@ def filtered_download(resource_view_id: str):
 
     search_text = str(params[u'search'][u'value'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = str(params[u'filters'])
+    user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
