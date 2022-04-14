@@ -11,19 +11,6 @@ import ckan.logic as logic
 log = logging.getLogger(__name__)
 
 
-def _create_test_data():
-    import sqlalchemy
-    try:
-        CreateTestData.create()
-    except (sqlalchemy.exc.IntegrityError):
-        # the data is already created and it fails with
-        # psycopg2.errors.UniqueViolation: duplicate key value
-        # violates unique constraint "group_name_key"
-        # DETAIL: Key (name)=(david) already exists
-        # DETAIL: (name)=(annakarenina) already exists
-        model.Session.rollback()
-
-
 class CreateTestData(object):
     # keep track of the objects created by this class so that
     # tests can easy call delete() method to delete them all again.
@@ -76,11 +63,12 @@ class CreateTestData(object):
 
     @classmethod
     def create_translations_test_data(cls):
-        _create_test_data()
+        package = model.Package.get('annakarenina')
+        if not package:
+            CreateTestData.create()
+            package = model.Package.get('annakarenina')
 
         sysadmin_user = model.User.get('testsysadmin')
-        package = model.Package.get('annakarenina')
-
         # Add some new tags to the package.
         # These tags are codes that are meant to be always translated before
         # display, if not into the user's current language then into the
@@ -110,10 +98,13 @@ class CreateTestData(object):
 
     @classmethod
     def create_vocabs_test_data(cls):
-        _create_test_data()
+        warandpeace = model.Package.get('warandpeace')
+        if not warandpeace:
+            CreateTestData.create()
+            warandpeace = model.Package.get('warandpeace')
+        
         sysadmin_user = model.User.get('testsysadmin')
         annakarenina = model.Package.get('annakarenina')
-        warandpeace = model.Package.get('warandpeace')
 
         # Create a couple of vocabularies.
         context = {
