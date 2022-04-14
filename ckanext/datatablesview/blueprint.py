@@ -12,6 +12,10 @@ from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
 import re
 
+import logging
+
+log = logging.getLogger(__name__)
+
 datatablesview = Blueprint(u'datatablesview', __name__)
 
 
@@ -55,6 +59,13 @@ def ajax(resource_view_id: str):
     limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
     user_filters = decode_view_request_filters()
+    log.info("    ")
+    log.info("DEBUG")
+    log.info("--user filters--")
+    log.info(user_filters)
+    log.info("--request args--")
+    log.info(request.form.get('filters'))
+    log.info("    ")
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')

@@ -909,12 +909,6 @@ def test_get_pkg_dict_extra():
     model.repo.rebuild_db()
 
 @pytest.mark.usefixtures("with_request_context")
-def test_encode_view_request_filters(test_request_context):
-    
-    with test_request_context(u'?filters=Titlè:Tést|Datê:2022-01-01'):
-        assert h.encode_view_request_filters() == 'Titl%C3%A8%3AT%C3%A9st%7CDat%C3%AA%3A2022-01-01'
-
-@pytest.mark.usefixtures("with_request_context")
 def test_decode_view_request_filters(test_request_context):
 
     with test_request_context(u'?filters=Titl%C3%A8%3AT%C3%A9st%7CDat%C3%AA%3A2022-01-01'):

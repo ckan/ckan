@@ -91,7 +91,7 @@ this.ckan.views.filters = (function (queryString) {
         }
 
         var fieldsStr = $.map(fields, function (field) {
-          return filter + ':' + field;
+          return encodeURIComponent(filter) + ':' + encodeURIComponent(field);
         });
 
         return fieldsStr.join('|');

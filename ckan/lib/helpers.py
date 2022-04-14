@@ -2890,13 +2890,7 @@ def can_update_owner_org(
     return False
 
 @core_helper
-def encode_view_request_filters():
-    if 'filters' not in request.args:
-        return ''
-    return quote(request.args['filters'])
-
-@core_helper
 def decode_view_request_filters():
-    if 'filters' not in request.args:
-        return ''
-    return unquote(str(request.args['filters']))
+    if request.form.get('filters') is not None:
+        return unquote(str(request.form.get('filters')))
+    return ''
