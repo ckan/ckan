@@ -8,7 +8,6 @@ from typing import Any, Optional, TYPE_CHECKING, overload
 from typing_extensions import Literal
 
 import ckan.logic as logic
-import ckan.authz as authz
 from ckan.types import Context, AuthResult, DataDict
 from flask_login import current_user
 

@@ -650,7 +650,12 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
     group_dict = _get_group_dict(id, group_type)
     group_type = group_dict['type']
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
@@ -672,7 +677,12 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
@@ -712,8 +722,12 @@ def member_delete(id: str, group_type: str,
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
-
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
     try:
         assert _check_access(u'group_member_delete', context, {u'id': id})
     except NotAuthorized:
@@ -752,7 +766,12 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Start following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
     data_dict = {u'id': id}
     try:
         get_action(u'follow_group')(context, data_dict)
@@ -773,7 +792,12 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Stop following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
     data_dict = {u'id': id}
     try:
         get_action(u'unfollow_group')(context, data_dict)
@@ -797,7 +821,12 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name()
+        }
+    )
     group_dict = _get_group_dict(id, group_type)
     try:
         followers = \
@@ -903,6 +932,7 @@ class BulkProcessView(MethodView):
         set_org(is_organization)
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
+        user = get_user_name()
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
@@ -918,7 +948,7 @@ class BulkProcessView(MethodView):
             base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
-                       _(u'User %r not authorized to edit %s') % (get_user_name(), id))
+                       _(u'User %r not authorized to edit %s') % (user, id))
 
         if not group_dict['is_organization']:
             # FIXME: better error
@@ -1010,10 +1040,10 @@ class CreateGroupView(MethodView):
             ))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-
+        user = get_user_name()
         data_dict['type'] = group_type or u'group'
         context['message'] = data_dict.get(u'log_message', u'')
-        data_dict['users'] = [{u'name': get_user_name(), u'capacity': u'admin'}]
+        data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
         except (NotFound, NotAuthorized):

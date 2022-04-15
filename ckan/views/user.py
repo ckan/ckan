@@ -618,7 +618,12 @@ class RequestResetView(MethodView):
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
-            Context, {u'model': model, u'user': get_user_name(), u'ignore_auth': True})
+            Context, {
+                u'model': model,
+                u'user': get_user_name(),
+                u'ignore_auth': True
+            }
+        )
         user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
@@ -820,7 +825,10 @@ def unfollow(id: str) -> Response:
 
 def followers(id: str) -> str:
     context = cast(Context, {
-        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+        u'for_view': True,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
+    })
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,

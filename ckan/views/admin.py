@@ -65,8 +65,11 @@ def _get_config_items() -> list[str]:
 def before_request() -> None:
     try:
         context = cast(
-            Context,
-            {"model": model, "user": get_user_name(), "auth_user_obj": current_user}
+            Context, {
+                "model": model,
+                "user": get_user_name(),
+                "auth_user_obj": current_user
+            }
         )
         logic.check_access(u'sysadmin', context)
     except logic.NotAuthorized:

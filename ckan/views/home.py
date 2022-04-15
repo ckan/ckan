@@ -41,8 +41,13 @@ def before_request() -> None:
 def index() -> str:
     u'''display home page'''
     try:
-        context = cast(Context, {u'model': model, u'session': model.Session,
-                                 u'user': get_user_name(), u'auth_user_obj': current_user})
+        context = cast(Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
+        }
+)
         data_dict: dict[str, Any] = {
             u'q': u'*:*',
             u'facet.field': h.facets(),

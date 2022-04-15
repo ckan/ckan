@@ -1812,7 +1812,11 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': get_user_name()}
+        Context, {
+            'model': model,
+            'session': model.Session,
+            'user': get_user_name()
+        }
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -2022,8 +2026,12 @@ def dashboard_activity_stream(user_id: str,
 
     '''
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': get_user_name()})
-
+        Context, {
+            'model': model,
+            'session': model.Session,
+            'user': get_user_name()
+        }
+    )
     if filter_type:
         action_functions = {
             'dataset': 'package_activity_list',
@@ -2046,7 +2054,11 @@ def recently_changed_packages_activity_stream(
     else:
         data_dict = {}
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': get_user_name()}
+        Context, {
+            'model': model,
+            'session': model.Session,
+            'user': get_user_name()
+        }
     )
     return logic.get_action('recently_changed_packages_activity_list')(
         context, data_dict)

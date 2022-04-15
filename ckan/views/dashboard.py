@@ -32,7 +32,9 @@ def before_request() -> None:
 
     try:
         context = cast(Context, {
-            "model": model, "user": get_user_name(), "auth_user_obj": current_user
+            "model": model,
+            "user": get_user_name(),
+            "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
@@ -137,7 +139,10 @@ def index(offset: int = 0) -> str:
 
 def datasets() -> str:
     context = cast(Context, {
-        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+        u'for_view': True,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
+    })
     data_dict: dict[str, Any] = {
         u'user_obj': current_user,
         u'include_datasets': True}
@@ -147,7 +152,10 @@ def datasets() -> str:
 
 def organizations() -> str:
     context = cast(Context, {
-        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+        u'for_view': True,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
+    })
     data_dict = {u'user_obj': current_user}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_organizations.html', extra_vars)
@@ -155,7 +163,10 @@ def organizations() -> str:
 
 def groups() -> str:
     context = cast(Context, {
-        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+        u'for_view': True,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
+    })
     data_dict = {u'user_obj': current_user}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_groups.html', extra_vars)
