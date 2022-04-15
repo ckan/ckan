@@ -263,7 +263,6 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
             _(u'Bad request data: %s') %
             u'Request data JSON decoded to %r but '
             u'it needs to be a dictionary.' % request_data)
-    breakpoint()
     if u'callback' in request_data:
         del request_data[u'callback']
         g.user = None
