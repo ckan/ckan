@@ -33,6 +33,7 @@ from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
+from flask_login import current_user
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
@@ -57,6 +58,7 @@ import ckan
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
 from ckan.common import _, ungettext, g, request, json
+from ckan.views import get_user_name
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -1192,9 +1194,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    if not getattr(g, u'user', None):
-        g.user = ''
-    context = cast(Context, {'model': model, 'user': g.user})
+    context = cast(Context, {'model': model, 'user': get_user_name()})
     if not data_dict:
         data_dict = {}
     try:
@@ -1781,10 +1781,11 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    if g.user:
+    user = get_user_name()
+    if user:
         context = cast(
             Context,
-            {'model': model, 'session': model.Session, 'user': g.user})
+            {'model': model, 'session': model.Session, 'user': user})
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1811,7 +1812,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': g.user}
+        Context, {'model': model, 'session': model.Session, 'user': get_user_name()}
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -1970,7 +1971,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': g.user}
+    context: Context = {'user': get_user_name()}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -1987,16 +1988,16 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if not g.userobj:
+    if current_user.is_anonymous:
         return False
     # sysadmins can do anything
-    if g.userobj.sysadmin:
+    if current_user.sysadmin:
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == g.userobj.id)
+        .filter(model.Member.table_id == current_user.id)
     return len(query.all()) != 0
 
 
@@ -2021,7 +2022,7 @@ def dashboard_activity_stream(user_id: str,
 
     '''
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': g.user})
+        Context, {'model': model, 'session': model.Session, 'user': get_user_name()})
 
     if filter_type:
         action_functions = {
@@ -2045,7 +2046,7 @@ def recently_changed_packages_activity_stream(
     else:
         data_dict = {}
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': g.user}
+        Context, {'model': model, 'session': model.Session, 'user': get_user_name()}
     )
     return logic.get_action('recently_changed_packages_activity_list')(
         context, data_dict)
@@ -2423,7 +2424,7 @@ def new_activities() -> Optional[int]:
     details.
 
     '''
-    if not g.userobj:
+    if current_user.is_anonymous:
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
@@ -2788,7 +2789,7 @@ def get_collaborators(package_id: str) -> list[tuple[str, str]]:
 
     Returns a list of tuples with the user id and the capacity
     '''
-    context: Context = {'ignore_auth': True, 'user': g.user}
+    context: Context = {'ignore_auth': True, 'user': get_user_name()}
     data_dict = {'id': package_id}
     _collaborators = logic.get_action('package_collaborator_list')(
         context, data_dict)
@@ -2824,7 +2825,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(g.user)
+    user = model.User.get(get_user_name())
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')

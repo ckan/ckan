@@ -10,6 +10,7 @@ from typing_extensions import Literal
 import ckan.logic as logic
 import ckan.authz as authz
 from ckan.types import Context, AuthResult, DataDict
+from flask_login import current_user
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -104,7 +105,7 @@ def get_activity_object(
 
 
 def restrict_anon(context: Context) -> AuthResult:
-    if authz.auth_is_anon_user(context):
+    if current_user.is_anonymous:  # type: ignore
         return {'success': False}
     else:
         return {'success': True}

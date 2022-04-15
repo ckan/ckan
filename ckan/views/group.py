@@ -22,8 +22,10 @@ import ckan.plugins as plugins
 from ckan.common import g, config, request, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
+from ckan.views import get_user_name
 
 from flask import Blueprint
+from flask_login import current_user
 from flask.views import MethodView
 from flask.wrappers import Response
 from ckan.types import Action, Context, DataDict, Schema
@@ -135,7 +137,7 @@ def index(group_type: str, is_organization: bool) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'for_view': True,
         u'with_private': False
     })
@@ -160,9 +162,9 @@ def index(group_type: str, is_organization: bool) -> str:
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if g.userobj and not g.userobj.is_anonymous:
-        context['user_id'] = g.userobj.id
-        context['user_is_admin'] = g.userobj.sysadmin
+    if not current_user.is_anonymous:
+        context['user_id'] = current_user.id
+        context['user_is_admin'] = current_user.sysadmin
 
     try:
         data_dict_global_results: dict[str, Any] = {
@@ -218,7 +220,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
@@ -394,7 +396,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'for_view': True
     })
     try:
@@ -415,7 +417,7 @@ def read(group_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True
     })
@@ -476,7 +478,7 @@ def activity(id: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'for_view': True
     })
     try:
@@ -523,7 +525,7 @@ def changes(id: str, group_type: str, is_organization: bool) -> str:
     activity_id = id
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
+        u'user': get_user_name(), u'auth_user_obj': current_user
     })
     try:
         activity_diff = get_action(u'activity_diff')(
@@ -572,7 +574,7 @@ def changes_multiple(is_organization: bool, group_type: str) -> str:
 
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
+        u'user': get_user_name(), u'auth_user_obj': current_user
     })
 
     # check to ensure that the old activity is actually older than
@@ -648,7 +650,7 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
     group_dict = _get_group_dict(id, group_type)
     group_type = group_dict['type']
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
@@ -670,7 +672,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
@@ -686,7 +688,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     except NotAuthorized:
         base.abort(403,
                    _(u'User %r not authorized to edit members of %s') %
-                   (g.user, id))
+                   (get_user_name(), id))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -710,7 +712,7 @@ def member_delete(id: str, group_type: str,
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
 
     try:
         assert _check_access(u'group_member_delete', context, {u'id': id})
@@ -727,13 +729,6 @@ def member_delete(id: str, group_type: str,
             h.flash_notice(_(u'Group member has been deleted.'))
             return h.redirect_to(u'{}.members'.format(group_type), id=id)
         user_dict = _action(u'group_show')(context, {u'id': user_id})
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.user_dict = user_dict
-        g.user_id = user_id
-        g.group_id = id
 
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
@@ -757,7 +752,7 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Start following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
     data_dict = {u'id': id}
     try:
         get_action(u'follow_group')(context, data_dict)
@@ -778,7 +773,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Stop following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
     data_dict = {u'id': id}
     try:
         get_action(u'unfollow_group')(context, data_dict)
@@ -802,7 +797,7 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {u'model': model, u'session': model.Session, u'user': get_user_name()})
     group_dict = _get_group_dict(id, group_type)
     try:
         followers = \
@@ -857,7 +852,7 @@ class BulkProcessView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': get_user_name(),
             u'schema': _db_to_form_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
@@ -923,7 +918,7 @@ class BulkProcessView(MethodView):
             base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
-                       _(u'User %r not authorized to edit %s') % (g.user, id))
+                       _(u'User %r not authorized to edit %s') % (get_user_name(), id))
 
         if not group_dict['is_organization']:
             # FIXME: better error
@@ -990,7 +985,7 @@ class CreateGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': get_user_name(),
             u'save': u'save' in request.args,
             u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
@@ -1018,7 +1013,7 @@ class CreateGroupView(MethodView):
 
         data_dict['type'] = group_type or u'group'
         context['message'] = data_dict.get(u'log_message', u'')
-        data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
+        data_dict['users'] = [{u'name': get_user_name(), u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
         except (NotFound, NotAuthorized):
@@ -1084,7 +1079,7 @@ class EditGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': get_user_name(),
             u'save': u'save' in request.args,
             u'for_edit': True,
             u'parent': request.args.get(u'parent', None),
@@ -1184,7 +1179,7 @@ class DeleteGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': get_user_name(),
         })
         try:
             assert _check_access(u'group_delete', context, {u'id': id})
@@ -1242,7 +1237,7 @@ class MembersGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user
+            u'user': get_user_name()
         })
         try:
             assert _check_access(u'group_member_create', context, {u'id': id})

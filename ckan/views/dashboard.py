@@ -10,8 +10,10 @@ import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
-from ckan.common import _, g, request
+from ckan.views import get_user_name
+from ckan.common import _, request
 from ckan.views.user import _extra_template_variables
+from flask_login import current_user
 from ckan.types import Context
 
 log = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ dashboard = Blueprint(u'dashboard', __name__, url_prefix=u'/dashboard')
 
 @dashboard.before_request
 def before_request() -> None:
-    if not g.userobj:
+    if current_user.is_anonymous:
         h.flash_error(_(u'Not authorized to see this page'))
 
         # flask types do not mention that it's possible to return a response
@@ -30,7 +32,7 @@ def before_request() -> None:
 
     try:
         context = cast(Context, {
-            "model": model, "user": g.user, "auth_user_obj": g.userobj
+            "model": model, "user": get_user_name(), "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
@@ -56,8 +58,8 @@ def _get_dashboard_context(
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user,
             u'for_view': True
         })
         data_dict: dict[str, Any] = {
@@ -103,12 +105,12 @@ def index(offset: int = 0) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
     data_dict: dict[str, Any] = {
-        u'user_obj': g.userobj,
+        u'user_obj': current_user,
         u'offset': offset}
     extra_vars = _extra_template_variables(context, data_dict)
 
@@ -118,13 +120,13 @@ def index(offset: int = 0) -> str:
 
     extra_vars[u'followee_list'] = logic.get_action(u'followee_list')(
         context, {
-            u'id': g.userobj.id,
+            u'id': current_user.id,
             u'q': q
         })
     extra_vars[u'dashboard_activity_stream_context'] = _get_dashboard_context(
         filter_type, filter_id, q)
     extra_vars[u'dashboard_activity_stream'] = h.dashboard_activity_stream(
-        g.userobj.id, filter_type, filter_id, offset)
+        current_user.id, filter_type, filter_id, offset)
 
     # Mark the user's new activities as old whenever they view their
     # dashboard page.
@@ -134,27 +136,27 @@ def index(offset: int = 0) -> str:
 
 
 def datasets() -> str:
-    context: Context = {
-        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+    context = cast(Context, {
+        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
     data_dict: dict[str, Any] = {
-        u'user_obj': g.userobj,
+        u'user_obj': current_user,
         u'include_datasets': True}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_datasets.html', extra_vars)
 
 
 def organizations() -> str:
-    context: Context = {
-        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
-    data_dict = {u'user_obj': g.userobj}
+    context = cast(Context, {
+        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+    data_dict = {u'user_obj': current_user}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_organizations.html', extra_vars)
 
 
 def groups() -> str:
-    context: Context = {
-        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
-    data_dict = {u'user_obj': g.userobj}
+    context = cast(Context, {
+        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
+    data_dict = {u'user_obj': current_user}
     extra_vars = _extra_template_variables(context, data_dict)
     return base.render(u'user/dashboard_groups.html', extra_vars)
 

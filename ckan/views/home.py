@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
 from flask import Blueprint, abort, redirect, request
+from flask_login import current_user
 
 import ckan.model as model
 import ckan.logic as logic
@@ -14,6 +15,7 @@ import ckan.lib.search as search
 import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
+from ckan.views import get_user_name
 from ckan.types import Context
 
 
@@ -29,8 +31,8 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             u'model': model,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj})
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user})
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)
@@ -40,7 +42,7 @@ def index() -> str:
     u'''display home page'''
     try:
         context = cast(Context, {u'model': model, u'session': model.Session,
-                                 u'user': g.user, u'auth_user_obj': g.userobj})
+                                 u'user': get_user_name(), u'auth_user_obj': current_user})
         data_dict: dict[str, Any] = {
             u'q': u'*:*',
             u'facet.field': h.facets(),
@@ -73,7 +75,7 @@ def index() -> str:
     except search.SearchError:
         g.package_count = 0
 
-    if g.userobj and not g.userobj.is_anonymous and not g.userobj.email:
+    if not current_user.is_anonymous and not current_user.email:
         url = h.url_for('user.edit')
         msg = _(u'Please <a href="%s">update your profile</a>'
                 u' and add your email address. ') % url + \

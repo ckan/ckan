@@ -22,7 +22,8 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
-from flask_login import login_user, logout_user
+from ckan.views import get_user_name
+from flask_login import login_user, logout_user, current_user
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
 
@@ -45,7 +46,9 @@ def _new_form_to_db_schema() -> Schema:
 
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
-    is_sysadmin = authz.is_sysadmin(g.user)
+    is_sysadmin = False
+    if not current_user.is_anonymous:  # type: ignore
+        is_sysadmin = authz.is_sysadmin(current_user.name)  # type: ignore
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
     except logic.NotFound:
@@ -53,7 +56,7 @@ def _extra_template_variables(context: Context,
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    is_myself = user_dict[u'name'] == g.user
+    is_myself = user_dict[u'name'] == current_user.name
     about_formatted = h.render_markdown(user_dict[u'about'])
     extra: dict[str, Any] = {
         u'is_sysadmin': is_sysadmin,
@@ -69,8 +72,8 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             "model": model,
-            "user": g.user,
-            "auth_user_obj": g.userobj
+            "user": get_user_name(),
+            "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
@@ -89,11 +92,11 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get_value('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
-    context: Context = {
+    context = cast(Context, {
         u'return_query': True,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
-    }
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
+    })
 
     data_dict = {
         u'q': q,
@@ -128,13 +131,13 @@ def read(id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
     data_dict: dict[str, Any] = {
         u'id': id,
-        u'user_obj': g.userobj,
+        u'user_obj': current_user,
         u'include_datasets': True,
         u'include_num_followers': True
     }
@@ -158,8 +161,8 @@ class ApiTokenView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user,
             u'for_view': True,
             u'include_plugin_extras': True
         })
@@ -172,7 +175,7 @@ class ApiTokenView(MethodView):
 
         data_dict: dict[str, Any] = {
             u'id': id,
-            u'user_obj': g.userobj,
+            u'user_obj': current_user,
             u'include_datasets': True,
             u'include_num_followers': True
         }
@@ -244,12 +247,12 @@ class EditView(MethodView):
             u'schema': _edit_form_to_db_schema(),
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
         if id is None:
-            if g.userobj and not g.userobj.is_anonymous:
-                id = g.userobj.id
+            if not current_user.is_anonymous:
+                id = current_user.id
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -285,7 +288,7 @@ class EditView(MethodView):
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
-        email_changed = data_dict[u'email'] != g.userobj.email
+        email_changed = data_dict[u'email'] != current_user.email
 
         # common users can edit their own profiles without providing
         # password, but if they want to change
@@ -301,19 +304,19 @@ class EditView(MethodView):
 
             # getting the identity for current logged user
             identity = {
-                u'login': g.user,
+                u'login': get_user_name(),
                 u'password': data_dict[u'old_password']
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
-            if auth.authenticate(identity) != g.user:
+            if auth.authenticate(identity) != get_user_name():
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
                 error_summary = {_(u'Old Password'): _(u'incorrect password')}\
-                    if not g.userobj.sysadmin \
+                    if not current_user.sysadmin \
                     else {_(u'Sysadmin Password'): _(u'incorrect password')}
                 return self.get(id, data_dict, errors, error_summary)
 
@@ -341,11 +344,8 @@ class EditView(MethodView):
         context, id = self._prepare(id)
         data_dict = {u'id': id}
         try:
+
             old_data = logic.get_action(u'user_show')(context, data_dict)
-
-            g.display_name = old_data.get(u'display_name')
-            g.user_name = old_data.get(u'name')
-
             data = data or old_data
 
         except logic.NotAuthorized:
@@ -363,7 +363,7 @@ class EditView(MethodView):
         extra_vars = _extra_template_variables(cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user
+            u'user': get_user_name()
         }), data_dict)
 
         extra_vars[u'show_email_notifications'] = config.get_value(
@@ -380,8 +380,8 @@ class RegisterView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user,
             u'schema': _new_form_to_db_schema(),
             u'save': u'save' in request.form
         })
@@ -424,14 +424,15 @@ class RegisterView(MethodView):
             error_summary = e.error_summary
             return self.get(data_dict, errors, error_summary)
 
-        if g.user:
+        user = get_user_name()
+        if user:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
             h.flash_success(
                 _(u'User "%s" is now registered but you are still '
                   u'logged in as "%s" from before') % (data_dict[u'name'],
-                                                       g.user))
-            if authz.is_sysadmin(g.user):
+                                                       user))
+            if authz.is_sysadmin(user):
                 # the sysadmin created a new user. We redirect him to the
                 # activity page for the newly created user
                 return h.redirect_to(u'user.activity', id=data_dict[u'name'])
@@ -439,11 +440,9 @@ class RegisterView(MethodView):
                 return base.render(u'user/logout_first.html')
 
         # log the user in programatically
-        g.userobj = model.User.get(user_dict["id"])
-        if g.userobj:
-            g.user = g.userobj.name
-            login_user(g.userobj)
-
+        userobj = model.User.get(user_dict["id"])
+        if userobj:
+            login_user(userobj)
         resp = h.redirect_to(u'user.me')
         return resp
 
@@ -452,8 +451,9 @@ class RegisterView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         self._prepare()
+        user = get_user_name()
 
-        if g.user and not data and not authz.is_sysadmin(g.user):
+        if user and not data and not authz.is_sysadmin(user):
             # #1799 Don't offer the registration form if already logged in
             return base.render(u'user/logout_first.html', {})
 
@@ -464,7 +464,7 @@ class RegisterView(MethodView):
         }
 
         extra_vars: dict[str, Any] = {
-            u'is_sysadmin': authz.is_sysadmin(g.user),
+            u'is_sysadmin': authz.is_sysadmin(user),
             u'form': base.render(new_user_form, form_vars)
         }
         return base.render(u'user/new.html', extra_vars)
@@ -478,7 +478,8 @@ def login() -> Union[Response, str]:
             return response
 
     extra_vars: dict[str, Any] = {}
-    if g.user:
+
+    if not current_user.is_anonymous:
         return base.render("user/logout_first.html", extra_vars)
 
     if request.method == "POST":
@@ -518,14 +519,12 @@ def logout() -> Response:
         response = item.logout()
         if response:
             return response
-
-    if not g.user:
+    user = get_user_name()
+    if not user:
         return h.redirect_to('user.login')
 
     came_from = request.args.get('came_from', '')
     logout_user()
-    g.userobj = None
-    g.user = None
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
@@ -542,8 +541,8 @@ def delete(id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
 
@@ -553,12 +552,12 @@ def delete(id: str) -> Response:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if g.userobj and not g.userobj.is_anonymous:
-        if g.userobj.id == id:
+    if not current_user.is_anonymous:
+        if current_user.id == id:
             return logout()
-    else:
-        user_index = h.url_for(u'user.index')
-        return h.redirect_to(user_index)
+        else:
+            user_index = h.url_for(u'user.index')
+            return h.redirect_to(user_index)
 
 
 def activity(id: str, offset: int = 0) -> str:
@@ -567,13 +566,13 @@ def activity(id: str, offset: int = 0) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
     data_dict: dict[str, Any] = {
         u'id': id,
-        u'user_obj': g.userobj,
+        u'user_obj': current_user,
         u'include_num_followers': True
     }
     try:
@@ -602,8 +601,8 @@ class RequestResetView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
         try:
             logic.check_access(u'request_reset', context)
@@ -619,7 +618,7 @@ class RequestResetView(MethodView):
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
-            Context, {u'model': model, u'user': g.user, u'ignore_auth': True})
+            Context, {u'model': model, u'user': get_user_name(), u'ignore_auth': True})
         user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
@@ -779,8 +778,8 @@ def follow(id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
@@ -801,8 +800,8 @@ def unfollow(id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
@@ -820,11 +819,11 @@ def unfollow(id: str) -> Response:
 
 
 def followers(id: str) -> str:
-    context: Context = {
-        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+    context = cast(Context, {
+        u'for_view': True, u'user': get_user_name(), u'auth_user_obj': current_user})
     data_dict: dict[str, Any] = {
         u'id': id,
-        u'user_obj': g.userobj,
+        u'user_obj': current_user,
         u'include_num_followers': True
     }
     extra_vars = _extra_template_variables(context, data_dict)
@@ -846,8 +845,8 @@ def sysadmin() -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user,
         })
         data_dict: dict[str, Any] = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)

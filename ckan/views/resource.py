@@ -8,6 +8,7 @@ from typing import Any, cast, Optional, Union
 
 import flask
 from flask.views import MethodView
+from flask_login import current_user
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
@@ -20,6 +21,7 @@ import ckan.plugins as plugins
 from ckan.lib import signals
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
+from ckan.views import get_user_name
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
@@ -57,8 +59,8 @@ def read(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
 
@@ -169,8 +171,8 @@ def download(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
     })
 
     try:
@@ -210,8 +212,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
 
         # see if we have any data that we are trying to save
@@ -306,8 +308,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})
@@ -354,15 +356,15 @@ class EditView(MethodView):
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (get_user_name, id)
             )
         return context
 
@@ -456,8 +458,8 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': get_user_name(),
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_delete', context, {u'id': id})
@@ -530,9 +532,9 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': get_user_name(),
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
 
@@ -541,7 +543,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (g.user, id)
+            _(u'User %r not authorized to edit %s') % (get_user_name(), id)
         )
     # check if package exists
     try:
@@ -595,8 +597,8 @@ def view(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': get_user_name(),
+        u'auth_user_obj': current_user
     })
 
     try:
@@ -634,9 +636,9 @@ class EditResourceViewView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': get_user_name(),
             u'for_view': True,
-            u'auth_user_obj': g.userobj
+            u'auth_user_obj': current_user
         })
 
         # update resource should tell us early if the user has privilages.
@@ -645,7 +647,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (get_user_name(), id)
             )
 
         # get resource and package data

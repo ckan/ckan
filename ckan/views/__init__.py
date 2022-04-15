@@ -111,6 +111,7 @@ def identify_user() -> Optional[Response]:
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
+        g.userobj = ''
         _identify_user_default()
 
     # If we have a user but not the userobj let's get the userobj. This means
@@ -155,13 +156,9 @@ def _identify_user_default():
             logout_user()
             g.userobj = None
             g.user = None
-    else:
-        g.userobj = _get_user_for_apitoken()
-        if g.userobj is not None:
-            g.user = g.userobj.name
 
 
-def _get_user_for_apitoken() -> Optional[model.User]:
+def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     apitoken_header_name = config.get_value("apikey_header_name")
 
     apitoken: str = request.headers.get(apitoken_header_name, u'')
@@ -237,3 +234,8 @@ def set_ckan_current_url(environ: Any) -> None:
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info
+
+
+def get_user_name() -> str:
+    user = current_user.name if not current_user.is_anonymous else ''
+    return user
