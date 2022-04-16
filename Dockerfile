@@ -65,6 +65,8 @@ RUN ckan-pip3 install -U pip && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt && \
     ckan-pip3 install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt && \
     ckan-pip3 install -e $CKAN_VENV/src/ckan/ && \
+    sed -i "s|post_login_url = /user/logged_in|post_login_url = ${CKAN_SITE_URL}/user/logged_in|" $CKAN_VENV/src/ckan/ckan/config/who.ini && \
+    sed -i "s|post_logout_url = /user/logged_out|post_logout_url = ${CKAN_SITE_URL}/user/logged_out|" $CKAN_VENV/src/ckan/ckan/config/who.ini && \
     ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
