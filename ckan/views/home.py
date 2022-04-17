@@ -47,7 +47,7 @@ def index() -> str:
             u'user': get_user_name(),
             u'auth_user_obj': current_user
         }
-)
+    )
         data_dict: dict[str, Any] = {
             u'q': u'*:*',
             u'facet.field': h.facets(),

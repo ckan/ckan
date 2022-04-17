@@ -234,28 +234,6 @@ class User(CKANFactory):
     sysadmin = False
 
 
-# class AnonymousUser(CKANFactory):
-#     """A factory class for creating CKAN anonymous users."""
-#     class Meta:
-#         model = ckan.model.User
-#         action = "user_create"
-
-#     fullname = factory.LazyFunction(fake.name)
-#     password = factory.LazyFunction(fake.password)
-#     about = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
-#     image_url = factory.LazyFunction(fake.image_url)
-#     email = factory.LazyFunction(
-#         lambda: fake.unique.email(domain="ckan.example.com")
-#     )
-#     name = factory.LazyFunction(fake.unique.user_name)
-#     reset_key = None
-#     sysadmin = False
-
-
-#     def is_anonymous(self):
-#         return True
-
-
 class Resource(CKANFactory):
     """A factory class for creating CKAN resources."""
 

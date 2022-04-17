@@ -56,7 +56,8 @@ def _extra_template_variables(context: Context,
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    is_myself = user_dict[u'name'] == current_user.name
+    _current_user = current_user.name if not current_user.is_anonymous else ""
+    is_myself = user_dict[u'name'] == _current_user
     about_formatted = h.render_markdown(user_dict[u'about'])
     extra: dict[str, Any] = {
         u'is_sysadmin': is_sysadmin,
