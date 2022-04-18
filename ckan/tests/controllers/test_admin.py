@@ -2,6 +2,7 @@
 
 import pytest
 from bs4 import BeautifulSoup
+from unittest import mock
 
 import ckan.model as model
 import ckan.tests.factories as factories
@@ -14,42 +15,43 @@ from ckan.model.system_info import get_system_info
 @pytest.fixture
 def sysadmin_env():
     user = factories.Sysadmin(password="correct123")
-    data = {"login": user["name"], "password": "correct123"}
-    return data
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    return env
 
 
 @pytest.fixture
 def user_env():
     user = factories.User(password="correct123")
-    data = {"login": user["name"], "password": "correct123"}
-    return data
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    return env
 
 
-def _reset_config(app):
+def mock_current_user(current_user):
+    user = factories.Sysadmin()
+    user_obj = model.User.get(user["name"])
+    # mock current_user
+    current_user.return_value = user_obj
+
+
+def _reset_config(app, sysadmin_env):
     """Reset config via action"""
-    user = factories.Sysadmin(password="correct123")
-    data = {"login": user["name"], "password": "correct123"}
-    app.post(url=url_for("user.login"), data=data)
-    app.post(url=url_for("admin.reset_config"))
+    app.post(url=url_for("admin.reset_config"), extra_environ=sysadmin_env)
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_index(app, user_env, sysadmin_env):
 
     url = url_for("admin.index")
-    logout_url = url_for("user.logout")
-
     # Anonymous User
     response = app.get(url, status=403)
 
     # Normal User
-    helpers.login_user(app, user_env)
-    response = app.get(url, status=403)
-    app.post(logout_url)
+    response = app.get(url, extra_environ=user_env, status=403)
 
     # Sysadmin User
-    helpers.login_user(app, sysadmin_env)
-    response = app.get(url, data=sysadmin_env)
+    response = app.get(url, extra_environ=sysadmin_env)
     assert "Administration" in response, response
 
 
@@ -64,18 +66,17 @@ class TestConfig(object):
         assert "Welcome - CKAN" in index_response
 
         url = url_for(u"admin.config")
-        helpers.login_user(app, sysadmin_env)
 
         # change site title
         form = {"ckan.site_title": "Test Site Title", "save": ""}
-        app.post(url, data=form)
+        app.post(url, extra_environ=sysadmin_env, data=form)
 
         # new site title
         new_index_response = app.get("/")
         assert "Welcome - Test Site Title" in new_index_response
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
@@ -87,23 +88,24 @@ class TestConfig(object):
         assert "main.css" in index_response or "main.min.css" in index_response
 
         url = url_for(u"admin.config")
-        helpers.login_user(app, sysadmin_env)
 
         # set new style css
         form = {"ckan.main_css": "/base/css/main-rtl.css", "save": ""}
-        resp = app.post(url, data=form)
+        resp = app.post(url, extra_environ=sysadmin_env, data=form)
 
         assert "main-rtl.css" in resp or "main-rtl.min.css" in resp
         assert not helpers.body_contains(resp, "main.min.css")
 
-    def test_tag_line(self, app, sysadmin_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_tag_line(self, current_user, app, sysadmin_env):
         """Add a tag line (only when no logo)"""
+        mock_current_user(current_user)
+
         # current tagline
         index_response = app.get("/")
         assert "Special Tagline" not in index_response
 
         url = url_for(u"admin.config")
-        helpers.login_user(app, sysadmin_env)
 
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
@@ -123,7 +125,7 @@ class TestConfig(object):
         assert "Special Tagline" in new_index_response
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_index_response = app.get("/")
         assert "Special Tagline" not in reset_index_response
 
@@ -134,19 +136,17 @@ class TestConfig(object):
         about_response = app.get("/about")
         assert "My special about text" not in about_response
 
-        helpers.login_user(app, sysadmin_env)
-
         # set new about
         url = url_for(u"admin.config")
         form = {"ckan.site_about": "My special about text", "save": ""}
-        app.post(url, data=form)
+        app.post(url, extra_environ=sysadmin_env, data=form)
 
         # new about
         new_about_response = app.get("/about")
         assert "My special about text" in new_about_response
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_about_response = app.get("/about")
         assert "My special about text" not in reset_about_response
 
@@ -157,19 +157,17 @@ class TestConfig(object):
         intro_response = app.get("/")
         assert "My special intro text" not in intro_response
 
-        helpers.login_user(app, sysadmin_env)
-
         # set new intro
         url = url_for(u"admin.config")
         form = {"ckan.site_intro_text": "My special intro text", "save": ""}
-        app.post(url, data=form)
+        app.post(url, extra_environ=sysadmin_env, data=form)
 
         # new intro
         new_intro_response = app.get("/")
         assert "My special intro text" in new_intro_response
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_intro_response = app.get("/")
         assert "My special intro text" not in reset_intro_response
 
@@ -180,15 +178,13 @@ class TestConfig(object):
         style_tag = intro_response_html.select("head style")
         assert len(style_tag) == 0
 
-        helpers.login_user(app, sysadmin_env)
-
         # set new tagline css
         url = url_for(u"admin.config")
         form = {
             "ckan.site_custom_css": "body {background-color:red}",
             "save": "",
         }
-        app.post(url, data=form)
+        app.post(url, extra_environ=sysadmin_env, data=form)
 
         # new tagline not visible yet
         new_intro_response_html = BeautifulSoup(app.get("/").body)
@@ -197,7 +193,7 @@ class TestConfig(object):
         assert style_tag[0].string.strip() == "body {background-color:red}"
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_intro_response_html = BeautifulSoup(app.get("/").body)
         style_tag = reset_intro_response_html.select("head style")
         assert len(style_tag) == 0
@@ -209,12 +205,10 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "<!-- Snippet home/layout1.html start -->" in index_response
 
-        helpers.login_user(app, sysadmin_env)
-
         # set new style css
         url = url_for(u"admin.config")
         form = {"ckan.homepage_style": "2", "save": ""}
-        app.post(url, data=form)
+        app.post(url, extra_environ=sysadmin_env, data=form)
 
         # new style
         new_index_response = app.get("/")
@@ -225,7 +219,7 @@ class TestConfig(object):
         assert "<!-- Snippet home/layout2.html start -->" in new_index_response
 
         # reset config value
-        _reset_config(app)
+        _reset_config(app, sysadmin_env)
         reset_index_response = app.get("/")
         assert (
             "<!-- Snippet home/layout1.html start -->" in reset_index_response
@@ -242,18 +236,17 @@ class TestTrashView(object):
         trash_response = app.get(trash_url)
         assert trash_response.status_code == 403
 
-    def test_trash_view_normal_user(self, app, user_env):
+    def test_trash_view_normal_user(self, app, user):
         """A normal logged in user shouldn't be able to access trash view."""
-        helpers.login_user(app, user_env)
+        helpers.login_user(app, user)
         trash_url = url_for("admin.trash")
         trash_response = app.get(trash_url, status=403)
         assert trash_response.status_code == 403
 
     def test_trash_view_sysadmin(self, app, sysadmin_env):
         """A sysadmin should be able to access trash view."""
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         # On the purge page
         assert "purge-all" in trash_response
 
@@ -262,9 +255,8 @@ class TestTrashView(object):
         datasets."""
         factories.Dataset()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
         trash_pkg_list = response_html.select("ul.package-list li")
@@ -276,9 +268,8 @@ class TestTrashView(object):
         groups."""
         factories.Group()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
         trash_grp_list = response_html.select("ul.group-list li")
@@ -290,9 +281,8 @@ class TestTrashView(object):
         organizations."""
         factories.Organization()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
         trash_org_list = response_html.select("ul.organization-list li")
@@ -307,9 +297,8 @@ class TestTrashView(object):
         factories.Dataset(state="deleted")
         factories.Dataset()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.get(trash_url, status=200)
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_pkg_list = response_html.select("ul.package-list li")
@@ -326,9 +315,8 @@ class TestTrashView(object):
         factories.Dataset()
 
         trash_url = url_for("admin.trash")
-        helpers.login_user(app, sysadmin_env)
 
-        response = app.get(trash_url, status=200)
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_pkg_list = response_html.select("ul.package-list li")
@@ -342,9 +330,8 @@ class TestTrashView(object):
         factories.Group(state="deleted")
         factories.Group()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.get(trash_url, status=200)
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_grp_list = response_html.select("ul.group-list li")
@@ -358,9 +345,8 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.get(trash_url, status=200)
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
         trash_org_list = response_html.select("ul.organization-list li")
@@ -375,9 +361,8 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization()
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.get(trash_url, status=200)
+        response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
 
@@ -390,19 +375,19 @@ class TestTrashView(object):
         # One entity of each type in the list to purge
         assert entities_amount == 3
 
-    def test_trash_purge_custom_ds_type(self, app, sysadmin_env):
+
+    @mock.patch("flask_login.utils._get_user")
+    def test_trash_purge_custom_ds_type(self, current_user, app):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted", type="custom_dataset")
-
+        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 1
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(trash_url, data={"action": "package"}, status=200)
-
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -410,22 +395,21 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 0
 
+    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_deleted_datasets(self, app, sysadmin_env):
+    def test_trash_purge_deleted_datasets(self, current_user, app):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
-
+        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(trash_url, data={"action": "package"}, status=200)
-
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -433,27 +417,22 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 1
 
+    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, app, sysadmin_env):
+    def test_trash_purge_deleted_datasets_no_remove_deleted_packages(self, current_user, app):
         """Posting the trash view with 'deleted' datasets, purges the
         datasets."""
         factories.Dataset(state="deleted")
         factories.Dataset(state="deleted")
         factories.Dataset()
-
+        mock_current_user(current_user)
         # how many datasets before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.post(
-            trash_url,
-            data={"action": "package"},
-            status=200
-        )
-
+        response = app.post(trash_url, data={"action": "package"}, status=200)
         # check for flash success msg
         assert "datasets have been purged" in response.body
 
@@ -461,21 +440,20 @@ class TestTrashView(object):
         pkgs_after_purge = model.Session.query(model.Package).count()
         assert pkgs_after_purge == 1
 
-    def test_trash_purge_deleted_groups(self, app, sysadmin_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_trash_purge_deleted_groups(self, current_user, app):
         """Posting the trash view with 'deleted' groups, purges the
         groups."""
         factories.Group(state="deleted")
         factories.Group(state="deleted")
         factories.Group()
-
+        mock_current_user(current_user)
         # how many groups before purge
         grps_before_purge = model.Session.query(model.Group).count()
         assert grps_before_purge == 3
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(trash_url, data={"action": "group"}, status=200)
-
         # check for flash success msg
         assert "groups have been purged" in response
 
@@ -483,22 +461,21 @@ class TestTrashView(object):
         grps_after_purge = model.Session.query(model.Group).count()
         assert grps_after_purge == 1
 
-    def test_trash_purge_deleted_organization(self, app, sysadmin_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_trash_purge_deleted_organization(self, current_user, app):
         """Posting the trash view with 'deleted' organizations, purges the
         organizations."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
         factories.Organization()
-
+        mock_current_user(current_user)
         # how many organizations before purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
             is_organization=True).count()
         assert orgs_before_purge == 3
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(trash_url, data={"action": "organization"}, status=200)
-
         # check for flash success msg
         assert "organizations have been purged" in response
 
@@ -507,8 +484,9 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_after_purge == 1
 
+    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
-    def test_trash_purge_all(self, app, sysadmin_env):
+    def test_trash_purge_all(self, current_user, app):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
         factories.Dataset(state="deleted", type="custom_dataset")
@@ -516,13 +494,12 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization(state="deleted", type="custom_org")
         factories.Organization()
-
+        mock_current_user(current_user)
         # how many entities before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
         response = app.post(trash_url, data={"action": "all"}, status=200)
         # check for flash success msg
@@ -533,9 +510,10 @@ class TestTrashView(object):
         orgs_and_grps_after_purge = model.Session.query(model.Group).count()
         assert pkgs_after_purge + orgs_and_grps_after_purge == 1
 
+    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.usefixtures("clean_index")
     @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
-    def test_trash_purge_all_no_remove_deleted_packages(self, app, sysadmin_env):
+    def test_trash_purge_all_no_remove_deleted_packages(self, current_user, app):
         """Posting the trash view with 'deleted' entities and
         purge all button purges everything"""
         factories.Dataset(state="deleted", type="custom_dataset")
@@ -543,18 +521,14 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization(state="deleted", type="custom_org")
         factories.Organization()
+        mock_current_user(current_user)
 
         # how many entities before purge
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        response = app.post(
-            trash_url,
-            data={"action": "all"},
-            status=200
-        )
+        response = app.post(trash_url, data={"action": "all"}, status=200)
         # check for flash success msg
         assert "Massive purge complete" in response
 
@@ -563,20 +537,20 @@ class TestTrashView(object):
         orgs_and_grps_after_purge = model.Session.query(model.Group).count()
         assert pkgs_after_purge + orgs_and_grps_after_purge == 1
 
-    def test_trash_cancel_purge(self, app, sysadmin_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_trash_cancel_purge(self, current_user, app):
         """Cancelling purge doesn't purge anything."""
         factories.Organization(state="deleted")
         factories.Organization(state="deleted")
+        mock_current_user(current_user)
 
         # how many organizations before purge
         orgs_before_purge = model.Session.query(model.Group).filter_by(
             is_organization=True).count()
         assert orgs_before_purge == 2
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash", name="purge-organization")
         response = app.post(trash_url, data={"cancel": ""}, status=200)
-
         # flash success msg should be absent
         assert "Organizations have been purged" not in response
 
@@ -588,10 +562,8 @@ class TestTrashView(object):
     def test_trash_no_button_with_no_deleted_datasets(self, app, sysadmin_env):
         """Getting the trash view with no 'deleted' datasets should not
         contain the purge button."""
-        helpers.login_user(app, sysadmin_env)
-
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         assert "form-purge-package" not in trash_response
 
     def test_trash_button_with_deleted_datasets(self, app, sysadmin_env):
@@ -599,20 +571,17 @@ class TestTrashView(object):
         contain the purge button."""
         factories.Dataset(state="deleted")
 
-        helpers.login_user(app, sysadmin_env)
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, status=200)
+        trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         assert "form-purge-package" in trash_response
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestAdminConfigUpdate(object):
     def _update_config_option(self, app, sysadmin_env):
-        helpers.login_user(app, sysadmin_env)
-
         url = url_for(u"admin.config")
         form = {"ckan.site_title": "My Updated Site Title", "save": ""}
-        return app.post(url, data=form)
+        return app.post(url, extra_environ=sysadmin_env, data=form)
 
     def test_admin_config_update(self, app, sysadmin_env):
         """Changing a config option using the admin interface appropriately

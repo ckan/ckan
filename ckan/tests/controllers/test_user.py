@@ -822,7 +822,7 @@ class TestUser(object):
 
         assert "Error sending the email" in response
 
-    @mock.patch('flask_login.utils._get_user')
+    @mock.patch("flask_login.utils._get_user")
     def test_sysadmin_not_authorized(self, current_user, app):
         user = factories.User()
         user_obj = model.User.get(user["name"])
@@ -843,7 +843,7 @@ class TestUser(object):
             status=404,
         )
 
-    @mock.patch('flask_login.utils._get_user')
+    @mock.patch("flask_login.utils._get_user")
     def test_sysadmin_promote_success(self, current_user, app):
 
         sysadmin = factories.Sysadmin()
