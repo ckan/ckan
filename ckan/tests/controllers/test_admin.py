@@ -375,7 +375,6 @@ class TestTrashView(object):
         # One entity of each type in the list to purge
         assert entities_amount == 3
 
-
     @mock.patch("flask_login.utils._get_user")
     def test_trash_purge_custom_ds_type(self, current_user, app):
         """Posting the trash view with 'deleted' datasets, purges the
