@@ -65,8 +65,8 @@ class TestApiController(object):
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
 
-        user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
+        user = factories.User()
+        user_token = factories.APIToken(user=user["name"])
         pkg = factories.Dataset(creator_user_id=user["id"])
 
         url = url_for(
@@ -74,7 +74,7 @@ class TestApiController(object):
             logic_function="resource_create",
             ver=3,
         )
-        helpers.login_user(app, identity)
+        env = {"Authorization": user_token["token"]}
 
         content = six.ensure_binary('upload-content')
         upload_content = BytesIO(content)
@@ -86,6 +86,7 @@ class TestApiController(object):
 
         resp = app.post(
             url,
+            extra_environ=env,
             data=postparams,
             content_type="multipart/form-data",
         )
@@ -232,26 +233,26 @@ class TestApiController(object):
         assert results[0]["title"] == "Simple dummy org"
 
     def test_config_option_list_access_sysadmin(self, app):
-        user = factories.Sysadmin(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
+        user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-        helpers.login_user(app, identity)
-        app.get(url=url, query_string={}, status=200)
+        env = {"Authorization": user_token["token"]}
+        app.get(url=url, extra_environ=env, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
-        user = factories.Sysadmin(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
+        user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-        helpers.login_user(app, identity)
-        app.get(url=url, query_string={"callback": "myfn"}, status=403)
+        env = {"Authorization": user_token["token"]}
+        app.get(url=url, extra_environ=env, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 

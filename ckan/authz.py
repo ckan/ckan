@@ -168,7 +168,7 @@ def _get_user(username: Optional[str]) -> Optional['model.User']:
     # See if we can get the user without touching the DB
     try:
         if current_user.name == username:  # type: ignore
-            return current_user  #type: ignore
+            return current_user  # type: ignore
     except AttributeError:
         # current_user is anonymous
         pass

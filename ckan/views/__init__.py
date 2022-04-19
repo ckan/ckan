@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import six
-from flask_login import current_user
+from flask_login import current_user, logout_user
 
 from urllib.parse import quote
 from flask.wrappers import Response
@@ -102,10 +102,14 @@ def identify_user() -> Optional[Response]:
             except AttributeError:
                 continue
 
-    # We haven't identified the user so try the default methods
-    if not getattr(g, u'user', None):
-        g.userobj = ''
-        _set_g_user_and_g_userobj()
+    # sets the g.user/g.userobj for extensions            
+    g.user = '' if current_user.is_anonymous else current_user.name  # type: ignore
+    g.userobj = '' if current_user.is_anonymous else current_user  # type: ignore
+
+    # logout, if a user that was still logged in is deleted.
+    if not current_user.is_anonymous:  # type: ignore
+        if not current_user.is_active():  # type: ignore
+            logout_user()
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
@@ -123,30 +127,6 @@ def identify_user() -> Optional[Response]:
     else:
         g.author = g.remote_addr
     g.author = str(g.author)
-
-
-def _set_g_user_and_g_userobj():
-    u'''This function exists only to maintain backward compatibility
-    to extensions that still need g.user/g.userobj.
-
-    Note: flask_login now identifies users for us behind the scene.
-    '''
-    g.user = ''
-    if not current_user.is_anonymous:  # type: ignore
-        g.user = current_user.name  # type: ignore
-        g.userobj = current_user
-        if g.userobj is None or not g.userobj.is_active():  # type: ignore
-
-            # This occurs when a user that was still logged in is deleted, or
-            # when you are logged in, clean db and then restart (or when you
-            # change your username). There is no user object, so even though
-            # flask-login thinks you are logged in and your cookie has
-            # ckan_display_name, we need to force user to logout and login
-            # again to get the User object.
-            from flask_login import logout_user
-            logout_user()
-            g.userobj = None
-            g.user = None
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore

@@ -28,8 +28,6 @@ CONTENT = "data"
 def test_resource_download_iuploader_called(
         send_file, app, monkeypatch, tmpdir, ckan_config
 ):
-    import ckan.tests.helpers as helpers
-
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     user = factories.User()
