@@ -521,15 +521,18 @@ class TestPackageEdit(object):
             users=[{"name": user["name"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        app.get(url_for("dataset.edit", id=dataset["name"]), status=403)
+        app.get(
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
+            status=403)
 
     def test_user_not_in_organization_cannot_edit(self, app, user):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
         url = url_for("dataset.edit", id=dataset["name"])
         app.get(url=url, extra_environ=user["env"], status=403)
-
-        app.post(url=url,
+        app.post(
+            url=url,
             extra_environ=user["env"],
             data={"notes": "edited description"},
             status=403)
@@ -538,9 +541,7 @@ class TestPackageEdit(object):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
         url = url_for("dataset.edit", id=dataset["name"])
-        app.get(url=url, status=403
-        )
-
+        app.get(url=url, status=403)
         app.post(url=url,
             data={"notes": "edited description"},
             status=403)
