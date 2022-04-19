@@ -887,6 +887,6 @@ def test_decode_view_request_filters(test_request_context):
     # Null case, falls all the way through.
     ({}, 'en', ''),
 ])
-def test_get_translated(data_dict, locale, result):
+def test_get_translated(data_dict, locale, result, monkeypatch):
     monkeypatch.setattr(flask_babel, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
