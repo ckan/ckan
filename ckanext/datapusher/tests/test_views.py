@@ -4,19 +4,23 @@ from unittest import mock
 import pytest
 
 import ckan.tests.factories as factories
+import ckan.model as model
 from ckan.logic import _actions
 
 
+@mock.patch("flask_login.utils._get_user")
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
 @pytest.mark.usefixtures(u"non_clean_db", u"with_plugins", u"with_request_context")
-def test_resource_data(app, monkeypatch):
+def test_resource_data(app, current_user, monkeypatch):
     user = factories.User()
-    user_token = factories.APIToken(user=user["name"])
+    user_obj = model.User.get(user["name"])
+    # mock current_user
+    current_user.return_value = user_obj
+
     dataset = factories.Dataset(creator_user_id=user["id"])
     resource = factories.Resource(
         package_id=dataset["id"], creator_user_id=user["id"]
     )
-    env = {"Authorization": user_token["token"]}
 
     url = u"/dataset/{id}/resource_data/{resource_id}".format(
         id=str(dataset["name"]), resource_id=str(resource["id"])
@@ -24,9 +28,9 @@ def test_resource_data(app, monkeypatch):
 
     func = mock.Mock()
     monkeypatch.setitem(_actions, 'datapusher_submit', func)
-    app.post(url=url, extra_environ=env, status=200)
+    app.post(url=url, status=200)
     func.assert_called()
     func.reset_mock()
 
-    app.get(url=url, extra_environ=env, status=200)
+    app.get(url=url, status=200)
     func.assert_not_called()
