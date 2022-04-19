@@ -13,8 +13,9 @@ from ckan.common import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
-from ckan.tests import helpers
 import ckan.lib.base as base
+
+from ckan.tests import helpers, factories
 
 CkanUrlException = ckan.exceptions.CkanUrlException
 
@@ -1020,5 +1021,8 @@ def test_get_pkg_dict_extra():
 @pytest.mark.usefixtures("with_request_context")
 def test_decode_view_request_filters(test_request_context):
 
-    with test_request_context(u'?filters=Titl%C3%A8%3AT%C3%A9st%7CDat%C3%AA%3A2022-01-01'):
-        assert h.decode_view_request_filters() == 'Titlè:Tést|Datê:2022-01-01'
+    with test_request_context(u'?filters=Titl%C3%A8:T%C3%A9st|Dat%C3%AA%20Time:2022-01-01%2001%3A01%3A01'):
+        assert h.decode_view_request_filters() == {
+            'Titlè': 'Tést',
+            'Datê Time': '2022-01-01 01:01:01'
+        }
