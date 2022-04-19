@@ -77,7 +77,7 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
 
 def identify_user() -> Optional[Response]:
-    u'''This function exists only to maintain backward compatibility 
+    u'''This function exists only to maintain backward compatibility
     to extensions that still need g.user/g.userobj.
 
     Note: flask_login now identifies users for us behind the scene.
@@ -126,7 +126,7 @@ def identify_user() -> Optional[Response]:
 
 
 def _set_g_user_and_g_userobj():
-    u'''This function exists only to maintain backward compatibility 
+    u'''This function exists only to maintain backward compatibility
     to extensions that still need g.user/g.userobj.
 
     Note: flask_login now identifies users for us behind the scene.
