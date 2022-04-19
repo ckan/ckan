@@ -2891,6 +2891,13 @@ def can_update_owner_org(
 
 @core_helper
 def decode_view_request_filters():
+    filterString = request.args.get('filters')
     if request.form.get('filters') is not None:
-        return unquote(str(request.form.get('filters')))
-    return ''
+        filterString = request.form.get('filters')
+    if filterString is not None:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            filters[unquote(str(k))] = unquote(str(v))
+        return filters
+    return {}
