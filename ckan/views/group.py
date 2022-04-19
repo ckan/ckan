@@ -162,9 +162,9 @@ def index(group_type: str, is_organization: bool) -> str:
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if not current_user.is_anonymous:
-        context['user_id'] = current_user.id
-        context['user_is_admin'] = current_user.sysadmin
+    if not current_user.is_anonymous:  # type: ignore
+        context['user_id'] = current_user.id  # type: ignore
+        context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
     try:
         data_dict_global_results: dict[str, Any] = {

@@ -23,7 +23,7 @@ dashboard = Blueprint(u'dashboard', __name__, url_prefix=u'/dashboard')
 
 @dashboard.before_request
 def before_request() -> None:
-    if current_user.is_anonymous:
+    if current_user.is_anonymous:  # type: ignore
         h.flash_error(_(u'Not authorized to see this page'))
 
         # flask types do not mention that it's possible to return a response
@@ -122,13 +122,13 @@ def index(offset: int = 0) -> str:
 
     extra_vars[u'followee_list'] = logic.get_action(u'followee_list')(
         context, {
-            u'id': current_user.id,
+            u'id': current_user.id,  # type: ignore
             u'q': q
         })
     extra_vars[u'dashboard_activity_stream_context'] = _get_dashboard_context(
         filter_type, filter_id, q)
     extra_vars[u'dashboard_activity_stream'] = h.dashboard_activity_stream(
-        current_user.id, filter_type, filter_id, offset)
+        current_user.id, filter_type, filter_id, offset)  # type: ignore
 
     # Mark the user's new activities as old whenever they view their
     # dashboard page.

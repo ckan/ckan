@@ -1992,16 +1992,16 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if current_user.is_anonymous:
+    if current_user.is_anonymous:  # type: ignore
         return False
     # sysadmins can do anything
-    if current_user.sysadmin:
+    if current_user.sysadmin:  # type: ignore
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == current_user.id)
+        .filter(model.Member.table_id == current_user.id)  # type: ignore
     return len(query.all()) != 0
 
 
@@ -2436,7 +2436,7 @@ def new_activities() -> Optional[int]:
     details.
 
     '''
-    if current_user.is_anonymous:
+    if current_user.is_anonymous:  # type: ignore
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})

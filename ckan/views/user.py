@@ -56,7 +56,7 @@ def _extra_template_variables(context: Context,
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    _current_user = current_user.name if not current_user.is_anonymous else ""
+    _current_user = current_user.name if not current_user.is_anonymous else ""  # type: ignore
     is_myself = user_dict[u'name'] == _current_user
     about_formatted = h.render_markdown(user_dict[u'about'])
     extra: dict[str, Any] = {
@@ -252,8 +252,8 @@ class EditView(MethodView):
             u'auth_user_obj': current_user
         })
         if id is None:
-            if not current_user.is_anonymous:
-                id = current_user.id
+            if not current_user.is_anonymous:  # type: ignore
+                id = current_user.id  # type: ignore
             else:
                 base.abort(400, _(u'No user specified'))
         assert id
@@ -289,7 +289,7 @@ class EditView(MethodView):
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
-        email_changed = data_dict[u'email'] != current_user.email
+        email_changed = data_dict[u'email'] != current_user.email  # type: ignore
 
         # common users can edit their own profiles without providing
         # password, but if they want to change
@@ -313,12 +313,12 @@ class EditView(MethodView):
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
             if auth.authenticate(identity) != get_user_name():
-                errors = {
-                    u'oldpassword': [_(u'Password entered was incorrect')]
-                }
-                error_summary = {_(u'Old Password'): _(u'incorrect password')}\
-                    if not current_user.sysadmin \
-                    else {_(u'Sysadmin Password'): _(u'incorrect password')}
+                errors = {"oldpassword": [_("Password entered was incorrect")]}
+                error_summary = (
+                    {_("Old Password"): _("incorrect password")}
+                    if not current_user.sysadmin  # type: ignore
+                    else {_("Sysadmin Password"): _("incorrect password")}
+                )
                 return self.get(id, data_dict, errors, error_summary)
 
         try:
@@ -480,7 +480,7 @@ def login() -> Union[Response, str]:
 
     extra_vars: dict[str, Any] = {}
 
-    if not current_user.is_anonymous:
+    if not current_user.is_anonymous:  # type: ignore
         return base.render("user/logout_first.html", extra_vars)
 
     if request.method == "POST":
@@ -537,7 +537,7 @@ def logged_out_page() -> str:
     return base.render(u'user/logout.html', {})
 
 
-def delete(id: str) -> Response:
+def delete(id: str) -> Union[Response, Any]:
     u'''Delete user with id passed as parameter'''
     context = cast(Context, {
         u'model': model,
@@ -553,8 +553,8 @@ def delete(id: str) -> Response:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if not current_user.is_anonymous:
-        if current_user.id == id:
+    if not current_user.is_anonymous:  # type: ignore
+        if current_user.id == id:  # type: ignore
             return logout()
         else:
             user_index = h.url_for(u'user.index')

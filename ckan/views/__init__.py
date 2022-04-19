@@ -228,5 +228,5 @@ def set_ckan_current_url(environ: Any) -> None:
 
 
 def get_user_name() -> str:
-    user = current_user.name if not current_user.is_anonymous else ''
+    user = current_user.name if not current_user.is_anonymous else ''  # type: ignore
     return user
