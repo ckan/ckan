@@ -16,7 +16,8 @@ class TestExampleHumanizer(object):
     ])
     def test_original_translations(self, app, url, breadcrumb, button):
         user = factories.User(password="correct123")
-        env = {"REMOTE_USER": user["name"]}
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
         res = app.get(url, environ_overrides=env)
         page = bs4.BeautifulSoup(res.body)
         assert page.select_one(u'.toolbar .active').text == breadcrumb

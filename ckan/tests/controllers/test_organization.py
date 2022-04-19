@@ -11,18 +11,20 @@ from ckan.tests import factories, helpers
 
 @pytest.fixture
 def user():
-    data = factories.User(password="correct123")
-    identity = {"login": data["name"], "password": "correct123"}
-    user = {"data": data, "identity": identity}
-
-    return user
+    user = factories.User(password="correct123")
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    data = {"env": env, "user_dict": user}
+    return data
 
 
 @pytest.fixture
-def initial_data(user):
-    return {
-        "organization": factories.Organization(user=user["data"]),
-    }
+def sysadmin():
+    user = factories.Sysadmin(password="correct123")
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    data = {"env": env, "user_dict": user}
+    return data
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -32,14 +34,14 @@ class TestOrganizationNew(object):
         app.get(url=url_for("group.new"), status=403)
 
     def test_name_required(self, app, user):
-        helpers.login_user(app, user["identity"])
-        response = app.post(url=url_for("organization.new"), data={"save": ""})
+        url = url_for("organization.new")
+        response = app.post(url=url, extra_environ=user["env"], data={"save": ""})
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user):
-        helpers.login_user(app, user["identity"])
+        url = url_for("organization.new")
         app.post(
-            url=url_for("organization.new"), data={"save": "", "name": "saved"}
+            url=url, extra_environ=user["env"], data={"save": "", "name": "saved"}
         )
         group = helpers.call_action("organization_show", id="saved")
         assert group["title"] == u""
@@ -47,9 +49,9 @@ class TestOrganizationNew(object):
         assert group["state"] == "active"
 
     def test_all_fields_saved(self, app, user):
-        helpers.login_user(app, user["identity"])
         app.post(
             url=url_for("organization.new"),
+            extra_environ=user["env"],
             data={
                 "name": u"all-fields-saved",
                 "title": "Science",
@@ -74,10 +76,13 @@ class TestOrganizationList(object):
             authz._AuthFunctions._functions, 'organization_list',
             lambda *args: {'success': False}
         )
-        helpers.login_user(app, user["identity"])
         self.organization_list_url = url_for("organization.index")
 
-        app.get(url=self.organization_list_url, status=403)
+        app.get(
+            url=self.organization_list_url,
+            extra_environ=user["env"],
+            status=403
+        )
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
@@ -109,31 +114,34 @@ class TestOrganizationRead(object):
 class TestOrganizationEdit(object):
 
     def test_group_doesnt_exist(self, app, user):
-        helpers.login_user(app, user["identity"])
         url = url_for("organization.edit", id="doesnt_exist")
-        app.get(url=url, status=404)
+        app.get(url=url, extra_environ=user["env"], status=404)
 
-    def test_saved(self, app, initial_data, user):
-        helpers.login_user(app, user["identity"])
+    def test_saved(self, app, user):
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.edit", id=initial_data["organization"]["id"]
+                "organization.edit", id=group["id"]
             ),
+            extra_environ=env,
             data={"save": ""}
         )
 
         group = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert group["type"] == "organization"
         assert group["state"] == "active"
 
-    def test_all_fields_saved(self, app, initial_data, user):
-        helpers.login_user(app, user["identity"])
+    def test_all_fields_saved(self, app, user):
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.edit", id=initial_data["organization"]["id"]
+                "organization.edit", id=group["id"]
             ),
+            extra_environ=env,
             data={
                 "name": u"all-fields-edited",
                 "title": "Science",
@@ -143,7 +151,7 @@ class TestOrganizationEdit(object):
             }
         )
         group = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert group["title"] == u"Science"
         assert group["description"] == "Sciencey datasets"
@@ -153,95 +161,99 @@ class TestOrganizationEdit(object):
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationDelete(object):
 
-    def test_owner_delete(self, app, initial_data, user):
-        helpers.login_user(app, user["identity"])
+    def test_owner_delete(self, app, user):
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user)
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            extra_environ=env,
             data={"delete": ""}
         )
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "deleted"
 
-    def test_sysadmin_delete(self, app, initial_data):
-        sysadmin = factories.Sysadmin(password="correct123")
-        identity = {"login": sysadmin["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
+    def test_sysadmin_delete(self, app, sysadmin):
+        group = factories.Organization()
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            extra_environ=sysadmin["env"],
             status=200,
             data={"delete": ""}
         )
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "deleted"
 
     def test_non_authorized_user_trying_to_delete_fails(
-        self, app, initial_data
+        self, app, user
     ):
-        user = factories.User()
-        data = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, data)
+        group = factories.Organization()
         app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            extra_environ=user["env"],
             status=403,
             data={"delete": ""}
         )
 
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "active"
 
-    def test_anon_user_trying_to_delete_fails(self, app, initial_data):
+    def test_anon_user_trying_to_delete_fails(self, app):
+        group = factories.Organization()
         app.get(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
             status=403,
         )
 
         organization = helpers.call_action(
-            "organization_show", id=initial_data["organization"]["id"]
+            "organization_show", id=group["id"]
         )
         assert organization["state"] == "active"
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", False)
-    def test_delete_organization_with_datasets(self, app, initial_data, user):
+    def test_delete_organization_with_datasets(self, app, user):
         """ Test deletion of organization that has datasets"""
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user)
         text = "Organization cannot be deleted while it still has datasets"
-        for i in range(0, 5):
-            factories.Dataset(owner_org=initial_data["organization"]["id"])
+        for _ in range(0, 5):
+            factories.Dataset(owner_org=group["id"])
 
-        helpers.login_user(app, user["identity"])
         response = app.post(
             url=url_for(
-                "organization.delete", id=initial_data["organization"]["id"]
+                "organization.delete", id=group["id"]
             ),
+            extra_environ=env,
             data={"delete": ""},
         )
 
         assert helpers.body_contains(response, text)
 
-    def test_delete_organization_with_unknown_dataset_true(self, initial_data):
+    def test_delete_organization_with_unknown_dataset_true(self, user):
         """ Test deletion of organization that has datasets and unknown
             datasets are set to true"""
+        group = factories.Organization(user=user["user_dict"])
         dataset = factories.Dataset(
-            owner_org=initial_data["organization"]["id"]
+            owner_org=group["id"]
         )
-        assert dataset["owner_org"] == initial_data["organization"]["id"]
+        assert dataset["owner_org"] == group["id"]
         user = factories.User()
         helpers.call_action(
             "organization_delete",
-            id=initial_data["organization"]["id"],
+            id=group["id"],
             context={"user": user["name"]},
         )
 
@@ -252,12 +264,12 @@ class TestOrganizationDelete(object):
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app, user):
-        helpers.login_user(app, user["identity"])
-        self.organization = factories.Organization(user=user["data"])
+        env, user = user["env"], user["user_dict"]
+        self.organization = factories.Organization(user=user)
 
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=False)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.private"] = "private"
@@ -266,6 +278,7 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
+            extra_environ=env,
             data=form
         )
 
@@ -274,12 +287,12 @@ class TestOrganizationBulkProcess(object):
             assert d["private"]
 
     def test_make_public(self, app, user):
-        helpers.login_user(app, user["identity"])
-        self.organization = factories.Organization(user=user["data"])
+        env, user = user["env"], user["user_dict"]
+        self.organization = factories.Organization(user=user)
 
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.public"] = "public"
@@ -287,6 +300,7 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
+            extra_environ=env,
             data=form
         )
         for dataset in datasets:
@@ -294,11 +308,11 @@ class TestOrganizationBulkProcess(object):
             assert not (d["private"])
 
     def test_delete(self, app, user):
-        helpers.login_user(app, user["identity"])
-        self.organization = factories.Organization(user=user["data"])
+        env, user = user["env"], user["user_dict"]
+        self.organization = factories.Organization(user=user)
         datasets = [
             factories.Dataset(owner_org=self.organization["id"], private=True)
-            for i in range(0, 5)
+            for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.delete"] = "delete"
@@ -307,6 +321,7 @@ class TestOrganizationBulkProcess(object):
             url=url_for(
                 "organization.bulk_process", id=self.organization["id"]
             ),
+            extra_environ=env,
             data=form
         )
 
@@ -488,15 +503,15 @@ class TestOrganizationInnerSearch(object):
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app, user):
-
+        env, user = user["env"], user["user_dict"]
         organization = factories.Organization(
-            users=[{"name": user["data"]["name"], "capacity": "editor"}]
+            users=[{"name": user["name"], "capacity": "editor"}]
         )
 
         with app.flask_app.test_request_context():
-            helpers.login_user(app, user["identity"])
             app.get(
                 url_for("organization.member_new", id=organization["id"]),
+                extra_environ=env,
                 status=403,
             )
 
@@ -508,18 +523,20 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
+                extra_environ=env,
                 status=403,
             )
 
     def test_member_users_cannot_add_members(self, app, user):
+        env, user = user["env"], user["user_dict"]
         organization = factories.Organization(
-            users=[{"name": user["data"]["name"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
 
         with app.flask_app.test_request_context():
-            helpers.login_user(app, user["identity"])
             app.get(
                 url_for("organization.member_new", id=organization["id"]),
+                extra_environ=env,
                 status=403,
             )
 
@@ -531,6 +548,7 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
+                extra_environ=env,
                 status=403,
             )
 
@@ -559,20 +577,22 @@ class TestOrganizationMembership(object):
 class TestActivity(object):
     def test_simple(self, app, user):
         """Checking the template shows the activity stream."""
-        org = factories.Organization(user=user["data"])
+        user = user["user_dict"]
+        org = factories.Organization(user=user)
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
-        assert user["data"]["fullname"] in response
+        assert user["fullname"] in response
         assert "created the organization" in response
 
     def test_create_organization(self, app, user):
-        org = factories.Organization(user=user["data"])
+        user = user["user_dict"]
+        org = factories.Organization(user=user)
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the organization" in response
         assert (
@@ -586,17 +606,18 @@ class TestActivity(object):
         model.Session.flush()
 
     def test_change_organization(self, app, user):
-        org = factories.Organization(user=user["data"])
+        user = user["user_dict"]
+        org = factories.Organization(user=user)
         self._clear_activities()
         org["title"] = "Organization with changed title"
         helpers.call_action(
-            "organization_update", context={"user": user["data"]["name"]}, **org
+            "organization_update", context={"user": user["name"]}, **org
         )
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the organization" in response
         assert (
@@ -607,15 +628,15 @@ class TestActivity(object):
         )
 
     def test_delete_org_using_organization_delete(self, app, user):
-        org = factories.Organization(user=user["data"])
+        env, user = user["env"], user["user_dict"]
+        org = factories.Organization(user=user)
         self._clear_activities()
         helpers.call_action(
-            "organization_delete", context={"user": user["data"]["name"]}, **org
+            "organization_delete", context={"user": user["name"]}, **org
         )
 
         url = url_for("organization.activity", id=org["id"])
-        helpers.login_user(app, user["identity"])
-        app.get(url, status=404)
+        app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
         # Therefore you can't render the activity stream of that org. You'd
@@ -623,18 +644,18 @@ class TestActivity(object):
         # state=deleted but they are not...
 
     def test_delete_org_by_updating_state(self, app, user):
-        org = factories.Organization(user=user["data"])
+        env, user = user["env"], user["user_dict"]
+        org = factories.Organization(user=user)
         self._clear_activities()
         org["state"] = "deleted"
         helpers.call_action(
-            "organization_update", context={"user": user["data"]["name"]}, **org
+            "organization_update", context={"user": user["name"]}, **org
         )
 
         url = url_for("organization.activity", id=org["id"])
-        helpers.login_user(app, user["identity"])
-        response = app.get(url)
+        response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the organization" in response
         assert (
@@ -643,28 +664,30 @@ class TestActivity(object):
         )
 
     def test_create_dataset(self, app, user):
+        user = user["user_dict"]
         org = factories.Organization()
         self._clear_activities()
-        dataset = factories.Dataset(owner_org=org["id"], user=user["data"])
+        dataset = factories.Dataset(owner_org=org["id"], user=user)
 
         url = url_for("organization.activity", id=org["id"])
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_change_dataset(self, app, user):
+        user = user["user_dict"]
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user["data"])
+        dataset = factories.Dataset(owner_org=org["id"], user=user)
         self._clear_activities()
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
-            "package_update", context={"user": user["data"]["name"]}, **dataset
+            "package_update", context={"user": user["name"]}, **dataset
         )
 
         url = url_for("organization.activity", id=org["id"])
@@ -672,18 +695,19 @@ class TestActivity(object):
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app, user):
+        user = user["user_dict"]
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user["data"])
+        dataset = factories.Dataset(owner_org=org["id"], user=user)
         self._clear_activities()
         helpers.call_action(
-            "package_delete", context={"user": user["data"]["name"]}, **dataset
+            "package_delete", context={"user": user["name"]}, **dataset
         )
 
         url = url_for("organization.activity", id=org["id"])
@@ -691,7 +715,7 @@ class TestActivity(object):
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["data"]["name"], user["data"]["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
         )
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]

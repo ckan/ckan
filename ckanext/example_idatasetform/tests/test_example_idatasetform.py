@@ -4,12 +4,14 @@ import pytest
 import six
 import bs4
 
+from unittest import mock
 from ckan.lib.helpers import url_for
 
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckanext.example_idatasetform as idf
+import ckan.model as model
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
@@ -111,21 +113,28 @@ class TestVersion5(object):
         ]
 
 
+@pytest.fixture
+def user():
+    user = factories.User(password="correct123")
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    data = {"env": env, "user_dict": user}
+    return data
+
+
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
 @pytest.mark.usefixtures(
     "clean_db", "clean_index", "with_plugins", "with_request_context"
 )
 class TestUrlsForCustomDatasetType(object):
-    def test_dataset_create_redirects(self, app):
-        user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
+    def test_dataset_create_redirects(self, app, user):
         name = "fancy-urls"
 
         resp = app.post(
             url_for("fancy_type.new"),
             data={"name": name, "save": "", "_ckan_phase": 1},
+            extra_environ=user["env"],
             follow_redirects=False,
         )
         assert resp.location == url_for(
@@ -137,6 +146,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
             follow_redirects=False,
+            extra_environ=user["env"]
         )
         assert resp.location == url_for(
             "fancy_type.edit", id=name, _external=True
@@ -146,6 +156,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
             follow_redirects=False,
+            extra_environ=user["env"]
         )
 
         assert resp.location == url_for(
@@ -159,6 +170,7 @@ class TestUrlsForCustomDatasetType(object):
                 "save": "go-metadata",
                 "_ckan_phase": 2,
             },
+            extra_environ=user["env"],
             follow_redirects=False,
         )
 
@@ -166,14 +178,18 @@ class TestUrlsForCustomDatasetType(object):
             "fancy_type.read", id=name, _external=True
         )
 
-    def test_links_on_edit_pages(self, app):
-        user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
+    @mock.patch("flask_login.utils._get_user")
+    def test_links_on_edit_pages(self, current_user, app):
+        user = factories.User()
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
+
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         page = bs4.BeautifulSoup(
-            app.get(url_for("fancy_type.edit", id=pkg["name"])).body
+            app.get(
+                url_for("fancy_type.edit", id=pkg["name"])).body
         )
         page_header = page.find(class_="page-header")
         for action in ["edit", "resources", "read"]:
@@ -254,10 +270,13 @@ class TestUrlsForCustomDatasetType(object):
             _external=True,
         )
 
-    def test_links_on_read_pages(self, app):
-        user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
+    @mock.patch("flask_login.utils._get_user")
+    def test_links_on_read_pages(self, current_user, app):
+        user = factories.User()
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
+
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         page = bs4.BeautifulSoup(
@@ -507,13 +526,10 @@ class TestDatasetMultiTypes(object):
 
     @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
-    def test_template_without_options(self, type_, app):
-        user = factories.User(password="correct123")
-        identity = {"login": user["name"], "password": "correct123"}
-        helpers.login_user(app, identity)
+    def test_template_without_options(self, type_, app, user):
 
         resp = app.get(
-            '/{}/new'.format(type_), status=200)
+            '/{}/new'.format(type_), extra_environ=user["env"], status=200)
         assert resp.body == 'new package form'
 
     @pytest.mark.usefixtures('clean_db')

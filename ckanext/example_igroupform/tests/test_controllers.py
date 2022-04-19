@@ -14,15 +14,15 @@ group_type = u"group"
 
 @pytest.fixture
 def user():
-    data = factories.User(password="correct123")
-    identity = {"login": data["name"], "password": "correct123"}
-    user = {"data": data, "identity": identity}
-    return user
+    user = factories.User(password="correct123")
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
+    data = {"env": env, "user_dict": user}
+    return data
 
 
-def _get_group_new_page(app, user, group_type):
-    helpers.login_user(app, user["identity"])
-    response = app.get(url_for("%s.new" % group_type))
+def _get_group_new_page(app, env, group_type):
+    response = app.get(url_for("%s.new" % group_type), extra_environ=env)
     return response
 
 
@@ -30,34 +30,34 @@ def _get_group_new_page(app, user, group_type):
 @pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestGroupController(object):
     def test_about(self, app, user):
-        group = factories.Group(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.about" % custom_group_type, id=group_name)
-        response = app.get(url=url)
+        response = app.get(url=url, extra_environ=env)
         assert helpers.body_contains(response, group_name)
 
     def test_bulk_process(self, app, user):
-        group = factories.Group(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
         try:
-            app.get(url=url)
+            app.get(url=url, extra_environ=env)
         except Exception as e:
             assert e.args == ("Must be an organization",)
         else:
             raise Exception("Response should have raised an exception")
 
     def test_delete(self, app, user):
-        group = factories.Group(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        app.get(url=url)
+        app.get(url=url, extra_environ=env)
 
     def test_custom_group_form_slug(self, app, user):
-        response = _get_group_new_page(app, user, custom_group_type)
+        response = _get_group_new_page(app, user["env"], custom_group_type)
 
         assert helpers.body_contains(
             response,
@@ -82,29 +82,29 @@ class TestGroupController(object):
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
 class TestOrganizationController(object):
     def test_about(self, app, user):
-        group = factories.Organization(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.about" % custom_group_type, id=group_name)
-        response = app.get(url=url)
+        response = app.get(url=url, extra_environ=env)
         assert helpers.body_contains(response, group_name)
 
     def test_bulk_process(self, app, user):
-        group = factories.Organization(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
-        app.get(url=url)
+        app.get(url=url, extra_environ=env)
 
     def test_delete(self, app, user):
-        group = factories.Organization(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        app.get(url=url)
+        app.get(url=url, extra_environ=env)
 
     def test_custom_org_form_slug(self, app, user):
-        response = _get_group_new_page(app, user, custom_group_type)
+        response = _get_group_new_page(app, user["env"], custom_group_type)
 
         assert helpers.body_contains(
             response,
@@ -125,13 +125,13 @@ class TestOrganizationController(object):
         )
 
     def test_pagination(self, app, user):
-        group = factories.Organization(user=user["data"], type=custom_group_type)
+        env, user = user["env"], user["user_dict"]
+        group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
         for _ in range(0, 21):
-            factories.Dataset(owner_org=group['id'], user=user["data"])
-        helpers.login_user(app, user["identity"])
+            factories.Dataset(owner_org=group['id'], user=user)
         url = url_for("%s.read" % custom_group_type, id=group_name)
-        response = app.get(url=url)
+        response = app.get(url=url, extra_environ=env)
         assert helpers.body_contains(
             response,
             '/grup/{}?page=2'.format(group_name)
@@ -147,8 +147,7 @@ class TestOrganizationController(object):
 class TestGroupControllerNew(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % custom_group_type)
-        helpers.login_user(app, user["identity"])
-        app.post(url, data={"name": "saved", "title": ""})
+        app.post(url, extra_environ=user["env"], data={"name": "saved", "title": ""})
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -158,7 +157,7 @@ class TestGroupControllerNew(object):
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used for new groups."""
-        response = _get_group_new_page(app, user, custom_group_type)
+        response = _get_group_new_page(app, user["env"], custom_group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
@@ -170,8 +169,7 @@ class TestGroupControllerNew(object):
 class TestGroupControllerNewDefaultGroupType(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % group_type)
-        helpers.login_user(app, user["identity"])
-        app.post(url, data={"name": "saved", "title": ""})
+        app.post(url, extra_environ=user["env"], data={"name": "saved", "title": ""})
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -181,18 +179,18 @@ class TestGroupControllerNewDefaultGroupType(object):
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used for new groups."""
-        response = _get_group_new_page(app, user, group_type)
+        response = _get_group_new_page(app, user["env"], group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
 
 def _get_group_edit_page(app, user, group_type, group_name=None):
+    env, user = user["env"], user["user_dict"]
     if group_name is None:
-        group = factories.Group(user=user["data"], type=group_type)
+        group = factories.Group(user=user, type=group_type)
         group_name = group["name"]
-    helpers.login_user(app, user["identity"])
     url = url_for("%s.edit" % group_type, id=group_name)
-    response = app.get(url=url)
+    response = app.get(url=url, extra_environ=env)
     return response, group_name
 
 
@@ -200,9 +198,8 @@ def _get_group_edit_page(app, user, group_type, group_name=None):
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_group_doesnt_exist(self, app, user):
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.edit" % custom_group_type, id="doesnt_exist")
-        app.get(url=url, status=404)
+        app.get(url=url, extra_environ=user["env"], status=404)
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used to edit groups."""
@@ -219,9 +216,8 @@ class TestGroupControllerEdit(object):
 @pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 class TestGroupControllerEditDefaultGroupType(object):
     def test_group_doesnt_exist(self, app, user):
-        helpers.login_user(app, user["identity"])
         url = url_for("%s.edit" % group_type, id="doesnt_exist")
-        res = app.get(url=url)
+        res = app.get(url=url, extra_environ=user["env"])
         assert res.status_code == 404
 
     def test_custom_group_form(self, app, user):
@@ -268,14 +264,13 @@ class TestCustomGroupBlueprint(object):
         assert page.head.title.text.startswith("Grups")
 
     def test_group_creation_labels(self, app, user):
-        helpers.login_user(app, user["identity"])
 
-        resp = app.get("/grup", status=200)
+        resp = app.get("/grup", extra_environ=user["env"], status=200)
         page = bs4.BeautifulSoup(resp.body)
         btn = page.select_one('.page_primary_action .btn')
         assert btn.text.strip() == 'Add Grup'
 
-        resp = app.get("/grup/new", status=200)
+        resp = app.get("/grup/new", extra_environ=user["env"], status=200)
         page = bs4.BeautifulSoup(resp.body)
         assert page.select_one('.page-heading').text.strip() == 'Create Grup'
         assert page.select_one(
