@@ -50,10 +50,10 @@ class TestHome(object):
     @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_no_nag(self, app):
         user = factories.User(email="filled_in@nicely.com")
-        data = {"login": user["name"], "password": "correct123"}
+        user_token = factories.APIToken(user=user["name"])
 
-        helpers.login_user(app, data)
-        response = app.get(url=url_for("home.index"))
+        env = {"Authorization": user_token["token"]}
+        response = app.get(url=url_for("home.index"), extra_environ=env)
 
         assert "add your email address" not in response
 
