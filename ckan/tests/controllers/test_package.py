@@ -8,7 +8,6 @@ import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
 from urllib.parse import urlparse
-from ckan.logic.auth.get import sysadmin
 import ckan.model as model
 import ckan.model.activity as activity_model
 import ckan.plugins as p
@@ -533,8 +532,7 @@ class TestPackageEdit(object):
         app.post(url=url,
             extra_environ=user["env"],
             data={"notes": "edited description"},
-            status=403,
-        )
+            status=403)
 
     def test_anonymous_user_cannot_edit(self, app):
         organization = factories.Organization()
@@ -545,8 +543,7 @@ class TestPackageEdit(object):
 
         app.post(url=url,
             data={"notes": "edited description"},
-            status=403,
-        )
+            status=403)
 
     def test_validation_errors_for_dataset_name_appear(self, app, user):
         """fill out a bad dataset set name and make sure errors appear"""
@@ -1740,7 +1737,7 @@ class TestSearch(object):
 
     def test_user_in_different_organization_cannot_search_private_datasets(
         self, app, user
-    ):  
+    ):
         env, user = user["env"], user["user_dict"]
         factories.Organization(
             users=[{"name": user["name"], "capacity": "member"}]
