@@ -239,7 +239,7 @@ class TestTrashView(object):
     def test_trash_view_normal_user(self, app, user_env):
         """A normal logged in user shouldn't be able to access trash view."""
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url, user_env, status=403)
+        trash_response = app.get(trash_url, extra_environ=user_env, status=403)
         assert trash_response.status_code == 403
 
     def test_trash_view_sysadmin(self, app, sysadmin_env):
