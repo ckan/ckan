@@ -872,3 +872,21 @@ def test_decode_view_request_filters(test_request_context):
             '_id': ['1', '2', '3'],
             'Piped|Filter': ['Piped|Value']
         }
+
+
+@pytest.mark.parametrize("data_dict, locale, result", [
+    # no matching local returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'es', 'untranslated'),
+    # specific returns specfic
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'en_GB', 'en_GB'),
+     # variant returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en'}}, 'en_GB', 'en'),
+    # Null case, falls all the way through.
+    ({}, 'en', ''),
+])
+def test_get_translated(data_dict, locale, result):
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: locale)
+    assert h.get_translated(data_dict, 'notes') == result

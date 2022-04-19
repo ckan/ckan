@@ -2575,7 +2575,15 @@ def get_translated(data_dict: dict[str, Any], field: str) -> Union[str, Any]:
     try:
         return data_dict[field + u'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        pass
+    # Check the base language, en_GB->en
+    try:
+        base_language = language.split('_')[0]
+        if base_language != language:
+            return data_dict[field + u'_translated'][base_language]
+    except KeyError:
+        pass
+    return data_dict.get(field, '')
 
 
 @core_helper
