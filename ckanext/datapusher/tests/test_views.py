@@ -11,7 +11,7 @@ from ckan.logic import _actions
 @mock.patch("flask_login.utils._get_user")
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
 @pytest.mark.usefixtures(u"non_clean_db", u"with_plugins", u"with_request_context")
-def test_resource_data(app, current_user, monkeypatch):
+def test_resource_data(current_user, app, monkeypatch):
     user = factories.User()
     user_obj = model.User.get(user["name"])
     # mock current_user
