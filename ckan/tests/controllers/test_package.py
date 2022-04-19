@@ -542,9 +542,7 @@ class TestPackageEdit(object):
         dataset = factories.Dataset(owner_org=organization["id"])
         url = url_for("dataset.edit", id=dataset["name"])
         app.get(url=url, status=403)
-        app.post(url=url,
-            data={"notes": "edited description"},
-            status=403)
+        app.post(url=url, data={"notes": "edited description"}, status=403)
 
     def test_validation_errors_for_dataset_name_appear(self, app, user):
         """fill out a bad dataset set name and make sure errors appear"""

@@ -77,17 +77,10 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
 
 def identify_user() -> Optional[Response]:
-    u'''Try to identify the user
-    If the user is identified then:
-      g.user = user name (unicode)
-      g.userobj = user object
-      g.author = user name
-    otherwise:
-      g.user = None
-      g.userobj = None
-      g.author = user's IP address (unicode)
+    u'''This function exists only to maintain backward compatibility 
+    to extensions that still need g.user/g.userobj.
 
-    Note: Remember, when running under Pylons, `g` is the Pylons `c` object
+    Note: flask_login now identifies users for us behind the scene.
     '''
     # see if it was proxied first
     g.remote_addr = request.environ.get(u'HTTP_X_FORWARDED_FOR', u'')
@@ -112,7 +105,7 @@ def identify_user() -> Optional[Response]:
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
         g.userobj = ''
-        _identify_user_default()
+        _set_g_user_and_g_userobj()
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
@@ -132,13 +125,11 @@ def identify_user() -> Optional[Response]:
     g.author = str(g.author)
 
 
-def _identify_user_default():
-    u'''
-    Identifies the user using two methods:
-    a) If they logged into the web interface then flask-login will
-       set a proxy for the current user. If no user is logged in,
-       this will be an anonymous user.
-    b) For API calls they may set a header with an API token.
+def _set_g_user_and_g_userobj():
+    u'''This function exists only to maintain backward compatibility 
+    to extensions that still need g.user/g.userobj.
+
+    Note: flask_login now identifies users for us behind the scene.
     '''
     g.user = ''
     if not current_user.is_anonymous:  # type: ignore
