@@ -22,9 +22,6 @@
 [submodule "contrib/docker/src/ckanext-cioos_harvest"]
 	path = contrib/docker/src/ckanext-cioos_harvest
 	url = https://github.com/cioos-siooc/ckanext-cioos_harvest.git
-[submodule "contrib/docker/src/ckanext-googleanalyticsbasic"]
-	path = contrib/docker/src/ckanext-googleanalyticsbasic
-	url = https://github.com/cioos-siooc/ckanext-googleanalyticsbasic.git
 [submodule "contrib/docker/src/ckanext-dcat"]
 	path = contrib/docker/src/ckanext-dcat
 	url = https://github.com/ckan/ckanext-dcat.git

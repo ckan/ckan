@@ -3,14 +3,9 @@ name: CKAN Docker Image
 on:
   workflow_dispatch:
   push:
-   branches: [ cioos ]
+   branches: [ cioos_dev]
   pull_request:
-    branches: [ cioos ]
-  release:
-    types: [published]
-
-env:
-  submod_path: "contrib/docker/src"
+    branches: [ cioos_dev ]
 
 jobs:
   delete_pr:
@@ -23,7 +18,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: echo "TAG=PR${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-      - run: docker run --rm -it lumir/remove-dockerhub-tag --user ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} cioos/ckan:$TAG
+      - run: docker run --rm -it lumir/remove-dockerhub-tag --user ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} cioos/ckan:DEV_$TAG
 
   build_ckan:
     name: build ckan docker image
@@ -45,7 +40,6 @@ jobs:
     - run: cp ./contrib/docker/.env.template ./contrib/docker/.env
     - run: cp ./contrib/docker/production_root_url.ini ./contrib/docker/production.ini
     - run: cp ./contrib/docker/who_root_url.ini ./contrib/docker/who.ini
-    - run: cp ./contrib/docker/pycsw/pycsw.cfg.template ./contrib/docker/pycsw/pycsw.cfg
 
     - name: Set current date as TAG env variable for push requests
       if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -65,10 +59,10 @@ jobs:
     - uses: satackey/action-docker-layer-caching@v0.0.8
       # Ignore the failure of a step and avoid terminating the job.
       continue-on-error: true
-    - run: docker build -t cioos/ckan:$TAG -t cioos/ckan:latest .
-    - run: docker push cioos/ckan:$TAG
+    - run: docker build -t cioos/ckan:DEV_$TAG -t cioos/ckan:DEV_latest .
+    - run: docker push cioos/ckan:DEV_$TAG
     - if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-      run: docker push cioos/ckan:latest
+      run: docker push cioos/ckan:DEV_latest
     - if: github.event_name == 'pull_request'
       uses: mshick/add-pr-comment@v1
       with:
@@ -76,14 +70,14 @@ jobs:
           Image has been pushed to [cioos/ckan](https://hub.docker.com/repository/docker/cioos/ckan)
           ## Testing Quick Start
           ### Pull image
-          `sudo docker pull cioos/ckan:${{ env.TAG }}`
+          `sudo docker pull cioos/ckan:DEV_${{ env.TAG }}`
           or
-          `sudo CKAN_TAG=${{ env.TAG }} docker-compose pull ckan`
+          `sudo CKAN_TAG=DEV_${{ env.TAG }} docker-compose pull ckan`
           ### Remove Home Volume and Restart
           ```
           sudo docker-compose down
           sudo docker volume rm docker_ckan_home
-          sudo CKAN_TAG=${{ env.TAG }} docker-compose up -d
+          sudo CKAN_TAG=DEV_${{ env.TAG }} docker-compose up -d
           ```
           for full documentation see *TBD*
         repo-token: ${{ secrets.GITHUB_TOKEN }}
