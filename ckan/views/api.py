@@ -183,7 +183,7 @@ def _get_request_data(try_url_params: bool = False):
             request_data = mixed(request.form)
     elif request.args and try_url_params:
         request_data = mixed(request.args)
-    elif (request.data and request.data != u'' and
+    elif (request.data and request.data != b'' and
           request.content_type != u'multipart/form-data'):
         try:
             request_data = request.get_json()

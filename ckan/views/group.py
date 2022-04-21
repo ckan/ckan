@@ -1041,7 +1041,6 @@ class CreateGroupView(MethodView):
             base.abort(400, _(u'Integrity Error'))
         user = current_user.name  # type: ignore
         data_dict['type'] = group_type or u'group'
-        context['message'] = data_dict.get(u'log_message', u'')
         data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
@@ -1139,7 +1138,6 @@ class EditGroupView(MethodView):
             ))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-        context['message'] = data_dict.get(u'log_message', u'')
         data_dict['id'] = context['id']
         context['allow_partial_update'] = True
         try:

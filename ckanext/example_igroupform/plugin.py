@@ -34,7 +34,7 @@ class ExampleIGroupFormPlugin(plugins.SingletonPlugin,
         return (group_type,)
 
     def is_fallback(self):
-        False
+        return False
 
     def group_form(self):
         return 'example_igroup_form/group_form.html'
@@ -60,7 +60,7 @@ class ExampleIGroupFormPlugin_DefaultGroupType(plugins.SingletonPlugin,  # noqa
         return ('group',)
 
     def is_fallback(self):
-        False
+        return False
 
     def group_form(self):
         return 'example_igroup_form/group_form.html'
@@ -86,7 +86,7 @@ class ExampleIGroupFormOrganizationPlugin(plugins.SingletonPlugin,
         return (group_type,)
 
     def is_fallback(self):
-        False
+        return False
 
     def group_controller(self):
         return 'organization'

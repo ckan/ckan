@@ -1724,17 +1724,6 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 
 @core_helper
-def auto_log_message() -> str:
-    if (g.action == 'new'):
-        return _('Created new dataset.')
-    elif (g.action == 'editresources'):
-        return _('Edited resources.')
-    elif (g.action == 'edit'):
-        return _('Edited settings.')
-    return ''
-
-
-@core_helper
 def snippet(template_name: str, **kw: Any) -> str:
     ''' This function is used to load html snippets into pages. keywords
     can be used to pass parameters into the snippet rendering '''
