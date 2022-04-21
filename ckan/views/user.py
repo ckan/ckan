@@ -35,6 +35,19 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
+def set_repoze_user(user_id: str, resp: Response) -> Response:
+    """
+    This function exists only to maintain backward compatibility 
+    to extensions like saml2auth.
+    """
+    if current_user.is_anonymous:  # type: ignore
+        user = model.User.get(user_id)
+        login_user(user)
+    if resp:
+        return resp
+    return me()
+
+
 def _edit_form_to_db_schema() -> Schema:
     return schema.user_edit_form_schema()
 

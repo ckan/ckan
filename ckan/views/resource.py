@@ -363,7 +363,7 @@ class EditView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (get_user_name, id)  # type: ignore
+                _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
             )
         return context
 
