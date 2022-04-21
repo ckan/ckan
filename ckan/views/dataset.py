@@ -720,7 +720,7 @@ class EditView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignores
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
             u'save': u'save' in request.form
         })
