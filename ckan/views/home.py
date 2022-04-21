@@ -15,7 +15,6 @@ import ckan.lib.search as search
 import ckan.lib.helpers as h
 
 from ckan.common import g, config, _
-from ckan.views import get_user_name
 from ckan.types import Context
 
 
@@ -31,7 +30,7 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             u'model': model,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user})
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
@@ -44,7 +43,7 @@ def index() -> str:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
             }
         )

@@ -268,6 +268,8 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Initialize flask-login
     login_manager = LoginManager()
     login_manager.init_app(app)
+    # make anonymous_user an instance of CKAN custom class
+    login_manager.anonymous_user = model.AnonymousUser
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore

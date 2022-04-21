@@ -18,7 +18,6 @@ import ckan.model as model
 import ckan.logic.schema
 from ckan.common import _, config, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.views import get_user_name
 
 from ckan.types import Context, Query
 
@@ -67,7 +66,7 @@ def before_request() -> None:
         context = cast(
             Context, {
                 "model": model,
-                "user": get_user_name(),
+                "user": current_user.name,  # type: ignore
                 "auth_user_obj": current_user
             }
         )
@@ -120,7 +119,7 @@ class ConfigView(MethodView):
 
             del data_dict['save']
             data = logic.get_action(u'config_option_update')({
-                u'user': get_user_name()
+                u'user': current_user.name  # type: ignore
             }, data_dict)
 
         except logic.ValidationError as e:
@@ -238,7 +237,7 @@ class TrashView(MethodView):
                 ent_id = entity.id if hasattr(entity, 'id') \
                     else entity['id']  # type: ignore
                 logic.get_action(action)(
-                    {u'user': get_user_name()}, {u'id': ent_id}
+                    {u'user': current_user.name}, {u'id': ent_id}  # type: ignore
                 )
             model.Session.remove()
         h.flash_success(_(u'Massive purge complete'))
@@ -250,7 +249,7 @@ class TrashView(MethodView):
         for ent in entities:
             entity_id = ent.id if hasattr(ent, 'id') else ent['id']
             logic.get_action(self._get_purge_action(ent_type))(
-                {u'user': get_user_name()},
+                {u'user': current_user.name},  # type: ignore
                 {u'id': entity_id}
             )
 

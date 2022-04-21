@@ -22,7 +22,6 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
-from ckan.views import get_user_name
 from flask_login import login_user, logout_user, current_user
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -56,8 +55,7 @@ def _extra_template_variables(context: Context,
     except logic.NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
-    _current_user = current_user.name if not current_user.is_anonymous else ""  # type: ignore
-    is_myself = user_dict[u'name'] == _current_user
+    is_myself = user_dict[u'name'] == current_user.name  # type: ignore
     about_formatted = h.render_markdown(user_dict[u'about'])
     extra: dict[str, Any] = {
         u'is_sysadmin': is_sysadmin,
@@ -73,7 +71,7 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             "model": model,
-            "user": get_user_name(),
+            "user": current_user.name,  # type: ignore
             "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
@@ -95,7 +93,7 @@ def index():
     limit = int(request.args.get('limit', default_limit))
     context = cast(Context, {
         u'return_query': True,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
 
@@ -132,7 +130,7 @@ def read(id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -162,7 +160,7 @@ class ApiTokenView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
             u'for_view': True,
             u'include_plugin_extras': True
@@ -248,7 +246,7 @@ class EditView(MethodView):
             u'schema': _edit_form_to_db_schema(),
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         if id is None:
@@ -305,14 +303,14 @@ class EditView(MethodView):
 
             # getting the identity for current logged user
             identity = {
-                u'login': get_user_name(),
+                u'login': current_user.name,  # type: ignore
                 u'password': data_dict[u'old_password']
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
-            if auth.authenticate(identity) != get_user_name():
+            if auth.authenticate(identity) != current_user.name:  # type: ignore
                 errors = {"oldpassword": [_("Password entered was incorrect")]}
                 error_summary = (
                     {_("Old Password"): _("incorrect password")}
@@ -364,7 +362,7 @@ class EditView(MethodView):
         extra_vars = _extra_template_variables(cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name()
+            u'user': current_user.name  # type: ignore
         }), data_dict)
 
         extra_vars[u'show_email_notifications'] = config.get_value(
@@ -381,7 +379,7 @@ class RegisterView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
             u'schema': _new_form_to_db_schema(),
             u'save': u'save' in request.form
@@ -425,7 +423,7 @@ class RegisterView(MethodView):
             error_summary = e.error_summary
             return self.get(data_dict, errors, error_summary)
 
-        user = get_user_name()
+        user = current_user.name  # type: ignore
         if user:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
@@ -452,7 +450,7 @@ class RegisterView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         self._prepare()
-        user = get_user_name()
+        user = current_user.name  # type: ignore
 
         if user and not data and not authz.is_sysadmin(user):
             # #1799 Don't offer the registration form if already logged in
@@ -520,7 +518,7 @@ def logout() -> Response:
         response = item.logout()
         if response:
             return response
-    user = get_user_name()
+    user = current_user.name  # type: ignore
     if not user:
         return h.redirect_to('user.login')
 
@@ -542,7 +540,7 @@ def delete(id: str) -> Union[Response, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
@@ -567,7 +565,7 @@ def activity(id: str, offset: int = 0) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -602,7 +600,7 @@ class RequestResetView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         try:
@@ -621,7 +619,7 @@ class RequestResetView(MethodView):
         context = cast(
             Context, {
                 u'model': model,
-                u'user': get_user_name(),
+                u'user': current_user.name,  # type: ignore
                 u'ignore_auth': True
             }
         )
@@ -784,7 +782,7 @@ def follow(id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
@@ -806,7 +804,7 @@ def unfollow(id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
@@ -827,7 +825,7 @@ def unfollow(id: str) -> Response:
 def followers(id: str) -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {
@@ -854,7 +852,7 @@ def sysadmin() -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
         })
         data_dict: dict[str, Any] = {u'id': username, u'sysadmin': status}

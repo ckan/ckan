@@ -15,6 +15,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from flask_login import AnonymousUserMixin
 
 from ckan.common import config
 from ckan.model import meta
@@ -357,6 +358,15 @@ class User(core.StatefulObjectMixin,
         else:
             self.last_active = datetime.datetime.utcnow()
             meta.Session.commit()
+
+
+class AnonymousUser(AnonymousUserMixin):
+    '''Extends the default AnonymousUserMixin to have an attribute
+    `name`, so, when retrieving the current_user.name on an
+    anonymous user, won't break our app with `AttributeError`.
+    '''
+    name: str = ""
+
 
 meta.mapper(
     User, user_table,

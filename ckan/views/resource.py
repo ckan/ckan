@@ -21,7 +21,6 @@ import ckan.plugins as plugins
 from ckan.lib import signals
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.views import get_user_name
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
@@ -59,7 +58,7 @@ def read(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -171,7 +170,7 @@ def download(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
 
@@ -212,7 +211,7 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
 
@@ -308,7 +307,7 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         try:
@@ -356,7 +355,7 @@ class EditView(MethodView):
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         try:
@@ -364,7 +363,7 @@ class EditView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (get_user_name, id)
+                _(u'User %r not authorized to edit %s') % (get_user_name, id)  # type: ignore
             )
         return context
 
@@ -458,7 +457,7 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         try:
@@ -532,7 +531,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -543,7 +542,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (get_user_name(), id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
         )
     # check if package exists
     try:
@@ -597,7 +596,7 @@ def view(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
 
@@ -636,7 +635,7 @@ class EditResourceViewView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'for_view': True,
             u'auth_user_obj': current_user
         })
@@ -647,7 +646,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (get_user_name(), id)
+                _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
             )
 
         # get resource and package data

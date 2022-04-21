@@ -14,7 +14,6 @@ from flask_login import current_user
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, request
-from ckan.views import get_user_name
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.model as model
@@ -37,7 +36,7 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     if u'sort' not in data_dict or not data_dict['sort']:
@@ -201,7 +200,7 @@ def group(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
@@ -218,7 +217,7 @@ def organization(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'organization_show')(context, {

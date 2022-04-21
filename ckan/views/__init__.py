@@ -100,10 +100,9 @@ def identify_user() -> Optional[Response]:
                 if g.user:
                     break
             except AttributeError:
-                continue
-
+                continue       
     # sets the g.user/g.userobj for extensions            
-    g.user = '' if current_user.is_anonymous else current_user.name  # type: ignore
+    g.user = current_user.name  # type: ignore
     g.userobj = '' if current_user.is_anonymous else current_user  # type: ignore
 
     # logout, if a user that was still logged in is deleted.
@@ -205,8 +204,3 @@ def set_ckan_current_url(environ: Any) -> None:
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info
-
-
-def get_user_name() -> str:
-    user = current_user.name if not current_user.is_anonymous else ''  # type: ignore
-    return user

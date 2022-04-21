@@ -58,7 +58,6 @@ import ckan
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
 from ckan.common import _, ungettext, g, request, json
-from ckan.views import get_user_name
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -1194,7 +1193,9 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {'model': model, 'user': get_user_name()})
+    context = cast(Context, {
+        'model': model, 
+        'user': current_user.name})  # type: ignore
     if not data_dict:
         data_dict = {}
     try:
@@ -1781,7 +1782,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    user = get_user_name()
+    user = current_user.name  # type: ignore
     if user:
         context = cast(
             Context,
@@ -1815,7 +1816,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
         Context, {
             'model': model,
             'session': model.Session,
-            'user': get_user_name()
+            'user': current_user.name  # type: ignore
         }
     )
     return logic.get_action(action)(context, {'id': obj_id})
@@ -1975,7 +1976,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': get_user_name()}
+    context: Context = {'user': current_user.name}  # type: ignore
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -2029,7 +2030,7 @@ def dashboard_activity_stream(user_id: str,
         Context, {
             'model': model,
             'session': model.Session,
-            'user': get_user_name()
+            'user': current_user.name  # type: ignore
         }
     )
     if filter_type:
@@ -2057,7 +2058,7 @@ def recently_changed_packages_activity_stream(
         Context, {
             'model': model,
             'session': model.Session,
-            'user': get_user_name()
+            'user': current_user.name  # type: ignore
         }
     )
     return logic.get_action('recently_changed_packages_activity_list')(
@@ -2801,7 +2802,9 @@ def get_collaborators(package_id: str) -> list[tuple[str, str]]:
 
     Returns a list of tuples with the user id and the capacity
     '''
-    context: Context = {'ignore_auth': True, 'user': get_user_name()}
+    context: Context = {
+        'ignore_auth': True, 
+        'user': current_user.name}  # type: ignore
     data_dict = {'id': package_id}
     _collaborators = logic.get_action('package_collaborator_list')(
         context, data_dict)
@@ -2837,7 +2840,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(get_user_name())
+    user = model.User.get(current_user.name)  # type: ignore
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')

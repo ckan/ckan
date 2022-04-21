@@ -26,7 +26,6 @@ import ckan.plugins as plugins
 import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.views import get_user_name
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 from ckan.types import Context, Response
@@ -216,7 +215,7 @@ def search(package_type: str) -> str:
     try:
         context = cast(Context, {
             u'model': model,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         check_access(u'site_read', context)
@@ -259,7 +258,7 @@ def search(package_type: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -396,7 +395,7 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -409,7 +408,7 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (get_user_name(), id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
         )
     # check if package exists
     try:
@@ -438,7 +437,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -541,7 +540,7 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
             u'save': self._is_save()
         })
@@ -721,7 +720,7 @@ class EditView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignores
             u'auth_user_obj': current_user,
             u'save': u'save' in request.form
         })
@@ -816,7 +815,7 @@ class EditView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (get_user_name(), id)
+                _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
             )
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
@@ -872,7 +871,7 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user
         })
         return context
@@ -925,7 +924,7 @@ def follow(package_type: str, id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
@@ -952,7 +951,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
@@ -984,7 +983,7 @@ def followers(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -1025,7 +1024,7 @@ class GroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'for_view': True,
             u'auth_user_obj': current_user,
             u'use_cache': False
@@ -1108,7 +1107,7 @@ def activity(package_type: str, id: str) -> Union[Response, str]:  # noqa
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -1148,7 +1147,7 @@ def changes(id: str,
     activity_id = id
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': get_user_name(), u'auth_user_obj': current_user
+        u'user': current_user.name, u'auth_user_obj': current_user  # type: ignore
     })
     try:
         activity_diff = get_action(u'activity_diff')(
@@ -1196,7 +1195,7 @@ def changes_multiple(
 
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': get_user_name(), u'auth_user_obj': current_user
+        u'user': current_user.name, u'auth_user_obj': current_user  # type: ignore
     })
 
     # check to ensure that the old activity is actually older than
@@ -1266,7 +1265,7 @@ def changes_multiple(
 
 
 def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # noqa
-    context = cast(Context, {u'model': model, u'user': get_user_name()})
+    context = cast(Context, {u'model': model, u'user': current_user.name})  # type: ignore
     data_dict = {u'id': id}
 
     try:
@@ -1284,7 +1283,7 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
 
 
 def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
-    context = cast(Context, {u'model': model, u'user': get_user_name()})
+    context = cast(Context, {u'model': model, u'user': current_user.name})  # type: ignore
 
     try:
         get_action(u'package_collaborator_delete')(context, {
@@ -1305,7 +1304,7 @@ def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  
 class CollaboratorEditView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:  # noqa
-        context = cast(Context, {u'model': model, u'user': get_user_name()})
+        context = cast(Context, {u'model': model, u'user': current_user.name})  # type: ignore
 
         try:
             form_dict = logic.clean_dict(
@@ -1343,7 +1342,7 @@ class CollaboratorEditView(MethodView):
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
     def get(self, package_type: str, id: str) -> Union[Response, str]:  # noqa
-        context = cast(Context, {u'model': model, u'user': get_user_name()})
+        context = cast(Context, {u'model': model, u'user': current_user.name})  # type: ignore
         data_dict = {u'id': id}
 
         try:

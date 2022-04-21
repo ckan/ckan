@@ -1737,6 +1737,14 @@ class IAuthenticator(Interface):
     def authenticate(
         self, identity: Optional[dict[str, Any]]
     ) -> Optional[str]:
+        """Called before the authentication starts (that is after clicking the login
+        button)
+
+        Plugins can return a response object to prevent the default CKAN
+        authentication flow.
+        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
+        for more details.
+        """
         pass
 
 

@@ -10,7 +10,6 @@ import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
-from ckan.views import get_user_name
 from ckan.common import _, request
 from ckan.views.user import _extra_template_variables
 from flask_login import current_user
@@ -33,7 +32,7 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             "model": model,
-            "user": get_user_name(),
+            "user": current_user.name,  # type: ignore
             "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
@@ -60,7 +59,7 @@ def _get_dashboard_context(
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': get_user_name(),
+            u'user': current_user.name,  # type: ignore
             u'auth_user_obj': current_user,
             u'for_view': True
         })
@@ -107,7 +106,7 @@ def index(offset: int = 0) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -140,7 +139,7 @@ def index(offset: int = 0) -> str:
 def datasets() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {
@@ -153,7 +152,7 @@ def datasets() -> str:
 def organizations() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict = {u'user_obj': current_user}
@@ -164,7 +163,7 @@ def organizations() -> str:
 def groups() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': get_user_name(),
+        u'user': current_user.name,  # type: ignore
         u'auth_user_obj': current_user
     })
     data_dict = {u'user_obj': current_user}
