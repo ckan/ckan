@@ -161,11 +161,6 @@ def isodate(value: Any, context: Context) -> Any:
         raise Invalid(_('Date format incorrect'))
     return date
 
-def no_http(value: Any, context: Context) -> Any:
-    if 'http:' in value:
-        raise Invalid(_('No links are allowed in the log_message.'))
-    return value
-
 def package_id_exists(value: str, context: Context) -> Any:
 
     model = context['model']
