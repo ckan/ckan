@@ -1,7 +1,8 @@
 # encoding: utf-8
 from __future__ import annotations
+from queue import Empty
 
-from typing import Any
+from typing import Any, List
 from urllib.parse import urlencode
 
 from flask import Blueprint
@@ -12,11 +13,15 @@ from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
 import re
 
+import logging
+
+log = logging.getLogger(__name__)
+
 datatablesview = Blueprint(u'datatablesview', __name__)
 
 
 def merge_filters(view_filters: dict[str, Any],
-                  user_filters_str: str) -> dict[str, Any]:
+                  user_filters: dict[str, Any]) -> dict[str, Any]:
     u'''
     view filters are built as part of the view, user filters
     are selected by the user interacting with the view. Any filters
@@ -30,17 +35,39 @@ def merge_filters(view_filters: dict[str, Any],
      u'OnTime_Status': [u'ONTIME'],
      u'CASE_STATUS': [u'Open', u'Closed']}
     '''
-    #TODO: modify method to not parse the string as it is now a dictionary...
     filters = dict(view_filters)
-    if not user_filters_str:
+    if not user_filters:
         return filters
-    user_filters = {}
-    for k_v in user_filters_str.split(u'|'):
-        k, _sep, v = k_v.partition(u':')
-        if k not in view_filters or v in view_filters[k]:
-            user_filters.setdefault(k, []).append(v)
+    log.info("    ")
+    log.info("DEBUG")
+    log.info("--user filters--")
+    log.info(user_filters)
+    log.info("    ")
+    combined_user_filters = {}
     for k in user_filters:
-        filters[k] = user_filters[k]
+        if k not in view_filters or user_filters[k] in view_filters[k]:
+            #TODO: merge lists
+            if isinstance(user_filters[k], list):
+                log.info("    ")
+                log.info("STEP")
+                log.info("--filter value is a list--")
+                log.info(type(user_filters[k]).__name__)
+                log.info("    ")
+                combined_user_filters[k] = user_filters[k]
+            else:
+                log.info("    ")
+                log.info("STEP")
+                log.info("--filter value is NOT a list--")
+                log.info(type(user_filters[k]).__name__)
+                log.info("    ")
+                combined_user_filters.setdefault(k, []).append(user_filters[k])
+    for k in combined_user_filters:
+        filters[k] = combined_user_filters[k]
+    log.info("    ")
+    log.info("DEBUG")
+    log.info("--combined filters--")
+    log.info(filters)
+    log.info("    ")
     return filters
 
 

@@ -2894,10 +2894,10 @@ def decode_view_request_filters():
     filterString = request.args.get('filters')
     if request.form.get('filters') is not None:
         filterString = request.form.get('filters')
-    if filterString is not None:
+    if filterString is not None and len(filterString) > 0:
         filters = {}
         for k_v in filterString.split(u'|'):
             k, _sep, v = k_v.partition(u':')
-            filters[unquote(str(k))] = unquote(str(v))
+            filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
         return filters
-    return {}
+    return None
