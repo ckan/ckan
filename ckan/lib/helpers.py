@@ -16,12 +16,10 @@ import pprint
 import copy
 import uuid
 
-from paste.deploy import converters
-
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import config, is_flask_request
+from ckan.common import config, is_flask_request, asbool
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
@@ -424,16 +422,29 @@ def _url_for_flask(*args, **kw):
             kw.pop('host', None)
             kw.pop('protocol', None)
             if kw:
-                my_url += '?'
                 query_args = []
                 for key, val in kw.items():
                     if isinstance(val, (list, tuple)):
                         for value in val:
+                            if value is None:
+                                continue
                             query_args.append(
-                                u'{}={}'.format(quote(key), quote(value)))
+                                u'{}={}'.format(
+                                    quote(str(key)),
+                                    quote(str(value))
+                                )
+                            )
                     else:
+                        if val is None:
+                            continue
                         query_args.append(
-                            u'{}={}'.format(quote(key), quote(val)))
+                            u'{}={}'.format(
+                                quote(str(key)),
+                                quote(str(val))
+                            )
+                        )
+                if query_args:
+                    my_url += '?'
                 my_url += '&'.join(query_args)
         else:
             raise
@@ -1163,8 +1174,9 @@ def get_facet_items_dict(
     if search_facets is None:
         search_facets = getattr(c, u'search_facets', None)
 
-    if not search_facets or not search_facets.get(
-            facet, {}).get('items'):
+    if not search_facets \
+       or not isinstance(search_facets, dict) \
+       or not search_facets.get(facet, {}).get('items'):
         return []
     facets = []
     for facet_item in search_facets.get(facet)['items']:
@@ -1214,7 +1226,7 @@ def has_more_facets(facet, search_facets, limit=None, exclude_active=False):
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if c.search_facets_limits and limit is None:
+    if getattr(c, 'search_facets_limits', None) and limit is None:
         limit = c.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
@@ -2794,7 +2806,8 @@ def license_options(existing_license_id=None):
         license_ids.insert(0, existing_license_id)
     return [
         (license_id,
-         register[license_id].title if license_id in register else license_id)
+         _(register[license_id].title)
+            if license_id in register else license_id)
         for license_id in license_ids]
 
 
@@ -2845,8 +2858,8 @@ core_helper(localised_filesize)
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
 core_helper(literal)
-# Useful additions from the paste library.
-core_helper(converters.asbool)
+# Useful additions from the common module
+core_helper(asbool)
 # Useful additions from the stdlib.
 core_helper(urlencode)
 core_helper(include_asset)

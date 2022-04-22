@@ -4,6 +4,7 @@ import logging
 import six
 import click
 from six import text_type
+from datetime import datetime
 
 import ckan.logic as logic
 import ckan.plugins as plugin
@@ -228,9 +229,21 @@ def list_tokens(username):
     for token in tokens:
         last_access = token[u"last_access"]
         if last_access:
-            accessed = plugin.toolkit.h.date_str_to_datetime(
-                last_access
-            ).isoformat(u" ", u"seconds")
+            accessed = plugin.toolkit.h.date_str_to_datetime(last_access)
+            if six.PY2:
+                """
+                Strip out microseconds to force formatting as isoformat doesnt
+                have a timespec param on Python 2.
+                """
+                accessed = datetime(
+                    accessed.year,
+                    accessed.month,
+                    accessed.day,
+                    accessed.hour,
+                    accessed.minute,
+                    accessed.second).isoformat(u" ")
+            else:
+                accessed = accessed.isoformat(u" ", u"seconds")
 
         else:
             accessed = u"Never"

@@ -62,6 +62,10 @@ ckan.datastore.default_fts_index_method = gist
 ckan.site_url =
 #ckan.use_pylons_response_cleanup_middleware = true
 
+# Default timeout for Requests
+#ckan.requests.timeout = 10
+
+
 ## Authorization Settings
 
 ckan.auth.anon_create_dataset = false
@@ -186,6 +190,8 @@ ckan.feeds.author_link =
 #ckan.resource_proxy.max_file_size = 1048576
 # Size of chunks to read/write.
 #ckan.resource_proxy.chunk_size = 4096
+# Default timeout for fetching proxied items
+#ckan.resource_proxy.timeout = 10
 
 ## Activity Streams Settings
 

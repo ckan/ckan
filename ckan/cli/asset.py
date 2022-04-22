@@ -12,10 +12,9 @@ from ckan.cli import error_shout
 log = logging.getLogger(__name__)
 
 
-@click.group()
+@click.group(short_help=u"WebAssets commands.")
 def asset():
     """WebAssets commands.
-
     """
     pass
 

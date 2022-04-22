@@ -1089,7 +1089,7 @@ Delete and re clone the ckan repo.
 If you edit a harvester config and then reharvest the existing harvester will continue to use the in memory harvester config. To solve this you should reindex the harvesters and restart the harvester docker containers
 
 ```bash
-sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex
+sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex 
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
 

@@ -251,10 +251,9 @@ def _read(id, limit, group_type):
     sort_by = request.params.get(u'sort', None)
 
     def search_url(params):
-        controller = lookup_group_controller(group_type)
         action = u'bulk_process' if getattr(
             g, u'action', u'') == u'bulk_process' else u'read'
-        url = h.url_for(u'.'.join([controller, action]), id=id)
+        url = h.url_for(u'.'.join([group_type, action]), id=id)
         params = [(k, v.encode(u'utf-8')
                    if isinstance(v, string_types) else str(v))
                   for k, v in params]
@@ -706,6 +705,12 @@ class BulkProcessView(MethodView):
             u'for_view': True,
             u'extras_as_string': True
         }
+
+        try:
+            check_access(u'bulk_update_public', context, {u'org_id': id})
+        except NotAuthorized:
+            base.abort(403, _(u'Unauthorized to access'))
+
         return context
 
     def get(self, id, group_type, is_organization):
@@ -748,10 +753,9 @@ class BulkProcessView(MethodView):
 
     def post(self, id, group_type, is_organization, data=None):
         set_org(is_organization)
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, id)
         data_dict = {u'id': id, u'type': group_type}
         try:
-            check_access(u'bulk_update_public', context, {u'org_id': id})
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
@@ -922,8 +926,8 @@ class EditGroupView(MethodView):
         }
 
         try:
-            group = _action(u'group_show')(context, data_dict)
-            check_access(u'group_update', context)
+            _action(u'group_show')(context, data_dict)
+            _check_access(u'group_update', context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
@@ -1084,7 +1088,15 @@ class MembersGroupView(MethodView):
                 u'role': data_dict['role']
             }
             del data_dict['email']
-            user_dict = _action(u'user_invite')(context, user_data_dict)
+
+            try:
+                user_dict = _action(u'user_invite')(context, user_data_dict)
+            except ValidationError as e:
+                for _, error in e.error_summary.items():
+                    h.flash_error(error)
+                return h.redirect_to(
+                    u'{}.member_new'.format(group_type), id=id)
+
             data_dict['username'] = user_dict['name']
 
         try:
@@ -1094,7 +1106,8 @@ class MembersGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            h.flash_error(e.error_summary)
+            for _, error in e.error_summary.items():
+                h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
         # TODO: Remove
