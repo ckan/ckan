@@ -1735,7 +1735,7 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: Optional[dict[str, Any]]
+        self, identity: 'Mapping[str, Any]'
     ) -> Optional[str]:
         """Called before the authentication starts (that is after clicking the login
         button)
@@ -1745,7 +1745,6 @@ class IAuthenticator(Interface):
         the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
         for more details.
         """
-        pass
 
 
 class ITranslation(Interface):

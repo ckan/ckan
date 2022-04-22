@@ -34,7 +34,7 @@ class UsernamePasswordAuthenticator(object):
         return None
 
 
-class CkanAuthenticator(object):
+def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional[str]:
     """Allows extensions that have implemented 
     `IAuthenticator.authenticate()` to hook into the CKAN authentication 
     process with a custom implementation.
@@ -42,9 +42,8 @@ class CkanAuthenticator(object):
     Falls to default `UsernamePasswordAuthenticator` if no plugins are 
     defined.
     """
-    @classmethod
-    def __call__(cls):
-        for item in plugins.PluginImplementations(plugins.IAuthenticator):
-            return item
-
-        return UsernamePasswordAuthenticator()
+    for item in plugins.PluginImplementations(plugins.IAuthenticator):
+        response = item.authenticate(identity)
+        if response:
+            return response
+    return UsernamePasswordAuthenticator().authenticate(identity)
