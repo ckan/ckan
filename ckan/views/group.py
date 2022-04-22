@@ -435,7 +435,6 @@ def read(group_type: str,
         data_dict['include_users'] = False
 
         group_dict = _action(u'group_show')(context, data_dict)
-        group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -454,7 +453,6 @@ def read(group_type: str,
     # compatibility with templates in existing extensions
     g.q = q
     g.group_dict = group_dict
-    g.group = group
 
     extra_vars = _read(id, limit, group_type)
 
@@ -889,7 +887,6 @@ class BulkProcessView(MethodView):
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
         g.group_dict = group_dict
-        g.group = group
         extra_vars = _read(id, limit, group_type)
         extra_vars['packages'] = g.page.items
         extra_vars['group_dict'] = group_dict
@@ -910,7 +907,6 @@ class BulkProcessView(MethodView):
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
             group_dict = _action(u'group_show')(context, data_dict)
-            group = context['group']
         except NotFound:
             group_label = h.humanize_entity_type(
                 u'organization' if is_organization else u'group',
@@ -930,7 +926,6 @@ class BulkProcessView(MethodView):
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
         g.group_dict = group_dict
-        g.group = group
 
         # use different form names so that ie7 can be detected
         form_names = set([
