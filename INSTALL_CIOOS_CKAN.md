@@ -616,7 +616,7 @@ This method uses dockers copy command to copy the new schema file into a running
 
 ```bash
 cd ~/ckan
-sudo docker cp ~/ckan/ckan/config/solr/schema.xml solr:/opt/solr/server/solr/ckan/conf
+sudo docker cp ~/ckan/ckan/config/solr/schema.xml solr:/opt/solr/server/solr/configsets/ckan/conf/managed-schema
 ```
 
 Restart solr container
