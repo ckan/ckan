@@ -13,11 +13,13 @@ from ckan.tests import factories
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupController(object):
-    def test_bulk_process_throws_404_for_nonexistent_org(self, app):
+    def test_bulk_process_throws_403_for_nonexistent_org(self, app):
+        """Returns 403, not 404, because access check cannot be passed.
+        """
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
-        app.get(url=bulk_process_url, status=404)
+        app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = [factories.Organization() for _ in range(35)]

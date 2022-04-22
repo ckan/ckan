@@ -186,6 +186,22 @@ def test_email_is_unique_validator_user_update_email_unchanged(app):
 
 
 @pytest.mark.usefixtures("clean_db")
+def test_email_is_unique_validator_user_update_using_name_as_id(app):
+    with app.flask_app.test_request_context():
+        user = factories.User(username="user01", email="user01@email.com")
+
+        # try to update user1 and leave email unchanged
+        old_email = "user01@email.com"
+
+        helpers.call_action(
+            "user_update", id=user['name'], email=user['email'], about='test')
+        updated_user = model.User.get(user["id"])
+
+        assert updated_user.email == old_email
+        assert updated_user.about == 'test'
+
+
+@pytest.mark.usefixtures("clean_db")
 def test_email_is_unique_validator_user_update_email_new(app):
     with app.flask_app.test_request_context():
         user = factories.User(username="user01", email="user01@email.com")
@@ -824,5 +840,7 @@ class TestOneOfValidator(object):
         func = validators.one_of(cont)
         raises_Invalid(func)(5)
 
-
-# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
+    def test_empty_val_accepted(self):
+        cont = [1, 2, 3, 4]
+        func = validators.one_of(cont)
+        assert func("") == ""

@@ -14,13 +14,15 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-from ckan.common import config
+from ckan.common import config, asint
 import ckanext.datapusher.logic.schema as dpschema
 import ckanext.datapusher.interfaces as interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
+
+TIMEOUT = asint(config.get('ckan.requests.timeout', 5))
 
 
 def datapusher_submit(context, data_dict):
@@ -71,8 +73,6 @@ def datapusher_submit(context, data_dict):
         callback_url = h.url_for(
             '/api/3/action/datapusher_hook', qualified=True)
 
-    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
-
     for plugin in p.PluginImplementations(interfaces.IDataPusher):
         upload = plugin.can_upload(res_id)
         if not upload:
@@ -119,6 +119,10 @@ def datapusher_submit(context, data_dict):
         pass
 
     context['ignore_auth'] = True
+    # Use local session for task_status_update, so it can commit its own
+    # results without messing up with the parent session that contains pending
+    # updats of dataset/resource/etc.
+    context['session'] = context['model'].meta.create_local_session()
     p.toolkit.get_action('task_status_update')(context, task)
 
     site_user = p.toolkit.get_action(
@@ -130,6 +134,7 @@ def datapusher_submit(context, data_dict):
             headers={
                 'Content-Type': 'application/json'
             },
+            timeout=TIMEOUT,
             data=json.dumps({
                 'api_key': site_user['apikey'],
                 'job_type': 'push_to_datastore',
@@ -296,8 +301,10 @@ def datapusher_status(context, data_dict):
     if job_id:
         url = urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
-            r = requests.get(url, headers={'Content-Type': 'application/json',
-                                           'Authorization': job_key})
+            r = requests.get(url,
+                             timeout=TIMEOUT,
+                             headers={'Content-Type': 'application/json',
+                                      'Authorization': job_key})
             r.raise_for_status()
             job_detail = r.json()
             for log in job_detail['logs']:

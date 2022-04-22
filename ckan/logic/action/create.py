@@ -1172,9 +1172,11 @@ def user_invite(context, data_dict):
 
         _get_action('user_delete')(context, {'id': user.id})
 
-        msg = _('Error sending the invite email, ' +
-                'the user was not created: {0}').format(error)
-        raise ValidationError({'message': msg}, error_summary=msg)
+        error_dict = {
+            "message": _('Error sending the invite email, \
+                the user was not created: {0}').format(error)
+        }
+        raise ValidationError(error_dict, error_summary=error_dict)
 
     return model_dictize.user_dictize(user, context)
 

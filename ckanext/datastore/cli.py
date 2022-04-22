@@ -15,10 +15,11 @@ from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 log = logging.getLogger(__name__)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands to set up the datastore.")
 def datastore():
-    u'''Perform commands to set up the datastore.
-    '''
+    """Perform commands to set up the datastore.
+    """
+    pass
 
 
 @datastore.command(

@@ -366,6 +366,9 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
+        query.setdefault("df", "text")
+        query.setdefault("q.op", "AND")
+
         try:
             if query['q'].startswith('{!'):
                 raise SearchError('Local parameters are not supported.')

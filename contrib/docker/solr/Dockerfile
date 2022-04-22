@@ -1,31 +1,25 @@
 # FROM solr:6.6.5
-FROM solr:6.6.6
+# FROM solr:6.6.6
+FROM solr:8
 MAINTAINER Open Knowledge
+
+EXPOSE 8983
 
 # Enviroment
 ENV SOLR_CORE ckan
-
-# Create Directories
-RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/conf
-RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
-
-# Adding Files
-ADD ./contrib/docker/solr/solrconfig.xml \
-./ckan/config/solr/schema.xml \
-https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.6/solr/server/solr/configsets/basic_configs/conf/currency.xml \
-https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.6/solr/server/solr/configsets/basic_configs/conf/synonyms.txt \
-https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.6/solr/server/solr/configsets/basic_configs/conf/stopwords.txt \
-https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.6/solr/server/solr/configsets/basic_configs/conf/protwords.txt \
-https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.6.6/solr/server/solr/configsets/data_driven_schema_configs/conf/elevate.xml \
-/opt/solr/server/solr/$SOLR_CORE/conf/
-
-# Create Core.properties
-RUN echo name=$SOLR_CORE > /opt/solr/server/solr/$SOLR_CORE/core.properties
-
-# Giving ownership to Solr
+ENV SOLR_CONFIG_DIR="/opt/solr/server/solr/configsets"
+ENV SOLR_SCHEMA_FILE="$SOLR_CONFIG_DIR/ckan/conf/managed-schema"
 
 USER root
-RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/$SOLR_CORE
+
+# Create a CKAN configset by copying the default one
+RUN cp -R $SOLR_CONFIG_DIR/_default $SOLR_CONFIG_DIR/ckan
+
+# Adding Files
+ADD ./ckan/config/solr/schema.xml $SOLR_SCHEMA_FILE
+RUN chmod 644 $SOLR_SCHEMA_FILE
 
 # User
 USER $SOLR_USER:$SOLR_USER
+
+CMD ["sh", "-c", "solr-precreate ckan $SOLR_CONFIG_DIR/ckan"]
