@@ -1,6 +1,9 @@
 # encoding: utf-8
+from __future__ import annotations
+from queue import Empty
 
 from six.moves.urllib.parse import urlencode
+from typing import Any, List
 
 from flask import Blueprint
 from six import text_type
@@ -9,6 +12,10 @@ from ckan.common import json
 from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
 import re
+
+import logging
+
+log = logging.getLogger(__name__)
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
@@ -28,18 +35,39 @@ def merge_filters(view_filters,
      u'OnTime_Status': [u'ONTIME'],
      u'CASE_STATUS': [u'Open', u'Closed']}
     '''
-    #TODO: modify method to not parse the string as it is now a dictionary...
     filters = dict(view_filters)
     if not user_filters:
         return filters
+    log.info("    ")
+    log.info("DEBUG")
+    log.info("--user filters--")
+    log.info(user_filters)
+    log.info("    ")
     combined_user_filters = {}
     for k in user_filters:
         if k not in view_filters or user_filters[k] in view_filters[k]:
-            combined_user_filters[k] = user_filters[k]
-        else:
-            combined_user_filters[k] = user_filters[k] + view_filters[k]
+            #TODO: merge lists
+            if isinstance(user_filters[k], list):
+                log.info("    ")
+                log.info("STEP")
+                log.info("--filter value is a list--")
+                log.info(type(user_filters[k]).__name__)
+                log.info("    ")
+                combined_user_filters[k] = user_filters[k]
+            else:
+                log.info("    ")
+                log.info("STEP")
+                log.info("--filter value is NOT a list--")
+                log.info(type(user_filters[k]).__name__)
+                log.info("    ")
+                combined_user_filters.setdefault(k, []).append(user_filters[k])
     for k in combined_user_filters:
         filters[k] = combined_user_filters[k]
+    log.info("    ")
+    log.info("DEBUG")
+    log.info("--combined filters--")
+    log.info(filters)
+    log.info("    ")
     return filters
 
 

@@ -60,18 +60,6 @@ this.ckan.module('resource-view-filters', function (jQuery) {
   }
 
   function _appendDropdowns(dropdowns, resourceId, template, fields, filters) {
-    //TODO: handle decoding the filters object to be able to properly available in the current filter dropdowns
-    console.log(filters);
-    if( filters.length > 0 ){
-      decodedFilters = {};
-      $.each(filters, function(_filterIndex,_filter){
-        $.each(_filter, function(_valueIndex,_filterValue){
-          decodedFilters[decodeURIComponent(_index)][_valueIndex] = decodeURIComponent(_filterValue); 
-        });
-      });
-      filters = decodedFilters;
-      console.log(filters);
-    }
     $.each(fields, function (i, field) {
       if (filters.hasOwnProperty(field)) {
         dropdowns.append(_buildDropdown(self.el, template, field));
