@@ -556,7 +556,7 @@ class TestDatasetUpdate(object):
                     "alt_url": "alt123",
                     "description": "Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {"someotherkey": "alt234"},  # this isnt
+                    "extras": {"someotherkey": "alt234"},  # this isn't
                     "format": "plain text",
                     "hash": "abc123",
                     "position": 0,
@@ -848,7 +848,7 @@ class TestResourceViewUpdate(object):
             resource_id=resource_id, title="View 2"
         )
 
-        # Reorder Views back just by specifiying a single view to go first
+        # Reorder Views back just by specifying a single view to go first
 
         result = helpers.call_action(
             "resource_view_reorder",
@@ -1278,7 +1278,7 @@ class TestResourceUpdate(object):
             "resource_update",
             id=dataset["resources"][0]["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={"someotherkey": "alt234"},  # this isnt
+            extras={"someotherkey": "alt234"},  # this isn't
             format="plain text",
             url="http://datahub.io/download/",
         )
@@ -2142,8 +2142,7 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras_from_db == {
@@ -2241,8 +2240,7 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras["plugin1"]["key1"] == "value2"

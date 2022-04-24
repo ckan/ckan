@@ -65,7 +65,7 @@
 <header class="masthead">
   <div class="container">
     {% block header_debug %} {% if g.debug and not g.debug_supress_header %}
-    <div class="debug">Controller : {{ c.controller }}<br />Action : {{ c.action }}</div>
+    <div class="debug">Blueprint : {{ g.blueprint }}<br />View : {{ g.view }}</div>
     {% endif %} {% endblock %}
     <nav class="navbar navbar-expand-lg navbar-light">
       <hgroup class="{{ g.header_class }} navbar-left">
@@ -108,8 +108,8 @@
 		            ('home.about', _('About')) ) }}
 	          {% endblock %}
           </ul>
-      
-      {% endblock %} 
+
+      {% endblock %}
       {% block header_site_search %}
           <form class="d-flex site-search" action="{% url_for dataset_type ~ '.search' %}" method="get">
               <label class="d-none" for="field-sitewide-search">{% block header_site_search_label %}{{ h.humanize_entity_type('package', dataset_type, 'search_placeholder') or _('Search Datasets...') }}{% endblock %}</label>

@@ -159,11 +159,14 @@ class Declaration:
     def load_dict(self, data: DeclarationDict):
         loader(self, "dict", data)
 
-    def into_ini(self, minimal: bool, no_comments: bool = False) -> str:
-        return serializer(self, "ini", minimal, no_comments)
+    def into_ini(self, minimal: bool, verbose: bool = False) -> str:
+        return serializer(self, "ini", minimal, verbose)
 
     def into_schema(self) -> Dict[str, Any]:
         return serializer(self, "validation_schema")
+
+    def into_docs(self) -> str:
+        return serializer(self, "rst")
 
     def describe(self, fmt: str) -> str:
         return describer(self, fmt)

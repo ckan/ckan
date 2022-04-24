@@ -35,6 +35,7 @@ import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context, Query
+from ckan.common import config
 
 ## package save
 
@@ -357,13 +358,15 @@ def group_dictize(group: model.Group, context: Context,
             else:
                 q['fq'] = '+groups:"{0}"'.format(group_.name)
 
-            # Allow members of organizations to see private datasets.
             if group_.is_organization:
                 is_group_member = (context.get('user') and
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
                     q['include_private'] = True
+                else:
+                    if config.get('ckan.auth.allow_dataset_collaborators'):
+                        q['include_private'] = True
 
             if not just_the_count:
                 # package_search limits 'rows' anyway, so this is only if you
@@ -536,8 +539,8 @@ def user_dictize(
     model = context['model']
 
     if context.get('with_capacity'):
-        assert isinstance(user, tuple)
-        user, capacity = user
+        # Fix type: "User" is not iterable
+        user, capacity = user  #type: ignore
         result_dict = d.table_dictize(user, context, capacity=capacity)
     else:
         result_dict = d.table_dictize(user, context)
@@ -613,24 +616,15 @@ def vocabulary_list_dictize(vocabulary_list: list[model.Vocabulary],
     return [vocabulary_dictize(vocabulary, context)
             for vocabulary in vocabulary_list]
 
-def activity_dictize(activity: model.Activity, context: Context,
-                     include_data: bool=False) -> dict[str, Any]:
-    activity_dict = d.table_dictize(activity, context)
-    if not include_data:
-        # replace the data with just a {'title': title} and not the rest of
-        # the dataset/group/org/custom obj. we need the title to display it
-        # in the activity stream.
-        activity_dict['data'] = {
-            key: {'title': val['title']}
-            for (key, val) in activity_dict['data'].items()
-            if isinstance(val, dict) and 'title' in val}
-    return activity_dict
+def activity_dictize(activity: model.Activity,
+                    context: Context) -> dict[str, Any]:
+    return d.table_dictize(activity, context)
 
 
 def activity_list_dictize(
         activity_list: list[model.Activity], context: Context,
         include_data: bool=False) -> list[dict[str, Any]]:
-    return [activity_dictize(activity, context, include_data)
+    return [activity_dictize(activity, context)
             for activity in activity_list]
 
 def user_following_user_dictize(follower: model.UserFollowingUser,

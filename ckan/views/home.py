@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, abort, redirect
+from flask import Blueprint, abort, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -48,7 +49,6 @@ def index() -> str:
             u'sort': u'view_recent desc',
             u'fq': u'capacity:"public"'}
         query = logic.get_action(u'package_search')(context, data_dict)
-        g.search_facets = query['search_facets']
         g.package_count = query['count']
         g.datasets = query['results']
 
@@ -90,7 +90,12 @@ def about() -> str:
 
 
 def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
+
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
+
+    if request.args:
+        target += f'?{urlencode(request.args)}'
+
     return redirect(target, code=308)
 
 
@@ -104,6 +109,7 @@ for rule, view_func in util_rules:
 locales_mapping: List[Tuple[str, str]] = [
     ('zh_TW', 'zh_Hant_TW'),
     ('zh_CN', 'zh_Hans_CN'),
+    ('no', 'nb_NO'),
 ]
 
 for locale in locales_mapping:

@@ -5,12 +5,10 @@ from ckan.types import Context
 import logging
 from typing import Any
 
-
 from ckan.common import CKANConfig, json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
 import ckan.lib.datapreview as datapreview
-from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 
@@ -32,13 +30,13 @@ def get_formats(config: CKANConfig) -> dict[str, list[str]]:
     return out
 
 
+@p.toolkit.blanket.config_declarations
 class TextView(p.SingletonPlugin):
     '''This extension previews JSON(P).'''
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
-    p.implements(p.IConfigDeclaration)
 
     proxy_is_enabled = False
     text_formats = []
@@ -100,15 +98,3 @@ class TextView(p.SingletonPlugin):
 
     def form_template(self, context: Context, data_dict: dict[str, Any]):
         return 'text_form.html'
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.preview
-
-        declaration.annotate("text_view settings")
-        declaration.declare(section.text_formats, "text/plain txt plain")
-        declaration.declare(
-            section.xml_formats, "xml rdf rdf+xml owl+xml atom rss")
-        declaration.declare(section.json_formats, "json")
-        declaration.declare(section.jsonp_formats, "jsonp")

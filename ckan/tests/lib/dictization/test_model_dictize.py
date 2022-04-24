@@ -106,7 +106,7 @@ class TestGroupListDictize:
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
     def test_group_list_dictize_including_groups(self):
-        parent = factories.Group(tile="Parent")
+        parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
         group_list = [model.Group.get(parent["name"]), model.Group.get(child["name"])]
         context = {"model": model, "session": model.Session}
@@ -298,6 +298,33 @@ class TestGroupDictize:
         )
 
         assert org["package_count"] == 1
+
+    @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
+    def test_group_dictize_for_org_with_private_package_count_collaborator(
+        self,
+    ):
+        import ckan.tests.helpers as helpers
+
+        org_obj = factories.Organization.model()
+        user_obj = factories.User.model()
+        private_dataset = factories.Dataset(owner_org=org_obj.id, private=True)
+        factories.Dataset(owner_org=org_obj.id)
+        context = {
+            "model": model,
+            "session": model.Session,
+            "auth_user_obj": user_obj,
+        }
+        org = model_dictize.group_dictize(org_obj, context)
+        assert org["package_count"] == 1
+
+        helpers.call_action(
+            "package_collaborator_create",
+            id=private_dataset["id"],
+            user_id=user_obj.id,
+            capacity="member",
+        )
+        org = model_dictize.group_dictize(org_obj, context)
+        assert org["package_count"] == 2
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -641,32 +668,12 @@ class TestActivityDictize(object):
         )
         activity_obj = model.Activity.get(activity["id"])
         context = {"model": model, "session": model.Session}
-        dictized = model_dictize.activity_dictize(
-            activity_obj, context, include_data=True
-        )
+        dictized = model_dictize.activity_dictize(activity_obj, context)
         assert dictized["user_id"] == user["id"]
         assert dictized["activity_type"] == "new package"
         assert dictized["data"]["package"]["title"] == dataset["title"]
         assert dictized["data"]["package"]["id"] == dataset["id"]
         assert dictized["data"]["actor"] == "Mr Someone"
-
-    def test_dont_include_data(self):
-        dataset = factories.Dataset()
-        user = factories.User()
-        activity = factories.Activity(
-            user_id=user["id"],
-            object_id=dataset["id"],
-            activity_type="new package",
-            data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
-        )
-        activity_obj = model.Activity.get(activity["id"])
-        context = {"model": model, "session": model.Session}
-        dictized = model_dictize.activity_dictize(
-            activity_obj, context, include_data=False
-        )
-        assert dictized["user_id"] == user["id"]
-        assert dictized["activity_type"] == "new package"
-        assert dictized["data"] == {"package": {"title": dataset["title"]}}
 
 
 @pytest.mark.usefixtures("non_clean_db")

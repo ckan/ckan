@@ -339,7 +339,7 @@ def _group_or_org_list(
         if errors:
             raise ValidationError(errors)
     sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
-    q = data_dict.get('q')
+    q = data_dict.get('q', '').strip()
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
@@ -1747,6 +1747,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: bool
+    :param include_deleted: if ``True``, deleted datasets will be included in the
+        results (site configuration "ckan.search.remove_deleted_packages" must
+        be set to False). Optional, the default is ``False``.
+    :type include_deleted: bool
     :param include_private: if ``True``, private datasets will be included in
         the results. Only private datasets from the user's organizations will
         be returned and sysadmins will be returned all private datasets.
@@ -1876,14 +1880,23 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         else:
             data_dict['fl'] = ' '.join(result_fl)
 
+        data_dict.setdefault('fq', '')
+
         # Remove before these hit solr FIXME: whitelist instead
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
-        data_dict.setdefault('fq', '')
+        include_deleted = asbool(data_dict.pop('include_deleted', False))
+        
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
-        if include_drafts:
-            data_dict['fq'] += ' +state:(active OR draft)'
+
+        if '+state' not in data_dict['fq']:
+            states = ['active']
+            if include_drafts:
+                states.append('draft')
+            if include_deleted:
+                states.append('deleted')
+            data_dict['fq'] += ' +state:({})'.format(' OR '.join(states))
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -2479,7 +2492,6 @@ def user_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     _check_access('user_activity_list', context, data_dict)
 
     model = context['model']
@@ -2495,9 +2507,7 @@ def user_activity_list(
     activity_objects = model_activity.user_activity_list(
         user.id, limit=limit, offset=offset)
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2536,7 +2546,6 @@ def package_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     activity_types = data_dict.pop('activity_types', None)
     exclude_activity_types = data_dict.pop('exclude_activity_types', None)
@@ -2563,8 +2572,7 @@ def package_activity_list(
         exclude_activity_types=exclude_activity_types
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context, include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2615,9 +2623,7 @@ def group_activity_list(
         include_hidden_activity=include_hidden_activity,
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_activity_list_schema)
@@ -2650,7 +2656,6 @@ def organization_activity_list(
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     _check_access('organization_activity_list', context, data_dict)
 
@@ -2667,9 +2672,7 @@ def organization_activity_list(
         include_hidden_activity=include_hidden_activity,
     )
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 @logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
@@ -2693,16 +2696,13 @@ def recently_changed_packages_activity_list(
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     offset = data_dict.get('offset', 0)
-    data_dict['include_data'] = False
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     activity_objects = \
         model_activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
 
-    return model_dictize.activity_list_dictize(
-        activity_objects, context,
-        include_data=data_dict['include_data'])
+    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 def _follower_count(
@@ -3308,15 +3308,11 @@ def activity_show(context: Context,
 
     :param id: the id of the activity
     :type id: string
-    :param include_data: include the data field, containing a full object dict
-        (otherwise the data field is only returned with the object's title)
-    :type include_data: boolean
 
     :rtype: dictionary
     '''
     model = context['model']
     activity_id = _get_or_bust(data_dict, 'id')
-    include_data = asbool(_get_or_bust(data_dict, 'include_data'))
 
     activity = model.Session.query(model.Activity).get(activity_id)
     if activity is None:
@@ -3325,8 +3321,7 @@ def activity_show(context: Context,
 
     _check_access(u'activity_show', context, data_dict)
 
-    activity = model_dictize.activity_dictize(activity, context,
-                                              include_data=include_data)
+    activity = model_dictize.activity_dictize(activity, context)
     return activity
 
 
@@ -3357,8 +3352,7 @@ def activity_data_show(
 
     _check_access(u'activity_data_show', context, data_dict)
 
-    activity = model_dictize.activity_dictize(activity, context,
-                                              include_data=True)
+    activity = model_dictize.activity_dictize(activity, context)
     try:
         activity_data = activity['data']
     except KeyError:
@@ -3437,8 +3431,7 @@ def activity_diff(context: Context,
     else:
         raise ValidationError({'message': 'diff_type not recognized'})
 
-    activities = [model_dictize.activity_dictize(activity_obj, context,
-                                                 include_data=True)
+    activities = [model_dictize.activity_dictize(activity_obj, context)
                   for activity_obj in activity_objs]
 
     return {
