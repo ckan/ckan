@@ -6,6 +6,8 @@ import logging
 import sys
 import cgitb
 import warnings
+import traceback
+
 import xml.dom.minidom
 from typing import Collection, Any, Optional, Type, cast, overload
 
@@ -38,11 +40,20 @@ log = logging.getLogger(__name__)
 TIMEOUT = config.get_value('ckan.requests.timeout')
 
 def text_traceback() -> str:
+    info = sys.exc_info()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        res = 'the original traceback:'.join(
-            cgitb.text(sys.exc_info()).split('the original traceback:')[1:]
-        ).strip()
+        try:
+            text = cgitb.text(info)
+        except RuntimeError:
+            # there is werkzeug.local.LocalProxy object inside traceback, that
+            # cannot be printed out by the cgitb
+            res = "".join(traceback.format_tb(info[-1]))
+        else:
+            res = 'the original traceback:'.join(
+                text.split('the original traceback:')[1:]
+            ).strip()
+
     return res
 
 
@@ -208,8 +219,12 @@ def rebuild(package_id: Optional[str] = None,
             log.info('Indexing just package %r...', pkg_dict['name'])
             package_index.update_dict(pkg_dict, True)
     else:
-        package_ids = [r[0] for r in model.Session.query(model.Package.id).
-                       filter(model.Package.state != 'deleted').all()]
+        packages = model.Session.query(model.Package.id)
+        if config.get_value('ckan.search.remove_deleted_packages'):
+            packages = packages.filter(model.Package.state != 'deleted')
+        
+        package_ids = [r[0] for r in packages.all()]
+        
         if only_missing:
             log.info('Indexing only missing packages...')
             package_query = query_for(model.Package)

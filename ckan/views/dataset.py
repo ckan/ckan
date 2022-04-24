@@ -89,15 +89,6 @@ def search_url(params: Params, package_type: Optional[str] = None) -> str:
     return url_with_params(url, params)
 
 
-def drill_down_url(alternative_url: Optional[str] = None, **by: Any) -> str:
-    return h.add_url_param(
-        alternative_url=alternative_url,
-        controller=u'dataset',
-        action=u'search',
-        new_params=by
-    )
-
-
 def remove_field(package_type: Optional[str],
                  key: str,
                  value: Optional[str] = None,
@@ -242,7 +233,6 @@ def search(package_type: str) -> str:
     params_nopage = [(k, v) for k, v in request.args.items(multi=True)
                      if k != u'page']
 
-    extra_vars[u'drill_down_url'] = drill_down_url
     extra_vars[u'remove_field'] = partial(remove_field, package_type)
 
     sort_by = request.args.get(u'sort', None)
@@ -257,9 +247,6 @@ def search(package_type: str) -> str:
     extra_vars[u'sort_by_fields'] = sort_by_fields
 
     pager_url = partial(_pager_url, params_nopage, package_type)
-
-    search_url_params = urlencode(_encode_params(params_nopage))
-    extra_vars[u'search_url_params'] = search_url_params
 
     details = _get_search_details()
     extra_vars[u'fields'] = details[u'fields']
@@ -611,7 +598,6 @@ class CreateView(MethodView):
                 context[u'allow_state_change'] = True
 
             data_dict[u'type'] = package_type
-            context[u'message'] = data_dict.get(u'log_message', u'')
             pkg_dict = get_action(u'package_create')(context, data_dict)
 
             if ckan_phase:
@@ -758,7 +744,6 @@ class EditView(MethodView):
                     )
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
-            context[u'message'] = data_dict.get(u'log_message', u'')
             data_dict['id'] = id
             pkg_dict = get_action(u'package_update')(context, data_dict)
 

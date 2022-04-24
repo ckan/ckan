@@ -93,7 +93,7 @@ def decode(encoded: str, **kwargs: Any) -> Optional[Mapping[str, Any]]:
     return data
 
 
-def encode(data: dict[str, Any], **kwargs: Any) -> bytes:
+def encode(data: dict[str, Any], **kwargs: Any) -> str:
     for plugin in _get_plugins():
         token = plugin.encode_api_token(data, **kwargs)
         if token:

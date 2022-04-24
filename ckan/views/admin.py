@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, cast
+from typing import Any, Union, cast, List
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -134,11 +134,9 @@ class ConfigView(MethodView):
 
 
 class TrashView(MethodView):
-    deleted_entities: dict[str, Query[Any]]
 
     def __init__(self):
-        self.deleted_packages = model.Session.query(
-            model.Package).filter_by(state=model.State.DELETED)
+        self.deleted_packages = self._get_deleted_datasets()
         self.deleted_orgs = model.Session.query(model.Group).filter_by(
             state=model.State.DELETED, is_organization=True)
         self.deleted_groups = model.Session.query(model.Group).filter_by(
@@ -168,6 +166,34 @@ class TrashView(MethodView):
                 u'group': _(u'There are no groups to purge')
             }
         }
+
+    def _get_deleted_datasets(
+        self
+    ) -> Union["Query[model.Package]", List[Any]]:
+        if config.get_value('ckan.search.remove_deleted_packages'):
+            return self._get_deleted_datasets_from_db()
+        else:
+            return self._get_deleted_datasets_from_search_index()
+
+    def _get_deleted_datasets_from_db(self) -> "Query[model.Package]":
+        return model.Session.query(
+            model.Package
+        ).filter_by(
+            state=model.State.DELETED
+        )
+
+    def _get_deleted_datasets_from_search_index(self) -> List[Any]:
+        package_search = logic.get_action('package_search')
+        search_params = {
+            'fq': '+state:deleted',
+            'include_private': True,
+        }
+        base_results = package_search(
+            {'ignore_auth': True},
+            search_params
+        )
+
+        return base_results['results']
 
     def get(self) -> str:
         ent_type = request.args.get(u'name')
@@ -204,20 +230,23 @@ class TrashView(MethodView):
 
         for action, deleted_entities in zip(actions, entities):
             for entity in deleted_entities:
+                ent_id = entity.id if hasattr(entity, 'id') \
+                    else entity['id']  # type: ignore
                 logic.get_action(action)(
-                    {u'user': g.user}, {u'id': entity.id}
+                    {u'user': g.user}, {u'id': ent_id}
                 )
             model.Session.remove()
         h.flash_success(_(u'Massive purge complete'))
 
     def purge_entity(self, ent_type: str):
         entities = self.deleted_entities[ent_type]
-        number = entities.count()
+        number = len(entities) if type(entities) == list else entities.count()
 
         for ent in entities:
+            entity_id = ent.id if hasattr(ent, 'id') else ent['id']
             logic.get_action(self._get_purge_action(ent_type))(
                 {u'user': g.user},
-                {u'id': ent.id}
+                {u'id': entity_id}
             )
 
         model.Session.remove()

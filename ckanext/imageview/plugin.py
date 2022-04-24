@@ -7,19 +7,18 @@ from ckan.common import CKANConfig
 import logging
 
 import ckan.plugins as p
-from ckan.config.declaration import Declaration, Key
 
 log = logging.getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 unicode_safe = p.toolkit.get_validator('unicode_safe')
 
 
+@p.toolkit.blanket.config_declarations
 class ImageView(p.SingletonPlugin):
     '''This plugin makes views of image resources, using an <img> tag'''
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
-    p.implements(p.IConfigDeclaration)
 
     def update_config(self, config: CKANConfig):
         p.toolkit.add_template_directory(config, 'theme/templates')
@@ -44,15 +43,3 @@ class ImageView(p.SingletonPlugin):
 
     def form_template(self, context: Context, data_dict: dict[str, Any]):
         return 'image_form.html'
-
-    # IConfigDeclaration
-
-    def declare_config_options(self, declaration: Declaration, key: Key):
-        section = key.ckan.preview
-
-        declaration.annotate("image_view settings")
-        declaration.declare(
-            section.image_formats, "png jpeg jpg gif"
-        ).set_description(
-            "Customize which image formats the image_view plugin will show"
-        )

@@ -953,7 +953,7 @@ class TestUserList(object):
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
             factories.User(fullname="Max Hankins", name="hankins_m"),
-            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="", name="zoe_w"),
             factories.User(fullname="Kathy Tillman", name="tillman_k"),
         ]
         expected_names = [
@@ -961,8 +961,8 @@ class TestUserList(object):
             for u in [
                 users[3],  # Kathy Tillman
                 users[1],  # Max Hankins
-                users[2],  # morgan_w
                 users[0],  # Xander Bird
+                users[2],  # zoe_w
             ]
         ]
 
@@ -1270,7 +1270,7 @@ class TestCurrentPackageList(object):
 
     def test_current_package_list_private_datasets_anonoymous_user(self):
         """
-        Test current_package_list_with_resources with an anoymous user and
+        Test current_package_list_with_resources with an anonymous user and
         a private dataset
         """
         user = factories.User()
@@ -1917,36 +1917,52 @@ class TestPackageSearch(object):
 
         assert [r["name"] for r in results] == [private_dataset["name"]]
 
+    @pytest.mark.parametrize("remove_deleted_setting", [True, False])
     def test_package_search_private_with_include_private_wont_show_other_orgs_private(
-        self,
+        self, remove_deleted_setting
     ):
-        user = factories.User()
-        user2 = factories.User()
-        factories.Organization(user=user)
-        org2 = factories.Organization(user=user2)
-        factories.Dataset(
-            user=user2, private=True, owner_org=org2["name"]
-        )
+        with helpers.changed_config("ckan.search.remove_deleted_packages", remove_deleted_setting):
+            user = factories.User()
+            user2 = factories.User()
+            factories.Organization(user=user)
+            org2 = factories.Organization(user=user2)
+            # create a deleted dataset if we expect them to be indexed
+            factories.Dataset(
+                user=user2,
+                private=True,
+                owner_org=org2["name"],
+                state="active" if remove_deleted_setting else "deleted",
+            )
 
-        results = logic.get_action("package_search")(
-            {"user": user["name"]}, {"include_private": True}
-        )["results"]
+            # include deleted datasets if we expect them to be indexed
+            results = logic.get_action("package_search")(
+                {"user": user["name"]},
+                {"include_private": True, "include_deleted": not remove_deleted_setting},
+            )["results"]
 
-        assert [r["name"] for r in results] == []
+            assert [r["name"] for r in results] == []
 
-    def test_package_search_private_with_include_private_syadmin(self):
-        user = factories.User()
-        sysadmin = factories.Sysadmin()
-        org = factories.Organization(user=user)
-        private_dataset = factories.Dataset(
-            user=user, private=True, owner_org=org["name"]
-        )
+    @pytest.mark.parametrize("remove_deleted_setting", [True, False])
+    def test_package_search_private_with_include_private_syadmin(self, remove_deleted_setting):
+        with helpers.changed_config("ckan.search.remove_deleted_packages", remove_deleted_setting):
+            user = factories.User()
+            sysadmin = factories.Sysadmin()
+            org = factories.Organization(user=user)
+            # create a deleted dataset if we expect them to be indexed
+            private_dataset = factories.Dataset(
+                user=user,
+                private=True,
+                owner_org=org["name"],
+                state="active" if remove_deleted_setting else "deleted",
+            )
 
-        results = logic.get_action("package_search")(
-            {"user": sysadmin["name"]}, {"include_private": True}
-        )["results"]
+            # include deleted datasets if we expect them to be indexed
+            results = logic.get_action("package_search")(
+                {"user": sysadmin["name"]},
+                {"include_private": True, "include_deleted": not remove_deleted_setting}
+            )["results"]
 
-        assert [r["name"] for r in results] == [private_dataset["name"]]
+            assert [r["name"] for r in results] == [private_dataset["name"]]
 
     def test_package_works_without_user_in_context(self):
         """
@@ -2959,29 +2975,6 @@ def _seconds_since_timestamp(timestamp, format_):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestActivityShow(object):
-    def test_simple_without_data(self):
-        dataset = factories.Dataset()
-        user = factories.User()
-        activity = factories.Activity(
-            user_id=user["id"],
-            object_id=dataset["id"],
-            activity_type="new package",
-            data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
-        )
-        activity_shown = helpers.call_action(
-            "activity_show", id=activity["id"], include_data=False
-        )
-        assert activity_shown["user_id"] == user["id"]
-        assert (
-            _seconds_since_timestamp(
-                activity_shown["timestamp"], "%Y-%m-%dT%H:%M:%S.%f"
-            )
-            < 10
-        )
-        assert activity_shown["object_id"] == dataset["id"]
-        assert activity_shown["data"] == {"package": {"title": dataset["title"]}}
-        assert activity_shown["activity_type"] == "new package"
-
     def test_simple_with_data(self):
         dataset = factories.Dataset()
         user = factories.User()
@@ -2992,8 +2985,7 @@ class TestActivityShow(object):
             data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
         )
         activity_shown = helpers.call_action(
-            "activity_show", id=activity["id"], include_data=True
-        )
+            "activity_show", id=activity["id"])
         assert activity_shown["user_id"] == user["id"]
         assert (
             _seconds_since_timestamp(
@@ -3032,7 +3024,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset(self):
         user = factories.User()
@@ -3081,7 +3073,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_change_extra(self):
         user = factories.User()
@@ -3103,7 +3095,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_delete_extra(self):
         user = factories.User()
@@ -3125,7 +3117,7 @@ class TestPackageActivityList(object):
         assert activities[0]["user_id"] == user["id"]
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
-        assert "extras" not in activities[0]["data"]["package"]
+        assert "extras" in activities[0]["data"]["package"]
 
     def test_change_dataset_add_resource(self):
         user = factories.User()

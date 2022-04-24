@@ -1,10 +1,10 @@
 {% set dataset_type = activity.data.package.type or 'dataset' %}
-
 <li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
   <i class="fa icon fa-sitemap"></i>
   <p>
-    {{ _('{actor} updated the dataset {dataset}').format(
+    {{ _('{actor} updated the {dataset_type} {dataset}').format(
       actor=ah.actor(activity),
+      dataset_type=h.humanize_entity_type('package', dataset_type, 'activity_record') or _('dataset'),
       dataset=ah.dataset(activity)
     )|safe }}
     <br />

@@ -303,7 +303,6 @@ class EditView(MethodView):
             base.abort(400, _(u'Integrity Error'))
         data_dict.setdefault(u'activity_streams_email_notifications', False)
 
-        context[u'message'] = data_dict.get(u'log_message', u'')
         data_dict[u'id'] = id
 
         # we need this comparison when sysadmin edits a user,
@@ -432,7 +431,6 @@ class RegisterView(MethodView):
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
 
-        context[u'message'] = data_dict.get(u'log_message', u'')
         try:
             captcha.check_recaptcha(request)
         except captcha.CaptchaError:

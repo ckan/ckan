@@ -4,7 +4,7 @@
 
   {% set map_config = h.get_map_config() %}
   <div data-module="recline_view"
-       data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}"
+       data-module-site_url="{{ h.dump_json(h.url_for('/', locale='default', qualified=true)) }}"
        data-module-resource = "{{ h.dump_json(resource_json) }}";
        data-module-resource-view = "{{ h.dump_json(resource_view_json) }}";
        data-module-map_config= "{{ h.dump_json(map_config) }}";
