@@ -119,7 +119,7 @@ def default_create_package_schema(
         ignore_not_package_admin: Validator, boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
-        owner_org_validator: Validator, no_http: Validator):
+        owner_org_validator: Validator):
     return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -140,7 +140,6 @@ def default_create_package_schema(
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode_safe],
         'owner_org': [owner_org_validator, unicode_safe],
-        'log_message': [ignore_missing, unicode_safe, no_http],
         'private': [ignore_missing, boolean_validator,
                     datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
@@ -905,6 +904,7 @@ def config_declaration_v1(
             "options": {
                 "key": [not_empty, key_from_string],
                 "default": [ignore_missing],
+                "example": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "placeholder_callable": [ignore_empty, importable_string],
                 "callable_args": [ignore_empty, dict_only],

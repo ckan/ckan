@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
 
 log = logging.getLogger(__name__)
-current_app = flask.current_app
 
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")
@@ -205,20 +204,6 @@ SequenceT = TypeVar('SequenceT', "list[Any]", "tuple[Any]")
 def aslist(obj: str,
            sep: Optional[str] = None,
            strip: bool = True) -> list[str]:
-    ...
-
-
-@overload
-def aslist(obj: list[T],
-           sep: Optional[str] = None,
-           strip: bool = True) -> list[T]:
-    ...
-
-
-@overload
-def aslist(obj: tuple[T],
-           sep: Optional[str] = None,
-           strip: bool = True) -> tuple[T]:
     ...
 
 

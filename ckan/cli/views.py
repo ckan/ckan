@@ -167,9 +167,10 @@ def clean(ctx: click.Context, yes: bool):
     for row in results:
         click.secho(u"%s of type %s" % (row[1], row[0]))
 
-    yes or click.confirm(
-        u"Do you want to delete these resource views?", abort=True
-    )
+    if not yes:
+        click.confirm(
+            u"Do you want to delete these resource views?", abort=True
+        )
 
     model.ResourceView.delete_not_in_view_types(names)
     model.Session.commit()

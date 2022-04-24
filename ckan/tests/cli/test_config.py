@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import unittest.mock as mock
 import pytest
 
 from werkzeug.utils import import_string
@@ -60,11 +61,13 @@ class TestDescribe(object):
         data = load(result.output)
 
         assert data == {
+            "version": 1,
             "groups": [
                 {
                     "annotation": "Datapusher settings",
                     "options": [
                         {
+                            "key": "ckan.datapusher.formats",
                             "default": [
                                 "csv",
                                 "xls",
@@ -78,20 +81,27 @@ class TestDescribe(object):
                                 "application/vnd.oasis.opendocument"
                                 ".spreadsheet",
                             ],
-                            "key": "ckan.datapusher.formats",
-                            "validators": "as_list"
+                            "validators": "as_list",
+                            "description": mock.ANY,
                         },
-                        {"key": "ckan.datapusher.url"},
-                        {"key": "ckan.datapusher.callback_url_base"},
                         {
-                            "default": 3600,
+                            "key": "ckan.datapusher.url",
+                            "description": mock.ANY,
+                        },
+                        {
+                            "key": "ckan.datapusher.callback_url_base",
+                            "description": mock.ANY,
+                            "placeholder": "%(ckan.site_url)s",
+                        },
+                        {
                             "key": "ckan.datapusher.assume_task_stale_after",
+                            "default": 3600,
                             "validators": "convert_int",
+                            "description": mock.ANY,
                         },
                     ],
                 }
             ],
-            "version": 1,
         }, data
 
 
@@ -105,7 +115,7 @@ class TestDeclaration(object):
 
     def test_core(self, command):
         result = command("declaration", "--core")
-        assert result.output.startswith("use = egg:ckan")
+        assert result.output.startswith("\n## General settings ##")
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")

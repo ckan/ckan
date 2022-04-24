@@ -1140,8 +1140,8 @@ def dashboard_mark_activities_old(
 def send_email_notifications(context: Context, data_dict: DataDict) -> ActionResult.SendEmailNotifications:
     '''Send any pending activity stream notification emails to users.
 
-    You must provide a sysadmin's API key in the Authorization header of the
-    request, or call this action from the command-line via a `paster post ...`
+    You must provide a sysadmin's API key/token in the Authorization header of the
+    request, or call this action from the command-line via a `ckan notify send_emails ...`
     command.
 
     '''
