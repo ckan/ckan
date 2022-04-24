@@ -9,7 +9,7 @@ from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
 from flask import Blueprint
 
 import ckan.logic.schema as schema
-from ckan.common import c, g
+from ckan.common import g
 from ckan import logic, model, plugins
 import ckan.authz
 from ckan.types import Context, DataDict, Schema
@@ -553,22 +553,7 @@ class DefaultGroupForm(object):
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
-        c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
-
-        ## This is messy as auths take domain object not data_dict
-        context_group = context.get('group', None)
-        group = context_group or getattr(c, 'group', None)
-        if group:
-            try:
-                if not context_group:
-                    context['group'] = group
-                logic.check_access('group_change_state', context)
-                c.auth_for_change_state = True
-            except logic.NotAuthorized:
-                c.auth_for_change_state = False
-        else:
-            # needs to be set to get template displayed when flask request
-            c.group = ''
+        pass
 
 
 class DefaultOrganizationForm(DefaultGroupForm):

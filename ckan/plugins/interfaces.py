@@ -1959,7 +1959,7 @@ class IApiToken(Interface):
         return None
 
     def encode_api_token(self, data: dict[str, Any],
-                         **kwargs: Any) -> Optional[bytes]:
+                         **kwargs: Any) -> Optional[str]:
         """Make an attempt to encode API Token.
 
         Encode token if it possible and return string, that will be

@@ -1,0 +1,38 @@
+{% from "macros/form/input_block.html" import input_block %}
+{% from "macros/form/attributes.html" import attributes %}
+
+{#
+Creates all the markup required for an input element with a prefixed segment.
+These are useful for showing url slugs and other fields where the input
+information forms only part of the saved data.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+prepend     - The text that will be prepended before the input.
+value       - The value of the input.
+which will use the name key as the value.
+placeholder - Some placeholder text.
+error       - A list of error strings for the field  or just true to highlight the field.
+classes     - An array of classes to apply to the form-group.
+is_required - Boolean of whether this input is requred for the form to validate
+
+Examples:
+
+{% import 'macros/form.html' as form %}
+{{ form.prepend('slug', id='field-slug', prepend='/dataset/', label=_('Slug'), value=data.slug, error=errors.slug) }}
+
+#}
+{% macro prepend(name, id='', label='', prepend='', value='', placeholder='', type='text', error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %}
+{# We manually append the error here as it needs to be inside the .input-group block #}
+{% set classes = (classes|list) %}
+{% do classes.append('error') if error %}
+{%- set extra_html = caller() if caller -%}
+{% call input_block(id or name, label or name, error='', classes=classes, extra_html=extra_html, is_required=is_required) %}
+<div class="input-group">
+    {% if prepend %}<label class="input-group-text">{{ prepend }}</label>{%- endif -%}
+    <input id="{{ id or name }}" type="{{ type }}" name="{{ name }}" value="{{ value | empty_and_escape }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }} />
+    {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
+</div>
+{% endcall %}
+{% endmacro %}

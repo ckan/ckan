@@ -208,20 +208,6 @@ def aslist(obj: str,
 
 
 @overload
-def aslist(obj: list[T],
-           sep: Optional[str] = None,
-           strip: bool = True) -> list[T]:
-    ...
-
-
-@overload
-def aslist(obj: tuple[T],
-           sep: Optional[str] = None,
-           strip: bool = True) -> tuple[T]:
-    ...
-
-
-@overload
 def aslist(obj: SequenceT,
            sep: Optional[str] = None,
            strip: bool = True) -> SequenceT:

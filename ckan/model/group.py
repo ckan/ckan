@@ -276,8 +276,9 @@ class Group(core.StatefulObjectMixin,
                       and_(Member.group_id == Group.id,
                            Member.table_name == 'group',
                            Member.state == 'active')).\
-            filter(Member.id == None).\
-            filter(Group.type == type).\
+            filter(
+                Member.id == None  # type: ignore
+            ).filter(Group.type == type).\
             filter(Group.state == 'active').\
             order_by(Group.title).all()
         return result

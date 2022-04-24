@@ -1,0 +1,32 @@
+{#
+A generic input_block for providing the default markup for CKAN form elements.
+It is expected to be called using a {% call %} block, the contents of which
+will be inserted into the .controls element.
+
+for     - The id for the input that the label should match.
+label   - A human readable label.
+error   - A list of error strings for the field or just true.
+classes - An array of custom classes for the outer element.
+control_classes - An array of custom classes for the .control wrapper.
+extra_html - An html string to be inserted after the errors eg. info text.
+is_required - Boolean of whether this input is requred for the form to validate
+
+Example:
+
+{% import 'macros/form.html' as form %}
+{% call form.input_block("field", "My Field") %}
+<input id="field" type="text" name="{{ name }}" value="{{ value | empty_and_escape }}" />
+{% endcall %}
+
+#}
+
+{% macro input_block(for, label="", error="", classes=[], control_classes=[], extra_html="", is_required=false) %}
+<div class="form-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
+<label class="form-label" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}{{ label or _('Custom') }}</label>
+<div class="controls{{ " " ~ control_classes | join(' ') }}">
+{{ caller() }}
+{% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}
+{{ extra_html }}
+</div>
+</div>
+{% endmacro %}

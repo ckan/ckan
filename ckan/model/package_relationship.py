@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar, cast
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 
@@ -80,8 +80,10 @@ class PackageRelationship(core.StatefulObjectMixin,
             {'sibling':_('has sibling %s')}
 
     def __repr__(self):
-        return '<%sPackageRelationship %s %s %s>' % ("*" if self.active != core.State.ACTIVE else "",
-                                                     self.subject.name, self.type, self.object.name)
+        return '<%sPackageRelationship %s %s %s>' % (
+            "*" if cast(str, self.active) != core.State.ACTIVE else "",
+            self.subject.name, self.type, self.object.name
+        )
 
     def as_dict(self, package: Optional[_package.Package]=None, ref_package_by: str='id') -> dict[str, str]:
         """Returns full relationship info as a dict from the point of view
