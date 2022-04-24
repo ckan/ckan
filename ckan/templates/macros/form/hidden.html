@@ -1,0 +1,14 @@
+{#
+Builds a single hidden input.
+
+name  - name of the hidden input
+value - value of the hidden input
+
+Example
+{% import 'macros/form.html' as form %}
+{{ form.hidden('name', 'value') }}
+
+#}
+{% macro hidden(name, value) %}
+<input type="hidden" name="{{ name }}" value="{{ value }}" />
+{% endmacro %}

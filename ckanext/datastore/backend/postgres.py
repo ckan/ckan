@@ -859,7 +859,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
         data_dict.get('indexes', None)))
     # primary key is not a real primary key
     # it's just a unique key
-    primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
+    primary_key: Any = datastore_helpers.get_list(data_dict.get('primary_key'))
 
     sql_index_tmpl = u'CREATE {unique} INDEX "{name}" ON "{res_id}"'
     sql_index_string_method = sql_index_tmpl + u' USING {method}({fields})'

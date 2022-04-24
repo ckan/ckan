@@ -1,5 +1,5 @@
 # See CKAN docs on installation from Docker Compose on usage
-FROM ubuntu:focal
+FROM ubuntu:focal AS base
 MAINTAINER Open Knowledge
 
 # Set timezone
@@ -69,6 +69,18 @@ RUN ckan-pip3 install -U pip && \
     cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-entrypoint.sh /ckan-entrypoint.sh && \
     chmod +x /ckan-entrypoint.sh && \
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+
+FROM base AS test
+RUN ckan-pip3 install -r $CKAN_VENV/src/ckan/dev-requirements.txt && \
+    ckan-pip3 install pytest-ckan && \
+    cp -v $CKAN_VENV/src/ckan/contrib/docker/ckan-test-entrypoint.sh /ckan-test-entrypoint.sh && \
+    chmod +x /ckan-test-entrypoint.sh
+
+WORKDIR $CKAN_VENV/src/ckan/
+ENTRYPOINT ["/ckan-test-entrypoint.sh"]
+CMD ["python", "-m", "pytest", "-v"]
+
+FROM base AS prod
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 

@@ -355,10 +355,10 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         # compatibility with templates in existing extensions
         g.group_dict['package_count'] = query['count']
 
-        extra_vars["search_facets"] = g.search_facets = query['search_facets']
+        extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
         default_limit: int = config.get_value(u'search.facets.default')
-        for facet in g.search_facets.keys():
+        for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
             g.search_facets_limits[facet] = limit
         extra_vars["page"].items = query['results']
@@ -435,7 +435,6 @@ def read(group_type: str,
         data_dict['include_users'] = False
 
         group_dict = _action(u'group_show')(context, data_dict)
-        group = context['group']
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -454,7 +453,6 @@ def read(group_type: str,
     # compatibility with templates in existing extensions
     g.q = q
     g.group_dict = group_dict
-    g.group = group
 
     extra_vars = _read(id, limit, group_type)
 
@@ -889,17 +887,10 @@ class BulkProcessView(MethodView):
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
         g.group_dict = group_dict
-        g.group = group
         extra_vars = _read(id, limit, group_type)
-        g.packages = g.page.items
-
-        extra_vars: dict[str, Any] = {
-            u"group_dict": group_dict,
-            u"group": group,
-            u"page": g.page,
-            u"packages": g.page.items,
-            u'group_type': group_type
-        }
+        extra_vars['packages'] = g.page.items
+        extra_vars['group_dict'] = group_dict
+        extra_vars['group'] = group
 
         return base.render(
             _get_group_template(u'bulk_process_template', group_type),
@@ -916,7 +907,6 @@ class BulkProcessView(MethodView):
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
             group_dict = _action(u'group_show')(context, data_dict)
-            group = context['group']
         except NotFound:
             group_label = h.humanize_entity_type(
                 u'organization' if is_organization else u'group',
@@ -936,7 +926,6 @@ class BulkProcessView(MethodView):
         # ckan 2.9: Adding variables that were removed from c object for
         # compatibility with templates in existing extensions
         g.group_dict = group_dict
-        g.group = group
 
         # use different form names so that ie7 can be detected
         form_names = set([
@@ -1020,7 +1009,6 @@ class CreateGroupView(MethodView):
             base.abort(400, _(u'Integrity Error'))
 
         data_dict['type'] = group_type or u'group'
-        context['message'] = data_dict.get(u'log_message', u'')
         data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
@@ -1118,7 +1106,6 @@ class EditGroupView(MethodView):
             ))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-        context['message'] = data_dict.get(u'log_message', u'')
         data_dict['id'] = context['id']
         context['allow_partial_update'] = True
         try:

@@ -200,8 +200,9 @@ class TestPackageNew(object):
             "save": "go-metadata"
         })
         pkg = model.Package.by_name(name)
-        assert pkg.resources[0].url == u"http://example.com/resource1"
-        assert pkg.resources[1].url == u"http://example.com/resource0"
+        resources = sorted(pkg.resources, key=lambda r: r.url)
+        assert resources[0].url == u"http://example.com/resource0"
+        assert resources[1].url == u"http://example.com/resource1"
         assert pkg.state == "active"
 
     def test_previous_button_works(self, app, user_env):

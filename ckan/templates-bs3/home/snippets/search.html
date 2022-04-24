@@ -1,4 +1,4 @@
-{% set tags = h.get_facet_items_dict('tags', c.search_facets, limit=3) %}
+{% set tags = h.get_facet_items_dict('tags', search_facets, limit=3) %}
 {% set placeholder = _('E.g. environment') %}
 {% set dataset_type = h.default_package_type() %}
 

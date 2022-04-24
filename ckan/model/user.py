@@ -9,7 +9,7 @@ from hashlib import sha1, md5
 import six
 
 import passlib.utils
-from passlib.hash import pbkdf2_sha512  # type: ignore
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
@@ -87,8 +87,8 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls: Type[TUser], email: str) -> list["TUser"]:
-        return meta.Session.query(cls).filter_by(email=email).all()
+    def by_email(cls: Type[TUser], email: str) -> Optional["User"]:
+        return meta.Session.query(cls).filter_by(email=email).first()
 
     @classmethod
     def get(cls, user_reference: Optional[str]) -> Optional["User"]:

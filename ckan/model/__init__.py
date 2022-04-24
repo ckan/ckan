@@ -267,8 +267,8 @@ class Repository():
     def reset_alembic_output(self) -> None:
         self._alembic_output = []
 
-    def add_alembic_output(self, *args: str) -> None:
-        self._alembic_output.append(args)
+    def add_alembic_output(self, text: str,  *args: str) -> None:
+        self._alembic_output.append((text, *args))
 
     def take_alembic_output(self,
                             with_reset: bool=True) -> list[tuple[str, ...]]:
