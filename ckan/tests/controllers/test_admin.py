@@ -203,7 +203,7 @@ class TestConfig(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
 
