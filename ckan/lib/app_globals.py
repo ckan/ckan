@@ -74,7 +74,13 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
 _CONFIG_CACHE: dict[str, Any] = {}
 
 def set_theme(asset: str) -> None:
-    ''' Sets the theme.  The css_file must be of the form file.css '''
+    ''' Sets the theme.
+
+    The `asset` argument is a name of existing web-asset registered by CKAN
+    itself or by any enabled extension.
+
+    If asset is not registered, use default theme instead.
+    '''
     from ckan.lib.webassets_tools import env
 
     assert env
