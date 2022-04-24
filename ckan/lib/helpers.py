@@ -674,8 +674,8 @@ def is_rtl_language() -> bool:
 
 
 @core_helper
-def get_rtl_css() -> str:
-    return config.get_value('ckan.i18n.rtl_css')
+def get_rtl_theme() -> str:
+    return config.get_value('ckan.i18n.rtl_theme')
 
 
 @core_helper

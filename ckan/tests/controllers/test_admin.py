@@ -63,7 +63,7 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-    def test_main_css(self, app, sysadmin_env):
+    def test_main_theme(self, app, sysadmin_env):
         """Define a custom css file"""
 
         # current style
@@ -72,7 +72,7 @@ class TestConfig(object):
 
         url = url_for(u"admin.config")
         # set new style css
-        form = {"ckan.main_css": "/base/css/main-rtl.css", "save": ""}
+        form = {"ckan.theme": "css/main-rtl", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         assert "main-rtl.css" in resp or "main-rtl.min.css" in resp
