@@ -556,7 +556,6 @@ class CreateView(MethodView):
                 context[u'allow_state_change'] = True
 
             data_dict[u'type'] = package_type
-            context[u'message'] = data_dict.get(u'log_message', u'')
             pkg_dict = get_action(u'package_create')(context, data_dict)
 
             if ckan_phase:
@@ -703,7 +702,6 @@ class EditView(MethodView):
                     )
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
-            context[u'message'] = data_dict.get(u'log_message', u'')
             data_dict['id'] = id
             pkg_dict = get_action(u'package_update')(context, data_dict)
 

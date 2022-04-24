@@ -23,10 +23,11 @@ this.ckan.module('dashboard', function ($) {
         on('click', this._onShowFolloweeDropdown);
       var title = this.button.prop('title');
 
-      this.button.popover({
+      this.button.popover = new bootstrap.Popover(document.querySelector('#followee-filter .btn'), {
           placement: 'bottom',
           html: true,
           template: '<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body followee-container"></div></div>',
+          customClass: 'popover-followee',
           sanitizeFn: function (content) {
             return DOMPurify.sanitize(content, { ALLOWED_TAGS: [
               "form", "div", "input", "footer", "header", "h1", "h2", "h3", "h4",
@@ -80,6 +81,7 @@ this.ckan.module('dashboard', function ($) {
      * Returns nothing.
      */
     _onSearchKeyUpTimeout: function() {
+      this.popover = this.button.popover.tip;
       var input = $('input', this.popover);
       var q = input.val().toLowerCase();
       if (q) {
