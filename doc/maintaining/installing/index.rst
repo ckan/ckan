@@ -9,7 +9,7 @@ There are three ways to install CKAN:
 #. Install from source
 #. Install from Docker Compose
 
-CKAN 2.9 supports Python 3.7 or higher and Python 3.8. The next version of CKAN
+CKAN 2.9 supports Python 3.7 and Python 3.8 plus 2.7. The next version of CKAN
 will support Python 3 only.
 
 Installing from package is the quickest and easiest way to install CKAN, but it requires
