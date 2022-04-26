@@ -927,3 +927,4 @@ def test_license_choices_v2():
     except Invalid:
         assert True
     assert validators.license_choices('CC-BY-4.0', context=None) == 'CC-BY-4.0'
+
