@@ -2,6 +2,7 @@
 """Unit tests for ckan/logic/validators.py.
 
 """
+import os
 import warnings
 
 import copy
@@ -18,6 +19,9 @@ import ckan.tests.factories as factories
 import ckan.tests.lib.navl.test_validators as t
 import ckan.logic as logic
 
+Invalid = df.Invalid
+
+this_dir = os.path.dirname(os.path.realpath(__file__))
 
 def validator_data_dict():
     """Return a data dict with some arbitrary data in it, suitable to be passed
@@ -899,3 +903,27 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
+def test_license_choices_v1():
+    model.license.LicenseRegister()
+    try:
+        validators.license_choices('this-should-raise-invalid', context=None)
+        assert False
+    except Invalid:
+        assert True
+    assert validators.license_choices('cc-by', context=None) == 'cc-by'
+
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
+def test_license_choices_v2():
+    model.license.LicenseRegister()
+    try:
+        validators.license_choices('this-should-raise-invalid', context=None)
+        assert False
+    except Invalid:
+        assert True
+    assert validators.license_choices('CC-BY-4.0', context=None) == 'CC-BY-4.0'

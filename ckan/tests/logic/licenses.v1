@@ -1,0 +1,31 @@
+[{
+
+    "status": "active",
+    "maintainer": "",
+    "family": "",
+    "title": "Creative Commons Attribution",
+    "domain_data": "False",
+    "od_conformance": "approved",
+    "is_generic": "False",
+    "url": "http://www.opendefinition.org/licenses/cc-by",
+    "osd_conformance": "approved",
+    "domain_content": "False",
+    "domain_software": "False",
+    "id": "cc-by"
+
+},
+  {
+    "domain_content": true,
+    "domain_data": false,
+    "domain_software": false,
+    "family": "",
+    "id": "other-open",
+    "is_generic": true,
+    "maintainer": "",
+    "od_conformance": "approved",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "Other (Open)",
+    "url": ""
+  }
+]
