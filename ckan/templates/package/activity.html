@@ -9,11 +9,24 @@
     {% endblock %}
   </h1>
   {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream %}
-  {% if offset %}
-  <a onclick="window.history.back()" href="" class="btn btn-primary">
+  {% set offset=(offset or 0) | int %}
+  {% if offset > limit %}
+  <a href="{{ h.url_for(
+      controller='package',
+      action='activity',
+      id=pkg.id,
+      offset=offset - limit) }}" class="btn btn-primary" rel="nofollow">
+    &lt;&lt;
+  </a>
+  {% elif offset %}
+  <a href="{{ h.url_for(
+      controller='package',
+      action='activity',
+      id=pkg.id) }}" class="btn btn-primary" rel="nofollow">
     &lt;&lt;
   </a>
   {% endif %}
+
   {% if activity_stream and activity_stream|length == limit %}
   <a href="{{ h.url_for(
       controller='package',
