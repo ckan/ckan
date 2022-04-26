@@ -2898,6 +2898,10 @@ def decode_view_request_filters():
         filters = {}
         for k_v in filterString.split(u'|'):
             k, _sep, v = k_v.partition(u':')
-            filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
         return filters
     return None

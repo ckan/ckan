@@ -17,6 +17,17 @@ this.ckan.views.filters = (function (queryString) {
   function get(filterName) {
     var filters = api._searchParams.filters || {};
 
+    if( ! $.isEmptyObject(filters) ){
+      let decodedFilters = {};
+      $.each(filters, function(_filterIndex,_filter){
+        decodedFilters[decodeURIComponent(_filterIndex)] = [];
+        $.each(_filter, function(_valueIndex,_filterValue){
+          decodedFilters[decodeURIComponent(_filterIndex)][_valueIndex] = decodeURIComponent(_filterValue); 
+        });
+      });
+      filters = decodedFilters;
+    }
+
     if (filterName) {
       return filters[filterName];
     } else {
@@ -137,8 +148,8 @@ this.ckan.views.filters = (function (queryString) {
             field = fieldValue[1],
             value = fieldValue[2];
 
-        filters[field] = filters[field] || [];
-        filters[field].push(value);
+        filters[decodeURIComponent(field)] = filters[decodeURIComponent(field)] || [];
+        filters[decodeURIComponent(field)].push(decodeURIComponent(value));
       }
 
       searchParams.filters = filters;
