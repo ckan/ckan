@@ -119,7 +119,7 @@ def default_create_package_schema(
         ignore_not_package_admin: Validator, boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
-        owner_org_validator: Validator):
+        owner_org_validator: Validator, license_choices: Validator):
     return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -133,7 +133,7 @@ def default_create_package_schema(
         'maintainer': [ignore_missing, unicode_safe],
         'maintainer_email': [ignore_missing, unicode_safe, strip_value,
                              email_validator],
-        'license_id': [ignore_missing, unicode_safe],
+        'license_id': [ignore_missing, unicode_safe, license_choices],
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],
         'version': [ignore_missing, unicode_safe, package_version_validator],

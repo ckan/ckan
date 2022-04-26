@@ -904,6 +904,7 @@ def test_tag_string_convert():
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
 
+
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
@@ -915,6 +916,7 @@ def test_license_choices_v1():
     except Invalid:
         assert True
     assert validators.license_choices('cc-by', context=None) == 'cc-by'
+
 
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
