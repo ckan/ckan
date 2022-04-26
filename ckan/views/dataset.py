@@ -1143,14 +1143,12 @@ def activity(
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
 
-    all_activities = activity_model.package_activity_list(
+    total_activities = activity_model.package_activity_count(
         pkg_dict[u'id'],
-        limit=0,
-        offset=0,
         activity_types=activity_types
     )
-    has_more = len(all_activities) > offset + limit
-    total_pages = int(math.ceil(len(all_activities) / limit))
+    has_more = total_activities > offset + limit
+    total_pages = int(math.ceil(total_activities / limit))
 
     activity_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys()
 

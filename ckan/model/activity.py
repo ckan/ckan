@@ -213,21 +213,12 @@ def _package_activity_query(package_id: str) -> QActivity:
     return q
 
 
-def package_activity_list(
-        package_id: str, limit: int, offset: int,
+def _package_activity_main_query(
+        package_id: str,
         include_hidden_activity: bool = False,
         activity_types: Optional[list[str]] = None,
-        exclude_activity_types: Optional[list[str]] = None) -> list[Activity]:
-    '''Return the given dataset (package)'s public activity stream.
-
-    Returns all activities about the given dataset, i.e. where the given
-    dataset is the object of the activity, e.g.:
-
-    "{USER} created the dataset {DATASET}"
-    "{USER} updated the dataset {DATASET}"
-    etc.
-
-    '''
+        exclude_activity_types: Optional[list[str]] = None) -> QActivity:
+    """ Basic query to list or count """
     q = _package_activity_query(package_id)
 
     if not include_hidden_activity:
@@ -240,7 +231,48 @@ def package_activity_list(
         q = _filter_activitites_from_type(
             q, include=False, types=exclude_activity_types)
 
+    return q
+
+
+def package_activity_list(
+    package_id: str, limit: int, offset: int,
+    include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None,
+    exclude_activity_types: Optional[list[str]] = None) -> list[Activity]:
+    '''Return the given dataset (package)'s public activity stream.
+
+    Returns all activities about the given dataset, i.e. where the given
+    dataset is the object of the activity, e.g.:
+
+    "{USER} created the dataset {DATASET}"
+    "{USER} updated the dataset {DATASET}"
+    etc.
+
+    '''
+    q = _package_activity_main_query(
+        package_id,
+        include_hidden_activity,
+        activity_types,
+        exclude_activity_types
+    )
     return _activities_at_offset(q, limit, offset)
+
+
+def package_activity_count(
+        package_id: str,
+        include_hidden_activity: bool = False,
+        activity_types: Optional[list[str]] = None,
+        exclude_activity_types: Optional[list[str]] = None) -> int:
+    '''Return the given dataset (package)'s public activity count.
+    '''
+    q = _package_activity_main_query(
+        package_id,
+        include_hidden_activity,
+        activity_types,
+        exclude_activity_types
+    )
+
+    return q.count()
 
 
 def _group_activity_query(
