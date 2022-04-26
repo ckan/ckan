@@ -18,7 +18,17 @@ Invalid = df.Invalid
 
 def keep_extras(key: FlattenKey, data: FlattenDataDict,
                 errors: FlattenErrorDict, context: Context) -> None:
+    """Convert dictionary into simple fields.
 
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"input": {"hello": 1, "world": 2}},
+            {"input": [keep_extras]}
+        )
+        assert data == {"hello": 1, "world": 2}
+
+    """
     extras = data.pop(key, {})
     for extras_key, value in extras.items():
         data[key[:-1] + (extras_key,)] = value
@@ -26,7 +36,8 @@ def keep_extras(key: FlattenKey, data: FlattenDataDict,
 
 def not_missing(key: FlattenKey, data: FlattenDataDict,
                 errors: FlattenErrorDict, context: Context) -> None:
-
+    """Ensure value is not missing from the input, but may be empty.
+    """
     value = data.get(key)
     if value is missing:
         errors[key].append(_('Missing value'))
@@ -35,13 +46,25 @@ def not_missing(key: FlattenKey, data: FlattenDataDict,
 
 def not_empty(key: FlattenKey, data: FlattenDataDict,
               errors: FlattenErrorDict, context: Context) -> None:
-
+    """Ensure value is available in the input and is not empty.
+    """
     value = data.get(key)
     if not value or value is missing:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
 def if_empty_same_as(other_key: str) -> Callable[..., Any]:
+    """Copy value from other field when current field is missing or empty.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [], "world": [if_empty_same_as("hello")]}
+        )
+        assert data == {"hello": 1, "world": 1}
+
+    """
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context):
         value = data.get(key)
@@ -52,7 +75,17 @@ def if_empty_same_as(other_key: str) -> Callable[..., Any]:
 
 
 def both_not_empty(other_key: str) -> Validator:
+    """Ensure that either current, or other field has value.
 
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [], "world": [both_not_empty("hello")]}
+        )
+        assert errors == {"world": [error_message]}
+
+    """
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context):
         value = data.get(key)
@@ -67,6 +100,8 @@ def both_not_empty(other_key: str) -> Validator:
 
 def empty(key: FlattenKey, data: FlattenDataDict,
           errors: FlattenErrorDict, context: Context) -> None:
+    """Ensure that value is not present in the input.
+    """
 
     value = data.pop(key, None)
 
@@ -81,13 +116,23 @@ def empty(key: FlattenKey, data: FlattenDataDict,
 
 def ignore(key: FlattenKey, data: FlattenDataDict,
            errors: FlattenErrorDict, context: Context) -> NoReturn:
-
+    """Remove the value from the input and skip the rest of validators.
+    """
     data.pop(key, None)
     raise StopOnError
 
 def default(default_value: Any) -> Validator:
-    '''When key is missing or value is an empty string or None, replace it with
-    a default value'''
+    """Convert missing or empty value to the default one.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {},
+            {"hello": [default("not empty")]}
+        )
+        assert data == {"hello": "not empty"}
+
+    """
 
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context):
@@ -136,7 +181,8 @@ def ignore_missing(key: FlattenKey, data: FlattenDataDict,
 
 def ignore_empty(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context) -> None:
-
+    """Skip the rest of validators if the value is empty or missing.
+    """
     value = data.get(key)
 
     if value is missing or not value:
@@ -144,7 +190,8 @@ def ignore_empty(key: FlattenKey, data: FlattenDataDict,
         raise StopOnError
 
 def convert_int(value: Any) -> int:
-
+    """Ensure that the value is a valid integer.
+    """
     try:
         return int(value)
     except ValueError:
