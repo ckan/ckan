@@ -1,8 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
-from queue import Empty
 
-from typing import Any, List
+from typing import Any
 from urllib.parse import urlencode
 
 from flask import Blueprint
