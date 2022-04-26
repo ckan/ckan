@@ -11,12 +11,13 @@ from __future__ import annotations
 import datetime
 import re
 from typing import Any, cast
+from jinja2 import Environment
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.lib.base as base
+import ckan.lib.jinja_extensions as jinja_extensions
 
-from ckan.common import ungettext, config
+from ckan.common import ungettext, ugettext, config
 from ckan.types import Context
 
 
@@ -77,6 +78,18 @@ def string_to_timedelta(s: str) -> datetime.timedelta:
     return delta
 
 
+def render_activity_email(activities: list[dict[str, Any]]) -> str:
+    globals = {'site_title': config.get_value('ckan.site_title')}
+    template_name = 'activity_streams/activity_stream_email_notifications.text'
+
+    env = Environment(**jinja_extensions.get_jinja_env_options())
+    # Install the given gettext, ngettext callables into the environment
+    env.install_gettext_callables(ugettext, ungettext) # type: ignore
+
+    template = env.get_template(template_name, globals=globals)
+    return template.render({'activities': activities})
+
+
 def _notifications_for_activities(
         activities: list[dict[str, Any]],
         user_dict: dict[str, Any]) -> list[dict[str, str]]:
@@ -105,15 +118,15 @@ def _notifications_for_activities(
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
+
     subject = ungettext(
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
                 site_title=config.get_value('ckan.site_title'),
                 n=len(activities))
-    body = base.render(
-            'activity_streams/activity_stream_email_notifications.text',
-            extra_vars={'activities': activities})
+
+    body = render_activity_email(activities)
     notifications = [{
         'subject': subject,
         'body': body
@@ -214,7 +227,6 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
     email_last_sent = model.Dashboard.get(user['id']).email_last_sent
     activity_stream_last_viewed = (
             model.Dashboard.get(user['id']).activity_stream_last_viewed)
-
     since = max(email_notifications_since, email_last_sent,
             activity_stream_last_viewed)
 

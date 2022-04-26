@@ -64,13 +64,13 @@ const DOMPurify = () =>
 );
 
 const fontAwesomeCss = () =>
-  src(__dirname + "/node_modules/font-awesome/css/font-awesome.css").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/font-awesome/css")
+  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/css/all.css").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/css")
   );
 
 const fontAwesomeFonts = () =>
-  src(__dirname + "/node_modules/font-awesome/fonts/*").pipe(
-    dest(__dirname + "/ckan/public/base/vendor/font-awesome/fonts")
+  src(__dirname + "/node_modules/@fortawesome/fontawesome-free/webfonts/*").pipe(
+    dest(__dirname + "/ckan/public/base/vendor/fontawesome-free/webfonts")
   );
 
 const jQueryFileUpload = () =>

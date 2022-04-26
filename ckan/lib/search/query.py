@@ -319,7 +319,7 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError('Dataset not found in the search index: %s' %
                               reference)
         else:
-            return solr_response.docs[0]
+            return cast("list[dict[str, Any]]", solr_response.docs)[0]
 
     def run(self,
             query: dict[str, Any],
@@ -425,7 +425,7 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
         self.count = solr_response.hits
-        self.results = solr_response.docs
+        self.results = cast("list[Any]", solr_response.docs)
 
 
         # #1683 Filter out the last row that is sometimes out of order
