@@ -1,8 +1,9 @@
 # encoding: utf-8
 
-"""The base Controller API
+"""The base functionality for web-views.
 
-Provides the BaseController class for subclassing.
+Provides functions for rendering templates, aborting the request, etc.
+
 """
 from __future__ import annotations
 

@@ -96,6 +96,8 @@ LEGACY_ROUTE_NAMES = {
 
 
 class HelperAttributeDict(Dict[str, Callable[..., Any]]):
+    """Collection of CKAN native and extension-provided helpers.
+    """
     def __missing__(self, key: str) -> NoReturn:
         raise ckan.exceptions.HelperError(
             'Helper \'{key}\' has not been defined.'.format(
