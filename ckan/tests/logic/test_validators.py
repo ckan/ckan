@@ -21,6 +21,7 @@ import ckan.logic as logic
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 
+
 def validator_data_dict():
     """Return a data dict with some arbitrary data in it, suitable to be passed
     to validator functions for testing.
