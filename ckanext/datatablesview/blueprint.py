@@ -16,7 +16,7 @@ datatablesview = Blueprint(u'datatablesview', __name__)
 
 
 def merge_filters(view_filters: dict[str, Any],
-                  user_filters: dict[str, Any]) -> dict[str, Any]:
+                  user_filters: dict[str, Any] | None) -> dict[str, Any]:
     u'''
     view filters are built as part of the view, user filters
     are selected by the user interacting with the view. Any filters

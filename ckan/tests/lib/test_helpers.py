@@ -914,6 +914,6 @@ def test_decode_view_request_filters(test_request_context):
         assert h.decode_view_request_filters() == {
             'Titlè': ['Tést'],
             'Datê Time': ['2022-01-01 01:01:01'],
-            '_id': ['1','2','3'],
+            '_id': ['1', '2', '3'],
             'Piped|Filter': ['Piped|Value']
         }
