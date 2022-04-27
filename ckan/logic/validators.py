@@ -1033,8 +1033,8 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
 
 
 def license_choices(value: Any, context: Context) -> Any:
-    license = Package.get_license_register()
-    if value in license:
+    licenses = Package.get_license_register()
+    if value in licenses:
         return value
     raise Invalid(_('Invalid license'))
 
