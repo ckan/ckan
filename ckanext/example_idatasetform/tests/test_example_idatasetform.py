@@ -117,9 +117,8 @@ class TestVersion5(object):
 def user():
     user = factories.User(password="correct123")
     user_token = factories.APIToken(user=user["name"])
-    env = {"Authorization": user_token["token"]}
-    data = {"env": env, "user_dict": user}
-    return data
+    user["token"] = user_token["token"]
+    return user
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
@@ -130,11 +129,11 @@ def user():
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app, user):
         name = "fancy-urls"
-
+        env = {"Authorization": user["token"]}
         resp = app.post(
             url_for("fancy_type.new"),
             data={"name": name, "save": "", "_ckan_phase": 1},
-            extra_environ=user["env"],
+            extra_environ=env,
             follow_redirects=False,
         )
         assert resp.location == url_for(
@@ -146,7 +145,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=user["env"]
+            extra_environ=env
         )
         assert resp.location == url_for(
             "fancy_type.edit", id=name, _external=True
@@ -156,7 +155,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=user["env"]
+            extra_environ=env
         )
 
         assert resp.location == url_for(
@@ -170,7 +169,7 @@ class TestUrlsForCustomDatasetType(object):
                 "save": "go-metadata",
                 "_ckan_phase": 2,
             },
-            extra_environ=user["env"],
+            extra_environ=env,
             follow_redirects=False,
         )
 
@@ -527,9 +526,9 @@ class TestDatasetMultiTypes(object):
     @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_template_without_options(self, type_, app, user):
-
+        env = {"Authorization": user["token"]}
         resp = app.get(
-            '/{}/new'.format(type_), extra_environ=user["env"], status=200)
+            '/{}/new'.format(type_), extra_environ=env, status=200)
         assert resp.body == 'new package form'
 
     @pytest.mark.usefixtures('clean_db')
