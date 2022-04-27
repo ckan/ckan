@@ -1037,4 +1037,3 @@ def license_choices(value: Any, context: Context) -> Any:
     if value in licenses:
         return value
     raise Invalid(_('Invalid license'))
-

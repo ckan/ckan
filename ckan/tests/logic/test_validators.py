@@ -920,4 +920,3 @@ def test_license_choices_v2():
     licenses = model.license.LicenseRegister()
     assert 'CC-BY-4.0' in licenses
     assert 'this-is-not-a-license-id' not in licenses
-
