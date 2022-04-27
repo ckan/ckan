@@ -401,7 +401,7 @@ class TestOrganizationSearch(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
@@ -453,7 +453,7 @@ class TestOrganizationInnerSearch(object):
             org_url,
             query_string={"q": "One"}
         )
-        assert "1 dataset found for &#34;One&#34;" in search_response
+        assert "1 dataset found" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 

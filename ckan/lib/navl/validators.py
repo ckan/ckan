@@ -37,6 +37,15 @@ def keep_extras(key: FlattenKey, data: FlattenDataDict,
 def not_missing(key: FlattenKey, data: FlattenDataDict,
                 errors: FlattenErrorDict, context: Context) -> None:
     """Ensure value is not missing from the input, but may be empty.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {},
+            {"hello": [not_missing]}
+        )
+        assert errors == {"hello": [error_message]}
+
     """
     value = data.get(key)
     if value is missing:
@@ -47,6 +56,15 @@ def not_missing(key: FlattenKey, data: FlattenDataDict,
 def not_empty(key: FlattenKey, data: FlattenDataDict,
               errors: FlattenErrorDict, context: Context) -> None:
     """Ensure value is available in the input and is not empty.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 0},
+            {"hello": [not_empty]}
+        )
+        assert errors == {"hello": [error_message]}
+
     """
     value = data.get(key)
     if not value or value is missing:
@@ -75,7 +93,7 @@ def if_empty_same_as(other_key: str) -> Callable[..., Any]:
 
 
 def both_not_empty(other_key: str) -> Validator:
-    """Ensure that either current, or other field has value.
+    """Ensure that both, current value and other field has value.
 
     .. code-block::
 
@@ -85,11 +103,24 @@ def both_not_empty(other_key: str) -> Validator:
         )
         assert errors == {"world": [error_message]}
 
+        data, errors = tk.navl_validate(
+            {"world": 1},
+            {"hello": [], "world": [both_not_empty("hello")]}
+        )
+        assert errors == {"world": [error_message]}
+
+        data, errors = tk.navl_validate(
+            {"hello": 1, "world": 2},
+            {"hello": [], "world": [both_not_empty("hello")]}
+        )
+        assert not errors
+
     """
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context):
         value = data.get(key)
         other_value = data.get(key[:-1] + (other_key,))
+
         if (not value or value is missing and
             not other_value or other_value is missing):
             errors[key].append(_('Missing value'))
@@ -101,6 +132,15 @@ def both_not_empty(other_key: str) -> Validator:
 def empty(key: FlattenKey, data: FlattenDataDict,
           errors: FlattenErrorDict, context: Context) -> None:
     """Ensure that value is not present in the input.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [empty]}
+        )
+        assert errors == {"hello": [error_message]}
+
     """
 
     value = data.pop(key, None)
@@ -117,6 +157,15 @@ def empty(key: FlattenKey, data: FlattenDataDict,
 def ignore(key: FlattenKey, data: FlattenDataDict,
            errors: FlattenErrorDict, context: Context) -> NoReturn:
     """Remove the value from the input and skip the rest of validators.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [ignore]}
+        )
+        assert data == {}
+
     """
     data.pop(key, None)
     raise StopOnError
@@ -182,6 +231,16 @@ def ignore_missing(key: FlattenKey, data: FlattenDataDict,
 def ignore_empty(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context) -> None:
     """Skip the rest of validators if the value is empty or missing.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": ""},
+            {"hello": [ignore_empty, isodate]}
+        )
+        assert data == {}
+        assert not errors
+
     """
     value = data.get(key)
 
@@ -191,6 +250,15 @@ def ignore_empty(key: FlattenKey, data: FlattenDataDict,
 
 def convert_int(value: Any) -> int:
     """Ensure that the value is a valid integer.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": "world"},
+            {"hello": [convert_int]}
+        )
+        assert errors == {"hello": [error_message]}
+
     """
     try:
         return int(value)
@@ -198,7 +266,17 @@ def convert_int(value: Any) -> int:
         raise Invalid(_('Please enter an integer value'))
 
 def unicode_only(value: Any) -> str:
-    '''Accept only unicode values'''
+    '''Accept only unicode values
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [unicode_only]}
+        )
+        assert errors == {"hello": [error_message]}
+
+    '''
 
     if not isinstance(value, str):
         raise Invalid(_('Must be a Unicode string value'))
