@@ -3011,6 +3011,23 @@ def can_update_owner_org(package_dict, user_orgs=None):
 
     return False
 
+  
+@core_helper
+def decode_view_request_filters():
+    filterString = request.args.get('filters')
+    if request.form.get('filters') is not None:
+        filterString = request.form.get('filters')
+    if filterString is not None and len(filterString) > 0:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+        return filters
+    return None
 
 @core_helper
 def check_ckan_version(min_version,
@@ -3036,20 +3053,3 @@ def check_ckan_version(min_version,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
-
-@core_helper
-def decode_view_request_filters():
-    filterString = request.args.get('filters')
-    if request.form.get('filters') is not None:
-        filterString = request.form.get('filters')
-    if filterString is not None and len(filterString) > 0:
-        filters = {}
-        for k_v in filterString.split(u'|'):
-            k, _sep, v = k_v.partition(u':')
-            if unquote(str(k)) in filters:
-                if unquote(str(v)) not in filters[unquote(str(k))]:
-                    filters[unquote(str(k))].append(unquote(str(v)))
-            else:
-                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
-        return filters
-    return None
