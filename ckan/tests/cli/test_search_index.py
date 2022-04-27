@@ -35,6 +35,96 @@ class TestSearchIndex(object):
         search_result = helpers.call_action(u'package_search', q=u"After")
         assert search_result[u'count'] == 1
 
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
+    def test_no_index_deleted_package(self, cli):
+        """ Deleted packages should not be in search index. """
+        factories.Dataset(title="Deleted package", id="deleted-pkg")
+        helpers.call_action("package_delete", id="deleted-pkg")
+        search_result = helpers.call_action('package_search', q="Deleted")
+        assert search_result[u'count'] == 0
+
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", True)
+    def test_no_index_deleted_package_rebuild(self, cli):
+        """ Deleted packages should not be in search index after rebuild. """
+        factories.Dataset(title="Deleted package", id="deleted-pkg")
+        helpers.call_action("package_delete", id="deleted-pkg")
+        result = cli.invoke(ckan, ['search-index', 'rebuild'])
+        assert not result.exit_code, result.output
+        search_result = helpers.call_action('package_search', q="Deleted")
+        assert search_result[u'count'] == 0
+
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_index_deleted_package(self, cli):
+        """ Deleted packages should be in search index if ckan.search.remove_deleted_packages """
+        dataset = factories.Dataset(title="Deleted package", id="deleted-pkg")
+        helpers.call_action("package_delete", id="deleted-pkg")
+        search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
+        assert search_result[u'count'] == 1
+        assert search_result[u'results'][0]['id'] == dataset['id']
+        # should be removed after purge
+        helpers.call_action("dataset_purge", id="deleted-pkg")
+        search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
+        assert search_result[u'count'] == 0
+
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_index_deleted_package_rebuild(self, cli):
+        """ Deleted packages should be in search index after rebuild if ckan.search.remove_deleted_packages """
+        dataset = factories.Dataset(title="Deleted package", id="deleted-pkg")
+        helpers.call_action("package_delete", id="deleted-pkg")
+        result = cli.invoke(ckan, ['search-index', 'rebuild'])
+        assert not result.exit_code, result.output
+        search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
+        assert search_result[u'count'] == 1
+        assert search_result[u'results'][0]['id'] == dataset['id']
+        # should be removed after purge
+        helpers.call_action("dataset_purge", id="deleted-pkg")
+        search_result = helpers.call_action('package_search', q="Deleted", include_deleted=True)
+        assert search_result[u'count'] == 0
+
+    @pytest.mark.ckan_config("ckan.search.remove_deleted_packages", False)
+    def test_deleted_only_visible_for_right_users(self):
+        """ If we index deleted datasets, we still needs to preserve
+            privacy for private datasets. """
+
+        user1 = factories.User()
+        user2 = factories.User()
+        org1 = factories.Organization(user=user1)
+        org2 = factories.Organization(user=user2)
+        dataset1 = factories.Dataset(
+            name="dataset-user-1",
+            user=user1,
+            private=True,
+            owner_org=org1["name"],
+            state="deleted"
+        )
+        dataset2 = factories.Dataset(
+            name="dataset-user-2",
+            user=user2,
+            private=True,
+            owner_org=org2["name"],
+            state="deleted"
+        )
+
+        search_results_1 = helpers.call_action(
+            "package_search",
+            {"user": user1["name"], "ignore_auth": False},
+            include_private=True,
+            include_deleted=True
+        )
+        results_1 = search_results_1["results"]
+
+        assert [r["name"] for r in results_1] == [dataset1['name']]
+
+        search_results_2 = helpers.call_action(
+            "package_search",
+            {"user": user2["name"], "ignore_auth": False},
+            include_private=True,
+            include_deleted=True
+        )
+        results_2 = search_results_2["results"]
+
+        assert [r["name"] for r in results_2] == [dataset2['name']]
+
     def test_test_main_operations(self, cli):
         """Create few datasets, clear index, rebuild it - make sure search results
         are always reflect correct state of index.

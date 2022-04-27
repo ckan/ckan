@@ -123,7 +123,7 @@ class TestGroupListDictize:
 
     @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
-        parent = factories.Group(tile="Parent")
+        parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
         group_list = [model.Group.get(parent["name"]), model.Group.get(child["name"])]
         context = {"model": model, "session": model.Session}
@@ -686,32 +686,12 @@ class TestActivityDictize(object):
         )
         activity_obj = model.Activity.get(activity["id"])
         context = {"model": model, "session": model.Session}
-        dictized = model_dictize.activity_dictize(
-            activity_obj, context, include_data=True
-        )
+        dictized = model_dictize.activity_dictize(activity_obj, context)
         assert dictized["user_id"] == user["id"]
         assert dictized["activity_type"] == "new package"
         assert dictized["data"]["package"]["title"] == dataset["title"]
         assert dictized["data"]["package"]["id"] == dataset["id"]
         assert dictized["data"]["actor"] == "Mr Someone"
-
-    def test_dont_include_data(self):
-        dataset = factories.Dataset()
-        user = factories.User()
-        activity = factories.Activity(
-            user_id=user["id"],
-            object_id=dataset["id"],
-            activity_type="new package",
-            data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
-        )
-        activity_obj = model.Activity.get(activity["id"])
-        context = {"model": model, "session": model.Session}
-        dictized = model_dictize.activity_dictize(
-            activity_obj, context, include_data=False
-        )
-        assert dictized["user_id"] == user["id"]
-        assert dictized["activity_type"] == "new package"
-        assert dictized["data"] == {"package": {"title": dataset["title"]}}
 
 
 @pytest.mark.usefixtures("non_clean_db")

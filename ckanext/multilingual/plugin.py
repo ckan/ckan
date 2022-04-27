@@ -10,7 +10,7 @@ import ckan.model
 
 import ckan.plugins as plugins
 
-from ckan.common import request, config, c
+from ckan.common import request, config, g
 from ckan.logic import get_action
 
 
@@ -341,7 +341,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
         desired_lang_code = request.environ['CKAN_LANG']
         fallback_lang_code = config.get_value('ckan.locale_default')
         try:
-            fields = c.fields
+            fields = g.fields
         except AttributeError:
             return translate_data_dict(dataset_dict)
         terms = [value for _param, value in fields]
@@ -349,7 +349,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
                 cast(Context, {'model': ckan.model}),
                 {'terms': terms,
                  'lang_codes': (desired_lang_code, fallback_lang_code)})
-        c.translated_fields = {}
+        g.translated_fields = {}
         for param, value in fields:
             matching_translations = [translation for translation in
                     translations if translation['term'] == value and
@@ -361,7 +361,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
             if matching_translations:
                 assert len(matching_translations) == 1
                 translation = matching_translations[0]['term_translation']
-                c.translated_fields[(param, value)] = translation
+                g.translated_fields[(param, value)] = translation
 
         # Now translate the fields of the dataset itself.
         return translate_data_dict(dataset_dict)

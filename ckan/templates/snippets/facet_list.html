@@ -37,12 +37,12 @@ Boolean for when a facet list should appear in the the right column of the
 page and not the left column.
 
 search_facets
-Dictionary with search facets(or `c.search_facets` if not provided)
+Dictionary with search facets
 
 #}
 {% block facet_list %}
     {% set hide_empty = hide_empty or false %}
-    {% with items = items or h.get_facet_items_dict(name, search_facets or c.search_facets) %}
+    {% with items = items or h.get_facet_items_dict(name, search_facets) %}
 	{% if items or not hide_empty %}
 	    {% if within_tertiary %}
 		{% set nav_class = 'nav nav-pills nav-stacked' %}
@@ -58,7 +58,7 @@ Dictionary with search facets(or `c.search_facets` if not provided)
 			</h2>
 		    {% endblock %}
 		    {% block facet_list_items %}
-			{% with items = items or h.get_facet_items_dict(name, search_facets or c.search_facets) %}
+			{% with items = items or h.get_facet_items_dict(name, search_facets) %}
 			    {% if items %}
 				<nav aria-label="{{ title }}">
 				    <ul class="{{ nav_class or 'list-unstyled nav nav-simple nav-facet' }}">
@@ -80,7 +80,7 @@ Dictionary with search facets(or `c.search_facets` if not provided)
 
 				<p class="module-footer">
 				    {% if h.get_param_int('_%s_limit' % name) %}
-					{% if h.has_more_facets(name, search_facets or c.search_facets) %}
+					{% if h.has_more_facets(name, search_facets) %}
 					    <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
 					{% endif %}
 				    {% else %}

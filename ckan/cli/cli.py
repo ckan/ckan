@@ -142,18 +142,20 @@ def _add_ctx_object(ctx: click.Context, path: Optional[str] = None):
     # adding new ones. Such situation is possible only during tests,
     # because we are using singleton as main entry point, so it
     # preserves its state even between tests
-    for key, cmd in list(ctx.command.commands.items()):
+    commands = getattr(ctx.command, "commands")
+    for key, cmd in list(commands.items()):
         if hasattr(cmd, META_ATTR):
-            ctx.command.commands.pop(key)
+            commands.pop(key)
 
 
 def _add_external_commands(ctx: click.Context):
+    add = getattr(ctx.command, "add_command")
     for cmd in _get_commands_from_entry_point():
-        ctx.command.add_command(cmd)
+        add(cmd)
 
     plugins = p.PluginImplementations(p.IClick)
     for cmd in _get_commands_from_plugins(plugins):
-        ctx.command.add_command(cmd)
+        add(cmd)
 
 
 def _command_with_ckan_meta(cmd: click.Command, name: str, type_: str):

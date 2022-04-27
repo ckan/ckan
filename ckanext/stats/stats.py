@@ -38,7 +38,7 @@ class Stats(object):
             .group_by(package.c["owner_org"])
             .where(
                 and_(
-                    package.c["owner_org"] != None,
+                    package.c["owner_org"] != None,  # type: ignore
                     activity.c["activity_type"] == "new package",
                     package.c["private"] == False,
                     package.c["state"] == "active",

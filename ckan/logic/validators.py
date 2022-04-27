@@ -161,11 +161,6 @@ def isodate(value: Any, context: Context) -> Any:
         raise Invalid(_('Date format incorrect'))
     return date
 
-def no_http(value: Any, context: Context) -> Any:
-    if 'http:' in value:
-        raise Invalid(_('No links are allowed in the log_message.'))
-    return value
-
 def package_id_exists(value: str, context: Context) -> Any:
 
     model = context['model']
@@ -498,12 +493,6 @@ def tag_string_convert(key: FlattenKey, data: FlattenDataDict,
     for tag in tags:
         tag_length_validator(tag, context)
         tag_name_validator(tag, context)
-
-
-def ignore_not_admin(key: FlattenKey, data: FlattenDataDict,
-                     errors: FlattenErrorDict, context: Context) -> Any:
-    # Deprecated in favour of ignore_not_package_admin
-    return ignore_not_package_admin(key, data, errors, context)
 
 
 def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
