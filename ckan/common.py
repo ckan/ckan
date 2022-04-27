@@ -178,6 +178,14 @@ def _get_session():
 
 
 def asbool(obj: Any) -> bool:
+    """Convert a string (e.g. 1, true, True) into a boolean.
+
+    Example::
+
+        assert asbool("yes") is True
+
+    """
+
     if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in truthy:
@@ -190,6 +198,13 @@ def asbool(obj: Any) -> bool:
 
 
 def asint(obj: Any) -> int:
+    """Convert a string into an int.
+
+    Example::
+
+        assert asint("111") == 111
+
+    """
     try:
         return int(obj)
     except (TypeError, ValueError):
@@ -222,6 +237,14 @@ def aslist(obj: Literal[None],
 
 
 def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
+    """Convert a space-separated string into a list.
+
+    Example::
+
+        assert aslist("a b c") == ["a", "b", "c"]
+
+    """
+
     if isinstance(obj, str):
         lst = obj.split(sep)
         if strip:
