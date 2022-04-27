@@ -1892,7 +1892,7 @@ class TestPackageFollow(object):
 
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env, status=200)
-        assert user["display_name"] in followers_response
+        assert sysadmin["display_name"] in followers_response
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
