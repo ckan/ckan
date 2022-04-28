@@ -2830,7 +2830,7 @@ def can_update_owner_org(
 
     return False
 
-  
+
 @core_helper
 def decode_view_request_filters() -> dict[str, Any] | None:
     filterString = request.args.get('filters')

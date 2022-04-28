@@ -907,6 +907,7 @@ def test_get_pkg_dict_extra():
 
     model.repo.rebuild_db()
 
+
 @pytest.mark.usefixtures("with_request_context")
 def test_decode_view_request_filters(test_request_context):
 
