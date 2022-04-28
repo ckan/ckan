@@ -25,7 +25,7 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager, login_required
-from ckan.common import CKANConfig, asbool
+from ckan.common import CKANConfig, asbool, session
 
 import ckan.model as model
 from ckan.lib import base
@@ -319,17 +319,20 @@ def set_remote_user_as_current_user_for_tests():
 
     If `REMOTE_USER` is in the request environ we will try to get
     the user_obj from the DB, if there is an user_obj, we will set the
-    `beaker.session['_user_id']` with that user_obj.id
+    `session['_user_id']` with that user_obj.id
 
     This way, `Flask-Login` will load the user from
-    `beaker.session['_user_id']` and will set the `current_user`
+    `session['_user_id']` and will set the `current_user`
     proxy for us behind the scene.
     '''
     if "REMOTE_USER" in request.environ:
         username = request.environ["REMOTE_USER"]
+        if isinstance(username, bytes):
+            username = username.decode()
+
         userobj = model.User.get(username)
         if userobj:
-            request.environ['beaker.session']['_user_id'] = userobj.id
+            session['_user_id'] = userobj.id
 
 
 def ckan_before_request() -> Optional[Response]:
