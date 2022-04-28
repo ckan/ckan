@@ -110,6 +110,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     try:
         context['use_cache'] = False
+        context['resources_only'] = True
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
         try:
@@ -320,10 +321,11 @@ def package_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
+    if not context.get('resources_only', False):
+        #avoid revisioning by updating directly
+        model.Session.query(model.Package).filter_by(id=pkg.id).update(
+            {"metadata_modified": datetime.datetime.utcnow()})
+        model.Session.refresh(pkg)
 
     pkg = model_save.package_dict_save(data, context)
 
@@ -576,6 +578,7 @@ def package_resource_reorder(
     new_resources = ordered_resources + existing_resources
     package_dict['resources'] = new_resources
 
+    context['resources_only'] = True
     _check_access('package_resource_reorder', context, package_dict)
     _get_action('package_update')(context, package_dict)
 
