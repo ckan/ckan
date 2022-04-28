@@ -6,14 +6,14 @@ from flask import Blueprint
 from six import text_type
 
 from ckan.common import json
-from ckanext.datatablesview.helpers import decode_datatables_request_filters
-
+from ckan.lib.helpers import decode_view_request_filters
 from ckan.plugins.toolkit import get_action, request, h
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
 
-def merge_filters(view_filters, user_filters_str):
+def merge_filters(view_filters,
+                  user_filters):
     u'''
     view filters are built as part of the view, user filters
     are selected by the user interacting with the view. Any filters
@@ -28,15 +28,16 @@ def merge_filters(view_filters, user_filters_str):
      u'CASE_STATUS': [u'Open', u'Closed']}
     '''
     filters = dict(view_filters)
-    if not user_filters_str:
+    if not user_filters:
         return filters
-    user_filters = {}
-    for k_v in user_filters_str.split(u'|'):
-        k, sep, v = k_v.partition(u':')
-        if k not in view_filters or v in view_filters[k]:
-            user_filters.setdefault(k, []).append(v)
+    combined_user_filters = {}
     for k in user_filters:
-        filters[k] = user_filters[k]
+        if k not in view_filters or user_filters[k] in view_filters[k]:
+            combined_user_filters[k] = user_filters[k]
+        else:
+            combined_user_filters[k] = user_filters[k] + view_filters[k]
+    for k in combined_user_filters:
+        filters[k] = combined_user_filters[k]
     return filters
 
 
@@ -51,7 +52,7 @@ def ajax(resource_view_id):
     offset = int(request.form[u'start'])
     limit = int(request.form[u'length'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = decode_datatables_request_filters()
+    user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
@@ -110,7 +111,7 @@ def filtered_download(resource_view_id):
 
     search_text = text_type(params[u'search'][u'value'])
     view_filters = resource_view.get(u'filters', {})
-    user_filters = decode_datatables_request_filters()
+    user_filters = decode_view_request_filters()
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')

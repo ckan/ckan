@@ -3004,3 +3004,47 @@ def can_update_owner_org(package_dict, user_orgs=None):
         return True
 
     return False
+
+
+@core_helper
+def decode_view_request_filters():
+    filterString = request.args.get('filters')
+    if request.form.get('filters') is not None:
+        filterString = request.form.get('filters')
+    if filterString is not None and len(filterString) > 0:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+        return filters
+    return None
+
+
+@core_helper
+def check_ckan_version(min_version,
+                       max_version):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)
