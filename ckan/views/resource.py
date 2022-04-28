@@ -179,7 +179,7 @@ def download(package_type: str,
     except NotFound:
         return base.abort(404, _(u'Resource not found'))
     except NotAuthorized:
-        return base.abort(401, _(u'Not authorized to download resource'))
+        return base.abort(403, _(u'Not authorized to download resource'))
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
