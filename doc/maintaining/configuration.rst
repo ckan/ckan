@@ -1636,6 +1636,20 @@ receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
 
+.. ckan.user_reset_landing_page:
+
+ckan.user_reset_landing_page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user_reset_landing_page = home.index
+
+Default value: ``home.index``
+
+This controls the location that CKAN will redirect to after submitting
+a password reset request.
+
 .. end_config-front-end
 
 Resource Views Settings
