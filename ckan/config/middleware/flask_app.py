@@ -24,7 +24,7 @@ from werkzeug.local import LocalProxy
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 from ckan.common import CKANConfig, asbool
 
 import ckan.model as model
@@ -270,6 +270,8 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     login_manager.init_app(app)
     # make anonymous_user an instance of CKAN custom class
     login_manager.anonymous_user = model.AnonymousUser
+    # The name of the view to redirect to when the user needs to log in
+    login_manager.login_view = "user.login"  # type: ignore
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
@@ -512,6 +514,7 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
+    @login_required
     def error_handler(e: Exception) -> tuple[str, Optional[int]]:
         debug = config.get_value('debug')
         if isinstance(e, HTTPException):
