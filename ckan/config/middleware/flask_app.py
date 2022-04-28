@@ -332,7 +332,7 @@ def set_remote_user_as_current_user_for_tests():
 
         userobj = model.User.get(username)
         if userobj:
-            session['_user_id'] = userobj.id
+            session["_user_id"] = userobj.id
 
 
 def ckan_before_request() -> Optional[Response]:
@@ -354,7 +354,8 @@ def ckan_before_request() -> Optional[Response]:
     # This is needed for the TESTS of the CKAN extensions only!
     # we should remove it as soon as the maintainers of the 
     # CKAN extensions change their tests according to the new changes.
-    set_remote_user_as_current_user_for_tests()
+    if "test.ckan.net" in request.environ["SERVER_NAME"]:
+        set_remote_user_as_current_user_for_tests()
 
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
