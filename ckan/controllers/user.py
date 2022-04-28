@@ -493,13 +493,15 @@ class UserController(base.BaseController):
                           'or contact an administrator for help')
                     )
                     log.exception(e)
-                    return h.redirect_to(u'/')
+                    return h.redirect_to(config.get(
+                        u'ckan.user_reset_landing_page', u'/'))
             # always tell the user it succeeded, because otherwise we reveal
             # which accounts exist or not
             h.flash_success(
                 _(u'A reset link has been emailed to you '
                   '(unless the account specified does not exist)'))
-            return h.redirect_to(u'/')
+            return h.redirect_to(config.get(
+                u'ckan.user_reset_landing_page', u'/'))
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
@@ -541,7 +543,8 @@ class UserController(base.BaseController):
                 mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
-                h.redirect_to(u'home.index')
+                h.redirect_to(config.get(
+                    u'ckan.user_reset_landing_page', u'home.index'))
             except NotAuthorized:
                 h.flash_error(_('Unauthorized to edit user %s') % id)
             except NotFound as e:
