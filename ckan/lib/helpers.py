@@ -2832,6 +2832,24 @@ def can_update_owner_org(
 
 
 @core_helper
+def decode_view_request_filters() -> dict[str, Any] | None:
+    filterString = request.args.get('filters')
+    if request.form.get('filters') is not None:
+        filterString = request.form.get('filters')
+    if filterString is not None and len(filterString) > 0:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+        return filters
+    return None
+
+
+@core_helper
 def check_ckan_version(min_version: Optional[str] = None,
                        max_version: Optional[str] = None):
     """Return ``True`` if the CKAN version is greater than or equal to
