@@ -1900,7 +1900,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_deleted = asbool(data_dict.pop('include_deleted', False))
-        
+
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
 
@@ -2435,15 +2435,17 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
     '''
     extensions = config.get_value('ckan.plugins')
 
-    return {
+    site_info = {
         'site_title': config.get_value('ckan.site_title'),
         'site_description': config.get_value('ckan.site_description'),
         'site_url': config.get_value('ckan.site_url'),
-        'ckan_version': ckan.__version__,
         'error_emails_to': config.get_value('email_to'),
         'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
+    if not asbool(config.get('ckan.hide_version')):
+        site_info['ckan_version'] = ckan.__version__
+    return site_info
 
 
 def vocabulary_list(
