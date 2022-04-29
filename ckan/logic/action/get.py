@@ -2443,7 +2443,7 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
         'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
-    if not asbool(config.get('ckan.hide_version')):
+    if not config.get_value('ckan.hide_version'):
         site_info['ckan_version'] = ckan.__version__
     return site_info
 

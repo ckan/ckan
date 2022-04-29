@@ -2917,7 +2917,7 @@ class TestStatusShow(object):
         assert type(status["extensions"]) == list
         assert status["extensions"] == ["stats"]
 
-    @pytest.mark.ckan_config('ckan.hide_version', 'True')
+    @pytest.mark.ckan_config('ckan.hide_version', True)
     def test_status_show_hiding_version(self):
 
         status = helpers.call_action("status_show")

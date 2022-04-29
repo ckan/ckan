@@ -13,7 +13,7 @@ from typing import Any, Iterable, Optional, Tuple, Union, IO, cast
 from email.message import EmailMessage
 from email import utils
 
-from ckan.common import _, asbool, config
+from ckan.common import _, config
 
 
 import ckan
@@ -67,7 +67,7 @@ def _mail_recipient(
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
     msg['Date'] = utils.formatdate(time())
-    if not asbool(config.get('ckan.hide_version')):
+    if not config.get_value('ckan.hide_version'):
         msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     if reply_to and reply_to != '':
         msg['Reply-to'] = reply_to

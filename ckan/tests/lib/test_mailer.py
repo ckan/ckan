@@ -34,7 +34,6 @@ class MailerBase(object):
 class TestMailer(MailerBase):
     def test_mail_recipient(self, mail_server):
         user = factories.User()
-        config['ckan.hide_version'] = "False"
 
         msgs = mail_server.get_smtp_messages()
         assert msgs == []
@@ -64,9 +63,9 @@ class TestMailer(MailerBase):
         )
         assert expected_body in msg[3]
 
+    @pytest.mark.ckan_config('ckan.hide_version', True)
     def test_mail_recipient_hiding_mailer(self, mail_server):
         user = factories.User()
-        config['ckan.hide_version'] = "True"
 
         msgs = mail_server.get_smtp_messages()
         assert msgs == []

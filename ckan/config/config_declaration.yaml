@@ -433,7 +433,7 @@ groups:
       - key: ckan.hide_version
         default: False
         example: True
-        type: string
+        type: bool
         description: If set to True, CKAN will not publicly expose its version number.
 
   - annotation: Authorization Settings
