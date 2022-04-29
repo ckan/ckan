@@ -228,13 +228,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = cast(
-        Context,
-        {u'model': model,
+    context = cast(Context, {
+        u'model': model,
         u'session': model.Session,
         u'user': current_user.name,
         u'api_version': ver,
-        u'auth_user_obj': current_user})
+        u'auth_user_obj': current_user
+    })
     model.Session()._context = context
 
     return_dict: dict[str, Any] = {

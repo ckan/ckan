@@ -349,12 +349,13 @@ class CreateView(MethodView):
 
 class EditView(MethodView):
     def _prepare(self, id: str):
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': current_user.name,
+            u'user': user,
             u'auth_user_obj': current_user
         })
         try:
@@ -362,7 +363,7 @@ class EditView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (current_user.name, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         return context
 
@@ -631,10 +632,11 @@ def view(package_type: str,
 class EditResourceViewView(MethodView):
     def _prepare(
             self, id: str, resource_id: str) -> tuple[Context, dict[str, Any]]:
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,
+            u'user': user,
             u'for_view': True,
             u'auth_user_obj': current_user
         })
@@ -645,7 +647,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (current_user.name, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
 
         # get resource and package data

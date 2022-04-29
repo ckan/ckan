@@ -4,7 +4,6 @@ import pytest
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
-import ckan.tests.helpers as helpers
 from ckan.tests import factories
 
 

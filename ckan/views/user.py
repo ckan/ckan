@@ -37,7 +37,7 @@ user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 def set_repoze_user(user_id: str, resp: Response) -> None:
     """
-    This function exists only to maintain backward compatibility 
+    This function exists only to maintain backward compatibility
     to extensions like saml2auth.
     """
     if current_user.is_anonymous:
@@ -296,7 +296,7 @@ class EditView(MethodView):
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
-        email_changed = data_dict[u'email'] != current_user.email  # type: ignore
+        email_changed = data_dict[u'email'] != current_user.email # type:ignore
 
         # common users can edit their own profiles without providing
         # password, but if they want to change

@@ -902,7 +902,7 @@ class TestPackageDelete(object):
         url = url_for("dataset.delete", id=dataset["name"])
         user_env = {"Authorization": user["token"]}
         app.post(url, extra_environ=user_env)
-        sysadmin_env = {"Authorization": sysadmin["token"]} 
+        sysadmin_env = {"Authorization": sysadmin["token"]}
         app.post(url, extra_environ=sysadmin_env)
 
         assert model.Package.get(dataset["name"]).state == u"deleted"
@@ -943,7 +943,7 @@ class TestResourceNew(object):
 
     def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
         self, app, user
-    ):  
+    ):
         env = {"Authorization": user["token"]}
         response = app.get(
             url_for("dataset.resources", id="does-not-exist"),

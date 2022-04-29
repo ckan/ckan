@@ -1193,7 +1193,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
     context = cast(Context, {
-        'model': model, 
+        'model': model,
         'user': current_user.name})
     if not data_dict:
         data_dict = {}
@@ -2791,7 +2791,7 @@ def get_collaborators(package_id: str) -> list[tuple[str, str]]:
     Returns a list of tuples with the user id and the capacity
     '''
     context: Context = {
-        'ignore_auth': True, 
+        'ignore_auth': True,
         'user': current_user.name}
     data_dict = {'id': package_id}
     _collaborators = logic.get_action('package_collaborator_list')(

@@ -100,14 +100,14 @@ def identify_user() -> Optional[Response]:
                 if g.user:
                     break
             except AttributeError:
-                continue       
-    # sets the g.user/g.userobj for extensions            
+                continue
+    # sets the g.user/g.userobj for extensions       
     g.user = current_user.name
     g.userobj = '' if current_user.is_anonymous else current_user
 
     # logout, if a user that was still logged in is deleted.
     if not current_user.is_anonymous:
-        if not current_user.is_active():  # type: ignore 
+        if not current_user.is_active():  # type: ignore
             logout_user()
 
     # If we have a user but not the userobj let's get the userobj. This means

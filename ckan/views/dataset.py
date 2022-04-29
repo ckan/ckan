@@ -806,13 +806,13 @@ class EditView(MethodView):
 
         pkg = context.get(u"package")
         resources_json = h.json.dumps(data.get(u'resources', []))
-
+        user = current_user.name
         try:
             check_access(u'package_update', context)
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (current_user.name, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
