@@ -2915,7 +2915,7 @@ class TestStatusShow(object):
         assert status["locale_default"] == "en"
 
         assert type(status["extensions"]) == list
-        assert status["extensions"] == ["stats"]
+        assert status["extensions"] == []
 
     @pytest.mark.ckan_config('ckan.hide_version', True)
     def test_status_show_hiding_version(self):
@@ -2929,7 +2929,7 @@ class TestStatusShow(object):
         assert status["locale_default"] == "en"
 
         assert type(status["extensions"]) == list
-        assert status["extensions"] == ["stats"]
+        assert status["extensions"] == []
 
 
 class TestJobList(helpers.FunctionalRQTestBase):
