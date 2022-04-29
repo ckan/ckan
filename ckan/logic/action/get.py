@@ -2620,7 +2620,7 @@ def package_activity_count(
     if activity_types is not None and exclude_activity_types is not None:
         raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
 
-    _check_access('package_activity_list', context, data_dict)
+    _check_access('package_activity_count', context, data_dict)
 
     model = context['model']
 

@@ -305,6 +305,11 @@ def package_activity_list(context: Context, data_dict: DataDict) -> AuthResult:
     return activity_list(context, data_dict)
 
 
+def package_activity_count(context: Context, data_dict: DataDict) -> AuthResult:
+    """ Count package activities auth to users able to list them. """
+    return package_activity_list(context, data_dict)
+
+
 def group_activity_list(context: Context, data_dict: DataDict) -> AuthResult:
     data_dict['object_type'] = 'group'
     return activity_list(context, data_dict)
