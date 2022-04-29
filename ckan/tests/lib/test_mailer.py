@@ -269,6 +269,7 @@ class TestMailer(MailerBase):
             "subject": "Meeting",
             "body": "The meeting is cancelled.",
             "headers": {"header1": "value1"},
+            "headers": {"Reply-to": "norply@ckan.org"},
         }
         mailer.mail_recipient(**test_email)
 
@@ -279,6 +280,30 @@ class TestMailer(MailerBase):
         expected_from_header = "Reply-to: {}".format(
             config.get_value("smtp.reply_to")
         )
+
+        assert expected_from_header in msg[3]
+
+    @pytest.mark.ckan_config("smtp.reply_to", "norply@ckan.org")
+    def test_reply_to_ext_headers_overwrite(self, mail_server):
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": "Bob@bob.com",
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.",
+            "headers": {"Reply-to": "norply@ckanext.org"},
+        }
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        msg = msgs[0]
+
+        expected_from_header = 'Reply-to: norply@ckanext.org'
 
         assert expected_from_header in msg[3]
 
