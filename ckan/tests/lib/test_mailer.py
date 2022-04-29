@@ -269,7 +269,6 @@ class TestMailer(MailerBase):
             "subject": "Meeting",
             "body": "The meeting is cancelled.",
             "headers": {"header1": "value1"},
-            "headers": {"Reply-to": "norply@ckan.org"},
         }
         mailer.mail_recipient(**test_email)
 
