@@ -126,17 +126,31 @@ meta.mapper(ActivityDetail, activity_detail_table, properties={
     })
 
 
-def _activities_limit(q: QActivity, limit: int,
-                      offset: Optional[int]=None) -> QActivity:
+def _activities_limit(
+        q: QActivity,
+        limit: int,
+        offset: Optional[int]=None,
+        after: Optional[datetime.datetime]=None,
+        before: Optional[datetime.datetime]=None,
+    ) -> QActivity:
     '''
     Return an SQLAlchemy query for all activities at an offset with a limit.
     '''
     import ckan.model as model
-    # type_ignore_reason: incomplete SQLAlchemy types
-    q = q.order_by(desc(model.Activity.timestamp))  # type: ignore
+    q = q.order_by(desc(model.Activity.timestamp))
     if offset:
         q = q.offset(offset)
+    if after:
+        q = q.filter(model.Activity.timestamp > after)
+    elif before:
+        q = q.filter(model.Activity.timestamp < before)
+
     if limit:
+        if after:
+            total = q.count()
+            offset = total - limit
+            if offset > 0:
+                q = q.offset(offset)
         q = q.limit(limit)
     return q
 
@@ -158,7 +172,27 @@ def _activities_at_offset(q: QActivity,
     '''
     Return a list of all activities at an offset with a limit.
     '''
-    return _activities_limit(q, limit, offset).all()
+    return _activities_limit(q, limit, offset=offset).all()
+
+
+def _activities_after(q: QActivity,
+                      limit: int,
+                      after: datetime.datetime
+    ) -> list[Activity]:
+    '''
+    Return a list of all activities at an offset with a limit.
+    '''
+    return _activities_limit(q, limit, after=after).all()
+
+
+def _activities_before(q: QActivity,
+                      limit: int,
+                      before: datetime.datetime
+    ) -> list[Activity]:
+    '''
+    Return a list of all activities at an offset with a limit.
+    '''
+    return _activities_limit(q, limit, before=before).all()
 
 
 def _activities_from_user_query(user_id: str) -> QActivity:
@@ -235,7 +269,10 @@ def _package_activity_main_query(
 
 
 def package_activity_list(
-    package_id: str, limit: int, offset: int,
+    package_id: str,
+    limit: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None,
     exclude_activity_types: Optional[list[str]] = None) -> list[Activity]:
@@ -255,7 +292,12 @@ def package_activity_list(
         activity_types,
         exclude_activity_types
     )
-    return _activities_at_offset(q, limit, offset)
+    if after:
+        return _activities_after(q, limit, after)
+    elif before:
+        return _activities_before(q, limit, before)
+    else:
+        return _activities_limit(q, limit).all()
 
 
 def package_activity_count(

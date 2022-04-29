@@ -656,6 +656,8 @@ def default_activity_list_schema(
         ignore_missing, ignore_not_sysadmin, boolean_validator]
     schema['activity_types'] = [ignore_missing, list_of_strings]
     schema['exclude_activity_types'] = [ignore_missing, list_of_strings]
+    schema['before'] = [ignore_missing]
+    schema['after'] = [ignore_missing]
     return schema
 
 

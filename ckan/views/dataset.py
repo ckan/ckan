@@ -1103,12 +1103,17 @@ class GroupView(MethodView):
 def activity(
     package_type: str,
     id: str,
-    page: Union[int, str] = 0,
-    activity_type: Optional[str] = None,
 ) -> Union[Response, str]:  # noqa
 
     """Render this package's public activity stream page.
     """
+    after = h.get_request_param(u'after')
+    before = h.get_request_param(u'before')
+    activity_type = h.get_request_param(u'activity_type')
+
+    if after and before:
+        raise ValidationError({'after': ['Cannot be used together with `before']})
+
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
@@ -1120,15 +1125,21 @@ def activity(
     base_limit = int(config.get(u'ckan.activity_list_limit', 30))
     max_limit = int(config.get(u'ckan.activity_list_limit_max', 100))
     limit = min(base_limit, max_limit)
-    page = int(page)
-    offset = page * limit
     activity_types = [activity_type] if activity_type else None
+    if after is not None:
+        after = datetime.fromtimestamp(float(after))
+    if before is not None:
+        before = datetime.fromtimestamp(float(before))
+    is_page_1 = after is None and before is None
+
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         activity_dict = {
             u'id': pkg_dict[u'id'],
-            u'offset': offset,
-            u'limit': limit,
+            u'after': after,
+            u'before': before,
+            # ask for one more just to know if "has_more"
+            u'limit': limit + 1,
             u'activity_types': activity_types
         }
         pkg = context[u'package']
@@ -1147,10 +1158,35 @@ def activity(
         pkg_dict[u'id'],
         activity_types=activity_types
     )
-    has_more = total_activities > offset + limit
-    total_pages = int(math.ceil(total_activities / limit))
+    prev_page = None
+    next_page = None
 
-    activity_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys()
+    has_more = len(package_activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            package_activity_stream.pop(0)
+        else:
+            package_activity_stream.pop()
+
+    if after or (has_more and (before or is_page_1)):
+        before_time = datetime.fromisoformat(package_activity_stream[-1][u'timestamp'])
+        next_page = h.url_for(
+            'dataset.activity',
+            id=id,
+            activity_type=activity_type,
+            before=before_time.timestamp(),
+        )
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(package_activity_stream[0][u'timestamp'])
+        prev_page = h.url_for(
+            'dataset.activity',
+            id=id,
+            activity_type=activity_type,
+            after=after_time.timestamp(),
+        )
+
+    total_pages = int(math.ceil(total_activities / limit))
 
     return base.render(
         u'package/activity.html', {
@@ -1160,11 +1196,12 @@ def activity(
             u'activity_stream': package_activity_stream,
             u'id': id,  # i.e. package's current name
             u'limit': limit,
-            u'page': page,
             u'has_more': has_more,
             u'total_pages': total_pages,
             u'activity_type': activity_type,
-            u'activity_types': activity_types,
+            u'activity_types': VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+            u'prev_page': prev_page,
+            u'next_page': next_page,
         }
     )
 
@@ -1442,11 +1479,6 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
         u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
     )
     blueprint.add_url_rule(u'/activity/<id>', view_func=activity)
-    blueprint.add_url_rule(u'/activity/<id>/<page>', view_func=activity)
-    blueprint.add_url_rule(
-        u'/activity/<id>/<page>/<activity_type>',
-        view_func=activity
-    )
     blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
     blueprint.add_url_rule(u'/<id>/history', view_func=history)
 
