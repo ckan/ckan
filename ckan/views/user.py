@@ -40,6 +40,7 @@ def set_repoze_user(user_id: str, resp: Response) -> None:
     This function exists only to maintain backward compatibility 
     to extensions like saml2auth.
     """
+    breakpoint()
     if current_user.is_anonymous:  # type: ignore
         user = model.User.get(user_id)
         login_user(user)
@@ -477,6 +478,12 @@ class RegisterView(MethodView):
         return base.render(u'user/new.html', extra_vars)
 
 
+def next_page_or_default(target: str) -> Response:
+    if target and h.url_is_local(target):
+        return h.redirect_to(target)
+    return me()
+
+
 @user.route("/login.html", methods=["GET", "POST"])
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
@@ -504,14 +511,15 @@ def login() -> Union[Response, str]:
 
         auth = authenticator.ckan_authenticator(identity)
         if auth:
+            next = request.args.get('next', '')
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
                 login_user(user, remember=True, duration=duration_time)
-                return me()
+                return next_page_or_default(next)
             else:
                 login_user(user)
-                return me()
+                return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")
             h.flash_error(err)
