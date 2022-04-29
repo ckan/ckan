@@ -621,3 +621,11 @@ class TestFollowee:
         sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"], "model": model}
         assert helpers.call_auth(func, context=context)
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestStatusShow:
+    
+    def test_status_show_is_visible_to_anonymous(self):
+        context = {"user": "", "model": model}
+        assert helpers.call_auth("status_show", context)
