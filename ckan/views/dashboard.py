@@ -10,9 +10,8 @@ import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
-from ckan.common import _, request
+from ckan.common import _, request, current_user
 from ckan.views.user import _extra_template_variables
-from flask_login import current_user
 from ckan.types import Context
 
 log = logging.getLogger(__name__)
@@ -22,7 +21,7 @@ dashboard = Blueprint(u'dashboard', __name__, url_prefix=u'/dashboard')
 
 @dashboard.before_request
 def before_request() -> None:
-    if current_user.is_anonymous:  # type: ignore
+    if current_user.is_anonymous:
         h.flash_error(_(u'Not authorized to see this page'))
 
         # flask types do not mention that it's possible to return a response
@@ -32,7 +31,7 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             "model": model,
-            "user": current_user.name,  # type: ignore
+            "user": current_user.name,
             "auth_user_obj": current_user
         })
         logic.check_access(u'site_read', context)
@@ -59,7 +58,7 @@ def _get_dashboard_context(
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'for_view': True
         })
@@ -106,7 +105,7 @@ def index(offset: int = 0) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -139,7 +138,7 @@ def index(offset: int = 0) -> str:
 def datasets() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {
@@ -152,7 +151,7 @@ def datasets() -> str:
 def organizations() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
     data_dict = {u'user_obj': current_user}
@@ -163,7 +162,7 @@ def organizations() -> str:
 def groups() -> str:
     context = cast(Context, {
         u'for_view': True,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
     data_dict = {u'user_obj': current_user}

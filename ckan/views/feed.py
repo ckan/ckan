@@ -9,11 +9,10 @@ from typing import Optional, cast, Any
 
 from urllib.parse import urlparse
 from flask import Blueprint, make_response
-from flask_login import current_user
 
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
-from ckan.common import _, config, request
+from ckan.common import _, config, request, current_user
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.model as model
@@ -36,7 +35,7 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
     if u'sort' not in data_dict or not data_dict['sort']:
@@ -200,7 +199,7 @@ def group(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
@@ -217,7 +216,7 @@ def organization(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'organization_show')(context, {

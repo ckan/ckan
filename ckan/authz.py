@@ -10,9 +10,7 @@ from logging import getLogger
 from typing import Any, Callable, Collection, KeysView, Optional, Union
 from types import ModuleType
 
-from flask_login import current_user
-
-from ckan.common import config
+from ckan.common import config, current_user
 
 import ckan.plugins as p
 import ckan.model as model
@@ -167,7 +165,7 @@ def _get_user(username: Optional[str]) -> Optional['model.User']:
         return None
     # See if we can get the user without touching the DB
     try:
-        if current_user.name == username:  # type: ignore
+        if current_user.name == username:
             return current_user  # type: ignore
     except AttributeError:
         # current_user is anonymous

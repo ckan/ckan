@@ -8,7 +8,6 @@ from typing import Any, cast, Optional, Union
 
 import flask
 from flask.views import MethodView
-from flask_login import current_user
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
@@ -19,7 +18,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, g, request
+from ckan.common import _, g, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
@@ -58,7 +57,7 @@ def read(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
     })
@@ -170,7 +169,7 @@ def download(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
 
@@ -211,7 +210,7 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
 
@@ -307,7 +306,7 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
         try:
@@ -355,7 +354,7 @@ class EditView(MethodView):
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
         try:
@@ -363,7 +362,7 @@ class EditView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
+                _(u'User %r not authorized to edit %s') % (current_user.name, id)
             )
         return context
 
@@ -457,7 +456,7 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'auth_user_obj': current_user
         })
         try:
@@ -531,7 +530,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
     })
@@ -542,7 +541,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)
         )
     # check if package exists
     try:
@@ -596,7 +595,7 @@ def view(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'auth_user_obj': current_user
     })
 
@@ -635,7 +634,7 @@ class EditResourceViewView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'for_view': True,
             u'auth_user_obj': current_user
         })
@@ -646,7 +645,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (current_user.name, id)  # type: ignore
+                _(u'User %r not authorized to edit %s') % (current_user.name, id)
             )
 
         # get resource and package data

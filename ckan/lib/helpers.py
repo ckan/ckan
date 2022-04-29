@@ -27,13 +27,12 @@ from typing import (
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config
+from ckan.common import asbool, config, current_user
 from flask import flash
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
-from flask_login import current_user
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
 
@@ -1195,7 +1194,7 @@ def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
     context = cast(Context, {
         'model': model, 
-        'user': current_user.name})  # type: ignore
+        'user': current_user.name})
     if not data_dict:
         data_dict = {}
     try:
@@ -1771,7 +1770,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    user = current_user.name  # type: ignore
+    user = current_user.name
     if user:
         context = cast(
             Context,
@@ -1805,7 +1804,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
         Context, {
             'model': model,
             'session': model.Session,
-            'user': current_user.name  # type: ignore
+            'user': current_user.name
         }
     )
     return logic.get_action(action)(context, {'id': obj_id})
@@ -1965,7 +1964,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': current_user.name}  # type: ignore
+    context: Context = {'user': current_user.name}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -1982,7 +1981,7 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if current_user.is_anonymous:  # type: ignore
+    if current_user.is_anonymous:
         return False
     # sysadmins can do anything
     if current_user.sysadmin:  # type: ignore
@@ -2019,7 +2018,7 @@ def dashboard_activity_stream(user_id: str,
         Context, {
             'model': model,
             'session': model.Session,
-            'user': current_user.name  # type: ignore
+            'user': current_user.name
         }
     )
     if filter_type:
@@ -2047,7 +2046,7 @@ def recently_changed_packages_activity_stream(
         Context, {
             'model': model,
             'session': model.Session,
-            'user': current_user.name  # type: ignore
+            'user': current_user.name
         }
     )
     return logic.get_action('recently_changed_packages_activity_list')(
@@ -2426,7 +2425,7 @@ def new_activities() -> Optional[int]:
     details.
 
     '''
-    if current_user.is_anonymous:  # type: ignore
+    if current_user.is_anonymous:
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
@@ -2793,7 +2792,7 @@ def get_collaborators(package_id: str) -> list[tuple[str, str]]:
     '''
     context: Context = {
         'ignore_auth': True, 
-        'user': current_user.name}  # type: ignore
+        'user': current_user.name}
     data_dict = {'id': package_id}
     _collaborators = logic.get_action('package_collaborator_list')(
         context, data_dict)
@@ -2829,7 +2828,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(current_user.name)  # type: ignore
+    user = model.User.get(current_user.name)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')

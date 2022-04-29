@@ -19,12 +19,11 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import g, config, request, _
+from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
 
 from flask import Blueprint
-from flask_login import current_user
 from flask.views import MethodView
 from flask.wrappers import Response
 from ckan.types import Action, Context, DataDict, Schema
@@ -136,7 +135,7 @@ def index(group_type: str, is_organization: bool) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'for_view': True,
         u'with_private': False
     })
@@ -161,7 +160,7 @@ def index(group_type: str, is_organization: bool) -> str:
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if not current_user.is_anonymous:  # type: ignore
+    if not current_user.is_anonymous:
         context['user_id'] = current_user.id  # type: ignore
         context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
@@ -219,7 +218,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
@@ -395,7 +394,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'for_view': True
     })
     try:
@@ -416,7 +415,7 @@ def read(group_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True
     })
@@ -477,7 +476,7 @@ def activity(id: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': current_user.name,  # type: ignore
+        u'user': current_user.name,
         u'for_view': True
     })
     try:
@@ -524,7 +523,7 @@ def changes(id: str, group_type: str, is_organization: bool) -> str:
     activity_id = id
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': current_user.name, u'auth_user_obj': current_user  # type: ignore
+        u'user': current_user.name, u'auth_user_obj': current_user
     })
     try:
         activity_diff = get_action(u'activity_diff')(
@@ -573,7 +572,7 @@ def changes_multiple(is_organization: bool, group_type: str) -> str:
 
     context = cast(Context, {
         u'model': model, u'session': model.Session,
-        u'user': current_user.name, u'auth_user_obj': current_user  # type: ignore
+        u'user': current_user.name, u'auth_user_obj': current_user
     })
 
     # check to ensure that the old activity is actually older than
@@ -652,7 +651,7 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
     group_dict = _get_group_dict(id, group_type)
@@ -679,7 +678,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
 
@@ -697,7 +696,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     except NotAuthorized:
         base.abort(403,
                    _(u'User %r not authorized to edit members of %s') %
-                   (current_user.name, id))  # type: ignore
+                   (current_user.name, id))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -724,7 +723,7 @@ def member_delete(id: str, group_type: str,
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
     try:
@@ -768,7 +767,7 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
     data_dict = {u'id': id}
@@ -794,7 +793,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
     data_dict = {u'id': id}
@@ -823,7 +822,7 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
         Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         }
     )
     group_dict = _get_group_dict(id, group_type)
@@ -880,7 +879,7 @@ class BulkProcessView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'schema': _db_to_form_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
@@ -931,7 +930,7 @@ class BulkProcessView(MethodView):
         set_org(is_organization)
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
-        user = current_user.name  # type: ignore
+        user = current_user.name
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
@@ -1014,7 +1013,7 @@ class CreateGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'save': u'save' in request.args,
             u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
@@ -1039,7 +1038,7 @@ class CreateGroupView(MethodView):
             ))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-        user = current_user.name  # type: ignore
+        user = current_user.name
         data_dict['type'] = group_type or u'group'
         data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
@@ -1107,7 +1106,7 @@ class EditGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
             u'save': u'save' in request.args,
             u'for_edit': True,
             u'parent': request.args.get(u'parent', None),
@@ -1206,7 +1205,7 @@ class DeleteGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name,  # type: ignore
+            u'user': current_user.name,
         })
         try:
             assert _check_access(u'group_delete', context, {u'id': id})
@@ -1264,7 +1263,7 @@ class MembersGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': current_user.name  # type: ignore
+            u'user': current_user.name
         })
         try:
             assert _check_access(u'group_member_create', context, {u'id': id})
