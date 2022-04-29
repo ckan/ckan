@@ -366,6 +366,7 @@ class AnonymousUser(AnonymousUserMixin):
     anonymous user, won't break our app with `AttributeError`.
     '''
     name: str = ""
+    email: str = ""
 
 
 meta.mapper(

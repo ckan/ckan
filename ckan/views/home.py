@@ -79,8 +79,7 @@ def index() -> str:
     except search.SearchError:
         g.package_count = 0
 
-    user_email = current_user.email  # type: ignore
-    if not current_user.is_anonymous and not user_email:
+    if not current_user.is_anonymous and not current_user.email:
         url = h.url_for('user.edit')
         msg = _(u'Please <a href="%s">update your profile</a>'
                 u' and add your email address. ') % url + \
