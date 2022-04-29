@@ -40,7 +40,6 @@ def set_repoze_user(user_id: str, resp: Response) -> None:
     This function exists only to maintain backward compatibility 
     to extensions like saml2auth.
     """
-    breakpoint()
     if current_user.is_anonymous:  # type: ignore
         user = model.User.get(user_id)
         login_user(user)
