@@ -2433,6 +2433,7 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
     :rtype: dictionary
 
     '''
+    _check_access('status_show', context, data_dict)
     extensions = config.get_value('ckan.plugins')
 
     return {
