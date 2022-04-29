@@ -296,7 +296,8 @@ class EditView(MethodView):
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
-        email_changed = data_dict[u'email'] != current_user.email # type:ignore
+        user_email = current_user.email  # type: ignore
+        email_changed = data_dict[u'email'] != user_email
 
         # common users can edit their own profiles without providing
         # password, but if they want to change

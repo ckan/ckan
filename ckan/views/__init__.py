@@ -101,7 +101,7 @@ def identify_user() -> Optional[Response]:
                     break
             except AttributeError:
                 continue
-    # sets the g.user/g.userobj for extensions       
+    # sets the g.user/g.userobj for extensions
     g.user = current_user.name
     g.userobj = '' if current_user.is_anonymous else current_user
 
