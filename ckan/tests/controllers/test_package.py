@@ -857,13 +857,8 @@ class TestPackageDelete(object):
             users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
-
-        res = app.post(
-            url_for(
-                "dataset.delete",
-                id=dataset["name"]),
-                status=302,
-                follow_redirects=False)
+        url = url_for("dataset.delete", id=dataset["name"])
+        res = app.post(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
         assert "user/login.html?next=%2Fdataset%2Fdelete%2F" in res
 

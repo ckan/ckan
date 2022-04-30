@@ -209,13 +209,8 @@ class TestUser(object):
     def test_user_edit_unknown_user(self, app):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
-
-        res = app.get(
-            url_for(
-                "user.edit",
-                id=factories.User.stub().name),
-                status=302,
-                follow_redirects=False)
+        url = url_for("user.edit", id=factories.User.stub().name)
+        res = app.get(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
         assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
 
