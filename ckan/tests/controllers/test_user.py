@@ -215,8 +215,7 @@ class TestUser(object):
                 "user.edit",
                 id=factories.User.stub().name),
                 status=302,
-                follow_redirects=False
-        )
+                follow_redirects=False)
         # Anonymous users are redirected to login page
         assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
 

@@ -2,7 +2,6 @@
 
 import unittest.mock as mock
 from bs4 import BeautifulSoup
-from flask import redirect
 import pytest
 from ckan.lib.helpers import url_for
 import ckan.logic as logic
@@ -552,6 +551,7 @@ class TestGroupMembership(object):
             )
             # Anonymous users are redirected to login page
             assert "user/login.html?next=%2Fgroup%2Fmember_new%2F" in res
+
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupFollow:

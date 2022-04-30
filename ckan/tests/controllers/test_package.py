@@ -18,7 +18,6 @@ from ckan.logic.validators import object_id_validators, package_id_exists
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.views.dataset import follow
 
 
 @pytest.fixture
@@ -864,8 +863,7 @@ class TestPackageDelete(object):
                 "dataset.delete",
                 id=dataset["name"]),
                 status=302,
-                follow_redirects=False
-        )
+                follow_redirects=False)
         # Anonymous users are redirected to login page
         assert "user/login.html?next=%2Fdataset%2Fdelete%2F" in res
 
