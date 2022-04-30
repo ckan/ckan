@@ -29,7 +29,9 @@ def sysadmin():
 class TestOrganizationNew(object):
 
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fgroup%2Fnew" in res
 
     def test_name_required(self, app, user):
         url = url_for("organization.new")
@@ -215,12 +217,15 @@ class TestOrganizationDelete(object):
 
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Organization()
-        app.get(
+        res = app.get(
             url=url_for(
                 "organization.delete", id=group["id"]
             ),
-            status=403,
+            status=302,
+            follow_redirects=False
         )
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Forganization%2Fdelete%2F" in res
 
         organization = helpers.call_action(
             "organization_show", id=group["id"]
@@ -560,12 +565,15 @@ class TestOrganizationMembership(object):
         organization = factories.Organization()
 
         with app.flask_app.test_request_context():
-            app.get(
+            res = app.get(
                 url_for("organization.member_new", id=organization["id"]),
-                status=403,
+                status=302,
+                follow_redirects=False
             )
+            # Anonymous users are redirected to login page
+            assert "user/login.html?next=%2Forganization%2Fmember_new%2F" in res
 
-            app.post(
+            res = app.post(
                 url_for("organization.member_new", id=organization["id"]),
                 data={
                     "id": "test",
@@ -573,8 +581,11 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
-                status=403,
+                status=302,
+                follow_redirects=False
             )
+            # Anonymous users are redirected to login page
+            assert "user/login.html?next=%2Forganization%2Fmember_new%2F" in res
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")

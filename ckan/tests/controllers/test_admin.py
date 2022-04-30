@@ -45,7 +45,9 @@ def test_index(app, user_env, sysadmin_env):
 
     url = url_for("admin.index")
     # Anonymous User
-    response = app.get(url, status=403)
+    response = app.get(url, status=302, follow_redirects=False)
+    # Anonymous users are redirected to login page
+    assert "user/login.html?next=%2Fckan-admin%2F" in response
 
     # Normal User
     response = app.get(url, extra_environ=user_env, status=403)
@@ -233,8 +235,10 @@ class TestTrashView(object):
     def test_trash_view_anon_user(self, app):
         """An anon user shouldn't be able to access trash view."""
         trash_url = url_for("admin.trash")
-        trash_response = app.get(trash_url)
-        assert trash_response.status_code == 403
+        trash_response = app.get(trash_url, follow_redirects=False)
+
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fckan-admin%2Ftrash" in trash_response
 
     def test_trash_view_normal_user(self, app, user_env):
         """A normal logged in user shouldn't be able to access trash view."""

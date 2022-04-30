@@ -2868,3 +2868,86 @@ def check_ckan_version(min_version: Optional[str] = None,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
+
+
+def make_next_param(login_url: str, current_url: str) -> str:
+    '''
+    Note: THIS CODE IS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
+
+    Reduces the scheme and host from a given URL so it can be passed to
+    the given `login` URL more efficiently.
+
+    :param login_url: The login URL being redirected to.
+    :type login_url: str
+    :param current_url: The URL to reduce.
+    :type current_url: str
+    '''
+    l_url = urlparse(login_url)
+    c_url = urlparse(current_url)
+
+    if (not l_url.scheme or l_url.scheme == c_url.scheme) and \
+            (not l_url.netloc or l_url.netloc == c_url.netloc):
+        return urlunparse(('', '', c_url.path, c_url.params, c_url.query, ''))
+    return current_url
+
+
+def make_login_url(
+    login_view: str, next_url: Optional[str] = None, next_field: str = "next"
+) -> str:
+    """
+    Note: THIS CODE IS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
+
+    Creates a URL for redirecting to a login page. If only `login_view` is
+    provided, this will just return the URL for it. If `next_url` is provided,
+    however, this will append a ``next=URL`` parameter to the query string
+    so that the login view can redirect back to that URL.
+    """
+    base = login_view
+    if next_url is None:
+        return base
+
+    parsed_result = urlparse(base)
+    md = {}
+    md[next_field] = make_next_param(base, next_url)
+    netloc = parsed_result.netloc
+    parsed_result = parsed_result._replace(netloc=netloc, query=urlencode(md))
+    return urlunparse(parsed_result)
+
+
+def _ckan_login_required(  # type: ignore
+    func: Any,
+) -> Callable[..., Union[Response, tuple[str, Optional[int]]]]:
+    """
+    This `CKAN` decorator exists only to decorate
+    the `error_handler`.
+
+    It will intercept ONLY if the `current_user.is_anonymous` and the
+    `Exception` code is `401(Unauthorized)/403(Forbidden)`
+    and will force the users to log in before we check for their access.
+
+    Note: DO NOT use this decorator elsewhere in the code.
+
+    :param func: The view function to decorate.
+    :type func: function
+    """
+    import werkzeug.exceptions as exc
+    from functools import wraps
+    from flask import flash
+
+    @wraps(func)
+    def decorated_view(*args: Exception, **kwargs: Any):
+        exception = args[0]
+        if isinstance(exception, exc.HTTPException):
+            if current_user.is_anonymous and (
+                type(exception) == exc.Unauthorized
+                or type(exception) == exc.Forbidden
+            ):
+                # make next_url
+                login_url = redirect_to("user.login").headers["location"]
+                redirect_url = make_login_url(login_url, next_url=request.url)
+
+                flash("Please log in to access this page.")
+                return redirect_to(redirect_url)
+        return func(*args, **kwargs)
+
+    return decorated_view

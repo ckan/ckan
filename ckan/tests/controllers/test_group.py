@@ -2,6 +2,7 @@
 
 import unittest.mock as mock
 from bs4 import BeautifulSoup
+from flask import redirect
 import pytest
 from ckan.lib.helpers import url_for
 import ckan.logic as logic
@@ -18,7 +19,10 @@ class TestGroupController(object):
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
-        app.get(url=bulk_process_url, status=403)
+        res = app.get(url=bulk_process_url, status=302, follow_redirects=False)
+        # Anonymous users are redirected to login page
+        redirect_url = "user/login.html?next=%2Forganization%2Fbulk_process%2Fdoes-not-exist"
+        assert redirect_url in res
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = sorted([factories.Organization() for _ in range(35)],
@@ -78,7 +82,9 @@ def user():
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fgroup%2Fnew" in res
 
     def test_name_required(self, app, user):
         env = {"Authorization": user["token"]}
@@ -139,7 +145,9 @@ class TestGroupControllerNew(object):
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fgroup%2Fnew" in res
 
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
@@ -298,10 +306,13 @@ class TestGroupDelete(object):
 
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Group()
-        app.get(
+        res = app.get(
             url=url_for("group.delete", id=group["id"]),
-            status=403,
+            status=302,
+            follow_redirects=False
         )
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fgroup%2Fdelete%2F" in res
 
         group = helpers.call_action(
             "group_show", id=group["id"]
@@ -496,44 +507,51 @@ class TestGroupMembership(object):
         assert len(user_roles.keys()) == 1
         assert user_roles["My Owner"] == "Admin"
 
-    def test_member_users_cannot_add_members(self, app, user):
-        env = {"Authorization": user["token"]}
+    @mock.patch("flask_login.utils._get_user")
+    def test_member_users_cannot_add_members(self, current_user, app):
+        user = factories.User(fullname="My Owner")
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         group = factories.Group(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        with app.flask_app.test_request_context():
-            app.get(url_for("group.member_new", extra_environ=env, id=group["id"]), status=403)
+        app.get(url_for("group.member_new", id=group["id"]), status=403)
 
-            app.post(
-                url_for("group.member_new", id=group["id"]),
-                data={
-                    "id": "test",
-                    "username": "test",
-                    "save": "save",
-                    "role": "test",
-                },
-                extra_environ=env,
-                status=403,
-            )
+        app.post(
+            url_for("group.member_new", id=group["id"]),
+            data={
+                "id": "test",
+                "username": "test",
+                "save": "save",
+                "role": "test",
+            },
+            status=403,
+        )
 
     def test_anonymous_users_cannot_add_members(self, app):
         group = factories.Group()
 
         with app.flask_app.test_request_context():
-            app.get(url_for("group.member_new", id=group["id"]), status=403)
+            url = url_for("group.member_new", id=group["id"])
+            res = app.get(url, status=302, follow_redirects=False)
+            # Anonymous users are redirected to login page
+            assert "user/login.html?next=%2Fgroup%2Fmember_new%2F" in res
 
-            app.post(
-                url_for("group.member_new", id=group["id"]),
+            res = app.post(
+                url,
                 data={
                     "id": "test",
                     "username": "test",
                     "save": "save",
                     "role": "test",
                 },
-                status=403,
+                status=302,
+                follow_redirects=False
             )
-
+            # Anonymous users are redirected to login page
+            assert "user/login.html?next=%2Fgroup%2Fmember_new%2F" in res
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupFollow:

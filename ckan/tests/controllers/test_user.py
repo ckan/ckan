@@ -210,9 +210,15 @@ class TestUser(object):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
 
-        app.get(
-            url_for("user.edit", id=factories.User.stub().name), status=403
+        res = app.get(
+            url_for(
+                "user.edit",
+                id=factories.User.stub().name),
+                status=302,
+                follow_redirects=False
         )
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
 
     def test_user_edit_not_logged_in(self, app):
         """Attempt to read edit user for an existing, not-logged in user
@@ -220,7 +226,10 @@ class TestUser(object):
 
         user = factories.User()
         username = user["name"]
-        app.get(url_for("user.edit", id=username), status=403)
+        url = url_for("user.edit", id=username)
+        res = app.get(url, status=302, follow_redirects=False)
+        # Anonymous users are redirected to login page
+        assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
 
     def test_edit_user(self, app, user):
         env = {"Authorization": user["token"]}
@@ -909,15 +918,15 @@ class TestUser(object):
     def test_user_read_me_without_id(self, app):
         app.get("/user/me", status=302, follow_redirects=False)
 
-    def test_perform_reset_user_password_link_key_incorrect(self, app):
-        user = factories.User()
+    def test_perform_reset_user_password_link_key_incorrect(self, app, user):
+        env = {"Authorization": user["token"]}
         url = url_for("user.perform_reset", id=user["id"], key="randomness")
-        app.get(url, status=403)
+        app.get(url, extra_environ=env, status=403)
 
-    def test_perform_reset_user_password_link_key_missing(self, app):
-        user = factories.User()
+    def test_perform_reset_user_password_link_key_missing(self, app, user):
+        env = {"Authorization": user["token"]}
         url = url_for("user.perform_reset", id=user["id"])
-        app.get(url, status=403)
+        app.get(url, extra_environ=env, status=403)
 
     def test_perform_reset_user_password_link_user_incorrect(self, app):
         factories.User()
@@ -946,7 +955,8 @@ class TestUser(object):
         userobj = model.User.get(userobj.id)
         assert userobj.is_active()
 
-    def test_perform_reset_doesnt_activate_deleted_user(self, app):
+    @mock.patch("flask_login.utils._get_user")
+    def test_perform_reset_doesnt_activate_deleted_user(self, current_user, app):
         password = "TestPassword1"
         params = {"password1": password, "password2": password}
         user = factories.User()
