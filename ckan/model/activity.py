@@ -137,7 +137,8 @@ def _activities_limit(
     Return an SQLAlchemy query for all activities at an offset with a limit.
     '''
     import ckan.model as model
-    q = q.order_by(desc(model.Activity.timestamp))
+    # type_ignore_reason: incomplete SQLAlchemy types
+    q = q.order_by(desc(model.Activity.timestamp))  # type: ignore
     if offset:
         q = q.offset(offset)
 

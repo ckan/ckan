@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-import math
 import inspect
 from collections import OrderedDict
 from functools import partial
@@ -22,7 +21,6 @@ import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
-import ckan.model.activity as activity_model
 import ckan.plugins as plugins
 import ckan.authz as authz
 from ckan.common import _, config, g, request
@@ -1112,7 +1110,9 @@ def activity(
     activity_type = h.get_request_param(u'activity_type')
 
     if after and before:
-        raise ValidationError({'after': ['Cannot be used together with `before']})
+        raise ValidationError(
+            {'after': ['Cannot be used together with `before']}
+        )
 
     context = cast(Context, {
         u'model': model,
@@ -1171,7 +1171,9 @@ def activity(
     # if "before" (or is_page_1), we only show next page if we know
     # we have more rows
     if after or (has_more and (before or is_page_1)):
-        before_time = datetime.fromisoformat(package_activity_stream[-1][u'timestamp'])
+        before_time = datetime.fromisoformat(
+            package_activity_stream[-1][u'timestamp']
+        )
         next_page = h.url_for(
             'dataset.activity',
             id=id,
@@ -1183,7 +1185,9 @@ def activity(
     # if "after", we only show previous page if we know
     # we have more rows
     if before or (has_more and after):
-        after_time = datetime.fromisoformat(package_activity_stream[0][u'timestamp'])
+        after_time = datetime.fromisoformat(
+            package_activity_stream[0][u'timestamp']
+        )
         prev_page = h.url_for(
             'dataset.activity',
             id=id,
