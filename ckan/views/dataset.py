@@ -1138,7 +1138,7 @@ def activity(
             u'id': pkg_dict[u'id'],
             u'after': after,
             u'before': before,
-            # ask for one more just to know if "has_more"
+            # ask for one more just to know if this query has more results
             u'limit': limit + 1,
             u'activity_types': activity_types
         }
@@ -1165,10 +1165,15 @@ def activity(
     # remove the extra item if exists
     if has_more:
         if after:
+            # drop the first element
             package_activity_stream.pop(0)
         else:
+            # drop the last element
             package_activity_stream.pop()
 
+    # if "after", we came from the next page. So it exists
+    # if "before" (or is_page_1), we only show next page if we know
+    # we have more rows
     if after or (has_more and (before or is_page_1)):
         before_time = datetime.fromisoformat(package_activity_stream[-1][u'timestamp'])
         next_page = h.url_for(
@@ -1177,6 +1182,10 @@ def activity(
             activity_type=activity_type,
             before=before_time.timestamp(),
         )
+
+    # if "before", we came from the previous page. So it exists
+    # if "after", we only show previous page if we know
+    # we have more rows
     if before or (has_more and after):
         after_time = datetime.fromisoformat(package_activity_stream[0][u'timestamp'])
         prev_page = h.url_for(

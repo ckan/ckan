@@ -140,15 +140,19 @@ def _activities_limit(
     q = q.order_by(desc(model.Activity.timestamp))
     if offset:
         q = q.offset(offset)
+
     if after:
         q = q.filter(model.Activity.timestamp > after)
     elif before:
         q = q.filter(model.Activity.timestamp < before)
 
     if limit:
+        # if we want activities after some timestamp, we need to limit
+        # last N rows from this query
         if after:
             total = q.count()
             offset = total - limit
+            # going back until the first page, we don't need to offset
             if offset > 0:
                 q = q.offset(offset)
         q = q.limit(limit)
@@ -180,7 +184,7 @@ def _activities_after(q: QActivity,
                       after: datetime.datetime
     ) -> list[Activity]:
     '''
-    Return a list of all activities at an offset with a limit.
+    Return a list of all activities after a timestamp.
     '''
     return _activities_limit(q, limit, after=after).all()
 
@@ -190,7 +194,7 @@ def _activities_before(q: QActivity,
                       before: datetime.datetime
     ) -> list[Activity]:
     '''
-    Return a list of all activities at an offset with a limit.
+    Return a list of all activities before a timestamp.
     '''
     return _activities_limit(q, limit, before=before).all()
 
