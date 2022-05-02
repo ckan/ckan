@@ -251,27 +251,6 @@ def _package_activity_query(package_id: str) -> QActivity:
     return q
 
 
-def _package_activity_main_query(
-        package_id: str,
-        include_hidden_activity: bool = False,
-        activity_types: Optional[list[str]] = None,
-        exclude_activity_types: Optional[list[str]] = None) -> QActivity:
-    """ Basic query to list or count """
-    q = _package_activity_query(package_id)
-
-    if not include_hidden_activity:
-        q = _filter_activitites_from_users(q)
-
-    if activity_types:
-        q = _filter_activitites_from_type(
-            q, include=True, types=activity_types)
-    elif exclude_activity_types:
-        q = _filter_activitites_from_type(
-            q, include=False, types=exclude_activity_types)
-
-    return q
-
-
 def package_activity_list(
     package_id: str,
     limit: int,
@@ -290,12 +269,18 @@ def package_activity_list(
     etc.
 
     '''
-    q = _package_activity_main_query(
-        package_id,
-        include_hidden_activity,
-        activity_types,
-        exclude_activity_types
-    )
+    q = _package_activity_query(package_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types)
+    elif exclude_activity_types:
+        q = _filter_activitites_from_type(
+            q, include=False, types=exclude_activity_types)
+
     if after:
         return _activities_after(q, limit, after)
     elif before:
