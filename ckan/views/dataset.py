@@ -1154,10 +1154,6 @@ def activity(
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
 
-    total_activities = activity_model.package_activity_count(
-        pkg_dict[u'id'],
-        activity_types=activity_types
-    )
     prev_page = None
     next_page = None
 
@@ -1195,8 +1191,6 @@ def activity(
             after=after_time.timestamp(),
         )
 
-    total_pages = int(math.ceil(total_activities / limit))
-
     return base.render(
         u'package/activity.html', {
             u'dataset_type': dataset_type,
@@ -1206,7 +1200,6 @@ def activity(
             u'id': id,  # i.e. package's current name
             u'limit': limit,
             u'has_more': has_more,
-            u'total_pages': total_pages,
             u'activity_type': activity_type,
             u'activity_types': VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
             u'prev_page': prev_page,

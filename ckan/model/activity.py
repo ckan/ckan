@@ -304,23 +304,6 @@ def package_activity_list(
         return _activities_limit(q, limit).all()
 
 
-def package_activity_count(
-        package_id: str,
-        include_hidden_activity: bool = False,
-        activity_types: Optional[list[str]] = None,
-        exclude_activity_types: Optional[list[str]] = None) -> int:
-    '''Return the given dataset (package)'s public activity count.
-    '''
-    q = _package_activity_main_query(
-        package_id,
-        include_hidden_activity,
-        activity_types,
-        exclude_activity_types
-    )
-
-    return q.count()
-
-
 def _group_activity_query(
         group_id: str,
         include_hidden_activity: bool=False) -> QActivity:
