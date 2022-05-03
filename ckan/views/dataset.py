@@ -1105,9 +1105,9 @@ def activity(
 
     """Render this package's public activity stream page.
     """
-    after = h.get_request_param(u'after')
-    before = h.get_request_param(u'before')
-    activity_type = h.get_request_param(u'activity_type')
+    after = h.get_request_param('after')
+    before = h.get_request_param('before')
+    activity_type = h.get_request_param('activity_type')
 
     if after and before:
         raise ValidationError(
@@ -1121,9 +1121,9 @@ def activity(
         u'for_view': True,
         u'auth_user_obj': g.userobj
     })
-    data_dict = {u'id': id}
-    base_limit = int(config.get(u'ckan.activity_list_limit', 30))
-    max_limit = int(config.get(u'ckan.activity_list_limit_max', 100))
+    data_dict = {'id': id}
+    base_limit = config.get_value('ckan.activity_list_limit')
+    max_limit = config.get_value('ckan.activity_list_limit_max')
     limit = min(base_limit, max_limit)
     activity_types = [activity_type] if activity_type else None
     if after is not None:
@@ -1135,12 +1135,12 @@ def activity(
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         activity_dict = {
-            u'id': pkg_dict[u'id'],
-            u'after': after,
-            u'before': before,
+            'id': pkg_dict['id'],
+            'after': after,
+            'before': before,
             # ask for one more just to know if this query has more results
-            u'limit': limit + 1,
-            u'activity_types': activity_types
+            'limit': limit + 1,
+            'activity_types': activity_types
         }
         pkg = context[u'package']
         package_activity_stream = get_action(
@@ -1172,7 +1172,7 @@ def activity(
     # we have more rows
     if after or (has_more and (before or is_page_1)):
         before_time = datetime.fromisoformat(
-            package_activity_stream[-1][u'timestamp']
+            package_activity_stream[-1]['timestamp']
         )
         next_page = h.url_for(
             'dataset.activity',
@@ -1186,7 +1186,7 @@ def activity(
     # we have more rows
     if before or (has_more and after):
         after_time = datetime.fromisoformat(
-            package_activity_stream[0][u'timestamp']
+            package_activity_stream[0]['timestamp']
         )
         prev_page = h.url_for(
             'dataset.activity',
@@ -1196,18 +1196,18 @@ def activity(
         )
 
     return base.render(
-        u'package/activity.html', {
-            u'dataset_type': dataset_type,
-            u'pkg_dict': pkg_dict,
-            u'pkg': pkg,
-            u'activity_stream': package_activity_stream,
-            u'id': id,  # i.e. package's current name
-            u'limit': limit,
-            u'has_more': has_more,
-            u'activity_type': activity_type,
-            u'activity_types': VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            u'prev_page': prev_page,
-            u'next_page': next_page,
+        'package/activity.html', {
+            'dataset_type': dataset_type,
+            'pkg_dict': pkg_dict,
+            'pkg': pkg,
+            'activity_stream': package_activity_stream,
+            'id': id,  # i.e. package's current name
+            'limit': limit,
+            'has_more': has_more,
+            'activity_type': activity_type,
+            'activity_types': VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+            'prev_page': prev_page,
+            'next_page': next_page,
         }
     )
 
