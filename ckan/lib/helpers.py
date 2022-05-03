@@ -2872,7 +2872,7 @@ def check_ckan_version(min_version: Optional[str] = None,
 
 def make_next_param(login_url: str, current_url: str) -> str:
     '''
-    Note: THIS CODE IS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
+    Note: THIS CODE WAS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
 
     Reduces the scheme and host from a given URL so it can be passed to
     the given `login` URL more efficiently.
@@ -2895,7 +2895,7 @@ def make_login_url(
     login_view: str, next_url: Optional[str] = None, next_field: str = "next"
 ) -> str:
     """
-    Note: THIS CODE IS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
+    Note: THIS CODE WAS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
 
     Creates a URL for redirecting to a login page. If only `login_view` is
     provided, this will just return the URL for it. If `next_url` is provided,
@@ -2936,18 +2936,24 @@ def _ckan_login_required(  # type: ignore
 
     @wraps(func)
     def decorated_view(*args: Exception, **kwargs: Any):
-        exception = args[0]
-        if isinstance(exception, exc.HTTPException):
-            if current_user.is_anonymous and (
-                type(exception) == exc.Unauthorized
-                or type(exception) == exc.Forbidden
-            ):
-                # make next_url
-                login_url = redirect_to("user.login").headers["location"]
-                redirect_url = make_login_url(login_url, next_url=request.url)
+        # if the url is not local we dont want to redirect the user
+        # instead, we want to show the actual 403(Forbidden)...
+        # same for user.perform_reset if the current_user.is_deleted()
+        # the view returns 403 hence we want to show the actual exception.
+        endpoints = tuple(["util.internal_redirect", "user.perform_reset"])
+        if not request.endpoint in endpoints:
+            exception = args[0]
+            if isinstance(exception, exc.HTTPException):
+                if current_user.is_anonymous and (
+                    type(exception) == exc.Unauthorized
+                    or type(exception) == exc.Forbidden
+                ):
+                    # make next_url
+                    login_url = redirect_to("user.login").headers["location"]
+                    redirect_url = make_login_url(login_url, next_url=request.url)
 
-                flash("Please log in to access this page.")
-                return redirect_to(redirect_url)
+                    flash("Please log in to access this page.")
+                    return redirect_to(redirect_url)
         return func(*args, **kwargs)
 
     return decorated_view

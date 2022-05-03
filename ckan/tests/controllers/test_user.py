@@ -949,8 +949,7 @@ class TestUser(object):
         userobj = model.User.get(userobj.id)
         assert userobj.is_active()
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_perform_reset_doesnt_activate_deleted_user(self, current_user, app):
+    def test_perform_reset_doesnt_activate_deleted_user(self, app):
         password = "TestPassword1"
         params = {"password1": password, "password2": password}
         user = factories.User()
