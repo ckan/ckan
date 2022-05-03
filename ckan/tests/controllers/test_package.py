@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
+from datetime import datetime
 from werkzeug.routing import BuildError
 import unittest.mock as mock
 
@@ -2001,7 +2002,7 @@ class TestDatasetRead(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         activity = activity_model.package_activity_list(
-            dataset["id"], limit=1, offset=0
+            dataset["id"], limit=1
         )[0]
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.Sysadmin()
@@ -2050,6 +2051,77 @@ class TestActivity(object):
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_next_page_button(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Fourth title"
+        helpers.call_action("package_update", **dataset)
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(url)
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"]
+        )
+        # Last activity in the first page
+        before_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+        print(before_time.timestamp(), response.body)
+        # Next page button
+        next_page_url = '/dataset/activity/{}?before={}'.format(
+            dataset['id'],
+            before_time.timestamp()
+        )
+        assert next_page_url in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_prev_page_button(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Fourth title"
+        helpers.call_action("package_update", **dataset)
+
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"], limit=10
+        )
+        before_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        # url for page 2
+        response = app.get(
+            url,
+            query_string={'before': before_time.timestamp()}
+        )
+
+        # There's not a third page
+        next_page_url = '/dataset/activity/{}?before='.format(dataset['name'])
+        assert next_page_url not in response.body
+
+        # previous page exists
+        after_time = datetime.fromisoformat(
+            activities[3]["timestamp"]
+        )
+        prev_page_url = '/dataset/activity/{}?after={}'.format(
+            dataset['id'],
+            after_time.timestamp()
+        )
+        assert prev_page_url in response.body
 
     def _clear_activities(self):
         model.Session.query(model.Activity).delete()
@@ -2392,7 +2464,7 @@ class TestChanges(object):  # i.e. the diff
         helpers.call_action("package_update", **dataset)
 
         activity = activity_model.package_activity_list(
-            dataset["id"], limit=1, offset=0
+            dataset["id"], limit=1
         )[0]
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
