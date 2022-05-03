@@ -2941,7 +2941,7 @@ def _ckan_login_required(  # type: ignore
         # same for user.perform_reset if the current_user.is_deleted()
         # the view returns 403 hence we want to show the actual exception.
         endpoints = tuple(["util.internal_redirect", "user.perform_reset"])
-        if not request.endpoint in endpoints:
+        if request.endpoint not in endpoints:
             exception = args[0]
             if isinstance(exception, exc.HTTPException):
                 if current_user.is_anonymous and (
@@ -2950,7 +2950,8 @@ def _ckan_login_required(  # type: ignore
                 ):
                     # make next_url
                     login_url = redirect_to("user.login").headers["location"]
-                    redirect_url = make_login_url(login_url, next_url=request.url)
+                    next_url = request.url
+                    redirect_url = make_login_url(login_url, next_url=next_url)
 
                     flash("Please log in to access this page.")
                     return redirect_to(redirect_url)
