@@ -2074,7 +2074,7 @@ class TestActivity(object):
         before_time = datetime.fromisoformat(
             activities[2]["timestamp"]
         )
-        print(before_time.timestamp(), response.body)
+
         # Next page button
         next_page_url = '/dataset/activity/{}?before={}'.format(
             dataset['id'],
