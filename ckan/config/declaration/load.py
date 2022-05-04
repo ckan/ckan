@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging
 import pathlib
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List
 from typing_extensions import TypedDict
 import yaml
 
@@ -51,8 +52,8 @@ class DeclarationDictV1(TypedDict):
     groups: List[GroupV1]
 
 
-DeclarationDict = Union[DeclarationDictV1]
-load = handler.handle
+DeclarationDict = DeclarationDictV1
+loader = handler.handle
 
 
 @handler.register("plugin")
@@ -81,8 +82,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
     version = definition["version"]
     if version == 1:
-
-        data, errors = validate(definition, config_declaration_v1())
+        data, errors = validate(dict(definition), config_declaration_v1())
         if errors:
             raise ValidationError(errors)
         for group in data["groups"]:
@@ -90,7 +90,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
                 declaration.annotate(group["annotation"])
             for details in group["options"]:
                 factory = option_types[details["type"]]
-                option: Option = getattr(declaration, factory)(
+                option: Option[Any] = getattr(declaration, factory)(
                     details["key"], details.get("default")
                 )
                 option.append_validators(details["validators"])
@@ -104,6 +104,9 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
                 if details["placeholder"]:
                     option.set_placeholder(details["placeholder"])
+
+                if "example" in details:
+                    option.example = details["example"]
 
                 if "default_callable" in details:
                     args = details.get("callable_args", {})

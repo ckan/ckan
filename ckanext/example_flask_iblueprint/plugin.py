@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from ckan.common import CKANConfig
 from flask import Blueprint
 from flask import render_template_string
 
@@ -68,7 +69,7 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
         # Add extension templates directory
         p.toolkit.add_template_directory(config, u'templates')
 

@@ -1,6 +1,8 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import itertools
+from typing import Any, Optional
 
 import click
 import json
@@ -15,6 +17,7 @@ from ckan.lib.datapreview import (
     get_view_plugins,
     get_default_view_plugins,
 )
+from ckan.types import Context
 
 
 _page_size = 100
@@ -34,7 +37,8 @@ def views():
 @click.option(u"-s", u"--search")
 @click.option(u"-y", u"--yes", is_flag=True)
 @click.pass_context
-def create(ctx, types, dataset, no_default_filters, search, yes):
+def create(ctx: click.Context, types: list[str], dataset: list[str],
+           no_default_filters: bool, search: str, yes: bool):
     """Create views on relevant resources. You can optionally provide
     specific view types (eg `recline_view`, `image_view`). If no types
     are provided, the default ones will be used. These are generally
@@ -54,7 +58,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
     if loaded_view_plugins is None:
         return
     site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
-    context = {u"user": site_user[u"name"]}
+    context: Context = {u"user": site_user[u"name"]}
 
     page = 1
     while True:
@@ -117,7 +121,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
 @views.command()
 @click.argument(u"types", nargs=-1)
 @click.option(u"-y", u"--yes", is_flag=True)
-def clear(types, yes):
+def clear(types: list[str], yes: bool):
     """Permanently delete all views or the ones with the provided types.
 
     """
@@ -134,7 +138,7 @@ def clear(types, yes):
 
     site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})
 
-    context = {u"user": site_user[u"name"]}
+    context: Context = {u"user": site_user[u"name"]}
     logic.get_action(u"resource_view_clear")(context, {u"view_types": types})
 
     click.secho(u"Done", fg=u"green")
@@ -143,7 +147,7 @@ def clear(types, yes):
 @views.command()
 @click.option(u"-y", u"--yes", is_flag=True)
 @click.pass_context
-def clean(ctx, yes):
+def clean(ctx: click.Context, yes: bool):
     """Permanently delete views for all types no longer present in the
     `ckan.plugins` configuration option.
 
@@ -163,16 +167,18 @@ def clean(ctx, yes):
     for row in results:
         click.secho(u"%s of type %s" % (row[1], row[0]))
 
-    yes or click.confirm(
-        u"Do you want to delete these resource views?", abort=True
-    )
+    if not yes:
+        click.confirm(
+            u"Do you want to delete these resource views?", abort=True
+        )
 
     model.ResourceView.delete_not_in_view_types(names)
     model.Session.commit()
     click.secho(u"Deleted resource views.", fg=u"green")
 
 
-def _get_view_plugins(view_plugin_types, get_datastore_views=False):
+def _get_view_plugins(view_plugin_types: list[str],
+                      get_datastore_views: bool = False):
     """Returns the view plugins that were succesfully loaded
 
     Views are provided as a list of ``view_plugin_types``. If no types
@@ -218,13 +224,17 @@ def _get_view_plugins(view_plugin_types, get_datastore_views=False):
 
 
 def _search_datasets(
-    page=1, view_types=[], dataset=[], search=u"", no_default_filters=False
+        page: int = 1, view_types: Optional[list[str]] = None,
+        dataset: Optional[list[str]] = None, search: str = u"",
+        no_default_filters: bool = False
 ):
     """
     Perform a query with `package_search` and return the result
 
     Results can be paginated using the `page` parameter
     """
+    if not view_types:
+        view_types = []
 
     n = _page_size
 
@@ -264,7 +274,8 @@ def _search_datasets(
     return query
 
 
-def _add_default_filters(search_data_dict, view_types):
+def _add_default_filters(search_data_dict: dict[str, Any],
+                         view_types: list[str]):
     """
     Adds extra filters to the `package_search` dict for common view types
 
@@ -329,7 +340,8 @@ def _add_default_filters(search_data_dict, view_types):
     return search_data_dict
 
 
-def _update_search_params(search_data_dict, search):
+def _update_search_params(
+        search_data_dict: dict[str, Any], search: str):
     """
     Update the `package_search` data dict with the user provided parameters
 

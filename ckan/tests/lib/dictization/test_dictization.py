@@ -99,7 +99,6 @@ class TestBasicDictize:
         assert got["id"]
         assert got["timestamp"]
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_user_dictize_as_sysadmin(self):
         """Sysadmins should be allowed to see certain sensitive data."""
         CreateTestData.create()
@@ -125,7 +124,6 @@ class TestBasicDictize:
         assert "password" not in user_dict
         assert "reset_key" not in user_dict
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_user_dictize_as_same_user(self):
         """User should be able to see their own sensitive data."""
         CreateTestData.create()
@@ -147,7 +145,6 @@ class TestBasicDictize:
         assert "password" not in user_dict
         assert "reset_key" not in user_dict
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_user_dictize_as_other_user(self):
         """User should not be able to see other's sensitive data."""
         CreateTestData.create()
@@ -234,7 +231,6 @@ class TestDictizeWithRemoveColumns:
             == anna_dictized
         ), self.remove_changable_columns(table_dictize(pkg, context))
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_package_save(self):
         CreateTestData.create()
         context = {

@@ -1,7 +1,6 @@
-@import "ckan.scss";
-
+@use "sass:math";
 .wrapper {
-  @media (min-width: $screen-sm-min) {
+  @include media-breakpoint-up(sm) { 
     &:before {
       left: initial;
       right: 0;
@@ -15,11 +14,22 @@
   right: initial;
   left: 0;
 }
+.toolbar .breadcrumb li:not(:first-child)::before {
+    float: right;
+    padding-left: 0.5rem;
+    color: #6c757d;
+    content: var(--bs-breadcrumb-divider, "/") /* rtl: var(--bs-breadcrumb-divider, "/") */;
+}
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
     .masthead .navbar-collapse {
         float: left;
     }
+}
+
+.masthead .main-navbar .site-search button {
+    margin-right: -40px;
+    margin-left: 0;
 }
 
 .masthead {
@@ -31,14 +41,13 @@
       margin-left: 20px;
     }
     .site-search {
-        @media (min-width: $screen-md-min) {
-            margin-right: $grid-gutter-width/2;
+        @include media-breakpoint-up(lg) {
+            margin-right: math.div($grid-gutter-width,2);
         }
-        margin: ($grid-gutter-width/6 - 1) 0 ($grid-gutter-width/6 - 1) $grid-gutter-width/3 - 2;
     }
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-up(md) {
     .nav-item.active>a:before,
     .nav-aside li.active a:before {
         border-left: none;
@@ -53,7 +62,7 @@
 }
 
 
-@media (min-width: $grid-float-breakpoint) {
+@include media-breakpoint-up(sm) {
   .nav-pills>li {
         float: right;
     }
@@ -68,14 +77,26 @@
     text-align: right;
 }
 
+.main-navbar .navbar-nav {
+    margin-right: auto ;
+    margin-left: unset !important;
+}
+
 .search-form .search-input.search-giant button {
     margin-top: -15px;
-    left: 15px;
+    left: 50px;
     right: auto;
 }
 
 .context-info .nums dl, .toolbar .breadcrumb {
     float: right;
+}
+
+.resource-list {
+    padding-right: 0;
+    .heading span {
+        margin: -14px -14px 0 -14px;
+    }
 }
 
 .resource-item .btn-group {
@@ -97,11 +118,14 @@
     float: right;
 }
 
-.nav-facet .nav-item a span.item-label {
-    padding-right: 15px;
+.nav-facet, .nav-simple, .list-unstyled {
+    padding-right: 0;
+    .nav-item a span.item-label {
+        padding-right: 15px;
+    }
 }
 
-@media (min-width: $screen-md-min) {
+@include media-breakpoint-up(md) {
     .homepage.layout-1 .row1 .col2 {
         right: auto;
         left: 0;

@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
+of predefined core-level signals.
 
+Check :doc:`signals` for extra detais.
+
+"""
+
+from typing import Any
 import flask.signals
 from blinker import Namespace
 
@@ -7,14 +14,18 @@ ckan = Namespace()
 ckanext = Namespace()
 
 
-@flask.signals.request_finished.connect
-def _request_finished_listener(*args, **kwargs):
+def _request_finished_listener(*args: Any, **kwargs: Any):
     request_finished.send(*args, **kwargs)
 
 
-@flask.signals.request_started.connect
-def _request_started_listener(*args, **kwargs):
+flask.signals.request_finished.connect(_request_finished_listener)
+
+
+def _request_started_listener(*args: Any, **kwargs: Any):
     request_started.send(*args, **kwargs)
+
+
+flask.signals.request_started.connect(_request_started_listener)
 
 
 request_started = ckan.signal(u"request_started")

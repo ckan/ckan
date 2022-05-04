@@ -1,0 +1,6 @@
+version: 1
+groups:
+  - annotation: ~
+    options:
+      - key: ckanext.blanket
+        default: declaration blanket

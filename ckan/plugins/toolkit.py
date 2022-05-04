@@ -9,6 +9,9 @@ Functions/objects should only be removed after reasonable deprecation notice
 has been given.
 
 """
+from __future__ import annotations
+
+from typing import Any, Optional, Union, cast
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
@@ -51,6 +54,7 @@ from ckan.exceptions import (
     HelperError,
 )
 from ckan.common import (
+    CKANConfig,
     config,
     _,
     ungettext,
@@ -100,7 +104,7 @@ get_converter = get_validator
 
 # Wrapper for the render_snippet function as it uses keywords rather than
 # dict to pass data.
-def render_snippet(template, data=None):
+def render_snippet(template: str, data: Optional[dict[str, Any]] = None):
     """Render a template snippet and return the output.
 
     See :doc:`/theming/index`.
@@ -110,7 +114,7 @@ def render_snippet(template, data=None):
     return base.render_snippet(template, **data)
 
 
-def add_template_directory(config_, relative_path):
+def add_template_directory(config_: CKANConfig, relative_path: str):
     """Add a path to the :ref:`extra_template_paths` config setting.
 
     The path is relative to the file calling this function.
@@ -119,7 +123,7 @@ def add_template_directory(config_, relative_path):
     _add_served_directory(config_, relative_path, "extra_template_paths")
 
 
-def add_public_directory(config_, relative_path):
+def add_public_directory(config_: CKANConfig, relative_path: str):
     """Add a path to the :ref:`extra_public_paths` config setting.
 
     The path is relative to the file calling this function.
@@ -137,7 +141,8 @@ def add_public_directory(config_, relative_path):
     add_public_path(path, url)
 
 
-def _add_served_directory(config_, relative_path, config_var):
+def _add_served_directory(
+        config_: CKANConfig, relative_path: str, config_var: str):
     """Add extra public/template directories to config."""
     import inspect
     import os
@@ -157,7 +162,7 @@ def _add_served_directory(config_, relative_path, config_var):
     return absolute_path
 
 
-def add_resource(path, name):
+def add_resource(path: str, name: str):
     """Add a WebAssets library to CKAN.
 
     WebAssets libraries are directories containing static resource
@@ -181,7 +186,8 @@ def add_resource(path, name):
 
 
 def add_ckan_admin_tab(
-    config_, route_name, tab_label, config_var="ckan.admin_tabs", icon=None
+        config_: CKANConfig, route_name: str, tab_label: str,
+        config_var: str = "ckan.admin_tabs", icon: Optional[str] = None
 ):
     """
     Update 'ckan.admin_tabs' dict the passed config dict.
@@ -194,7 +200,7 @@ def add_ckan_admin_tab(
     config_.update({config_var: admin_tabs_dict})
 
 
-def _version_str_2_list(v_str):
+def _version_str_2_list(v_str: str):
     """convert a version string into a list of ints
     eg 1.6.1b --> [1, 6, 1]"""
     import re
@@ -203,7 +209,8 @@ def _version_str_2_list(v_str):
     return [int(part) for part in v_str.split(".")]
 
 
-def check_ckan_version(min_version=None, max_version=None):
+def check_ckan_version(
+        min_version: Optional[str] = None, max_version: Optional[str] = None):
     """Return ``True`` if the CKAN version is greater than or equal to
     ``min_version`` and less than or equal to ``max_version``,
     return ``False`` otherwise.
@@ -236,7 +243,7 @@ def check_ckan_version(min_version=None, max_version=None):
     return True
 
 
-def requires_ckan_version(min_version, max_version=None):
+def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
     """Raise :py:exc:`~ckan.plugins.toolkit.CkanVersionException` if the
     CKAN version is not greater than or equal to ``min_version`` and
     less then or equal to ``max_version``.
@@ -269,12 +276,12 @@ def requires_ckan_version(min_version, max_version=None):
         raise CkanVersionException(error)
 
 
-def get_endpoint():
+def get_endpoint() -> Union[tuple[str, str], tuple[None, None]]:
     """Returns tuple in format: (blueprint, view)."""
     if not request:
         return None, None
 
-    blueprint, *rest = request.endpoint.split(".", 1)
+    blueprint, *rest = cast(str, request.endpoint).split(".", 1)
     # service routes, like `static`
     view = rest[0] if rest else "index"
     return blueprint, view
@@ -358,22 +365,5 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "asbool": """Convert a string (e.g. 1,
-true, True) from the config file into a boolean.
-
-For example: ``if toolkit.asbool("yes"):``
-
-""",
-    "asint": """Convert a string from the config
-file into an int.
-
-For example: ``bar = toolkit.asint("111")``
-
-""",
-    "aslist": """Convert a space-separated
-string from the config file into a list.
-
-For example: `bar = toolkit.aslist(config.get('ckan.foo.bar', []))`
-
-""",
+    "ckan": "``ckan`` package itself."
 }

@@ -1,5 +1,8 @@
 # encoding: utf-8
+from __future__ import annotations
+
 import logging
+from typing import Any, Optional, Union, cast
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -19,6 +22,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import _, config, g, request
+from ckan.types import Context, ErrorDict, Schema, Response
 from ckan.lib import signals
 
 log = logging.getLogger(__name__)
@@ -30,14 +34,14 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-def _get_repoze_handler(handler_name):
+def _get_repoze_handler(handler_name: str) -> str:
     u'''Returns the URL that repoze.who will respond to and perform a
     login or logout.'''
     return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
                    handler_name)
 
 
-def set_repoze_user(user_id, resp):
+def set_repoze_user(user_id: str, resp: Response) -> None:
     u'''Set the repoze.who cookie to match a given user_id'''
     if u'repoze.who.plugins' in request.environ:
         rememberer = request.environ[u'repoze.who.plugins'][u'friendlyform']
@@ -45,15 +49,16 @@ def set_repoze_user(user_id, resp):
         resp.headers.extend(rememberer.remember(request.environ, identity))
 
 
-def _edit_form_to_db_schema():
+def _edit_form_to_db_schema() -> Schema:
     return schema.user_edit_form_schema()
 
 
-def _new_form_to_db_schema():
+def _new_form_to_db_schema() -> Schema:
     return schema.user_new_form_schema()
 
 
-def _extra_template_variables(context, data_dict):
+def _extra_template_variables(context: Context,
+                              data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = authz.is_sysadmin(g.user)
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
@@ -64,7 +69,7 @@ def _extra_template_variables(context, data_dict):
 
     is_myself = user_dict[u'name'] == g.user
     about_formatted = h.render_markdown(user_dict[u'about'])
-    extra = {
+    extra: dict[str, Any] = {
         u'is_sysadmin': is_sysadmin,
         u'user_dict': user_dict,
         u'is_myself': is_myself,
@@ -74,12 +79,16 @@ def _extra_template_variables(context, data_dict):
 
 
 @user.before_request
-def before_request():
+def before_request() -> None:
     try:
-        context = dict(model=model, user=g.user, auth_user_obj=g.userobj)
+        context = cast(Context, {
+            "model": model,
+            "user": g.user,
+            "auth_user_obj": g.userobj
+        })
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
-        _blueprint, action = plugins.toolkit.get_endpoint()
+        action = plugins.toolkit.get_endpoint()[1]
         if action not in (
                 u'login',
                 u'request_reset',
@@ -89,12 +98,12 @@ def before_request():
 
 
 def index():
-    page_number = h.get_page_number(request.params)
-    q = request.params.get(u'q', u'')
-    order_by = request.params.get(u'order_by', u'name')
-    limit = int(request.params.get(
-        u'limit', config.get_value(u'ckan.user_list_limit')))
-    context = {
+    page_number = h.get_page_number(request.args)
+    q = request.args.get('q', '')
+    order_by = request.args.get('order_by', 'name')
+    default_limit: int = config.get_value('ckan.user_list_limit')
+    limit = int(request.args.get('limit', default_limit))
+    context: Context = {
         u'return_query': True,
         u'user': g.user,
         u'auth_user_obj': g.userobj
@@ -119,24 +128,25 @@ def index():
         item_count=users_list.count(),
         items_per_page=limit)
 
-    extra_vars = {u'page': page, u'q': q, u'order_by': order_by}
+    extra_vars: dict[str, Any] = {
+        u'page': page, u'q': q, u'order_by': order_by}
     return base.render(u'user/list.html', extra_vars)
 
 
-def me():
+def me() -> Response:
     return h.redirect_to(
         config.get_value(u'ckan.route_after_login'))
 
 
-def read(id):
-    context = {
+def read(id: str) -> Union[Response, str]:
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj,
         u'for_view': True
-    }
-    data_dict = {
+    })
+    data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': g.userobj,
         u'include_datasets': True,
@@ -153,15 +163,20 @@ def read(id):
 
 
 class ApiTokenView(MethodView):
-    def get(self, id, data=None, errors=None, error_summary=None):
-        context = {
+    def get(self,
+            id: str,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None
+            ) -> Union[Response, str]:
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
             u'for_view': True,
             u'include_plugin_extras': True
-        }
+        })
         try:
             tokens = logic.get_action(u'api_token_list')(
                 context, {u'user': id}
@@ -169,7 +184,7 @@ class ApiTokenView(MethodView):
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to view API tokens.'))
 
-        data_dict = {
+        data_dict: dict[str, Any] = {
             u'id': id,
             u'user_obj': g.userobj,
             u'include_datasets': True,
@@ -187,8 +202,8 @@ class ApiTokenView(MethodView):
         })
         return base.render(u'user/api_tokens.html', extra_vars)
 
-    def post(self, id):
-        context = {u'model': model}
+    def post(self, id: str) -> Union[Response, str]:
+        context = cast(Context, {u'model': model})
 
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
@@ -227,8 +242,8 @@ class ApiTokenView(MethodView):
         return h.redirect_to(u'user.api_tokens', id=id)
 
 
-def api_token_revoke(id, jti):
-    context = {u'model': model}
+def api_token_revoke(id: str, jti: str) -> Response:
+    context = cast(Context, {u'model': model})
     try:
         logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
     except logic.NotAuthorized:
@@ -237,20 +252,21 @@ def api_token_revoke(id, jti):
 
 
 class EditView(MethodView):
-    def _prepare(self, id):
-        context = {
+    def _prepare(self, id: Optional[str]) -> tuple[Context, str]:
+        context = cast(Context, {
             u'save': u'save' in request.form,
             u'schema': _edit_form_to_db_schema(),
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj
-        }
+        })
         if id is None:
             if g.userobj:
                 id = g.userobj.id
             else:
                 base.abort(400, _(u'No user specified'))
+        assert id
         data_dict = {u'id': id}
 
         try:
@@ -259,7 +275,7 @@ class EditView(MethodView):
             base.abort(403, _(u'Unauthorized to edit a user.'))
         return context, id
 
-    def post(self, id=None):
+    def post(self, id: Optional[str] = None) -> Union[Response, str]:
         context, id = self._prepare(id)
         if not context[u'save']:
             return self.get(id)
@@ -287,7 +303,6 @@ class EditView(MethodView):
             base.abort(400, _(u'Integrity Error'))
         data_dict.setdefault(u'activity_streams_email_notifications', False)
 
-        context[u'message'] = data_dict.get(u'log_message', u'')
         data_dict[u'id'] = id
 
         # we need this comparison when sysadmin edits a user,
@@ -317,7 +332,7 @@ class EditView(MethodView):
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
             if auth.authenticate(request.environ, identity) != g.user:
-                errors = {
+                errors: ErrorDict = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
                 error_summary = {_(u'Old Password'): _(u'incorrect password')}\
@@ -344,7 +359,11 @@ class EditView(MethodView):
             set_repoze_user(data_dict[u'name'], resp)
         return resp
 
-    def get(self, id=None, data=None, errors=None, error_summary=None):
+    def get(self,
+            id: Optional[str] = None,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> str:
         context, id = self._prepare(id)
         data_dict = {u'id': id}
         try:
@@ -361,17 +380,17 @@ class EditView(MethodView):
             base.abort(404, _(u'User not found'))
 
         errors = errors or {}
-        vars = {
+        vars: dict[str, Any] = {
             u'data': data,
             u'errors': errors,
             u'error_summary': error_summary
         }
 
-        extra_vars = _extra_template_variables({
+        extra_vars = _extra_template_variables(cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user
-        }, data_dict)
+        }), data_dict)
 
         extra_vars[u'show_email_notifications'] = config.get_value(
             u'ckan.activity_streams_email_notifications')
@@ -384,21 +403,21 @@ class EditView(MethodView):
 
 class RegisterView(MethodView):
     def _prepare(self):
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
             u'schema': _new_form_to_db_schema(),
             u'save': u'save' in request.form
-        }
+        })
         try:
             logic.check_access(u'user_create', context)
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to register as a user.'))
         return context
 
-    def post(self):
+    def post(self) -> Union[Response, str]:
         context = self._prepare()
         try:
             data_dict = logic.clean_dict(
@@ -412,7 +431,6 @@ class RegisterView(MethodView):
         except dictization_functions.DataError:
             base.abort(400, _(u'Integrity Error'))
 
-        context[u'message'] = data_dict.get(u'log_message', u'')
         try:
             captcha.check_recaptcha(request)
         except captcha.CaptchaError:
@@ -450,7 +468,10 @@ class RegisterView(MethodView):
         set_repoze_user(data_dict[u'name'], resp)
         return resp
 
-    def get(self, data=None, errors=None, error_summary=None):
+    def get(self,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None) -> str:
         self._prepare()
 
         if g.user and not data and not authz.is_sysadmin(g.user):
@@ -463,25 +484,25 @@ class RegisterView(MethodView):
             u'error_summary': error_summary or {}
         }
 
-        extra_vars = {
+        extra_vars: dict[str, Any] = {
             u'is_sysadmin': authz.is_sysadmin(g.user),
             u'form': base.render(new_user_form, form_vars)
         }
         return base.render(u'user/new.html', extra_vars)
 
 
-def login():
+def login() -> Union[Response, str]:
     # Do any plugin login stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
         if response:
             return response
 
-    extra_vars = {}
+    extra_vars: dict[str, Any] = {}
     if g.user:
         return base.render(u'user/logout_first.html', extra_vars)
 
-    came_from = request.params.get(u'came_from')
+    came_from = request.args.get(u'came_from')
     if not came_from:
         came_from = h.url_for(u'user.logged_in')
     g.login_handler = h.url_for(
@@ -489,9 +510,9 @@ def login():
     return base.render(u'user/login.html', extra_vars)
 
 
-def logged_in():
+def logged_in() -> Union[Response, str]:
     # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
+    came_from = request.args.get(u'came_from', u'')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
 
@@ -503,7 +524,7 @@ def logged_in():
         return login()
 
 
-def logout():
+def logout() -> Response:
     # Do any plugin logout stuff
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
@@ -516,26 +537,26 @@ def logout():
         parse_url=True)
 
 
-def logged_out():
+def logged_out() -> Response:
     # redirect if needed
-    came_from = request.params.get(u'came_from', u'')
+    came_from = request.args.get(u'came_from', u'')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
     return h.redirect_to(u'user.logged_out_page')
 
 
-def logged_out_page():
+def logged_out_page() -> str:
     return base.render(u'user/logout.html', {})
 
 
-def delete(id):
+def delete(id: str) -> Response:
     u'''Delete user with id passed as parameter'''
-    context = {
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj
-    }
+    })
     data_dict = {u'id': id}
 
     try:
@@ -551,17 +572,17 @@ def delete(id):
         return h.redirect_to(user_index)
 
 
-def activity(id, offset=0):
+def activity(id: str, offset: int = 0) -> str:
     u'''Render this user's public activity stream page.'''
 
-    context = {
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj,
         u'for_view': True
-    }
-    data_dict = {
+    })
+    data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': g.userobj,
         u'include_num_followers': True
@@ -589,27 +610,28 @@ def activity(id, offset=0):
 
 class RequestResetView(MethodView):
     def _prepare(self):
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj
-        }
+        })
         try:
             logic.check_access(u'request_reset', context)
         except logic.NotAuthorized:
             base.abort(403, _(u'Unauthorized to request reset password.'))
 
-    def post(self):
+    def post(self) -> Response:
         self._prepare()
-        id = request.form.get(u'user')
+        id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'/user/reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
-        context = {u'model': model, u'user': g.user, u'ignore_auth': True}
-        user_objs = []
+        context = cast(
+            Context, {u'model': model, u'user': g.user, u'ignore_auth': True})
+        user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
         if u'@' in id:
@@ -672,20 +694,20 @@ class RequestResetView(MethodView):
         return h.redirect_to(config.get_value(
             u'ckan.user_reset_landing_page'))
 
-    def get(self):
+    def get(self) -> str:
         self._prepare()
         return base.render(u'user/request_reset.html', {})
 
 
 class PerformResetView(MethodView):
-    def _prepare(self, id):
+    def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
         # FIXME 403 error for invalid key is a non helpful page
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': id,
             u'keep_email': True
-        }
+        })
 
         try:
             logic.check_access(u'user_reset', context)
@@ -697,7 +719,7 @@ class PerformResetView(MethodView):
         except logic.NotFound:
             base.abort(404, _(u'User not found'))
         user_obj = context[u'user_obj']
-        g.reset_key = request.params.get(u'key')
+        g.reset_key = request.args.get(u'key')
         if not mailer.verify_reset_link(user_obj, g.reset_key):
             msg = _(u'Invalid reset key. Please try again.')
             h.flash_error(msg)
@@ -720,7 +742,7 @@ class PerformResetView(MethodView):
         msg = _(u'You must provide a password')
         raise ValueError(msg)
 
-    def post(self, id):
+    def post(self, id: str) -> Union[Response, str]:
         context, user_dict = self._prepare(id)
         context[u'reset_password'] = True
         user_state = user_dict[u'state']
@@ -756,44 +778,44 @@ class PerformResetView(MethodView):
             u'user_dict': user_dict
         })
 
-    def get(self, id):
-        _context, user_dict = self._prepare(id)
+    def get(self, id: str) -> str:
+        user_dict = self._prepare(id)[1]
         return base.render(u'user/perform_reset.html', {
             u'user_dict': user_dict
         })
 
 
-def follow(id):
+def follow(id: str) -> Response:
     u'''Start following this user.'''
-    context = {
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj
-    }
-    data_dict = {u'id': id, u'include_num_followers': True}
+    })
+    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
         logic.get_action(u'follow_user')(context, data_dict)
         user_dict = logic.get_action(u'user_show')(context, data_dict)
         h.flash_success(
             _(u'You are now following {0}').format(user_dict[u'display_name']))
     except logic.ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
+        error_message: Any = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
     except (logic.NotFound, logic.NotAuthorized) as e:
         h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
 
-def unfollow(id):
+def unfollow(id: str) -> Response:
     u'''Stop following this user.'''
-    context = {
+    context = cast(Context, {
         u'model': model,
         u'session': model.Session,
         u'user': g.user,
         u'auth_user_obj': g.userobj
-    }
-    data_dict = {u'id': id, u'include_num_followers': True}
+    })
+    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
         logic.get_action(u'unfollow_user')(context, data_dict)
         user_dict = logic.get_action(u'user_show')(context, data_dict)
@@ -801,16 +823,17 @@ def unfollow(id):
             _(u'You are no longer following {0}').format(
                 user_dict[u'display_name']))
     except logic.ValidationError as e:
-        error_message = (e.error_summary or e.message or e.error_dict)
+        error_message: Any = (e.error_summary or e.message or e.error_dict)
         h.flash_error(error_message)
     except (logic.NotFound, logic.NotAuthorized) as e:
         h.flash_error(e.message)
     return h.redirect_to(u'user.read', id=id)
 
 
-def followers(id):
-    context = {u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
-    data_dict = {
+def followers(id: str) -> str:
+    context: Context = {
+        u'for_view': True, u'user': g.user, u'auth_user_obj': g.userobj}
+    data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': g.userobj,
         u'include_num_followers': True
@@ -826,18 +849,18 @@ def followers(id):
     return base.render(u'user/followers.html', extra_vars)
 
 
-def sysadmin():
+def sysadmin() -> Response:
     username = request.form.get(u'username')
     status = asbool(request.form.get(u'status'))
 
     try:
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
             u'auth_user_obj': g.userobj,
-        }
-        data_dict = {u'id': username, u'sysadmin': status}
+        })
+        data_dict: dict[str, Any] = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
     except logic.NotAuthorized:
         return base.abort(
@@ -865,7 +888,7 @@ def sysadmin():
 user.add_url_rule(u'/', view_func=index, strict_slashes=False)
 user.add_url_rule(u'/me', view_func=me)
 
-_edit_view = EditView.as_view(str(u'edit'))
+_edit_view: Any = EditView.as_view(str(u'edit'))
 user.add_url_rule(u'/edit', view_func=_edit_view)
 user.add_url_rule(u'/edit/<id>', view_func=_edit_view)
 

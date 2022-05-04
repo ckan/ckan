@@ -19,10 +19,10 @@ def get_blueprints():
 
 class ResourceDataView(MethodView):
 
-    def post(self, id, resource_id):
+    def post(self, id: str, resource_id: str):
         try:
             toolkit.get_action(u'datapusher_submit')(
-                None, {
+                {}, {
                     u'resource_id': resource_id
                 }
             )
@@ -33,24 +33,24 @@ class ResourceDataView(MethodView):
             u'datapusher.resource_data', id=id, resource_id=resource_id
         )
 
-    def get(self, id, resource_id):
+    def get(self, id: str, resource_id: str):
         try:
-            pkg_dict = toolkit.get_action(u'package_show')(None, {u'id': id})
+            pkg_dict = toolkit.get_action(u'package_show')({}, {u'id': id})
             resource = toolkit.get_action(u'resource_show'
-                                          )(None, {
+                                          )({}, {
                                               u'id': resource_id
                                           })
 
             # backward compatibility with old templates
-            toolkit.c.pkg_dict = pkg_dict
-            toolkit.c.resource = resource
+            toolkit.g.pkg_dict = pkg_dict
+            toolkit.g.resource = resource
 
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _(u'Resource not found'))
 
         try:
             datapusher_status = toolkit.get_action(u'datapusher_status')(
-                None, {
+                {}, {
                     u'resource_id': resource_id
                 }
             )
