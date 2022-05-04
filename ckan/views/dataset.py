@@ -1130,7 +1130,7 @@ def activity(
         after = datetime.fromtimestamp(float(after))
     if before is not None:
         before = datetime.fromtimestamp(float(before))
-    is_page_1 = after is None and before is None
+    is_first_page = after is None and before is None
 
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
@@ -1168,9 +1168,9 @@ def activity(
             package_activity_stream.pop()
 
     # if "after", we came from the next page. So it exists
-    # if "before" (or is_page_1), we only show next page if we know
+    # if "before" (or is_first_page), we only show next page if we know
     # we have more rows
-    if after or (has_more and (before or is_page_1)):
+    if after or (has_more and (before or is_first_page)):
         before_time = datetime.fromisoformat(
             package_activity_stream[-1]['timestamp']
         )
