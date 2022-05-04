@@ -130,33 +130,30 @@ def _activities_limit(
         q: QActivity,
         limit: int,
         offset: Optional[int]=None,
-        after: Optional[datetime.datetime]=None,
-        before: Optional[datetime.datetime]=None,
+        revese_order: Optional[bool] = False
     ) -> QActivity:
     '''
     Return an SQLAlchemy query for all activities at an offset with a limit.
+
+    revert_before_limit: 
+        if we want the last activities before a date, we must reverse the
+        order before limiting. In the end, we always want this query to be
+        sorted by timestamp in descending order
     '''
     import ckan.model as model
-    # type_ignore_reason: incomplete SQLAlchemy types
-    q = q.order_by(desc(model.Activity.timestamp))  # type: ignore
+    
+    if revese_order:
+        q = q.order_by(model.Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(model.Activity.timestamp.desc())  # type: ignore
+
     if offset:
         q = q.offset(offset)
 
-    if after:
-        q = q.filter(model.Activity.timestamp > after)
-    elif before:
-        q = q.filter(model.Activity.timestamp < before)
-
     if limit:
-        # if we want activities after some timestamp, we need to limit
-        # last N rows from this query
-        if after:
-            total = q.count()
-            offset = total - limit
-            # going back until the first page, we don't need to offset
-            if offset > 0:
-                q = q.offset(offset)
         q = q.limit(limit)
+
     return q
 
 
@@ -178,26 +175,6 @@ def _activities_at_offset(q: QActivity,
     Return a list of all activities at an offset with a limit.
     '''
     return _activities_limit(q, limit, offset=offset).all()
-
-
-def _activities_after(q: QActivity,
-                      limit: int,
-                      after: datetime.datetime
-    ) -> list[Activity]:
-    '''
-    Return a list of all activities after a timestamp.
-    '''
-    return _activities_limit(q, limit, after=after).all()
-
-
-def _activities_before(q: QActivity,
-                      limit: int,
-                      before: datetime.datetime
-    ) -> list[Activity]:
-    '''
-    Return a list of all activities before a timestamp.
-    '''
-    return _activities_limit(q, limit, before=before).all()
 
 
 def _activities_from_user_query(user_id: str) -> QActivity:
@@ -255,6 +232,7 @@ def _package_activity_query(package_id: str) -> QActivity:
 def package_activity_list(
     package_id: str,
     limit: int,
+    offset: Optional[int]=None,
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
@@ -283,11 +261,18 @@ def package_activity_list(
             q, include=False, types=exclude_activity_types)
 
     if after:
-        return _activities_after(q, limit, after)
-    elif before:
-        return _activities_before(q, limit, before)
-    else:
-        return _activities_limit(q, limit).all()
+        q = _filter_activitites_from_timestamp(q, timestamp=after, after=True)
+    if before:
+        q = _filter_activitites_from_timestamp(q, timestamp=before, after=False)
+
+    # revert sort queries for "only after" queries
+    revese_order = before and not after
+    results = _activities_limit(q, limit, offset, revese_order).all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+    return results
 
 
 def _group_activity_query(
@@ -563,6 +548,24 @@ def _filter_activitites_from_users(q: QActivity) -> QActivity:
             users_to_avoid))
 
     return q
+
+
+def _filter_activitites_from_timestamp(
+        q: QActivity,
+        timestamp: datetime.datetime,
+        after: bool
+    ) -> QActivity:
+    '''Adds a filter to an existing query object to include or exclude
+    (include=False) activities based on a list of types.
+
+    '''
+    import ckan.model as model
+    if after:
+        q = q.filter(model.Activity.timestamp > timestamp)
+    else:
+        q = q.filter(model.Activity.timestamp < timestamp)
+    return q
+
 
 def _filter_activitites_from_type(
         q: QActivity, types: list[str], include: bool = True):
