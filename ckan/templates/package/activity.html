@@ -1,4 +1,5 @@
 {% extends "package/read_base.html" %}
+{% set dataset_type = h.default_package_type() %}
 
 {% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
@@ -26,7 +27,9 @@
       <option 
         {% if activity_type == type_ %}selected{% endif %}
         data-url="{{ h.url_for('dataset.activity', id=id, activity_type=type_) }}"
-      >{{ type_.title() }}</option>
+      >
+      {{ h.humanize_entity_type('activity', dataset_type, type_) }}
+    </option>
       {% endfor %}
     </select>
 
@@ -39,9 +42,8 @@
     <p>
       {% if activity_type %}
         {{ _('No activity found for this type') }}
-      {% else %}        
+      {% else %}
         {{ _('No activity found') }}.
-      {% else %}        
       {% endif %}
     </p>
   {% endif %}

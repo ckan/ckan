@@ -956,6 +956,23 @@ def default_package_type() -> str:
     return str(config.get('ckan.default.package_type', "dataset"))
 
 
+def _humanize_activity(object_type: str, activity_type: str) -> str:
+    """ Humanize activity types for custom objects
+
+        Example::
+
+          >>> _humanize_activity('Custom user', 'new_user')
+          'New custom user'
+          >>> _humanize_activity('dataset', 'changed_package')
+          'Changed dataset'
+
+    """
+    res = activity_type.replace('_', ' ').lower()
+    for obj in ['package', 'user', 'group', 'organization']:
+        res = res.replace(obj, object_type)
+    return res.capitalize()
+
+
 @core_helper
 def humanize_entity_type(entity_type: str, object_type: str,
                          purpose: str) -> Optional[str]:
@@ -1006,6 +1023,9 @@ def humanize_entity_type(entity_type: str, object_type: str,
     if (entity_type, object_type) == ("package", "dataset"):
         # special case for the previous condition
         return
+
+    if entity_type == "activity":
+        return _humanize_activity(object_type, activity_type=purpose)
 
     log.debug(
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
