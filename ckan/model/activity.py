@@ -11,7 +11,6 @@ from sqlalchemy import (
     Column,
     Table,
     ForeignKey,
-    desc,
     or_,
     and_,
     union_all,
