@@ -134,10 +134,9 @@ def _activities_limit(
     '''
     Return an SQLAlchemy query for all activities at an offset with a limit.
 
-    revert_before_limit: 
+    revese_order: 
         if we want the last activities before a date, we must reverse the
-        order before limiting. In the end, we always want this query to be
-        sorted by timestamp in descending order
+        order before limiting.
     '''
     import ckan.model as model
     
