@@ -3427,7 +3427,7 @@ class TestPackageActivityList(object):
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            after=db_activities[2].timestamp
+            after=db_activities[2].timestamp.timestamp()
         )
         # we expect just 2 (the first 2)
         assert len(pkg_activities) == 2
@@ -3483,7 +3483,7 @@ class TestPackageActivityList(object):
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            before=db_activities[1].timestamp
+            before=db_activities[1].timestamp.timestamp()
         )
         # we expect just 2 (the last 2)
         assert len(pkg_activities) == 2
@@ -3511,8 +3511,8 @@ class TestPackageActivityList(object):
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            before=db_activities[1].timestamp,
-            after=db_activities[3].timestamp
+            before=db_activities[1].timestamp.timestamp(),
+            after=db_activities[3].timestamp.timestamp()
         )
         # we expect just 1 (db_activities[2])
         assert len(pkg_activities) == 1
@@ -3533,8 +3533,8 @@ class TestPackageActivityList(object):
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            before=db_activities[1].timestamp,
-            after=db_activities[4].timestamp,
+            before=db_activities[1].timestamp.timestamp(),
+            after=db_activities[4].timestamp.timestamp(),
             offset=1
         )
         # we expect just 1 (db_activities[3])
