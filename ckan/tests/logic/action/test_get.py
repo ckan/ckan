@@ -3459,7 +3459,7 @@ class TestPackageActivityList(object):
             before=db_activities[1].timestamp
         )
         print([a['timestamp'] for a in pkg_activities])
-        # we expect just 3 (the last 3)
+        # we expect just 2 (the last 2)
         assert len(pkg_activities) == 2
         # first activity here is the first one.
         assert pkg_activities[0]["activity_type"] == 'changed package'

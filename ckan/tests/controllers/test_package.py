@@ -2082,6 +2082,50 @@ class TestActivity(object):
         )
         assert next_page_url in response.body
 
+        # Prev page button is not in the first page
+        prev_page_url = '/dataset/activity/{}?after='.format(dataset['id'])
+        assert prev_page_url not in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_last_page_button(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Fourth title"
+        helpers.call_action("package_update", **dataset)
+
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"]
+        )
+        # Last activity in the first page
+        last_act_page_1_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+        first_act_page_2_time = datetime.fromisoformat(
+            activities[3]["timestamp"]
+        )
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(
+            url,
+            query_string={'before': last_act_page_1_time.timestamp()}
+        )
+
+        # Next page button not exists in last page
+        next_page_url = '/dataset/activity/{}?before='.format(dataset['id'])
+        assert next_page_url not in response.body
+
+        # Prev page button is present in last page
+        prev_page_url = '/dataset/activity/{}?after={}'.format(
+            dataset['id'],
+            first_act_page_2_time.timestamp()
+        )
+        assert prev_page_url not in response.body
+
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_prev_page_button(self, app):
 
