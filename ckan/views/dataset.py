@@ -1109,11 +1109,6 @@ def activity(
     before = h.get_request_param('before')
     activity_type = h.get_request_param('activity_type')
 
-    if after and before:
-        raise ValidationError(
-            {'after': ['Cannot be used together with `before']}
-        )
-
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
@@ -1126,10 +1121,6 @@ def activity(
     max_limit = config.get_value('ckan.activity_list_limit_max')
     limit = min(base_limit, max_limit)
     activity_types = [activity_type] if activity_type else None
-    if after is not None:
-        after = datetime.fromtimestamp(float(after))
-    if before is not None:
-        before = datetime.fromtimestamp(float(before))
     is_first_page = after is None and before is None
 
     try:
@@ -1150,9 +1141,11 @@ def activity(
         )
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except NotFound:
-        return base.abort(404, _(u'Dataset not found'))
+        return base.abort(404, _('Dataset not found'))
     except NotAuthorized:
-        return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
+        return base.abort(403, _('Unauthorized to read dataset %s') % id)
+    except ValidationError:
+        return base.abort(400, _('Invalid parameters'))
 
     prev_page = None
     next_page = None

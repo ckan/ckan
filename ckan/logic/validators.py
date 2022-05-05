@@ -134,6 +134,15 @@ def is_positive_integer(value: Any, context: Context) -> Any:
         raise Invalid(_('Must be a positive integer'))
     return value
 
+def datetime_from_timestamp_validator(value: Any, context: Context) -> Any:
+    if value is missing or value is None:
+        return None
+    try:
+        value = datetime.datetime.fromtimestamp(float(value))
+    except (TypeError, ValueError):
+        raise Invalid(_('Must be a float timestamp'))
+    return value
+
 def boolean_validator(value: Any, context: Context) -> Any:
     '''
     Return a boolean for value.

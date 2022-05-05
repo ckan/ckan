@@ -2053,6 +2053,20 @@ class TestActivity(object):
         assert dataset["title"] in href.text.strip()
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_invalid_get_params(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(
+            url,
+            query_string={'before': 'XXX'},
+            status=400
+        )
+        assert 'Invalid parameters' in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_next_page_button(self, app):
 
         user = factories.User()

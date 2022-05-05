@@ -644,7 +644,8 @@ def default_activity_list_schema(
         natural_number_validator: Validator,
         limit_to_configured_maximum: ValidatorFactory,
         ignore_missing: Validator, boolean_validator: Validator,
-        ignore_not_sysadmin: Validator, list_of_strings: Validator):
+        ignore_not_sysadmin: Validator, list_of_strings: Validator,
+        datetime_from_timestamp_validator: Validator):
 
     schema = default_pagination_schema()
     schema['id'] = [not_missing, unicode_safe]
@@ -656,8 +657,8 @@ def default_activity_list_schema(
         ignore_missing, ignore_not_sysadmin, boolean_validator]
     schema['activity_types'] = [ignore_missing, list_of_strings]
     schema['exclude_activity_types'] = [ignore_missing, list_of_strings]
-    schema['before'] = [ignore_missing]
-    schema['after'] = [ignore_missing]
+    schema['before'] = [ignore_missing, datetime_from_timestamp_validator]
+    schema['after'] = [ignore_missing, datetime_from_timestamp_validator]
     return schema
 
 
