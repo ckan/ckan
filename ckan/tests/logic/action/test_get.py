@@ -3546,6 +3546,7 @@ class TestPackageActivityList(object):
         )
         assert pkg_activity_time == db_activities[3].timestamp
 
+
 @pytest.mark.usefixtures("clean_db")
 class TestUserActivityList(object):
     def test_create_user(self):
