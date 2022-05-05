@@ -28,7 +28,7 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash
+from flask import flash, redirect
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
 from flask import _request_ctx_stack
@@ -2870,48 +2870,27 @@ def check_ckan_version(min_version: Optional[str] = None,
                                         max_version=max_version)
 
 
-def make_next_param(login_url: str, current_url: str) -> str:
-    '''
-    Note: THIS CODE WAS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
-
-    Reduces the scheme and host from a given URL so it can be passed to
-    the given `login` URL more efficiently.
-
-    :param login_url: The login URL being redirected to.
-    :type login_url: str
-    :param current_url: The URL to reduce.
-    :type current_url: str
-    '''
-    l_url = urlparse(login_url)
-    c_url = urlparse(current_url)
-
-    if (not l_url.scheme or l_url.scheme == c_url.scheme) and \
-            (not l_url.netloc or l_url.netloc == c_url.netloc):
-        return urlunparse(('', '', c_url.path, c_url.params, c_url.query, ''))
-    return current_url
-
-
 def make_login_url(
     login_view: str, next_url: Optional[str] = None, next_field: str = "next"
 ) -> str:
-    """
-    Note: THIS CODE WAS COPIED FROM FLASK-LOGIN AND MODIFIED FOR CKAN
-
+    '''
     Creates a URL for redirecting to a login page. If only `login_view` is
     provided, this will just return the URL for it. If `next_url` is provided,
     however, this will append a ``next=URL`` parameter to the query string
     so that the login view can redirect back to that URL.
-    """
+    '''
     base = login_view
     if next_url is None:
         return base
 
-    parsed_result = urlparse(base)
-    md = {}
-    md[next_field] = make_next_param(base, next_url)
-    netloc = parsed_result.netloc
-    parsed_result = parsed_result._replace(netloc=netloc, query=urlencode(md))
-    return urlunparse(parsed_result)
+    if url_is_local(next_url):
+        md = {}
+        md[next_field] = urlparse(next_url).path
+        parsed_base = urlparse(base)
+        netloc = parsed_base.netloc
+        parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
+        return urlunparse(parsed_base)
+    return base
 
 
 def _ckan_login_required(  # type: ignore
