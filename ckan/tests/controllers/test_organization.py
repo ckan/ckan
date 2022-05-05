@@ -12,14 +12,12 @@ from ckan.tests import factories, helpers
 @pytest.fixture
 def user():
     user = factories.UserWithToken()
-    breakpoint()
     return user
 
 
 @pytest.fixture
 def sysadmin():
     user = factories.SysadminWithToken()
-    breakpoint()
     return user
 
 

@@ -419,7 +419,6 @@ class APIToken(CKANFactory):
         return data_dict
 
 
-
 class UserWithToken(User):
     """A factory class for creating CKAN users with an associated API token."""
 
@@ -432,8 +431,9 @@ class UserWithToken(User):
 
 
 class SysadminWithToken(Sysadmin):
-    """A factory class for creating CKAN sysadmin users with an associated API token."""
-
+    """A factory class for creating CKAN sysadmin users
+    with an associated API token.
+    """
     @factory.post_generation
     def token(obj, create, extracted, **kwargs):
         if not create:
