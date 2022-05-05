@@ -2002,7 +2002,7 @@ class TestDatasetRead(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         activity = activity_model.package_activity_list(
-            dataset["id"], limit=1
+            dataset["id"], limit=1, offset=0
         )[0]
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.Sysadmin()
@@ -2530,7 +2530,7 @@ class TestChanges(object):  # i.e. the diff
         helpers.call_action("package_update", **dataset)
 
         activity = activity_model.package_activity_list(
-            dataset["id"], limit=1
+            dataset["id"], limit=1, offset=0
         )[0]
         env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(

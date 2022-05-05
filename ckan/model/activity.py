@@ -148,10 +148,8 @@ def _activities_limit(
 
     if offset:
         q = q.offset(offset)
-
     if limit:
         q = q.limit(limit)
-
     return q
 
 
@@ -172,7 +170,7 @@ def _activities_at_offset(q: QActivity,
     '''
     Return a list of all activities at an offset with a limit.
     '''
-    return _activities_limit(q, limit, offset=offset).all()
+    return _activities_limit(q, limit, offset).all()
 
 
 def _activities_from_user_query(user_id: str) -> QActivity:
