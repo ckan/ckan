@@ -477,7 +477,7 @@ class RegisterView(MethodView):
         return base.render(u'user/new.html', extra_vars)
 
 
-def next_page_or_default(target: str) -> Response:
+def next_page_or_default(target: Optional[str]) -> Response:
     if target and h.url_is_local(target):
         return h.redirect_to(target)
     return me()
@@ -510,7 +510,7 @@ def login() -> Union[Response, str]:
 
         auth = authenticator.ckan_authenticator(identity)
         if auth:
-            next = request.args.get('next', '')
+            next = request.args.get('next', request.args.get('came_from'))
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))

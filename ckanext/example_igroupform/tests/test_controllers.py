@@ -14,7 +14,7 @@ group_type = u"group"
 
 @pytest.fixture
 def user():
-    user = factories.make_user_with_token()
+    user = factories.UserWithToken()
     return user
 
 

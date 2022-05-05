@@ -14,14 +14,14 @@ from ckan.model.system_info import get_system_info
 
 @pytest.fixture
 def sysadmin_env():
-    user = factories.make_user_with_token(sysadmin=True)
+    user = factories.SysadminWithToken()
     env = {"Authorization": user["token"]}
     return env
 
 
 @pytest.fixture
 def user_env():
-    user = factories.make_user_with_token()
+    user = factories.UserWithToken()
     env = {"Authorization": user["token"]}
     return env
 

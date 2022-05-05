@@ -419,11 +419,24 @@ class APIToken(CKANFactory):
         return data_dict
 
 
-def make_user_with_token(sysadmin=False):
-    if sysadmin:
-        user = Sysadmin(password="correct123")
-    else:
-        user = User(password="correct123")
 
-    user["token"] = APIToken(user=user["name"])["token"]
-    return user
+class UserWithToken(User):
+    """A factory class for creating CKAN users with an associated API token."""
+
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]
+
+
+class SysadminWithToken(Sysadmin):
+    """A factory class for creating CKAN users with an associated API token."""
+
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]
