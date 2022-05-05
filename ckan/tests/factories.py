@@ -417,3 +417,13 @@ class APIToken(CKANFactory):
     def _api_prepare_args(cls, data_dict):
         """Do not try to put `user` parameter into context."""
         return data_dict
+
+
+def make_user_with_token(sysadmin=False):
+    if sysadmin:
+        user = Sysadmin(password="correct123")
+    else:
+        user = User(password="correct123")
+
+    user["token"] = APIToken(user=user["name"])["token"]
+    return user

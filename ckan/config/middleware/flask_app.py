@@ -355,7 +355,7 @@ def ckan_before_request() -> Optional[Response]:
     # This is needed for the TESTS of the CKAN extensions only!
     # we should remove it as soon as the maintainers of the
     # CKAN extensions change their tests according to the new changes.
-    if "test.ckan.net" in request.environ["SERVER_NAME"]:
+    if config.get_value("testing"):
         set_remote_user_as_current_user_for_tests()
 
     # Identify the user from the flask-login cookie or the API header

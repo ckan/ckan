@@ -18,17 +18,13 @@ def _clear_activities():
 
 @pytest.fixture
 def user():
-    user = factories.User(password="correct123")
-    user_token = factories.APIToken(user=user["name"])
-    user["token"] = user_token["token"]
+    user = factories.make_user_with_token()
     return user
 
 
 @pytest.fixture
 def sysadmin():
-    user = factories.Sysadmin(password="correct123")
-    user_token = factories.APIToken(user=user["name"])
-    user["token"] = user_token["token"]
+    user = factories.make_user_with_token(sysadmin=True)
     return user
 
 

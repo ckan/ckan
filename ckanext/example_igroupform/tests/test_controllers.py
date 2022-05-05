@@ -14,9 +14,7 @@ group_type = u"group"
 
 @pytest.fixture
 def user():
-    user = factories.User(password="correct123")
-    user_token = factories.APIToken(user=user["name"])
-    user["token"] = user_token["token"]
+    user = factories.make_user_with_token()
     return user
 
 
