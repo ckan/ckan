@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Optional, Type, TypeVar
-from typing_extensions import TypeAlias
+from typing import Any, Optional
+from typing_extensions import TypeAlias, Self
 
 from sqlalchemy import (
     orm,
@@ -31,7 +31,6 @@ __all__ = ['Activity', 'activity_table',
            'ActivityDetail', 'activity_detail_table',
            ]
 
-TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 activity_table = Table(
@@ -116,7 +115,7 @@ class ActivityDetail(domain_object.DomainObject):
             self.data = data
 
     @classmethod
-    def by_activity_id(cls: Type[TActivityDetail], activity_id: str) -> list["TActivityDetail"]:
+    def by_activity_id(cls, activity_id: str) -> list[Self]:
         return ckan.model.Session.query(cls) \
             .filter_by(activity_id=activity_id).all()
 

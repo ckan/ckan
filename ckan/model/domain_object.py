@@ -3,11 +3,11 @@ from __future__ import annotations
 
 import datetime
 from collections import OrderedDict
-from typing import Any, Callable, Optional, Set, Type, TypeVar
+from typing import Any, Callable, Optional, Set, TypeVar
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.core as core
@@ -48,8 +48,8 @@ class DomainObject(object):
         return cls.Session.query(cls).count()
 
     @classmethod
-    def by_name(cls: Type[T], name: Optional[str], autoflush: bool=True,
-                for_update: bool=False) -> Optional[T]:
+    def by_name(cls, name: Optional[str], autoflush: bool=True,
+                for_update: bool=False) -> Optional[Self]:
         q = meta.Session.query(cls).autoflush(autoflush
             ).filter_by(name=name)
         if for_update:
@@ -68,7 +68,7 @@ class DomainObject(object):
         return query.filter(q)
 
     @classmethod
-    def active(cls: Type[T]) -> 'Query[T]':
+    def active(cls) -> Query[Self]:
         return meta.Session.query(cls).filter_by(state=core.State.ACTIVE)
 
     def save(self) -> None:

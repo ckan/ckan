@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Iterable, Optional, TYPE_CHECKING, Type, TypeVar
+from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
 import re
@@ -27,8 +27,6 @@ from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import Group, ApiToken
-
-TUser = TypeVar("TUser", bound="User")
 
 
 def last_active_check():
@@ -88,7 +86,7 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls: Type[TUser], email: str) -> Optional[TUser]:
+    def by_email(cls, email: str) -> Optional[Self]:
         return meta.Session.query(cls).filter_by(email=email).first()
 
     @classmethod
@@ -99,7 +97,7 @@ class User(core.StatefulObjectMixin,
         return query.first()
 
     @classmethod
-    def all(cls: Type[TUser]) -> list[TUser]:
+    def all(cls) -> list[Self]:
         '''Return all users in this CKAN instance.
 
         :rtype: list of ckan.model.user.User objects
@@ -299,9 +297,9 @@ class User(core.StatefulObjectMixin,
         return groups
 
     @classmethod
-    def search(cls: Type[TUser], querystr: str,
+    def search(cls, querystr: str,
                sqlalchemy_query: Optional[Any] = None,
-               user_name: Optional[str] = None) -> Query[TUser]:
+               user_name: Optional[str] = None) -> Query[Self]:
         '''Search name, fullname, email. '''
         if sqlalchemy_query is None:
             query = meta.Session.query(cls)
