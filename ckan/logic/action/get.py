@@ -848,7 +848,7 @@ def user_list(
     all_fields = asbool(data_dict.get('all_fields', True))
 
     if all_fields:
-        query: Query[Any] = model.Session.query(
+        query: 'Query[Any]' = model.Session.query(
             model.User,
             # type_ignore_reason: incomplete SQLAlchemy types
             model.User.name.label('name'),  # type: ignore
@@ -1900,7 +1900,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_deleted = asbool(data_dict.pop('include_deleted', False))
-
+        
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
 

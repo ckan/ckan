@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
 
-def _get_sysadmins() -> Query[model.User]:
+def _get_sysadmins() -> "Query[model.User]":
     q = model.Session.query(model.User).filter(
         # type_ignore_reason: incomplete SQLAlchemy types
         model.User.sysadmin.is_(True),  # type: ignore
@@ -169,13 +169,13 @@ class TrashView(MethodView):
 
     def _get_deleted_datasets(
         self
-    ) -> Union[Query[model.Package], List[Any]]:
+    ) -> Union["Query[model.Package]", List[Any]]:
         if config.get_value('ckan.search.remove_deleted_packages'):
             return self._get_deleted_datasets_from_db()
         else:
             return self._get_deleted_datasets_from_search_index()
 
-    def _get_deleted_datasets_from_db(self) -> Query[model.Package]:
+    def _get_deleted_datasets_from_db(self) -> "Query[model.Package]":
         return model.Session.query(
             model.Package
         ).filter_by(

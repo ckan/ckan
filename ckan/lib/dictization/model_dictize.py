@@ -296,7 +296,7 @@ def _get_members(context: Context, group: model.Group,
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    q: Query[tuple[Entity, str]] = model.Session.query(
+    q: "Query[tuple[Entity, str]]" = model.Session.query(
         Entity, model.Member.capacity).\
         join(model.Member, model.Member.table_id == Entity.id).\
         filter(model.Member.group_id == group.id).\
