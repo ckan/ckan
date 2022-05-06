@@ -244,6 +244,7 @@ def package_activity_list(
     etc.
 
     '''
+    import ckan.model as model
     q = _package_activity_query(package_id)
 
     if not include_hidden_activity:
@@ -257,13 +258,24 @@ def package_activity_list(
             q, include=False, types=exclude_activity_types)
 
     if after:
-        q = _filter_activitites_from_timestamp(q, timestamp=after, after=True)
+        q = q.filter(model.Activity.timestamp > after)
     if before:
-        q = _filter_activitites_from_timestamp(q, timestamp=before, after=False)
+        q = q.filter(model.Activity.timestamp < before)
 
-    # revert sort queries for "only after" queries
+    # revert sort queries for "only before" queries
     revese_order = before and not after
-    results = _activities_limit(q, limit, offset, revese_order).all()
+    if revese_order:
+        q = q.order_by(model.Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(model.Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
 
     # revert result if required
     if revese_order:
@@ -543,23 +555,6 @@ def _filter_activitites_from_users(q: QActivity) -> QActivity:
         q = q.filter(ckan.model.Activity.user_id.notin_(  # type: ignore
             users_to_avoid))
 
-    return q
-
-
-def _filter_activitites_from_timestamp(
-        q: QActivity,
-        timestamp: datetime.datetime,
-        after: bool
-    ) -> QActivity:
-    '''Adds a filter to an existing query object to include or exclude
-    (include=False) activities based on a list of types.
-
-    '''
-    import ckan.model as model
-    if after:
-        q = q.filter(model.Activity.timestamp > timestamp)
-    else:
-        q = q.filter(model.Activity.timestamp < timestamp)
     return q
 
 
