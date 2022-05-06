@@ -54,7 +54,7 @@ class ResourceView(domain_object.DomainObject):
             cls, view_types: Collection[str]) -> list[tuple[str, int]]:
         '''Returns the count of ResourceView not in the view types list'''
         view_type = cls.view_type
-        query: 'Query[tuple[str, int]]' = meta.Session.query(
+        query: Query[tuple[str, int]] = meta.Session.query(
             view_type, sa.func.count(cls.id)).group_by(view_type).filter(
                 # type_ignore_reason: incomplete SQLAlchemy types
                 sa.not_(view_type.in_(view_types)))  # type: ignore

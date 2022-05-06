@@ -185,7 +185,7 @@ class Tag(domain_object.DomainObject):
         search_term = search_term.strip().lower()
         # type_ignore_reason: incomplete SQLAlchemy types
         query = query.filter(Tag.name.contains(search_term))  # type: ignore
-        query: 'Query[Tag]' = query.distinct().join(Tag.package_tags)
+        query: Query[Tag] = query.distinct().join(Tag.package_tags)
         return query
 
     @classmethod
@@ -229,8 +229,8 @@ class Tag(domain_object.DomainObject):
         :rtype: list of ckan.model.package.Package objects
 
         '''
-        q: 'Query[ckan.model.Package]' = meta.Session.query(ckan.model.Package)
-        q: 'Query[ckan.model.Package]' = q.join(PackageTag)
+        q: Query[ckan.model.Package] = meta.Session.query(ckan.model.Package)
+        q: Query[ckan.model.Package] = q.join(PackageTag)
         q = q.filter(ckan.model.PackageTag.tag_id == self.id)
         q = q.filter_by(state='active')
         q = q.order_by(ckan.model.Package.name)

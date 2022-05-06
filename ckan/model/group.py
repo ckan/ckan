@@ -304,12 +304,12 @@ class Group(core.StatefulObjectMixin,
     def packages(self, *,
                  return_query: Literal[True],
                  context: Optional[Context]=...
-                 ) -> 'Query[_package.Package]': ...
+                 ) -> Query[_package.Package]: ...
     @overload
     def packages(self, with_private: bool, limit: Optional[int],
                  return_query: Literal[True],
                  context: Optional[Context]=...
-                 ) -> 'Query[_package.Package]': ...
+                 ) -> Query[_package.Package]: ...
     @overload
     def packages(self, with_private: bool=..., limit: Optional[int]=...,
                  return_query: Literal[False]=...,
@@ -321,7 +321,7 @@ class Group(core.StatefulObjectMixin,
             limit: Optional[int] = None,
             return_query: bool = False,
             context: Optional[Context] = None
-    ) -> Union["Query[_package.Package]", list[_package.Package]]:
+    ) -> Union[Query[_package.Package], list[_package.Package]]:
         '''Return this group's active packages.
 
         Returns all packages in this group with VDM state ACTIVE
@@ -367,9 +367,9 @@ class Group(core.StatefulObjectMixin,
         if not self.is_organization:
             query = query.filter(_package.Package.private == False)
 
-        query: "Query[_package.Package]" = query.join(
+        query: Query[_package.Package] = query.join(
             member_table, member_table.c["table_id"] == _package.Package.id)
-        query: "Query[_package.Package]" = query.join(
+        query: Query[_package.Package] = query.join(
             group_table, group_table.c["id"] == member_table.c["group_id"])
 
         if limit is not None:
