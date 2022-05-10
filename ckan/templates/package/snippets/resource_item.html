@@ -52,7 +52,7 @@
       </li>
       {% if res.url and h.is_url(res.url) %}
       <li>
-        <a class="dropdown-item" href="{{ res.url }}" class="resource-url-analytics" target="_blank" rel="noreferrer">
+        <a class="dropdown-item resource-url-analytics" href="{{ res.url }}" target="_blank" rel="noreferrer">
           {% if res.has_views or res.url_type == 'upload' %}
             <i class="fa fa-arrow-circle-o-down"></i>
             {{ _('Download') }}
