@@ -1073,6 +1073,7 @@ class EditGroupView(MethodView):
         return context
 
     def post(self, group_type, is_organization, id=None):
+        save_action = request.form.get(u'save')
         set_org(is_organization)
         context = self._prepare(id, is_organization)
         try:
@@ -1087,6 +1088,10 @@ class EditGroupView(MethodView):
             group = _action(u'group_update')(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
+
+            if save_action == u'go-group':
+                # go back to group/organization
+                return h.redirect_to(u'{}.read'.format(group_type), id=id)
 
         except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
