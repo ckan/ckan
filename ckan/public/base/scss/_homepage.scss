@@ -1,0 +1,105 @@
+.homepage {
+    .hero {
+        background: url("#{$imagePath}/background-tile.png");
+        padding: 20px 0;
+    }
+    .module-promotion {
+        background: $white;
+        padding: 30px;
+    }
+    .module-search {
+        color: $mastheadTextColor;
+        padding: 10px;
+        border: 1px solid #ccc;  
+        .search-form {
+            @include border-radius($card-border-radius);
+            background-color: $mastheadBackgroundColor;
+            padding: 30px 20px;
+            input {
+                font-size: 16px;
+                padding: 15px;
+            }
+            button {
+                border: none;
+                margin-left: -40px;
+            }
+        }
+        .search-input {
+            display: flex;
+            bottom {
+                margin-left: -30px;
+                align-items: center;
+            }
+        }
+        .tags {
+            h3 {
+                font-size: $font-size-base;
+                line-height: $line-height-base;
+                padding: 2px 8px;
+                margin-top: -5px;
+            }
+            margin-top: -5px;
+            padding: 5px 10px 10px 10px;
+            background-color: darken($mastheadBackgroundColor, 10%);
+            h3,
+            .tag {
+                display: block;
+                float: left;
+                margin: 5px 10px 0 0;
+            }
+        }
+    }
+    .module-stats {
+        margin-top: $spacer * 1;
+        color: $layoutTextColor;
+        .card {
+            padding: ($spacer * 1.5) ($spacer * 1.75);
+            ul {
+                @include list-unstyled;
+                @include clearfix;
+                padding: 0;
+                li {
+                    float: left;
+                    width: 25%;
+                    font-weight: 300;
+                    a {
+                        display: block;
+                        b {
+                            display: block;
+                            font-size: $font-size-base;
+                            line-height: 1.5;
+                        }
+                        &:hover {
+                            text-decoration: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .module-feeds {
+        padding: $spacer * 2 0;
+        background: $layoutBackgroundColor url($bgPath);
+        .module-stats {
+            margin-top: 0 
+        }
+    }
+}
+@include media-breakpoint-down(md){
+    .homepage {
+        .module-search {
+            margin-top: $spacer * .5;
+        }
+        .module-stats {
+            margin-top: $spacer * .5;
+            margin-bottom: $spacer * .5;
+        }
+        .module-feeds {
+            .card {
+                margin-top: $spacer * 1;
+                margin-bottom: $spacer * 1;
+            }
+
+        }
+    }
+}

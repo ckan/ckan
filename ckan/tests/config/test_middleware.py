@@ -1,17 +1,11 @@
 # encoding: utf-8
 
-import flask
 import pytest
-import wsgiref
 import six
 from flask import Blueprint
 
-import ckan.lib.helpers as h
-import ckan.model as model
 import ckan.plugins as p
-import ckan.tests.factories as factories
 from ckan.common import config, _
-from ckan.config.middleware.flask_app import CKANFlask
 
 
 class MockRoutingPlugin(p.SingletonPlugin):

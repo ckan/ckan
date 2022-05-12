@@ -14,7 +14,6 @@ ENV_VAR_LIST = [
     (u"CKAN_DATASTORE_READ_URL", u"http://mynewdbreadurl/"),
     (u"CKAN_SOLR_URL", u"http://mynewsolrurl/solr"),
     (u"CKAN_SITE_ID", u"my-site"),
-    (u"CKAN_DB", u"postgresql://mydeprectatesqlurl/"),
     (u"CKAN_SMTP_SERVER", u"mail.example.com"),
     (u"CKAN_SMTP_STARTTLS", u"True"),
     (u"CKAN_SMTP_USER", u"my_user"),
@@ -60,16 +59,6 @@ def test_update_config_env_vars(ckan_config):
     assert ckan_config[u"smtp.password"] == u"password"
     assert ckan_config[u"smtp.mail_from"] == u"server@example.com"
     assert ckan_config[u"ckan.max_resource_size"] == u"50"
-
-
-@pytest.mark.usefixtures("reset_env")
-def test_update_config_db_url_precedence(ckan_config):
-    """CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB"""
-    os.environ.setdefault("CKAN_DB", "postgresql://mydeprectatesqlurl/")
-    os.environ.setdefault("CKAN_SQLALCHEMY_URL", "postgresql://mynewsqlurl/")
-    p.load()
-
-    assert ckan_config["sqlalchemy.url"] == "postgresql://mynewsqlurl/"
 
 
 @pytest.mark.ckan_config("ckan.site_url", "")

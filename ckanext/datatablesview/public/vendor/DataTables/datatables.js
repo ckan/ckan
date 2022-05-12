@@ -4,10 +4,10 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.2
+ *   https://datatables.net/download/#bs/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.3
  *
  * Included libraries:
- *   DataTables 1.10.24, Buttons 1.7.0, Column visibility 1.7.0, HTML5 export 1.7.0, Print view 1.7.0, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.2
+ *   DataTables 1.10.24, Buttons 1.7.0, Column visibility 1.7.0, HTML5 export 1.7.0, Print view 1.7.0, ColReorder 1.5.3, FixedColumns 3.3.2, KeyTable 2.6.1, Responsive 2.2.7, Select 1.3.3
  */
 
 /*! DataTables 1.10.24
@@ -13971,7 +13971,7 @@
 		 *
 		 *  @type string
 		 */
-		build:"bs/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.2",
+		build:"bs/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/b-print-1.7.0/cr-1.5.3/fc-3.3.2/kt-2.6.1/r-2.2.7/sl-1.3.3",
 	
 	
 		/**
@@ -25684,7 +25684,7 @@ return Responsive;
 }));
 
 
-/*! Select for DataTables 1.3.2
+/*! Select for DataTables 1.3.3
  * 2015-2021 SpryMedia Ltd - datatables.net/license/mit
  */
 
@@ -25692,7 +25692,7 @@ return Responsive;
  * @summary     Select for DataTables
  * @description A collection of API methods, events and buttons for DataTables
  *   that provides selection options of the items in a DataTable
- * @version     1.3.2
+ * @version     1.3.3
  * @file        dataTables.select.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     datatables.net/forums
@@ -25740,7 +25740,7 @@ var DataTable = $.fn.dataTable;
 // Version information for debugger
 DataTable.select = {};
 
-DataTable.select.version = '1.3.2';
+DataTable.select.version = '1.3.3';
 
 DataTable.select.init = function ( dt ) {
 	var ctx = dt.settings()[0];

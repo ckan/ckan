@@ -13,10 +13,26 @@ import pytest
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
 import ckan.model as model
-import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 import ckan.tests.lib.navl.test_validators as t
 import ckan.logic as logic
+
+
+def validator_data_dict():
+    """Return a data dict with some arbitrary data in it, suitable to be passed
+    to validator functions for testing.
+
+    """
+    return {("other key",): "other value"}
+
+
+def validator_errors_dict():
+    """Return an errors dict with some arbitrary errors in it, suitable to be
+    passed to validator functions for testing.
+
+    """
+    return {("other key",): ["other error"]}
 
 
 def returns_arg(function):
@@ -48,7 +64,7 @@ def returns_arg(function):
     return call_and_assert
 
 
-def raises_Invalid(function):
+def raises_invalid(function):
     """A decorator that asserts that the decorated function raises
     dictization_functions.Invalid.
 
@@ -161,37 +177,52 @@ def adds_message_to_errors_dict(error_message):
     return decorator
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_with_existed_value(app):
     with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
-
-        # try to create new user with occupied email
-        with pytest.raises(logic.ValidationError):
-            factories.User(username="new_user", email="user01@email.com")
-
-
-@pytest.mark.usefixtures("clean_db")
-def test_email_is_unique_validator_user_update_email_unchanged(app):
-    with app.flask_app.test_request_context():
         user = factories.User(username="user01", email="user01@email.com")
 
-        # try to update user1 and leave email unchanged
-        old_email = "user01@email.com"
-
-        helpers.call_action("user_update", **user)
-        updated_user = model.User.get(user["id"])
-
-        assert updated_user.email == old_email
+    # try to create new user with occupied email
+    with pytest.raises(logic.ValidationError):
+        factories.User(email=user["email"])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
+def test_email_is_unique_validator_user_update_email_unchanged():
+    user = factories.User()
+
+    # try to update user1 and leave email unchanged
+    old_email = user["email"]
+
+    helpers.call_action("user_update", **user)
+    updated_user = model.User.get(user["id"])
+
+    assert updated_user.email == old_email
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_email_is_unique_validator_user_update_using_name_as_id():
+    user = factories.User()
+
+    # try to update user1 and leave email unchanged
+    old_email = user["email"]
+
+    helpers.call_action(
+        "user_update", id=user["name"], email=user["email"], about="test"
+    )
+    updated_user = model.User.get(user["id"])
+
+    assert updated_user.email == old_email
+    assert updated_user.about == "test"
+
+
+@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_email_new(app):
     with app.flask_app.test_request_context():
-        user = factories.User(username="user01", email="user01@email.com")
+        user = factories.User()
 
         # try to update user1 email to unoccupied one
-        new_email = "user_new@email.com"
+        new_email = factories.User.stub().email
         user["email"] = new_email
 
         helpers.call_action("user_update", **user)
@@ -200,11 +231,11 @@ def test_email_is_unique_validator_user_update_email_new(app):
         assert updated_user.email == new_email
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_to_existed_email(app):
     with app.flask_app.test_request_context():
-        user1 = factories.User(username="user01", email="user01@email.com")
-        user2 = factories.User(username="user02", email="user02@email.com")
+        user1 = factories.User()
+        user2 = factories.User()
 
         # try to update user1 email to existed one
         user1["email"] = user2["email"]
@@ -252,7 +283,7 @@ def test_name_validator_with_invalid_value():
 
     for invalid_value in invalid_values:
 
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.name_validator(*args, **kwargs)
 
@@ -271,7 +302,7 @@ def test_email_validator_with_invalid_value():
 
     for invalid_value in invalid_values:
 
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.email_validator(*args, **kwargs)
 
@@ -292,6 +323,21 @@ def test_email_validator_with_valid_value():
             return validators.email_validator(*args, **kwargs)
 
         call_validator(valid_value)
+
+
+def test_strip_value_with_valid_value():
+    valid_values = [
+        " test@example.com",
+        "  test@example.com",
+        "test@example.com ",
+        "test@example.com  ",
+        " test@example.com ",
+        "  test@example.com  ",
+    ]
+
+    for valid_value in valid_values:
+
+        assert validators.strip_value(valid_value) == "test@example.com"
 
 
 def test_name_validator_with_valid_value():
@@ -352,13 +398,13 @@ def test_user_name_validator_with_non_string_value():
 
     key = ("name",)
     for non_string_value in non_string_values:
-        data = factories.validator_data_dict()
+        data = validator_data_dict()
         data[key] = non_string_value
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
 
         @t.does_not_modify_data_dict
-        @raises_Invalid
+        @raises_invalid
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
 
@@ -378,15 +424,15 @@ def test_user_name_validator_with_a_name_that_already_exists():
     # the same user name in the database.
     mock_model = mock.MagicMock()
 
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     @does_not_modify_other_keys_in_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     @adds_message_to_errors_dict("That login name is not available.")
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
@@ -396,10 +442,10 @@ def test_user_name_validator_with_a_name_that_already_exists():
 
 def test_user_name_validator_successful():
     """user_name_validator() should do nothing if given a valid name."""
-    data = factories.validator_data_dict()
+    data = validator_data_dict()
     key = ("name",)
     data[key] = "new_user_name"
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
 
     # Mock ckan.model.
@@ -410,7 +456,7 @@ def test_user_name_validator_successful():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
@@ -495,8 +541,8 @@ def test_clean_format():
 
 
 def test_datasets_with_org_can_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -509,7 +555,7 @@ def test_datasets_with_org_can_be_private_when_creating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
@@ -519,8 +565,8 @@ def test_datasets_with_org_can_be_private_when_creating():
 
 
 def test_datasets_with_no_org_cannot_be_private_when_creating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -542,8 +588,8 @@ def test_datasets_with_no_org_cannot_be_private_when_creating():
 
 
 def test_datasets_with_org_can_be_private_when_updating():
-    data = factories.validator_data_dict()
-    errors = factories.validator_errors_dict()
+    data = validator_data_dict()
+    errors = validator_errors_dict()
 
     key = ("private",)
     data[key] = True
@@ -557,7 +603,7 @@ def test_datasets_with_org_can_be_private_when_updating():
 
     @t.does_not_modify_errors_dict
     @t.does_not_modify_data_dict
-    @t.returns_None
+    @t.returns_none
     def call_validator(*args, **kwargs):
         return validators.datasets_with_no_organization_cannot_be_private(
             *args, **kwargs
@@ -578,7 +624,7 @@ def test_long_unchanged():
     returns_arg(validators.int_validator)(3948756923874659827346598)
 
 
-def test_None_unchanged():
+def test_none_unchanged():
     returns_arg(validators.int_validator)(None)
 
 
@@ -617,48 +663,48 @@ def test_string_with_whitespace_converted():
     assert validators.int_validator("\t  98\n", {}) == 98
 
 
-def test_empty_string_becomes_None():
+def test_empty_string_becomes_none():
     assert validators.int_validator("", {}) is None
 
 
-def test_whitespace_string_becomes_None():
+def test_whitespace_string_becomes_none():
     assert validators.int_validator("\n\n  \t", {}) is None
 
 
-def test_float_with_decimal_raises_Invalid():
-    raises_Invalid(validators.int_validator)(42.5, {})
+def test_float_with_decimal_raises_invalid():
+    raises_invalid(validators.int_validator)(42.5, {})
 
 
-def test_float_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("42.0", {})
+def test_float_string_raises_invalid():
+    raises_invalid(validators.int_validator)("42.0", {})
 
 
-def test_exponent_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("1e6", {})
+def test_exponent_string_raises_invalid():
+    raises_invalid(validators.int_validator)("1e6", {})
 
 
-def test_non_numeric_string_raises_Invalid():
-    raises_Invalid(validators.int_validator)("text", {})
+def test_non_numeric_string_raises_invalid():
+    raises_invalid(validators.int_validator)("text", {})
 
 
-def test_non_whole_fraction_raises_Invalid():
-    raises_Invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
+def test_non_whole_fraction_raises_invalid():
+    raises_invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
 
 
-def test_non_whole_decimal_raises_Invalid():
-    raises_Invalid(validators.int_validator)(decimal.Decimal("19.99"), {})
+def test_non_whole_decimal_raises_invalid():
+    raises_invalid(validators.int_validator)(decimal.Decimal("19.99"), {})
 
 
-def test_complex_with_imaginary_component_raises_Invalid():
+def test_complex_with_imaginary_component_raises_invalid():
     with warnings.catch_warnings():  # divmod() issues warning for complex
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        raises_Invalid(validators.int_validator)(1 + 1j, {})
+        raises_invalid(validators.int_validator)(1 + 1j, {})
 
 
-def test_complex_without_imaginary_component_raises_Invalid():
+def test_complex_without_imaginary_component_raises_invalid():
     with warnings.catch_warnings():  # divmod() issues warning for complex
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        raises_Invalid(validators.int_validator)(1 + 0j, {})
+        raises_invalid(validators.int_validator)(1 + 0j, {})
 
 
 def test_bool_true():
@@ -698,10 +744,9 @@ def test_package_name_exists_empty():
         validators.package_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 def test_package_name_exists():
-    name = "pne_validation_test"
-    dataset = factories.Dataset(name=name)
+    name = factories.Dataset()["name"]
     v = validators.package_name_exists(name, _make_context())
     assert v == name
 
@@ -711,9 +756,8 @@ def test_resource_id_exists_empty():
         validators.resource_id_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db")
-def test_resource_id_exists():
-    resource = factories.Resource()
+@pytest.mark.usefixtures("non_clean_db")
+def test_resource_id_exists(resource):
     v = validators.resource_id_exists(resource["id"], _make_context())
     assert v == resource["id"]
 
@@ -723,9 +767,9 @@ def test_user_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_user_id_or_name_exists():
-    user = factories.User(name="username")
+    user = factories.User()
     v = validators.user_id_or_name_exists(user["id"], _make_context())
     assert v == user["id"]
     v = validators.user_id_or_name_exists(user["name"], _make_context())
@@ -737,9 +781,8 @@ def test_group_id_or_name_exists_empty():
         validators.user_id_or_name_exists("", _make_context())
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-def test_group_id_or_name_exists():
-    group = factories.Group()
+@pytest.mark.usefixtures("non_clean_db")
+def test_group_id_or_name_exists(group):
     v = validators.group_id_or_name_exists(group["id"], _make_context())
     assert v == group["id"]
 
@@ -761,7 +804,7 @@ def test_password_ok():
         return validators.user_password_validator(*args, **kwargs)
 
     for password in passwords:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: password}, errors, None)
 
@@ -776,7 +819,7 @@ def test_password_too_short():
     def call_validator(*args, **kwargs):
         return validators.user_password_validator(*args, **kwargs)
 
-    errors = factories.validator_errors_dict()
+    errors = validator_errors_dict()
     errors[key] = []
     call_validator(key, {key: password}, errors, None)
 
@@ -794,7 +837,7 @@ def test_url_ok():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
@@ -808,7 +851,7 @@ def test_url_invalid():
         return validators.url_validator(*args, **kwargs)
 
     for url in urls:
-        errors = factories.validator_errors_dict()
+        errors = validator_errors_dict()
         errors[key] = []
         call_validator(key, {key: url}, errors, None)
 
@@ -822,7 +865,37 @@ class TestOneOfValidator(object):
     def test_val_not_in_list(self):
         cont = [1, 2, 3, 4]
         func = validators.one_of(cont)
-        raises_Invalid(func)(5)
+        raises_invalid(func)(5)
+
+    def test_empty_val_accepted(self):
+        cont = [1, 2, 3, 4]
+        func = validators.one_of(cont)
+        assert func("") == ""
 
 
-# TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show
+def test_tag_string_convert():
+    def convert(tag_string):
+        key = "tag_string"
+        data = {key: tag_string}
+        errors = []
+        context = {"model": model, "session": model.Session}
+        validators.tag_string_convert(key, data, errors, context)
+        tags = []
+        i = 0
+        while True:
+            tag = data.get(("tags", i, "name"))
+            if not tag:
+                break
+            tags.append(tag)
+            i += 1
+        return tags
+
+    assert convert("big, good") == ["big", "good"]
+    assert convert("one, several word tag, with-hyphen") == [
+        "one",
+        "several word tag",
+        "with-hyphen",
+    ]
+    assert convert("") == []
+    assert convert("trailing comma,") == ["trailing comma"]
+    assert convert("trailing comma space, ") == ["trailing comma space"]

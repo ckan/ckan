@@ -1,0 +1,45 @@
+.site-footer {
+    background: $mastheadBackgroundColor url("#{$bgPath}");
+    padding: 20px 0;
+    & label,
+    small {
+        color: $footerTextColor;
+    }
+    a {
+        color: $footerLinkColor;
+    }
+    .footer-links {
+        ul {
+            margin: 0;
+            li {
+                margin-bottom: 5px;
+            }
+        }
+    }
+
+    .attribution {
+        p  {
+            color: $footerTextColor;
+            font-size: $h5-font-size;
+        }
+        .ckan-footer-logo {
+            display: block;
+            width: 68px;
+            height: 21px;
+            margin-top: 2px;
+            background: url("#{$imagePath}/ckan-logo-footer.png") no-repeat top left;
+            text-indent: -900em;
+        }
+    }
+    .lang-select {
+        .form-group { 
+            label {
+                font-size: $h5-font-size;
+            }
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+      
+    }
+}

@@ -1,0 +1,55 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% set logged_in = true if c.userobj else false %}
+{% set res = resource %}
+
+{% block breadcrumb_edit_selected %}{% endblock %}
+
+{% block content_action %}
+  {% link_for _('All views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='arrow-left' %}
+  {% if res %}
+    {% set url = h.url_for(pkg.type ~ '_resource.read', id=pkg.name, resource_id=res.id) ~ '?view_id=' ~ resource_view.id %}
+    <a href="{{ url }}" class="btn btn-default"><i class="fa fa-eye"></i> {{ _('View view') }}</a>
+  {% endif %}
+{% endblock %}
+
+{% block content_primary_nav %}{% endblock %}
+
+{% block primary_content_inner %}
+  {% block form %}{% endblock %}
+{% endblock %}
+
+{% block main_content %}
+  {% if h.resource_view_full_page(resource_view) %}
+    {{ self.flash() }}
+    {{ self.toolbar() }}
+    <div class="wrapper no-nav">
+      {{ self.primary_content() }}
+    </div>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+
+  {% if to_preview and h.resource_view_display_preview(resource_view) %}
+    <div class="row wrapper no-nav view-preview-container">
+      <section class="module module-narrow module-shallow">
+        <h2 class="module-heading">
+          <i class="fa fa-picture-o"></i> {{ _('View preview') }}
+        </h2>
+        <div class="module-content">
+          {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=resource, package=package, to_preview=True %}
+        </div>
+      </section>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block secondary %}
+  {% if not h.resource_view_full_page(resource_view) %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/view_help.html' %}
+{% endblock %}

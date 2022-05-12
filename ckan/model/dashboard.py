@@ -2,7 +2,8 @@
 
 import datetime
 import sqlalchemy
-from ckan.model import meta
+import ckan.model.meta as meta
+from sqlalchemy.orm.exc import NoResultFound
 
 dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
     sqlalchemy.Column('user_id', sqlalchemy.types.UnicodeText,
@@ -18,14 +19,17 @@ dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
 
 class Dashboard(object):
     '''Saved data used for the user's dashboard.'''
+    user_id: str
+    activity_stream_last_viewed: datetime.datetime
+    email_last_sent: datetime.datetime
 
-    def __init__(self, user_id):
+    def __init__(self, user_id: str) -> None:
         self.user_id = user_id
         self.activity_stream_last_viewed = datetime.datetime.utcnow()
         self.email_last_sent = datetime.datetime.utcnow()
 
     @classmethod
-    def get(cls, user_id):
+    def get(cls, user_id: str) -> "Dashboard":
         '''Return the Dashboard object for the given user_id.
 
         If there's no dashboard row in the database for this user_id, a fresh
@@ -36,7 +40,7 @@ class Dashboard(object):
         query = query.filter(Dashboard.user_id == user_id)
         try:
             row = query.one()
-        except sqlalchemy.orm.exc.NoResultFound:
+        except NoResultFound:
             row = Dashboard(user_id)
             meta.Session.add(row)
             meta.Session.commit()

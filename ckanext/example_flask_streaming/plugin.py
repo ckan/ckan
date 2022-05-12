@@ -1,12 +1,13 @@
 # encoding: utf-8
 
 import os.path as path
+from typing import Any
 
 from flask import Blueprint
 import flask
 
 import ckan.plugins as p
-from ckan.common import streaming_response
+from ckan.common import CKANConfig, streaming_response
 
 
 def stream_string():
@@ -17,7 +18,7 @@ def stream_string():
     return streaming_response(generate())
 
 
-def stream_template(**kwargs):
+def stream_template(**kwargs: Any):
     u'''You can stream big templates as well.'''
     tpl = flask.current_app.jinja_env.get_template(u'stream.html')
     gen = tpl.stream(kwargs)
@@ -59,7 +60,7 @@ class ExampleFlaskStreamingPlugin(p.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
         # Add extension templates directory
         p.toolkit.add_template_directory(config, u'templates')
 

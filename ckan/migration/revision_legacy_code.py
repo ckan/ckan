@@ -3,6 +3,7 @@
 # This file is code to do with vdm revisions, which was removed from CKAN after
 # version 2.8. It is only used by a migration and its tests.
 
+from typing import Any
 import uuid
 import six
 import datetime
@@ -321,7 +322,7 @@ def make_revision_table(metadata):
 
 
 # Copied from vdm
-def make_Revision(mapper, revision_table):
+def make_Revision(mapper, revision_table):  # noqa
     mapper(Revision, revision_table, properties={},
            order_by=revision_table.c.timestamp.desc())
     return Revision
@@ -335,7 +336,7 @@ class Revision(object):
     the revision attribute.
     '''
     def __init__(self, **kw):
-        for k, v in six.iteritems(kw):
+        for k, v in kw.items():
             setattr(self, k, v)
 
     # @property
@@ -369,7 +370,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
     # If not need to do an explicit check
     class MyClass(object):
         def __init__(self, **kw):
-            for k, v in six.iteritems(kw):
+            for k, v in kw.items():
                 setattr(self, k, v)
 
     name = base_object.__name__ + u'Revision'
@@ -435,8 +436,7 @@ def create_object_version(mapper_fn, base_object, rev_table):
             else:
                 # TODO: actually deal with this
                 # raise a warning of some kind
-                msg = \
-                    u'Skipping adding property %s to revisioned object' % prop
+                pass
 
     return MyClass
 
@@ -499,7 +499,7 @@ def make_revision(instances):
     '''
     # model.repo.new_revision() was called in the model code, which is:
     # vdm.sqlalchemy.tools.Repository.new_revision() which did this:
-    Revision = RevisionTableMappings.instance().Revision
+    Revision = RevisionTableMappings.instance().Revision  # noqa
     revision = Revision()
     model.Session.add(revision)
     # new_revision then calls:
@@ -587,7 +587,7 @@ def make_revision(instances):
 
 # Revision tables (singleton)
 class RevisionTableMappings(object):
-    _instance = None
+    _instance: Any = None
 
     @classmethod
     def instance(cls):
@@ -648,14 +648,10 @@ class RevisionTableMappings(object):
 
         self.package_relationship_revision_table = \
             make_revisioned_table(model.package_relationship_table)
-        # Commented because it gives an error, but we probably don't need it
-        # self.PackageRelationshipRevision = \
-        #     create_object_version(
-        #         model.meta.mapper, model.PackageRelationship,
-        #         self.package_relationship_revision_table)
 
         self.system_info_revision_table = \
             make_revisioned_table(model.system_info_table)
+
         self.SystemInfoRevision = create_object_version(
             model.meta.mapper, model.SystemInfo,
             self.system_info_revision_table)
@@ -673,7 +669,7 @@ class RevisionTableMappings(object):
 # It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
 # revision model is separate from the main model.
 try:
-    model.PackageExtraRevision
+    model.PackageExtraRevision  # type: ignore
     # CKAN<=2.8
     revision_model = model
 except AttributeError:

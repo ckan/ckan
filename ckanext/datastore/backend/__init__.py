@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
+from ckan.types import Context
 import re
 import logging
+from typing import Any, Container
 
 import ckan.plugins as plugins
-from ckan.common import config
+from ckan.common import CKANConfig, config
 from ckanext.datastore.interfaces import IDatastoreBackend
 
 log = logging.getLogger(__name__)
 
 
-def get_all_resources_ids_in_datastore():
+def get_all_resources_ids_in_datastore() -> list[str]:
     """
     Helper for getting id of all resources in datastore.
 
@@ -24,7 +27,8 @@ def get_all_resources_ids_in_datastore():
     return backend.get_all_ids()
 
 
-def _parse_sort_clause(clause, fields_types):
+def _parse_sort_clause(  # type: ignore
+        clause: str, fields_types: Container[str]):
     clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
 
     if not clause_match:
@@ -70,7 +74,7 @@ class DatastoreBackend:
     """
 
     _backends = {}
-    _active_backend = None
+    _active_backend: "DatastoreBackend"
 
     @classmethod
     def register_backends(cls):
@@ -80,15 +84,16 @@ class DatastoreBackend:
             cls._backends.update(plugin.register_backends())
 
     @classmethod
-    def set_active_backend(cls, config):
+    def set_active_backend(cls, config: CKANConfig):
         """Choose most suitable backend depending on configuration
 
         :param config: configuration object
         :rtype: ckan.common.CKANConfig
 
         """
-        schema = config.get(u'ckan.datastore.write_url').split(u':')[0]
-        read_schema = config.get(u'ckan.datastore.read_url').split(u':')[0]
+        schema = config.get_value(u'ckan.datastore.write_url').split(u':')[0]
+        read_schema = config.get_value(
+            u'ckan.datastore.read_url').split(u':')[0]
         assert read_schema == schema, u'Read and write engines are different'
         cls._active_backend = cls._backends[schema]()
 
@@ -98,7 +103,7 @@ class DatastoreBackend:
         """
         return cls._active_backend
 
-    def configure(self, config):
+    def configure(self, config: CKANConfig):
         """Configure backend, set inner variables, make some initial setup.
 
         :param config: configuration object
@@ -109,7 +114,7 @@ class DatastoreBackend:
 
         return config
 
-    def create(self, context, data_dict):
+    def create(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Create new resourct inside datastore.
 
         Called by `datastore_create`.
@@ -120,7 +125,7 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def upsert(self, context, data_dict):
+    def upsert(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Update or create resource depending on data_dict param.
 
         Called by `datastore_upsert`.
@@ -131,7 +136,7 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def delete(self, context, data_dict):
+    def delete(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Remove resource from datastore.
 
         Called by `datastore_delete`.
@@ -142,7 +147,7 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def search(self, context, data_dict):
+    def search(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Base search.
 
         Called by `datastore_search`.
@@ -166,7 +171,7 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def search_sql(self, context, data_dict):
+    def search_sql(self, context: Context, data_dict: dict[str, Any]) -> Any:
         """Advanced search.
 
         Called by `datastore_search_sql`.
@@ -181,12 +186,12 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def resource_exists(self, id):
+    def resource_exists(self, id: str) -> bool:
         """Define whether resource exists in datastore.
         """
         raise NotImplementedError()
 
-    def resource_fields(self, id):
+    def resource_fields(self, id: str) -> Any:
         """Return dictonary with resource description.
 
         Called by `datastore_info`.
@@ -194,12 +199,12 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def resource_info(self, id):
+    def resource_info(self, id: str) -> Any:
         """Return DataDictonary with resource's info - #3414
         """
         raise NotImplementedError()
 
-    def resource_id_from_alias(self, alias):
+    def resource_id_from_alias(self, alias: str) -> Any:
         """Convert resource's alias to real id.
 
         :param alias: resource's alias or id
@@ -210,7 +215,7 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def get_all_ids(self):
+    def get_all_ids(self) -> list[str]:
         """Return id of all resource registered in datastore.
 
         :returns: all resources ids
@@ -218,12 +223,12 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def create_function(self, *args, **kwargs):
+    def create_function(self, *args: Any, **kwargs: Any) -> Any:
         """Called by `datastore_function_create` action.
         """
         raise NotImplementedError()
 
-    def drop_function(self, *args, **kwargs):
+    def drop_function(self, *args: Any, **kwargs: Any) -> Any:
         """Called by `datastore_function_delete` action.
         """
         raise NotImplementedError()

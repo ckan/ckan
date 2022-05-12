@@ -10,7 +10,7 @@
   {% if form_style != 'edit' %}
     {{ super() }}
   {% else %}
-    {{ _('Update Dataset') }}
+    {{ h.humanize_entity_type('package', pkg_dict.type, 'update label') or _('Update Dataset') }}
   {% endif %}
 {% endblock %}
 

@@ -7,5 +7,6 @@
     "github_user_name": "Github user or organization name",
     "project_shortname": "{{ cookiecutter.project[8:].lower().replace('-','_') }}",
     "plugin_class_name": "{{ cookiecutter.project_shortname.title().replace('_','') }}Plugin",
+    "include_examples": 0,
     "_source": "local"
 }
