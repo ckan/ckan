@@ -262,9 +262,9 @@ HTTP request. Starting from CKAN 2.9 the recommended mechanism to use are API to
 encrypted keys that can be generated manually from the UI (User Profile > Manage > API tokens)
 or via the :py:func:`~ckan.logic.action.create.api_token_create` function. A user can create as many tokens as needed
 for different uses, and revoke one or multiple tokens at any time. In addition, enabling
-the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token. 
+the ``expire_api_token`` core plugin allows to define the expiration timestamp for a token.
 
-Site maintainers can use :ref:`config-api-tokens` to configure the token generation.
+Site maintainers can use :ref:`api-token-settings` to configure the token generation.
 
 Legacy API keys (UUIDs that look like `ec5c0860-9e48-41f3-8850-4a7128b18df8`) are still supported,
 but its use is discouraged as they are not as secure as tokens and are limited to one per user.
@@ -387,11 +387,11 @@ Uploading a new version of a resource file
 ==========================================
 
 You can use the ``upload`` parameter of the
-:py:func:`~ckan.logic.action.update.resource_update` function to upload a
+:py:func:`~ckan.logic.action.patch.resource_patch` function to upload a
 new version of a resource file. This requires a ``multipart/form-data``
 request, with curl you can do this using the ``@file.csv``::
 
-    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_update
+    curl -X POST  -H "Content-Type: multipart/form-data"  -H "Authorization: XXXX"  -F "id=<resource_id>" -F "upload=@updated_file.csv" https://demo.ckan.org/api/3/action/resource_patch
 
 
 .. _api-reference:

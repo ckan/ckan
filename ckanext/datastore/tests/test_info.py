@@ -66,8 +66,7 @@ def test_api_info(app):
     # the 'API info' is seen on the resource_read page, a snippet loaded by
     # javascript via data_api_button.html
     url = template_helpers.url_for(
-        controller="api",
-        action="snippet",
+        "api.snippet",
         ver=1,
         snippet_path="api_info.html",
         resource_id=resource["id"],

@@ -1,0 +1,10 @@
+<li>
+  <p>
+    {{ _('Uploaded a new file to resource {resource_link} in {pkg_link}').format(
+      pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
+      resource_link = h.nav_link(
+        change.resource_name, named_route='resource.read', id=change.pkg_id,
+        resource_id=change.resource_id, qualified=True)
+      ) }}
+  </p>
+</li>

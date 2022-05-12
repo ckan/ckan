@@ -142,6 +142,19 @@ The location of these named volumes needs to be backed up in a production enviro
 To migrate CKAN data between different hosts, simply transfer the content of the named volumes.
 A detailed use case of data transfer will be discussed in step 5.
 
+You have the option of using environment variables rather than hard coding the actual docker
+container name. For example, if you want to remove the "db" container name replace "db" with
+name of your environment variable in docker-compose.yml:
+
+     links:
+      - db
+
+     depends_on:
+      - db
+
+     db:
+       container_name: ${POSTGRES_HOST}
+
 c. Convenience: paths to named volumes
 
 The files inside named volumes reside on a long-ish path on the host.
@@ -174,9 +187,9 @@ a. Configure datastore database
 
 With running CKAN containers, execute the built-in setup script against the ``db`` container::
 
-    docker exec ckan /usr/local/bin/ckan-paster --plugin=ckan datastore set-permissions -c /etc/ckan/production.ini | docker exec -i db psql -U ckan
+    docker exec ckan /usr/local/bin/ckan -c /etc/ckan/production.ini datastore set-permissions | docker exec -i db psql -U ckan
 
-The script pipes in the output of ``paster ckan set-permissions`` - however,
+The script pipes in the output of ``ckan datastore set-permissions`` - however,
 as this output can change in future versions of CKAN, we set the permissions directly.
 The effect of this script is persisted in the named volume ``docker_pg_data``.
 
@@ -221,7 +234,7 @@ Now the datastore API should return content when visiting::
 -------------------------
 With all images up and running, create the CKAN admin user (johndoe in this example)::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add johndoe
+    docker exec -ti ckan /usr/local/bin/ckan -c /etc/ckan/production.ini sysadmin add johndoe
 
 Now you should be able to login to the new, empty CKAN.
 The admin user's API key will be instrumental in tranferring data from other instances.
@@ -278,7 +291,7 @@ d. Rebuild search index
 
 Trigger a Solr index rebuild::
 
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild -c /etc/ckan/production.ini
+    docker exec -it ckan /usr/local/bin/ckan -c /etc/ckan/production.ini search-index rebuild
 
 -----------------
 6. Add extensions
@@ -334,7 +347,7 @@ and `ckanext-envvars <https://github.com/okfn/ckanext-envvars>`_ from PyPi::
     # exit the ckan container:
     exit
 
-Some extensions require database upgrades, often through paster scripts.
+Some extensions require database upgrades, often through the ckan CLI.
 E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
 
 
@@ -350,8 +363,8 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
     exit
 
     # On the host
-    docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
-    docker exec -it ckan /usr/local/bin/ckan-paster --plugin=ckanext-spatial spatial initdb -c /etc/ckan/production.ini
+    docker exec -it db psql -U ckan -f /docker-entrypoint-initdb.d/20_postgis_permissions.sql
+    docker exec -it ckan /usr/local/bin/ckan -c /etc/ckan/production.ini spatial initdb 
 
     sudo vim $VOL_CKAN_CONFIG/production.ini
 

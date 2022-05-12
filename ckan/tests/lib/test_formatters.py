@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import six
 import pytest
 import pytz
 from ckan.lib import formatters as f
@@ -25,7 +24,7 @@ from datetime import datetime
     ],
 )
 @pytest.mark.usefixtures(u"with_request_context")
-def test_localized_SI_number(number, expected):
+def test_localized_si_number(number, expected):
     assert f.localised_SI_number(number) == expected
 
 

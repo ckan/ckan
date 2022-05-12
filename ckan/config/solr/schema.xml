@@ -22,44 +22,46 @@
 -->
 
 <!-- We update the version when there is a backward-incompatible change to this
-schema. In this case the version should be set to the next CKAN version number.
-(x.y but not x.y.z since it needs to be a float) -->
-<schema name="ckan" version="2.9">
+schema. We used to use the `version` attribute for this but this is an internal
+attribute that should not be used so starting from CKAN 2.10 we use the `name`
+attribute with the form `ckan-X.Y` -->
+<schema name="ckan-2.10" version="1.6">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
     <fieldtype name="binary" class="solr.BinaryField"/>
-    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+    <fieldType name="int" class="solr.IntPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="float" class="solr.FloatPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="long" class="solr.LongPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="double" class="solr.DoublePointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="pint" class="solr.IntPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="pfloat" class="solr.FloatPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="plong" class="solr.LongPointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="pdouble" class="solr.DoublePointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="date" class="solr.DatePointField" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="pdate" class="solr.DatePointField" omitNorms="true" positionIncrementGap="0"/>
 
-    <fieldType name="tdates" class="solr.TrieDateField" precisionStep="7" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="pdates" class="solr.DatePointField" positionIncrementGap="0" multiValued="true"/>
     <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
-    <fieldType name="tints" class="solr.TrieIntField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
-    <fieldType name="tfloats" class="solr.TrieFloatField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
-    <fieldType name="tlongs" class="solr.TrieLongField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
-    <fieldType name="tdoubles" class="solr.TrieDoubleField" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="pints" class="solr.IntPointField" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="pfloats" class="solr.FloatPointField" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="plongs" class="solr.LongPointField" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="pdoubles" class="solr.DoublePointField" positionIncrementGap="0" multiValued="true"/>
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+            <filter class="solr.FlattenGraphFilterFactory"/> <!-- required on index analyzers after graph filters -->
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
             <filter class="solr.ASCIIFoldingFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
             <filter class="solr.ASCIIFoldingFilterFactory"/>
@@ -68,16 +70,17 @@ schema. In this case the version should be set to the next CKAN version number.
 
 
     <!-- A general unstemmed text field - good if one does not know the language of the field -->
-    <fieldType name="textgen" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
+            <filter class="solr.FlattenGraphFilterFactory"/> <!-- required on index analyzers after graph filters -->
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-            <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="0"/>
+            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="0"/>
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
     </fieldType>
@@ -113,14 +116,12 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="ckan_url" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="download_url" type="string" indexed="true" stored="true" omitNorms="true" />
     <field name="notes" type="text" indexed="true" stored="true"/>
-    <field name="author" type="textgen" indexed="true" stored="true" />
-    <field name="author_email" type="textgen" indexed="true" stored="true" />
-    <field name="maintainer" type="textgen" indexed="true" stored="true" />
-    <field name="maintainer_email" type="textgen" indexed="true" stored="true" />
+    <field name="author" type="text_general" indexed="true" stored="true" />
+    <field name="author_email" type="text_general" indexed="true" stored="true" />
+    <field name="maintainer" type="text_general" indexed="true" stored="true" />
+    <field name="maintainer_email" type="text_general" indexed="true" stored="true" />
     <field name="license" type="string" indexed="true" stored="true" />
     <field name="license_id" type="string" indexed="true" stored="true" />
-    <field name="ratings_count" type="int" indexed="true" stored="false" />
-    <field name="ratings_average" type="float" indexed="true" stored="false" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="groups" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -128,8 +129,8 @@ schema. In this case the version should be set to the next CKAN version number.
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="permission_labels" type="string" indexed="true" stored="false" multiValued="true"/>
 
-    <field name="res_name" type="textgen" indexed="true" stored="true" multiValued="true" />
-    <field name="res_description" type="textgen" indexed="true" stored="true" multiValued="true"/>
+    <field name="res_name" type="text_general" indexed="true" stored="true" multiValued="true" />
+    <field name="res_description" type="text_general" indexed="true" stored="true" multiValued="true"/>
     <field name="res_format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="res_url" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="res_type" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -175,8 +176,6 @@ schema. In this case the version should be set to the next CKAN version number.
 </fields>
 
 <uniqueKey>index_id</uniqueKey>
-<defaultSearchField>text</defaultSearchField>
-<solrQueryParser defaultOperator="AND"/>
 
 <copyField source="url" dest="urls"/>
 <copyField source="title" dest="title_ngram"/>

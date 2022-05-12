@@ -1,58 +1,39 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import datetime
 import re
+import logging
+from typing import Any, Iterator, Optional, Union, Dict
 
 import requests
 
 from ckan.common import config
-from ckan.common import asbool
-import six
-from six import text_type, string_types
 
 from ckan.common import _, json
-import ckan.lib.maintain as maintain
 
-log = __import__('logging').getLogger(__name__)
+log = logging.getLogger(__name__)
 
+TIMEOUT = config.get_value('ckan.requests.timeout')
 
-class License(object):
+class License():
     """Domain object for a license."""
 
-    def __init__(self, data):
-        # convert old keys if necessary
-        if 'is_okd_compliant' in data:
-            data['od_conformance'] = 'approved' \
-                if asbool(data['is_okd_compliant']) else ''
-            del data['is_okd_compliant']
-        if 'is_osi_compliant' in data:
-            data['osd_conformance'] = 'approved' \
-                if asbool(data['is_osi_compliant']) else ''
-            del data['is_osi_compliant']
-
+    def __init__(self, data: dict[str, Any]) -> None:
         self._data = data
         for (key, value) in self._data.items():
             if key == 'date_created':
                 # Parse ISO formatted datetime.
-                value = datetime.datetime(
-                    *list(int(item) for item in re.split(r'[^\d]', value)))
+                # type_ignore_reason: typechecker can't guess number of args
+                value = datetime.datetime(*list(
+                    int(item) for item
+                    in re.split(r'[^\d]', value)  # type: ignore
+                ))
                 self._data[key] = value
             elif isinstance(value, str):
-                if six.PY2:
-                    # Convert str to unicode
-                    # (keeps Pylons and SQLAlchemy happy).
-                    value = six.ensure_text(value)
                 self._data[key] = value
 
-    def __getattr__(self, name):
-        if name == 'is_okd_compliant':
-            log.warn('license.is_okd_compliant is deprecated - use '
-                     'od_conformance instead.')
-            return self._data['od_conformance'] == 'approved'
-        if name == 'is_osi_compliant':
-            log.warn('license.is_osi_compliant is deprecated - use '
-                     'osd_conformance instead.')
-            return self._data['osd_conformance'] == 'approved'
+    def __getattr__(self, name: str) -> Any:
         try:
             return self._data[name]
         except KeyError as e:
@@ -60,52 +41,23 @@ class License(object):
             # behavior of `hasattr`
             raise AttributeError(*e.args)
 
-    @maintain.deprecated("License.__getitem__() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
-    def __getitem__(self, key):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        return self.__getattr__(key)
-
-    def isopen(self):
+    def isopen(self) -> bool:
         if not hasattr(self, '_isopen'):
             self._isopen = self.od_conformance == 'approved' or \
                 self.osd_conformance == 'approved'
         return self._isopen
 
-    @maintain.deprecated("License.as_dict() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
-    def as_dict(self):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
-        data = self._data.copy()
-        if 'date_created' in data:
-            value = data['date_created']
-            value = value.isoformat()
-            data['date_created'] = value
-
-        # deprecated keys
-        if 'od_conformance' in data:
-            data['is_okd_compliant'] = data['od_conformance'] == 'approved'
-        if 'osd_conformance' in data:
-            data['is_osi_compliant'] = data['osd_conformance'] == 'approved'
-
-        return data
-
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
+    licenses: list[License]
 
     def __init__(self):
-        group_url = config.get('licenses_group_url', None)
+        group_url = config.get_value('licenses_group_url')
         if group_url:
             self.load_licenses(group_url)
         else:
-            default_license_list = [
+            default_license_list: list[DefaultLicense] = [
                 LicenseNotSpecified(),
                 LicenseOpenDataCommonsPDDL(),
                 LicenseOpenDataCommonsOpenDatabase(),
@@ -121,16 +73,16 @@ class LicenseRegister(object):
                 LicenseCreativeCommonsNonCommercial(),
                 LicenseOtherNonCommercial(),
                 LicenseOtherClosed(),
-                ]
+            ]
             self._create_license_list(default_license_list)
 
-    def load_licenses(self, license_url):
+    def load_licenses(self, license_url: str) -> None:
         try:
             if license_url.startswith('file://'):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(license_url)
+                response = requests.get(license_url, timeout=TIMEOUT)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
@@ -139,13 +91,14 @@ class LicenseRegister(object):
             msg = "Couldn't parse the licenses file {}: {}".format(license_url, e)
             raise Exception(msg)
         for license in license_data:
-            if isinstance(license, string_types):
+            if isinstance(license, str):
                 license = license_data[license]
-            if license.get('title'):
-                license['title'] = _(license['title'])
         self._create_license_list(license_data, license_url)
 
-    def _create_license_list(self, license_data, license_url=''):
+    def _create_license_list(
+            self, license_data: Union[
+                list[dict[str, Any]], dict[str, dict[str, Any]], Any],
+            license_url: str=''):
         if isinstance(license_data, dict):
             self.licenses = [License(entity) for entity in license_data.values()]
         elif isinstance(license_data, list):
@@ -154,7 +107,9 @@ class LicenseRegister(object):
             msg = "Licenses at %s must be dictionary or list" % license_url
             raise ValueError(msg)
 
-    def __getitem__(self, key, default=Exception):
+    def __getitem__(
+            self, key: str,
+            default: Any=Exception) -> Union[License, Any]:
         for license in self.licenses:
             if key == license.id:
                 return license
@@ -163,44 +118,49 @@ class LicenseRegister(object):
         else:
             raise KeyError("License not found: %s" % key)
 
-    def get(self, key, default=None):
-        return self.__getitem__(key, default=default)
+    def get(
+            self, key: str, default: Optional[Any]=None
+    ) -> Union[License, Any]:
+        return self.__getitem__(key, default)
 
-    def keys(self):
+    def keys(self) -> list[str]:
         return [license.id for license in self.licenses]
 
-    def values(self):
+    def values(self) -> list[License]:
         return self.licenses
 
-    def items(self):
+    def items(self) -> list[tuple[str, License]]:
         return [(license.id, license) for license in self.licenses]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self.keys())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.licenses)
 
 
-class DefaultLicense(dict):
+class DefaultLicense(Dict[str, Any]):
     ''' The license was a dict but this did not allow translation of the
     title.  This is a slightly changed dict that allows us to have the title
     as a property and so translated. '''
 
-    domain_content = False
-    domain_data = False
-    domain_software = False
-    family = ''
-    is_generic = False
-    od_conformance = 'not reviewed'
-    osd_conformance = 'not reviewed'
-    maintainer = ''
-    status = 'active'
-    url = ''
-    title = ''
-    id = ''
+    domain_content: bool = False
+    domain_data: bool = False
+    domain_software: bool = False
+    family: str = ''
+    is_generic: bool = False
+    od_conformance: str = 'not reviewed'
+    osd_conformance: str = 'not reviewed'
+    maintainer: str = ''
+    status: str = 'active'
+    url: str = ''
+    id: str = ''
 
-    keys = ['domain_content',
+    @property
+    def title(self) -> str:
+        return ""
+
+    _keys: list[str] = ['domain_content',
             'id',
             'domain_data',
             'domain_software',
@@ -213,22 +173,22 @@ class DefaultLicense(dict):
             'url',
             'title']
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         ''' behave like a dict but get from attributes '''
-        if key in self.keys:
+        if key in self._keys:
             value = getattr(self, key)
             if isinstance(value, str):
-                return text_type(value)
+                return str(value)
             else:
                 return value
         else:
             raise KeyError(key)
 
-    def copy(self):
+    def copy(self) -> dict[str, Any]:
         ''' create a dict of the license used by the licenses api '''
-        out = {}
-        for key in self.keys:
-            out[key] = text_type(getattr(self, key))
+        out: dict[str, Any] = {}
+        for key in self._keys:
+            out[key] = str(getattr(self, key))
         return out
 
 class LicenseNotSpecified(DefaultLicense):

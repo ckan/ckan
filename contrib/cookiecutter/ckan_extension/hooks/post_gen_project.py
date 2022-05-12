@@ -1,19 +1,20 @@
 # encoding: utf-8
 
 import os
-import json
 import jinja2
 import cookiecutter.find as find
 import cookiecutter.generate as gen
 from cookiecutter.config import DEFAULT_CONFIG as config
 from cookiecutter.environment import StrictEnvironment
 from cookiecutter.exceptions import NonTemplatedInputDirException
-from cookiecutter.main import cookiecutter as c
+from ckan.common import asbool
+from ckan.cli.generate import remove_code_examples
 
 
 def recut():
     """
-        Recreate setup.py so that we can edit keywords
+    Recreate setup.py so that we can edit keywords
+    Remove unnecessary code examples
     """
     # template location
     try:
@@ -55,7 +56,6 @@ def recut():
                         .title().replace('_', ''))
     if context['plugin_class_name'] != plugin_class_name:
         context['plugin_class_name'] = plugin_class_name
-
     # Recut cookie
     env = StrictEnvironment()
     env.loader = jinja2.FileSystemLoader(temp_dir)
@@ -63,6 +63,8 @@ def recut():
                       infile=setup_template,
                       context={'cookiecutter': context},
                       env=env)
+    if not asbool(context['include_examples']):
+        remove_code_examples(os.path.join(destination, 'ckanext', short_name))
 
 
 if __name__ == '__main__':

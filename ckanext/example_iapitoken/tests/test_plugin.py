@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_iapitoken")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins")
 class TestIApiTokenPlugin(object):
     def test_token_is_encoded(self):
         user = factories.User()

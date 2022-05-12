@@ -2,10 +2,10 @@
 
 import datetime
 import pytz
-import six
+from typing import Optional
 
 from flask_babel import (
-    format_number,
+    format_decimal,
     format_datetime,
     format_date,
     format_timedelta
@@ -14,8 +14,11 @@ from flask_babel import (
 from ckan.common import _
 
 
-def localised_nice_date(datetime_, show_date=False, with_hours=False,
-                        with_seconds=False, format=None):
+def localised_nice_date(datetime_: datetime.datetime,
+                        show_date: bool = False,
+                        with_hours: bool = False,
+                        with_seconds: bool = False,
+                        format: Optional[str] = None) -> str:
     ''' Returns a friendly localised unicode representation of a datetime.
     e.g. '31 minutes ago'
          '1 day ago'
@@ -58,15 +61,15 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False,
         return format_date(datetime_, format or 'long')
 
 
-def localised_number(number):
+def localised_number(number: float) -> str:
     ''' Returns a localised unicode representation of number '''
-    return format_number(number)
+    return format_decimal(number)
 
 
-def localised_filesize(number):
+def localised_filesize(number: int) -> str:
     ''' Returns a localised unicode representation of a number in bytes, MiB
     etc '''
-    def rnd(number, divisor):
+    def rnd(number: int, divisor: int):
         # round to 1 decimal place
         return localised_number(float(number * 10 // divisor) / 10)
 
@@ -82,11 +85,11 @@ def localised_filesize(number):
         return _('{tebibytes} TiB').format(tebibytes=rnd(number, 1024 ** 4))
 
 
-def localised_SI_number(number):
+def localised_SI_number(number: int) -> str:  # noqa
     ''' Returns a localised unicode representation of a number in SI format
     eg 14700 becomes 14.7k '''
 
-    def rnd(number, divisor):
+    def rnd(number: int, divisor: int):
         # round to 1 decimal place
         return localised_number(float(number * 10 // divisor) / 10)
 

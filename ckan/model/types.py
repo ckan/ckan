@@ -2,37 +2,36 @@
 
 import copy
 import uuid
+from typing import Any
+
 import simplejson as json
 
-from datetime import datetime
 from sqlalchemy import types
-from six import string_types, text_type
 
-from ckan.model import meta
 
-__all__ = ['iso_date_to_datetime_for_sqlite', 'make_uuid', 'UuidType',
+__all__ = ['make_uuid', 'UuidType',
            'JsonType', 'JsonDictType']
 
 
-def make_uuid():
-    return text_type(uuid.uuid4())
+def make_uuid() -> str:
+    return str(uuid.uuid4())
 
 
 class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
-    def process_bind_param(self, value, engine):
-        return text_type(value)
+    def process_bind_param(self, value: Any, dialect: Any):
+        return str(value)
 
-    def process_result_value(self, value, engine):
+    def process_result_value(self, value: Any, dialect: Any):
         return value
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return UuidType(self.impl.length)
 
     @classmethod
     def default(cls):
-        return text_type(uuid.uuid4())
+        return str(uuid.uuid4())
 
 
 class JsonType(types.TypeDecorator):
@@ -44,27 +43,27 @@ class JsonType(types.TypeDecorator):
     '''
     impl = types.UnicodeText
 
-    def process_bind_param(self, value, engine):
+    def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
             return None
 
         # ensure_ascii=False => allow unicode but still need to convert
-        return text_type(json.dumps(value, ensure_ascii=False))
+        return str(json.dumps(value, ensure_ascii=False))
 
-    def process_result_value(self, value, engine):
+    def process_result_value(self, value: Any, dialect: Any) -> Any:
         if value is None:
             return {}
 
         return json.loads(value)
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return JsonType(self.impl.length)
 
     def is_mutable(self):
         return True
 
-    def copy_value(self, value):
+    def copy_value(self, value: Any):
         return copy.copy(value)
 
 
@@ -72,30 +71,15 @@ class JsonDictType(JsonType):
 
     impl = types.UnicodeText
 
-    def process_bind_param(self, value, engine):
+    def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
             return None
 
-        if isinstance(value, string_types):
-            return text_type(value)
+        if isinstance(value, str):
+            return str(value)
 
-        return text_type(json.dumps(value, ensure_ascii=False))
+        return str(json.dumps(value, ensure_ascii=False))
 
-    def copy(self):
+    def copy(self, **kw: Any):
         return JsonDictType(self.impl.length)
-
-
-def iso_date_to_datetime_for_sqlite(datetime_or_iso_date_if_sqlite):
-    # Because sqlite cannot store dates properly (see this:
-    # http://www.sqlalchemy.org/docs/dialects/sqlite.html#date-and-time-types )
-    # when you get a result from a date field in the database, you need
-    # to call this to convert it into a datetime type. When running on
-    # postgres then you have a datetime anyway, so this function doesn't
-    # do anything.
-    is_string = isinstance(datetime_or_iso_date_if_sqlite, string_types)
-    if meta.engine_is_sqlite() and is_string:
-        return datetime.strptime(datetime_or_iso_date_if_sqlite,
-                                 '%Y-%m-%d %H:%M:%S.%f')
-
-    return datetime_or_iso_date_if_sqlite

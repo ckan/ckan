@@ -15,36 +15,9 @@ developers who are writing tests or reviewing code for CKAN.
      How to handle asynchronous background jobs in your tests
 
 
---------------------------------------
-Transitioning from legacy to new tests
---------------------------------------
-
-CKAN is an old code base with a large legacy test suite in
-:mod:`ckan.tests.legacy`. The legacy tests are difficult to maintain and
-extend, but are too many to be replaced all at once in a single effort.  So
-we're following this strategy:
-
-#. A new test suite has been started in :mod:`ckan.tests`.
-#. For now, we'll run both the legacy tests and the new tests before
-   merging something into the master branch.
-#. Whenever we add new code, or change existing code, we'll add new-style tests
-   for it.
-#. If you change the behavior of some code and break some legacy tests,
-   consider adding new tests for that code and deleting the legacy tests,
-   rather than updating the legacy tests.
-#. Now and then, we'll write a set of new tests to cover part of the code,
-   and delete the relevant legacy tests. For example if you want to refactor
-   some code that doesn't have good tests, write a set of new-style tests for
-   it first, refactor, then delete the relevant legacy tests.
-
-In this way we can incrementally extend the new tests to cover CKAN one "island
-of code" at a time, and eventually we can delete the legacy :mod:`ckan.tests`
-directory entirely.
-
-
---------------------------------------
-Guidelines for writing new-style tests
---------------------------------------
+----------------------------
+Guidelines for writing tests
+----------------------------
 
 We want the tests in :mod:`ckan.tests` to be:
 

@@ -7,8 +7,7 @@
 
 import os.path
 import re
-
-from six import text_type
+from typing import Union
 
 from ckan import model
 from ckan.lib.io import decode_path
@@ -23,11 +22,10 @@ MAX_FILENAME_TOTAL_LENGTH = 100
 MIN_FILENAME_TOTAL_LENGTH = 3
 
 
-def munge_name(name):
+def munge_name(name: str) -> str:
     '''Munges the package name field in case it is not to spec.'''
     # substitute non-ascii characters
-    if isinstance(name, text_type):
-        name = substitute_ascii_equivalents(name)
+    name = substitute_ascii_equivalents(name)
     # separators become dashes
     name = re.sub('[ .:/]', '-', name)
     # take out not-allowed characters
@@ -38,11 +36,9 @@ def munge_name(name):
     return name
 
 
-def munge_title_to_name(name):
+def munge_title_to_name(name: str) -> str:
     '''Munge a package title into a package name.'''
-    # substitute non-ascii characters
-    if isinstance(name, text_type):
-        name = substitute_ascii_equivalents(name)
+    name = substitute_ascii_equivalents(name)
     # convert spaces and separators
     name = re.sub('[ .:/]', '-', name)
     # take out not-allowed characters
@@ -67,7 +63,7 @@ def munge_title_to_name(name):
     return name
 
 
-def substitute_ascii_equivalents(text_unicode):
+def substitute_ascii_equivalents(text_unicode: str) -> str:
     # Method taken from: http://code.activestate.com/recipes/251871/
     """
     This takes a UNICODE string and replaces Latin-1 characters with something
@@ -118,7 +114,7 @@ def substitute_ascii_equivalents(text_unicode):
     return r
 
 
-def munge_tag(tag):
+def munge_tag(tag: str) -> str:
     tag = substitute_ascii_equivalents(tag)
     tag = tag.lower().strip()
     tag = re.sub(r'[^a-zA-Z0-9\- ]', '', tag).replace(' ', '-')
@@ -126,7 +122,7 @@ def munge_tag(tag):
     return tag
 
 
-def munge_filename_legacy(filename):
+def munge_filename_legacy(filename: str) -> str:
     ''' Tidies a filename. NB: deprecated
 
     Unfortunately it mangles any path or filename extension, so is deprecated.
@@ -141,7 +137,7 @@ def munge_filename_legacy(filename):
     return filename
 
 
-def munge_filename(filename):
+def munge_filename(filename: Union[str, bytes]) -> str:
     ''' Tidies a filename
 
     Keeps the filename extension (e.g. .csv).
@@ -149,7 +145,7 @@ def munge_filename(filename):
 
     Returns a Unicode string.
     '''
-    if not isinstance(filename, text_type):
+    if not isinstance(filename, str):
         filename = decode_path(filename)
 
     # Ignore path
@@ -172,7 +168,7 @@ def munge_filename(filename):
     return filename
 
 
-def _munge_to_length(string, min_length, max_length):
+def _munge_to_length(string: str, min_length: int, max_length: int) -> str:
     '''Pad/truncates a string'''
     if len(string) < min_length:
         string += '_' * (min_length - len(string))

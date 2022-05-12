@@ -1,15 +1,12 @@
 # encoding: utf-8
 
 import pytest
-import six
 
 from ckan.lib.helpers import url_for
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins as plugins
-if six.PY2:
-    from webhelpers.feedgenerator import GeoAtom1Feed
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -26,11 +23,18 @@ class TestFeeds(object):
         ), res
 
     def test_general_atom_feed_works(self, app):
-        dataset = factories.Dataset()
+        dataset = factories.Dataset(notes="Test\x0c Notes")
         offset = url_for(u"feeds.general")
         res = app.get(offset)
-
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(res, u"<content>Test Notes</content>")
+
+    def test_general_atom_feed_works_with_no_notes(self, app):
+        dataset = factories.Dataset(notes=None)
+        offset = url_for(u"feeds.general")
+        res = app.get(offset)
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
+        assert helpers.body_contains(res, u"<content/>")
 
     def test_group_atom_feed_works(self, app):
         group = factories.Group()
@@ -68,44 +72,8 @@ class TestFeeds(object):
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
 
-@pytest.mark.skipif(six.PY3, reason="Relies on webhelpers")
-@pytest.mark.ckan_config("ckan.plugins", "test_feed_plugin")
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
-class TestCustomFeedPlugin:
-    def test_custom_class_used(self, app):
-        offset = url_for(u"feeds.general")
-        res = app.get(offset)
-
-        assert helpers.body_contains(
-            res,
-            'xmlns:georss="http://www.georss.org/georss"'
-        )
-
-    def test_additional_fields_added(self, app):
-        metadata = {
-            "ymin": "-2373790",
-            "xmin": "2937940",
-            "ymax": "-1681290",
-            "xmax": "3567770",
-        }
-
-        extras = [{"key": k, "value": v} for (k, v) in metadata.items()]
-
-        factories.Dataset(extras=extras)
-        offset = url_for(u"feeds.general")
-        res = app.get(offset)
-
-        assert helpers.body_contains(
-            res,
-            "<georss:box>-2373790.000000 2937940.000000 -1681290.000000 3567770.000000</georss:box>"
-        )
-
-
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)
-
-    def get_feed_class(self):
-        return GeoAtom1Feed
 
     def get_item_additional_fields(self, dataset_dict):
         extras = {e["key"]: e["value"] for e in dataset_dict["extras"]}

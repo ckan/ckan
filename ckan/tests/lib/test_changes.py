@@ -5,14 +5,10 @@ import copy
 import pytest
 from ckan.lib.changes import check_metadata_changes, check_resource_changes
 from ckan.tests import helpers
-from ckan.tests.factories import Dataset, Organization, Group
+from ckan.tests.factories import Dataset, Organization
 
 
-def _new_pkg(new):
-    return {u"pkg_id": new["id"], u"name": new["name"], u"title": new["title"]}
-
-
-@pytest.mark.usefixtures(u"clean_db")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestChanges(object):
     def test_title(self):
         changes = []
@@ -25,8 +21,8 @@ class TestChanges(object):
 
         assert len(changes) == 1, changes
         assert changes[0]["type"] == u"title"
-        assert changes[0]["old_title"] == u"Test Dataset"
-        assert changes[0]["new_title"] == u"New title"
+        assert changes[0]["old_title"] == original["title"]
+        assert changes[0]["new_title"] == new["title"]
 
     def test_name(self):
         changes = []
