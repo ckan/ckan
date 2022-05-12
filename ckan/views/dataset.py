@@ -720,6 +720,7 @@ class EditView(MethodView):
         return context
 
     def post(self, package_type, id):
+        save_action = request.form.get(u'save')
         context = self._prepare(id)
         package_type = _get_package_type(id) or package_type
         log.debug(u'Package save request name: %s POST: %r', id, request.form)
@@ -742,6 +743,10 @@ class EditView(MethodView):
             context[u'message'] = data_dict.get(u'log_message', u'')
             data_dict['id'] = id
             pkg_dict = get_action(u'package_update')(context, data_dict)
+
+            if save_action == u'go-dataset':
+                # go back to dataset
+                return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
             return _form_save_redirect(
                 pkg_dict[u'name'], u'edit', package_type=package_type
