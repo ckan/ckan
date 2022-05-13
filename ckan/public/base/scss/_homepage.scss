@@ -77,6 +77,7 @@
             }
         }
     }
+  
     .module-feeds {
         padding: $spacer * 2 0;
         background: $layoutBackgroundColor url($bgPath);
@@ -85,6 +86,13 @@
         }
     }
 }
+
+.homepage.layout-1 {
+	.row1 {
+		min-height: 188px;
+	}
+}
+
 @include media-breakpoint-down(md){
     .homepage {
         .module-search {
