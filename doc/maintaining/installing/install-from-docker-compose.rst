@@ -22,7 +22,7 @@ taken to use this setup in production.
 --------------
 1. Environment
 --------------
-This tutorial was tested on Ubuntu 16.04 LTS.
+This tutorial was tested on Ubuntu 22.04 LTS.
 The hosts can be local environments or cloud VMs. It is assumed that the user has direct access
 (via terminal / ssh) to the systems and root permissions.
 
@@ -53,13 +53,16 @@ To verify a successful Docker installation, run ``docker run hello-world``.
 
 c. Docker Compose
 
-Docker Compose is installed system-wide following the official `Docker Compose installation
-guidelines <https://docs.docker.com/compose/install/>`_.
-Alternatively, Docker Compose can be installed inside a virtualenv,
-which would be entirely separate from the virtualenv used inside the CKAN container, and
-would need to be activated before running Docker Compose commands.
+Docker Compose is installed as a **plugin** when following the Docker CE installation guidelines.
+Please note that there are two ways to run Docker Compose. the first one is the stand alone Docker Compose tool
+and the second is the "docker-compose-plugin" for Docker.
 
-To verify a successful Docker Compose installation, run ``docker-compose version``.
+**IMPORTANT:**
+While following this guide you should **use the ``docker compose`` command** from the "docker-compose-plugin",
+and **not the ``docker-compose`` command** from the stand alone Docker Compose version.
+Failure to adhere to this will result in failure during the build process.
+
+To verify that Docker Compose was installed successfully as a plugin, run ``docker compose version``.
 
 d. CKAN source
 
@@ -89,7 +92,7 @@ The defaults will work fine in a development environment on Linux. For Windows a
 
 .. note:: Related reading:
 
-   * `Docker-compose .env file <https://docs.docker.com/compose/env-file/>`_
+   * `Docker compose .env file <https://docs.docker.com/compose/env-file/>`_
    * `Environment variables in Compose <https://docs.docker.com/compose/environment-variables/>`_
    * Newcomers to Docker should read the excellent write-up on
      `Docker variables <http://vsupalov.com/docker-env-vars/>`_ by Vladislav Supalov (GitHub @th4t)
@@ -99,18 +102,18 @@ b. Build the images
 Inside the CKAN directory::
 
     cd contrib/docker
-    docker-compose up -d --build
+    docker compose up -d --build
 
-For the remainder of this chapter, we assume that ``docker-compose`` commands are all run inside
+For the remainder of this chapter, we assume that ``docker compose`` commands are all run inside
 ``contrib/docker``, where ``docker-compose.yml`` and ``.env`` are located.
 
 On first runs, the postgres container could need longer to initialize the database cluster than
 the ckan container will wait for. This time span depends heavily on available system resources.
 If the CKAN logs show problems connecting to the database, restart the ckan container a few times::
 
-    docker-compose restart ckan
+    docker compose restart ckan
     docker ps | grep ckan
-    docker-compose logs -f ckan
+    docker compose logs -f ckan
 
 .. note:: Earlier versions of ``ckan-entrypoint.sh`` used to wait and ping the db container
   using detailed db credentials (host, port, user, password).
@@ -210,7 +213,7 @@ The remaining settings required for datastore and datapusher are already taken c
 
 Restart the ``ckan`` container to apply changes to the ``production.ini``::
 
-    docker-compose restart ckan
+    docker compose restart ckan
 
 Now the datastore API should return content when visiting::
 
@@ -373,8 +376,8 @@ c. Reload and debug
 
 ::
 
-    docker-compose restart ckan
-    docker-compose logs ckan
+    docker compose restart ckan
+    docker compose logs ckan
 
 d. Develop extensions: modify source, install, use version control
 
@@ -409,7 +412,7 @@ Option 1: Accessing the source from inside the container::
     exit
     # ... edit extension settings in production.ini and restart ckan container
     sudo vim $VOL_CKAN_CONFIG/production.ini
-    docker-compose restart ckan
+    docker compose restart ckan
 
 Option 2: Accessing the source from outside the container using ``sudo``::
 
@@ -475,17 +478,17 @@ After adding new or changing existing ``.env`` variables, locally built images a
 need to be dropped and rebuilt. Otherwise, docker will re-use cached images with old or missing
 variables::
 
-    docker-compose down
-    docker-compose up -d --build
+    docker compose down
+    docker compose up -d --build
 
     # if that didn't work, try:
     docker rmi $(docker images -q -f dangling=true)
-    docker-compose up -d --build
+    docker compose up -d --build
 
     # if that didn't work, try:
     docker rmi $(docker images -q -f dangling=true)
     docker volume prune
-    docker-compose up -d --build
+    docker compose up -d --build
 
 .. warning:: Removing named volumes will destroy data.
     ``docker volume prune`` will delete any volumes not attached to a running(!) container.
