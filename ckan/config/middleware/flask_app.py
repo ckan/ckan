@@ -25,6 +25,7 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from ckan.common import CKANConfig, asbool, session
 
 import ckan.model as model
@@ -242,12 +243,22 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_core_blueprints(app)
     _register_error_handler(app)
 
+    # CSRF
+    csrf = CSRFProtect(app)
+
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()
-        if not isinstance(plugin_blueprints, list):
-            plugin_blueprints = [plugin_blueprints]
-        for blueprint in plugin_blueprints:
+        # plugin_blueprints must not send as list in csrf.exempt
+        if isinstance(plugin_blueprints, list):
+            plugin_blueprints = plugin_blueprints[0]
+        # we need to exempt CKAN extensions till they are ready 
+        # to implement the csrf_token to their forms, otherwise 
+        # they will get 400 Bad Request: The CSRF token is missing.
+        if not asbool(config.get("ckan.csrf_protection.enabled", False)):
+            csrf.exempt(plugin_blueprints)
+        # register extensions blueprints
+        for blueprint in [plugin_blueprints]:
             app.register_extension_blueprint(blueprint)
 
     lib_plugins.register_package_blueprints(app)
@@ -336,6 +347,28 @@ def set_remote_user_as_current_user_for_tests():
             session["_user_id"] = userobj.id
 
 
+def add_csrf_token_to_session():
+    from itsdangerous import URLSafeTimedSerializer
+
+    login_blueprint = "user.login"
+    register_blueprint = "user.register"
+    is_login_form = request.endpoint == login_blueprint
+    is_register_form = request.endpoint == register_blueprint
+
+    # WTF_CSRF_FIELD_NAME//TIME_LIMIT is set by flask_wtf
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    time_limit = config.get_value("WTF_CSRF_TIME_LIMIT")
+
+    if not session.get(field_name) and (is_login_form or is_register_form):
+        secret_key = config.get_value("SECRET_KEY")
+        token = request.form.get(field_name)
+        salt = "wtf-csrf-token"
+        s = URLSafeTimedSerializer(secret_key, salt)
+        if token:
+            token_key = s.loads(token, max_age=time_limit)
+            session[field_name] = token_key
+
+
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -348,6 +381,8 @@ def ckan_before_request() -> Optional[Response]:
     response = None
 
     g.__timer = time.time()
+
+    add_csrf_token_to_session()
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()

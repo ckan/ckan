@@ -2,6 +2,7 @@
 
 
 <form id='organization-edit-form' class="dataset-form" method="post" data-module="basic-form" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}

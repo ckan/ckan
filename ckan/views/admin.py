@@ -117,6 +117,11 @@ class ConfigView(MethodView):
                                            ignore_keys=CACHE_PARAMETERS))))
 
             del data_dict['save']
+            # delete csrf_token because internally 
+            # config_option_update compares 
+            # data_dict.keys against the schema.keys
+            # and it will fail with AssertionError
+            del data_dict['csrf_token']
             data = logic.get_action(u'config_option_update')({
                 u'user': current_user.name
             }, data_dict)
