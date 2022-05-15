@@ -26,8 +26,8 @@ log = logging.getLogger(__name__)
 bp = Blueprint("activity", __name__)
 
 
-@bp.route('/dataset/<id>/resources/<resource_id>/archive/<activity_id>')
-def resource_archive(id: str, resource_id: str, activity_id: str) -> str:
+@bp.route('/dataset/<id>/resources/<resource_id>/history/<activity_id>')
+def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
@@ -126,11 +126,11 @@ def resource_archive(id: str, resource_id: str, activity_id: str) -> str:
                       # backward compatibility
     }
 
-    return tk.render("package/resource_archive.html", extra_vars)
+    return tk.render("package/resource_history.html", extra_vars)
 
 
-@bp.route('/dataset/<id>/archive/<activity_id>')
-def package_archive(id: str, activity_id: str) -> Union[Response, str]:
+@bp.route('/dataset/<id>/history/<activity_id>')
+def package_history(id: str, activity_id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
@@ -151,7 +151,7 @@ def package_archive(id: str, activity_id: str) -> Union[Response, str]:
     if data_dict['id'] == pkg_dict['id'] \
        and data_dict['id'] != pkg_dict['name']:
         return tk.h.redirect_to(
-            'activity.package_archive', id=pkg_dict['name'],
+            'activity.package_history', id=pkg_dict['name'],
             activity_id=activity_id)
 
     tk.g.pkg_dict = pkg_dict
@@ -206,7 +206,7 @@ def package_archive(id: str, activity_id: str) -> Union[Response, str]:
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
 
     return tk.render(
-            "package/archive.html", {
+            "package/history.html", {
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
                 u'pkg': pkg,
@@ -376,12 +376,6 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
             u'dataset_type': current_pkg_dict[u'type'],
         }
     )
-
-
-# deprecated
-@bp.route('/dataset/<id>/history')
-def package_history(id: str) -> Response:
-    return tk.h.redirect_to('activity.package_activity', id=id)
 
 
 @bp.route(
@@ -584,15 +578,6 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     }
 
     return tk.render(_replace_group_org(u'group/changes.html'), extra_vars)
-
-
-# deprecated
-@bp.route('/group/history/<id>', defaults={"group_type": "group"})
-@bp.route(
-    '/organization/history/<id>',
-    endpoint="organization_history", defaults={"group_type": "organization"})
-def group_history(id: str, group_type: str) -> Response:
-    return tk.h.redirect_to(f'activity.{group_type}_activity', id=id)
 
 
 @bp.route('/user/activity/<id>')

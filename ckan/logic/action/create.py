@@ -994,9 +994,6 @@ def user_create(context: Context,
 
     user = model_save.user_dict_save(data, context)
     signals.user_created.send(user.name, user=user)
-    # Flush the session to cause user.id to be initialised, because
-    # activity_create() (below) needs it.
-    # session.flush()
 
     upload.upload(uploader.get_max_image_size())
 

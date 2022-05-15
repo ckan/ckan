@@ -655,12 +655,12 @@ class TestPackage:
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
-            url_for("activity.package_archive", id=dataset["id"], activity_id=activity.id),
+            url_for("activity.package_history", id=dataset["id"], activity_id=activity.id),
             status=302,
             extra_environ=env,
             follow_redirects=False
         )
-        expected_path = url_for("activity.package_archive", id=dataset["name"], _external=True, activity_id=activity.id)
+        expected_path = url_for("activity.package_history", id=dataset["name"], _external=True, activity_id=activity.id)
         assert response.headers['location'] == expected_path
 
     def test_read_dataset_as_it_used_to_be(self, app):
@@ -677,7 +677,7 @@ class TestPackage:
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
             url_for(
-                "activity.package_archive", id=dataset["name"], activity_id=activity.id
+                "activity.package_history", id=dataset["name"], activity_id=activity.id
             ),
             extra_environ=env,
         )
@@ -723,7 +723,7 @@ class TestPackage:
         env = {"REMOTE_USER": sysadmin["name"]}
         app.get(
             url_for(
-                "activity.package_archive", id=dataset["name"], activity_id=activity.id
+                "activity.package_history", id=dataset["name"], activity_id=activity.id
             ),
             extra_environ=env,
             status=404,

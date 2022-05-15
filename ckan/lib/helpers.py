@@ -80,30 +80,26 @@ LEGACY_ROUTE_NAMES = {
     'about': 'home.about',
     'search': 'dataset.search',
     'dataset_read': 'dataset.read',
-    'dataset_activity': 'activity.package_activity',
     'dataset_groups': 'dataset.groups',
     'group_index': 'group.index',
     'group_about': 'group.about',
     'group_read': 'group.read',
-    'group_activity': 'activity.group_activity',
     'organizations_index': 'organization.index',
-    'organization_activity': 'activity.organization_activity',
     'organization_read': 'organization.read',
     'organization_about': 'organization.about',
-    # TODO: add activity routes
+
+    # Deprecated since v2.10
+    'dataset_activity': 'activity.package_activity',
+    'group_activity': 'activity.group_activity',
+    'organization_activity': 'activity.organization_activity',
     "user.activity": "activity.user_activity",
     "dashboard.index": "activity.dashboard",
-
     "dataset.changes_multiple": "activity.package_changes_multiple",
     "dataset.changes": "activity.package_changes",
-    "dataset.history": "activity.package_history",
-
     "group.changes_multiple": "activity.group_changes_multiple",
     "group.changes": "activity.group_changes",
-    "group.history": "activity.group_history",
     "organization.changes_multiple": "activity.organization_changes_multiple",
     "organization.changes": "activity.organization_changes",
-    "organization.history": "activity.organization_history",
 
 }
 

@@ -451,6 +451,14 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     g.pkg_dict = pkg_dict
     g.pkg = pkg
 
+    if plugins.plugin_loaded("activity"):
+        activity_id = request.args.get("activity_id")
+        if activity_id:
+            return h.redirect_to(
+                "activity.package_history",
+                id=id, activity_id=activity_id
+            )
+
     # if the user specified a package id, redirect to the package name
     if data_dict['id'] == pkg_dict['id'] and \
             data_dict['id'] != pkg_dict['name']:

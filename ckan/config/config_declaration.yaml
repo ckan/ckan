@@ -790,6 +790,7 @@ groups:
       - key: ckan.plugins
         required: true
         type: list
+        placeholder: activity
         example: disqus datapreview googleanalytics follower
         description: |
           Specify which CKAN plugins are to be enabled.
