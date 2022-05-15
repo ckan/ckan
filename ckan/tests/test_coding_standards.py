@@ -325,7 +325,6 @@ class TestActionAuth(object):
         "get: organization_follower_count",
         "get: resource_search",
         "get: roles_show",
-        "get: status_show",
         "get: tag_search",
         "get: term_translation_show",
         "get: user_followee_count",

@@ -377,3 +377,8 @@ def package_collaborator_list_for_user(context: Context,
     if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
         return {'success': True}
     return {'success': False}
+
+
+def status_show(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Show information about the site's configuration. Visible to all by default.'''
+    return {'success': True}

@@ -16,7 +16,6 @@ import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
 
-
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
@@ -861,3 +860,15 @@ def test_get_pkg_dict_extra():
     )
 
     model.repo.rebuild_db()
+
+
+@pytest.mark.usefixtures("with_request_context")
+def test_decode_view_request_filters(test_request_context):
+
+    with test_request_context(u'?filters=Titl%25C3%25A8:T%25C3%25A9st|Dat%25C3%25AA%2520Time:2022-01-01%252001%253A01%253A01|_id:1|_id:2|_id:3|Piped%257CFilter:Piped%257CValue'):
+        assert h.decode_view_request_filters() == {
+            'Titlè': ['Tést'],
+            'Datê Time': ['2022-01-01 01:01:01'],
+            '_id': ['1', '2', '3'],
+            'Piped|Filter': ['Piped|Value']
+        }

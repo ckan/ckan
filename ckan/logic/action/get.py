@@ -2201,7 +2201,7 @@ def _tag_search(
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
-            raise NotFound
+            return [], 0
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
@@ -2431,6 +2431,7 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
     :rtype: dictionary
 
     '''
+    _check_access('status_show', context, data_dict)
     extensions = config.get_value('ckan.plugins')
 
     return {

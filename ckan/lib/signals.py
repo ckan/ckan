@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
+of predefined core-level signals.
+
+Check :doc:`signals` for extra detais.
+
+"""
 
 from typing import Any
 import flask.signals
