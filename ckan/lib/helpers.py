@@ -2904,7 +2904,7 @@ def _ckan_login_required(  # type: ignore
     `Exception` code is `401(Unauthorized)/403(Forbidden)`
     and will force the users to log in before we check for their access.
 
-    If the ckan.login_required_disabled is set to `True`, in your .ini file 
+    If the ckan.login_required_disabled is set to `True`, in your .ini file
     this decorator will be ignored.
 
     Note: DO NOT use this decorator elsewhere in the code.
