@@ -2904,6 +2904,9 @@ def _ckan_login_required(  # type: ignore
     `Exception` code is `401(Unauthorized)/403(Forbidden)`
     and will force the users to log in before we check for their access.
 
+    If the ckan.login_required_disabled is set to `True`, in your .ini file 
+    this decorator will be ignored.
+
     Note: DO NOT use this decorator elsewhere in the code.
 
     :param func: The view function to decorate.
@@ -2915,6 +2918,8 @@ def _ckan_login_required(  # type: ignore
 
     @wraps(func)
     def decorated_view(*args: Exception, **kwargs: Any):
+        if asbool(config.get_value("ckan.login_required_disabled")):
+            return func(*args, **kwargs)
         # if the url is not local we dont want to redirect the user
         # instead, we want to show the actual 403(Forbidden)...
         # same for user.perform_reset if the current_user.is_deleted()
@@ -2934,6 +2939,7 @@ def _ckan_login_required(  # type: ignore
 
                     flash("Please log in to access this page.")
                     return redirect_to(redirect_url)
+
         return func(*args, **kwargs)
 
     return decorated_view
