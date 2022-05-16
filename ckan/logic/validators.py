@@ -23,6 +23,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.authz as authz
 from ckan.model.core import State
+from ckan.model import Package
 
 from ckan.common import _
 from ckan.types import (
@@ -1029,3 +1030,10 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
             raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                           format(name=extra))
     return extras
+
+
+def license_choices(value: Any, context: Context) -> Any:
+    licenses = Package.get_license_register()
+    if value in licenses:
+        return value
+    raise Invalid(_('Invalid license'))

@@ -2,6 +2,7 @@
 """Unit tests for ckan/logic/validators.py.
 
 """
+import os
 import warnings
 
 import copy
@@ -17,6 +18,8 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.tests.lib.navl.test_validators as t
 import ckan.logic as logic
+
+this_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 def validator_data_dict():
@@ -899,3 +902,21 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v1" % this_dir
+)
+def test_license_choices_v1():
+    licenses = model.license.LicenseRegister()
+    assert 'cc-by' in licenses
+    assert 'this-is-not-a-license-id' not in licenses
+
+
+@pytest.mark.ckan_config(
+    "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
+def test_license_choices_v2():
+    licenses = model.license.LicenseRegister()
+    assert 'CC-BY-4.0' in licenses
+    assert 'this-is-not-a-license-id' not in licenses
