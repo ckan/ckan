@@ -2917,6 +2917,36 @@ class TestStatusShow(object):
         assert type(status["extensions"]) == list
         assert status["extensions"] == ["stats"]
 
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.ckan_config('ckan.hide_version', True)
+    def test_status_show_hiding_version(self):
+
+        status = helpers.call_action("status_show")
+
+        assert "ckan_version" not in status, "Should have skipped CKAN version"
+        assert status["site_url"] == "http://test.ckan.net"
+        assert status["site_title"] == "CKAN"
+        assert status["site_description"] == ""
+        assert status["locale_default"] == "en"
+
+        assert type(status["extensions"]) == list
+        assert status["extensions"] == ["stats"]
+
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.ckan_config('ckan.hide_version', True)
+    def test_status_show_version_to_sysadmins(self):
+        sysadmin = factories.Sysadmin()
+        status = helpers.call_action("status_show", context={"user": sysadmin["name"]})
+
+        assert status["ckan_version"] == __version__
+        assert status["site_url"] == "http://test.ckan.net"
+        assert status["site_title"] == "CKAN"
+        assert status["site_description"] == ""
+        assert status["locale_default"] == "en"
+
+        assert type(status["extensions"]) == list
+        assert status["extensions"] == ["stats"]
+
 
 class TestJobList(helpers.FunctionalRQTestBase):
     def test_all_queues(self):
