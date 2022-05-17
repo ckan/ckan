@@ -40,7 +40,7 @@ def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
 
     Depending on the settings and user's permissions, this validator checks
     whether organization is optional and ensures that specified organization
-    can be set as an owher of dataset.
+    can be set as an owner of dataset.
 
     """
     value = data.get(key)

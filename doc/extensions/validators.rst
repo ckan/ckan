@@ -3,12 +3,11 @@ Validator functions reference
 
 Validators in CKAN are user-defined functions that serves two purposes:
 
-* ensure that input satisfies requirements
-* convert the input into expected form
+* Ensuring that the input satisfies certain requirements
+* Converting the input to an expected form
 
-Validators can be defined as a function that accepts one, two or four
-arguments. But these implementation details must not bother you, as one must
-never call validators directly. Instead,
+Validators can be defined as a function that accepts one, two or four arguments. But this is an implementation detail 
+and validators should not be called directly. Instead, the
 :py:func:`ckan.plugins.toolkit.navl_validate` function must be used whenever
 input requires validation.
 
@@ -23,10 +22,10 @@ input requires validation.
    )
 
 
-And in order to make it more flexible, don't import validator
-functions. Instead, register them via
-:py:class:`~ckan.plugins.interfaces.IValidators` interface and get using
-:py:func:`ckan.plugins.tookit.get_validator` function.
+And in order to be more flexible and allow overrides, don't import validator
+functions directly. Instead, register them via the
+:py:class:`~ckan.plugins.interfaces.IValidators` interface and use the
+:py:func:`ckan.plugins.tookit.get_validator` function:
 
 .. code-block::
 
@@ -51,20 +50,21 @@ functions. Instead, register them via
 
 
 As you should have already noticed, ``navl_validate`` requires two
-parameters. In addition it accepts third optional parameter. That's their
+parameters and additionally accepts an optional one. That's their
 purpose:
 
-1. Data that requires validation. Must be represented by `dict` object.
-2. Validation schema. It's a mapping of field names to the lists of validators
-   for these fields.
+1. Data that requires validation. Must be a `dict` object, with keys being the names of the fields.
+2. The validation schema. It's a mapping of field names to the lists of validators
+   for that particular field.
 3. Optional context. Contains any extra details that can change validation
-   workflow in special cases. For the simpliticy sake, we are not going to use
-   context in this section.
+   workflow in special cases. For the simplicity sake, we are not going to use
+   context in this section, and in general is best not to rely on context variables 
+   inside validators.
 
 
-Let's imagine the input, that contains two fields ``first`` and ``second``. The
-``first`` must be an integer and must be provided, while ``second`` is an
-optional string. If we have following four validators:
+Let's imagine an input that contains two fields ``first`` and ``second``. The
+``first`` field must be an integer and must be provided, while the ``second`` field 
+is an optional string. If we have following four validators:
 
 * ``is_integer``
 * ``is_string``
@@ -81,7 +81,7 @@ we can validate data in the following way::
 
   data, errors = tk.navl_validate(input, schema)
 
-If input is valid, ``data`` contains validated input and ``errors`` is an empty
+If the input is valid, ``data`` contains validated input and ``errors`` is an empty
 dictionary. Otherwise, ``errors`` contains all the validation errors for the
 provided input.
 
