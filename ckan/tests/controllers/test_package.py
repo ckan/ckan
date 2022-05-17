@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
+from datetime import datetime
 from werkzeug.routing import BuildError
 import unittest.mock as mock
 
@@ -2050,6 +2051,143 @@ class TestActivity(object):
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_invalid_get_params(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(
+            url,
+            query_string={'before': 'XXX'},
+            status=400
+        )
+        assert 'Invalid parameters' in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_next_page_button(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Fourth title"
+        helpers.call_action("package_update", **dataset)
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(url)
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"]
+        )
+        # Last activity in the first page
+        before_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+
+        # Next page button
+        next_page_url = '/dataset/activity/{}?before={}'.format(
+            dataset['id'],
+            before_time.timestamp()
+        )
+        assert next_page_url in response.body
+
+        # Prev page button is not in the first page
+        prev_page_url = '/dataset/activity/{}?after='.format(dataset['id'])
+        assert prev_page_url not in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_next_before_buttons(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "4th title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "5th title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "6th title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "7h title"
+        helpers.call_action("package_update", **dataset)
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"]
+        )
+        # Last activity in the first page
+        last_act_page_1_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+        url = url_for("dataset.activity", id=dataset["id"])
+        response = app.get(
+            url,
+            query_string={'before': last_act_page_1_time.timestamp()}
+        )
+
+        # Next page button exists in page 2
+        next_page_url = '/dataset/activity/{}?before={}'.format(
+            dataset['id'],
+            db_activities[5].timestamp.timestamp()
+        )
+        assert next_page_url in response.body
+        # Prev page button exists in page 2
+        prev_page_url = '/dataset/activity/{}?after={}'.format(
+            dataset['id'],
+            db_activities[3].timestamp.timestamp()
+        )
+        assert prev_page_url in response.body
+
+    @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
+    def test_prev_page_button(self, app):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        dataset["title"] = "Second title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Third title"
+        helpers.call_action("package_update", **dataset)
+        dataset["title"] = "Fourth title"
+        helpers.call_action("package_update", **dataset)
+
+        activities = helpers.call_action(
+            "package_activity_list", id=dataset["id"], limit=10
+        )
+        before_time = datetime.fromisoformat(
+            activities[2]["timestamp"]
+        )
+
+        url = url_for("dataset.activity", id=dataset["id"])
+        # url for page 2
+        response = app.get(
+            url,
+            query_string={'before': before_time.timestamp()}
+        )
+
+        # There's not a third page
+        next_page_url = '/dataset/activity/{}?before='.format(dataset['name'])
+        assert next_page_url not in response.body
+
+        # previous page exists
+        after_time = datetime.fromisoformat(
+            activities[3]["timestamp"]
+        )
+        prev_page_url = '/dataset/activity/{}?after={}'.format(
+            dataset['id'],
+            after_time.timestamp()
+        )
+        assert prev_page_url in response.body
 
     def _clear_activities(self):
         model.Session.query(model.Activity).delete()

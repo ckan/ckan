@@ -2544,6 +2544,12 @@ def package_activity_list(
         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
         site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
+    :param after: After timestamp
+        (optional, default: ``None``)
+    :type after: int, str
+    :param before: Before timestamp
+        (optional, default: ``None``)
+    :type before: int, str
     :param include_hidden_activity: whether to include 'hidden' activity, which
         is not shown in the Activity Stream page. Hidden activity includes
         activity done by the site_user, such as harvests, which are not shown
@@ -2581,9 +2587,12 @@ def package_activity_list(
 
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
+    after = data_dict.get('after')
+    before = data_dict.get('before')
 
     activity_objects = model_activity.package_activity_list(
         package.id, limit=limit, offset=offset,
+        after=after, before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types
