@@ -15,6 +15,8 @@ from ckan.types import (
 def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
                       errors: FlattenErrorDict, context: Context) -> Any:
 
+    """Convert given field into an extra field.
+    """
     # Get the current extras index
     current_indexes = [k[1] for k in data.keys()
                        if len(k) > 1 and k[0] == 'extras']
@@ -27,7 +29,8 @@ def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
 
 def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
                         errors: FlattenErrorDict, context: Context) -> Any:
-
+    """Restore field using object's extras.
+    """
     def remove_from_extras(data: FlattenDataDict, key: FlattenKey):
         to_remove = []
         for data_key, _data_value in data.items():
@@ -48,6 +51,8 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
     remove_from_extras(data, data_key[1])
 
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):
+    """Convert every value of the dictionary into string.
+    """
     for extra in extras:
         extras[extra] = str(extras[extra])
     return extras
@@ -55,6 +60,8 @@ def extras_unicode_convert(extras: FlattenDataDict, context: Context):
 
 def free_tags_only(key: FlattenKey, data: FlattenDataDict,
                    errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensure that none of the tags belong to a vocabulary.
+    """
     tag_number = key[1]
     if not data.get(('tags', tag_number, 'vocabulary_id')):
         return
@@ -63,6 +70,8 @@ def free_tags_only(key: FlattenKey, data: FlattenDataDict,
             del data[k]
 
 def convert_to_tags(vocab: Any) -> DataValidator:
+    """Convert list of tag names into a list of tag dictionaries
+    """
     def func(key: FlattenKey, data: FlattenDataDict,
              errors: FlattenErrorDict, context: Context):
         new_tags = data.get(key)
@@ -188,6 +197,8 @@ def convert_group_name_or_id_to_id(group_name_or_id: Any,
 
 
 def convert_to_json_if_string(value: Any, context: Context) -> Any:
+    """Parse string value as a JSON object.
+    """
     if isinstance(value, str):
         try:
             return json.loads(value)
@@ -198,10 +209,14 @@ def convert_to_json_if_string(value: Any, context: Context) -> Any:
 
 
 def as_list(value: Any):
+    """Convert whitespace separated string into a list of strings.
+    """
     return aslist(value)
 
 
 def convert_to_list_if_string(value: Any) -> Any:
+    """Transform string into one-item list
+    """
     if isinstance(value, str):
         return [value]
     else:
@@ -233,6 +248,8 @@ def json_list_or_string(value: Any) -> Any:
 
 
 def remove_whitespace(value: Any, context: Context) -> Any:
+    """Trim whitespaces from the value.
+    """
     if isinstance(value, str):
         return value.strip()
     return value
