@@ -1,7 +1,8 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/patch.py."""
 import pytest
-import mock
+
+from unittest import mock
 
 from ckan.tests import helpers, factories
 from ckan.logic.action.get import package_show as core_package_show
