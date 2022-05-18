@@ -56,6 +56,8 @@ from ckan.views import (identify_user,
 from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
+# do not use _csrf unless you know what you're doing
+_csrf = CSRFProtect()
 
 
 class I18nMiddleware(object):
@@ -244,7 +246,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_error_handler(app)
 
     # CSRF
-    csrf = CSRFProtect(app)
+    _csrf.init_app(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -256,7 +258,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         # to implement the csrf_token to their forms, otherwise 
         # they will get 400 Bad Request: The CSRF token is missing.
         if not asbool(config.get("ckan.csrf_protection.enabled", False)):
-            csrf.exempt(plugin_blueprints)
+            _csrf.exempt(plugin_blueprints)
         # register extensions blueprints
         for blueprint in [plugin_blueprints]:
             app.register_extension_blueprint(blueprint)
@@ -355,7 +357,7 @@ def add_csrf_token_to_session():
     is_login_form = request.endpoint == login_blueprint
     is_register_form = request.endpoint == register_blueprint
 
-    # WTF_CSRF_FIELD_NAME//TIME_LIMIT is set by flask_wtf
+    # WTF_CSRF_FIELD_NAME//TIME_LIMIT are set by flask_wtf
     field_name = config.get_value("WTF_CSRF_FIELD_NAME")
     time_limit = config.get_value("WTF_CSRF_TIME_LIMIT")
 

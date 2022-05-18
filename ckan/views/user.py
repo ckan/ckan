@@ -483,6 +483,20 @@ def next_page_or_default(target: Optional[str]) -> Response:
     return me()
 
 
+def rotate_token():
+    """
+    Change the CSRF token - should be done on login
+    for security purposes.
+    """
+    from flask_wtf.csrf import generate_csrf
+    from ckan.common import session
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
+        generate_csrf()
+
+
 @user.route("/login.html", methods=["GET", "POST"])
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
@@ -515,9 +529,11 @@ def login() -> Union[Response, str]:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
                 login_user(user, remember=True, duration=duration_time)
+                rotate_token()
                 return next_page_or_default(next)
             else:
                 login_user(user)
+                rotate_token()
                 return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")

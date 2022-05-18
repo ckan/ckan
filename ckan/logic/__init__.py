@@ -157,6 +157,8 @@ def parse_params(
     '''Takes a dict and returns it with some values standardised.
     This is done on a dict before calling tuplize_dict on it.
     '''
+    from ckan.common import config
+
     parsed = {}
     for key in params:
         if ignore_keys and key in ignore_keys:
@@ -176,6 +178,15 @@ def parse_params(
         if len(value) == 1:
             value = value[0]
         parsed[key] = value
+    # checks and delete, if the csrf_token is in "parsed".
+    # we don't want the csrf_token to be a part of a data_dict
+    # as it will expose the token to the resource-metadata. 
+    # this way we are deleting the token from every data_dict that fills
+    # from request.form instead of deleting it separately in every view.
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    if csrf_token in parsed:
+        parsed.pop(csrf_token)
     return parsed
 
 
