@@ -14,19 +14,20 @@ services:
     container_name: ckan
     build:
       context: ../../
-    links:
-      - db
-      - solr
-      - redis
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      solr:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "0.0.0.0:${CKAN_PORT}:5000"
     environment:
       # Defaults work with linked containers, change to use own Postgres, SolR, Redis or Datapusher
-      - CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/ckan
-      - CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@db/datastore
-      - CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@db/datastore
+      - CKAN_SQLALCHEMY_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/ckan
+      - CKAN_DATASTORE_WRITE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/datastore
+      - CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_READONLY_USER}:${DATASTORE_READONLY_PASSWORD}@${POSTGRES_HOST}/datastore
       - CKAN_SOLR_URL=http://solr:8983/solr/ckan
       - CKAN_REDIS_URL=redis://redis:6379/1
       - CKAN_DATAPUSHER_URL=http://datapusher:8800
@@ -34,6 +35,14 @@ services:
       - CKAN_MAX_UPLOAD_SIZE_MB=${CKAN_MAX_UPLOAD_SIZE_MB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DS_RO_PASS=${DATASTORE_READONLY_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
+    # Debug with pdb (example) - Interact with `docker attach $(docker container ls -qf name=ckan)`
+    #command: 'python -m pdb /usr/lib/ckan/venv/bin/ckan --config /etc/ckan/production.ini run --host 0.0.0.0 --passthrough-errors'
+    #tty: true
+    #stdin_open: true
 
     volumes:
       - ckan_config:/etc/ckan
@@ -45,9 +54,10 @@ services:
     image: clementmouchet/datapusher
     ports:
       - "8800:8800"
+    restart: unless-stopped
 
   db:
-    container_name: db
+    container_name: ${POSTGRES_HOST}
     build:
       context: ../../
       dockerfile: contrib/docker/postgresql/Dockerfile  
@@ -59,6 +69,7 @@ services:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ckan"]
+    restart: unless-stopped
 
   solr:
     container_name: solr
@@ -67,8 +78,13 @@ services:
       dockerfile: contrib/docker/solr/Dockerfile
     volumes:
       - solr_data:/opt/solr/server/solr/ckan/data
-
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/"]
 
   redis:
     container_name: redis
     image: redis:6.2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-e", "QUIT"]

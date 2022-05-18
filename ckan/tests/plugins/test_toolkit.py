@@ -89,7 +89,7 @@ def test_raise(monkeypatch):
 
 def test_call_helper():
     # the null_function would return ''
-    assert tk.h.icon_url(u"x")
+    assert tk.h.ckan_version()
 
 
 def test_tk_helper_attribute_error_on_missing_helper():
@@ -115,6 +115,6 @@ def test_get_endpoint_without_context():
 
 
 @pytest.mark.usefixtures("with_request_context")
-def test_get_endpoint_witho_context():
+def test_get_endpoint_with_context():
     """with_request_context fixture mocks request to the homepage."""
     assert tk.get_endpoint() == ("home", "index")

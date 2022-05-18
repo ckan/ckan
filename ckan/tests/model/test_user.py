@@ -8,7 +8,6 @@ import six
 
 from passlib.hash import pbkdf2_sha512
 
-
 import ckan.model as model
 import ckan.tests.factories as factories
 
@@ -32,7 +31,7 @@ def _set_password(password):
     return hashed_password
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPasswordUpgrade:
     def test_upgrade_from_sha(self):
         user = factories.User()
@@ -163,15 +162,16 @@ class TestUser:
         assert len(user.apikey) == 36
         assert user.fullname == data["fullname"]
         assert user.email == data["email"]
+        assert user.last_active is None
 
     def test_get(self):
-        factories.User(fullname="Brian", name="brian")
-        factories.User(fullname="Sandra", name="sandra")
+        brian = factories.User(fullname="Brian")
+        sandra = factories.User(fullname="Sandra")
 
-        out = model.User.get(u"brian")
+        out = model.User.get(brian["name"])
         assert out.fullname == u"Brian"
 
-        out = model.User.get(u"sandra")
+        out = model.User.get(sandra["name"])
         assert out.fullname == u"Sandra"
 
     def test_is_deleted(self):
@@ -204,19 +204,21 @@ class TestUser:
 
     def test_get_groups(self):
         data = factories.User()
-        factories.Group(name="grp1", users=[{"name": data["name"], "capacity": "admin"}])
+        group = factories.Group(
+            users=[{"name": data["name"], "capacity": "admin"}]
+        )
         user = model.User.get(data["id"])
         groups = user.get_groups()
 
         assert len(groups) == 1
-        assert groups[0].name == "grp1"
+        assert groups[0].name == group["name"]
 
         # check cache works between sessions
         model.Session.expunge_all()
         # don't refresh user user since this is how c.user works
         # i.e. don't do this: user = model.User.by_name(u'user')
         assert len(groups) == 1
-        assert groups[0].name == "grp1"
+        assert groups[0].name == group["name"]
 
     def test_number_of_administered_packages(self):
         data = factories.User()
@@ -228,3 +230,30 @@ class TestUser:
 
         user1.number_created_packages() == 1
         user2.number_created_packages() == 0
+
+    def test_user_last_active(self, app):
+        import datetime
+        from ckan.lib.helpers import url_for
+        from freezegun import freeze_time
+
+        frozen_time = datetime.datetime.utcnow()
+        data = factories.User()
+        dataset = factories.Dataset()
+        env = {"REMOTE_USER": str(data["name"])}
+
+        with freeze_time(frozen_time):
+            user = model.User.get(data["id"])
+            assert user.last_active is None
+            app.get(url_for("dataset.search"), extra_environ=env)
+            assert isinstance(user.last_active, datetime.datetime)
+            assert user.last_active == datetime.datetime.utcnow()
+
+        with freeze_time(frozen_time + datetime.timedelta(seconds=540)):
+            user = model.User.get(data["id"])
+            app.get(url_for("user.read", id=user.id), extra_environ=env)
+            assert user.last_active != datetime.datetime.utcnow()
+
+        with freeze_time(frozen_time + datetime.timedelta(seconds=660)):
+            user = model.User.get(data["id"])
+            app.get(url_for("dataset.read", id=dataset["id"]), extra_environ=env)
+            assert user.last_active == datetime.datetime.utcnow()

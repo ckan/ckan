@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import abc
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
@@ -12,12 +11,14 @@ if TYPE_CHECKING:
     from . import Declaration
 
 handler: FormatHandler[Callable[["Declaration", Flag], str]] = FormatHandler()
-describe = handler.handle
+describer = handler.handle
+
+_non_iterable = Flag.non_iterable()
 
 
 @handler.register("toml")
 def describe_toml(
-    declaration: "Declaration", exclude: Flag = Flag.non_iterable()
+    declaration: "Declaration", exclude: Flag = _non_iterable
 ):
     describer = TomlDescriber()
     return describer(declaration, exclude)
@@ -25,7 +26,7 @@ def describe_toml(
 
 @handler.register("json")
 def describe_json(
-    declaration: "Declaration", exclude: Flag = Flag.non_iterable()
+    declaration: "Declaration", exclude: Flag = _non_iterable
 ):
     describer = JsonDescriber()
     return describer(declaration, exclude)
@@ -33,7 +34,7 @@ def describe_json(
 
 @handler.register("yaml")
 def describe_yaml(
-    declaration: "Declaration", exclude: Flag = Flag.non_iterable()
+    declaration: "Declaration", exclude: Flag = _non_iterable
 ):
     describer = YamlDescriber()
     return describer(declaration, exclude)
@@ -41,7 +42,7 @@ def describe_yaml(
 
 @handler.register("python")
 def describe_python(
-    declaration: "Declaration", exclude: Flag = Flag.non_iterable()
+    declaration: "Declaration", exclude: Flag = _non_iterable
 ):
     describer = PythonDescriber()
     return describer(declaration, exclude)
@@ -49,7 +50,7 @@ def describe_python(
 
 @handler.register("dict")
 def describe_dict(
-    declaration: "Declaration", exclude: Flag = Flag.non_iterable()
+    declaration: "Declaration", exclude: Flag = _non_iterable
 ):
     describer = DictDescriber()
     return describer(declaration, exclude)
@@ -74,7 +75,7 @@ class AbstractDescriber(metaclass=abc.ABCMeta):
         return self.finalize()
 
     @abc.abstractmethod
-    def add_option(self, key: Key, option: Option) -> None:
+    def add_option(self, key: Key, option: Option[Any]) -> None:
         pass
 
     @abc.abstractmethod
@@ -94,7 +95,7 @@ class BaseDictDescriber(AbstractDescriber):
         self.current_listing = None
 
     def _add_group(self, annotation: Optional[str] = None):
-        listing = []
+        listing: list[Any] = []
         self.data["groups"].append(
             {"annotation": annotation, "options": listing}
         )
@@ -103,7 +104,7 @@ class BaseDictDescriber(AbstractDescriber):
     def annotate(self, annotation: str):
         self._add_group(str(annotation))
 
-    def add_option(self, key: Key, option: Option):
+    def add_option(self, key: Key, option: Option[Any]):
         if self.current_listing is None:
             self._add_group()
         assert self.current_listing is not None
@@ -186,7 +187,7 @@ class PythonDescriber(AbstractDescriber):
     def annotate(self, annotation: str):
         self.output.write(f"\ndeclaration.annotate({repr(annotation)})\n")
 
-    def add_option(self, key: Key, option: Option):
+    def add_option(self, key: Key, option: Option[Any]):
         default = f", {repr(option.default)}" if option.has_default() else ""
         if isinstance(key, Pattern):
             func = "declare_dynamic"

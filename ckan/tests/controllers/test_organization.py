@@ -10,7 +10,7 @@ from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationNew(object):
     @pytest.fixture
     def user_env(self):
@@ -54,7 +54,7 @@ class TestOrganizationNew(object):
 
 @pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
         self, monkeypatch, app
     ):
@@ -73,7 +73,7 @@ class TestOrganizationList(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
@@ -91,13 +91,14 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        org = factories.Organization(id="abc", name="abc")
+        name = factories.Organization.stub().name
+        org = factories.Organization(id=name, name=name)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationEdit(object):
     @pytest.fixture
     def initial_data(self):
@@ -149,7 +150,7 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationDelete(object):
     @pytest.fixture
     def initial_data(self):
@@ -256,7 +257,7 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app):
         self.user = factories.User()
@@ -337,9 +338,9 @@ class TestOrganizationSearch(object):
         """Requesting organization search (index) returns list of
         organizations and search form."""
 
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         index_response = app.get(url_for("organization.index"))
         index_response_html = BeautifulSoup(index_response.body)
@@ -356,9 +357,9 @@ class TestOrganizationSearch(object):
     def test_organization_search_results(self, app):
         """Searching via organization search form returns list of expected
         organizations."""
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         search_response = app.get(
             url_for("organization.index"),
@@ -378,9 +379,9 @@ class TestOrganizationSearch(object):
 
     def test_organization_search_no_results(self, app):
         """Searching with a term that doesn't apply returns no results."""
-        factories.Organization(name="org-one", title="AOrg One")
-        factories.Organization(name="org-two", title="AOrg Two")
-        factories.Organization(name="org-three", title="Org Three")
+        factories.Organization(title="AOrg One")
+        factories.Organization(title="AOrg Two")
+        factories.Organization(title="Org Three")
 
         search_response = app.get(
             url_for("organization.index"),
@@ -400,7 +401,7 @@ class TestOrganizationSearch(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
@@ -409,13 +410,13 @@ class TestOrganizationInnerSearch(object):
         organization."""
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -438,13 +439,13 @@ class TestOrganizationInnerSearch(object):
         results."""
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -452,7 +453,7 @@ class TestOrganizationInnerSearch(object):
             org_url,
             query_string={"q": "One"}
         )
-        assert "1 dataset found for &#34;One&#34;" in search_response
+        assert "1 dataset found" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -472,13 +473,13 @@ class TestOrganizationInnerSearch(object):
 
         org = factories.Organization()
         factories.Dataset(
-            name="ds-one", title="Dataset One", owner_org=org["id"]
+            title="Dataset One", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-two", title="Dataset Two", owner_org=org["id"]
+            title="Dataset Two", owner_org=org["id"]
         )
         factories.Dataset(
-            name="ds-three", title="Dataset Three", owner_org=org["id"]
+            title="Dataset Three", owner_org=org["id"]
         )
 
         org_url = url_for("organization.read", id=org["name"])
@@ -499,7 +500,7 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app):
 
@@ -577,7 +578,7 @@ class TestOrganizationMembership(object):
             )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestActivity(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""

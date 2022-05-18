@@ -18,11 +18,12 @@ into plugins-toolkit.rst manually before running Sphinx).
 
 '''
 import inspect
+from typing import Any, Callable, Optional
 
 import ckan.plugins.toolkit as toolkit
 
 
-def setup(app):
+def setup(app: Any):
     '''Setup this Sphinx extension. Called once when initializing Sphinx.
 
     '''
@@ -31,7 +32,9 @@ def setup(app):
     app.connect('source-read', source_read)
 
 
-def format_function(name, function, docstring=None):
+def format_function(name: str,
+                    function: Callable[..., Any],
+                    docstring: Optional[str] = None) -> str:
     '''Return a Sphinx .. function:: directive for the given function.
 
     The directive includes the function's docstring if it has one.
@@ -59,7 +62,9 @@ def format_function(name, function, docstring=None):
 
     # Get the arguments of the function, as a string like:
     # "(foo, bar=None, ...)"
-    argstring = inspect.formatargspec(*inspect.getargspec(function))
+    argstring = inspect.formatargspec(
+        inspect.getfullargspec(function).args
+    )
 
     docstring = docstring or inspect.getdoc(function)
     if docstring is None:
@@ -71,7 +76,9 @@ def format_function(name, function, docstring=None):
     return template.format(function=name, args=argstring, docstring=docstring)
 
 
-def format_class(name, class_, docstring=None):
+def format_class(
+        name: str, class_: Any,
+        docstring: Optional[str] = None) -> str:
     '''Return a Sphinx .. class:: directive for the given class.
 
     The directive includes the class's docstring if it has one.
@@ -107,7 +114,8 @@ def format_class(name, class_, docstring=None):
     return template.format(cls=name, docstring=docstring)
 
 
-def format_object(name, object_, docstring=None):
+def format_object(
+        name: str, object_: Any, docstring: Optional[str] = None) -> str:
     '''Return a Sphinx .. attribute:: directive for the given object.
 
     The directive includes the object's class's docstring if it has one.
@@ -143,7 +151,7 @@ def format_object(name, object_, docstring=None):
     return template.format(obj=name, docstring=docstring)
 
 
-def source_read(app, docname, source):
+def source_read(app: Any, docname: str, source: Any) -> None:
     '''Transform the contents of plugins-toolkit.rst to contain reference docs.
 
     '''

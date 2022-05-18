@@ -1,6 +1,8 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import os
+from typing import Any, Optional
 
 import click
 import logging
@@ -8,17 +10,23 @@ from logging.config import fileConfig as loggingFileConfig
 from configparser import ConfigParser, RawConfigParser
 
 from ckan.exceptions import CkanConfigurationException
+from ckan.types import Config
 
 log = logging.getLogger(__name__)
 
 
 class CKANConfigLoader(object):
-    def __init__(self, filename):
+    config: Config
+    config_file: str
+    parser: ConfigParser
+    section: str
+
+    def __init__(self, filename: str) -> None:
         self.config_file = filename.strip()
         self.config = dict()
         self.parser = ConfigParser()
         # Preserve case in config keys
-        self.parser.optionxform = str
+        self.parser.optionxform = lambda optionstr: str(optionstr)
         self.section = u'app:main'
         defaults = dict(
             (k, v) for k, v in os.environ.items()
@@ -27,16 +35,17 @@ class CKANConfigLoader(object):
         self._update_defaults(defaults)
         self._create_config_object()
 
-    def _update_defaults(self, new_defaults):
+    def _update_defaults(self, new_defaults: dict[str, Any]) -> None:
         for key, value in new_defaults.items():
-            self.parser._defaults[key] = value
+            # type_ignore_reason: using implementation details
+            self.parser._defaults[key] = value  # type: ignore
 
-    def _read_config_file(self, filename):
+    def _read_config_file(self, filename: str) -> None:
         defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
         self._update_defaults(defaults)
         self.parser.read(filename)
 
-    def _update_config(self):
+    def _update_config(self) -> None:
         options = self.parser.options(self.section)
         for option in options:
             value = self.parser.get(self.section, option)
@@ -48,7 +57,7 @@ class CKANConfigLoader(object):
             if "%(here)s" in raw:
                 self.parser.set(self.section, option, value)
 
-    def _unwrap_config_chain(self, filename):
+    def _unwrap_config_chain(self, filename: str) -> list[str]:
         """Get all names of files in use-chain.
 
         Parse files using RawConfigParser, because top-level config file can
@@ -92,26 +101,29 @@ class CKANConfigLoader(object):
             chain
         )
 
-    def get_config(self):
+    def get_config(self) -> Config:
         return self.config.copy()
 
 
-def error_shout(exception):
+def error_shout(exception: Any) -> None:
+    """Report CLI error with a styled message.
+    """
     click.secho(str(exception), fg=u'red', err=True)
 
 
-def load_config(ini_path=None):
+def load_config(ini_path: Optional[str] = None) -> Config:
     if ini_path:
         if ini_path.startswith(u'~'):
             ini_path = os.path.expanduser(ini_path)
-        filename = os.path.abspath(ini_path)
-        config_source = u'-c parameter'
+        filename: Optional[str] = os.path.abspath(ini_path)
+        config_source = [u'-c parameter']
     elif os.environ.get(u'CKAN_INI'):
-        filename = os.environ.get(u'CKAN_INI')
-        config_source = u'$CKAN_INI'
+        filename = os.environ[u'CKAN_INI']
+        config_source = [u'$CKAN_INI']
     else:
         # deprecated method since CKAN 2.9
         default_filenames = [u'ckan.ini', u'development.ini']
+        config_source = default_filenames
         filename = None
         for default_filename in default_filenames:
             check_file = os.path.join(os.getcwd(), default_filename)
@@ -128,7 +140,7 @@ or have one of {} in the current directory.'''
             msg = msg.format(u', '.join(default_filenames))
             raise CkanConfigurationException(msg)
 
-    if not os.path.exists(filename):
+    if not filename or not os.path.exists(filename):
         msg = u'Config file not found: %s' % filename
         msg += u'\n(Given by: %s)' % config_source
         raise CkanConfigurationException(msg)

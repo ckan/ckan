@@ -22,16 +22,7 @@ defaults:
     # Tests Backend, split across containers by segments
     run: |
       mkdir -p ~/junit
-      case $CIRCLE_NODE_INDEX in
-        0) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 1
-        ;;
-        1) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 2
-        ;;
-        2) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 3
-        ;;
-        3) python -m pytest $PYTEST_COMMON_OPTIONS --test-group 4
-        ;;
-      esac
+      python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --splits 4 --group $((CIRCLE_NODE_INDEX+1)) --splitting-algorithm least_duration
 
   ckan_env: &ckan_env
     environment:
@@ -57,7 +48,7 @@ defaults:
     name: ckan-redis
 
   solr_image: &solr_image
-    image: ckan/ckan-solr-dev:master
+    image: ckan/ckan-solr:master
     name: ckan-solr
 
 jobs:

@@ -6,17 +6,22 @@ new activities in your dashboard activity stream) and emailing them to the
 users.
 
 '''
+from __future__ import annotations
+
 import datetime
 import re
+from typing import Any, cast
+from jinja2 import Environment
 
 import ckan.model as model
 import ckan.logic as logic
-import ckan.lib.base as base
+import ckan.lib.jinja_extensions as jinja_extensions
 
-from ckan.common import ungettext, config
+from ckan.common import ungettext, ugettext, config
+from ckan.types import Context
 
 
-def string_to_timedelta(s):
+def string_to_timedelta(s: str) -> datetime.timedelta:
     '''Parse a string s and return a standard datetime.timedelta object.
 
     Handles days, hours, minutes, seconds, and microseconds.
@@ -36,27 +41,29 @@ def string_to_timedelta(s):
 
     '''
     patterns = []
-    days_only_pattern = '(?P<days>\d+)\s+day(s)?'
+    days_only_pattern = r'(?P<days>\d+)\s+day(s)?'
     patterns.append(days_only_pattern)
-    hms_only_pattern = '(?P<hours>\d?\d):(?P<minutes>\d\d):(?P<seconds>\d\d)'
+    hms_only_pattern = r'(?P<hours>\d?\d):(?P<minutes>\d\d):(?P<seconds>\d\d)'
     patterns.append(hms_only_pattern)
-    ms_only_pattern = '.(?P<milliseconds>\d\d\d)(?P<microseconds>\d\d\d)'
+    ms_only_pattern = r'.(?P<milliseconds>\d\d\d)(?P<microseconds>\d\d\d)'
     patterns.append(ms_only_pattern)
     hms_and_ms_pattern = hms_only_pattern + ms_only_pattern
     patterns.append(hms_and_ms_pattern)
-    days_and_hms_pattern = '{0},\s+{1}'.format(days_only_pattern,
+    days_and_hms_pattern = r'{0},\s+{1}'.format(days_only_pattern,
             hms_only_pattern)
     patterns.append(days_and_hms_pattern)
     days_and_hms_and_ms_pattern = days_and_hms_pattern + ms_only_pattern
     patterns.append(days_and_hms_and_ms_pattern)
 
+    match = None
     for pattern in patterns:
         match = re.match('^{0}$'.format(pattern), s)
         if match:
             break
 
     if not match:
-        raise logic.ValidationError('Not a valid time: {0}'.format(s))
+        raise logic.ValidationError({
+            'message': 'Not a valid time: {0}'.format(s)})
 
     gd = match.groupdict()
     days = int(gd.get('days', '0'))
@@ -71,7 +78,21 @@ def string_to_timedelta(s):
     return delta
 
 
-def _notifications_for_activities(activities, user_dict):
+def render_activity_email(activities: list[dict[str, Any]]) -> str:
+    globals = {'site_title': config.get_value('ckan.site_title')}
+    template_name = 'activity_streams/activity_stream_email_notifications.text'
+
+    env = Environment(**jinja_extensions.get_jinja_env_options())
+    # Install the given gettext, ngettext callables into the environment
+    env.install_gettext_callables(ugettext, ungettext) # type: ignore
+
+    template = env.get_template(template_name, globals=globals)
+    return template.render({'activities': activities})
+
+
+def _notifications_for_activities(
+        activities: list[dict[str, Any]],
+        user_dict: dict[str, Any]) -> list[dict[str, str]]:
     '''Return one or more email notifications covering the given activities.
 
     This function handles grouping multiple activities into a single digest
@@ -97,15 +118,15 @@ def _notifications_for_activities(activities, user_dict):
     # say something about the contents of the activities, or single out
     # certain types of activity to be sent in their own individual emails,
     # etc.
+
     subject = ungettext(
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
                 site_title=config.get_value('ckan.site_title'),
                 n=len(activities))
-    body = base.render(
-            'activity_streams/activity_stream_email_notifications.text',
-            extra_vars={'activities': activities})
+
+    body = render_activity_email(activities)
     notifications = [{
         'subject': subject,
         'body': body
@@ -114,14 +135,16 @@ def _notifications_for_activities(activities, user_dict):
     return notifications
 
 
-def _notifications_from_dashboard_activity_list(user_dict, since):
+def _notifications_from_dashboard_activity_list(
+        user_dict: dict[str, Any],
+        since: datetime.datetime) -> list[dict[str, str]]:
     '''Return any email notifications from the given user's dashboard activity
     list since `since`.
 
     '''
     # Get the user's dashboard activity stream.
-    context = {'model': model, 'session': model.Session,
-            'user': user_dict['id']}
+    context = cast(Context, {'model': model, 'session': model.Session,
+            'user': user_dict['id']})
     activity_list = logic.get_action('dashboard_activity_list')(context, {})
 
     # Filter out the user's own activities., so they don't get an email every
@@ -146,7 +169,9 @@ _notifications_functions = [
     ]
 
 
-def get_notifications(user_dict, since):
+def get_notifications(
+        user_dict: dict[str, Any],
+        since: datetime.datetime) -> list[dict[str, Any]]:
     '''Return any email notifications for the given user since `since`.
 
     For example email notifications about activity streams will be returned for
@@ -169,7 +194,8 @@ def get_notifications(user_dict, since):
     return notifications
 
 
-def send_notification(user, email_dict):
+def send_notification(user: dict[str, Any],
+                      email_dict: dict[str, Any]) -> None:
     '''Email `email_dict` to `user`.'''
     import ckan.lib.mailer
 
@@ -184,7 +210,7 @@ def send_notification(user, email_dict):
         raise
 
 
-def get_and_send_notifications_for_user(user):
+def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
 
     # Parse the email_notifications_since config setting, email notifications
     # from longer ago than this time will not be sent.
@@ -201,7 +227,6 @@ def get_and_send_notifications_for_user(user):
     email_last_sent = model.Dashboard.get(user['id']).email_last_sent
     activity_stream_last_viewed = (
             model.Dashboard.get(user['id']).activity_stream_last_viewed)
-
     since = max(email_notifications_since, email_last_sent,
             activity_stream_last_viewed)
 
@@ -218,9 +243,10 @@ def get_and_send_notifications_for_user(user):
     model.repo.commit()
 
 
-def get_and_send_notifications_for_all_users():
-    context = {'model': model, 'session': model.Session, 'ignore_auth': True,
-            'keep_email': True}
+def get_and_send_notifications_for_all_users() -> None:
+    context = cast(
+        Context, {'model': model, 'session': model.Session,
+                  'ignore_auth': True, 'keep_email': True})
     users = logic.get_action('user_list')(context, {})
     for user in users:
         get_and_send_notifications_for_user(user)
