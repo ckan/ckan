@@ -37,7 +37,8 @@ class TestActivityListSelect(object):
         html = out[0]
         assert (
             str(html)
-            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
+            == '<option value="id1" selected>February 1, 2018 at 10:58:59'
+            " AM UTC"
             "</option>"
         )
         assert hasattr(html, "__html__")  # shows it is safe Markup
@@ -51,4 +52,4 @@ class TestActivityListSelect(object):
         out = tk.h.activity_list_select([pkg_activity], "")
 
         html = out[0]
-        assert str(html).startswith(u'<option value="&#34;&gt;" >')
+        assert str(html).startswith('<option value="&#34;&gt;" >')

@@ -7,7 +7,8 @@ import ckan.model as model
 from ckan.tests.helpers import call_action
 from ckanext.activity.model import (
     activity_dict_save,
-    activity as activity_model, Activity
+    activity as activity_model,
+    Activity,
 )
 
 

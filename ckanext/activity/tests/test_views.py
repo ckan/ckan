@@ -40,7 +40,8 @@ class TestOrganization(object):
         url = url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the organization" in response
         assert (
@@ -60,13 +61,13 @@ class TestOrganization(object):
         url = url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the organization" in response
         assert (
-            '<a href="/organization/{}">Organization with changed title'.format(
-                org["name"]
-            )
+            '<a href="/organization/{}">Organization with changed title'
+            .format(org["name"])
             in response
         )
 
@@ -100,7 +101,8 @@ class TestOrganization(object):
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the organization" in response
         assert (
@@ -119,7 +121,8 @@ class TestOrganization(object):
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -140,7 +143,8 @@ class TestOrganization(object):
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -160,7 +164,8 @@ class TestOrganization(object):
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -187,7 +192,8 @@ class TestUser:
         url = url_for("activity.user_activity", id=user["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "signed up" in response
 
@@ -219,7 +225,8 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -241,7 +248,8 @@ class TestUser:
         href = page.select_one(".dataset")
 
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -262,7 +270,8 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -279,7 +288,8 @@ class TestUser:
         href = page.select_one(".group")
 
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -300,7 +310,8 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -320,7 +331,8 @@ class TestUser:
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the group" in response
         assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -340,11 +352,13 @@ class TestUser:
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"])
+            in response
         )
 
 
@@ -372,7 +386,8 @@ class TestPackage:
         href = page.select_one(".dataset")
 
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -393,7 +408,8 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -414,7 +430,8 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -440,7 +457,8 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -466,7 +484,8 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -495,7 +514,8 @@ class TestPackage:
         href = page.select_one(".dataset")
 
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -526,7 +546,8 @@ class TestPackage:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -553,7 +574,8 @@ class TestPackage:
         href = page.select_one(".dataset")
 
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -610,8 +632,7 @@ class TestPackage:
         ),
     )
     def test_custom_activity(self, app):
-        """Render a custom activity
-        """
+        """Render a custom activity"""
 
         user = factories.User()
         organization = factories.Organization(
@@ -640,7 +661,8 @@ class TestPackage:
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         # it renders the activity with fallback.html, since we've not defined
         # changed_datastore.html in this case
@@ -656,13 +678,22 @@ class TestPackage:
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
-            url_for("activity.package_history", id=dataset["id"], activity_id=activity.id),
+            url_for(
+                "activity.package_history",
+                id=dataset["id"],
+                activity_id=activity.id,
+            ),
             status=302,
             extra_environ=env,
-            follow_redirects=False
+            follow_redirects=False,
         )
-        expected_path = url_for("activity.package_history", id=dataset["name"], _external=True, activity_id=activity.id)
-        assert response.headers['location'] == expected_path
+        expected_path = url_for(
+            "activity.package_history",
+            id=dataset["name"],
+            _external=True,
+            activity_id=activity.id,
+        )
+        assert response.headers["location"] == expected_path
 
     def test_read_dataset_as_it_used_to_be(self, app):
         dataset = factories.Dataset(title="Original title")
@@ -678,7 +709,9 @@ class TestPackage:
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
             url_for(
-                "activity.package_history", id=dataset["name"], activity_id=activity.id
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
             ),
             extra_environ=env,
         )
@@ -724,7 +757,9 @@ class TestPackage:
         env = {"REMOTE_USER": sysadmin["name"]}
         app.get(
             url_for(
-                "activity.package_history", id=dataset["name"], activity_id=activity.id
+                "activity.package_history",
+                id=dataset["name"],
+                activity_id=activity.id,
             ),
             extra_environ=env,
             status=404,
@@ -741,7 +776,8 @@ class TestPackage:
         )[0]
         env = {"REMOTE_USER": user["name"]}
         response = app.get(
-            url_for("activity.package_changes", id=activity.id), extra_environ=env
+            url_for("activity.package_changes", id=activity.id),
+            extra_environ=env,
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
@@ -753,12 +789,8 @@ class TestPackage:
         dataset = factories.Dataset(user=user)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(
-            url,
-            query_string={'before': 'XXX'},
-            status=400
-        )
-        assert 'Invalid parameters' in response.body
+        response = app.get(url, query_string={"before": "XXX"}, status=400)
+        assert "Invalid parameters" in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_next_page_button(self, app):
@@ -779,19 +811,16 @@ class TestPackage:
             "package_activity_list", id=dataset["id"]
         )
         # Last activity in the first page
-        before_time = datetime.fromisoformat(
-            activities[2]["timestamp"]
-        )
+        before_time = datetime.fromisoformat(activities[2]["timestamp"])
 
         # Next page button
-        next_page_url = '/dataset/activity/{}?before={}'.format(
-            dataset['id'],
-            before_time.timestamp()
+        next_page_url = "/dataset/activity/{}?before={}".format(
+            dataset["id"], before_time.timestamp()
         )
         assert next_page_url in response.body
 
         # Prev page button is not in the first page
-        prev_page_url = '/dataset/activity/{}?after='.format(dataset['id'])
+        prev_page_url = "/dataset/activity/{}?after=".format(dataset["id"])
         assert prev_page_url not in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
@@ -825,20 +854,17 @@ class TestPackage:
         )
         url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(
-            url,
-            query_string={'before': last_act_page_1_time.timestamp()}
+            url, query_string={"before": last_act_page_1_time.timestamp()}
         )
 
         # Next page button exists in page 2
-        next_page_url = '/dataset/activity/{}?before={}'.format(
-            dataset['id'],
-            db_activities[5].timestamp.timestamp()
+        next_page_url = "/dataset/activity/{}?before={}".format(
+            dataset["id"], db_activities[5].timestamp.timestamp()
         )
         assert next_page_url in response.body
         # Prev page button exists in page 2
-        prev_page_url = '/dataset/activity/{}?after={}'.format(
-            dataset['id'],
-            db_activities[3].timestamp.timestamp()
+        prev_page_url = "/dataset/activity/{}?after={}".format(
+            dataset["id"], db_activities[3].timestamp.timestamp()
         )
         assert prev_page_url in response.body
 
@@ -858,28 +884,22 @@ class TestPackage:
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"], limit=10
         )
-        before_time = datetime.fromisoformat(
-            activities[2]["timestamp"]
-        )
+        before_time = datetime.fromisoformat(activities[2]["timestamp"])
 
         url = url_for("activity.package_activity", id=dataset["id"])
         # url for page 2
         response = app.get(
-            url,
-            query_string={'before': before_time.timestamp()}
+            url, query_string={"before": before_time.timestamp()}
         )
 
         # There's not a third page
-        next_page_url = '/dataset/activity/{}?before='.format(dataset['name'])
+        next_page_url = "/dataset/activity/{}?before=".format(dataset["name"])
         assert next_page_url not in response.body
 
         # previous page exists
-        after_time = datetime.fromisoformat(
-            activities[3]["timestamp"]
-        )
-        prev_page_url = '/dataset/activity/{}?after={}'.format(
-            dataset['id'],
-            after_time.timestamp()
+        after_time = datetime.fromisoformat(activities[3]["timestamp"])
+        prev_page_url = "/dataset/activity/{}?after={}".format(
+            dataset["id"], after_time.timestamp()
         )
         assert prev_page_url in response.body
 
@@ -904,13 +924,13 @@ class TestGroup:
         url = url_for("activity.group_activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(
-                user["name"], user["fullname"]
-            ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the group" in response
         assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"])
+            in response
         )
 
     def test_change_group(self, app):
@@ -925,15 +945,12 @@ class TestGroup:
         url = url_for("activity.group_activity", id=group["id"])
         response = app.get(url)
         assert (
-            '<a href="/user/{}">{}'.format(
-                user["name"], user["fullname"]
-            ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the group" in response
         assert (
-            '<a href="/group/{}">{}'.format(
-                group["name"], group["title"]
-            )
+            '<a href="/group/{}">{}'.format(group["name"], group["title"])
             in response
         )
 
@@ -967,13 +984,13 @@ class TestGroup:
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
-            '<a href="/user/{}">{}'.format(
-                user["name"], user["fullname"]
-            ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the group" in response
         assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
+            '<a href="/group/{}">{}'.format(group["name"], group["title"])
+            in response
         )
 
     def test_create_dataset(self, app):
@@ -987,9 +1004,8 @@ class TestGroup:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(
-                user["name"], user["fullname"]
-            ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "created the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -1011,9 +1027,8 @@ class TestGroup:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(
-                user["name"], user["fullname"]
-            ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "updated the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
@@ -1033,8 +1048,8 @@ class TestGroup:
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]
-                                           ) in response
+            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
+            in response
         )
         assert "deleted the dataset" in response
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]

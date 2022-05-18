@@ -13,11 +13,13 @@ from ckan.types import Context
 from . import changes
 
 
-def dashboard_activity_stream(user_id: str,
-                              filter_type: Optional[str] = None,
-                              filter_id: Optional[str] = None,
-                              offset: int = 0) -> list[dict[str, Any]]:
-    '''Return the dashboard activity stream of the current user.
+def dashboard_activity_stream(
+    user_id: str,
+    filter_type: Optional[str] = None,
+    filter_id: Optional[str] = None,
+    offset: int = 0,
+) -> list[dict[str, Any]]:
+    """Return the dashboard activity stream of the current user.
 
     :param user_id: the id of the user
     :type user_id: string
@@ -31,78 +33,89 @@ def dashboard_activity_stream(user_id: str,
     :returns: an activity stream as an HTML snippet
     :rtype: string
 
-    '''
+    """
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': tk.g.user})
+        Context, {"model": model, "session": model.Session, "user": tk.g.user}
+    )
 
     if filter_type:
         action_functions = {
-            'dataset': 'package_activity_list',
-            'user': 'user_activity_list',
-            'group': 'group_activity_list',
-            'organization': 'organization_activity_list',
+            "dataset": "package_activity_list",
+            "user": "user_activity_list",
+            "group": "group_activity_list",
+            "organization": "organization_activity_list",
         }
         action_function = tk.get_action(action_functions[filter_type])
-        return action_function(context, {'id': filter_id, 'offset': offset})
+        return action_function(context, {"id": filter_id, "offset": offset})
     else:
-        return tk.get_action('dashboard_activity_list')(
-            context, {'offset': offset})
+        return tk.get_action("dashboard_activity_list")(
+            context, {"offset": offset}
+        )
 
 
 def recently_changed_packages_activity_stream(
-        limit: Optional[int] = None) -> list[dict[str, Any]]:
+    limit: Optional[int] = None,
+) -> list[dict[str, Any]]:
     if limit:
-        data_dict = {'limit': limit}
+        data_dict = {"limit": limit}
     else:
         data_dict = {}
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': tk.g.user}
+        Context, {"model": model, "session": model.Session, "user": tk.g.user}
     )
-    return tk.get_action('recently_changed_packages_activity_list')(
-        context, data_dict)
+    return tk.get_action("recently_changed_packages_activity_list")(
+        context, data_dict
+    )
 
 
 def new_activities() -> Optional[int]:
-    '''Return the number of activities for the current user.
+    """Return the number of activities for the current user.
 
     See :func:`logic.action.get.dashboard_new_activities_count` for more
     details.
 
-    '''
+    """
     if not tk.g.userobj:
         return None
-    action = tk.get_action('dashboard_new_activities_count')
+    action = tk.get_action("dashboard_new_activities_count")
     return action({}, {})
 
 
-def activity_list_select(pkg_activity_list: list[dict[str, Any]],
-                         current_activity_id: str) -> list[Markup]:
-    '''
+def activity_list_select(
+    pkg_activity_list: list[dict[str, Any]], current_activity_id: str
+) -> list[Markup]:
+    """
     Builds an HTML formatted list of options for the select lists
     on the "Changes" summary page.
-    '''
+    """
     select_list = []
     template = jinja2.Template(
-        u'<option value="{{activity_id}}" {{selected}}>'
-        '{{timestamp}}</option>',
-        autoescape=True)
+        '<option value="{{activity_id}}" {{selected}}>{{timestamp}}</option>',
+        autoescape=True,
+    )
     for activity in pkg_activity_list:
         entry = tk.h.render_datetime(
-            activity['timestamp'], with_hours=True, with_seconds=True)
-        select_list.append(Markup(
-            template
-            .render(activity_id=activity['id'], timestamp=entry,
-                    selected='selected'
-                    if activity['id'] == current_activity_id
-                    else '')
-        ))
+            activity["timestamp"], with_hours=True, with_seconds=True
+        )
+        select_list.append(
+            Markup(
+                template.render(
+                    activity_id=activity["id"],
+                    timestamp=entry,
+                    selected="selected"
+                    if activity["id"] == current_activity_id
+                    else "",
+                )
+            )
+        )
 
     return select_list
 
 
-def compare_pkg_dicts(old: dict[str, Any], new: dict[str, Any],
-                      old_activity_id: str) -> list[dict[str, Any]]:
-    '''
+def compare_pkg_dicts(
+    old: dict[str, Any], new: dict[str, Any], old_activity_id: str
+) -> list[dict[str, Any]]:
+    """
     Takes two package dictionaries that represent consecutive versions of
     the same dataset and returns a list of detailed & formatted summaries of
     the changes between the two versions. old and new are the two package
@@ -115,7 +128,7 @@ def compare_pkg_dicts(old: dict[str, Any], new: dict[str, Any],
     to the dataset made in this revision. The dictionaries each contain a
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
-    '''
+    """
 
     change_list: list[dict[str, Any]] = []
 
@@ -126,14 +139,15 @@ def compare_pkg_dicts(old: dict[str, Any], new: dict[str, Any],
     # if the dataset was updated but none of the fields we check were changed,
     # display a message stating that
     if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
+        change_list.append({"type": "no_change"})
 
     return change_list
 
 
 def compare_group_dicts(
-        old: dict[str, Any], new: dict[str, Any], old_activity_id: str):
-    '''
+    old: dict[str, Any], new: dict[str, Any], old_activity_id: str
+):
+    """
     Takes two package dictionaries that represent consecutive versions of
     the same organization and returns a list of detailed & formatted summaries
     of the changes between the two versions. old and new are the two package
@@ -146,7 +160,7 @@ def compare_group_dicts(
     to the dataset made in this revision. The dictionaries each contain a
     string indicating the type of change made as well as other data necessary
     to form a detailed summary of the change.
-    '''
+    """
     change_list: list[dict[str, Any]] = []
 
     changes.check_metadata_org_changes(change_list, old, new)
@@ -154,10 +168,10 @@ def compare_group_dicts(
     # if the organization was updated but none of the fields we check
     # were changed, display a message stating that
     if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
+        change_list.append({"type": "no_change"})
 
     return change_list
 
 
 def activity_show_email_notifications() -> bool:
-    return tk.config.get_value(u'ckan.activity_streams_email_notifications')
+    return tk.config.get_value("ckan.activity_streams_email_notifications")

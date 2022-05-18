@@ -16,27 +16,29 @@ log = logging.getLogger(__name__)
 def get_subscriptions() -> types.SignalMapping:
     return {
         tk.signals.action_succeeded: [
-            {'sender': 'bulk_update_public', 'receiver': bulk_changed},
-            {'sender': 'bulk_update_private', 'receiver': bulk_changed},
-            {'sender': 'bulk_update_delete', 'receiver': bulk_changed},
-
-            {'sender': 'package_create', 'receiver': package_changed},
-            {'sender': 'package_update', 'receiver': package_changed},
-            {'sender': 'package_delete', 'receiver': package_changed},
-
-            {'sender': 'group_create', 'receiver': group_or_org_changed},
-            {'sender': 'group_update', 'receiver': group_or_org_changed},
-            {'sender': 'group_delete', 'receiver': group_or_org_changed},
-
-            {'sender': 'organization_create',
-             'receiver': group_or_org_changed},
-            {'sender': 'organization_update',
-             'receiver': group_or_org_changed},
-            {'sender': 'organization_delete',
-             'receiver': group_or_org_changed},
-
-            {'sender': 'user_create', 'receiver': user_changed},
-            {'sender': 'user_update', 'receiver': user_changed},
+            {"sender": "bulk_update_public", "receiver": bulk_changed},
+            {"sender": "bulk_update_private", "receiver": bulk_changed},
+            {"sender": "bulk_update_delete", "receiver": bulk_changed},
+            {"sender": "package_create", "receiver": package_changed},
+            {"sender": "package_update", "receiver": package_changed},
+            {"sender": "package_delete", "receiver": package_changed},
+            {"sender": "group_create", "receiver": group_or_org_changed},
+            {"sender": "group_update", "receiver": group_or_org_changed},
+            {"sender": "group_delete", "receiver": group_or_org_changed},
+            {
+                "sender": "organization_create",
+                "receiver": group_or_org_changed,
+            },
+            {
+                "sender": "organization_update",
+                "receiver": group_or_org_changed,
+            },
+            {
+                "sender": "organization_delete",
+                "receiver": group_or_org_changed,
+            },
+            {"sender": "user_create", "receiver": user_changed},
+            {"sender": "user_update", "receiver": user_changed},
         ]
     }
 
@@ -52,17 +54,17 @@ def bulk_changed(sender: str, **kwargs: Any):
     datasets = kwargs["data_dict"].get("datasets")
     model = context["model"]
 
-    user = context['user']
+    user = context["user"]
     user_obj = model.User.get(user)
     if user_obj:
         user_id = user_obj.id
     else:
-        user_id = 'not logged in'
+        user_id = "not logged in"
     for dataset in datasets:
         entity = model.Package.get(dataset)
         assert entity
 
-        activity = Activity.activity_stream_item(entity, 'changed', user_id)
+        activity = Activity.activity_stream_item(entity, "changed", user_id)
         model.Session.add(activity)
 
     model.Session.commit()
@@ -98,7 +100,7 @@ def package_changed(sender: str, **kwargs: Any):
     if user_obj:
         user_id = user_obj.id
     else:
-        user_id = 'not logged in'
+        user_id = "not logged in"
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
     context["session"].add(activity)
@@ -127,28 +129,28 @@ def group_or_org_changed(sender: str, **kwargs: Any):
     assert user_obj
 
     activity_dict: dict[str, Any] = {
-        'user_id': user_obj.id,
-        'object_id': group.id,
+        "user_id": user_obj.id,
+        "object_id": group.id,
     }
 
-    if group.state == u'deleted' or action == "delete":
+    if group.state == "deleted" or action == "delete":
         activity_type = f"deleted {type_}"
     elif action == "create":
         activity_type = f"new {type_}"
     else:
         activity_type = f"changed {type_}"
 
-    activity_dict['activity_type'] = activity_type
+    activity_dict["activity_type"] = activity_type
 
-    activity_dict['data'] = {
-        'group': dictization.table_dictize(group, context)
+    activity_dict["data"] = {
+        "group": dictization.table_dictize(group, context)
     }
     activity_create_context: types.Context = {
         "ignore_auth": True,
         "user": context["user"],
         "session": context["session"],
     }
-    tk.get_action('activity_create')(activity_create_context, activity_dict)
+    tk.get_action("activity_create")(activity_create_context, activity_dict)
 
 
 # action, context, data_dict, result
@@ -167,13 +169,13 @@ def user_changed(sender: str, **kwargs: Any):
         activity_type = "changed user"
 
     activity_dict = {
-            'user_id': result["id"],
-            'object_id': result["id"],
-            'activity_type': activity_type,
-            }
+        "user_id": result["id"],
+        "object_id": result["id"],
+        "activity_type": activity_type,
+    }
     activity_create_context: types.Context = {
         "ignore_auth": True,
         "user": context["user"],
         "session": context["session"],
     }
-    tk.get_action('activity_create')(activity_create_context, activity_dict)
+    tk.get_action("activity_create")(activity_create_context, activity_dict)

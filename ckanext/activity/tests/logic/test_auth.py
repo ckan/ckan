@@ -11,12 +11,12 @@ import ckan.model as model
 @pytest.mark.usefixtures("with_plugins")
 class TestAuth:
     @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"false"
+        "ckan.auth.public_activity_stream_detail", "false"
     )
     def test_config_option_public_activity_stream_detail_denied(self, package):
         """Config option says an anon user is not authorized to get activity
-            stream data/detail.
-            """
+        stream data/detail.
+        """
         context = {"user": None, "model": model}
         with pytest.raises(tk.NotAuthorized):
             helpers.call_auth(
@@ -26,13 +26,11 @@ class TestAuth:
                 include_data=True,
             )
 
-    @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"true"
-    )
+    @pytest.mark.ckan_config("ckan.auth.public_activity_stream_detail", "true")
     def test_config_option_public_activity_stream_detail(self, package):
         """Config option says an anon user is authorized to get activity
-            stream data/detail.
-            """
+        stream data/detail.
+        """
         context = {"user": None, "model": model}
         helpers.call_auth(
             "package_activity_list",

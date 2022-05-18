@@ -16,6 +16,7 @@ from ckanext.activity.model.activity import Activity, package_activity_list
 
 def _clear_activities():
     from ckan import model
+
     model.Session.query(Activity).delete()
     model.Session.flush()
 
@@ -64,7 +65,8 @@ class TestActivityShow:
             data={"package": copy.deepcopy(package), "actor": "Mr Someone"},
         )
         activity_shown = helpers.call_action(
-            "activity_show", id=activity["id"])
+            "activity_show", id=activity["id"]
+        )
         assert activity_shown["user_id"] == user["id"]
         assert (
             _seconds_since_timestamp(
@@ -474,10 +476,7 @@ class TestPackageActivityList(object):
             "new package"
         ]
 
-    def _create_dataset_with_activities(
-        self,
-        updates: int = 3
-    ):
+    def _create_dataset_with_activities(self, updates: int = 3):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         ctx = {"user": user["name"]}
@@ -489,133 +488,122 @@ class TestPackageActivityList(object):
         return dataset
 
     def test_activity_after(self):
-        """ Test activities after timestamp """
+        """Test activities after timestamp"""
         dataset = self._create_dataset_with_activities()
 
-        db_activities = package_activity_list(
-            dataset["id"], limit=10
-        )
+        db_activities = package_activity_list(dataset["id"], limit=10)
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            after=db_activities[2].timestamp.timestamp()
+            after=db_activities[2].timestamp.timestamp(),
         )
         # we expect just 2 (the first 2)
         assert len(pkg_activities) == 2
         # first activity here is the first one.
-        assert pkg_activities[0]["activity_type"] == 'changed package'
+        assert pkg_activities[0]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[0]["timestamp"]
         )
         assert pkg_activity_time == db_activities[0].timestamp
 
         # last activity here is the 2nd one.
-        assert pkg_activities[1]["activity_type"] == 'changed package'
+        assert pkg_activities[1]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[1]["timestamp"]
         )
         assert pkg_activity_time == db_activities[1].timestamp
 
     def test_activity_offset(self):
-        """ Test activities after timestamp """
+        """Test activities after timestamp"""
         dataset = self._create_dataset_with_activities()
 
-        db_activities = package_activity_list(
-            dataset["id"], limit=10
-        )
+        db_activities = package_activity_list(dataset["id"], limit=10)
         pkg_activities = helpers.call_action(
-            "package_activity_list",
-            id=dataset["id"],
-            offset=2
+            "package_activity_list", id=dataset["id"], offset=2
         )
         # we expect just 2 (the last 2)
         assert len(pkg_activities) == 2
         # first activity here is the first one.
-        assert pkg_activities[0]["activity_type"] == 'changed package'
+        assert pkg_activities[0]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[0]["timestamp"]
         )
         assert pkg_activity_time == db_activities[2].timestamp
 
         # last activity here is the package creation.
-        assert pkg_activities[1]["activity_type"] == 'new package'
+        assert pkg_activities[1]["activity_type"] == "new package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[1]["timestamp"]
         )
         assert pkg_activity_time == db_activities[3].timestamp
 
     def test_activity_before(self):
-        """ Test activities before timestamp """
+        """Test activities before timestamp"""
         dataset = self._create_dataset_with_activities()
 
-        db_activities = package_activity_list(
-            dataset["id"], limit=10
-        )
+        db_activities = package_activity_list(dataset["id"], limit=10)
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
-            before=db_activities[1].timestamp.timestamp()
+            before=db_activities[1].timestamp.timestamp(),
         )
         # we expect just 2 (the last 2)
         assert len(pkg_activities) == 2
         # first activity here is the first one.
-        assert pkg_activities[0]["activity_type"] == 'changed package'
+        assert pkg_activities[0]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[0]["timestamp"]
         )
         assert pkg_activity_time == db_activities[2].timestamp
 
         # last activity here is the package creation.
-        assert pkg_activities[-1]["activity_type"] == 'new package'
+        assert pkg_activities[-1]["activity_type"] == "new package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[-1]["timestamp"]
         )
         assert pkg_activity_time == db_activities[3].timestamp
 
     def test_activity_after_before(self):
-        """ Test activities before timestamp """
+        """Test activities before timestamp"""
         dataset = self._create_dataset_with_activities()
 
-        db_activities = package_activity_list(
-            dataset["id"], limit=10
-        )
+        db_activities = package_activity_list(dataset["id"], limit=10)
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
             before=db_activities[1].timestamp.timestamp(),
-            after=db_activities[3].timestamp.timestamp()
+            after=db_activities[3].timestamp.timestamp(),
         )
         # we expect just 1 (db_activities[2])
         assert len(pkg_activities) == 1
         # first activity here is the first one.
-        assert pkg_activities[0]["activity_type"] == 'changed package'
+        assert pkg_activities[0]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[0]["timestamp"]
         )
         assert pkg_activity_time == db_activities[2].timestamp
 
     def test_activity_after_before_offset(self):
-        """ Test activities before timestamp """
+        """Test activities before timestamp"""
         dataset = self._create_dataset_with_activities(updates=4)
 
-        db_activities = package_activity_list(
-            dataset["id"], limit=10
-        )
+        db_activities = package_activity_list(dataset["id"], limit=10)
         pkg_activities = helpers.call_action(
             "package_activity_list",
             id=dataset["id"],
             before=db_activities[1].timestamp.timestamp(),
             after=db_activities[4].timestamp.timestamp(),
-            offset=1
+            offset=1,
         )
         # we expect just 1 (db_activities[3])
         assert len(pkg_activities) == 1
         # first activity here is the first one.
-        assert pkg_activities[0]["activity_type"] == 'changed package'
+        assert pkg_activities[0]["activity_type"] == "changed package"
         pkg_activity_time = datetime.datetime.fromisoformat(
             pkg_activities[0]["timestamp"]
         )
         assert pkg_activity_time == db_activities[3].timestamp
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
@@ -656,7 +644,9 @@ class TestUserActivityList(object):
         assert latest_activity["object_id"] == user["id"]
         assert latest_activity["user_id"] == user["id"]
         after = datetime.datetime.utcnow()
-        timestamp = datetime.datetime.strptime(latest_activity["timestamp"], "%Y-%m-%dT%H:%M:%S.%f")
+        timestamp = datetime.datetime.strptime(
+            latest_activity["timestamp"], "%Y-%m-%dT%H:%M:%S.%f"
+        )
         assert timestamp >= before and timestamp <= after
 
     def test_create_dataset(self):
