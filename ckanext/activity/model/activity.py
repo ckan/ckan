@@ -378,11 +378,11 @@ def _group_activity_query(
             ),
         )
         .filter(
-            # We only care about activity either on the group itself or on packages
-            # within that group.
-            # FIXME: This means that activity that occured while a package belonged
-            # to a group but was then removed will not show up. This may not be
-            # desired but is consistent with legacy behaviour.
+            # We only care about activity either on the group itself or on
+            # packages within that group.  FIXME: This means that activity that
+            # occured while a package belonged to a group but was then removed
+            # will not show up. This may not be desired but is consistent with
+            # legacy behaviour.
             or_(
                 # active dataset in the group
                 and_(
@@ -436,9 +436,9 @@ def _organization_activity_query(
         .filter(
             # We only care about activity either on the the org itself or on
             # packages within that org.
-            # FIXME: This means that activity that occured while a package belonged
-            # to a org but was then removed will not show up. This may not be
-            # desired but is consistent with legacy behaviour.
+            # FIXME: This means that activity that occured while a package
+            # belonged to a org but was then removed will not show up. This may
+            # not be desired but is consistent with legacy behaviour.
             or_(
                 model.Package.owner_org == org_id, Activity.object_id == org_id
             )

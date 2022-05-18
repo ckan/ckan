@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from bs4 import BeautifulSoup
-from datetime import datetime
 from werkzeug.routing import BuildError
 import unittest.mock as mock
 

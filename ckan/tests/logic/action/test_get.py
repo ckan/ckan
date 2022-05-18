@@ -8,7 +8,6 @@ import pytest
 from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
-import ckan.model.activity as activity_model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import __version__
