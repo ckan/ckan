@@ -227,4 +227,3 @@ class TestPatch(object):
         with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
             helpers.call_action('resource_update', id=resource['id'], description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
-
