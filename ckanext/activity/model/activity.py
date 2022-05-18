@@ -10,7 +10,6 @@ from sqlalchemy import (
     types,
     Column,
     ForeignKey,
-    desc,
     or_,
     and_,
     union_all,
@@ -183,13 +182,25 @@ class ActivityDetail(domain_object.DomainObject):
             .filter_by(activity_id=activity_id).all()
 
 
-def _activities_limit(q: QActivity, limit: int,
-                      offset: Optional[int] = None) -> QActivity:
+def _activities_limit(
+        q: QActivity,
+        limit: int,
+        offset: Optional[int]=None,
+        revese_order: Optional[bool] = False
+    ) -> QActivity:
     '''
     Return an SQLAlchemy query for all activities at an offset with a limit.
+
+    revese_order:
+        if we want the last activities before a date, we must reverse the
+        order before limiting.
     '''
-    # type_ignore_reason: incomplete SQLAlchemy types
-    q = q.order_by(desc(Activity.timestamp))  # type: ignore
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
     if offset:
         q = q.offset(offset)
     if limit:
@@ -265,10 +276,14 @@ def _package_activity_query(package_id: str) -> QActivity:
 
 
 def package_activity_list(
-        package_id: str, limit: int, offset: int,
-        include_hidden_activity: bool = False,
-        activity_types: Optional[list[str]] = None,
-        exclude_activity_types: Optional[list[str]] = None) -> list[Activity]:
+    package_id: str,
+    limit: int,
+    offset: Optional[int]=None,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
+    include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None,
+    exclude_activity_types: Optional[list[str]] = None) -> list[Activity]:
     '''Return the given dataset (package)'s public activity stream.
 
     Returns all activities about the given dataset, i.e. where the given
@@ -279,6 +294,7 @@ def package_activity_list(
     etc.
 
     '''
+    import ckan.model as model
     q = _package_activity_query(package_id)
 
     if not include_hidden_activity:
@@ -291,7 +307,30 @@ def package_activity_list(
         q = _filter_activitites_from_type(
             q, include=False, types=exclude_activity_types)
 
-    return _activities_at_offset(q, limit, offset)
+    if after:
+        q = q.filter(model.Activity.timestamp > after)
+    if before:
+        q = q.filter(model.Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = before and not after
+    if revese_order:
+        q = q.order_by(model.Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(model.Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+    return results
 
 
 def _group_activity_query(

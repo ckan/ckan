@@ -700,7 +700,7 @@ class TestGroupSearch(object):
         assert 'No groups found for "No Results Here"' in search_response
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupInnerSearch(object):
     """Test searching within an group."""
 

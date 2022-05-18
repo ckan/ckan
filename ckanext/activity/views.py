@@ -218,6 +218,10 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page.
     """
+    after = h.get_request_param('after')
+    before = h.get_request_param('before')
+    activity_type = h.get_request_param('activity_type')
+
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
