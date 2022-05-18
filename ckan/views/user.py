@@ -450,6 +450,7 @@ class RegisterView(MethodView):
         userobj = model.User.get(user_dict["id"])
         if userobj:
             login_user(userobj)
+            rotate_token()
         resp = h.redirect_to(u'user.me')
         return resp
 
@@ -492,6 +493,7 @@ def rotate_token():
     from ckan.common import session
     # WTF_CSRF_FIELD_NAME is added by flask_wtf
     field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+
     if session.get(field_name):
         session.pop(field_name)
         generate_csrf()
