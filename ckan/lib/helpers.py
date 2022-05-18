@@ -90,8 +90,11 @@ LEGACY_ROUTE_NAMES = {
 
     # Deprecated since v2.10
     'dataset_activity': 'activity.package_activity',
+    'dataset.activity': 'activity.package_activity',
     'group_activity': 'activity.group_activity',
+    'group.activity': 'activity.group_activity',
     'organization_activity': 'activity.organization_activity',
+    'organization.activity': 'activity.organization_activity',
     "user.activity": "activity.user_activity",
     "dashboard.index": "activity.dashboard",
     "dataset.changes_multiple": "activity.package_changes_multiple",

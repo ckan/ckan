@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest.mock as mock
+from datetime import datetime
 
 import pytest
 from bs4 import BeautifulSoup
@@ -751,7 +752,7 @@ class TestPackage:
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(
             url,
             query_string={'before': 'XXX'},
@@ -772,7 +773,7 @@ class TestPackage:
         dataset["title"] = "Fourth title"
         helpers.call_action("package_update", **dataset)
 
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(url)
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
@@ -822,7 +823,7 @@ class TestPackage:
         last_act_page_1_time = datetime.fromisoformat(
             activities[2]["timestamp"]
         )
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("activity.package_activity", id=dataset["id"])
         response = app.get(
             url,
             query_string={'before': last_act_page_1_time.timestamp()}
@@ -861,7 +862,7 @@ class TestPackage:
             activities[2]["timestamp"]
         )
 
-        url = url_for("dataset.activity", id=dataset["id"])
+        url = url_for("activity.package_activity", id=dataset["id"])
         # url for page 2
         response = app.get(
             url,

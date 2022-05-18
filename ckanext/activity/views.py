@@ -21,6 +21,8 @@ from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response
 from .model import Activity
+from .logic.validators import VALIDATORS_PACKAGE_ACTIVITY_TYPES
+
 
 log = logging.getLogger(__name__)
 bp = Blueprint("activity", __name__)
@@ -218,9 +220,9 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page.
     """
-    after = h.get_request_param('after')
-    before = h.get_request_param('before')
-    activity_type = h.get_request_param('activity_type')
+    after = tk.h.get_request_param('after')
+    before = tk.h.get_request_param('before')
+    activity_type = tk.h.get_request_param('activity_type')
 
     context = cast(Context, {
         u'model': model,
@@ -229,30 +231,90 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         u'for_view': True,
         u'auth_user_obj': tk.g.userobj
     })
-    data_dict = {u'id': id}
+
+    data_dict = {'id': id}
+    base_limit = tk.config.get_value('ckan.activity_list_limit')
+    max_limit = tk.config.get_value('ckan.activity_list_limit_max')
+    limit = min(base_limit, max_limit)
+    activity_types = [activity_type] if activity_type else None
+    is_first_page = after is None and before is None
+
     try:
         pkg_dict = tk.get_action(u'package_show')(context, data_dict)
+        activity_dict = {
+            'id': pkg_dict['id'],
+            'after': after,
+            'before': before,
+            # ask for one more just to know if this query has more results
+            'limit': limit + 1,
+            'activity_types': activity_types
+        }
         pkg = context[u'package']
         package_activity_stream = tk.get_action(
             u'package_activity_list')(
-            context, {u'id': pkg_dict[u'id']})
+            context, activity_dict)
         dataset_type = pkg_dict[u'type'] or u'dataset'
     except tk.ObjectNotFound:
         return tk.abort(404, tk._(u'Dataset not found'))
     except tk.NotAuthorized:
         return tk.abort(403, tk._(u'Unauthorized to read dataset %s') % id)
+    except tk.ValidationError:
+        return tk.abort(400, tk._('Invalid parameters'))
 
-    # TODO: remove
-    tk.g.pkg_dict = pkg_dict
-    tk.g.pkg = pkg
+    prev_page = None
+    next_page = None
+
+    has_more = len(package_activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            # drop the first element
+            package_activity_stream.pop(0)
+        else:
+            # drop the last element
+            package_activity_stream.pop()
+
+    # if "after", we came from the next page. So it exists
+    # if "before" (or is_first_page), we only show next page if we know
+    # we have more rows
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            package_activity_stream[-1]['timestamp']
+        )
+        next_page = tk.h.url_for(
+            'dataset.activity',
+            id=id,
+            activity_type=activity_type,
+            before=before_time.timestamp(),
+        )
+
+    # if "before", we came from the previous page. So it exists
+    # if "after", we only show previous page if we know
+    # we have more rows
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            package_activity_stream[0]['timestamp']
+        )
+        prev_page = tk.h.url_for(
+            'dataset.activity',
+            id=id,
+            activity_type=activity_type,
+            after=after_time.timestamp(),
+        )
 
     return tk.render(
         u'package/activity.html', {
-            u'dataset_type': dataset_type,
-            u'pkg_dict': pkg_dict,
-            u'pkg': pkg,
-            u'activity_stream': package_activity_stream,
-            u'id': id,  # i.e. package's current name
+            'dataset_type': dataset_type,
+            'pkg_dict': pkg_dict,
+            'pkg': pkg,
+            'activity_stream': package_activity_stream,
+            'id': id,  # i.e. package's current name
+            'limit': limit,
+            'has_more': has_more,
+            'activity_type': activity_type,
+            'activity_types': VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+            'prev_page': prev_page,
+            'next_page': next_page,
         }
     )
 

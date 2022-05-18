@@ -294,7 +294,6 @@ def package_activity_list(
     etc.
 
     '''
-    import ckan.model as model
     q = _package_activity_query(package_id)
 
     if not include_hidden_activity:
@@ -308,17 +307,17 @@ def package_activity_list(
             q, include=False, types=exclude_activity_types)
 
     if after:
-        q = q.filter(model.Activity.timestamp > after)
+        q = q.filter(Activity.timestamp > after)
     if before:
-        q = q.filter(model.Activity.timestamp < before)
+        q = q.filter(Activity.timestamp < before)
 
     # revert sort queries for "only before" queries
     revese_order = before and not after
     if revese_order:
-        q = q.order_by(model.Activity.timestamp)
+        q = q.order_by(Activity.timestamp)
     else:
         # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(model.Activity.timestamp.desc())  # type: ignore
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
 
     if offset:
         q = q.offset(offset)

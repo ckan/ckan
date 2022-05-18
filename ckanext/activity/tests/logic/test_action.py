@@ -11,7 +11,7 @@ import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-from ckanext.activity.model import Activity
+from ckanext.activity.model.activity import Activity, package_activity_list
 
 
 def _clear_activities():
@@ -492,7 +492,7 @@ class TestPackageActivityList(object):
         """ Test activities after timestamp """
         dataset = self._create_dataset_with_activities()
 
-        db_activities = activity_model.package_activity_list(
+        db_activities = package_activity_list(
             dataset["id"], limit=10
         )
         pkg_activities = helpers.call_action(
@@ -520,7 +520,7 @@ class TestPackageActivityList(object):
         """ Test activities after timestamp """
         dataset = self._create_dataset_with_activities()
 
-        db_activities = activity_model.package_activity_list(
+        db_activities = package_activity_list(
             dataset["id"], limit=10
         )
         pkg_activities = helpers.call_action(
@@ -548,7 +548,7 @@ class TestPackageActivityList(object):
         """ Test activities before timestamp """
         dataset = self._create_dataset_with_activities()
 
-        db_activities = activity_model.package_activity_list(
+        db_activities = package_activity_list(
             dataset["id"], limit=10
         )
         pkg_activities = helpers.call_action(
@@ -576,7 +576,7 @@ class TestPackageActivityList(object):
         """ Test activities before timestamp """
         dataset = self._create_dataset_with_activities()
 
-        db_activities = activity_model.package_activity_list(
+        db_activities = package_activity_list(
             dataset["id"], limit=10
         )
         pkg_activities = helpers.call_action(
@@ -598,7 +598,7 @@ class TestPackageActivityList(object):
         """ Test activities before timestamp """
         dataset = self._create_dataset_with_activities(updates=4)
 
-        db_activities = activity_model.package_activity_list(
+        db_activities = package_activity_list(
             dataset["id"], limit=10
         )
         pkg_activities = helpers.call_action(
