@@ -8,7 +8,7 @@ import logging
 import datetime
 import time
 import json
-from typing import Any, Optional, TYPE_CHECKING, cast
+from typing import Any, Union, Optional, TYPE_CHECKING, cast
 
 import six
 
@@ -87,7 +87,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     del context["resource"]
 
     package_id = resource.package.id
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
 
@@ -559,7 +559,7 @@ def package_resource_reorder(
     if len(set(order)) != len(order):
         raise ValidationError({'order': 'Must supply unique resource_ids'})
 
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
     existing_resources = package_dict.get('resources', [])

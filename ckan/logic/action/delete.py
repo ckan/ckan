@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ckan.types.logic import ActionResult
 import logging
-from typing import Any, Type, cast
+from typing import Any, Union, Type, cast
 
 import sqlalchemy as sqla
 import six
@@ -200,7 +200,7 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
         plugin.before_resource_delete(context, data_dict,
                                       pkg_dict.get('resources', []))
 
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
 

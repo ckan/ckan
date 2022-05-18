@@ -294,7 +294,7 @@ def resource_create(context: Context,
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
 
