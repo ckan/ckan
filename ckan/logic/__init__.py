@@ -21,7 +21,7 @@ import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
-from ckan.common import _, c
+from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction, Model,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
@@ -258,15 +258,15 @@ def _prepopulate_context(context: Optional[Context]) -> Context:
     context.setdefault('session', model.Session)
 
     try:
-        user = c.user
+        user = g.user
     except AttributeError:
-        # c.user not set
+        # g.user not set
         user = ""
     except RuntimeError:
         # Outside of request context
         user = ""
     except TypeError:
-        # c not registered
+        # g not registered
         user = ""
 
     context.setdefault('user', user)
@@ -413,7 +413,7 @@ def get_action(action: str) -> Action:
     As the context parameter passed to an action function is commonly::
 
         context = {'model': ckan.model, 'session': ckan.model.Session,
-                   'user': pylons.c.user}
+                   'user': user}
 
     an action function returned by ``get_action()`` will automatically add
     these parameters to the context if they are not defined.  This is

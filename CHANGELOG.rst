@@ -312,8 +312,8 @@ Migration notes
   migrate_package_activity.py like this::
 
     cd /usr/lib/ckan/default/src/ckan/
-    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
-    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
+    wget https://raw.githubusercontent.com/ckan/ckan/2.9/ckan/migration/migrate_package_activity.py
+    wget https://raw.githubusercontent.com/ckan/ckan/2.9/ckan/migration/revision_legacy_code.py
     python migrate_package_activity.py -c /etc/ckan/production.ini
 
   Future versions of CKAN are likely to need a slightly different procedure.

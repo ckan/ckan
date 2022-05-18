@@ -1900,7 +1900,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_deleted = asbool(data_dict.pop('include_deleted', False))
-        
+
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
 
@@ -2203,7 +2203,7 @@ def _tag_search(
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
-            raise NotFound
+            return [], 0
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
@@ -2433,17 +2433,20 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
     :rtype: dictionary
 
     '''
+    _check_access('status_show', context, data_dict)
     extensions = config.get_value('ckan.plugins')
 
-    return {
+    site_info = {
         'site_title': config.get_value('ckan.site_title'),
         'site_description': config.get_value('ckan.site_description'),
         'site_url': config.get_value('ckan.site_url'),
-        'ckan_version': ckan.__version__,
         'error_emails_to': config.get_value('email_to'),
         'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
+    if not config.get_value('ckan.hide_version') or authz.is_sysadmin(context['user']):
+        site_info['ckan_version'] = ckan.__version__
+    return site_info
 
 
 def vocabulary_list(
@@ -2541,6 +2544,12 @@ def package_activity_list(
         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
         site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
+    :param after: After timestamp
+        (optional, default: ``None``)
+    :type after: int, str
+    :param before: Before timestamp
+        (optional, default: ``None``)
+    :type before: int, str
     :param include_hidden_activity: whether to include 'hidden' activity, which
         is not shown in the Activity Stream page. Hidden activity includes
         activity done by the site_user, such as harvests, which are not shown
@@ -2578,9 +2587,12 @@ def package_activity_list(
 
     offset = int(data_dict.get('offset', 0))
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
+    after = data_dict.get('after')
+    before = data_dict.get('before')
 
     activity_objects = model_activity.package_activity_list(
         package.id, limit=limit, offset=offset,
+        after=after, before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types

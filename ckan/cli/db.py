@@ -98,7 +98,7 @@ def _get_pending_plugins() -> dict[str, int]:
     plugins = [(plugin, state)
                for plugin, state
                in ((plugin, current_revision(plugin))
-                   for plugin in config['ckan.plugins'].split())
+                   for plugin in config.get_value('ckan.plugins'))
                if state and not state.endswith('(head)')]
     pending = {}
     for plugin, current in plugins:

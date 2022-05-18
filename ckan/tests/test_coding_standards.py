@@ -326,7 +326,6 @@ class TestActionAuth(object):
         "get: recently_changed_packages_activity_list",
         "get: resource_search",
         "get: roles_show",
-        "get: status_show",
         "get: tag_search",
         "get: term_translation_show",
         "get: user_followee_count",

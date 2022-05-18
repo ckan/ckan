@@ -34,6 +34,39 @@ class MailerBase(object):
 class TestMailer(MailerBase):
     def test_mail_recipient(self, mail_server):
         user = factories.User()
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": user["email"],
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.\n",
+            "headers": {"header1": "value1"},
+        }
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        assert len(msgs) == 1
+        msg = msgs[0]
+        assert msg[1] == config["smtp.mail_from"]
+        assert msg[2] == [test_email["recipient_email"]]
+        assert list(test_email["headers"].keys())[0] in msg[3], msg[3]
+        assert list(test_email["headers"].values())[0] in msg[3], msg[3]
+        assert test_email["subject"] in msg[3], msg[3]
+        assert "X-Mailer" in msg[3], "Missing X-Mailer header"
+        expected_body = self.mime_encode(
+            test_email["body"], test_email["recipient_name"]
+        )
+        assert expected_body in msg[3]
+
+    @pytest.mark.ckan_config('ckan.hide_version', True)
+    def test_mail_recipient_hiding_mailer(self, mail_server):
+        user = factories.User()
+
         msgs = mail_server.get_smtp_messages()
         assert msgs == []
 
@@ -57,6 +90,8 @@ class TestMailer(MailerBase):
         assert list(test_email["headers"].values())[0] in msg[3], msg[3]
         assert test_email["subject"] in msg[3], msg[3]
         assert msg[3].startswith('Content-Type: text/plain'), msg[3]
+        assert "X-Mailer" not in msg[3], \
+            "Should have skipped X-Mailer header"
         expected_body = self.mime_encode(
             test_email["body"], test_email["recipient_name"]
         )
@@ -279,6 +314,30 @@ class TestMailer(MailerBase):
         expected_from_header = "Reply-to: {}".format(
             config.get_value("smtp.reply_to")
         )
+
+        assert expected_from_header in msg[3]
+
+    @pytest.mark.ckan_config("smtp.reply_to", "norply@ckan.org")
+    def test_reply_to_ext_headers_overwrite(self, mail_server):
+
+        msgs = mail_server.get_smtp_messages()
+        assert msgs == []
+
+        # send email
+        test_email = {
+            "recipient_name": "Bob",
+            "recipient_email": "Bob@bob.com",
+            "subject": "Meeting",
+            "body": "The meeting is cancelled.",
+            "headers": {"Reply-to": "norply@ckanext.org"},
+        }
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = mail_server.get_smtp_messages()
+        msg = msgs[0]
+
+        expected_from_header = 'Reply-to: norply@ckanext.org'
 
         assert expected_from_header in msg[3]
 

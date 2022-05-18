@@ -36,6 +36,13 @@ missing = df.missing
 
 def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
                         errors: FlattenErrorDict, context: Context) -> Any:
+    """Validate organization for the dataset.
+
+    Depending on the settings and user's permissions, this validator checks
+    whether organization is optional and ensures that specified organization
+    can be set as an owner of dataset.
+
+    """
     value = data.get(key)
 
     if value is missing or value is None:
@@ -85,6 +92,8 @@ def owner_org_validator(key: FlattenKey, data: FlattenDataDict,
 
 
 def package_id_not_changed(value: Any, context: Context) -> Any:
+    """Ensures that package's ID is not changed during the update.
+    """
 
     package = context.get('package')
     if package and value != package.id:
@@ -123,15 +132,28 @@ def int_validator(value: Any, context: Context) -> Any:
     raise Invalid(_('Invalid integer'))
 
 def natural_number_validator(value: Any, context: Context) -> Any:
+    """Ensures that the value is non-negative integer.
+    """
     value = int_validator(value, context)
     if value < 0:
         raise Invalid(_('Must be a natural number'))
     return value
 
 def is_positive_integer(value: Any, context: Context) -> Any:
+    """Ensures that the value is an integer that is greater than zero.
+    """
     value = int_validator(value, context)
     if value < 1:
         raise Invalid(_('Must be a positive integer'))
+    return value
+
+def datetime_from_timestamp_validator(value: Any, context: Context) -> Any:
+    if value is missing or value is None:
+        return None
+    try:
+        value = datetime.datetime.fromtimestamp(float(value))
+    except (TypeError, ValueError):
+        raise Invalid(_('Must be a float timestamp'))
     return value
 
 def boolean_validator(value: Any, context: Context) -> Any:
@@ -151,6 +173,8 @@ def boolean_validator(value: Any, context: Context) -> Any:
     return False
 
 def isodate(value: Any, context: Context) -> Any:
+    """Convert the value into ``datetime.datetime`` object.
+    """
     if isinstance(value, datetime.datetime):
         return value
     if value == '':
@@ -162,7 +186,8 @@ def isodate(value: Any, context: Context) -> Any:
     return date
 
 def package_id_exists(value: str, context: Context) -> Any:
-
+    """Ensures that the value is an existing package's ID or name.
+    """
     model = context['model']
     session = context['session']
 
@@ -172,6 +197,8 @@ def package_id_exists(value: str, context: Context) -> Any:
     return value
 
 def package_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a package's ID or name.
+    """
 
     model = context['model']
     session = context['session']
@@ -182,6 +209,8 @@ def package_id_does_not_exist(value: str, context: Context) -> Any:
     return value
 
 def package_name_exists(value: str, context: Context) -> Any:
+    """Ensures that the value is an existing package's name.
+    """
 
     model = context['model']
     session = context['session']
@@ -217,6 +246,9 @@ def package_id_or_name_exists(
 
 
 def resource_id_exists(value: Any, context: Context) -> Any:
+    """Ensures that the value is not used as a resource's ID or name.
+    """
+
     model = context['model']
     session = context['session']
     if not session.query(model.Resource).get(value):
@@ -291,24 +323,36 @@ def activity_type_exists(activity_type: Any) -> Any:
         raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
 
 
+VALIDATORS_PACKAGE_ACTIVITY_TYPES = {
+    'new package': package_id_exists,
+    'changed package': package_id_exists,
+    'deleted package': package_id_exists,
+    'follow dataset': package_id_exists,
+}
+
+VALIDATORS_USER_ACTIVITY_TYPES = {
+    'new user': user_id_exists,
+    'changed user': user_id_exists,
+    'follow user': user_id_exists,
+}
+
+VALIDATORS_GROUP_ACTIVITY_TYPES = {
+    'new group': group_id_exists,
+    'changed group': group_id_exists,
+    'deleted group': group_id_exists,
+    'new organization': group_id_exists,
+    'changed organization': group_id_exists,
+    'deleted organization': group_id_exists,
+    'follow group': group_id_exists,
+}
+
 # A dictionary mapping activity_type values from activity dicts to functions
 # for validating the object_id values from those same activity dicts.
 object_id_validators = {
-    'new package' : package_id_exists,
-    'changed package' : package_id_exists,
-    'deleted package' : package_id_exists,
-    'follow dataset' : package_id_exists,
-    'new user' : user_id_exists,
-    'changed user' : user_id_exists,
-    'follow user' : user_id_exists,
-    'new group' : group_id_exists,
-    'changed group' : group_id_exists,
-    'deleted group' : group_id_exists,
-    'new organization' : group_id_exists,
-    'changed organization' : group_id_exists,
-    'deleted organization' : group_id_exists,
-    'follow group' : group_id_exists,
-    }
+    **VALIDATORS_PACKAGE_ACTIVITY_TYPES,
+    **VALIDATORS_USER_ACTIVITY_TYPES,
+    **VALIDATORS_GROUP_ACTIVITY_TYPES
+}
 
 
 def object_id_validator(key: FlattenKey, activity_dict: FlattenDataDict,
@@ -372,6 +416,8 @@ def name_validator(value: Any, context: Context) -> Any:
 
 def package_name_validator(key: FlattenKey, data: FlattenDataDict,
                            errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensures that value can be used as a package's name
+    """
     model = context['model']
     session = context['session']
     package = context.get('package')
@@ -401,6 +447,8 @@ def package_name_validator(key: FlattenKey, data: FlattenDataDict,
         )
 
 def package_version_validator(value: Any, context: Context) -> Any:
+    """Ensures that value can be used as a package's version
+    """
 
     if len(value) > PACKAGE_VERSION_MAX_LENGTH:
         raise Invalid(_('Version must be a maximum of %i characters long') % \
@@ -410,6 +458,8 @@ def package_version_validator(value: Any, context: Context) -> Any:
 
 def duplicate_extras_key(key: FlattenKey, data: FlattenDataDict,
                          errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensures that there are no duplicated extras.
+    """
 
     unflattened = df.unflatten(data)
     extras = unflattened.get('extras', [])
@@ -428,6 +478,9 @@ def duplicate_extras_key(key: FlattenKey, data: FlattenDataDict,
 
 def group_name_validator(key: FlattenKey, data: FlattenDataDict,
                          errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensures that value can be used as a group's name
+    """
+
     model = context['model']
     session = context['session']
     group = context.get('group')
@@ -444,7 +497,8 @@ def group_name_validator(key: FlattenKey, data: FlattenDataDict,
         errors[key].append(_('Group name already exists in database'))
 
 def tag_length_validator(value: Any, context: Context) -> Any:
-
+    """Ensures that tag length is in the acceptable range.
+    """
     if len(value) < MIN_TAG_LENGTH:
         raise Invalid(
             _('Tag "%s" length is less than minimum %s') % (value, MIN_TAG_LENGTH)
@@ -456,7 +510,8 @@ def tag_length_validator(value: Any, context: Context) -> Any:
     return value
 
 def tag_name_validator(value: Any, context: Context) -> Any:
-
+    """Ensures that tag does not contain wrong characters
+    """
     tagname_match = re.compile(r'[\w \-.]*$', re.UNICODE)
     if not tagname_match.match(value):
         raise Invalid(_('Tag "%s" can only contain alphanumeric '
@@ -465,7 +520,8 @@ def tag_name_validator(value: Any, context: Context) -> Any:
     return value
 
 def tag_not_uppercase(value: Any, context: Context) -> Any:
-
+    """Ensures that tag is lower-cased.
+    """
     tagname_uppercase = re.compile('[A-Z]')
     if tagname_uppercase.search(value):
         raise Invalid(_('Tag "%s" must not be uppercase' % (value)))
@@ -606,7 +662,8 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
 def user_both_passwords_entered(key: FlattenKey, data: FlattenDataDict,
                                 errors: FlattenErrorDict,
                                 context: Context) -> Any:
-
+    """Ensures that both password and password confirmation is not empty
+    """
     password1 = data.get(('password1',),None)
     password2 = data.get(('password2',),None)
 
@@ -618,6 +675,8 @@ def user_both_passwords_entered(key: FlattenKey, data: FlattenDataDict,
 def user_password_validator(key: FlattenKey, data: FlattenDataDict,
                             errors: FlattenErrorDict,
                             context: Context) -> Any:
+    """Ensures that password is safe enough.
+    """
     value = data[key]
 
     if isinstance(value, Missing):
@@ -633,7 +692,8 @@ def user_password_validator(key: FlattenKey, data: FlattenDataDict,
 
 def user_passwords_match(key: FlattenKey, data: FlattenDataDict,
                          errors: FlattenErrorDict, context: Context) -> Any:
-
+    """Ensures that password and password confirmation match.
+    """
     password1 = data.get(('password1',),None)
     password2 = data.get(('password2',),None)
 
@@ -660,12 +720,16 @@ def user_password_not_empty(key: FlattenKey, data: FlattenDataDict,
             errors[key].append(_('Missing value'))
 
 def user_about_validator(value: Any,context: Context) -> Any:
+    """Ensures that user's ``about`` field does not contains links.
+    """
     if 'http://' in value or 'https://' in value:
         raise Invalid(_('Edit not allowed as it looks like spam. Please avoid links in your description.'))
 
     return value
 
 def vocabulary_name_validator(name: str, context: Context) -> Any:
+    """Ensures that the value can be used as a tag vocabulary name.
+    """
     model = context['model']
     session = context['session']
 
@@ -682,6 +746,8 @@ def vocabulary_name_validator(name: str, context: Context) -> Any:
     return name
 
 def vocabulary_id_not_changed(value: Any, context: Context) -> Any:
+    """Ensures that vocabulary ID is not changed during the update.
+    """
     vocabulary = context.get('vocabulary')
     if vocabulary and value != vocabulary.id:
         raise Invalid(_('Cannot change value of key from %s to %s. '
@@ -689,6 +755,8 @@ def vocabulary_id_not_changed(value: Any, context: Context) -> Any:
     return value
 
 def vocabulary_id_exists(value: Any, context: Context) -> Any:
+    """Ensures that value contains existing vocabulary's ID or name.
+    """
     model = context['model']
     session = context['session']
     result = session.query(model.Vocabulary).get(value)
@@ -697,6 +765,8 @@ def vocabulary_id_exists(value: Any, context: Context) -> Any:
     return value
 
 def tag_in_vocabulary_validator(value: Any, context: Context) -> Any:
+    """Ensures that the tag belongs to the vocabulary.
+    """
     model = context['model']
     session = context['session']
     vocabulary = context.get('vocabulary')
@@ -712,6 +782,8 @@ def tag_in_vocabulary_validator(value: Any, context: Context) -> Any:
 
 def tag_not_in_vocabulary(key: FlattenKey, tag_dict: FlattenDataDict,
                           errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensures that the tag does not belong to the vocabulary.
+    """
     tag_name = tag_dict[('name',)]
     if not tag_name:
         raise Invalid(_('No tag name'))
@@ -755,6 +827,8 @@ def url_validator(key: FlattenKey, data: FlattenDataDict,
 
 
 def user_name_exists(user_name: str, context: Context) -> Any:
+    """Ensures that user's name exists.
+    """
     model = context['model']
     session = context['session']
     result = session.query(model.User).filter_by(name=user_name).first()
@@ -764,6 +838,8 @@ def user_name_exists(user_name: str, context: Context) -> Any:
 
 
 def role_exists(role: str, context: Context) -> Any:
+    """Ensures that value is an existing CKAN Role name.
+    """
     if role not in authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
@@ -801,6 +877,8 @@ def datasets_with_no_organization_cannot_be_private(key: FlattenKey,
 
 def list_of_strings(key: FlattenKey, data: FlattenDataDict,
                     errors: FlattenErrorDict, context: Context) -> Any:
+    """Ensures that value is a list of strings.
+    """
     value = data.get(key)
     if not isinstance(value, list):
         raise Invalid(_('Not a list'))
@@ -811,6 +889,8 @@ def list_of_strings(key: FlattenKey, data: FlattenDataDict,
 
 def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
                           errors: FlattenErrorDict, context: Context) -> Any:
+    """Make an attempt to guess resource's format using URL.
+    """
     value = data[key]
     resource_id = data.get(key[:-1] + ('id',))
 
@@ -831,6 +911,8 @@ def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
             data[key] = mimetype
 
 def clean_format(format: str):
+    """Normalize resource's format.
+    """
     return h.unified_resource_format(format)
 
 
@@ -893,7 +975,8 @@ def filter_fields_and_values_exist_and_are_valid(key: FlattenKey,
 def extra_key_not_in_root_schema(key: FlattenKey, data: FlattenDataDict,
                                  errors: FlattenErrorDict,
                                  context: Context) -> Any:
-
+    """Ensures that extras are not duplicating base fields
+    """
     for schema_key in context.get('schema_keys', []):
         if schema_key == data[key]:
             raise Invalid(_('There is a schema field with the same name'))
@@ -972,6 +1055,8 @@ def collect_prefix_validate(prefix: str, *validator_names: str) -> Validator:
 
 
 def dict_only(value: Any) -> dict[Any, Any]:
+    """Ensures that the value is a dictionary
+    """
     if not isinstance(value, dict):
         raise Invalid(_('Must be a dict'))
     return value
@@ -1022,6 +1107,8 @@ def json_object(value: Any) -> Any:
 
 
 def extras_valid_json(extras: Any, context: Context) -> Any:
+    """Ensures that every item in the value dictionary is JSON-serializable.
+    """
     for extra, value in extras.items():
         try:
             json.dumps(value)

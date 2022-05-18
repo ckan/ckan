@@ -96,6 +96,8 @@ LEGACY_ROUTE_NAMES = {
 
 
 class HelperAttributeDict(Dict[str, Callable[..., Any]]):
+    """Collection of CKAN native and extension-provided helpers.
+    """
     def __missing__(self, key: str) -> NoReturn:
         raise ckan.exceptions.HelperError(
             'Helper \'{key}\' has not been defined.'.format(
@@ -956,6 +958,23 @@ def default_package_type() -> str:
     return str(config.get('ckan.default.package_type', "dataset"))
 
 
+def _humanize_activity(object_type: str, activity_type: str) -> str:
+    """ Humanize activity types for custom objects
+
+        Example::
+
+          >>> _humanize_activity('Custom user', 'new_user')
+          'New custom user'
+          >>> _humanize_activity('dataset', 'changed_package')
+          'Changed dataset'
+
+    """
+    res = activity_type.replace('_', ' ').lower()
+    for obj in ['package', 'user', 'group', 'organization']:
+        res = res.replace(obj, object_type)
+    return res.capitalize()
+
+
 @core_helper
 def humanize_entity_type(entity_type: str, object_type: str,
                          purpose: str) -> Optional[str]:
@@ -1006,6 +1025,9 @@ def humanize_entity_type(entity_type: str, object_type: str,
     if (entity_type, object_type) == ("package", "dataset"):
         # special case for the previous condition
         return
+
+    if entity_type == "activity":
+        return _humanize_activity(object_type, activity_type=purpose)
 
     log.debug(
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
@@ -2842,6 +2864,24 @@ def can_update_owner_org(
         return True
 
     return False
+
+
+@core_helper
+def decode_view_request_filters() -> dict[str, Any] | None:
+    filterString = request.args.get('filters')
+    if request.form.get('filters') is not None:
+        filterString = request.form.get('filters')
+    if filterString is not None and len(filterString) > 0:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+        return filters
+    return None
 
 
 @core_helper
