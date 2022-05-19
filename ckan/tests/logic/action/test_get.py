@@ -9,6 +9,7 @@ import pytest
 from ckan import model
 import ckan.logic as logic
 import ckan.logic.schema as schema
+import ckan.model.activity as activity_model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import __version__
@@ -2917,6 +2918,36 @@ class TestStatusShow(object):
         assert type(status["extensions"]) == list
         assert status["extensions"] == ["stats"]
 
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.ckan_config('ckan.hide_version', True)
+    def test_status_show_hiding_version(self):
+
+        status = helpers.call_action("status_show")
+
+        assert "ckan_version" not in status, "Should have skipped CKAN version"
+        assert status["site_url"] == "http://test.ckan.net"
+        assert status["site_title"] == "CKAN"
+        assert status["site_description"] == ""
+        assert status["locale_default"] == "en"
+
+        assert type(status["extensions"]) == list
+        assert status["extensions"] == ["stats"]
+
+    @pytest.mark.ckan_config("ckan.plugins", "stats")
+    @pytest.mark.ckan_config('ckan.hide_version', True)
+    def test_status_show_version_to_sysadmins(self):
+        sysadmin = factories.Sysadmin()
+        status = helpers.call_action("status_show", context={"user": sysadmin["name"]})
+
+        assert status["ckan_version"] == __version__
+        assert status["site_url"] == "http://test.ckan.net"
+        assert status["site_title"] == "CKAN"
+        assert status["site_description"] == ""
+        assert status["locale_default"] == "en"
+
+        assert type(status["extensions"]) == list
+        assert status["extensions"] == ["stats"]
+
 
 class TestJobList(helpers.FunctionalRQTestBase):
     def test_all_queues(self):
@@ -3401,6 +3432,149 @@ class TestPackageActivityList(object):
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
         ]
+
+    def _create_dataset_with_activities(
+        self,
+        updates: int = 3
+    ):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        ctx = {"user": user["name"]}
+
+        for c in range(updates):
+            dataset["title"] = "Dataset v{}".format(c)
+            helpers.call_action("package_update", context=ctx, **dataset)
+
+        return dataset
+
+    def test_activity_after(self):
+        """ Test activities after timestamp """
+        dataset = self._create_dataset_with_activities()
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        pkg_activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            after=db_activities[2].timestamp.timestamp()
+        )
+        # we expect just 2 (the first 2)
+        assert len(pkg_activities) == 2
+        # first activity here is the first one.
+        assert pkg_activities[0]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[0]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[0].timestamp
+
+        # last activity here is the 2nd one.
+        assert pkg_activities[1]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[1]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[1].timestamp
+
+    def test_activity_offset(self):
+        """ Test activities after timestamp """
+        dataset = self._create_dataset_with_activities()
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        pkg_activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            offset=2
+        )
+        # we expect just 2 (the last 2)
+        assert len(pkg_activities) == 2
+        # first activity here is the first one.
+        assert pkg_activities[0]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[0]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[2].timestamp
+
+        # last activity here is the package creation.
+        assert pkg_activities[1]["activity_type"] == 'new package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[1]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[3].timestamp
+
+    def test_activity_before(self):
+        """ Test activities before timestamp """
+        dataset = self._create_dataset_with_activities()
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        pkg_activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            before=db_activities[1].timestamp.timestamp()
+        )
+        # we expect just 2 (the last 2)
+        assert len(pkg_activities) == 2
+        # first activity here is the first one.
+        assert pkg_activities[0]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[0]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[2].timestamp
+
+        # last activity here is the package creation.
+        assert pkg_activities[-1]["activity_type"] == 'new package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[-1]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[3].timestamp
+
+    def test_activity_after_before(self):
+        """ Test activities before timestamp """
+        dataset = self._create_dataset_with_activities()
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        pkg_activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            before=db_activities[1].timestamp.timestamp(),
+            after=db_activities[3].timestamp.timestamp()
+        )
+        # we expect just 1 (db_activities[2])
+        assert len(pkg_activities) == 1
+        # first activity here is the first one.
+        assert pkg_activities[0]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[0]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[2].timestamp
+
+    def test_activity_after_before_offset(self):
+        """ Test activities before timestamp """
+        dataset = self._create_dataset_with_activities(updates=4)
+
+        db_activities = activity_model.package_activity_list(
+            dataset["id"], limit=10
+        )
+        pkg_activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            before=db_activities[1].timestamp.timestamp(),
+            after=db_activities[4].timestamp.timestamp(),
+            offset=1
+        )
+        # we expect just 1 (db_activities[3])
+        assert len(pkg_activities) == 1
+        # first activity here is the first one.
+        assert pkg_activities[0]["activity_type"] == 'changed package'
+        pkg_activity_time = datetime.datetime.fromisoformat(
+            pkg_activities[0]["timestamp"]
+        )
+        assert pkg_activity_time == db_activities[3].timestamp
 
 
 @pytest.mark.usefixtures("clean_db")
