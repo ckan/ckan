@@ -2438,6 +2438,23 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
         try:
             out = logic.get_action(get_action)(context, data_dict)
         except logic.NotFound:
+            return None
+        return out
+
+    groups_data = []
+
+    extras = logic.get_action(list_action)({}, {})
+
+    # list of found ids to prevent duplicates
+    found = []
+    for group_name in items + extras:
+        group = get_group(group_name)
+        if not group:
+            continue
+        # check if duplicate
+        if group['id'] in found:
+            continue
+        found.append(group['id'])
         groups_data.append(group)
         if len(groups_data) == count:
             break

@@ -254,8 +254,8 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         # plugin_blueprints must not send as list in csrf.exempt
         if isinstance(plugin_blueprints, list):
             plugin_blueprints = plugin_blueprints[0]
-        # we need to exempt CKAN extensions till they are ready 
-        # to implement the csrf_token to their forms, otherwise 
+        # we need to exempt CKAN extensions till they are ready
+        # to implement the csrf_token to their forms, otherwise
         # they will get 400 Bad Request: The CSRF token is missing.
         if not asbool(config.get("ckan.csrf_protection.enabled", False)):
             _csrf.exempt(plugin_blueprints)

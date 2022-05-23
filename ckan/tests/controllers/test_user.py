@@ -96,7 +96,7 @@ class TestUserListings:
     def test_user_page_sysadmin_user(self, app):
         """Sysadmin can search for users by email."""
 
-        sysadmin = factories.Sysadmin()
+        # sysadmin = factories.Sysadmin()
         stub = factories.User.stub()
         factories.User(fullname="User One", email=stub.email)
         factories.User(fullname="Person Two")
