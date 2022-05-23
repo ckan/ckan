@@ -281,7 +281,7 @@ class TestUrlsForCustomDatasetType(object):
                 url_for("fancy_type.read", id=pkg["name"])).body
         )
         page_header = page.find(class_="page-header")
-        for action in ["read", "groups", "activity", "edit"]:
+        for action in ["read", "groups", "edit"]:
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )

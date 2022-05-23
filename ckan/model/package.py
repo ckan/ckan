@@ -5,7 +5,7 @@ from typing import (
     ClassVar, Iterable,
     Optional,
     TYPE_CHECKING,
-    Any, cast,
+    Any,
 )
 
 import datetime
@@ -22,10 +22,9 @@ import ckan.model.core as core
 import ckan.model.license as _license
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
-import ckan.model.activity as activity
 
 import ckan.lib.maintain as maintain
-from ckan.types import Context, Query
+from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import (
@@ -463,64 +462,6 @@ class Package(core.StatefulObjectMixin,
 
         groups = [group for (group, cap) in pairs if not capacity or cap == capacity]
         return groups
-
-    def activity_stream_item(
-            self, activity_type: str,
-            user_id: str) -> Optional["activity.Activity"]:
-        import ckan.model
-        import ckan.logic
-
-        assert activity_type in ("new", "changed"), (
-            str(activity_type))
-
-        # Handle 'deleted' objects.
-        # When the user marks a package as deleted this comes through here as
-        # a 'changed' package activity. We detect this and change it to a
-        # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            if meta.Session.query(activity.Activity).filter_by(
-                    object_id=self.id, activity_type='deleted').all():
-                # A 'deleted' activity for this object has already been emitted
-                # FIXME: What if the object was deleted and then activated
-                # again?
-                return None
-            else:
-                # Emit a 'deleted' activity for this object.
-                activity_type = 'deleted'
-
-        try:
-            # We save the entire rendered package dict so we can support
-            # viewing the past packages from the activity feed.
-            dictized_package = ckan.logic.get_action('package_show')(
-                cast(Context, {
-                    'model': ckan.model,
-                    'session': ckan.model.Session,
-                    'for_view': False,  # avoid ckanext-multilingual translating it
-                    'ignore_auth': True
-                }), {
-                    'id': self.id,
-                    'include_tracking': False
-                })
-        except ckan.logic.NotFound:
-            # This happens if this package is being purged and therefore has no
-            # current revision.
-            # TODO: Purge all related activity stream items when a model object
-            # is purged.
-            return None
-
-        actor = meta.Session.query(ckan.model.User).get(user_id)
-
-        return activity.Activity(
-            user_id,
-            self.id,
-            "%s package" % activity_type,
-            {
-                'package': dictized_package,
-                # We keep the acting user name around so that actions can be
-                # properly displayed even if the user is deleted in the future.
-                'actor': actor.name if actor else None
-            }
-        )
 
     @property
     @maintain.deprecated(since="2.9.0")

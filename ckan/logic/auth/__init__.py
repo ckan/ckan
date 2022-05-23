@@ -39,13 +39,6 @@ def _get_object(context: Context,
 @overload
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
-                class_name: Literal['Activity']) -> 'model_.Activity':
-    ...
-
-
-@overload
-def _get_object(context: Context,
-                data_dict: Optional[DataDict], name: str,
                 class_name: Literal['User']) -> 'model_.User':
     ...
 
@@ -95,12 +88,6 @@ def get_user_object(
         context: Context,
         data_dict: Optional[DataDict] = None) -> 'model_.User':
     return _get_object(context, data_dict, 'user_obj', 'User')
-
-
-def get_activity_object(
-        context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.Activity':
-    return _get_object(context, data_dict, 'activity', 'Activity')
 
 
 def restrict_anon(context: Context) -> AuthResult:

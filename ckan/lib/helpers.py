@@ -40,8 +40,6 @@ from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
 
-import jinja2
-
 import ckan.config
 import ckan.exceptions
 import ckan.model as model
@@ -82,16 +80,30 @@ LEGACY_ROUTE_NAMES = {
     'about': 'home.about',
     'search': 'dataset.search',
     'dataset_read': 'dataset.read',
-    'dataset_activity': 'dataset.activity',
     'dataset_groups': 'dataset.groups',
     'group_index': 'group.index',
     'group_about': 'group.about',
     'group_read': 'group.read',
-    'group_activity': 'group.activity',
     'organizations_index': 'organization.index',
-    'organization_activity': 'organization.activity',
     'organization_read': 'organization.read',
     'organization_about': 'organization.about',
+
+    # Deprecated since v2.10
+    'dataset_activity': 'activity.package_activity',
+    'dataset.activity': 'activity.package_activity',
+    'group_activity': 'activity.group_activity',
+    'group.activity': 'activity.group_activity',
+    'organization_activity': 'activity.organization_activity',
+    'organization.activity': 'activity.organization_activity',
+    "user.activity": "activity.user_activity",
+    "dashboard.index": "activity.dashboard",
+    "dataset.changes_multiple": "activity.package_changes_multiple",
+    "dataset.changes": "activity.package_changes",
+    "group.changes_multiple": "activity.group_changes_multiple",
+    "group.changes": "activity.group_changes",
+    "organization.changes_multiple": "activity.organization_changes_multiple",
+    "organization.changes": "activity.organization_changes",
+
 }
 
 
@@ -2017,65 +2029,6 @@ def user_in_org_or_group(group_id: str) -> bool:
 
 
 @core_helper
-def dashboard_activity_stream(user_id: str,
-                              filter_type: Optional[str] = None,
-                              filter_id: Optional[str] = None,
-                              offset: int = 0) -> list[dict[str, Any]]:
-    '''Return the dashboard activity stream of the current user.
-
-    :param user_id: the id of the user
-    :type user_id: string
-
-    :param filter_type: the type of thing to filter by
-    :type filter_type: string
-
-    :param filter_id: the id of item to filter by
-    :type filter_id: string
-
-    :returns: an activity stream as an HTML snippet
-    :rtype: string
-
-    '''
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
-    if filter_type:
-        action_functions = {
-            'dataset': 'package_activity_list',
-            'user': 'user_activity_list',
-            'group': 'group_activity_list',
-            'organization': 'organization_activity_list',
-        }
-        action_function = logic.get_action(action_functions[filter_type])
-        return action_function(context, {'id': filter_id, 'offset': offset})
-    else:
-        return logic.get_action('dashboard_activity_list')(
-            context, {'offset': offset})
-
-
-@core_helper
-def recently_changed_packages_activity_stream(
-        limit: Optional[int] = None) -> list[dict[str, Any]]:
-    if limit:
-        data_dict = {'limit': limit}
-    else:
-        data_dict = {}
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
-    return logic.get_action('recently_changed_packages_activity_list')(
-        context, data_dict)
-
-
-@core_helper
 def escape_js(str_to_escape: str) -> str:
     '''Escapes special characters from a JS string.
 
@@ -2440,20 +2393,6 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def new_activities() -> Optional[int]:
-    '''Return the number of activities for the current user.
-
-    See :func:`logic.action.get.dashboard_new_activities_count` for more
-    details.
-
-    '''
-    if current_user.is_anonymous:
-        return None
-    action = logic.get_action('dashboard_new_activities_count')
-    return action({}, {})
-
-
-@core_helper
 def uploads_enabled() -> bool:
     if uploader.get_storage_path():
         return True
@@ -2715,95 +2654,6 @@ def sanitize_id(id_: str) -> str:
     ValueError.
     '''
     return str(uuid.UUID(id_))
-
-
-@core_helper
-def compare_pkg_dicts(old: dict[str, Any], new: dict[str, Any],
-                      old_activity_id: str) -> list[dict[str, Any]]:
-    '''
-    Takes two package dictionaries that represent consecutive versions of
-    the same dataset and returns a list of detailed & formatted summaries of
-    the changes between the two versions. old and new are the two package
-    dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for fields
-    added by extensions and extra fields added by the user in the web
-    interface.
-
-    Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
-    string indicating the type of change made as well as other data necessary
-    to form a detailed summary of the change.
-    '''
-    from ckan.lib.changes import check_metadata_changes, check_resource_changes
-    change_list: list[dict[str, Any]] = []
-
-    check_metadata_changes(change_list, old, new)
-
-    check_resource_changes(change_list, old, new, old_activity_id)
-
-    # if the dataset was updated but none of the fields we check were changed,
-    # display a message stating that
-    if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
-
-    return change_list
-
-
-@core_helper
-def compare_group_dicts(
-        old: dict[str, Any], new: dict[str, Any], old_activity_id: str):
-    '''
-    Takes two package dictionaries that represent consecutive versions of
-    the same organization and returns a list of detailed & formatted summaries
-    of the changes between the two versions. old and new are the two package
-    dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for fields
-    added by extensions and extra fields added by the user in the web
-    interface.
-
-    Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
-    string indicating the type of change made as well as other data necessary
-    to form a detailed summary of the change.
-    '''
-    from ckan.lib.changes import check_metadata_org_changes
-    change_list: list[dict[str, Any]] = []
-
-    check_metadata_org_changes(change_list, old, new)
-
-    # if the organization was updated but none of the fields we check
-    # were changed, display a message stating that
-    if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
-
-    return change_list
-
-
-@core_helper
-def activity_list_select(pkg_activity_list: list[dict[str, Any]],
-                         current_activity_id: str) -> list[Markup]:
-    '''
-    Builds an HTML formatted list of options for the select lists
-    on the "Changes" summary page.
-    '''
-    select_list = []
-    template = jinja2.Template(
-        u'<option value="{{activity_id}}" {{selected}}>'
-        '{{timestamp}}</option>',
-        autoescape=True)
-    for activity in pkg_activity_list:
-        entry = render_datetime(activity['timestamp'],
-                                with_hours=True,
-                                with_seconds=True)
-        select_list.append(Markup(
-            template
-            .render(activity_id=activity['id'], timestamp=entry,
-                    selected='selected'
-                    if activity['id'] == current_activity_id
-                    else '')
-        ))
-
-    return select_list
 
 
 @core_helper

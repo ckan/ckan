@@ -20,6 +20,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
+import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
@@ -536,6 +537,9 @@ def get_action(action: str) -> Action:
                 except IndexError:
                     pass
 
+                signals.action_succeeded.send(
+                    action_name, context=context, data_dict=data_dict,
+                    result=result)
                 return result
             return wrapped
 
