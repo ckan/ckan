@@ -132,8 +132,10 @@ def index():
 
 
 def me() -> Response:
-    return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+    if plugins.plugin_loaded("activity"):
+        return h.redirect_to(
+            config.get_value(u'ckan.route_after_login'))
+    return h.redirect_to(h.url_for('dashboard.datasets'))
 
 
 def read(id: str) -> Union[Response, str]:
