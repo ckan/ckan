@@ -20,7 +20,7 @@ class Meta(Protocol):
 
 
 class Model(Protocol):
-    Activity: ClassVar[Type["_model.Activity"]]
+    # Activity: ClassVar[Type["_model.Activity"]]
     ApiToken: ClassVar[Type["_model.ApiToken"]]
     Dashboard: ClassVar[Type["_model.Dashboard"]]
     DomainObject: ClassVar[Type["_model.DomainObject"]]

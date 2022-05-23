@@ -175,6 +175,8 @@ plugins to subscribe:
    :annotation: (username, user)
 .. autodata:: perform_password_reset
    :annotation: (username, user)
+.. autodata:: action_succeeded
+   :annotation: (action, context, data_dict, result)
 
 .. autodata:: datastore_upsert
    :annotation: (resource_id, records)

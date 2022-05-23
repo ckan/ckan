@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
+of predefined core-level signals.
+
+Check :doc:`signals` for extra detais.
+
+"""
 
 from typing import Any
 import flask.signals
@@ -67,6 +73,12 @@ perform_password_reset = ckan.signal(u"perform_password_reset")
 providing new password.
 
 """
+
+
+action_succeeded = ckan.signal(u"action_succeed")
+"""This signal is sent when an action finished without an exception.
+"""
+
 
 datastore_upsert = ckanext.signal(u"datastore_upsert")
 """This signal is sent after datasetore records inserted/updated via

@@ -337,14 +337,6 @@ class Tag(CKANFactory):
     vocabulary_id = factory.LazyFunction(lambda: Vocabulary()["id"])
 
 
-class Activity(CKANFactory):
-    """A factory class for creating CKAN activity objects."""
-
-    class Meta:
-        model = ckan.model.Activity
-        action = "activity_create"
-
-
 class MockUser(factory.Factory):
     """A factory class for creating mock CKAN users using the mock library."""
 

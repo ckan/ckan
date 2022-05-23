@@ -1,0 +1,8 @@
+activity:
+  filters: rjsmin
+  output: activity/%(version)s_activity.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - dashboard.js

@@ -86,11 +86,6 @@ class TagFactory(factories.Tag):
 
 
 @register
-class ActivityFactory(factories.Activity):
-    pass
-
-
-@register
 class SystemInfoFactory(factories.SystemInfo):
     pass
 
