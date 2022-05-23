@@ -98,6 +98,12 @@ class TestUserListings:
 
 
 @pytest.fixture
+def user():
+    user = factories.UserWithToken()
+    return user
+
+
+@pytest.fixture
 def sysadmin():
     user = factories.SysadminWithToken()
     return user
