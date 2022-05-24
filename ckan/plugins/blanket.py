@@ -234,7 +234,6 @@ def _declaration_file_extractor(plugin: p.SingletonPlugin):
         log.error(
             "Unable to import config_declaration for "
             "blanket implementation of %s",
-            "config_declaration",
             plugin.__name__,
         )
         raise FileNotFoundError("config_declaration.EXT")

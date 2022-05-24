@@ -8,21 +8,17 @@ import logging
 import datetime
 import time
 import json
-from typing import Any, Optional, TYPE_CHECKING, cast
-
-import six
+from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.logic as logic
 import ckan.logic.schema as schema_
-import ckan.lib.dictization as dictization
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions as dfunc
 import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
@@ -87,7 +83,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     del context["resource"]
 
     package_id = resource.package.id
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
 
@@ -264,7 +260,6 @@ def package_update(
 
     '''
     model = context['model']
-    session = context['session']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -348,17 +343,6 @@ def package_update(
         item.edit(pkg)
 
         item.after_dataset_update(context, data)
-
-    # Create activity
-    if not pkg.private:
-        user_obj = model.User.by_name(user)
-        if user_obj:
-            user_id = user_obj.id
-        else:
-            user_id = 'not logged in'
-
-        activity = pkg.activity_stream_item('changed', user_id)
-        session.add(activity)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -559,7 +543,7 @@ def package_resource_reorder(
     if len(set(order)) != len(order):
         raise ValidationError({'order': 'Must supply unique resource_ids'})
 
-    package_show_context = dict(context, for_update=True)
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
     existing_resources = package_dict.get('resources', [])
@@ -660,7 +644,6 @@ def package_relationship_update(
 def _group_or_org_update(
         context: Context, data_dict: DataDict, is_org: bool = False):
     model = context['model']
-    user = context['user']
     session = context['session']
     id = _get_or_bust(data_dict, 'id')
 
@@ -724,48 +707,6 @@ def _group_or_org_update(
 
     for item in plugins.PluginImplementations(plugin_type):
         item.edit(group)
-
-    if is_org:
-        activity_type = 'changed organization'
-    else:
-        activity_type = 'changed group'
-
-    user_obj = model.User.by_name(six.ensure_text(user))
-    assert user_obj
-    activity_dict: Optional[dict[str, Any]] = {
-            'user_id': user_obj.id,
-            'object_id': group.id,
-            'activity_type': activity_type,
-            }
-    # Handle 'deleted' groups.
-    # When the user marks a group as deleted this comes through here as
-    # a 'changed' group activity. We detect this and change it to a 'deleted'
-    # activity.
-    if group.state == u'deleted':
-        if session.query(model.Activity).filter_by(
-                object_id=group.id, activity_type='deleted').all():
-            # A 'deleted group' activity for this group has already been
-            # emitted.
-            # FIXME: What if the group was deleted and then activated again?
-            activity_dict = None
-        else:
-            # We will emit a 'deleted group' activity.
-            activity_dict['activity_type'] = \
-                'deleted organization' if is_org else 'deleted group'
-    if activity_dict is not None:
-        activity_dict['data'] = {
-            'group': dictization.table_dictize(group, context)
-        }
-        activity_create_context: Context = {
-            'model': model,
-            'user': user,
-            'defer_commit': True,
-            'ignore_auth': True,
-            'session': session
-        }
-        _get_action('activity_create')(activity_create_context, activity_dict)
-        # TODO: Also create an activity detail recording what exactly changed
-        # in the group.
 
     upload.upload(uploader.get_max_image_size())
 
@@ -852,7 +793,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
 
     '''
     model = context['model']
-    user = author = context['user']
+    user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
@@ -878,22 +819,6 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
-
-    activity_dict = {
-            'user_id': user.id,
-            'object_id': user.id,
-            'activity_type': 'changed user',
-            }
-    activity_create_context: Context = {
-        'model': model,
-        'user': author,
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': session
-    }
-    _get_action('activity_create')(activity_create_context, activity_dict)
-    # TODO: Also create an activity detail recording what exactly changed in
-    # the user.
 
     upload.upload(uploader.get_max_image_size())
 
@@ -1120,44 +1045,6 @@ def vocabulary_update(context: Context, data_dict: DataDict) -> ActionResult.Voc
     return model_dictize.vocabulary_dictize(updated_vocab, context)
 
 
-def dashboard_mark_activities_old(
-        context: Context, data_dict: DataDict) -> ActionResult.DashboardMarkActivitiesOld:
-    '''Mark all the authorized user's new dashboard activities as old.
-
-    This will reset
-    :py:func:`~ckan.logic.action.get.dashboard_new_activities_count` to 0.
-
-    '''
-    _check_access('dashboard_mark_activities_old', context,
-            data_dict)
-    model = context['model']
-    user_obj = model.User.get(context['user'])
-    assert user_obj
-    user_id = user_obj.id
-    model.Dashboard.get(user_id).activity_stream_last_viewed = (
-            datetime.datetime.utcnow())
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
-
-@logic.auth_audit_exempt
-def send_email_notifications(context: Context, data_dict: DataDict) -> ActionResult.SendEmailNotifications:
-    '''Send any pending activity stream notification emails to users.
-
-    You must provide a sysadmin's API key/token in the Authorization header of the
-    request, or call this action from the command-line via a `ckan notify send_emails ...`
-    command.
-
-    '''
-    _check_access('send_email_notifications', context, data_dict)
-
-    if not config.get_value('ckan.activity_streams_email_notifications'):
-        raise ValidationError({'message': 'ckan.activity_streams_email_notifications'
-                               ' is not enabled in config'})
-
-    email_notifications.get_and_send_notifications_for_all_users()
-
-
 def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionResult.PackageOwnerOrgUpdate:
     '''Update the owning organization of a dataset
 
@@ -1228,18 +1115,6 @@ def _bulk_update_dataset(
         ) .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
-    # Handle Activity Stream for Bulk Operations
-    user = context['user']
-    user_obj = model.User.by_name(user)
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = 'not logged in'
-    for dataset in datasets:
-        entity = model.Package.get(dataset)
-        assert entity
-        activity = entity.activity_stream_item('changed', user_id)
-        model.Session.add(activity)
     model.Session.commit()
 
     # solr update here

@@ -528,25 +528,6 @@ def task_status_dict_save(task_status_dict: dict[str, Any],
         task_status_dict, model.TaskStatus, context)
     return task_status
 
-def activity_dict_save(activity_dict: dict[str, Any],
-                       context: Context) -> 'model.Activity':
-
-    model = context['model']
-    session = context['session']
-    user_id = activity_dict['user_id']
-    object_id = activity_dict['object_id']
-    activity_type = activity_dict['activity_type']
-    if 'data' in activity_dict:
-        data = activity_dict['data']
-    else:
-        data = None
-    activity_obj = model.Activity(user_id, object_id,
-            activity_type, data)
-    session.add(activity_obj)
-
-    # TODO: Handle activity details.
-
-    return activity_obj
 
 def vocabulary_tag_list_save(
         new_tag_dicts: list[dict[str, Any]],

@@ -17,12 +17,10 @@ from ckan.lib.dictization.model_dictize import (
 from ckan.lib.dictization.model_save import (
     package_dict_save,
     resource_dict_save,
-    activity_dict_save,
     package_api_to_dict,
     group_api_to_dict,
     package_tag_list_save,
 )
-import ckan.logic.action.get
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -71,33 +69,6 @@ class TestBasicDictize:
 
         pkg = model.Package.by_name(name)
         assert set([tag.name for tag in pkg.get_tags()]) == set(("tag1",))
-
-    def test_20_activity_save(self):
-        CreateTestData.create()
-        # Add a new Activity object to the database by passing a dict to
-        # activity_dict_save()
-        context = {"model": model, "session": model.Session}
-        user = model.User.by_name(u"tester")
-        sent = {
-            "user_id": user.id,
-            "object_id": user.id,
-            "activity_type": "changed user",
-        }
-        activity_dict_save(sent, context)
-        model.Session.commit()
-
-        # Retrieve the newest Activity object from the database, check that its
-        # attributes match those of the dict we saved.
-        got = ckan.logic.action.get.user_activity_list(
-            context, {"id": user.id}
-        )[0]
-        assert got["user_id"] == sent["user_id"]
-        assert got["object_id"] == sent["object_id"]
-        assert got["activity_type"] == sent["activity_type"]
-
-        # The activity object should also have an ID and timestamp.
-        assert got["id"]
-        assert got["timestamp"]
 
     def test_user_dictize_as_sysadmin(self):
         """Sysadmins should be allowed to see certain sensitive data."""

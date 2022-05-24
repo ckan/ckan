@@ -659,52 +659,6 @@ class TestBuildNavMain(object):
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestActivityListSelect(object):
-    def test_simple(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_selected(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "id1")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_escaping(self):
-        pkg_activity = {
-            "id": '">',  # hacked somehow
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert str(html).startswith(u'<option value="&#34;&gt;" >')
-
-
 class TestRemoveUrlParam:
     def test_current_url(self, test_request_context):
         base = "/organization/name"
@@ -736,7 +690,7 @@ class TestAddUrlParam(object):
         ('dataset', 'search', {'q': '*:*'}),
         ('organization', 'index', {}),
         ('home', 'index', {'a': '1'}),
-        ('dashboard', 'index', {}),
+        ('dashboard', 'datasets', {}),
     ])
     def test_controller_action(
             self, test_request_context, controller, action, extras):

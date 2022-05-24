@@ -6,7 +6,6 @@ from __future__ import annotations
 import uuid
 import logging
 import json
-import datetime
 import socket
 from typing import (Container, Optional,
                     Union, Any, cast, Type)
@@ -25,7 +24,6 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
-import ckan.model.activity as model_activity
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -1900,7 +1898,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         include_private = asbool(data_dict.pop('include_private', False))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_deleted = asbool(data_dict.pop('include_deleted', False))
-        
+
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
 
@@ -2433,17 +2431,20 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
     :rtype: dictionary
 
     '''
+    _check_access('status_show', context, data_dict)
     extensions = config.get_value('ckan.plugins')
 
-    return {
+    site_info = {
         'site_title': config.get_value('ckan.site_title'),
         'site_description': config.get_value('ckan.site_description'),
         'site_url': config.get_value('ckan.site_url'),
-        'ckan_version': ckan.__version__,
         'error_emails_to': config.get_value('email_to'),
         'locale_default': config.get_value('ckan.locale_default'),
         'extensions': extensions,
     }
+    if not config.get_value('ckan.hide_version') or authz.is_sysadmin(context['user']):
+        site_info['ckan_version'] = ckan.__version__
+    return site_info
 
 
 def vocabulary_list(
@@ -2480,243 +2481,6 @@ def vocabulary_show(context: Context, data_dict: DataDict) -> ActionResult.Vocab
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
     vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
-
-
-@logic.validate(ckan.logic.schema.default_activity_list_schema)
-def user_activity_list(
-        context: Context, data_dict: DataDict) -> ActionResult.UserActivityList:
-    '''Return a user's public activity stream.
-
-    You must be authorized to view the user's profile.
-
-
-    :param id: the id or name of the user
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-
-    :rtype: list of dictionaries
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    _check_access('user_activity_list', context, data_dict)
-
-    model = context['model']
-
-    user_ref = data_dict.get('id')  # May be user name or id.
-    user = model.User.get(user_ref)
-    if user is None:
-        raise logic.NotFound
-
-    offset = data_dict.get('offset', 0)
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    activity_objects = model_activity.user_activity_list(
-        user.id, limit=limit, offset=offset)
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
-
-
-@logic.validate(ckan.logic.schema.default_activity_list_schema)
-def package_activity_list(
-        context: Context, data_dict: DataDict) -> ActionResult.PackageActivityList:
-    '''Return a package's activity stream (not including detail)
-
-    You must be authorized to view the package.
-
-    :param id: the id or name of the package
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-    :param include_hidden_activity: whether to include 'hidden' activity, which
-        is not shown in the Activity Stream page. Hidden activity includes
-        activity done by the site_user, such as harvests, which are not shown
-        in the activity stream because they can be too numerous, or activity by
-        other users specified in config option `ckan.hide_activity_from_users`.
-        NB Only sysadmins may set include_hidden_activity to true.
-        (default: false)
-    :type include_hidden_activity: bool
-    :param activity_types: A list of activity types to include in the response
-    :type activity_types: list
-
-    :param exclude_activity_types: A list of activity types to exclude from the response
-    :type exclude_activity_types: list
-
-    :rtype: list of dictionaries
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    include_hidden_activity = data_dict.get('include_hidden_activity', False)
-    activity_types = data_dict.pop('activity_types', None)
-    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
-
-    if activity_types is not None and exclude_activity_types is not None:
-        raise ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
-
-    _check_access('package_activity_list', context, data_dict)
-
-    model = context['model']
-
-    package_ref = data_dict.get('id')  # May be name or ID.
-    package = model.Package.get(package_ref)
-    if package is None:
-        raise logic.NotFound
-
-    offset = int(data_dict.get('offset', 0))
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    activity_objects = model_activity.package_activity_list(
-        package.id, limit=limit, offset=offset,
-        include_hidden_activity=include_hidden_activity,
-        activity_types=activity_types,
-        exclude_activity_types=exclude_activity_types
-    )
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
-
-
-@logic.validate(ckan.logic.schema.default_activity_list_schema)
-def group_activity_list(
-        context: Context, data_dict: DataDict) -> ActionResult.GroupActivityList:
-    '''Return a group's activity stream.
-
-    You must be authorized to view the group.
-
-    :param id: the id or name of the group
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-    :param include_hidden_activity: whether to include 'hidden' activity, which
-        is not shown in the Activity Stream page. Hidden activity includes
-        activity done by the site_user, such as harvests, which are not shown
-        in the activity stream because they can be too numerous, or activity by
-        other users specified in config option `ckan.hide_activity_from_users`.
-        NB Only sysadmins may set include_hidden_activity to true.
-        (default: false)
-    :type include_hidden_activity: bool
-
-    :rtype: list of dictionaries
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    data_dict = dict(data_dict, include_data=False)
-    include_hidden_activity = data_dict.get('include_hidden_activity', False)
-    _check_access('group_activity_list', context, data_dict)
-
-    group_id = data_dict.get('id')
-    offset = data_dict.get('offset', 0)
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    # Convert group_id (could be id or name) into id.
-    group_show = logic.get_action('group_show')
-    group_id = group_show(context, {'id': group_id})['id']
-
-    activity_objects = model_activity.group_activity_list(
-        group_id, limit=limit, offset=offset,
-        include_hidden_activity=include_hidden_activity,
-    )
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
-
-
-@logic.validate(ckan.logic.schema.default_activity_list_schema)
-def organization_activity_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.OrganizationActivityList:
-    '''Return a organization's activity stream.
-
-    :param id: the id or name of the organization
-    :type id: string
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-    :param include_hidden_activity: whether to include 'hidden' activity, which
-        is not shown in the Activity Stream page. Hidden activity includes
-        activity done by the site_user, such as harvests, which are not shown
-        in the activity stream because they can be too numerous, or activity by
-        other users specified in config option `ckan.hide_activity_from_users`.
-        NB Only sysadmins may set include_hidden_activity to true.
-        (default: false)
-    :type include_hidden_activity: bool
-
-    :rtype: list of dictionaries
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    include_hidden_activity = data_dict.get('include_hidden_activity', False)
-    _check_access('organization_activity_list', context, data_dict)
-
-    org_id = data_dict.get('id')
-    offset = data_dict.get('offset', 0)
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    # Convert org_id (could be id or name) into id.
-    org_show = logic.get_action('organization_show')
-    org_id = org_show(context, {'id': org_id})['id']
-
-    activity_objects = model_activity.organization_activity_list(
-        org_id, limit=limit, offset=offset,
-        include_hidden_activity=include_hidden_activity,
-    )
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
-
-
-@logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
-def recently_changed_packages_activity_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.RecentlyChangedPackagesActivityList:
-    '''Return the activity stream of all recently added or changed packages.
-
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-
-    :rtype: list of dictionaries
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    offset = data_dict.get('offset', 0)
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    activity_objects = \
-        model_activity.recently_changed_packages_activity_list(
-            limit=limit, offset=offset)
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
 
 
 def _follower_count(
@@ -3235,223 +2999,6 @@ def _group_or_org_followee_list(
 
     # Dictize the list of Group objects.
     return [model_dictize.group_dictize(group, context) for group in groups]
-
-
-@logic.validate(ckan.logic.schema.default_dashboard_activity_list_schema)
-def dashboard_activity_list(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DashboardActivityList:
-    '''Return the authorized (via login or API key) user's dashboard activity
-       stream.
-
-    Unlike the activity dictionaries returned by other ``*_activity_list``
-    actions, these activity dictionaries have an extra boolean value with key
-    ``is_new`` that tells you whether the activity happened since the user last
-    viewed her dashboard (``'is_new': True``) or not (``'is_new': False``).
-
-    The user's own activities are always marked ``'is_new': False``.
-
-    :param offset: where to start getting activity items from
-        (optional, default: ``0``)
-    :type offset: int
-    :param limit: the maximum number of activities to return
-        (optional, default: ``31`` unless set in site's configuration
-        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
-        site's configuration ``ckan.activity_list_limit_max``)
-    :type limit: int
-
-    :rtype: list of activity dictionaries
-
-    '''
-    _check_access('dashboard_activity_list', context, data_dict)
-
-    model = context['model']
-    user_obj = model.User.get(context['user'])
-    assert user_obj
-    user_id = user_obj.id
-    offset = data_dict.get('offset', 0)
-    limit = data_dict['limit']  # defaulted, limited & made an int by schema
-
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    activity_objects = model_activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset)
-
-    activity_dicts = model_dictize.activity_list_dictize(
-        activity_objects, context)
-
-    # Mark the new (not yet seen by user) activities.
-    strptime = datetime.datetime.strptime
-    fmt = '%Y-%m-%dT%H:%M:%S.%f'
-    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
-    for activity in activity_dicts:
-        if activity['user_id'] == user_id:
-            # Never mark the user's own activities as new.
-            activity['is_new'] = False
-        else:
-            activity['is_new'] = (
-                strptime(activity['timestamp'], fmt) > last_viewed)
-
-    return activity_dicts
-
-
-def dashboard_new_activities_count(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.DashboardNewActivitiesCount:
-    '''Return the number of new activities in the user's dashboard.
-
-    Return the number of new activities in the authorized user's dashboard
-    activity stream.
-
-    Activities from the user herself are not counted by this function even
-    though they appear in the dashboard (users don't want to be notified about
-    things they did themselves).
-
-    :rtype: int
-
-    '''
-    _check_access('dashboard_new_activities_count', context, data_dict)
-    activities = logic.get_action('dashboard_activity_list')(
-        context, data_dict)
-    return len([activity for activity in activities if activity['is_new']])
-
-
-def activity_show(context: Context,
-                  data_dict: DataDict) -> ActionResult.ActivityShow:
-    '''Show details of an item of 'activity' (part of the activity stream).
-
-    :param id: the id of the activity
-    :type id: string
-
-    :rtype: dictionary
-    '''
-    model = context['model']
-    activity_id = _get_or_bust(data_dict, 'id')
-
-    activity = model.Session.query(model.Activity).get(activity_id)
-    if activity is None:
-        raise NotFound
-    context['activity'] = activity
-
-    _check_access(u'activity_show', context, data_dict)
-
-    activity = model_dictize.activity_dictize(activity, context)
-    return activity
-
-
-def activity_data_show(
-        context: Context,
-        data_dict: DataDict) -> ActionResult.ActivityDataShow:
-    '''Show the data from an item of 'activity' (part of the activity
-    stream).
-
-    For example for a package update this returns just the dataset dict but
-    none of the activity stream info of who and when the version was created.
-
-    :param id: the id of the activity
-    :type id: string
-    :param object_type: 'package', 'user', 'group' or 'organization'
-    :type object_type: string
-
-    :rtype: dictionary
-    '''
-    model = context['model']
-    activity_id = _get_or_bust(data_dict, 'id')
-    object_type = data_dict.get('object_type')
-
-    activity = model.Session.query(model.Activity).get(activity_id)
-    if activity is None:
-        raise NotFound
-    context['activity'] = activity
-
-    _check_access(u'activity_data_show', context, data_dict)
-
-    activity = model_dictize.activity_dictize(activity, context)
-    try:
-        activity_data = activity['data']
-    except KeyError:
-        raise NotFound('Could not find data in the activity')
-    if object_type:
-        try:
-            activity_data = activity_data[object_type]
-        except KeyError:
-            raise NotFound('Could not find that object_type in the activity')
-    return activity_data
-
-
-def activity_diff(context: Context,
-                  data_dict: DataDict) -> ActionResult.ActivityDiff:
-    '''Returns a diff of the activity, compared to the previous version of the
-    object
-
-    :param id: the id of the activity
-    :type id: string
-    :param object_type: 'package', 'user', 'group' or 'organization'
-    :type object_type: string
-    :param diff_type: 'unified', 'context', 'html'
-    :type diff_type: string
-    '''
-    import difflib
-
-    model = context['model']
-    activity_id = _get_or_bust(data_dict, 'id')
-    object_type = _get_or_bust(data_dict, 'object_type')
-    diff_type = data_dict.get('diff_type', 'unified')
-
-    _check_access(u'activity_diff', context, data_dict)
-
-    activity = model.Session.query(model.Activity).get(activity_id)
-    if activity is None:
-        raise NotFound
-    prev_activity = model.Session.query(model.Activity) \
-        .filter_by(object_id=activity.object_id) \
-        .filter(model.Activity.timestamp < activity.timestamp) \
-        .order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Activity.timestamp.desc()  # type: ignore
-        ).first()
-    if prev_activity is None:
-        raise NotFound('Previous activity for this object not found')
-    activity_objs = [prev_activity, activity]
-    try:
-        objs = [activity_obj.data[object_type]
-                for activity_obj in activity_objs]
-    except KeyError:
-        raise NotFound('Could not find object in the activity data')
-    # convert each object dict to 'pprint'-style
-    # and split into lines to suit difflib
-    obj_lines = [json.dumps(obj, indent=2, sort_keys=True).split('\n')
-                 for obj in objs]
-
-    # do the diff
-    if diff_type == 'unified':
-        # type_ignore_reason: typechecker can't predict number of items
-        diff_generator = difflib.unified_diff(*obj_lines)  # type: ignore
-        diff = '\n'.join(line for line in diff_generator)
-    elif diff_type == 'context':
-        # type_ignore_reason: typechecker can't predict number of items
-        diff_generator = difflib.context_diff(*obj_lines)  # type: ignore
-        diff = '\n'.join(line for line in diff_generator)
-    elif diff_type == 'html':
-        # word-wrap lines. Otherwise you get scroll bars for most datasets.
-        import re
-        for obj_index in (0, 1):
-            wrapped_obj_lines = []
-            for line in obj_lines[obj_index]:
-                wrapped_obj_lines.extend(re.findall(r'.{1,70}(?:\s+|$)', line))
-            obj_lines[obj_index] = wrapped_obj_lines
-        # type_ignore_reason: typechecker can't predict number of items
-        diff = difflib.HtmlDiff().make_table(*obj_lines)  # type: ignore
-    else:
-        raise ValidationError({'message': 'diff_type not recognized'})
-
-    activities = [model_dictize.activity_dictize(activity_obj, context)
-                  for activity_obj in activity_objs]
-
-    return {
-        'diff': diff,
-        'activities': activities,
-        }
 
 
 def _unpick_search(

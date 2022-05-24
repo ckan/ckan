@@ -5,7 +5,6 @@ import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
-from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
@@ -401,7 +400,7 @@ class TestOrganizationSearch(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
@@ -453,7 +452,7 @@ class TestOrganizationInnerSearch(object):
             org_url,
             query_string={"q": "One"}
         )
-        assert "1 dataset found for &#34;One&#34;" in search_response
+        assert "1 dataset found" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -576,154 +575,3 @@ class TestOrganizationMembership(object):
                 },
                 status=403,
             )
-
-
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
-class TestActivity(object):
-    def test_simple(self, app):
-        """Checking the template shows the activity stream."""
-        user = factories.User()
-        org = factories.Organization(user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert user["fullname"] in response
-        assert "created the organization" in response
-
-    def test_create_organization(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "created the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
-
-    def _clear_activities(self):
-        model.Session.query(model.ActivityDetail).delete()
-        model.Session.query(model.Activity).delete()
-        model.Session.flush()
-
-    def test_change_organization(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        org["title"] = "Organization with changed title"
-        helpers.call_action(
-            "organization_update", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the organization" in response
-        assert (
-            '<a href="/organization/{}">Organization with changed title'.format(
-                org["name"]
-            )
-            in response
-        )
-
-    def test_delete_org_using_organization_delete(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        helpers.call_action(
-            "organization_delete", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        app.get(url, extra_environ=env, status=404)
-        # organization_delete causes the Member to state=deleted and then the
-        # user doesn't have permission to see their own deleted Organization.
-        # Therefore you can't render the activity stream of that org. You'd
-        # hope that organization_delete was the same as organization_update
-        # state=deleted but they are not...
-
-    def test_delete_org_by_updating_state(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        org["state"] = "deleted"
-        helpers.call_action(
-            "organization_update", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
-
-    def test_create_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        self._clear_activities()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "created the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_change_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-        self._clear_activities()
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-        self._clear_activities()
-        helpers.call_action(
-            "package_delete", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()

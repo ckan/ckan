@@ -1,0 +1,62 @@
+{% extends "package/read_base.html" %}
+{% set dataset_type = h.default_package_type() %}
+
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  <h1 class="hide-heading">
+    {% block page_heading %}
+      {{ _('Activity Stream') }}
+    {% endblock %}
+  </h1>
+
+  {# allow extensions to continue using this template without new vars #}
+  {% if activity_types is defined %}
+  <div 
+    id="activity_types_filter"
+    style="margin-bottom: 15px;"
+    data-module="activity-stream"
+    >
+    <label for="activity_types_filter_select">Activity type</label>
+    <select id="activity_types_filter_select">
+      <option
+        {% if not activity_type %}selected{% endif %}
+        data-url="{{ h.url_for('dataset.activity', id=id) }}"
+      >{{ _('All activity types') }}</option>
+      {% for type_ in activity_types %}
+      <option 
+        {% if activity_type == type_ %}selected{% endif %}
+        data-url="{{ h.url_for('dataset.activity', id=id, activity_type=type_) }}"
+      >
+      {{ h.humanize_entity_type('activity', dataset_type, type_) }}
+    </option>
+      {% endfor %}
+    </select>
+
+  </div>
+  {% endif %}
+
+  {% if activity_stream|length > 0 %}
+    {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='package' %}
+  {% else %}
+    <p>
+      {% if activity_type %}
+        {{ _('No activity found for this type') }}
+      {% else %}
+        {{ _('No activity found') }}.
+      {% endif %}
+    </p>
+  {% endif %}
+  
+  <div id="activity_page_buttons" style="margin-top: 25px;">
+
+  {% if prev_page %}
+    <a href="{{ prev_page }}" class="btn btn-default" >{{ _('Newer activities') }}</a>
+  {% endif %}
+
+  {% if next_page %}
+      <a href="{{ next_page }}" class="btn btn-default">{{ _('Older activities') }}</a>
+  {% endif %}
+  </div>  
+
+{% endblock %}
