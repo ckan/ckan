@@ -655,7 +655,7 @@ class TestResourceCreate:
 
         assert created_resource["name"] == "created by collaborator"
 
-    def test_resource_create_for_create(self):
+    def test_resource_create_for_update(self):
 
         dataset = factories.Dataset()
 
@@ -663,7 +663,7 @@ class TestResourceCreate:
         mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
 
         with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
-            helpers.call_action('resource_create', id=dataset['id'], url='http://example.com', description='hey')
+            helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
 @pytest.mark.usefixtures("non_clean_db")
