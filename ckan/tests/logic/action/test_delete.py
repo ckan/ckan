@@ -1,13 +1,14 @@
 # encoding: utf-8
 
 import re
+from unittest import mock
 
 import pytest
-
 
 import ckan.lib.jobs as jobs
 import ckan.lib.api_token as api_token
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -32,6 +33,18 @@ class TestDelete:
         # It is still there but with state=deleted
         res_obj = model.Resource.get(resource["id"])
         assert res_obj.state == "deleted"
+
+    def test_resource_delete_for_delete(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_delete', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[1][0][0].get('for_update') is True
 
     @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
     @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)

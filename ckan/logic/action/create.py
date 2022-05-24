@@ -282,7 +282,9 @@ def resource_create(context: Context,
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(
+        package_show_context, {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
