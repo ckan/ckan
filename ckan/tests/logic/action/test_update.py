@@ -7,6 +7,7 @@ import pytest
 
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -1346,6 +1347,33 @@ class TestResourceUpdate(object):
                 == datetime.datetime.utcnow().isoformat()
             )
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+
+    def test_resource_update_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_update', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_reorder_for_update(self):
+
+        dataset = factories.Dataset()
+        resource1 = factories.Resource(package_id=dataset['id'])
+        resource2 = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action(
+                'package_resource_reorder',
+                id=dataset['id'], order=[resource2['id'], resource1['id']])
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
 
 @pytest.mark.usefixtures("non_clean_db")
