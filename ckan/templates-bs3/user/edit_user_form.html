@@ -1,10 +1,10 @@
 {% import 'macros/form.html' as form %}
 
-{% block form %}
+{% block user_edit_form %}
   <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
-    {{ form.errors(error_summary) }}
+    {% block form_errors %}{{ form.errors(error_summary) }}{% endblock %}
 
-    {% block core_fields %}
+    {% block details_fieldset %}
       <fieldset>
         <legend>{{ _('Change details') }}</legend>
         {{ form.input('name', label=_('Username'), id='field-username', value=data.name, error=errors.name, classes=['control-medium'], attrs={'readonly': '', 'class': 'form-control'}) }}
@@ -26,15 +26,17 @@
     {% endblock %}
 
     {% if is_sysadmin and g.user != data.name %}
-    {% block sysadmin_password %}
+    {% block sysadmin_password_fieldset %}
       <fieldset>
       <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>
       {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
       {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
-    </fieldset>
+      </fieldset>
+    {% endblock %}
 
-    <fieldset>
-      <legend>{{ _('Sysadmin password') }}</legend>
+    {% block sysadmin_old_password_fieldset %}
+      <fieldset>
+        <legend>{{ _('Sysadmin password') }}</legend>
         {{ form.input('old_password',
                       type='password',
                       label=_('Sysadmin Password'),
@@ -49,7 +51,7 @@
     {% endblock %}
 
     {% else %}
-    {% block change_password %}
+    {% block change_password_fieldset %}
       <fieldset>
         <legend>{{ _('Change password') }}</legend>
         {{ form.input('old_password',
@@ -69,8 +71,8 @@
     {% endblock %}
     {% endif %}
 
+    {% block form_actions %}
     <div class="form-actions">
-      {% block form_actions %}
         {% block delete_button %}
           {% if h.check_access('user_delete', {'id': data.id})  %}
             <a class="btn btn-danger pull-left" href="{% url_for 'user_delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this User?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
@@ -78,7 +80,7 @@
         {% endblock %}
         {{ form.required_message() }}
         <button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
-      {% endblock %}
+    {% endblock %}
     </div>
   </form>
 {% endblock %}
