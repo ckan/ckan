@@ -201,8 +201,6 @@ class Declaration:
 
     def declare_list(
             self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
-        if default is None:
-            default = []
         option = self.declare(key, default)
         option.set_validators("as_list")
         return option
