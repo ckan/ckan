@@ -136,7 +136,6 @@ def me() -> Response:
         config.get_value(u'ckan.route_after_login'))
 
 
-
 def read(id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
