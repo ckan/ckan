@@ -434,7 +434,6 @@ class TestGroupMembership(object):
         assert role_option and role_option.get('value') == 'admin'
         assert page.select_one('#username').get('value') == member['name']
 
-
     @pytest.mark.usefixtures("clean_db")
     @mock.patch("flask_login.utils._get_user")
     def test_admin_add(self, current_user, app):

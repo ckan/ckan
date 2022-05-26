@@ -386,6 +386,17 @@ groups:
         type: bool
         description: If set to True, CKAN will not publicly expose its version number.
 
+      - key: ckan.login_required.disabled
+        default: False
+        type: bool
+        description: |
+          This `CKAN` decorator exists only to decorate
+          the `error_handler`.
+          It will intercept ONLY if the `current_user.is_anonymous` and the
+          `Exception` code is `401(Unauthorized)/403(Forbidden)`
+          and will force the users to log in before we check for their access.
+          If disabled this decorator will be ignored.
+
   - annotation: Authorization Settings
     options:
       - key: ckan.auth.anon_create_dataset

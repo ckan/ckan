@@ -2808,7 +2808,7 @@ def _ckan_login_required(  # type: ignore
 
     @wraps(func)
     def decorated_view(*args: Exception, **kwargs: Any):
-        if asbool(config.get_value("ckan.login_required.disabled")):
+        if config.get_value("ckan.login_required.disabled"):
             return func(*args, **kwargs)
         # if the url is not local we dont want to redirect the user
         # instead, we want to show the actual 403(Forbidden)...
