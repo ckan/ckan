@@ -655,6 +655,7 @@ class TestResourceCreate:
         assert created_resource["name"] == "created by collaborator"
 
 
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
