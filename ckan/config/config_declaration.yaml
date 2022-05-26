@@ -531,6 +531,10 @@ groups:
           value), users can manually create an API token from their profile
           instead. See :ref:`api authentication`: for more details.
 
+      - key: ckan.auth.login_view'
+        type: string
+        example: login.view
+        description: The name of the view to redirect to when the user needs to log in
 
   - annotation: API Token Settings
     options:
