@@ -37,7 +37,7 @@ def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional["User"]:
     `IAuthenticator.authenticate()` to hook into the CKAN authentication
     process with a custom implementation.
 
-    Falls to default `UsernamePasswordAuthenticator` if no plugins are
+    Falls to `default_authenticate()` if no plugins are
     defined.
     """
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
