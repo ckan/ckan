@@ -10,31 +10,29 @@ from . import signals
 log = logging.getLogger(__name__)
 
 
-class UsernamePasswordAuthenticator(object):
-
-    def authenticate(self, identity: 'Mapping[str, Any]') -> Optional[str]:
-        if not ('login' in identity and 'password' in identity):
-            return None
-
-        login = identity['login']
-        user = User.by_name(login)
-        if not user:
-            user = User.by_email(login)
-
-        if user is None:
-            log.debug('Login failed - username or email %r not found', login)
-        elif not user.is_active():
-            log.debug('Login as %r failed - user isn\'t active', login)
-        elif not user.validate_password(identity['password']):
-            log.debug('Login as %r failed - password not valid', login)
-        else:
-            signals.successful_login.send(user.name)
-            return user.name
-        signals.failed_login.send(login)
+def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
+    if not ('login' in identity and 'password' in identity):
         return None
 
+    login = identity['login']
+    user = User.by_name(login)
+    if not user:
+        user = User.by_email(login)
 
-def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional[str]:
+    if user is None:
+        log.debug('Login failed - username or email %r not found', login)
+    elif not user.is_active():
+        log.debug('Login as %r failed - user isn\'t active', login)
+    elif not user.validate_password(identity['password']):
+        log.debug('Login as %r failed - password not valid', login)
+    else:
+        signals.successful_login.send(user.name)
+        return user
+    signals.failed_login.send(login)
+    return None
+
+
+def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional["User"]:
     """Allows extensions that have implemented
     `IAuthenticator.authenticate()` to hook into the CKAN authentication
     process with a custom implementation.
@@ -46,4 +44,4 @@ def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional[str]:
         response = item.authenticate(identity)
         if response:
             return response
-    return UsernamePasswordAuthenticator().authenticate(identity)
+    return default_authenticate(identity)

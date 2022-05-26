@@ -132,10 +132,9 @@ def index():
 
 
 def me() -> Response:
-    if plugins.plugin_loaded("activity"):
-        return h.redirect_to(
-            config.get_value(u'ckan.route_after_login'))
-    return h.redirect_to(h.url_for('dashboard.datasets'))
+    return h.redirect_to(
+        config.get_value(u'ckan.route_after_login'))
+
 
 
 def read(id: str) -> Union[Response, str]:
@@ -317,11 +316,12 @@ class EditView(MethodView):
                 u'login': current_user.name,
                 u'password': data_dict[u'old_password']
             }
-            auth = authenticator.UsernamePasswordAuthenticator()
+            auth_user = authenticator.ckan_authenticator(identity)
 
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
-            if auth.authenticate(identity) != current_user.name:
+            auth_username = auth_user.name if auth_user else ''
+            if auth_username != current_user.name:
                 errors = {"oldpassword": [_("Password entered was incorrect")]}
                 error_summary = (
                     {_("Old Password"): _("incorrect password")}
@@ -502,24 +502,21 @@ def login() -> Union[Response, str]:
         password = request.form.get("password")
         _remember = request.form.get("remember")
 
-        user = model.User.by_name(username_or_email)
-        if not user:
-            user = model.User.by_email(username_or_email)
         identity = {
             u"login": username_or_email,
             u"password": password
         }
 
-        auth = authenticator.ckan_authenticator(identity)
-        if auth:
+        userobj = authenticator.ckan_authenticator(identity)
+        if userobj:
             next = request.args.get('next', request.args.get('came_from'))
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
-                login_user(user, remember=True, duration=duration_time)
+                login_user(userobj, remember=True, duration=duration_time)
                 return next_page_or_default(next)
             else:
-                login_user(user)
+                login_user(userobj)
                 return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")

@@ -88,7 +88,7 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls: Type[TUser], email: Optional[str]) -> Optional["User"]:
+    def by_email(cls: Type[TUser], email: str) -> Optional["User"]:
         return meta.Session.query(cls).filter_by(email=email).first()
 
     @classmethod
@@ -336,7 +336,7 @@ class User(core.StatefulObjectMixin,
 
     def get_id(self) -> str:
         '''Needed by flask-login'''
-        return str(self.id)
+        return self.id
 
     @property
     def is_authenticated(self) -> bool:
