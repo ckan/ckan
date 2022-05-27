@@ -320,7 +320,7 @@ def plugin_validate(
     """
     if hasattr(plugin, 'validate'):
         result = plugin.validate(context, data_dict, schema, action)
-        if result is not None:
+        if result is not None and result != ({}, {}):
             return result
 
     return validate(data_dict, schema, context)
