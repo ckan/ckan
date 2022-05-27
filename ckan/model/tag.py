@@ -5,6 +5,7 @@ from typing import Optional, Any
 
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
+from typing_extensions import Self
 
 import ckan  # this import is needed
 
@@ -48,7 +49,7 @@ class Tag(domain_object.DomainObject):
     name: str
     vocabulary_id: Optional[str]
 
-    package_tags: 'list[PackageTag]'
+    package_tags: list['PackageTag']
     vocabulary: Optional['ckan.model.Vocabulary']
 
     def __init__(self, name: str='', vocabulary_id: Optional[str]=None) -> None:
@@ -60,7 +61,7 @@ class Tag(domain_object.DomainObject):
         self.purge()
 
     @classmethod
-    def by_id(cls, tag_id: str, autoflush: bool=True) -> Optional["Tag"]:
+    def by_id(cls, tag_id: str, autoflush: bool=True) -> Optional[Self]:
         '''Return the tag with the given id, or None.
 
         :param tag_id: the id of the tag to return
@@ -82,7 +83,7 @@ class Tag(domain_object.DomainObject):
             autoflush: bool = True,
             for_update: bool = False,
             vocab: Optional['ckan.model.Vocabulary'] = None,
-    ) -> Optional["Tag"]:
+    ) -> Optional[Self]:
         '''Return the tag with the given name, or None.
 
         By default only free tags (tags which do not belong to any vocabulary)
@@ -114,7 +115,7 @@ class Tag(domain_object.DomainObject):
 
     @classmethod
     def get(cls, tag_id_or_name: str,
-            vocab_id_or_name: Optional[str]=None) -> Optional["Tag"]:
+            vocab_id_or_name: Optional[str]=None) -> Optional[Self]:
         '''Return the tag with the given id or name, or None.
 
         By default only free tags (tags which do not belong to any vocabulary)
@@ -154,7 +155,7 @@ class Tag(domain_object.DomainObject):
     @maintain.deprecated(since="2.9.0")
     def search_by_name(
             cls, search_term: str,
-            vocab_id_or_name: Optional[str] = None) -> Optional['Query[Tag]']:
+            vocab_id_or_name: Optional[str] = None) -> Optional[Query[Self]]:
         '''DEPRECATED
 
         Return all tags whose names contain a given string.
@@ -188,7 +189,7 @@ class Tag(domain_object.DomainObject):
         return query
 
     @classmethod
-    def all(cls, vocab_id_or_name: Optional[str]=None) -> 'Query[Tag]':
+    def all(cls, vocab_id_or_name: Optional[str]=None) -> Query[Self]:
         '''Return all tags that are currently applied to any dataset.
 
         By default only free tags (tags which do not belong to any vocabulary)
@@ -271,7 +272,7 @@ class PackageTag(core.StatefulObjectMixin,
     def by_name(
             cls, package_name: str, tag_name: str,
             vocab_id_or_name: Optional[str] = None,
-            autoflush: bool = True) -> Optional['PackageTag']:
+            autoflush: bool = True) -> Optional[Self]:
         '''DEPRECATED (and broken - missing the join to Tag)
 
         Return the PackageTag for the given package and tag names, or None.

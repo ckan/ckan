@@ -9,6 +9,7 @@ import pytest
 
 
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -653,6 +654,17 @@ class TestResourceCreate:
         )
 
         assert created_resource["name"] == "created by collaborator"
+
+    def test_resource_create_for_update(self):
+
+        dataset = factories.Dataset()
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
 
 

@@ -536,3 +536,12 @@ class TestDatasetMultiTypes(object):
         url = url_for(type_ + '.read', id=dataset['name'])
         resp = app.get(url, status=200)
         assert resp.body == 'Hello, {}!'.format(type_)
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_inherit")
+@pytest.mark.usefixtures("with_plugins")
+def test_validation_works_on_default_validate():
+
+    dataset = factories.Dataset(name="my_dataset", type="custom_dataset")
+
+    assert dataset["name"] == "my_dataset"
