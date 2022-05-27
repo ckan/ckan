@@ -5,11 +5,12 @@ import logging
 import sys
 import cgitb
 import warnings
+import base64
 import xml.dom.minidom
 
 import requests
 
-from ckan.common import asbool, config
+from ckan.common import asbool, asint, config
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
@@ -27,6 +28,7 @@ from ckan.lib.search.query import (
 
 log = logging.getLogger(__name__)
 
+TIMEOUT = asint(config.get('ckan.requests.timeout', 5))
 
 def text_traceback():
     with warnings.catch_warnings():
@@ -37,7 +39,7 @@ def text_traceback():
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -256,18 +258,15 @@ def clear_all():
 def _get_schema_from_solr(file_offset):
     solr_url, solr_user, solr_password = SolrSettings.get()
 
-    http_auth = None
-    if solr_user is not None and solr_password is not None:
-        http_auth = solr_user + ':' + solr_password
-        http_auth = 'Basic ' + http_auth.encode('base64').strip()
-
     url = solr_url.strip('/') + file_offset
 
-    if http_auth:
+    if solr_user is not None and solr_password is not None:
         response = requests.get(
-            url, headers={'Authorization': http_auth})
+            url,
+            timeout=TIMEOUT,
+            auth=requests.auth.HTTPBasicAuth(solr_user, solr_password))
     else:
-        response = requests.get(url)
+        response = requests.get(url, timeout=TIMEOUT)
 
     return response
 
@@ -318,7 +317,15 @@ def check_solr_schema_version(schema_file=None):
 
     tree = xml.dom.minidom.parseString(schema_content)
 
-    version = tree.documentElement.getAttribute('version')
+    # Up to CKAN 2.9 the schema version was stored in the `version` attribute.
+    # Going forward, we are storing it in the `name` one in the form `ckan-X.Y`
+    version = ''
+    name_attr = tree.documentElement.getAttribute('name')
+    if name_attr.startswith('ckan-'):
+        version = name_attr.split('-')[1]
+    else:
+        version = tree.documentElement.getAttribute('version')
+
     if not len(version):
         msg = 'Could not extract version info from the SOLR schema'
         if schema_file:

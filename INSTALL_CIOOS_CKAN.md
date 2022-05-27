@@ -616,7 +616,7 @@ This method uses dockers copy command to copy the new schema file into a running
 
 ```bash
 cd ~/ckan
-sudo docker cp ~/ckan/ckan/config/solr/schema.xml solr:/opt/solr/server/solr/ckan/conf
+sudo docker cp ~/ckan/ckan/config/solr/schema.xml solr:/opt/solr/server/solr/configsets/ckan/conf/managed-schema
 ```
 
 Restart solr container
@@ -635,6 +635,17 @@ sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini search-index re
 ## Update CKAN
 
 If you need to update CKAN to a new version you can either remove the docker_ckan_home volume or update the volume with the new ckan core files. After which you need to rebuild the CKAN image and any docker containers based on that image. If you are working with a live / production system the preferred method is to update the volume and rebuild which will result in the least amount of down time.
+
+enable volume environment variables to make accessing the volumes easier
+
+```bash
+export VOL_CKAN_HOME=`sudo docker volume inspect docker_ckan_home | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_CONFIG=`sudo docker volume inspect docker_ckan_config | jq -r -c '.[] | .Mountpoint'`
+export VOL_CKAN_STORAGE=`sudo docker volume inspect docker_ckan_storage | jq -r -c '.[] | .Mountpoint'`
+echo $VOL_CKAN_HOME
+echo $VOL_CKAN_CONFIG
+echo $VOL_CKAN_STORAGE
+```
 
 update local repo
 
@@ -668,6 +679,12 @@ sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 
 or on windows run the command directly in the ckan container
 
+restart the ckan container
+
+```bash
+cd ~/ckan/contrib/docker
+sudo docker-compose restart ckan
+```
 ---
 
 # Troubleshooting
@@ -709,7 +726,6 @@ copy updated extension code to the volumes
 ```bash
 cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/ckanext-googleanalyticsbasic $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-cioos_harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
@@ -719,6 +735,7 @@ sudo cp -r src/ckanext-dcat/ $VOL_CKAN_HOME/venv/src/
 sudo cp src/cioos-siooc-schema/cioos-siooc_schema.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/cioos_siooc_schema.json
 sudo cp src/cioos-siooc-schema/organization.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/organization.json
 sudo cp src/cioos-siooc-schema/ckan_license.json $VOL_CKAN_HOME/venv/src/ckanext-scheming/ckanext/scheming/ckan_license.json
+sudo cp src/cioos-siooc-schema/*.wkt $VOL_CKAN_HOME/venv/src
 ```
 
 Exporting volumes on windows does not work so another option for copying files to the volumes is to use the `docker cp` command. You must know the path of the named volume in the container you are connecting to and the container must be running for this to work
@@ -1089,7 +1106,7 @@ Delete and re clone the ckan repo.
 If you edit a harvester config and then reharvest the existing harvester will continue to use the in memory harvester config. To solve this you should reindex the harvesters and restart the harvester docker containers
 
 ```bash
-sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex 
+sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
 

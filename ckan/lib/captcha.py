@@ -1,8 +1,10 @@
 # encoding: utf-8
 
-from ckan.common import config
+from ckan.common import config, asint
 
 import requests
+
+TIMEOUT = asint(config.get('ckan.requests.timeout', 5))
 
 
 def check_recaptcha(request):
@@ -28,7 +30,7 @@ def check_recaptcha(request):
         remoteip=client_ip_address,
         response=recaptcha_response_field.encode('utf8')
     )
-    response = requests.get(recaptcha_server_name, params)
+    response = requests.get(recaptcha_server_name, params, timeout=TIMEOUT)
     data = response.json()
 
     try:

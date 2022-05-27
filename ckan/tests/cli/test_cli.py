@@ -24,11 +24,11 @@ def test_incorrect_config(cli):
 
 
 def test_correct_config(cli, ckan_config):
-    """Presense of config file disables default printing of help message.
+    """With explicit config file user still sees help message.
     """
     result = cli.invoke(ckan, [u'-c', ckan_config[u'__file__']])
-    assert u'Error: Missing command.' in result.output
-    assert result.exit_code
+    assert u'Usage: ckan' in result.output
+    assert not result.exit_code
 
 
 def test_correct_config_with_help(cli, ckan_config):
@@ -54,6 +54,9 @@ def test_command_from_extension_shown_in_help_when_enabled(cli):
     """Extra commands shown in help when plugin enabled.
     """
     result = cli.invoke(ckan, [])
+    assert u'example-iclick-hello' in result.output
+
+    result = cli.invoke(ckan, [u'--help'])
     assert u'example-iclick-hello' in result.output
 
 

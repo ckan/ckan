@@ -7,7 +7,7 @@
       dataset=ah.datset(activity)
     )|safe }}
     <br />
-    <span class="date">
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
     </span>
   </p>
