@@ -666,6 +666,7 @@ class TestResourceCreate:
             helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
     def test_group_member_creation(self):
