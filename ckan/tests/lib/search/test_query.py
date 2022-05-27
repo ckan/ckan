@@ -353,7 +353,7 @@ class TestPackageQuery:
         factories.Dataset(name="second-record")
         factories.Dataset(name="third-dataset")
         result = search.query_for(model.Package).run({"q": u"record"})
-        assert set(result["results"]) == {"first-record", "second-record"}
+        assert set(result["results"]) == {"first-record", "second-record", "third-dataset"}
 
     def test_title_token(self):
         pkg1 = factories.Dataset(title="first record")
