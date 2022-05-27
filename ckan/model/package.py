@@ -10,7 +10,7 @@ from typing import (
 
 import datetime
 import logging
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm, types, Column, Table, ForeignKey
@@ -122,7 +122,7 @@ class Package(core.StatefulObjectMixin,
     text_search_fields: list[str] = ['name', 'title']
 
     @classmethod
-    def search_by_name(cls, text_query: str) -> 'Query[Package]':
+    def search_by_name(cls, text_query: str) -> Query[Self]:
         return meta.Session.query(cls).filter(
             # type_ignore_reason: incomplete SQLAlchemy types
             cls.name.contains(text_query.lower())  # type: ignore
@@ -131,7 +131,7 @@ class Package(core.StatefulObjectMixin,
     @classmethod
     def get(cls,
             reference: Optional[str],
-            for_update: bool = False) -> Optional["Package"]:
+            for_update: bool = False) -> Optional[Self]:
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
@@ -151,7 +151,7 @@ class Package(core.StatefulObjectMixin,
                 self.resources_all
                 if resource.state != 'deleted']
 
-    def related_packages(self) -> list["Package"]:
+    def related_packages(self) -> list[Self]:
         return [self]
 
     def add_resource(
@@ -217,8 +217,8 @@ class Package(core.StatefulObjectMixin,
 
         """
         import ckan.model as model
-        query: 'Query[model.Tag]' = meta.Session.query(model.Tag)
-        query: 'Query[model.Tag]' = query.join(model.PackageTag)
+        query: Query[model.Tag] = meta.Session.query(model.Tag)
+        query: Query[model.Tag] = query.join(model.PackageTag)
         query = query.filter(model.PackageTag.tag_id == model.Tag.id)
         query = query.filter(model.PackageTag.package_id == self.id)
         query = query.filter(model.PackageTag.state == 'active')
@@ -273,7 +273,7 @@ class Package(core.StatefulObjectMixin,
         _dict['type'] = self.type or u'dataset'
         return _dict
 
-    def add_relationship(self, type_: str, related_package: "Package",
+    def add_relationship(self, type_: str, related_package: Self,
                          comment: str=u''):
         '''Creates a new relationship between this package and a
         related_package. It leaves the caller to commit the change.
