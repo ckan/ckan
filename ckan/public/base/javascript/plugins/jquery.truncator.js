@@ -36,7 +36,7 @@
       var content_length = $.trim(squeeze($(this).text())).length;
       if (content_length <= opts.max_length)
         return;  // bail early if not overlong
-      
+
       // include more text, link prefix, and link suffix in max length
       var actual_max_length = opts.max_length - opts.more.length - opts.link_prefix.length - opts.link_suffix.length;
 
@@ -69,13 +69,20 @@
         });
       });
 
-      // Return our new truncated node.
-      return truncated_node[0];
+      if( opts.collapsed === false) {
+        truncated_node.hide();
+        full_node.show();
+        // Return our full node.
+        return full_node[0];
+      } else {
+        // Return our new truncated node.
+        return truncated_node[0];
+      }
     });
 
     // Return the newly created elements.
     return this.pushStack(collected);
-  }
+  };
 
   // Note that the " (…more)" bit counts towards the max length – so a max
   // length of 10 would truncate "1234567890" to "12 (…more)".
@@ -84,6 +91,7 @@
     more: 'more',
     less: 'less',
     ellipses: '…',
+    collapsed: true,
     css_more_class: 'truncator-link truncator-more',
     css_less_class: 'truncator-link truncator-less',
     link_prefix: ' (',
