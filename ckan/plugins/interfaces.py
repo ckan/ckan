@@ -1267,8 +1267,9 @@ class IDatasetForm(Interface):
         '''
         return ''
 
-    def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
+    def validate(
+            self, context: Context, data_dict: DataDict, schema: Schema,
+            action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -1483,8 +1484,9 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         '''
 
-    def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
+    def validate(
+            self, context: Context, data_dict: DataDict, schema: Schema,
+            action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
