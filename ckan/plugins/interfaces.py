@@ -1268,7 +1268,7 @@ class IDatasetForm(Interface):
         return ''
 
     def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> tuple[dict[str, Any], dict[str, Any]]:
+                 action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -1298,7 +1298,7 @@ class IDatasetForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
-        return {}, {}
+        return
 
     def prepare_dataset_blueprint(self, package_type: str,
                                   blueprint: Blueprint) -> Blueprint:
@@ -1484,7 +1484,7 @@ class IGroupForm(Interface):
         '''
 
     def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> tuple[dict[str, Any], dict[str, Any]]:
+                 action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
@@ -1515,7 +1515,7 @@ class IGroupForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
-        return {}, {}
+        return
 
     def prepare_group_blueprint(self, group_type: str,
                                 blueprint: Blueprint) -> Blueprint:
