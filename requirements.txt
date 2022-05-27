@@ -83,7 +83,7 @@ polib==1.1.1
     # via -r requirements.in
 psycopg2==2.9.3
     # via -r requirements.in
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
