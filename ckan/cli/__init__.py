@@ -106,6 +106,8 @@ class CKANConfigLoader(object):
 
 
 def error_shout(exception: Any) -> None:
+    """Report CLI error with a styled message.
+    """
     click.secho(str(exception), fg=u'red', err=True)
 
 

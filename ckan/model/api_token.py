@@ -9,6 +9,7 @@ from typing import Any, Optional
 from sqlalchemy import types, Column, Table, ForeignKey, orm
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from typing_extensions import Self
 
 from ckan.model import meta, User, DomainObject
 from ckan.common import config
@@ -50,7 +51,7 @@ class ApiToken(DomainObject):
         self.name = name
 
     @classmethod
-    def get(cls, id: Optional[str]) -> Optional["ApiToken"]:
+    def get(cls, id: Optional[str]) -> Optional[Self]:
         if not id:
             return None
 

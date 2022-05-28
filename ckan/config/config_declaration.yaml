@@ -430,6 +430,12 @@ groups:
         description: >
           Defines how long (in seconds) requests calls should last before they will timeout.
 
+      - key: ckan.hide_version
+        default: False
+        example: True
+        type: bool
+        description: If set to True, CKAN will not publicly expose its version number.
+
   - annotation: Authorization Settings
     options:
       - key: ckan.auth.anon_create_dataset
@@ -790,6 +796,7 @@ groups:
       - key: ckan.plugins
         required: true
         type: list
+        placeholder: activity
         example: disqus datapreview googleanalytics follower
         description: |
           Specify which CKAN plugins are to be enabled.
@@ -1152,8 +1159,9 @@ groups:
           This is ordinarily the home page, but specific sites may prefer somewhere else.
 
       - key: ckan.route_after_login
-        default: dashboard.index
+        default: dashboard.datasets
 
+  # TODO: move to activity extension
   - annotation: Activity Streams Settings
     options:
       - key: ckan.activity_streams_enabled

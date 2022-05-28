@@ -5,15 +5,16 @@
   pkg - A package dict that the resource belongs to
   can_edit - Whether the user is allowed to edit the resource
   url_is_edit - Whether the link to the resource should be to editing it (set to False to make the link view the resource)
-  is_activity_archive - Whether this is an old version of the dataset (and therefore read-only)
+  url - URL of the resource details page(resource edit/read depending on url_is_edit, by default).
 
   Example:
 
-    {% snippet "package/snippets/resource_item.html", res=resource, pkg=pkg, can_edit=True, url_is_edit=False %}
+  {% snippet "package/snippets/resource_item.html", res=resource, pkg=pkg, can_edit=True, url_is_edit=False %}
 
-#}
+  #}
 {% set url_action = pkg.type ~ ('_resource.edit' if url_is_edit and can_edit else '_resource.read') %}
-{% set url = h.url_for(url_action, id=pkg.id if is_activity_archive else pkg.name, resource_id=res.id, **({'activity_id': request.args['activity_id']} if 'activity_id' in request.args else {})) %}
+{% set url = url or h.url_for(url_action, id=pkg.name, resource_id=res.id) %}
+
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
@@ -39,17 +40,20 @@
     </a>
     <ul class="dropdown-menu">
       {% block resource_item_explore_links %}
-      <li>
-        <a href="{{ url }}">
-          {% if not is_activity_archive and res.has_views %}
-            <i class="fa fa-bar-chart-o"></i>
-            {{ _('Preview') }}
-          {% else %}
-            <i class="fa fa-info-circle"></i>
-            {{ _('More information') }}
-          {% endif %}
-        </a>
-      </li>
+        {% block explore_view %}
+          <li>
+            <a href="{{ url }}">
+              {% if res.has_views %}
+                <i class="fa fa-bar-chart-o"></i>
+                {{ _('Preview') }}
+              {% else %}
+                <i class="fa fa-info-circle"></i>
+                {{ _('More information') }}
+              {% endif %}
+            </a>
+          </li>
+        {% endblock explore_view %}
+
       {% if res.url and h.is_url(res.url) %}
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank" rel="noreferrer">

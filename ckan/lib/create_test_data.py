@@ -67,10 +67,12 @@ class CreateTestData(object):
     @classmethod
     def create_translations_test_data(cls):
         import ckan.model
-        CreateTestData.create()
+        package = ckan.model.Package.get('annakarenina')
+        if not package:
+            CreateTestData.create()
+            package = ckan.model.Package.get('annakarenina')
 
         sysadmin_user = ckan.model.User.get('testsysadmin')
-        package = ckan.model.Package.get('annakarenina')
         assert package and sysadmin_user
         # Add some new tags to the package.
         # These tags are codes that are meant to be always translated before
@@ -102,10 +104,13 @@ class CreateTestData(object):
     @classmethod
     def create_vocabs_test_data(cls):
         import ckan.model
-        CreateTestData.create()
+        warandpeace = ckan.model.Package.get('warandpeace')
+        if not warandpeace:
+            CreateTestData.create()
+            warandpeace = ckan.model.Package.get('warandpeace')
+
         sysadmin_user = ckan.model.User.get('testsysadmin')
         annakarenina = ckan.model.Package.get('annakarenina')
-        warandpeace = ckan.model.Package.get('warandpeace')
         assert sysadmin_user and annakarenina and warandpeace
 
         # Create a couple of vocabularies.
@@ -476,7 +481,8 @@ left arrow <
 
         # Create activities for packages
         for item in [pkg1, pkg2]:
-            activity = item.activity_stream_item('new', 'not logged in')
+            from ckanext.activity.model import Activity
+            activity = Activity.activity_stream_item(item, 'new', 'not logged in')
             model.Session.add(activity)
 
         model.repo.commit_and_remove()

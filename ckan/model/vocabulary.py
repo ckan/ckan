@@ -1,7 +1,9 @@
 # encoding: utf-8
+from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import types, Column, Table
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.types as _types
@@ -33,7 +35,7 @@ class Vocabulary(domain_object.DomainObject):
         self.name = name
 
     @classmethod
-    def get(cls, id_or_name: str) -> Optional["Vocabulary"]:
+    def get(cls, id_or_name: str) -> Optional[Self]:
         '''Return a Vocabulary object referenced by its id or name, or
         None if there is no vocabulary with the given id or name. '''
         query = meta.Session.query(Vocabulary)
@@ -44,7 +46,7 @@ class Vocabulary(domain_object.DomainObject):
         return vocab
 
     @property
-    def tags(self) -> 'Query[Tag]':
+    def tags(self) -> Query[Tag]:
         from ckan.model import tag
         query = meta.Session.query(tag.Tag)
         return query.filter(tag.Tag.vocabulary_id == self.id)

@@ -269,7 +269,7 @@ class TestUrlsForCustomDatasetType(object):
             ).body
         )
         page_header = page.find(class_="page-header")
-        for action in ["read", "groups", "activity", "edit"]:
+        for action in ["read", "groups", "edit"]:
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
@@ -526,3 +526,12 @@ class TestDatasetMultiTypes(object):
         url = url_for(type_ + '.read', id=dataset['name'])
         resp = app.get(url, status=200)
         assert resp.body == 'Hello, {}!'.format(type_)
+
+
+@pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_inherit")
+@pytest.mark.usefixtures("with_plugins")
+def test_validation_works_on_default_validate():
+
+    dataset = factories.Dataset(name="my_dataset", type="custom_dataset")
+
+    assert dataset["name"] == "my_dataset"
