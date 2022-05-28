@@ -616,17 +616,6 @@ def vocabulary_list_dictize(vocabulary_list: list[model.Vocabulary],
     return [vocabulary_dictize(vocabulary, context)
             for vocabulary in vocabulary_list]
 
-def activity_dictize(activity: model.Activity,
-                    context: Context) -> dict[str, Any]:
-    return d.table_dictize(activity, context)
-
-
-def activity_list_dictize(
-        activity_list: list[model.Activity], context: Context,
-        include_data: bool=False) -> list[dict[str, Any]]:
-    return [activity_dictize(activity, context)
-            for activity in activity_list]
-
 def user_following_user_dictize(follower: model.UserFollowingUser,
                                 context: Context) -> dict[str, Any]:
     return d.table_dictize(follower, context)

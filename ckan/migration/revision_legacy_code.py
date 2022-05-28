@@ -20,6 +20,7 @@ import ckan.lib.dictization as d
 from ckan.lib.dictization.model_dictize import (
     _execute, resource_list_dictize, extras_list_dictize, group_list_dictize)
 from ckan import model
+from ckanext.activity.model import Activity
 
 
 # This is based on ckan.lib.dictization.model_dictize:package_dictize
@@ -540,8 +541,8 @@ def make_revision(instances):
 
     # the related Activity would get the revision_id added to it too.
     # Here we simply assume it's the latest activity.
-    activity = model.Session.query(model.Activity) \
-        .order_by(model.Activity.timestamp.desc()) \
+    activity = model.Session.query(Activity) \
+        .order_by(Activity.timestamp.desc()) \
         .first()
     activity.revision_id = revision.id
     model.Session.flush()

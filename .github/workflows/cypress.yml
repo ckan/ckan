@@ -50,12 +50,12 @@ jobs:
 
       - name: Init environment
         run: |
-          ckan -c test-core-circle-ci.ini db init
+          ckan -c test-core-cypress.ini db init
 
       - name: Run Cypress
         uses: cypress-io/github-action@v2
         with:
-          start: ckan -c test-core-circle-ci.ini run
+          start: ckan -c test-core-cypress.ini run
 
       - uses: actions/upload-artifact@v1
         if: failure()

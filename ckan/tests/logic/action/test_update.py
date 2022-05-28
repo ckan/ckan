@@ -1,28 +1,19 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
-import time
 
 import unittest.mock as mock
 import pytest
 
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
 from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
-
-
-def datetime_from_string(s):
-    """Return a standard datetime.datetime object initialised from a string in
-    the same format used for timestamps in dictized activities (the format
-    produced by datetime.datetime.isoformat())
-
-    """
-    return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -188,35 +179,6 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
-
-    def test_user_update_activity_stream(self):
-        """Test that the right activity is emitted when updating a user."""
-
-        user = factories.User()
-        before = datetime.datetime.utcnow()
-
-        # FIXME we have to pass the email address and password to user_update
-        # even though we're not updating those fields, otherwise validation
-        # fails.
-        helpers.call_action(
-            "user_update",
-            id=user["id"],
-            name=user["name"],
-            email=user["email"],
-            password=factories.User.stub().password,
-            fullname="updated full name",
-        )
-
-        activity_stream = helpers.call_action(
-            "user_activity_list", id=user["id"]
-        )
-        latest_activity = activity_stream[0]
-        assert latest_activity["activity_type"] == "changed user"
-        assert latest_activity["object_id"] == user["id"]
-        assert latest_activity["user_id"] == user["id"]
-        after = datetime.datetime.utcnow()
-        timestamp = datetime_from_string(latest_activity["timestamp"])
-        assert timestamp >= before and timestamp <= after
 
     def test_user_update_with_custom_schema(self):
         """Test that custom schemas passed to user_update do get used.
@@ -631,127 +593,6 @@ class TestDatasetUpdate(object):
         )
 
         assert updated_dataset == dataset["id"]
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestSendEmailNotifications(object):
-    # TODO: this action doesn't do much. Maybe it well be better to move tests
-    # into lib.email_notifications eventually
-
-    def check_email(self, email, address, name, subject):
-        assert email[1] == "info@test.ckan.net"
-        assert email[2] == [address]
-        assert subject in email[3]
-        # TODO: Check that body contains link to dashboard and email prefs.
-
-    def test_fresh_setupnotifications(self, mail_server):
-        helpers.call_action("send_email_notifications")
-        assert (
-            len(mail_server.get_smtp_messages()) == 0
-        ), "Notification came out of nowhere"
-
-    def test_single_notification(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 1
-        self.check_email(
-            messages[0],
-            user["email"],
-            user["name"],
-            "1 new activity from CKAN",
-        )
-
-    def test_multiple_notifications(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        for i in range(3):
-            helpers.call_action(
-                "package_update", id=pkg["id"], notes=f"updated {i} times"
-            )
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 1
-        self.check_email(
-            messages[0],
-            user["email"],
-            user["name"],
-            "3 new activities from CKAN",
-        )
-
-    def test_no_notifications_if_dashboard_visited(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        new_activities_count = helpers.call_action(
-            "dashboard_new_activities_count",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        assert new_activities_count == 1
-
-        helpers.call_action(
-            "dashboard_mark_activities_old",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-
-    def test_notifications_disabled_by_default(self):
-        user = factories.User()
-        assert not user["activity_streams_email_notifications"]
-
-    def test_no_emails_when_notifications_disabled(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User()
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-        new_activities_count = helpers.call_action(
-            "dashboard_new_activities_count",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        assert new_activities_count == 1
-
-    @pytest.mark.ckan_config(
-        "ckan.activity_streams_email_notifications", False
-    )
-    def test_send_email_notifications_feature_disabled(self, mail_server):
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-
-    @pytest.mark.ckan_config("ckan.email_notifications_since", ".000001")
-    def test_email_notifications_since(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        time.sleep(0.01)
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
 
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
@@ -1507,6 +1348,33 @@ class TestResourceUpdate(object):
             )
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
+    def test_resource_update_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_update', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_reorder_for_update(self):
+
+        dataset = factories.Dataset()
+        resource1 = factories.Resource(package_id=dataset['id'])
+        resource2 = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action(
+                'package_resource_reorder',
+                id=dataset['id'], order=[resource2['id'], resource1['id']])
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
@@ -1735,10 +1603,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert not (dataset.private)
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]["activity_type"] == "changed package"
 
     def test_bulk_delete(self):
 
@@ -1769,71 +1633,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert dataset.state == "deleted"
-
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]["activity_type"] == "deleted package"
-
-
-@pytest.mark.usefixtures("non_clean_db")
-class TestDashboardMarkActivitiesOld(object):
-    def test_mark_as_old_some_activities_by_a_followed_user(self):
-        # do some activity that will show up on user's dashboard
-        user = factories.User()
-        # now some activity that is "new" because it is by a followed user
-        followed_user = factories.User()
-        helpers.call_action(
-            "follow_user", context={"user": user["name"]}, **followed_user
-        )
-        dataset = factories.Dataset(user=followed_user)
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update",
-            context={"user": followed_user["name"]},
-            **dataset,
-        )
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 3
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", True),
-            ("new package", True),
-            ("changed package", True),
-        ]
-
-        helpers.call_action(
-            "dashboard_mark_activities_old", context={"user": user["name"]}
-        )
-
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 0
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", False),
-            ("new package", False),
-            ("changed package", False),
-        ]
 
 
 @pytest.mark.usefixtures("non_clean_db")

@@ -392,9 +392,6 @@ class EditView(MethodView):
             u'user': g.user
         }), data_dict)
 
-        extra_vars[u'show_email_notifications'] = config.get_value(
-            u'ckan.activity_streams_email_notifications')
-
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
 
@@ -459,7 +456,10 @@ class RegisterView(MethodView):
             if authz.is_sysadmin(g.user):
                 # the sysadmin created a new user. We redirect him to the
                 # activity page for the newly created user
-                return h.redirect_to(u'user.activity', id=data_dict[u'name'])
+                if "activity" in g.plugins:
+                    return h.redirect_to(
+                        u'activity.user_activity', id=data_dict[u'name'])
+                return h.redirect_to(u'user.read', id=data_dict[u'name'])
             else:
                 return base.render(u'user/logout_first.html')
 
@@ -570,42 +570,6 @@ def delete(id: str) -> Response:
     else:
         user_index = h.url_for(u'user.index')
         return h.redirect_to(user_index)
-
-
-def activity(id: str, offset: int = 0) -> str:
-    u'''Render this user's public activity stream page.'''
-
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
-        u'for_view': True
-    })
-    data_dict: dict[str, Any] = {
-        u'id': id,
-        u'user_obj': g.userobj,
-        u'include_num_followers': True
-    }
-    try:
-        logic.check_access(u'user_show', context, data_dict)
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Not authorized to see this page'))
-
-    extra_vars = _extra_template_variables(context, data_dict)
-
-    try:
-        extra_vars['user_activity_stream'] = \
-            logic.get_action(u'user_activity_list')(
-                context, {
-                    u'id': extra_vars[u'user_dict'][u'id'],
-                    u'offset': offset
-                })
-    except logic.ValidationError:
-        base.abort(400)
-    extra_vars['id'] = id
-
-    return base.render(u'user/activity_stream.html', extra_vars)
 
 
 class RequestResetView(MethodView):
@@ -902,9 +866,6 @@ user.add_url_rule(u'/logged_out', view_func=logged_out)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
-
-user.add_url_rule(u'/activity/<id>', view_func=activity)
-user.add_url_rule(u'/activity/<id>/<int:offset>', view_func=activity)
 
 user.add_url_rule(
     u'/reset', view_func=RequestResetView.as_view(str(u'request_reset')))
