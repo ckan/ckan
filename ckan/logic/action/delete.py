@@ -5,17 +5,15 @@ from __future__ import annotations
 
 from ckan.types.logic import ActionResult
 import logging
-from typing import Any, Type, cast
+from typing import Any, Union, Type, cast
 
 import sqlalchemy as sqla
-import six
 
 import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
-import ckan.lib.dictization as dictization
 import ckan.lib.api_token as api_token
 from ckan import authz
 from  ckan.lib.navl.dictization_functions import validate
@@ -84,8 +82,6 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     '''
     model = context['model']
-    session = context['session']
-    user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Package.get(id)
@@ -113,17 +109,6 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
         model.PackageMember.package_id == id).all()
     for collaborator in dataset_collaborators:
         collaborator.delete()
-
-    # Create activity
-    if not entity.private:
-        user_obj = model.User.by_name(user)
-        if user_obj:
-            user_id = user_obj.id
-        else:
-            user_id = 'not logged in'
-
-        activity = entity.activity_stream_item('changed', user_id)
-        session.add(activity)
 
     model.repo.commit()
 
@@ -200,7 +185,9 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
         plugin.before_resource_delete(context, data_dict,
                                       pkg_dict.get('resources', []))
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(
+        package_show_context, {'id': package_id})
 
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
@@ -395,7 +382,6 @@ def _group_or_org_delete(
     from sqlalchemy import or_
 
     model = context['model']
-    user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
     group = model.Group.get(id)
@@ -440,29 +426,6 @@ def _group_or_org_delete(
         member.delete()
 
     group.delete()
-
-    if is_org:
-        activity_type = 'deleted organization'
-    else:
-        activity_type = 'deleted group'
-
-    user_obj = model.User.by_name(six.ensure_text(user))
-    assert user_obj
-    activity_dict = {
-        'user_id': user_obj.id,
-        'object_id': group.id,
-        'activity_type': activity_type,
-        'data': {
-            'group': dictization.table_dictize(group, context)
-            }
-    }
-    activity_create_context = cast(Context, {
-        'model': model,
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': context['session']
-    })
-    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if is_org:
         plugin_type = plugins.IOrganizationController

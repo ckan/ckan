@@ -5,12 +5,12 @@ from typing import (
     ClassVar, Iterable,
     Optional,
     TYPE_CHECKING,
-    Any, cast,
+    Any,
 )
 
 import datetime
 import logging
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm, types, Column, Table, ForeignKey
@@ -22,10 +22,9 @@ import ckan.model.core as core
 import ckan.model.license as _license
 import ckan.model.types as _types
 import ckan.model.domain_object as domain_object
-import ckan.model.activity as activity
 
 import ckan.lib.maintain as maintain
-from ckan.types import Context, Query
+from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import (
@@ -123,7 +122,7 @@ class Package(core.StatefulObjectMixin,
     text_search_fields: list[str] = ['name', 'title']
 
     @classmethod
-    def search_by_name(cls, text_query: str) -> 'Query[Package]':
+    def search_by_name(cls, text_query: str) -> Query[Self]:
         return meta.Session.query(cls).filter(
             # type_ignore_reason: incomplete SQLAlchemy types
             cls.name.contains(text_query.lower())  # type: ignore
@@ -132,7 +131,7 @@ class Package(core.StatefulObjectMixin,
     @classmethod
     def get(cls,
             reference: Optional[str],
-            for_update: bool = False) -> Optional["Package"]:
+            for_update: bool = False) -> Optional[Self]:
         '''Returns a package object referenced by its id or name.'''
         if not reference:
             return None
@@ -152,7 +151,7 @@ class Package(core.StatefulObjectMixin,
                 self.resources_all
                 if resource.state != 'deleted']
 
-    def related_packages(self) -> list["Package"]:
+    def related_packages(self) -> list[Self]:
         return [self]
 
     def add_resource(
@@ -218,8 +217,8 @@ class Package(core.StatefulObjectMixin,
 
         """
         import ckan.model as model
-        query: 'Query[model.Tag]' = meta.Session.query(model.Tag)
-        query: 'Query[model.Tag]' = query.join(model.PackageTag)
+        query: Query[model.Tag] = meta.Session.query(model.Tag)
+        query: Query[model.Tag] = query.join(model.PackageTag)
         query = query.filter(model.PackageTag.tag_id == model.Tag.id)
         query = query.filter(model.PackageTag.package_id == self.id)
         query = query.filter(model.PackageTag.state == 'active')
@@ -274,7 +273,7 @@ class Package(core.StatefulObjectMixin,
         _dict['type'] = self.type or u'dataset'
         return _dict
 
-    def add_relationship(self, type_: str, related_package: "Package",
+    def add_relationship(self, type_: str, related_package: Self,
                          comment: str=u''):
         '''Creates a new relationship between this package and a
         related_package. It leaves the caller to commit the change.
@@ -463,64 +462,6 @@ class Package(core.StatefulObjectMixin,
 
         groups = [group for (group, cap) in pairs if not capacity or cap == capacity]
         return groups
-
-    def activity_stream_item(
-            self, activity_type: str,
-            user_id: str) -> Optional["activity.Activity"]:
-        import ckan.model
-        import ckan.logic
-
-        assert activity_type in ("new", "changed"), (
-            str(activity_type))
-
-        # Handle 'deleted' objects.
-        # When the user marks a package as deleted this comes through here as
-        # a 'changed' package activity. We detect this and change it to a
-        # 'deleted' activity.
-        if activity_type == 'changed' and self.state == u'deleted':
-            if meta.Session.query(activity.Activity).filter_by(
-                    object_id=self.id, activity_type='deleted').all():
-                # A 'deleted' activity for this object has already been emitted
-                # FIXME: What if the object was deleted and then activated
-                # again?
-                return None
-            else:
-                # Emit a 'deleted' activity for this object.
-                activity_type = 'deleted'
-
-        try:
-            # We save the entire rendered package dict so we can support
-            # viewing the past packages from the activity feed.
-            dictized_package = ckan.logic.get_action('package_show')(
-                cast(Context, {
-                    'model': ckan.model,
-                    'session': ckan.model.Session,
-                    'for_view': False,  # avoid ckanext-multilingual translating it
-                    'ignore_auth': True
-                }), {
-                    'id': self.id,
-                    'include_tracking': False
-                })
-        except ckan.logic.NotFound:
-            # This happens if this package is being purged and therefore has no
-            # current revision.
-            # TODO: Purge all related activity stream items when a model object
-            # is purged.
-            return None
-
-        actor = meta.Session.query(ckan.model.User).get(user_id)
-
-        return activity.Activity(
-            user_id,
-            self.id,
-            "%s package" % activity_type,
-            {
-                'package': dictized_package,
-                # We keep the acting user name around so that actions can be
-                # properly displayed even if the user is deleted in the future.
-                'actor': actor.name if actor else None
-            }
-        )
 
     @property
     @maintain.deprecated(since="2.9.0")

@@ -13,16 +13,13 @@ from typing import Any, Iterable, Optional, Tuple, Union, IO, cast
 from email.message import EmailMessage
 from email import utils
 
-from ckan.common import config
-import ckan.common
+from ckan.common import _, config
 
 
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render
-
-from ckan.common import _
 
 log = logging.getLogger(__name__)
 AttachmentWithType = Union[
@@ -51,6 +48,7 @@ def _mail_recipient(
         attachments = []
 
     mail_from = config.get_value('smtp.mail_from')
+
     reply_to = config.get_value('smtp.reply_to')
 
     msg = EmailMessage()
@@ -65,13 +63,14 @@ def _mail_recipient(
             msg.replace_header(k, v)
         else:
             msg.add_header(k, v)
-
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
     msg['Date'] = utils.formatdate(time())
-    msg['X-Mailer'] = "CKAN %s" % ckan.__version__
-    if reply_to and reply_to != '':
+    if not config.get_value('ckan.hide_version'):
+        msg['X-Mailer'] = "CKAN %s" % ckan.__version__
+    # Check if extension is setting reply-to via headers or use config option
+    if reply_to and reply_to != '' and not msg['Reply-to']:
         msg['Reply-to'] = reply_to
 
     for attachment in attachments:

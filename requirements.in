@@ -12,7 +12,7 @@ Flask==2.0.3
 Flask-Babel==1.0.0
 flask-multistatic==1.0
 Jinja2==3.0.3
-PyJWT==2.3.0
+PyJWT==2.4.0
 Markdown==3.3.6
 passlib==1.7.4
 polib==1.1.1

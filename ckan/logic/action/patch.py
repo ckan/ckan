@@ -43,6 +43,7 @@ def package_patch(
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
         'ignore_auth': context.get('ignore_auth', False),
+        'for_update': True
     }
 
     package_dict = _get_action('package_show')(
@@ -74,6 +75,7 @@ def resource_patch(context: Context,
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
+        'for_update': True
     }
 
     resource_dict = _get_action('resource_show')(

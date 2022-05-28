@@ -10,6 +10,7 @@ from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
 from sqlalchemy import types, Column, Table, ForeignKey
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.core as core
@@ -130,7 +131,7 @@ class Resource(core.StatefulObjectMixin,
         return self.package_id
 
     @classmethod
-    def get(cls, reference: str) -> Optional["Resource"]:
+    def get(cls, reference: str) -> Optional[Self]:
         '''Returns a resource object referenced by its name or id.'''
         if not reference:
             return None
