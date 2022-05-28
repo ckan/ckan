@@ -244,19 +244,6 @@ def term_translation_update(context: Context,
     }
 
 
-def dashboard_mark_activities_old(context: Context,
-                                  data_dict: DataDict) -> AuthResult:
-    return authz.is_authorized('dashboard_activity_list',
-                                   context,
-                                   data_dict)
-
-
-def send_email_notifications(context: Context,
-                             data_dict: DataDict) -> AuthResult:
-    # Only sysadmins are authorized to send email notifications.
-    return {'success': False}
-
-
 def package_owner_org_update(context: Context,
                              data_dict: DataDict) -> AuthResult:
     # sysadmins only

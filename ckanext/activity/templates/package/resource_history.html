@@ -1,0 +1,26 @@
+{% extends "package/resource_read.html" %}
+
+{% block action_manage %}
+{% endblock action_manage %}
+
+
+{% block resource_content %}
+  {% block package_archive_notice %}
+    <div id="activity-archive-notice" class="alert alert-danger">
+      {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
+      You're currently viewing an old version of this dataset.
+      Data files may not match the old version of the metadata.
+      <a href="{{ url }}">View the current version</a>.
+                {% endtrans %}
+    </div>
+  {% endblock %}
+  {{ super() }}
+{% endblock %}
+
+{% block data_preview %}
+{% endblock %}
+
+
+{% block resources_list %}
+  {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read', is_activity_archive=true %}
+{% endblock %}

@@ -365,22 +365,5 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "asbool": """Convert a string (e.g. 1,
-true, True) from the config file into a boolean.
-
-For example: ``if toolkit.asbool("yes"):``
-
-""",
-    "asint": """Convert a string from the config
-file into an int.
-
-For example: ``bar = toolkit.asint("111")``
-
-""",
-    "aslist": """Convert a space-separated
-string from the config file into a list.
-
-For example: `bar = toolkit.aslist(config.get('ckan.foo.bar', []))`
-
-""",
+    "ckan": "``ckan`` package itself."
 }

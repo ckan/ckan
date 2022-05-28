@@ -5,7 +5,7 @@ import click
 from ckan.model import Session, Package, DomainObjectOperation
 from ckan.model.modification import DomainObjectModificationExtension
 from ckan.logic import NotAuthorized, ValidationError
-
+from ckan.cli import error_shout
 
 log = getLogger(__name__)
 
@@ -41,4 +41,6 @@ def send_emails():
     try:
         logic.get_action("send_email_notifications")(context, {})
     except (NotAuthorized, ValidationError, mailer.MailerException) as e:
-        log.error(e)
+        error_shout(e)
+    except KeyError:
+        error_shout("`activity` plugin is not enabled")
