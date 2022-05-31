@@ -440,6 +440,7 @@ groups:
     options:
       - key: ckan.auth.anon_create_dataset
         type: bool
+        default: false
         example: "false"
         description: Allow users to create datasets without registering and logging in.
 
@@ -450,8 +451,8 @@ groups:
         description: Allow the creation of datasets not owned by any organization.
 
       - key: ckan.auth.create_dataset_if_not_in_organization
-        default: true
         type: bool
+        default: true
         example: "false"
         description: |
           Allow users who are not members of any organization to create datasets,
@@ -460,12 +461,13 @@ groups:
 
       - key: ckan.auth.user_create_groups
         type: bool
+        default: true
         example: "true"
         description: Allow users to create groups.
 
       - key: ckan.auth.user_create_organizations
-        default: true
         type: bool
+        default: true
         example: "false"
         description: Allow users to create organizations.
 
@@ -483,6 +485,7 @@ groups:
 
       - key: ckan.auth.create_user_via_api
         type: bool
+        default: false
         example: "false"
         description: Allow new user accounts to be created via the API by anyone. When ``False`` only sysadmins are authorised.
 
@@ -522,6 +525,7 @@ groups:
 
       - key: ckan.auth.public_activity_stream_detail
         type: bool
+        default: false
         example: "true"
         description: |
           Restricts access to 'view this version' and 'changes' in the Activity
@@ -534,6 +538,7 @@ groups:
 
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Enables or disable collaborators in individual datasets. If ``True``,
@@ -549,6 +554,7 @@ groups:
 
       - key: ckan.auth.allow_admin_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to have the "Admin" role, allowing them
@@ -565,6 +571,7 @@ groups:
 
       - key: ckan.auth.allow_collaborators_to_change_owner_org
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to change the owner organization of the
@@ -574,6 +581,7 @@ groups:
 
       - key: ckan.auth.create_default_api_keys
         type: bool
+        default: false
         example: "true"
         description: |
           Determines if a an API key should be automatically created for every
