@@ -6,7 +6,8 @@
 #
 alembic==1.0.0            # via -r requirements.in
 babel==2.7.0              # via -r requirements.in, flask-babel
-beaker==1.11.0            # via -r requirements.in
+beaker==1.11.0    git checkout tags/ckan-2.9.5
+        # via -r requirements.in
 bleach==3.1.4             # via -r requirements.in
 certifi==2021.5.30        # via requests
 chardet==4.0.0            # via requests

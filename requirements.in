@@ -36,3 +36,4 @@ watchdog==2.1.5         # For py3 support
 webassets==0.12.1
 Werkzeug[watchdog]==1.0.0
 zope.interface==4.3.2
+git checkout tags/ckan-2.9.5

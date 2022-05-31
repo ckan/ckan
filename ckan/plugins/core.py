@@ -1,3 +1,4 @@
+git checkout tags/ckan-2.9.5
 # encoding: utf-8
 
 '''
