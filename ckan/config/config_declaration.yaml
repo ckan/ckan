@@ -445,8 +445,8 @@ groups:
         description: Allow users to create datasets without registering and logging in.
 
       - key: ckan.auth.create_unowned_dataset
-        default: true
         type: bool
+        default: false
         example: "false"
         description: Allow the creation of datasets not owned by any organization.
 
