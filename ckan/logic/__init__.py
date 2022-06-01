@@ -510,6 +510,9 @@ def get_action(action: str) -> Action:
 
                 context = _prepopulate_context(context)
 
+                if data_dict is None:
+                    data_dict = {}
+
                 # Auth Auditing - checks that the action function did call
                 # check_access (unless there is no accompanying auth function).
                 # We push the action name and id onto the __auth_audit stack
