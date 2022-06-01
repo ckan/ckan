@@ -567,13 +567,20 @@ class CreateView(MethodView):
             pkg_dict = get_action(u'package_create')(context, data_dict)
 
             if ckan_phase:
-                # redirect to add dataset resources
-                url = h.url_for(
-                    u'{}_resource.new'.format(package_type),
-                    id=pkg_dict[u'name']
-                )
-                return h.redirect_to(url)
+                if config.get_value('ckan.dataset.create_on_ui_requires_resources'):
+                # redirect to add dataset resources if
+                # create_on_ui_requires_resources is set to true
+                    url = h.url_for(
+                        u'{}_resource.new'.format(package_type),
+                        id=pkg_dict[u'name']
+                    )
+                    return h.redirect_to(url)
 
+                get_action(u'package_update')(
+                    cast(Context, dict(context, allow_state_change=True)),
+                    dict(pkg_dict, state=u'active')
+                )
+                return h.redirect_to(u'{}.read'.format(package_type), id=pkg_dict["id"])
             return _form_save_redirect(
                 pkg_dict[u'name'], u'new', package_type=package_type
             )
