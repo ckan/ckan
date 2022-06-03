@@ -6,6 +6,7 @@ import json
 import logging
 from typing import Any, cast, Optional, Union
 
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
 
@@ -131,7 +132,8 @@ def read(package_type: str, id: str, resource_id: str) -> str:
 def download(package_type: str,
              id: str,
              resource_id: str,
-             filename: Optional[str] = None) -> Response:
+             filename: Optional[str] = None
+             ) -> Union[Response, WerkzeugResponse]:
     """
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
@@ -154,7 +156,8 @@ def download(package_type: str,
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        resp = cast(Response, flask.send_file(filepath))
+        resp = flask.send_file(filepath, download_name=filename)
+
         if rsc.get('mimetype'):
             resp.headers['Content-Type'] = rsc['mimetype']
         signals.resource_download.send(resource_id)
