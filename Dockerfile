@@ -116,9 +116,6 @@ chmod +x /wait-for-postgres.sh
 # Copy extensions into container and Install
 RUN  chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
 
-COPY ./contrib/docker/src/ckanext-geoview/pip-requirements.txt $CKAN_VENV/src/ckanext-geoview/pip-requirements.txt
-RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-geoview/pip-requirements.txt"
-
 COPY ./contrib/docker/src/ckanext-dcat/requirements.txt $CKAN_VENV/src/ckanext-dcat/requirements.txt
 RUN /bin/bash -c "source $CKAN_VENV/bin/activate && cd $CKAN_VENV/src && ckan-pip install -r ckanext-dcat/requirements.txt"
 

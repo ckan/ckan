@@ -726,7 +726,6 @@ copy updated extension code to the volumes
 ```bash
 cd ~/ckan/contrib/docker
 sudo cp -r src/ckanext-cioos_theme/ $VOL_CKAN_HOME/venv/src/
-sudo cp -r src/ckanext-googleanalyticsbasic $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-cioos_harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-harvest/ $VOL_CKAN_HOME/venv/src/
 sudo cp -r src/ckanext-spatial/ $VOL_CKAN_HOME/venv/src/
@@ -1107,7 +1106,7 @@ Delete and re clone the ckan repo.
 If you edit a harvester config and then reharvest the existing harvester will continue to use the in memory harvester config. To solve this you should reindex the harvesters and restart the harvester docker containers
 
 ```bash
-sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex 
+sudo docker exec -it ckan ckan --config=/etc/ckan/production.ini harvester reindex
 sudo docker-compose restart ckan_run_harvester ckan_fetch_harvester ckan_gather_harvester
 ```
 

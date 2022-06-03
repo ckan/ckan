@@ -46,3 +46,23 @@ note that when using the ckan spatial harvester, the catalogue you are harvestin
 from must have implomented our modified /api/2/search/dataset/geo endpoint to
 allow searching by polygon. The default endpoint only allows searching using
 bounding box.
+
+# Menu
+it is now possible to sync the menu items from a compatible wordpress site, into ckan. The wordpress instance must imploment the following endpoints
+```
+/wp-json/ra/menu/en
+/wp-json/ra/menu/fr
+```
+
+To use, first set the 'Custome Header Filename' config option to the appropriate value, for example `/menu/pacific_menu_list.html`.  If you are using an existing file then you could stop there. CKAN will pull the menu items from the appropriate template in the /menu/ folder.
+
+To sync menu items from a wordpress site we run the `menu create` CLI command.
+
+## CLI Command Usage
+```
+ckan  menu create --url [path to wordpress api endpoint] --output [output menu list file (default: /menu/menu_list.html)]
+```
+## Example
+```
+sudo docker exec -u root -it ckan  ckan --config /etc/ckan/production.ini menu create --url https://cioospacific.ca/wp-json/ra/menu/ --output /menu/pacific_menu_list.html
+```
