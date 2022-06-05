@@ -540,7 +540,7 @@ def _register_error_handler(app: CKANApp):
                 # same for user.perform_reset if the current_user.is_deleted()
                 # the view returns 403 hence we want to show the exception.
                 endpoints = tuple(
-                    ['utils.internal_redirect', 'user.perform_reset']
+                    ['util.internal_redirect', 'user.perform_reset']
                 )
                 if request.endpoint not in endpoints:
                     if current_user.is_anonymous and type(e) in (
