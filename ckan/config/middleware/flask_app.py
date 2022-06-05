@@ -17,7 +17,12 @@ from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
-from werkzeug.exceptions import default_exceptions, HTTPException
+from werkzeug.exceptions import (
+    default_exceptions,
+    HTTPException,
+    Unauthorized,
+    Forbidden
+)
 from werkzeug.routing import Rule
 from werkzeug.local import LocalProxy
 
@@ -29,11 +34,11 @@ from ckan.common import CKANConfig, asbool, session
 
 import ckan.model as model
 from ckan.lib import base
-from ckan.lib import helpers
+from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
-from ckan.common import config, g, request, ungettext
+from ckan.common import config, g, request, ungettext, current_user
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware,
                                                       RootPathMiddleware)
@@ -229,7 +234,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
-    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(h.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -395,11 +400,11 @@ def ckan_after_request(response: Response) -> Response:
     return response
 
 
-def helper_functions() -> dict[str, helpers.HelperAttributeDict]:
+def helper_functions() -> dict[str, h.HelperAttributeDict]:
     u'''Make helper functions (`h`) available to Flask templates'''
-    if not helpers.helper_functions:
-        helpers.load_plugin_helpers()
-    return dict(h=helpers.helper_functions)
+    if not h.helper_functions:
+        h.load_plugin_helpers()
+    return dict(h=h.helper_functions)
 
 
 def c_object() -> dict[str, LocalProxy]:
@@ -519,10 +524,36 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
-    @helpers._ckan_login_required
-    def error_handler(e: Exception) -> tuple[str, Optional[int]]:
+    def error_handler(e: Exception) -> Union[
+        tuple[str, Optional[int]], Optional[Response]
+    ]:
         debug = config.get_value('debug')
         if isinstance(e, HTTPException):
+            # If the current_user.is_anonymous and the
+            # Exception code is 401(Unauthorized)/403(Forbidden)
+            # force the users to log in before we check for their access.
+            # This logic will be ignored if the ckan.login_required_disabled
+            # is set to True, in your .ini file.
+            if not config.get_value('ckan.login_required.disabled'):
+                # if the url is not local we dont want to redirect the user
+                # instead, we want to show the actual 403(Forbidden)...
+                # same for user.perform_reset if the current_user.is_deleted()
+                # the view returns 403 hence we want to show the exception.
+                endpoints = tuple(
+                    ['utils.internal_redirect', 'user.perform_reset']
+                )
+                if request.endpoint not in endpoints:
+                    if current_user.is_anonymous and type(e) in (
+                        Unauthorized, Forbidden
+                    ):
+                        login_url = h.url_for('user.login', qualified=True)
+                        next_url = request.url
+                        redirect_url = h.make_login_url(
+                            login_url, next_url=next_url
+                        )
+                        h.flash('Please log in to access this page.')
+                        return h.redirect_to(redirect_url)
+
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
             else:
