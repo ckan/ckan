@@ -1062,12 +1062,12 @@ def user_invite(context: Context,
     data['name'] = name
     # send the proper schema when creating a user from here
     # so the password field would be ignored.
-    context['schema'] = ckan.logic.schema.create_user_for_user_invite_schema()
+    invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
+    
     data['state'] = model.State.PENDING
-    user_dict = _get_action('user_create')(context, data)
-    # we already created the user so we don't need the schema anymore
-    # as we are calling for other actions bellow
-    context.pop('schema')
+    user_dict = _get_action('user_create')(
+        cast(Context, dict(context, schema=invite_schema)),
+        data)
     user = model.User.get(user_dict['id'])
     assert user
     member_dict = {
@@ -1076,8 +1076,9 @@ def user_invite(context: Context,
         'role': data['role']
     }
 
-    _get_action(f'{group.type}_member_create')(context, member_dict)
-    group_dict = _get_action(f'{group.type}_show')(
+    org_or_group = 'organization' if group.is_organization else 'group'
+    _get_action(f'{org_or_group}_member_create')(context, member_dict)
+    group_dict = _get_action(f'{org_or_group}_show')(
         context, {'id': data['group_id']})
 
     try:
