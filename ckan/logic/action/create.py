@@ -1076,14 +1076,10 @@ def user_invite(context: Context,
         'role': data['role']
     }
 
-    if group.is_organization:
-        _get_action('organization_member_create')(context, member_dict)
-        group_dict = _get_action('organization_show')(context,
-                                                      {'id': data['group_id']})
-    else:
-        _get_action('group_member_create')(context, member_dict)
-        group_dict = _get_action('group_show')(context,
-                                               {'id': data['group_id']})
+    _get_action(f'{group.type}_member_create')(context, member_dict)
+    group_dict = _get_action(f'{group.type}_show')(context,
+                                                    {'id': data['group_id']})
+    breakpoint()
     try:
         mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:
