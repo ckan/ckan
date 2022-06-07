@@ -26,7 +26,7 @@ class TestOrganizationNew(object):
     def test_not_logged_in(self, app):
         res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fgroup%2Fnew" in res
+        assert "user/login?next=%2Fgroup%2Fnew" in res
 
     def test_name_required(self, app, user):
         url = url_for("organization.new")
@@ -566,7 +566,7 @@ class TestOrganizationMembership(object):
                 follow_redirects=False
             )
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Forganization%2Fmember_new%2F" in res
+            assert "user/login?next=%2Forganization%2Fmember_new%2F" in res
 
             res = app.post(
                 url_for("organization.member_new", id=organization["id"]),
