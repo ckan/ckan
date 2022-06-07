@@ -1063,7 +1063,7 @@ def user_invite(context: Context,
     # send the proper schema when creating a user from here
     # so the password field would be ignored.
     invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
-    
+
     data['state'] = model.State.PENDING
     user_dict = _get_action('user_create')(
         cast(Context, dict(context, schema=invite_schema)),
