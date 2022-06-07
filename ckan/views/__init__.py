@@ -97,7 +97,7 @@ def identify_user() -> Optional[Response]:
             if response:
                 return response
             try:
-                if g.user:
+                if current_user.is_authenticated or g.user:
                     break
             except AttributeError:
                 continue

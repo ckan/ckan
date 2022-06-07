@@ -15,19 +15,19 @@ def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
         return None
 
     login = identity['login']
-    user = User.by_name(login)
-    if not user:
-        user = User.by_email(login)
+    user_obj = User.by_name(login)
+    if not user_obj:
+        user_obj = User.by_email(login)
 
-    if user is None:
+    if user_obj is None:
         log.debug('Login failed - username or email %r not found', login)
-    elif not user.is_active():
+    elif not user_obj.is_active():
         log.debug('Login as %r failed - user isn\'t active', login)
-    elif not user.validate_password(identity['password']):
+    elif not user_obj.validate_password(identity['password']):
         log.debug('Login as %r failed - password not valid', login)
     else:
-        signals.successful_login.send(user.name)
-        return user
+        signals.successful_login.send(user_obj.name)
+        return user_obj
     signals.failed_login.send(login)
     return None
 
@@ -41,7 +41,7 @@ def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional["User"]:
     defined.
     """
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
-        response = item.authenticate(identity)
-        if response:
-            return response
+        user_obj = item.authenticate(identity)
+        if user_obj:
+            return user_obj
     return default_authenticate(identity)

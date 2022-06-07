@@ -15,6 +15,7 @@ import ckan.lib.base as base
 import ckan.lib.captcha as captcha
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
+import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.logic as logic
 import ckan.logic.schema as schema
@@ -35,14 +36,16 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-def set_repoze_user(user_id: str, resp: Response) -> None:
+@maintain.deprecated('''set_repoze_user() is deprecated and will be removed.
+                        Use login_user() instead''', since="2.10.0")
+def set_repoze_user(user_id: str, resp: Optional[Response] = None) -> None:
     """
-    This function exists only to maintain backward compatibility
+    This function is deprecated and will be removed.
+    It exists only to maintain backward compatibility
     to extensions like saml2auth.
     """
-    if current_user.is_anonymous:
-        user = model.User.get(user_id)
-        login_user(user)
+    user_obj = model.User.get(user_id)
+    login_user(user_obj)
 
 
 def _edit_form_to_db_schema() -> Schema:
@@ -484,7 +487,6 @@ def next_page_or_default(target: Optional[str]) -> Response:
     return me()
 
 
-@user.route("/login.html", methods=["GET", "POST"])
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
@@ -506,16 +508,16 @@ def login() -> Union[Response, str]:
             u"password": password
         }
 
-        userobj = authenticator.ckan_authenticator(identity)
-        if userobj:
+        user_obj = authenticator.ckan_authenticator(identity)
+        if user_obj:
             next = request.args.get('next', request.args.get('came_from'))
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
-                login_user(userobj, remember=True, duration=duration_time)
+                login_user(user_obj, remember=True, duration=duration_time)
                 return next_page_or_default(next)
             else:
-                login_user(userobj)
+                login_user(user_obj)
                 return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")
@@ -525,7 +527,6 @@ def login() -> Union[Response, str]:
     return base.render("user/login.html", extra_vars)
 
 
-@user.route("/logout.html", methods=["GET", "POST"])
 def logout() -> Response:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
@@ -867,7 +868,7 @@ user.add_url_rule(u'/edit/<id>', view_func=_edit_view)
 user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
-user.add_url_rule(u'/login', view_func=login)
+user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
 user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
