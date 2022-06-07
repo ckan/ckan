@@ -220,7 +220,7 @@ class TestOrganizationDelete(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Forganization%2Fdelete%2F" in res
+        assert "user/login?next=%2Forganization%2Fdelete%2F" in res
 
         organization = helpers.call_action(
             "organization_show", id=group["id"]
