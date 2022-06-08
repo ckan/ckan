@@ -5,6 +5,8 @@ import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
+import ckan.logic.schema as schema
+import ckan.model as model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
@@ -575,3 +577,18 @@ class TestOrganizationMembership(object):
                 },
                 status=403,
             )
+
+    def test_create_user_for_user_invite(self):
+        context = {"schema": schema.create_user_for_user_invite_schema()}
+
+        user_form = {
+            "email": "user@ckan.org",
+            "name": "user", 
+            "state": "pending"
+        }
+        user_dict = helpers.call_action("user_create", context, **user_form)
+        user_obj = model.User.get(user_dict["id"])
+
+        assert user_obj.password is None
+        assert user_obj.state == 'pending'
+        assert user_obj.last_active is None
