@@ -48,9 +48,12 @@ jobs:
       - name: Install python deps
         run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
 
-      - name: Init environment
+      - name: Init environment and create test users
         run: |
           ckan -c test-core-cypress.ini db init
+          ckan -c test-core-cypress.ini user add admin email=admin@ckan.org password=12345678
+          ckan -c test-core-cypress.ini sysadmin add admin
+          ckan -c test-core-cypress.ini user add test_user email=test_user@ckan.org password=12345678
 
       - name: Run Cypress
         uses: cypress-io/github-action@v2
