@@ -580,13 +580,12 @@ class TestOrganizationMembership(object):
                 follow_redirects=False
             )
 
-    def test_member_delete(self, app):
-        sysadmin = factories.Sysadmin()
+    def test_member_delete(self, app, sysadmin):
+        env = {"Authorization": sysadmin["token"]}
         user = factories.User()
         org = factories.Organization(
             users=[{"name": user["name"], "capacity": "member"}]
         )
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         # our user + test.ckan.net
         assert len(org["users"]) == 2
         with app.flask_app.test_request_context():
