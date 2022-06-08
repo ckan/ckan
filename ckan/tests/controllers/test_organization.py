@@ -579,3 +579,23 @@ class TestOrganizationMembership(object):
                 status=302,
                 follow_redirects=False
             )
+
+    def test_member_delete(self, app):
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+        org = factories.Organization(
+            users=[{"name": user["name"], "capacity": "member"}]
+        )
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+        # our user + test.ckan.net
+        assert len(org["users"]) == 2
+        with app.flask_app.test_request_context():
+            app.post(
+                url_for("organization.member_delete", id=org["id"], user=user["id"]),
+                extra_environ=env,
+            )
+            org = helpers.call_action('organization_show', id=org['id'])
+
+            # only test.ckan.net
+            assert len(org['users']) == 1
+            assert user["id"] not in org["users"][0]["id"]

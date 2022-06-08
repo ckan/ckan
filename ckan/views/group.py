@@ -559,7 +559,7 @@ def member_delete(id: str, group_type: str,
             })
             h.flash_notice(_(u'Group member has been deleted.'))
             return h.redirect_to(u'{}.members'.format(group_type), id=id)
-        user_dict = _action(u'group_show')(context, {u'id': user_id})
+        user_dict = _action(u'user_show')(context, {u'id': user_id})
 
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
@@ -568,7 +568,8 @@ def member_delete(id: str, group_type: str,
     extra_vars: dict[str, Any] = {
         u"user_id": user_id,
         u"user_dict": user_dict,
-        u"group_id": id
+        u"group_id": id,
+        u"group_type": group_type
     }
     return base.render(_replace_group_org(u'group/confirm_delete_member.html'),
                        extra_vars)
