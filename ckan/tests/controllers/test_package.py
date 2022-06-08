@@ -683,10 +683,10 @@ class TestPackageRead(object):
 
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
-            "member": factories.User(),
-            "editor": factories.User(),
-            "admin": factories.User(),
-            "sysadmin": factories.Sysadmin(),
+            "member": factories.UserWithToken(),
+            "editor": factories.UserWithToken(),
+            "admin": factories.UserWithToken(),
+            "sysadmin": factories.SysadminWithToken(),
         }
         organization = factories.Organization(
             users=[
@@ -697,12 +697,10 @@ class TestPackageRead(object):
         )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         for _, user_dict in members.items():
-            user_token = factories.APIToken(user=user_dict["name"])
-            env = {"Authorization": user_token["token"]}
+            env = {"Authorization": user_dict["token"]}
             response = app.get(url_for("dataset.read", id=dataset["name"]), extra_environ=env)
             assert dataset["title"] in response.body
             assert dataset["notes"] in response.body
-            app.post(url_for("user.logout"))
 
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
