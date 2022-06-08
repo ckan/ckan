@@ -103,7 +103,7 @@ class TextSearchMixin:
 
     Example:
         class MyModel(TextSearchMixin, Base):
-            text_search_fields = ["name]
+            text_search_fields = ["name"]
             name: str
             ...
 
