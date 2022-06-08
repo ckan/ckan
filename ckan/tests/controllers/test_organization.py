@@ -583,7 +583,7 @@ class TestOrganizationMembership(object):
 
         user_form = {
             "email": "user@ckan.org",
-            "name": "user", 
+            "name": "user",
             "state": "pending"
         }
         user_dict = helpers.call_action("user_create", context, **user_form)
