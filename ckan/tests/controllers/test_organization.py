@@ -5,7 +5,6 @@ import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
-import ckan.logic.schema as schema
 import ckan.model as model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
