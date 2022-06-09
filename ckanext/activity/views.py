@@ -490,41 +490,32 @@ def group_activity(
     id: str, group_type: str, is_organization: bool, offset: int = 0
 ) -> str:
     """Render this group's public activity stream page."""
-    extra_vars = {}
-    context = cast(
-        Context,
-        {
-            "user": tk.g.user,
-            "for_view": True,
-        },
-    )
+    
+    context = cast(Context, {"user": tk.g.user, "for_view": True})
+    
     try:
         group_dict = _get_group_dict(id, group_type)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
+    
+    action_name = "organization_activity_list"
+    if not group_dict.get("is_organization"):
+        action_name = "group_activity_list"
+    
     try:
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html
-        # template to retrieve later.
-        extra_vars["activity_stream"] = tk.get_action(
-            "organization_activity_list"
-            if group_dict.get("is_organization")
-            else "group_activity_list"
-        )(context, {"id": group_dict["id"], "offset": offset})
-
+        activity_stream = tk.get_action(action_name)(
+            context, {"id": group_dict["id"], "offset": offset}
+            )
     except tk.ValidationError as error:
         tk.abort(400, error.message or "")
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    tk.g.group_activity_stream = extra_vars["activity_stream"]
-    tk.g.group_dict = group_dict
-
+    extra_vars = {}
+    extra_vars["activity_stream"] = activity_stream
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
     extra_vars["id"] = id
+    
     return tk.render(
         _get_group_template("activity_template", group_type), extra_vars
     )
