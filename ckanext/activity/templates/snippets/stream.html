@@ -10,7 +10,6 @@
     <a href="{{ h.url_for(dataset_type ~ '.read', id=activity.object_id ) }}">
       {{ activity.data.package.title if activity.data.package else _("unknown") }}
     </a>
-    {# object_id because the object_name may be out of date) #}
   </span>
 {% endmacro %}
 
@@ -18,7 +17,6 @@
   <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>
-    {# object_id because the object_name may be out of date) #}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -32,7 +30,6 @@
   <a href="{{ h.url_for('group.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>
-    {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 
