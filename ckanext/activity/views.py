@@ -475,20 +475,14 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 @bp.route(
     "/group/activity/<id>/<int:offset>",
     endpoint="group_activity",
-    defaults={"is_organization": False, "group_type": "group", "offset": 0},
+    defaults={"group_type": "group", "offset": 0},
 )
 @bp.route(
     "/organization/activity/<id>/<int:offset>",
     endpoint="organization_activity",
-    defaults={
-        "is_organization": True,
-        "group_type": "organization",
-        "offset": 0,
-    },
+    defaults={"group_type": "organization", "offset": 0,},
 )
-def group_activity(
-    id: str, group_type: str, is_organization: bool, offset: int = 0
-) -> str:
+def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     """Render this group's public activity stream page."""
     
     context = cast(Context, {"user": tk.g.user, "for_view": True})
