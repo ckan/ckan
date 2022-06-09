@@ -325,7 +325,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         )
 
     return tk.render(
-        "package/activity.html",
+        "package/activity_stream.html",
         {
             "dataset_type": dataset_type,
             "pkg_dict": pkg_dict,
