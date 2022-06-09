@@ -3,5 +3,5 @@
 {% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
 
 {% block primary_content_inner %}
-  {% snippet 'snippets/activity_stream.html', activity_stream=activity_stream, id=id, object_type='group' %}
+  {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type='group' %}
 {% endblock %}
