@@ -496,8 +496,6 @@ def group_activity(
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
             "user": tk.g.user,
             "for_view": True,
         },
