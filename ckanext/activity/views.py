@@ -331,7 +331,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "activity_stream": package_activity_stream,
             "id": id,  # i.e. package's current name
             "limit": limit,
-            "has_more": has_more,
             "activity_type": activity_type,
             "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
             "prev_page": prev_page,
