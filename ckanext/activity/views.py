@@ -10,7 +10,6 @@ from flask import Blueprint
 import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.views.group import (
-    set_org,
     # TODO: don't use hidden funcitons
     _get_group_dict,
     _get_group_template,
@@ -492,7 +491,6 @@ def group_activity(
 ) -> str:
     """Render this group's public activity stream page."""
     extra_vars = {}
-    set_org(is_organization)
     context = cast(
         Context,
         {
@@ -546,7 +544,6 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     Shows the changes to an organization in one particular activity stream
     item.
     """
-    set_org(is_organization)
     extra_vars = {}
     activity_id = id
     context = cast(
@@ -606,7 +603,6 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     """
-    set_org(is_organization)
     extra_vars = {}
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
