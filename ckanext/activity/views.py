@@ -246,8 +246,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
             "user": tk.g.user,
             "for_view": True,
             "auth_user_obj": tk.g.userobj,
