@@ -10,6 +10,7 @@ from flask import Blueprint
 import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.views.group import (
+    set_org,
     # TODO: don't use hidden funcitons
     _get_group_dict,
     _get_group_template,
@@ -484,6 +485,9 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 )
 def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     """Render this group's public activity stream page."""
+    
+    if group_type == 'organization':
+        set_org(True)
     
     context = cast(Context, {"user": tk.g.user, "for_view": True})
     
