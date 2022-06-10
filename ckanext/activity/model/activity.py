@@ -237,15 +237,6 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     return q
 
 
-def _activities_at_offset(
-    q: QActivity, limit: int, offset: int
-) -> list[Activity]:
-    """
-    Return a list of all activities at an offset with a limit.
-    """
-    return _activities_limit(q, limit, offset).all()
-
-
 def _activities_from_user_query(user_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
@@ -284,7 +275,7 @@ def user_activity_list(
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _package_activity_query(package_id: str) -> QActivity:
@@ -468,7 +459,7 @@ def group_activity_list(
 
     """
     q = _group_activity_query(group_id, include_hidden_activity)
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def organization_activity_list(
@@ -488,7 +479,7 @@ def organization_activity_list(
 
     """
     q = _organization_activity_query(group_id, include_hidden_activity)
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _activities_from_users_followed_by_user_query(
@@ -576,7 +567,7 @@ def activities_from_everything_followed_by_user(
     q = _activities_from_everything_followed_by_user_query(
         user_id, limit + offset
     )
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _dashboard_activity_query(user_id: str, limit: int) -> QActivity:
@@ -602,7 +593,7 @@ def dashboard_activity_list(
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _changed_packages_activity_query() -> QActivity:
@@ -630,7 +621,7 @@ def recently_changed_packages_activity_list(
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _filter_activitites_from_users(q: QActivity) -> QActivity:
