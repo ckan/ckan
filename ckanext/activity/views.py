@@ -25,7 +25,10 @@ from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response
 from .model import Activity
-from .logic.validators import VALIDATORS_PACKAGE_ACTIVITY_TYPES
+from .logic.validators import (
+    VALIDATORS_PACKAGE_ACTIVITY_TYPES, 
+    VALIDATORS_GROUP_ACTIVITY_TYPES
+)
 
 
 log = logging.getLogger(__name__)
@@ -501,6 +504,8 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     if not group_dict.get("is_organization"):
         action_name = "group_activity_list"
     
+    activity_type = tk.h.get_request_param("activity_type")
+
     try:
         activity_stream = tk.get_action(action_name)(
             context, {"id": group_dict["id"], "offset": offset}
@@ -512,6 +517,8 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     extra_vars["activity_stream"] = activity_stream
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["activity_type"] = activity_type
+    extra_vars["activity_types"] = VALIDATORS_GROUP_ACTIVITY_TYPES.keys()
     extra_vars["id"] = id
     
     return tk.render(

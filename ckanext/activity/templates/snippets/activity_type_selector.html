@@ -6,6 +6,7 @@
   id - the id or current name of the object (e.g. package name, user id)
   activity_type - the current selected activity type
   activity_types - the list of activity types the user can filter on
+  blueprint - blueprint to call when selecting an activity type to filter by (eg: dataset.activity)
 #}
 
 {% set dataset_type = h.default_package_type() %}
@@ -13,11 +14,11 @@
 <div id="activity_types_filter" style="margin-bottom: 15px;" data-module="activity-stream">
   <label for="activity_types_filter_select">Activity type</label>
   <select id="activity_types_filter_select">
-    <option {% if not activity_types %}selected{% endif %} data-url="{{ h.url_for('dataset.activity', id=id) }}">
+    <option {% if not activity_types %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id) }}">
       {{ _('All activity types') }}
     </option>
     {% for type_ in activity_types %}
-      <option {% if activity_type == type_ %}selected{% endif %} data-url="{{ h.url_for('dataset.activity', id=id, activity_type=type_) }}">
+      <option {% if activity_type == type_ %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id, activity_type=type_) }}">
         {{ h.humanize_entity_type('activity', dataset_type, type_) }}
       </option>
     {% endfor %}
