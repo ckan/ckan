@@ -344,9 +344,7 @@ def package_activity_list(
     return results
 
 
-def _group_activity_query(
-    group_id: str, include_hidden_activity: bool = False
-) -> QActivity:
+def _group_activity_query(group_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
@@ -395,15 +393,10 @@ def _group_activity_query(
         )
     )
 
-    if not include_hidden_activity:
-        q = _filter_activitites_from_users(q)
-
     return q
 
 
-def _organization_activity_query(
-    org_id: str, include_hidden_activity: bool = False
-) -> QActivity:
+def _organization_activity_query(org_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about org_id.
 
     Returns a query for all activities whose object is either the org itself
@@ -435,8 +428,6 @@ def _organization_activity_query(
             )
         )
     )
-    if not include_hidden_activity:
-        q = _filter_activitites_from_users(q)
 
     return q
 
@@ -458,7 +449,11 @@ def group_activity_list(
     etc.
 
     """
-    q = _group_activity_query(group_id, include_hidden_activity)
+    q = _group_activity_query(group_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+    
     return _activities_limit(q, limit, offset).all()
 
 
@@ -478,7 +473,11 @@ def organization_activity_list(
     etc.
 
     """
-    q = _organization_activity_query(group_id, include_hidden_activity)
+    q = _organization_activity_query(group_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+    
     return _activities_limit(q, limit, offset).all()
 
 
