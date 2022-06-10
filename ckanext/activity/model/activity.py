@@ -437,6 +437,7 @@ def group_activity_list(
     limit: int,
     offset: int,
     include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
 
     """Return the given group's public activity stream.
@@ -453,6 +454,11 @@ def group_activity_list(
 
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types
+        )
     
     return _activities_limit(q, limit, offset).all()
 
@@ -462,6 +468,7 @@ def organization_activity_list(
     limit: int,
     offset: int,
     include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
     """Return the given org's public activity stream.
 
@@ -477,6 +484,11 @@ def organization_activity_list(
 
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)
+    
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types
+        )
     
     return _activities_limit(q, limit, offset).all()
 

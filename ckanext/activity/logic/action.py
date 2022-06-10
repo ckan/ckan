@@ -279,6 +279,7 @@ def group_activity_list(
     # authorized to read.
     data_dict = dict(data_dict, include_data=False)
     include_hidden_activity = data_dict.get("include_hidden_activity", False)
+    activity_types = data_dict.pop("activity_types", None)
     tk.check_access("group_activity_list", context, data_dict)
 
     group_id = data_dict.get("id")
@@ -294,6 +295,7 @@ def group_activity_list(
         limit=limit,
         offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -335,6 +337,7 @@ def organization_activity_list(
     org_id = data_dict.get("id")
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
+    activity_types = data_dict.pop("activity_types", None)
 
     # Convert org_id (could be id or name) into id.
     org_show = tk.get_action("organization_show")
@@ -345,6 +348,7 @@ def organization_activity_list(
         limit=limit,
         offset=offset,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
