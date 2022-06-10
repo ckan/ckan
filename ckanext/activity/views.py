@@ -26,7 +26,7 @@ from ckan.views.dataset import _setup_template_variables
 from ckan.types import Context, Response
 from .model import Activity
 from .logic.validators import (
-    VALIDATORS_PACKAGE_ACTIVITY_TYPES, 
+    VALIDATORS_PACKAGE_ACTIVITY_TYPES,
     VALIDATORS_GROUP_ACTIVITY_TYPES,
     VALIDATORS_ORGANIZATION_ACTIVITY_TYPES
 )
@@ -489,29 +489,29 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 )
 def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     """Render this group's public activity stream page."""
-    
+
     if group_type == 'organization':
         set_org(True)
-    
+
     context = cast(Context, {"user": tk.g.user, "for_view": True})
-    
+
     try:
         group_dict = _get_group_dict(id, group_type)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
-    
+
     action_name = "organization_activity_list"
     if not group_dict.get("is_organization"):
         action_name = "group_activity_list"
-    
+
     activity_type = tk.h.get_request_param("activity_type")
     activity_types = [activity_type] if activity_type else None
 
     try:
         activity_stream = tk.get_action(action_name)(
             context, {
-                "id": group_dict["id"], 
+                "id": group_dict["id"],
                 "offset": offset,
                 "activity_types": activity_types
                 }

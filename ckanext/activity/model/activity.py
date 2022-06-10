@@ -459,7 +459,7 @@ def group_activity_list(
         q = _filter_activitites_from_type(
             q, include=True, types=activity_types
         )
-    
+
     return _activities_limit(q, limit, offset).all()
 
 
@@ -484,12 +484,12 @@ def organization_activity_list(
 
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)
-    
+
     if activity_types:
         q = _filter_activitites_from_type(
             q, include=True, types=activity_types
         )
-    
+
     return _activities_limit(q, limit, offset).all()
 
 
