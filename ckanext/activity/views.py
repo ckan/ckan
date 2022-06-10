@@ -519,19 +519,20 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     except tk.ValidationError as error:
         tk.abort(400, error.message or "")
 
-    extra_vars = {}
-    extra_vars["activity_stream"] = activity_stream
-    extra_vars["group_type"] = group_type
-    extra_vars["group_dict"] = group_dict
-    extra_vars["activity_type"] = activity_type
-    extra_vars["id"] = id
-
     filter_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.copy()
     if group_type == 'organization':
        filter_types.update(VALIDATORS_ORGANIZATION_ACTIVITY_TYPES)
     else:
        filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
-    extra_vars["activity_types"] = filter_types.keys()
+
+    extra_vars = {
+        "id": id,
+        "activity_stream": activity_stream,
+        "group_type": group_type,
+        "group_dict": group_dict,
+        "activity_type": activity_type,
+        "activity_types": filter_types.keys()
+    }
 
     return tk.render(
         _get_group_template("activity_template", group_type), extra_vars
