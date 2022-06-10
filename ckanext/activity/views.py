@@ -485,7 +485,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 @bp.route(
     "/organization/activity/<id>/<int:offset>",
     endpoint="organization_activity",
-    defaults={"group_type": "organization", "offset": 0,},
+    defaults={"group_type": "organization", "offset": 0},
 )
 def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     """Render this group's public activity stream page."""
@@ -499,7 +499,6 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
         group_dict = _get_group_dict(id, group_type)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
-
 
     action_name = "organization_activity_list"
     if not group_dict.get("is_organization"):
@@ -521,9 +520,9 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
 
     filter_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.copy()
     if group_type == 'organization':
-       filter_types.update(VALIDATORS_ORGANIZATION_ACTIVITY_TYPES)
+        filter_types.update(VALIDATORS_ORGANIZATION_ACTIVITY_TYPES)
     else:
-       filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
+        filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
 
     extra_vars = {
         "id": id,
