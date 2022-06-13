@@ -245,26 +245,17 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
     after = tk.h.get_request_param("after")
     before = tk.h.get_request_param("before")
+
     activity_type = tk.h.get_request_param("activity_type")
+    activity_types = [activity_type] if activity_type else None
 
-    context = cast(
-        Context,
-        {
-            "user": tk.g.user,
-            "for_view": True,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
-
-    data_dict = {"id": id}
     base_limit = tk.config.get_value("ckan.activity_list_limit")
     max_limit = tk.config.get_value("ckan.activity_list_limit_max")
     limit = min(base_limit, max_limit)
-    activity_types = [activity_type] if activity_type else None
-    is_first_page = after is None and before is None
 
+    context = cast(Context,{"for_view": True,})
     try:
-        pkg_dict = tk.get_action("package_show")(context, data_dict)
+        pkg_dict = tk.get_action("package_show")(context, {"id": id})
         activity_dict = {
             "id": pkg_dict["id"],
             "after": after,
@@ -276,16 +267,12 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         package_activity_stream = tk.get_action("package_activity_list")(
             context, activity_dict
         )
-        dataset_type = pkg_dict["type"] or "dataset"
     except tk.ObjectNotFound:
         return tk.abort(404, tk._("Dataset not found"))
     except tk.NotAuthorized:
         return tk.abort(403, tk._("Unauthorized to read dataset %s") % id)
     except tk.ValidationError:
         return tk.abort(400, tk._("Invalid parameters"))
-
-    prev_page = None
-    next_page = None
 
     has_more = len(package_activity_stream) > limit
     # remove the extra item if exists
@@ -296,6 +283,9 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         else:
             # drop the last element
             package_activity_stream.pop()
+
+    prev_page = None
+    next_page = None
 
     # if "after", we came from the next page. So it exists
     # if "before" (or is_first_page), we only show next page if we know
@@ -328,7 +318,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     return tk.render(
         "package/activity_stream.html",
         {
-            "dataset_type": dataset_type,
+            "dataset_type": pkg_dict.get("type", "dataset"),
             "pkg_dict": pkg_dict,
             "activity_stream": package_activity_stream,
             "id": id,  # i.e. package's current name
