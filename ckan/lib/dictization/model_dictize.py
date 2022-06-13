@@ -37,8 +37,6 @@ import ckan.model as model
 from ckan.types import Context, Query
 from ckan.common import config
 
-from ckanext.collaborator_group.model import PackageGroupMember
-
 ## package save
 
 def group_list_dictize(
@@ -540,8 +538,7 @@ def user_list_dictize(
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
-def member_dictize(member: Union[
-    model.Member, model.PackageMember, PackageGroupMember],
+def member_dictize(member: Union[model.Member, model.PackageMember],
                    context: Context) -> dict[str, Any]:
     return d.table_dictize(member, context)
 

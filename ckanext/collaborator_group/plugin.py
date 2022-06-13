@@ -10,6 +10,7 @@ import ckanext.collaborator_group.views as views
 import ckanext.collaborator_group.logic.action as action
 import ckanext.collaborator_group.logic.auth as auth
 import ckanext.collaborator_group.helpers as helpers
+
 from ckanext.collaborator_group.cli import get_commands
 
 

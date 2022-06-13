@@ -70,7 +70,7 @@ def package_collaborator_create_group(
         )
     )
 
-    return model_dictize.member_dictize(collaborator, context)
+    return model_dictize.member_dictize(collaborator, context)  # type: ignore
 
 
 def package_collaborator_delete_group(

@@ -32,12 +32,12 @@ meta.mapper(PackageGroupMember, package_group_member_table)
 
 def create_tables():
     package_group_member_table.create()
-    log.info("Dataset collaborator organizations database tables created")
+    log.info("Dataset collaborator-group database tables created")
 
 
 def drop_tables():
     package_group_member_table.drop()
-    log.info("Dataset collaborator organizations database tables dropped")
+    log.info("Dataset collaborator-group database tables dropped")
 
 
 def tables_exist():

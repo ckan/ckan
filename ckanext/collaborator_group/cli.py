@@ -10,14 +10,14 @@ from ckanext.collaborator_group.model import (
 
 @click.group()
 def collaborator():
-    """Collaborator Organizations commands."""
+    """Collaborator Group commands."""
     pass
 
 
 @collaborator.command(name="init-db", short_help="Prepare database tables")
 def init_db():
     if tables_exist():
-        print("Dataset collaborators-group tables already exist")
+        print("Dataset collaborator-group tables already exist")
         sys.exit(0)
     create_tables()
     print("Dataset collaborator-group tables created")
@@ -46,4 +46,4 @@ def reset_db():
 
 
 def get_commands():
-    return [init_db, remove_db, reset_db]
+    return [collaborator]
