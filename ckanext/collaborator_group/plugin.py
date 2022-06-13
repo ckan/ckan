@@ -28,22 +28,32 @@ class CollaboratorGroupPlugin(p.SingletonPlugin, DefaultPermissionLabels):
 
     # IActions
     def get_actions(self) -> "dict[str, Action]":
-        actions = {
-            "package_collaborator_create_group": action.package_collaborator_create_group,
-            "package_collaborator_delete_group": action.package_collaborator_delete_group,
-            "package_collaborator_list_for_group": action.package_collaborator_list_for_group,
+        return {
+            "package_collaborator_create_group": (
+                action.package_collaborator_create_group
+            ),
+            "package_collaborator_delete_group": (
+                action.package_collaborator_delete_group
+            ),
+            "package_collaborator_list_for_group": (
+                action.package_collaborator_list_for_group
+            ),
         }
-        return actions
 
     # IAuthFunctions
     def get_auth_functions(self) -> "dict[str, AuthFunction]":
-        _auth: dict[str, AuthFunction] = {
-            "package_collaborator_create_group": auth.package_collaborator_create_group,
-            "package_collaborator_delete_group": auth.package_collaborator_delete_group,
+        return {
+            "package_collaborator_create_group": (
+                auth.package_collaborator_create_group
+            ),
+            "package_collaborator_delete_group": (
+                auth.package_collaborator_delete_group
+            ),
             "package_update": auth.package_update,  # type: ignore
-            "package_collaborator_list_for_group": auth.package_collaborator_list_for_group,
+            "package_collaborator_list_for_group": (
+                auth.package_collaborator_list_for_group
+            ),
         }
-        return _auth
 
     # IPermissionLabels
     def get_dataset_labels(self, dataset_obj: model.Package) -> "list[str]":
@@ -64,11 +74,10 @@ class CollaboratorGroupPlugin(p.SingletonPlugin, DefaultPermissionLabels):
 
     # ITemplateHelpers
     def get_helpers(self):  # type: ignore
-        _helpers = {
+        return {
             "linked_group": helpers.linked_group,
             "get_collaborators_group": helpers.get_collaborators_group,
         }
-        return _helpers
 
     # IClick
     def get_commands(self):
