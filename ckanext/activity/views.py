@@ -253,7 +253,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     max_limit = tk.config.get_value("ckan.activity_list_limit_max")
     limit = min(base_limit, max_limit)
 
-    context = cast(Context,{"for_view": True,})
+    context = cast(Context, {"for_view": True})
     try:
         pkg_dict = tk.get_action("package_show")(context, {"id": id})
         activity_dict = {
@@ -290,6 +290,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     # if "after", we came from the next page. So it exists
     # if "before" (or is_first_page), we only show next page if we know
     # we have more rows
+    is_first_page = after is None and before is None
     if after or (has_more and (before or is_first_page)):
         before_time = datetime.fromisoformat(
             package_activity_stream[-1]["timestamp"]
