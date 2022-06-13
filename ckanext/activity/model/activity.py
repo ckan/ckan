@@ -323,13 +323,8 @@ def package_activity_list(
     if before:
         q = q.filter(Activity.timestamp < before)
 
-    # revert sort queries for "only before" queries
-    revese_order = before and not after
-    if revese_order:
-        q = q.order_by(Activity.timestamp)
-    else:
-        # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+    # type_ignore_reason: incomplete SQLAlchemy types
+    q = q.order_by(Activity.timestamp.desc())  # type: ignore
 
     if offset:
         q = q.offset(offset)
@@ -338,9 +333,6 @@ def package_activity_list(
 
     results = q.all()
 
-    # revert result if required
-    if revese_order:
-        results.reverse()
     return results
 
 
