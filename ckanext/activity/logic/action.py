@@ -290,10 +290,15 @@ def group_activity_list(
     group_show = tk.get_action("group_show")
     group_id = group_show(context, {"id": group_id})["id"]
 
+    after = data_dict.get("after")
+    before = data_dict.get("before")
+
     activity_objects = model_activity.group_activity_list(
         group_id,
         limit=limit,
         offset=offset,
+        after=after,
+        before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types
     )
@@ -343,10 +348,16 @@ def organization_activity_list(
     org_show = tk.get_action("organization_show")
     org_id = org_show(context, {"id": org_id})["id"]
 
+    after = data_dict.get("after")
+    before = data_dict.get("before")
+
+
     activity_objects = model_activity.organization_activity_list(
         org_id,
         limit=limit,
         offset=offset,
+        after=after,
+        before=before,
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types
     )

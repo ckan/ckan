@@ -428,6 +428,8 @@ def group_activity_list(
     group_id: str,
     limit: int,
     offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
@@ -452,13 +454,30 @@ def group_activity_list(
             q, include=True, types=activity_types
         )
 
-    return _activities_limit(q, limit, offset).all()
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # type_ignore_reason: incomplete SQLAlchemy types
+    q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    return results
 
 
 def organization_activity_list(
     group_id: str,
     limit: int,
     offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
@@ -482,7 +501,22 @@ def organization_activity_list(
             q, include=True, types=activity_types
         )
 
-    return _activities_limit(q, limit, offset).all()
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # type_ignore_reason: incomplete SQLAlchemy types
+    q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    return results
 
 
 def _activities_from_users_followed_by_user_query(
