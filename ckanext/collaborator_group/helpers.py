@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model

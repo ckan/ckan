@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins.toolkit as tk

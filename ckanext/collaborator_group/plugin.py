@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from ckan.common import CKANConfig
 from ckan.lib.plugins import DefaultPermissionLabels
 from ckan.types import Action, AuthFunction
