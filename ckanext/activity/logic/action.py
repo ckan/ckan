@@ -351,7 +351,6 @@ def organization_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
-
     activity_objects = model_activity.organization_activity_list(
         org_id,
         limit=limit,

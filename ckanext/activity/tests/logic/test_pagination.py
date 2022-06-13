@@ -1,6 +1,5 @@
 import datetime
 import pytest
-import time
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -86,7 +85,6 @@ class TestActivityPagination(object):
         after_offset_limit_stream = helpers.call_action("package_activity_list",  context={}, id=dataset['id'], after=middle, offset=1, limit=1)
         assert len(after_offset_limit_stream) == 1
         assert after_offset_limit_stream[0]["data"]["package"]["notes"] == "Second Update"
-
 
     def test_organization_activity_pagination(self):
         """Test organization activity list filters."""
