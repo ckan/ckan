@@ -58,7 +58,7 @@ jobs:
       - name: Run Cypress
         uses: cypress-io/github-action@v2
         with:
-          start: ckan -c test-core-cypress.ini run
+          start: ckan -c test-core-cypress.ini run -t
 
       - uses: actions/upload-artifact@v1
         if: failure()
