@@ -33,10 +33,11 @@ describe('Login form', () => {
       cy.get('#field-login').type('admin')
       cy.get('#field-password').type('12345678')
       cy.get('.module-content > form').submit()
-      cy.get('.breadcrumb > .active > a').contains('Dashboard')
 
       cy.wait('@loginUrl')
+      cy.wait('@userDashboard')
 
+      cy.get('.breadcrumb > .active > a').contains('Dashboard')
       cy.url().should('include', '/dashboard')
       cy.getCookie('ckan').should('exist')
     })
