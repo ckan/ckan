@@ -18,59 +18,54 @@ describe('Login form', () => {
     })
 
     it('Displays bad input message when using wrong credentials', () => {
-        cy.visit('/user/login')
-        cy.get('#field-login').type('badusername')
-        cy.get('#field-password').type('badpassword')
-        cy.get('.form-actions > .btn').click()
+      cy.visit('/user/login')
+      cy.get('#field-login').type('badusername')
+      cy.get('#field-password').type('badpassword')
+      cy.get('.form-actions > .btn').click()
 
-        cy.wait('@loginUrl')
+      cy.wait('@loginUrl')
 
-        cy.get('.alert').contains('Login failed. Bad username or password.')
-      })
+      cy.get('.alert').contains('Login failed. Bad username or password.')
+    })
 
     it('Logs in with the proper credentials', () => {
-      cy.session('admin', () => {
-        cy.visit('/user/login')
-        cy.get('#field-login').type('admin')
-        cy.get('#field-password').type('12345678')
-        cy.get('.module-content > form').submit()
+      cy.visit('/user/login')
+      cy.get('#field-login').type('admin')
+      cy.get('#field-password').type('12345678')
+      cy.get('.module-content > form').submit()
 
-        cy.wait('@loginUrl')
-        cy.wait('@userDashboard')
+      cy.wait('@loginUrl')
+      cy.wait('@userDashboard')
 
-        cy.get('.breadcrumb > .active > a').contains('Dashboard')
-        cy.url().should('include', '/dashboard')
-        cy.getCookie('ckan').should('exist')
-      })
+      cy.get('.breadcrumb > .active > a').contains('Dashboard')
+      cy.url().should('include', '/dashboard')
+      cy.getCookie('ckan').should('exist')
     })
 
     it('Logs in using the email', () => {
-      cy.session('admin', () => {
-        cy.visit('/user/login')
-        cy.get('#field-login').type('admin@ckan.org')
-        cy.get('#field-password').type('12345678')
-        cy.get('.module-content > form').submit()
+      cy.visit('/user/login')
+      cy.get('#field-login').type('admin@ckan.org')
+      cy.get('#field-password').type('12345678')
+      cy.get('.module-content > form').submit()
 
-        cy.wait('@loginUrl')
-        cy.wait('@userDashboard')
+      cy.wait('@loginUrl')
+      cy.wait('@userDashboard')
 
-        cy.get('.breadcrumb > .active > a').contains('Dashboard')
-        cy.url().should('include', '/dashboard')
-        cy.get('.nav')
-          .should('contain.text', 'News feed')
-          .should('contain.text', 'My Datasets')
-          .should('contain.text', 'My Organizations')
-          .should('contain.text', 'My Groups')
+      cy.get('.breadcrumb > .active > a').contains('Dashboard')
+      cy.url().should('include', '/dashboard')
+      cy.get('.nav')
+        .should('contain.text', 'News feed')
+        .should('contain.text', 'My Datasets')
+        .should('contain.text', 'My Organizations')
+        .should('contain.text', 'My Groups')
 
-        cy.get('.activity')
-          .find('.actor').contains('Admin')
+      cy.get('.activity')
+        .find('.actor').contains('admin')
 
-        cy.getCookie('ckan').should('exist')
-      })
+      cy.getCookie('ckan').should('exist')
     })
 
     it('Loging using a POST request', function () {
-      cy.session('admin', () => {
         cy.request({
           method: 'POST',
           url: '/login_generic?came_from=/user/logged_in',
@@ -83,4 +78,3 @@ describe('Login form', () => {
         cy.getCookie('ckan').should('exist')
       })
     })
-  })
