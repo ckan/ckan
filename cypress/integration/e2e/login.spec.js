@@ -29,52 +29,58 @@ describe('Login form', () => {
       })
 
     it('Logs in with the proper credentials', () => {
-      cy.visit('/user/login')
-      cy.get('#field-login').type('admin')
-      cy.get('#field-password').type('12345678')
-      cy.get('.module-content > form').submit()
+      cy.session('admin', () => {
+        cy.visit('/user/login')
+        cy.get('#field-login').type('admin')
+        cy.get('#field-password').type('12345678')
+        cy.get('.module-content > form').submit()
 
-      cy.wait('@loginUrl')
-      cy.wait('@userDashboard')
+        cy.wait('@loginUrl')
+        cy.wait('@userDashboard')
 
-      cy.get('.breadcrumb > .active > a').contains('Dashboard')
-      cy.url().should('include', '/dashboard')
-      cy.getCookie('ckan').should('exist')
+        cy.get('.breadcrumb > .active > a').contains('Dashboard')
+        cy.url().should('include', '/dashboard')
+        cy.getCookie('ckan').should('exist')
+      })
     })
 
     it('Logs in using the email', () => {
-      cy.visit('/user/login')
-      cy.get('#field-login').type('admin@ckan.org')
-      cy.get('#field-password').type('12345678')
-      cy.get('.module-content > form').submit()
+      cy.session('admin', () => {
+        cy.visit('/user/login')
+        cy.get('#field-login').type('admin@ckan.org')
+        cy.get('#field-password').type('12345678')
+        cy.get('.module-content > form').submit()
 
-      cy.wait('@loginUrl')
-      cy.wait('@userDashboard')
+        cy.wait('@loginUrl')
+        cy.wait('@userDashboard')
 
-      cy.get('.breadcrumb > .active > a').contains('Dashboard')
-      cy.url().should('include', '/dashboard')
-      cy.get('.nav')
-        .should('contain.text', 'News feed')
-        .should('contain.text', 'My Datasets')
-        .should('contain.text', 'My Organizations')
-        .should('contain.text', 'My Groups')
+        cy.get('.breadcrumb > .active > a').contains('Dashboard')
+        cy.url().should('include', '/dashboard')
+        cy.get('.nav')
+          .should('contain.text', 'News feed')
+          .should('contain.text', 'My Datasets')
+          .should('contain.text', 'My Organizations')
+          .should('contain.text', 'My Groups')
 
-      cy.get('.activity')
-        .find('.actor').contains('admin')
+        cy.get('.activity')
+          .find('.actor').contains('Admin')
 
-      cy.getCookie('ckan').should('exist')
+        cy.getCookie('ckan').should('exist')
+      })
     })
 
     it('Loging using a POST request', function () {
-      cy.request({
-        method: 'POST',
-        url: '/login_generic?came_from=/user/logged_in',
-        form: true,
-        body: {
-          login: 'admin',
-          password: '12345678',
-        },
+      cy.session('admin', () => {
+        cy.request({
+          method: 'POST',
+          url: '/login_generic?came_from=/user/logged_in',
+          form: true,
+          body: {
+            login: 'admin',
+            password: '12345678',
+          },
+        })
+        cy.getCookie('ckan').should('exist')
       })
-      cy.getCookie('ckan').should('exist')
     })
   })
