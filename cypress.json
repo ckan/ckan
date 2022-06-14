@@ -1,5 +1,6 @@
 {
   "baseUrl": "http://localhost:5000/",
   "chromeWebSecurity": false,
+  "experimentalSessionAndOrigin": true,
   "defaultCommandTimeout": 200000
 }
