@@ -2,6 +2,7 @@ describe('Login form', () => {
 
     beforeEach(() => {
       cy.intercept('/login_generic?came_from=/user/logged_in').as('loginUrl')
+      cy.intercept('/dashboard').as('userDashboard')
      })
 
     it('Unauthorized to see dashboard if not logged in', () =>{
@@ -23,7 +24,7 @@ describe('Login form', () => {
         cy.get('.form-actions > .btn').click()
 
         cy.wait('@loginUrl')
-        
+
         cy.get('.alert').contains('Login failed. Bad username or password.')
       })
 
@@ -33,9 +34,9 @@ describe('Login form', () => {
       cy.get('#field-password').type('12345678')
       cy.get('.module-content > form').submit()
       cy.get('.breadcrumb > .active > a').contains('Dashboard')
-      
+
       cy.wait('@loginUrl')
-      
+
       cy.url().should('include', '/dashboard')
       cy.getCookie('ckan').should('exist')
     })
@@ -47,6 +48,7 @@ describe('Login form', () => {
       cy.get('.module-content > form').submit()
 
       cy.wait('@loginUrl')
+      cy.wait('@userDashboard')
 
       cy.get('.breadcrumb > .active > a').contains('Dashboard')
       cy.url().should('include', '/dashboard')
@@ -58,7 +60,7 @@ describe('Login form', () => {
 
       cy.get('.activity')
         .find('.actor').contains('admin')
-      
+
       cy.getCookie('ckan').should('exist')
     })
 
