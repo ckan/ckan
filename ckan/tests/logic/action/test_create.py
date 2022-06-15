@@ -1982,7 +1982,7 @@ class TestPackagePluginExtras(object):
         ).first()[0]
 
         assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
-        
+
     # def test_stored_on_create_if_sysadmin_and_use_cache_true(self):
 
     #     sysadmin = factories.Sysadmin()
