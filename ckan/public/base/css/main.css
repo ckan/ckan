@@ -13805,7 +13805,6 @@ td.diff_header {
     border-width: 0;
     box-shadow: 0;
     border-radius: 0;
-    display: -webkit-box;
     display: -webkit-flex;
     display: flex;
     -webkit-box-orient: vertical;
