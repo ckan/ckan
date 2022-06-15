@@ -156,7 +156,9 @@ def _execute(q: Select, table: Table, context: Context) -> Any:
     return result
 
 
-def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
+def package_dictize(
+    pkg: model.Package, context: Context, include_plugin_extras: bool = False
+    ) -> dict[str, Any]:
     '''
     Given a Package object, returns an equivalent dictionary.
     '''
@@ -172,6 +174,11 @@ def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
     # strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
+    # plguin_extras
+    plugin_extras = result_dict.pop('plugin_extras', None)
+    if include_plugin_extras:
+        result_dict['plugin_extras'] = copy.deepcopy(
+            plugin_extras) if plugin_extras else plugin_extras
 
     # resources
     res = model.resource_table
@@ -199,10 +206,10 @@ def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
         tag_dict['display_name'] = tag_dict['name']
 
     # extras - no longer revisioned, so always provide latest
-    extra = model.package_extra_table
-    q = select([extra]).where(extra.c["package_id"] == pkg.id)
-    result = execute(q, extra, context)
-    result_dict["extras"] = extras_list_dictize(result, context)
+    # extra = model.package_extra_table
+    # q = select([extra]).where(extra.c["package_id"] == pkg.id)
+    # result = execute(q, extra, context)
+    # result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
     member = model.member_table

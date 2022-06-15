@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import copy
 import datetime
 import uuid
 import logging
@@ -271,7 +272,8 @@ def relationship_list_save(
         relationship_list.append(relationship)
 
 def package_dict_save(
-        pkg_dict: dict[str, Any], context: Context) -> 'model.Package':
+        pkg_dict: dict[str, Any], context: Context, 
+        include_plugin_extras: bool = False) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
     if package:
@@ -282,6 +284,11 @@ def package_dict_save(
         del pkg_dict['metadata_created']
     if 'metadata_modified' in pkg_dict:
         del pkg_dict['metadata_modified']
+
+    plugin_extras = pkg_dict.pop('plugin_extras', None)    
+    if include_plugin_extras:
+        pkg_dict['plugin_extras'] = copy.deepcopy(
+            plugin_extras) if plugin_extras else plugin_extras
 
     pkg = d.table_dict_save(pkg_dict, Package, context)
 

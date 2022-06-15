@@ -1946,3 +1946,68 @@ class TestMemberCreate2:
                 object_type="notvalid",
                 capacity="member",
             )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginExtras(object):
+
+    def test_stored_on_create_if_sysadmin_and_use_cache_false(self):
+        sysadmin = factories.Sysadmin()
+
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_extras": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "use_cache": False
+        }
+        created_pkg = helpers.call_action(
+            'package_create', context=context, **pkg_dict
+        )
+        assert created_pkg["plugin_extras"] == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }
+
+        plugin_extras_from_db = model.Session.execute(  # type: ignore
+            'SELECT plugin_extras FROM "package" WHERE id=:id',  # type: ignore
+            {'id': created_pkg['id']}
+        ).first()[0]
+
+        assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
+        
+    # def test_stored_on_create_if_sysadmin_and_use_cache_true(self):
+
+    #     sysadmin = factories.Sysadmin()
+
+    #     pkg_dict = {
+    #         "name": "test-dataset",
+    #         "plugin_extras": {
+    #             "plugin1": {
+    #                 "key1": "value1"
+    #             }
+    #         }
+    #     }
+    #     context = {"user": sysadmin["name"], "ignore_auth": False}
+    #     created_pkg = helpers.call_action(
+    #         'package_create', context=context, **pkg_dict
+    #     )
+    #     assert created_pkg["plugin_extras"] == {
+    #         "plugin1": {
+    #             "key1": "value1"
+    #         }
+    #     }
+
+    #     plugin_extras_from_db = model.Session.execute(  # type: ignore
+    #         'SELECT plugin_extras FROM "package" WHERE id=:id',  # type: ignore
+    #         {'id': created_pkg['id']}
+    #     ).first()[0]
+
+    #     assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}

@@ -185,13 +185,15 @@ def package_create(
         model.Session.rollback()
         raise ValidationError(errors)
 
+    plugin_extras = data.get('plugin_extras', False)
+    include_plugin_extras = False
     if user:
-
         user_obj = model.User.by_name(six.ensure_text(user))
         if user_obj:
             data['creator_user_id'] = user_obj.id
+            include_plugin_extras = user_obj.sysadmin and plugin_extras
 
-    pkg = model_save.package_dict_save(data, context)
+    pkg = model_save.package_dict_save(data, context, include_plugin_extras)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()

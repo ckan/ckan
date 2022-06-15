@@ -988,6 +988,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     '''
     model = context['model']
+    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
@@ -999,7 +1000,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         raise NotFound
 
     context['package'] = pkg
-
     _check_access('package_show', context, data_dict)
 
     if data_dict.get('use_default_schema', False):
@@ -1009,6 +1009,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     package_dict = None
     use_cache = (context.get('use_cache', True))
     package_dict_validated = False
+    include_plugin_extras = False
 
     if use_cache:
         try:
@@ -1032,7 +1033,12 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        package_dict = model_dictize.package_dictize(pkg, context)
+        if user_obj:
+            plugin_extras = asbool(pkg.plugin_extras)
+            include_plugin_extras = user_obj.sysadmin and plugin_extras
+        package_dict = model_dictize.package_dictize(
+            pkg, context, include_plugin_extras
+        )
         package_dict_validated = False
 
     if include_tracking:

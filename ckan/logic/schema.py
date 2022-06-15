@@ -119,7 +119,8 @@ def default_create_package_schema(
         ignore_not_package_admin: Validator, boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
-        owner_org_validator: Validator):
+        owner_org_validator: Validator, json_object: Validator,
+        ignore_not_sysadmin: Validator):
     return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -147,7 +148,7 @@ def default_create_package_schema(
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
-        'extras': default_extras_schema(),
+        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
         'save': [ignore],
         'return_to': [ignore],
         'relationships_as_object': default_relationship_schema(),
