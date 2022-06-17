@@ -283,7 +283,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             )
 
     prev_page = None
-    if offset :
+    if offset:
         prev_offset = offset - limit
         if prev_offset < 0:
             prev_offset = 0
@@ -516,7 +516,7 @@ def group_activity(id: str, group_type: str) -> str:
             )
 
     prev_page = None
-    if offset :
+    if offset:
         prev_offset = offset - limit
         if prev_offset < 0:
             prev_offset = 0

@@ -6,6 +6,7 @@ import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
+
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("clean_db", "with_plugins", "reset_index")
 @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
@@ -26,26 +27,26 @@ class TestPagination():
             )
 
         # Test initial pagination buttons are rendered correctly
-        url = tk.url_for("dataset.activity", id = dataset["id"])
+        url = tk.url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
 
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
         assert f'<a href="/dataset/activity/{dataset["id"]}?offset=5" class="btn btn-default">Older activities</a>' in response.body
 
-        url = tk.url_for("activity.organization_activity", id = org["id"])
+        url = tk.url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
 
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
         assert f'<a href="/organization/activity/{org["id"]}?offset=5" class="btn btn-default">Older activities</a>' in response.body
 
         # Test offset pagination
-        url = tk.url_for("dataset.activity", id = dataset["id"], offset=5)
+        url = tk.url_for("dataset.activity", id=dataset["id"], offset=5)
         response = app.get(url)
 
         assert f'<a href="/dataset/activity/{dataset["id"]}?offset=0" class="btn btn-default">Newer activities</a>' in response.body
-        assert f'<a href="None" class="btn disabled">Older activities</a>' in response.body
+        assert '<a href="None" class="btn disabled">Older activities</a>' in response.body
 
-        url = tk.url_for("activity.organization_activity", id = org["id"], offset=5)
+        url = tk.url_for("activity.organization_activity", id=org["id"], offset=5)
         response = app.get(url)
 
         assert f'<a href="/organization/activity/{org["id"]}?offset=0" class="btn btn-default">Newer activities</a>' in response.body
