@@ -5,6 +5,7 @@ import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
+import ckan.model as model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
@@ -575,6 +576,24 @@ class TestOrganizationMembership(object):
                 },
                 status=403,
             )
+
+    def test_create_user_for_user_invite(self, mail_server):
+        group = factories.Group()
+        sysadmin = factories.Sysadmin()
+        context = {"user": sysadmin["name"]}
+
+        user_form = {
+            "email": "user@ckan.org",
+            "group_id": group["id"],
+            "role": "member"
+        }
+
+        user_dict = helpers.call_action("user_invite", context, **user_form)
+        user_obj = model.User.get(user_dict["id"])
+
+        assert user_obj.password is None
+        assert user_obj.state == 'pending'
+        assert user_obj.last_active is None
 
     def test_member_delete(self, app):
         sysadmin = factories.Sysadmin()
