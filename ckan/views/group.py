@@ -190,8 +190,8 @@ def index(group_type: str, is_organization: bool) -> str:
         u'type': group_type or u'group',
         u'limit': items_per_page,
         u'offset': items_per_page * (page - 1),
-        u'include_extras': True
-    }
+        u'include_extras': True,
+        }
     page_results = _action(u'group_list')(context, data_dict_page_results)
 
     extra_vars["page"] = h.Page(
@@ -222,7 +222,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         u'for_view': True,
         u'extras_as_string': True
     })
-
     q = request.args.get(u'q', u'')
 
     # TODO: Remove
@@ -321,6 +320,9 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 
     extra_vars["facet_titles"] = facets
 
+    include_drafts = True\
+        if request.endpoint == '{}.bulk_process'.format(group_type) else False
+
     data_dict: dict[str, Any] = {
         u'q': q,
         u'fq': fq,
@@ -329,7 +331,8 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         u'rows': limit,
         u'sort': sort_by,
         u'start': (page - 1) * limit,
-        u'extras': search_extras
+        u'extras': search_extras,
+        u'include_drafts': include_drafts
     }
 
     context_ = cast(
