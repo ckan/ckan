@@ -871,8 +871,9 @@ class TestUser(object):
         assert userobj.is_deleted(), userobj
 
     def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
-        sysadmin  = factories.Sysadmin(password="correct123")
-        deleted_user =  factories.User(state="deleted")
+
+        sysadmin = factories.Sysadmin(password="correct123")
+        deleted_user = factories.User(state="deleted")
 
         env = {"REMOTE_USER": sysadmin["name"]}
         data = {
