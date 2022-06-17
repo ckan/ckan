@@ -5,6 +5,7 @@ import ckan.model as model
 
 from IPython import start_ipython
 
+
 @click.command()
 @click.help_option(u'-h', u'--help')
 @click.pass_context
