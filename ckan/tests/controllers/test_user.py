@@ -870,6 +870,27 @@ class TestUser(object):
         userobj = model.User.get(userobj.id)
         assert userobj.is_deleted(), userobj
 
+    def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
+        sysadmin  = factories.Sysadmin(password="correct123")
+        deleted_user =  factories.User(state="deleted")
+
+        env = {"REMOTE_USER": sysadmin["name"]}
+        data = {
+            "name": deleted_user["name"],
+            "id": deleted_user["id"],
+            "activate_user": True,
+            "email": deleted_user["email"],
+            "old_password": "correct123",
+            "password1": "",
+            "password2": "",
+            "save": ""
+        }
+        url = url_for("user.edit", id=deleted_user["name"])
+        app.post(url, extra_environ=env, data=data)
+
+        user = model.User.get(deleted_user["name"])
+        assert user.state == "active"
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestUserImage(object):

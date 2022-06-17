@@ -305,6 +305,13 @@ class EditView(MethodView):
 
         data_dict[u'id'] = id
 
+        # deleted user can be reactivated by sysadmin on WEB-UI
+        if asbool(data_dict.get('activate_user', False)):
+            # if activate_user is checked, change the user's state to active
+            data_dict['state'] = 'active'
+            # pop the value as we don't want to send it for
+            # validation on user_update
+            data_dict.pop('activate_user')
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
