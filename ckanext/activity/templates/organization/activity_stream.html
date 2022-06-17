@@ -9,4 +9,6 @@
   {% endif %}
 
   {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type='organization' %}
+
+  {% snippet 'snippets/pagination.html', prev_page=prev_page, next_page=next_page %}
 {% endblock %}

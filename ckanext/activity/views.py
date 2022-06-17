@@ -243,8 +243,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 @bp.route("/dataset/activity/<id>")
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
+    offset = int(tk.h.get_request_param("offset", 0))
 
     activity_type = tk.h.get_request_param("activity_type")
     activity_types = [activity_type] if activity_type else None
@@ -258,9 +257,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         pkg_dict = tk.get_action("package_show")(context, {"id": id})
         activity_dict = {
             "id": pkg_dict["id"],
-            "after": after,
-            "before": before,
-            # ask for one more just to know if this query has more results
+            "offset": offset,
             "limit": limit + 1,
             "activity_types": activity_types,
         }
@@ -274,46 +271,27 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     except tk.ValidationError:
         return tk.abort(400, tk._("Invalid parameters"))
 
-    has_more = len(package_activity_stream) > limit
-    # remove the extra item if exists
-    if has_more:
-        if after:
-            # drop the first element
-            package_activity_stream.pop(0)
-        else:
-            # drop the last element
-            package_activity_stream.pop()
-
-    prev_page = None
     next_page = None
-
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    is_first_page = after is None and before is None
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            package_activity_stream[-1]["timestamp"]
-        )
+    has_more = len(package_activity_stream) > limit
+    if has_more:
+        package_activity_stream.pop()
         next_page = tk.h.url_for(
             "dataset.activity",
             id=id,
             activity_type=activity_type,
-            before=before_time.timestamp(),
-        )
+            offset=offset + limit,
+            )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            package_activity_stream[0]["timestamp"]
-        )
+    prev_page = None
+    if offset :
+        prev_offset = offset - limit
+        if prev_offset < 0:
+            prev_offset = 0
         prev_page = tk.h.url_for(
             "dataset.activity",
             id=id,
             activity_type=activity_type,
-            after=after_time.timestamp(),
+            offset=prev_offset,
         )
 
     return tk.render(
@@ -469,16 +447,16 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 
 
 @bp.route(
-    "/group/activity/<id>/<int:offset>",
+    "/group/activity/<id>",
     endpoint="group_activity",
-    defaults={"group_type": "group", "offset": 0},
+    defaults={"group_type": "group"},
 )
 @bp.route(
-    "/organization/activity/<id>/<int:offset>",
+    "/organization/activity/<id>",
     endpoint="organization_activity",
-    defaults={"group_type": "organization", "offset": 0},
+    defaults={"group_type": "organization"},
 )
-def group_activity(id: str, group_type: str, offset: int = 0) -> str:
+def group_activity(id: str, group_type: str) -> str:
     """Render this group's public activity stream page."""
 
     if group_type == 'organization':
@@ -498,11 +476,18 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     activity_type = tk.h.get_request_param("activity_type")
     activity_types = [activity_type] if activity_type else None
 
+    base_limit = tk.config.get_value("ckan.activity_list_limit")
+    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    limit = min(base_limit, max_limit)
+
+    offset = int(tk.h.get_request_param("offset", 0))
+
     try:
         activity_stream = tk.get_action(action_name)(
             context, {
                 "id": group_dict["id"],
                 "offset": offset,
+                "limit": limit + 1,
                 "activity_types": activity_types
                 }
             )
@@ -515,13 +500,42 @@ def group_activity(id: str, group_type: str, offset: int = 0) -> str:
     else:
         filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
 
+    activity_url = 'activity.organization_activity'
+    if not group_dict.get("is_organization"):
+        activity_url = "activity.group_activity"
+
+    next_page = None
+    has_more = len(activity_stream) > limit
+    if has_more:
+        activity_stream.pop()
+        next_page = tk.h.url_for(
+            activity_url,
+            id=id,
+            activity_type=activity_type,
+            offset=offset+limit
+            )
+
+    prev_page = None
+    if offset :
+        prev_offset = offset - limit
+        if prev_offset < 0:
+            prev_offset = 0
+        prev_page = tk.h.url_for(
+            activity_url,
+            id=id,
+            activity_type=activity_type,
+            offset=prev_offset
+        )
+
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
         "group_type": group_type,
         "group_dict": group_dict,
         "activity_type": activity_type,
-        "activity_types": filter_types.keys()
+        "activity_types": filter_types.keys(),
+        "prev_page": prev_page,
+        "next_page": next_page
     }
 
     return tk.render(
