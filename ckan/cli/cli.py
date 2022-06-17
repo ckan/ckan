@@ -30,7 +30,8 @@ from . import (
     user,
     views,
     config_tool,
-    error_shout
+    error_shout,
+    shell
 )
 
 META_ATTR = u'_ckan_meta'
@@ -227,3 +228,4 @@ ckan.add_command(tracking.tracking)
 ckan.add_command(translation.translation)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
+ckan.add_command(shell.shell)
