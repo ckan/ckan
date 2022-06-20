@@ -30,7 +30,7 @@ class TemplateController(base.BaseController):
         Found)
         """
         try:
-            url = unicode(url.encode('utf-8'))
+            url = unicode(url.encode(u'utf-8'))
         except UnicodeDecodeError, UnicodeEncodeError:
             return base.abort(404)
         if url.endswith(u'.txt'):
