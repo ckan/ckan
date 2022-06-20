@@ -73,7 +73,7 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+        Column('plugin_data', MutableDict.as_mutable(JSONB)),
 )
 
 
@@ -110,7 +110,7 @@ class Package(core.StatefulObjectMixin,
     metadata_modified: datetime.datetime
     private: bool
     state: str
-    plugin_extras: dict[str, Any]
+    plugin_data: dict[str, Any]
 
     package_tags: list["PackageTag"]
 

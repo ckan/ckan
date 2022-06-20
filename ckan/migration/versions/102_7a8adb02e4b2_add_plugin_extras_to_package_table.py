@@ -21,11 +21,11 @@ def upgrade():
     op.add_column(
         u'package',
         sa.Column(
-            u'plugin_extras',
+            u'plugin_data',
             postgresql.JSONB(astext_type=sa.Text()),
             nullable=True)
     )
 
 
 def downgrade():
-    op.drop_column(u'package', u'plugin_extras')
+    op.drop_column(u'package', u'plugin_data')

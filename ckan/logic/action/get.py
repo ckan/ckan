@@ -984,6 +984,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param include_tracking: add tracking information to dataset and
         resources (default: ``False``)
     :type include_tracking: bool
+    :param include_plugin_data: Include the internal plugin data object
+        (sysadmin only, optional, default:``False``)
+    :type: include_plugin_data: bool
     :rtype: dictionary
 
     '''
@@ -1009,7 +1012,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     package_dict = None
     use_cache = (context.get('use_cache', True))
     package_dict_validated = False
-    include_plugin_extras = False
+    include_plugin_data = data_dict.get('include_plugin_data', False)
 
     if use_cache:
         try:
@@ -1034,10 +1037,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     if not package_dict:
         if user_obj:
-            plugin_extras = asbool(pkg.plugin_extras)
-            include_plugin_extras = user_obj.sysadmin and plugin_extras
+            include_plugin_data = user_obj.sysadmin and include_plugin_data
         package_dict = model_dictize.package_dictize(
-            pkg, context, include_plugin_extras
+            pkg, context, include_plugin_data
         )
         package_dict_validated = False
 

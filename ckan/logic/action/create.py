@@ -115,6 +115,22 @@ def package_create(
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string)
     :type extras: list of dataset extra dictionaries
+    :param plugin_data: private package data belonging to plugins.
+        Only sysadmin users may set this value. It should be a dict that can
+        be dumped into JSON, and plugins should namespace their data with the
+        plugin name to avoid collisions with other plugins, eg::
+            {
+                "name": "test-dataset",
+                "plugin_data": {
+                    "plugin1": {
+                        "key1": "value1"
+                    },
+                    "plugin2: {
+                        "key2": "value2"
+                    }
+                }
+            }
+    :type plugin_data: dict
     :param relationships_as_object: see :py:func:`package_relationship_create`
         for the format of relationship dictionaries (optional)
     :type relationships_as_object: list of relationship dictionaries
@@ -185,15 +201,15 @@ def package_create(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    plugin_extras = data.get('plugin_extras', False)
-    include_plugin_extras = False
+    plugin_data = data.get('plugin_data', False)
+    include_plugin_data = False
     if user:
         user_obj = model.User.by_name(six.ensure_text(user))
         if user_obj:
             data['creator_user_id'] = user_obj.id
-            include_plugin_extras = user_obj.sysadmin and plugin_extras
+            include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_extras)
+    pkg = model_save.package_dict_save(data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
@@ -234,7 +250,8 @@ def package_create(
         return pkg.id
 
     return _get_action('package_show')(
-        context.copy(), {'id': pkg.id}
+        context.copy(),
+        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
     )
 
 

@@ -1949,14 +1949,14 @@ class TestMemberCreate2:
 
 
 @pytest.mark.usefixtures("clean_db")
-class TestPackagePluginExtras(object):
+class TestPackagePluginData(object):
 
-    def test_stored_on_create_if_sysadmin_and_use_cache_false(self):
+    def test_stored_on_create_and_update_if_sysadmin_and_use_cache_false(self):
         sysadmin = factories.Sysadmin()
 
         pkg_dict = {
             "name": "test-dataset",
-            "plugin_extras": {
+            "plugin_data": {
                 "plugin1": {
                     "key1": "value1"
                 }
@@ -1968,46 +1968,56 @@ class TestPackagePluginExtras(object):
             "use_cache": False
         }
         created_pkg = helpers.call_action(
-            'package_create', context=context, **pkg_dict
+            "package_create", context=context, **pkg_dict
         )
-        assert created_pkg["plugin_extras"] == {
+        assert created_pkg["plugin_data"] == {
             "plugin1": {
                 "key1": "value1"
             }
         }
-
         plugin_extras_from_db = model.Session.execute(  # type: ignore
-            'SELECT plugin_extras FROM "package" WHERE id=:id',  # type: ignore
-            {'id': created_pkg['id']}
+            'SELECT plugin_data FROM "package" WHERE id=:id',  # type: ignore
+            {'id': created_pkg["id"]}
         ).first()[0]
 
         assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
 
-    # def test_stored_on_create_if_sysadmin_and_use_cache_true(self):
+        pkg_dict = {
+            "id": created_pkg["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+        assert updated_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value"
+            }
+        }
 
-    #     sysadmin = factories.Sysadmin()
+    def test_ignored_on_create_if_non_sysadmin_and_use_cache_false(self):
+        user = factories.User()
 
-    #     pkg_dict = {
-    #         "name": "test-dataset",
-    #         "plugin_extras": {
-    #             "plugin1": {
-    #                 "key1": "value1"
-    #             }
-    #         }
-    #     }
-    #     context = {"user": sysadmin["name"], "ignore_auth": False}
-    #     created_pkg = helpers.call_action(
-    #         'package_create', context=context, **pkg_dict
-    #     )
-    #     assert created_pkg["plugin_extras"] == {
-    #         "plugin1": {
-    #             "key1": "value1"
-    #         }
-    #     }
-
-    #     plugin_extras_from_db = model.Session.execute(  # type: ignore
-    #         'SELECT plugin_extras FROM "package" WHERE id=:id',  # type: ignore
-    #         {'id': created_pkg['id']}
-    #     ).first()[0]
-
-    #     assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+            "use_cache": False
+        }
+        created_pkg = helpers.call_action(
+            'package_create', context=context, **pkg_dict
+        )
+        assert "plugin_data" not in created_pkg
+        pkg = model.Package.get(created_pkg["id"])
+        assert pkg.plugin_data is None
