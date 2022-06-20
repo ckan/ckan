@@ -881,7 +881,7 @@ def test_decode_view_request_filters(test_request_context):
     # specific returns specfic
     ({"notes": "untranslated",
       "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'en_GB', 'en_GB'),
-     # variant returns base
+    # variant returns base
     ({"notes": "untranslated",
       "notes_translated": {'en': 'en'}}, 'en_GB', 'en'),
     # Null case, falls all the way through.
