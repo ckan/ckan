@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Add plugin_extras to package table
 
 Revision ID: 7a8adb02e4b2

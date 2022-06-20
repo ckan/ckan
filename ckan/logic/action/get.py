@@ -1012,7 +1012,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     package_dict = None
     use_cache = (context.get('use_cache', True))
     package_dict_validated = False
-    include_plugin_data = data_dict.get('include_plugin_data', False)
+    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
 
     if use_cache:
         try:
