@@ -69,12 +69,12 @@ def resource_update(context, data_dict):
         data_dict['url'] = ''
 
     resource = model.Resource.get(id)
-    context["resource"] = resource
-    old_resource_format = resource.format
-
     if not resource:
         log.debug('Could not find resource %s', id)
         raise NotFound(_('Resource was not found.'))
+
+    context["resource"] = resource
+    old_resource_format = resource.format
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
