@@ -21,7 +21,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       let datatable = jQuery('#dtprv').DataTable({
         initComplete: function( _settings, _json ){
           // Adds download dropdown to buttons menu
-          let tableInstance = jQuery('#dtprv').DataTable();
+          let tableWrapper = jQuery('#dtprv_wrapper');
+          let processingContainer = jQuery(tableWrapper).find('#dtprv_processing');
+          if ( processingContainer.length > 0 ){
+            processingContainer.css({
+              'z-index': '2',
+            });
+          }
+          let tableInstance = jQuery(tableWrapper).find('#dtprv').DataTable();
           tableInstance.button().add(2, {
             text: ckan.i18n._('Download'),
             extend: 'collection',
@@ -55,6 +62,17 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }]
           });
+        },
+        drawCallback: function( _settings ){
+          // fixes "Processing..." div visualization
+          let tableWrapper = jQuery('#dtprv_wrapper');
+          let processingContainer = jQuery(tableWrapper).find('#dtprv_processing');
+          if ( processingContainer.length > 0 ){
+            processingContainer.css({
+              'display': 'none',
+              'z-index': '2',
+            });
+          }
         },
         language: langConfig,
       });
