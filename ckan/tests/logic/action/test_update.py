@@ -2346,3 +2346,101 @@ class TestTermTranslations:
             ],
             key=dict.items,
         )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+    def test_stored_on_update_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        dataset = factories.Dataset(
+            plugin_data= {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "use_cache": False
+        }
+
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+        assert updated_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data from "package" where id=:id',
+            {"id": dataset["id"]}
+        ).first()
+
+        assert plugin_data_from_db[0] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            plugin_data= {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+            "use_cache": False
+        }
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+
+        assert "plugin_data" not in updated_pkg
+        pkg = model.Package.get(dataset["id"])
+        assert pkg.plugin_data == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }

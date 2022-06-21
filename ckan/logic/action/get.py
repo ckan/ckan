@@ -991,7 +991,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     '''
     model = context['model']
-    user_obj = context.get('auth_user_obj')
+    user = context.get('user')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
@@ -1036,8 +1036,10 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        if user_obj:
-            include_plugin_data = user_obj.sysadmin and include_plugin_data
+        if user:
+            user_obj = model.User.get(user)
+            if user_obj:
+                include_plugin_data = user_obj.sysadmin and include_plugin_data
         package_dict = model_dictize.package_dictize(
             pkg, context, include_plugin_data
         )

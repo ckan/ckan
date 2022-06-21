@@ -3392,3 +3392,58 @@ class TestPackageList:
         factories.Dataset(private=True, owner_org=org["id"])
         packages = helpers.call_action("package_list")
         assert packages == [pkg1["name"]]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_data_only(self):
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            # use_cache=False to avoid solr search
+            "use_cache": False
+        }
+        # sysadmin and include_plugin_data = True
+        pkg_dict = helpers.call_action(
+            "package_show", 
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }
+
+        # sysadmin and include_plugin_data = False
+        pkg_dict = helpers.call_action(
+            "package_show", context=context, id=dataset["id"]
+        )
+        assert "plugin_data" not in pkg_dict
+
+        # non-sysadmin and include_plugin_data = True
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+            # use_cache=False to avoid solr search
+            "use_cache": False
+        }
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert "plugin_data" not in pkg_dict
