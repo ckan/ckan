@@ -765,7 +765,7 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
         return  # no links required for local actions
 
     # change the offset in the url
-    parsed = list(urlparse.urlparse(urlstring))
+    parsed = list(urlparse(urlstring))
     query = parsed[4]
 
     arguments = dict(parse_qsl(query))
