@@ -119,15 +119,12 @@ def package_create(
         Only sysadmin users may set this value. It should be a dict that can
         be dumped into JSON, and plugins should namespace their data with the
         plugin name to avoid collisions with other plugins, eg::
+
             {
                 "name": "test-dataset",
                 "plugin_data": {
-                    "plugin1": {
-                        "key1": "value1"
-                    },
-                    "plugin2: {
-                        "key2": "value2"
-                    }
+                    "plugin1": {"key1": "value1"},
+                    "plugin2": {"key2": "value2"}
                 }
             }
     :type plugin_data: dict
