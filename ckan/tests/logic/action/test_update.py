@@ -2354,7 +2354,7 @@ class TestPackagePluginData(object):
         sysadmin = factories.Sysadmin()
 
         dataset = factories.Dataset(
-            plugin_data= {
+            plugin_data={
                 "plugin1": {
                     "key1": "value1"
                 }
@@ -2413,7 +2413,7 @@ class TestPackagePluginData(object):
     def test_ignored_on_update_if_non_sysadmin(self):
         user = factories.User()
         dataset = factories.Dataset(
-            plugin_data= {
+            plugin_data={
                 "plugin1": {
                     "key1": "value1"
                 }

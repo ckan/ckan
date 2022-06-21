@@ -3416,7 +3416,7 @@ class TestPackagePluginData(object):
         }
         # sysadmin and include_plugin_data = True
         pkg_dict = helpers.call_action(
-            "package_show", 
+            "package_show",
             context=context,
             id=dataset["id"],
             include_plugin_data=True
