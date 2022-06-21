@@ -9,6 +9,7 @@ import pytest
 
 
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -586,9 +587,9 @@ class TestResourceCreate:
             "resource_create",
             package_id=dataset["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={u"someotherkey": u"alt234"},  # this isnt
+            extras={u"someotherkey": u"alt234"},  # this isn't
             subobject={u"hello": u"there"},  # JSON objects supported
-            sublist=[1, 2, 3],  # JSON lists suppoted
+            sublist=[1, 2, 3],  # JSON lists supported
             format=u"plain text",
             url=u"http://datahub.io/download/",
         )
@@ -653,6 +654,17 @@ class TestResourceCreate:
         )
 
         assert created_resource["name"] == "created by collaborator"
+
+    def test_resource_create_for_update(self):
+
+        dataset = factories.Dataset()
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -920,7 +932,7 @@ class TestDatasetCreate(object):
                     "alt_url": u"alt123",
                     "description": u"Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {u"someotherkey": u"alt234"},  # this isnt
+                    "extras": {u"someotherkey": u"alt234"},  # this isn't
                     "format": u"plain text",
                     "hash": u"abc123",
                     "position": 0,
@@ -1206,14 +1218,6 @@ class TestUserCreate(object):
         }
 
 
-def _clear_activities():
-    from ckan import model
-
-    model.Session.query(model.ActivityDetail).delete()
-    model.Session.query(model.Activity).delete()
-    model.Session.flush()
-
-
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollowCommon(object):
     def test_validation(self):
@@ -1262,16 +1266,6 @@ class TestFollowDataset(object):
             helpers.call_action("follow_dataset", context, id=dataset["id"])
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_dataset", context, id=dataset["id"])
-
-    @pytest.mark.usefixtures("app")
-    def test_no_activity(self):
-        user = factories.User()
-        dataset = factories.Dataset()
-        _clear_activities()
-        helpers.call_action(
-            "follow_dataset", context={"user": user["name"]}, id=dataset["id"]
-        )
-        assert not helpers.call_action("user_activity_list", id=user["id"])
 
     def test_follow_dataset(self):
         user = factories.User()
@@ -1329,16 +1323,6 @@ class TestFollowGroup(object):
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=group["id"])
 
-    @pytest.mark.usefixtures("app")
-    def test_no_activity(self):
-        user = factories.User()
-        group = factories.Group()
-        _clear_activities()
-        helpers.call_action(
-            "follow_group", context={"user": user["name"]}, **group
-        )
-        assert not helpers.call_action("user_activity_list", id=user["id"])
-
     def test_follow_group(self):
         user = factories.User()
         group = factories.Group()
@@ -1377,16 +1361,6 @@ class TestFollowOrganization(object):
             helpers.call_action("follow_group", context, id=organization["id"])
         context = {"user": user["name"], "ignore_auth": False}
         helpers.call_action("follow_group", context, id=organization["id"])
-
-    @pytest.mark.usefixtures("app")
-    def test_no_activity(self):
-        user = factories.User()
-        org = factories.Organization()
-        _clear_activities()
-        helpers.call_action(
-            "follow_group", context={"user": user["name"]}, **org
-        )
-        assert not helpers.call_action("user_activity_list", id=user["id"])
 
     def test_follow_organization(self):
         user = factories.User()
@@ -1433,16 +1407,6 @@ class TestFollowUser(object):
         context = {"user": user["name"]}
         with pytest.raises(logic.ValidationError):
             helpers.call_action("follow_user", context, id=user["id"])
-
-    @pytest.mark.usefixtures("app")
-    def test_no_activity(self):
-        user = factories.User()
-        user2 = factories.User()
-        _clear_activities()
-        helpers.call_action(
-            "follow_user", context={"user": user["name"]}, **user2
-        )
-        assert not helpers.call_action("user_activity_list", id=user["id"])
 
     def test_follow_user(self):
         user = factories.User()
@@ -1659,8 +1623,7 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": created_user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras_from_db == {

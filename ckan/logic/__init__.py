@@ -20,8 +20,9 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
+import ckan.lib.signals as signals
 
-from ckan.common import _, c
+from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction, Model,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
@@ -258,15 +259,15 @@ def _prepopulate_context(context: Optional[Context]) -> Context:
     context.setdefault('session', model.Session)
 
     try:
-        user = c.user
+        user = g.user
     except AttributeError:
-        # c.user not set
+        # g.user not set
         user = ""
     except RuntimeError:
         # Outside of request context
         user = ""
     except TypeError:
-        # c not registered
+        # g not registered
         user = ""
 
     context.setdefault('user', user)
@@ -413,7 +414,7 @@ def get_action(action: str) -> Action:
     As the context parameter passed to an action function is commonly::
 
         context = {'model': ckan.model, 'session': ckan.model.Session,
-                   'user': pylons.c.user}
+                   'user': user}
 
     an action function returned by ``get_action()`` will automatically add
     these parameters to the context if they are not defined.  This is
@@ -501,13 +502,16 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
-            def wrapped(context: Optional[Context],
-                        data_dict: DataDict, **kw: Any):
+            def wrapped(context: Optional[Context] = None,
+                        data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
                     log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
+
+                if data_dict is None:
+                    data_dict = {}
 
                 # Auth Auditing - checks that the action function did call
                 # check_access (unless there is no accompanying auth function).
@@ -536,6 +540,9 @@ def get_action(action: str) -> Action:
                 except IndexError:
                     pass
 
+                signals.action_succeeded.send(
+                    action_name, context=context, data_dict=data_dict,
+                    result=result)
                 return result
             return wrapped
 

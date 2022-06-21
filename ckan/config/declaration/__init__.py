@@ -159,11 +159,14 @@ class Declaration:
     def load_dict(self, data: DeclarationDict):
         loader(self, "dict", data)
 
-    def into_ini(self, minimal: bool, no_comments: bool = False) -> str:
-        return serializer(self, "ini", minimal, no_comments)
+    def into_ini(self, minimal: bool, verbose: bool = False) -> str:
+        return serializer(self, "ini", minimal, verbose)
 
     def into_schema(self) -> Dict[str, Any]:
         return serializer(self, "validation_schema")
+
+    def into_docs(self) -> str:
+        return serializer(self, "rst")
 
     def describe(self, fmt: str) -> str:
         return describer(self, fmt)
@@ -198,8 +201,6 @@ class Declaration:
 
     def declare_list(
             self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
-        if default is None:
-            default = []
         option = self.declare(key, default)
         option.set_validators("as_list")
         return option

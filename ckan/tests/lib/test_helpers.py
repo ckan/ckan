@@ -8,13 +8,13 @@ import os
 import pytz
 import tzlocal
 from babel import Locale
+import flask_babel
 
 import pytest
 
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
-
 
 CkanUrlException = ckan.exceptions.CkanUrlException
 
@@ -659,52 +659,6 @@ class TestBuildNavMain(object):
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestActivityListSelect(object):
-    def test_simple(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_selected(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "id1")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_escaping(self):
-        pkg_activity = {
-            "id": '">',  # hacked somehow
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert str(html).startswith(u'<option value="&#34;&gt;" >')
-
-
 class TestRemoveUrlParam:
     def test_current_url(self, test_request_context):
         base = "/organization/name"
@@ -736,7 +690,7 @@ class TestAddUrlParam(object):
         ('dataset', 'search', {'q': '*:*'}),
         ('organization', 'index', {}),
         ('home', 'index', {'a': '1'}),
-        ('dashboard', 'index', {}),
+        ('dashboard', 'datasets', {}),
     ])
     def test_controller_action(
             self, test_request_context, controller, action, extras):
@@ -797,6 +751,25 @@ def test_date_str_to_datetime_valid(string, date):
 def test_date_str_to_datetime_invalid(string):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
+
+
+@pytest.mark.parametrize("dict_in,dict_out", [
+    ({"number_bool": True}, {"number bool": "True"}),
+    ({"number_bool": False}, {"number bool": "False"}),
+    ({"number_int": 0}, {"number int": "0"}),
+    ({"number_int": 42}, {"number int": "42"}),
+    ({"number_float": 0.0}, {"number float": "0"}),
+    ({"number_float": 0.1}, {"number float": "0.1"}),
+    ({"number_float": "0.10"}, {"number float": "0.1"}),
+    ({"string_basic": "peter"}, {"string basic": "peter"}),
+    ({"string_empty": ""}, {}),  # empty strings are ignored
+    ({"name": "hans"}, {}),  # blocked string
+])
+def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
+    # set locale to en (formatting of decimals)
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: "en")
+    items_out = h.format_resource_items(dict_in.items())
+    assert items_out == list(dict_out.items())
 
 
 def test_gravatar():
@@ -887,3 +860,15 @@ def test_get_pkg_dict_extra():
     )
 
     model.repo.rebuild_db()
+
+
+@pytest.mark.usefixtures("with_request_context")
+def test_decode_view_request_filters(test_request_context):
+
+    with test_request_context(u'?filters=Titl%25C3%25A8:T%25C3%25A9st|Dat%25C3%25AA%2520Time:2022-01-01%252001%253A01%253A01|_id:1|_id:2|_id:3|Piped%257CFilter:Piped%257CValue'):
+        assert h.decode_view_request_filters() == {
+            'Titlè': ['Tést'],
+            'Datê Time': ['2022-01-01 01:01:01'],
+            '_id': ['1', '2', '3'],
+            'Piped|Filter': ['Piped|Value']
+        }

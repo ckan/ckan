@@ -119,10 +119,10 @@ Example
               <div id="collapse-python" class="accordion-collapse collapse" aria-labelledby="collapse-python" data-bs-parent="#accordion2">
                 <div class="accordion-body">
                   <pre>
-        import urllib
+        import urllib.request
         url = '{{ h.url_for('api.action', qualified=True, ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5) + '&q=title:jones' }}'  {# not urlencoding the ":" because its clearer #}
-        fileobj = urllib.urlopen(url)
-        print fileobj.read()
+        fileobj = urllib.request.urlopen(url)
+        print(fileobj.read())
         </pre>
                 </div>
               </div>

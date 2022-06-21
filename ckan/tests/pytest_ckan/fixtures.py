@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures bellow available anywhere under the root of CKAN
+All fixtures below available anywhere under the root of CKAN
 repository. Any external CKAN extension should be able to include them
 by adding next lines under root `conftest.py`
 
@@ -23,7 +23,7 @@ There are three type of fixtures available in CKAN:
   test). But presence of these fixtures in test usually signals that
   is's a good time to refactor this test.
 
-Deeper expanation can be found in `official documentation
+Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
@@ -86,11 +86,6 @@ class TagFactory(factories.Tag):
 
 
 @register
-class ActivityFactory(factories.Activity):
-    pass
-
-
-@register
 class SystemInfoFactory(factories.SystemInfo):
     pass
 
@@ -149,6 +144,12 @@ def make_app(ckan_config):
     Unless you need to create app instances lazily for some reason,
     use the ``app`` fixture instead.
     """
+    from ckan.lib.app_globals import _CONFIG_CACHE
+    # Reset values cached during the previous tests. Otherwise config values
+    # that were added to app_globals reset the patched versions from
+    # `ckan_config` mark.
+    _CONFIG_CACHE.clear()
+
     return test_helpers._get_test_app
 
 
@@ -379,7 +380,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     argument. Default value: `upload`.
 
     In addition, accepts named argument `context` which will be passed
-    to `ckan.tests.helpers.call_action` and arbitary number of
+    to `ckan.tests.helpers.call_action` and arbitrary number of
     additional named arguments, that will be used as resource
     properties.
 

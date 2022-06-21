@@ -14,7 +14,7 @@ class TestTags(object):
         # method 1
         tag1 = model.Tag(name=factories.Tag.stub().name)
         package_tag1 = model.PackageTag(package=pkg, tag=tag1)
-        pkg.package_tag_all[:] = [package_tag1]
+        pkg.package_tags[:] = [package_tag1]
 
         # method 2
         tag2 = model.Tag(name=factories.Tag.stub().name)

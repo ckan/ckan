@@ -91,12 +91,6 @@ from ckan.model.vocabulary import (
     VOCABULARY_NAME_MAX_LENGTH,
     VOCABULARY_NAME_MIN_LENGTH,
 )
-from ckan.model.activity import (
-    Activity,
-    ActivityDetail,
-    activity_table,
-    activity_detail_table,
-)
 from ckan.model.term_translation import (
     term_translation_table,
 )
@@ -142,7 +136,6 @@ __all__ = [
     "PackageRelationship", "package_relationship_table",
     "TaskStatus", "task_status_table",
     "Vocabulary", "VOCABULARY_NAME_MAX_LENGTH", "VOCABULARY_NAME_MIN_LENGTH",
-    "Activity", "ActivityDetail", "activity_table", "activity_detail_table",
     "term_translation_table", "UserFollowingUser", "UserFollowingDataset",
     "UserFollowingGroup", "system_info_table", "SystemInfo",
     "get_system_info", "set_system_info", "delete_system_info",
@@ -267,8 +260,8 @@ class Repository():
     def reset_alembic_output(self) -> None:
         self._alembic_output = []
 
-    def add_alembic_output(self, *args: str) -> None:
-        self._alembic_output.append(args)
+    def add_alembic_output(self, text: str,  *args: str) -> None:
+        self._alembic_output.append((text, *args))
 
     def take_alembic_output(self,
                             with_reset: bool=True) -> list[tuple[str, ...]]:

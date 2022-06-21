@@ -119,7 +119,7 @@ def default_create_package_schema(
         ignore_not_package_admin: Validator, boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
-        owner_org_validator: Validator, no_http: Validator):
+        owner_org_validator: Validator):
     return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -140,7 +140,6 @@ def default_create_package_schema(
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode_safe],
         'owner_org': [owner_org_validator, unicode_safe],
-        'log_message': [ignore_missing, unicode_safe, no_http],
         'private': [ignore_missing, boolean_validator,
                     datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
@@ -443,6 +442,13 @@ def default_user_schema(
 
 
 @validator_args
+def create_user_for_user_invite_schema(ignore_missing: Validator):
+    schema = default_user_schema()
+    schema['password'] = [ignore_missing]
+    return schema
+
+
+@validator_args
 def user_new_form_schema(
         unicode_safe: Validator, user_both_passwords_entered: Validator,
         user_password_validator: Validator, user_passwords_match: Validator):
@@ -543,25 +549,6 @@ def default_update_vocabulary_schema(
 
 
 @validator_args
-def default_create_activity_schema(
-        ignore: Validator, not_missing: Validator, not_empty: Validator,
-        unicode_safe: Validator, convert_user_name_or_id_to_id: Validator,
-        object_id_validator: Validator, activity_type_exists: Validator,
-        ignore_empty: Validator, ignore_missing: Validator):
-    return cast(Schema, {
-        'id': [ignore],
-        'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode_safe,
-                    convert_user_name_or_id_to_id],
-        'object_id': [
-            not_missing, not_empty, unicode_safe, object_id_validator],
-        'activity_type': [not_missing, not_empty, unicode_safe,
-                          activity_type_exists],
-        'data': [ignore_empty, ignore_missing],
-    })
-
-
-@validator_args
 def default_follow_user_schema(not_missing: Validator, not_empty: Validator,
                                unicode_safe: Validator,
                                convert_user_name_or_id_to_id: Validator,
@@ -622,41 +609,6 @@ def default_pagination_schema(ignore_missing: Validator,
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator]
     })
-
-
-@validator_args
-def default_dashboard_activity_list_schema(
-        configured_default: ValidatorFactory,
-        natural_number_validator: Validator,
-        limit_to_configured_maximum: ValidatorFactory):
-    schema = default_pagination_schema()
-    schema['limit'] = [
-        configured_default('ckan.activity_list_limit', 31),
-        natural_number_validator,
-        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
-    return schema
-
-
-@validator_args
-def default_activity_list_schema(
-        not_missing: Validator, unicode_safe: Validator,
-        configured_default: ValidatorFactory,
-        natural_number_validator: Validator,
-        limit_to_configured_maximum: ValidatorFactory,
-        ignore_missing: Validator, boolean_validator: Validator,
-        ignore_not_sysadmin: Validator, list_of_strings: Validator):
-
-    schema = default_pagination_schema()
-    schema['id'] = [not_missing, unicode_safe]
-    schema['limit'] = [
-        configured_default('ckan.activity_list_limit', 31),
-        natural_number_validator,
-        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
-    schema['include_hidden_activity'] = [
-        ignore_missing, ignore_not_sysadmin, boolean_validator]
-    schema['activity_types'] = [ignore_missing, list_of_strings]
-    schema['exclude_activity_types'] = [ignore_missing, list_of_strings]
-    return schema
 
 
 @validator_args
@@ -905,6 +857,7 @@ def config_declaration_v1(
             "options": {
                 "key": [not_empty, key_from_string],
                 "default": [ignore_missing],
+                "example": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "placeholder_callable": [ignore_empty, importable_string],
                 "callable_args": [ignore_empty, dict_only],

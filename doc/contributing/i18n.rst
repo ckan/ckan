@@ -2,7 +2,7 @@
 Translating CKAN
 ================
 
-CKAN is used in many countries, and adding a new language to the web interface is a simple process. 
+CKAN is used in many countries, and adding a new language to the web interface is a simple process.
 
 CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in french.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths check the :ref:`ckan.root_path` config option.
 
@@ -19,15 +19,15 @@ Supported languages
 
 CKAN already supports numerous languages. To check whether your language is supported, look in the source at ``ckan/i18n`` for translation files. Languages are named using two-letter ISO language codes (e.g. ``es``, ``de``).
 
-If your language is present, you can switch the default language simply by setting the ``ckan.locale_default`` option in your CKAN config file, as described in :ref:`config-i18n`. For example, to switch to German::
+If your language is present, you can switch the default language simply by setting the ``ckan.locale_default`` option in your CKAN config file, as described in :ref:`internationalisation-settings`. For example, to switch to German::
 
  ckan.locale_default=de
 
 .. seealso::
 
-   :ref:`config-i18n`
+   :ref:`internationalisation-settings`
 
-If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
+If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN.
 
 
 ----------------------------------------------------------
@@ -47,7 +47,7 @@ If you want to add an entirely new language to CKAN or update an existing transl
 Transifex setup
 ===============
 
-Transifex, the open translation platform, provides a simple web interface for writing translations and is widely used for CKAN internationalization. 
+Transifex, the open translation platform, provides a simple web interface for writing translations and is widely used for CKAN internationalization.
 
 Using Transifex makes it easier to handle collaboration, with an online editor that makes the process more accessible.
 
@@ -123,7 +123,7 @@ NB it is not appropriate to do a Pull Request to the main ckan repo, since that 
 4. Compile a translation
 ------------------------
 
-Once you have created a translation (either with Transifex or manually) you can build the po file into a ``mo`` file, ready for deployment. 
+Once you have created a translation (either with Transifex or manually) you can build the po file into a ``mo`` file, ready for deployment.
 
 With either method of creating the po file, it should be found in the CKAN i18n repository: ``ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po``
 
@@ -151,7 +151,7 @@ Adjust the path if you did not use the default location. This example is for lan
 6. Configure the language
 -------------------------
 
-Finally, once the mo file is in place, you can switch between the installed languages using the ``ckan.locale`` option in the CKAN config file, as described in :ref:`config-i18n`. 
+Finally, once the mo file is in place, you can switch between the installed languages using the ``ckan.locale`` option in the CKAN config file, as described in :ref:`internationalisation-settings`.
 
 ------------------------------
 Translations management policy
@@ -173,4 +173,3 @@ managing translations:
   named to match the new CKAN version. It has been created as a copy of the
   next most recent resource, so any new languages create or other updates done
   on Transifex since the last release automatically go into the new release.
-

@@ -440,6 +440,7 @@ class CKANFlask(MultiStaticFlask):
 
     app_name: str = 'flask_app'
     static_folder: list[str]
+    session_interface: SessionInterface
 
     def can_handle_request(
             self,
@@ -458,7 +459,7 @@ class CKANFlask(MultiStaticFlask):
         try:
             rule, args = urls.match(return_rule=True)
             origin = 'core'
-            if hasattr(rule, 'ckan_core') and not rule.ckan_core:
+            if not getattr(rule, 'ckan_core', True):
                 origin = 'extension'
             log.debug('Flask route match, endpoint: {0}, args: {1}, '
                       'origin: {2}'.format(rule.endpoint, args, origin))
@@ -493,8 +494,8 @@ class CKANFlask(MultiStaticFlask):
         # This compare key will ensure the rule will be near the top.
         top_compare_key = False, -100, [(-2, 0)]
         for r in bp_rules:
-            r.ckan_core = False
-            r.match_compare_key = lambda: top_compare_key
+            setattr(r, "ckan_core", False)
+            setattr(r, "match_compare_key", lambda: top_compare_key)
 
 
 def _register_core_blueprints(app: CKANApp):

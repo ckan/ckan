@@ -33,7 +33,6 @@ extend-exclude =
                ckan/logic/converters.py
                ckan/logic/validators.py
                ckan/model/__init__.py
-               ckan/model/activity.py
                ckan/model/dashboard.py
                ckan/model/domain_object.py
                ckan/model/follower.py

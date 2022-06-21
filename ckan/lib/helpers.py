@@ -40,8 +40,6 @@ from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
 )
 
-import jinja2
-
 import ckan.config
 import ckan.exceptions
 import ckan.model as model
@@ -56,7 +54,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, c, g, request, json
+from ckan.common import _, ungettext, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -82,20 +80,36 @@ LEGACY_ROUTE_NAMES = {
     'about': 'home.about',
     'search': 'dataset.search',
     'dataset_read': 'dataset.read',
-    'dataset_activity': 'dataset.activity',
     'dataset_groups': 'dataset.groups',
     'group_index': 'group.index',
     'group_about': 'group.about',
     'group_read': 'group.read',
-    'group_activity': 'group.activity',
     'organizations_index': 'organization.index',
-    'organization_activity': 'organization.activity',
     'organization_read': 'organization.read',
     'organization_about': 'organization.about',
+
+    # Deprecated since v2.10
+    'dataset_activity': 'activity.package_activity',
+    'dataset.activity': 'activity.package_activity',
+    'group_activity': 'activity.group_activity',
+    'group.activity': 'activity.group_activity',
+    'organization_activity': 'activity.organization_activity',
+    'organization.activity': 'activity.organization_activity',
+    "user.activity": "activity.user_activity",
+    "dashboard.index": "activity.dashboard",
+    "dataset.changes_multiple": "activity.package_changes_multiple",
+    "dataset.changes": "activity.package_changes",
+    "group.changes_multiple": "activity.group_changes_multiple",
+    "group.changes": "activity.group_changes",
+    "organization.changes_multiple": "activity.organization_changes_multiple",
+    "organization.changes": "activity.organization_changes",
+
 }
 
 
 class HelperAttributeDict(Dict[str, Callable[..., Any]]):
+    """Collection of CKAN native and extension-provided helpers.
+    """
     def __missing__(self, key: str) -> NoReturn:
         raise ckan.exceptions.HelperError(
             'Helper \'{key}\' has not been defined.'.format(
@@ -261,15 +275,6 @@ def redirect_to(*args: Any, **kw: Any) -> Response:
         _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
     return cast(Response, _flask_redirect(_url))
-
-
-@maintain.deprecated('h.url is deprecated please use h.url_for', since='2.6.0')
-@core_helper
-def url(*args: Any, **kw: Any) -> str:
-    '''
-    Deprecated: please use `url_for` instead
-    '''
-    return url_for(*args, **kw)
 
 
 @core_helper
@@ -780,39 +785,6 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _make_safe_id_component(idstring: str) -> str:
-    """Make a string safe for including in an id attribute.
-
-    The HTML spec says that id attributes 'must begin with
-    a letter ([A-Za-z]) and may be followed by any number
-    of letters, digits ([0-9]), hyphens ("-"), underscores
-    ("_"), colons (":"), and periods (".")'. These regexps
-    are slightly over-zealous, in that they remove colons
-    and periods unnecessarily.
-
-    Whitespace is transformed into underscores, and then
-    anything which is not a hyphen or a character that
-    matches \\w (alphanumerics and underscore) is removed.
-
-    """
-    # Transform all whitespace to underscore
-    idstring = re.sub(r'\s', "_", '%s' % idstring)
-    # Remove everything that is not a hyphen or a member of \w
-    idstring = re.sub(r'(?!-)\W', "", idstring).lower()
-    return idstring
-
-
-def _input_tag(
-        type: str, name: str, value: Any = None,
-        id: Optional[str] = None, **attrs: Any):
-    attrs = _preprocess_dom_attrs(attrs)
-    attrs.update(type=type, name=name, value=value)
-    if u"id" not in attrs:
-        attrs[u"id"] = id if id else _make_safe_id_component(name)
-
-    return dom_tags.input_(**attrs)
-
-
 @core_helper
 def link_to(label: str, url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
@@ -820,19 +792,6 @@ def link_to(label: str, url: str, **attrs: Any) -> Markup:
     if label == '' or label is None:
         label = url
     return literal(str(dom_tags.a(label, **attrs)))
-
-
-@maintain.deprecated(u'h.submit is deprecated. '
-                     u'Use h.literal(<markup or dominate.tags>) instead.',
-                     since=u'2.9.0')
-@core_helper
-def submit(name: str, value: Optional[str] = None,
-           id: Optional[str] = None, **attrs: Any) -> Markup:
-    """Create a submit field.
-
-    Deprecated: Use h.literal(<markup or dominate.tags>) instead.
-    """
-    return literal(str(_input_tag(u"submit", name, value, id, **attrs)))
 
 
 @core_helper
@@ -1011,6 +970,23 @@ def default_package_type() -> str:
     return str(config.get('ckan.default.package_type', "dataset"))
 
 
+def _humanize_activity(object_type: str, activity_type: str) -> str:
+    """ Humanize activity types for custom objects
+
+        Example::
+
+          >>> _humanize_activity('Custom user', 'new_user')
+          'New custom user'
+          >>> _humanize_activity('dataset', 'changed_package')
+          'Changed dataset'
+
+    """
+    res = activity_type.replace('_', ' ').lower()
+    for obj in ['package', 'user', 'group', 'organization']:
+        res = res.replace(obj, object_type)
+    return res.capitalize()
+
+
 @core_helper
 def humanize_entity_type(entity_type: str, object_type: str,
                          purpose: str) -> Optional[str]:
@@ -1061,6 +1037,9 @@ def humanize_entity_type(entity_type: str, object_type: str,
     if (entity_type, object_type) == ("package", "dataset"):
         # special case for the previous condition
         return
+
+    if entity_type == "activity":
+        return _humanize_activity(object_type, activity_type=purpose)
 
     log.debug(
         u'Humanize %s of type %s for %s', entity_type, object_type, purpose)
@@ -1117,20 +1096,16 @@ def get_facet_items_dict(
     match each facet item).
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
 
     '''
-    if search_facets is None:
-        search_facets = getattr(
-            c, u'search_facets', None)
-
     if not search_facets \
        or not isinstance(search_facets, dict) \
        or not search_facets.get(facet, {}).get('items'):
@@ -1148,9 +1123,9 @@ def get_facet_items_dict(
     sort_facets: Callable[[Any], tuple[int, str]] = lambda it: (
         -it['count'], it['display_name'].lower())
     facets.sort(key=sort_facets)
-    if hasattr(c, 'search_facets_limits'):
-        if c.search_facets_limits and limit is None:
-            limit = c.search_facets_limits.get(facet)
+    if hasattr(g, 'search_facets_limits'):
+        if g.search_facets_limits and limit is None:
+            limit = g.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
     if limit is not None and limit > 0:
         return facets[:limit]
@@ -1167,12 +1142,12 @@ def has_more_facets(facet: str,
     limit.
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets
     limit -- the max. number of facet items.
     exclude_active -- only return unselected facets.
 
@@ -1186,35 +1161,11 @@ def has_more_facets(facet: str,
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    if getattr(c, 'search_facets_limits', None) and limit is None:
-        limit = c.search_facets_limits.get(facet)
+    if getattr(g, 'search_facets_limits', None) and limit is None:
+        limit = g.search_facets_limits.get(facet)
     if limit is not None and len(facets) > limit:
         return True
     return False
-
-
-@core_helper
-def unselected_facet_items(
-        facet: str, limit: int = 10) -> list[dict[str, Any]]:
-    '''Return the list of unselected facet items for the given facet, sorted
-    by count.
-
-    Returns the list of unselected facet contraints or facet items (e.g. tag
-    names like "russian" or "tolstoy") for the given search facet (e.g.
-    "tags"), sorted by facet item count (i.e. the number of search results that
-    match each facet item).
-
-    Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
-    selected.
-
-    Arguments:
-    facet -- the name of the facet to filter.
-    limit -- the max. number of facet items to return.
-
-    '''
-    return get_facet_items_dict(
-        facet, c.search_facets, limit=limit, exclude_active=True)
 
 
 @core_helper
@@ -1287,19 +1238,6 @@ def check_access(
         authorized = False
 
     return authorized
-
-
-@core_helper
-@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "extra_vars param to render() in your controller to pass "
-                     "results from action functions to your templates.",
-                     since="2.3.0")
-def get_action(action_name: str, data_dict: Optional[dict[str, Any]] = None):
-    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
-    if data_dict is None:
-        data_dict = {}
-    return logic.get_action(action_name)({}, data_dict)
 
 
 @core_helper
@@ -1408,51 +1346,6 @@ def markdown_extract(text: str,
             )
         )
     )
-
-
-@core_helper
-def icon_url(name: str) -> str:
-    return url_for_static('/images/icons/%s.png' % name)
-
-
-@core_helper
-def icon_html(url: str,
-              alt: Optional[str] = None,
-              inline: bool = True) -> Markup:
-    classes = ''
-    if inline:
-        classes += 'inline-icon '
-    return literal(('<img src="%s" height="16px" width="16px" alt="%s" ' +
-                    'class="%s" /> ') % (url, alt, classes))
-
-
-@core_helper
-def icon(name: str, alt: Optional[str] = None, inline: bool = True) -> Markup:
-    return icon_html(icon_url(name), alt, inline)
-
-
-def resource_icon(res: dict[str, Any]) -> Markup:
-    return icon(format_icon(res.get('format', '')))
-
-
-@core_helper
-def format_icon(_format: str) -> str:
-    _format = _format.lower()
-    if ('json' in _format):
-        return 'page_white_cup'
-    if ('csv' in _format):
-        return 'page_white_gear'
-    if ('xls' in _format):
-        return 'page_white_excel'
-    if ('zip' in _format):
-        return 'page_white_compressed'
-    if ('api' in _format):
-        return 'page_white_database'
-    if ('plain text' in _format):
-        return 'page_white_text'
-    if ('xml' in _format):
-        return 'page_white_code'
-    return 'page_white'
 
 
 @core_helper
@@ -1783,15 +1676,9 @@ def time_ago_from_timestamp(timestamp: int) -> str:
 
 
 @core_helper
-def button_attr(enable: bool, type: str = 'primary') -> str:
-    if enable:
-        return 'class="btn %s"' % type
-    return 'disabled class="btn disabled"'
-
-
-@core_helper
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
+
     if isinstance(package_or_package_dict, dict):
         return get_translated(package_or_package_dict, 'title') or \
             package_or_package_dict['name']
@@ -1870,36 +1757,6 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 
 @core_helper
-def auto_log_message() -> str:
-    if (c.action == 'new'):
-        return _('Created new dataset.')
-    elif (c.action == 'editresources'):
-        return _('Edited resources.')
-    elif (c.action == 'edit'):
-        return _('Edited settings.')
-    return ''
-
-
-@core_helper
-def activity_div(template: str,
-                 activity: dict[str, Any],
-                 actor: str,
-                 object: Optional[str] = None,
-                 target: Optional[str] = None) -> Markup:
-    actor = '<span class="actor">%s</span>' % actor
-    if object:
-        object = '<span class="object">%s</span>' % object
-    if target:
-        target = '<span class="target">%s</span>' % target
-    rendered_datetime = render_datetime(activity['timestamp'])
-    date = '<span class="date">%s</span>' % rendered_datetime
-    template = template.format(actor=actor, date=date,
-                               object=object, target=target)
-    template = '<div class="activity">%s %s</div>' % (template, date)
-    return literal(template)
-
-
-@core_helper
 def snippet(template_name: str, **kw: Any) -> str:
     ''' This function is used to load html snippets into pages. keywords
     can be used to pass parameters into the snippet rendering '''
@@ -1947,10 +1804,10 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    if c.user:
+    if g.user:
         context = cast(
             Context,
-            {'model': model, 'session': model.Session, 'user': c.user})
+            {'model': model, 'session': model.Session, 'user': g.user})
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1977,7 +1834,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
+        Context, {'model': model, 'session': model.Session, 'user': g.user}
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -2136,7 +1993,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': c.user}
+    context: Context = {'user': g.user}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -2153,68 +2010,17 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if not c.userobj:
+    if not g.userobj:
         return False
     # sysadmins can do anything
-    if c.userobj.sysadmin:
+    if g.userobj.sysadmin:
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == c.userobj.id)
+        .filter(model.Member.table_id == g.userobj.id)
     return len(query.all()) != 0
-
-
-@core_helper
-def dashboard_activity_stream(user_id: str,
-                              filter_type: Optional[str] = None,
-                              filter_id: Optional[str] = None,
-                              offset: int = 0) -> list[dict[str, Any]]:
-    '''Return the dashboard activity stream of the current user.
-
-    :param user_id: the id of the user
-    :type user_id: string
-
-    :param filter_type: the type of thing to filter by
-    :type filter_type: string
-
-    :param filter_id: the id of item to filter by
-    :type filter_id: string
-
-    :returns: an activity stream as an HTML snippet
-    :rtype: string
-
-    '''
-    context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user})
-
-    if filter_type:
-        action_functions = {
-            'dataset': 'package_activity_list',
-            'user': 'user_activity_list',
-            'group': 'group_activity_list',
-            'organization': 'organization_activity_list',
-        }
-        action_function = logic.get_action(action_functions[filter_type])
-        return action_function(context, {'id': filter_id, 'offset': offset})
-    else:
-        return logic.get_action('dashboard_activity_list')(
-            context, {'offset': offset})
-
-
-@core_helper
-def recently_changed_packages_activity_stream(
-        limit: Optional[int] = None) -> list[dict[str, Any]]:
-    if limit:
-        data_dict = {'limit': limit}
-    else:
-        data_dict = {}
-    context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': c.user}
-    )
-    return logic.get_action('recently_changed_packages_activity_list')(
-        context, data_dict)
 
 
 @core_helper
@@ -2371,7 +2177,12 @@ def format_resource_items(
     reg_ex_int = r'^-?\d{1,}$'
     reg_ex_float = r'^-?\d{1,}\.\d{1,}$'
     for key, value in items:
-        if not value or key in blacklist:
+        if (key in blacklist
+                or (not isinstance(value, (int, float))
+                    and not value)):
+            # Ignore blocked keys and values that evaluate to
+            # `bool(value) == False` (e.g. `""`, `[]` or `{}`),
+            # with the exception of numbers such as `False`, `0`,`0.0`.
             continue
         # size is treated specially as we want to show in MiB etc
         if key == 'size':
@@ -2390,9 +2201,10 @@ def format_resource_items(
                 value = formatters.localised_number(float(value))
             elif re.search(reg_ex_int, value):
                 value = formatters.localised_number(int(value))
-        elif ((isinstance(value, int) or isinstance(value, float))
-                and value not in (True, False)):
-            value = formatters.localised_number(value)
+        elif isinstance(value, bool):
+            value = str(value)
+        elif isinstance(value, (int, float)):
+            value = formatters.localised_number(float(value))
         key = key.replace('_', ' ')
         output.append((key, value))
     return sorted(output, key=lambda x: x[0])
@@ -2576,20 +2388,6 @@ localised_filesize = formatters.localised_filesize
 
 
 @core_helper
-def new_activities() -> Optional[int]:
-    '''Return the number of activities for the current user.
-
-    See :func:`logic.action.get.dashboard_new_activities_count` for more
-    details.
-
-    '''
-    if not c.userobj:
-        return None
-    action = logic.get_action('dashboard_new_activities_count')
-    return action({}, {})
-
-
-@core_helper
 def uploads_enabled() -> bool:
     if uploader.get_storage_path():
         return True
@@ -2673,6 +2471,13 @@ def get_site_statistics() -> dict[str, int]:
 _RESOURCE_FORMATS: dict[str, Any] = {}
 
 
+def resource_formats_default_file():
+    return os.path.join(
+        os.path.dirname(os.path.realpath(ckan.config.__file__)),
+        'resource_formats.json'
+    )
+
+
 @core_helper
 def resource_formats() -> dict[str, list[str]]:
     ''' Returns the resource formats as a dict, sourced from the resource
@@ -2689,10 +2494,8 @@ def resource_formats() -> dict[str, list[str]]:
     if not _RESOURCE_FORMATS:
         format_file_path = config.get_value('ckan.resource_formats')
         if not format_file_path:
-            format_file_path = os.path.join(
-                os.path.dirname(os.path.realpath(ckan.config.__file__)),
-                'resource_formats.json'
-            )
+            format_file_path = resource_formats_default_file()
+
         with open(format_file_path, encoding='utf-8') as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
@@ -2790,15 +2593,6 @@ def mail_to(email_address: str, name: str) -> Markup:
 
 
 @core_helper
-def radio(selected: str, id: str, checked: bool) -> Markup:
-    if checked:
-        return literal((u'<input checked="checked" id="%s_%s" name="%s" \
-            value="%s" type="radio">') % (selected, id, selected, id))
-    return literal(('<input id="%s_%s" name="%s" \
-        value="%s" type="radio">') % (selected, id, selected, id))
-
-
-@core_helper
 def clean_html(html: Any) -> str:
     return bleach_clean(str(html))
 
@@ -2858,95 +2652,6 @@ def sanitize_id(id_: str) -> str:
 
 
 @core_helper
-def compare_pkg_dicts(old: dict[str, Any], new: dict[str, Any],
-                      old_activity_id: str) -> list[dict[str, Any]]:
-    '''
-    Takes two package dictionaries that represent consecutive versions of
-    the same dataset and returns a list of detailed & formatted summaries of
-    the changes between the two versions. old and new are the two package
-    dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for fields
-    added by extensions and extra fields added by the user in the web
-    interface.
-
-    Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
-    string indicating the type of change made as well as other data necessary
-    to form a detailed summary of the change.
-    '''
-    from ckan.lib.changes import check_metadata_changes, check_resource_changes
-    change_list: list[dict[str, Any]] = []
-
-    check_metadata_changes(change_list, old, new)
-
-    check_resource_changes(change_list, old, new, old_activity_id)
-
-    # if the dataset was updated but none of the fields we check were changed,
-    # display a message stating that
-    if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
-
-    return change_list
-
-
-@core_helper
-def compare_group_dicts(
-        old: dict[str, Any], new: dict[str, Any], old_activity_id: str):
-    '''
-    Takes two package dictionaries that represent consecutive versions of
-    the same organization and returns a list of detailed & formatted summaries
-    of the changes between the two versions. old and new are the two package
-    dictionaries. The function assumes that both dictionaries will have
-    all of the default package dictionary keys, and also checks for fields
-    added by extensions and extra fields added by the user in the web
-    interface.
-
-    Returns a list of dictionaries, each of which corresponds to a change
-    to the dataset made in this revision. The dictionaries each contain a
-    string indicating the type of change made as well as other data necessary
-    to form a detailed summary of the change.
-    '''
-    from ckan.lib.changes import check_metadata_org_changes
-    change_list: list[dict[str, Any]] = []
-
-    check_metadata_org_changes(change_list, old, new)
-
-    # if the organization was updated but none of the fields we check
-    # were changed, display a message stating that
-    if len(change_list) == 0:
-        change_list.append({u'type': 'no_change'})
-
-    return change_list
-
-
-@core_helper
-def activity_list_select(pkg_activity_list: list[dict[str, Any]],
-                         current_activity_id: str) -> list[Markup]:
-    '''
-    Builds an HTML formatted list of options for the select lists
-    on the "Changes" summary page.
-    '''
-    select_list = []
-    template = jinja2.Template(
-        u'<option value="{{activity_id}}" {{selected}}>'
-        '{{timestamp}}</option>',
-        autoescape=True)
-    for activity in pkg_activity_list:
-        entry = render_datetime(activity['timestamp'],
-                                with_hours=True,
-                                with_seconds=True)
-        select_list.append(Markup(
-            template
-            .render(activity_id=activity['id'], timestamp=entry,
-                    selected='selected'
-                    if activity['id'] == current_activity_id
-                    else '')
-        ))
-
-    return select_list
-
-
-@core_helper
 def get_collaborators(package_id: str) -> list[tuple[str, str]]:
     '''Return the collaborators list for a dataset
 
@@ -2988,7 +2693,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(c.user)
+    user = model.User.get(g.user)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
@@ -3002,3 +2707,47 @@ def can_update_owner_org(
         return True
 
     return False
+
+
+@core_helper
+def decode_view_request_filters() -> dict[str, Any] | None:
+    filterString = request.args.get('filters')
+    if request.form.get('filters') is not None:
+        filterString = request.form.get('filters')
+    if filterString is not None and len(filterString) > 0:
+        filters = {}
+        for k_v in filterString.split(u'|'):
+            k, _sep, v = k_v.partition(u':')
+            if unquote(str(k)) in filters:
+                if unquote(str(v)) not in filters[unquote(str(k))]:
+                    filters[unquote(str(k))].append(unquote(str(v)))
+            else:
+                filters.setdefault(unquote(str(k)), []).append(unquote(str(v)))
+        return filters
+    return None
+
+
+@core_helper
+def check_ckan_version(min_version: Optional[str] = None,
+                       max_version: Optional[str] = None):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)

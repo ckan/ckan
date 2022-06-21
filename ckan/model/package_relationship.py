@@ -1,9 +1,10 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Optional, cast
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.core as core
@@ -22,11 +23,8 @@ except:
     def _(*args: Any, **kwargs: Any) -> str:
         return args[0]
 
-__all__ = ['PackageRelationship', 'package_relationship_table',
-           ]
+__all__ = ['PackageRelationship', 'package_relationship_table']
 
-
-TPackageRelationship = TypeVar("TPackageRelationship", bound="PackageRelationship")
 
 package_relationship_table = Table('package_relationship', meta.metadata,
      Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
@@ -80,8 +78,10 @@ class PackageRelationship(core.StatefulObjectMixin,
             {'sibling':_('has sibling %s')}
 
     def __repr__(self):
-        return '<%sPackageRelationship %s %s %s>' % ("*" if self.active != core.State.ACTIVE else "",
-                                                     self.subject.name, self.type, self.object.name)
+        return '<%sPackageRelationship %s %s %s>' % (
+            "*" if cast(str, self.active) != core.State.ACTIVE else "",
+            self.subject.name, self.type, self.object.name
+        )
 
     def as_dict(self, package: Optional[_package.Package]=None, ref_package_by: str='id') -> dict[str, str]:
         """Returns full relationship info as a dict from the point of view
@@ -123,13 +123,11 @@ class PackageRelationship(core.StatefulObjectMixin,
         return (type_str, other_package)
 
     @classmethod
-    def by_subject(cls: Type[TPackageRelationship],
-                   package: _package.Package) -> 'Query[TPackageRelationship]':
+    def by_subject(cls, package: _package.Package) -> Query[Self]:
         return meta.Session.query(cls).filter(cls.subject_package_id==package.id)
 
     @classmethod
-    def by_object(cls: Type[TPackageRelationship],
-                  package: _package.Package) -> 'Query[TPackageRelationship]':
+    def by_object(cls, package: _package.Package) -> Query[Self]:
         return meta.Session.query(cls).filter(cls.object_package_id==package.id)
 
     @classmethod

@@ -546,7 +546,7 @@ class IPackageController(Interface):
         parameters, and should return a modified (or not) object with the
         same structure::
 
-            {'count': '', 'results': '', 'facets': ''}
+            {'count': '', 'results': '', 'search_facets': ''}
 
         Note that count and facets may need to be adjusted if the extension
         changed the results for some reason.
@@ -1267,8 +1267,9 @@ class IDatasetForm(Interface):
         '''
         return ''
 
-    def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    def validate(
+            self, context: Context, data_dict: DataDict, schema: Schema,
+            action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -1298,7 +1299,7 @@ class IDatasetForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
-        return {}, {}
+        return
 
     def prepare_dataset_blueprint(self, package_type: str,
                                   blueprint: Blueprint) -> Blueprint:
@@ -1483,8 +1484,9 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         '''
 
-    def validate(self, context: Context, data_dict: DataDict, schema: Schema,
-                 action: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    def validate(
+            self, context: Context, data_dict: DataDict, schema: Schema,
+            action: str) -> Optional[tuple[dict[str, Any], dict[str, Any]]]:
         u'''Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
@@ -1515,7 +1517,7 @@ class IGroupForm(Interface):
           and lists-of-string-error-messages as values
         :rtype: (dictionary, dictionary)
         '''
-        return {}, {}
+        return
 
     def prepare_group_blueprint(self, group_type: str,
                                 blueprint: Blueprint) -> Blueprint:
@@ -1959,7 +1961,7 @@ class IApiToken(Interface):
         return None
 
     def encode_api_token(self, data: dict[str, Any],
-                         **kwargs: Any) -> Optional[bytes]:
+                         **kwargs: Any) -> Optional[str]:
         """Make an attempt to encode API Token.
 
         Encode token if it possible and return string, that will be

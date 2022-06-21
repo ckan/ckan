@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Optional
 from sqlalchemy import types, Column, Table, UniqueConstraint
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.types as _types
@@ -35,7 +36,7 @@ class TaskStatus(domain_object.DomainObject):
     last_updated: datetime
 
     @classmethod
-    def get(cls, reference: str) -> Optional["TaskStatus"]:
+    def get(cls, reference: str) -> Optional[Self]:
         '''Returns a task status object referenced by its id.'''
         if not reference:
             return None

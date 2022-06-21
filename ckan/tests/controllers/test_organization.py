@@ -5,7 +5,7 @@ import six
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
-from ckan import model
+import ckan.model as model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
@@ -401,7 +401,7 @@ class TestOrganizationSearch(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestOrganizationInnerSearch(object):
     """Test searching within an organization."""
 
@@ -453,7 +453,7 @@ class TestOrganizationInnerSearch(object):
             org_url,
             query_string={"q": "One"}
         )
-        assert "1 dataset found for &#34;One&#34;" in search_response
+        assert "1 dataset found" in search_response
 
         search_response_html = BeautifulSoup(search_response.body)
 
@@ -577,153 +577,40 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
+    def test_create_user_for_user_invite(self, mail_server):
+        group = factories.Group()
+        sysadmin = factories.Sysadmin()
+        context = {"user": sysadmin["name"]}
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
-class TestActivity(object):
-    def test_simple(self, app):
-        """Checking the template shows the activity stream."""
+        user_form = {
+            "email": "user@ckan.org",
+            "group_id": group["id"],
+            "role": "member"
+        }
+
+        user_dict = helpers.call_action("user_invite", context, **user_form)
+        user_obj = model.User.get(user_dict["id"])
+
+        assert user_obj.password is None
+        assert user_obj.state == 'pending'
+        assert user_obj.last_active is None
+
+    def test_member_delete(self, app):
+        sysadmin = factories.Sysadmin()
         user = factories.User()
-        org = factories.Organization(user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert user["fullname"] in response
-        assert "created the organization" in response
-
-    def test_create_organization(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
+        org = factories.Organization(
+            users=[{"name": user["name"], "capacity": "member"}]
         )
-        assert "created the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
-
-    def _clear_activities(self):
-        model.Session.query(model.ActivityDetail).delete()
-        model.Session.query(model.Activity).delete()
-        model.Session.flush()
-
-    def test_change_organization(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        org["title"] = "Organization with changed title"
-        helpers.call_action(
-            "organization_update", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the organization" in response
-        assert (
-            '<a href="/organization/{}">Organization with changed title'.format(
-                org["name"]
+        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+        # our user + test.ckan.net
+        assert len(org["users"]) == 2
+        with app.flask_app.test_request_context():
+            app.post(
+                url_for("organization.member_delete", id=org["id"], user=user["id"]),
+                extra_environ=env,
             )
-            in response
-        )
+            org = helpers.call_action('organization_show', id=org['id'])
 
-    def test_delete_org_using_organization_delete(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        helpers.call_action(
-            "organization_delete", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        app.get(url, extra_environ=env, status=404)
-        # organization_delete causes the Member to state=deleted and then the
-        # user doesn't have permission to see their own deleted Organization.
-        # Therefore you can't render the activity stream of that org. You'd
-        # hope that organization_delete was the same as organization_update
-        # state=deleted but they are not...
-
-    def test_delete_org_by_updating_state(self, app):
-        user = factories.User()
-        org = factories.Organization(user=user)
-        self._clear_activities()
-        org["state"] = "deleted"
-        helpers.call_action(
-            "organization_update", context={"user": user["name"]}, **org
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the organization" in response
-        assert (
-            '<a href="/organization/{}">{}'.format(org["name"], org["title"])
-            in response
-        )
-
-    def test_create_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        self._clear_activities()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "created the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_change_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-        self._clear_activities()
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-        self._clear_activities()
-        helpers.call_action(
-            "package_delete", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("organization.activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
+            # only test.ckan.net
+            assert len(org['users']) == 1
+            assert user["id"] not in org["users"][0]["id"]

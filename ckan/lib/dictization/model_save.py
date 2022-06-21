@@ -140,7 +140,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
 
     tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
-                            package.package_tag_all)
+                            package.package_tags)
 
     tag_package_tag_inactive = {
         tag: pt for tag,pt in tag_package_tag.items()
@@ -174,7 +174,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
         package_tag = tag_package_tag[tag]
         package_tag.state = state
 
-    package.package_tag_all[:] = tag_package_tag.values()
+    package.package_tags[:] = tag_package_tag.values()
 
 def package_membership_list_save(
         group_dicts: Optional[list[dict[str, Any]]],
@@ -528,25 +528,6 @@ def task_status_dict_save(task_status_dict: dict[str, Any],
         task_status_dict, model.TaskStatus, context)
     return task_status
 
-def activity_dict_save(activity_dict: dict[str, Any],
-                       context: Context) -> 'model.Activity':
-
-    model = context['model']
-    session = context['session']
-    user_id = activity_dict['user_id']
-    object_id = activity_dict['object_id']
-    activity_type = activity_dict['activity_type']
-    if 'data' in activity_dict:
-        data = activity_dict['data']
-    else:
-        data = None
-    activity_obj = model.Activity(user_id, object_id,
-            activity_type, data)
-    session.add(activity_obj)
-
-    # TODO: Handle activity details.
-
-    return activity_obj
 
 def vocabulary_tag_list_save(
         new_tag_dicts: list[dict[str, Any]],

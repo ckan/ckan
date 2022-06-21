@@ -6,15 +6,12 @@ from typing import Any, Callable, Iterable
 
 import sqlalchemy
 from sqlalchemy import Table
+# type_ignore_reason: incomplete SQLAlchemy types
+from sqlalchemy.engine import Row # type: ignore
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
 from ckan.types import Context
-
-try:
-    RowProxy = sqlalchemy.engine.result.RowProxy
-except AttributeError:
-    RowProxy = sqlalchemy.engine.base.RowProxy  # type: ignore
 
 
 # NOTE The functions in this file contain very generic methods for dictizing
@@ -30,7 +27,7 @@ def table_dictize(obj: Any, context: Context, **kw: Any) -> dict[str, Any]:
 
     result_dict: dict[str, Any] = {}
 
-    if isinstance(obj, RowProxy):
+    if isinstance(obj, Row):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
