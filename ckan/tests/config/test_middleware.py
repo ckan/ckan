@@ -75,3 +75,16 @@ def test_no_beaker_secret_crashes(make_app):
     # RuntimeError instead (thrown on `make_flask_stack`)
     with pytest.raises(RuntimeError):
         make_app()
+
+
+@pytest.mark.ckan_config("ckan.root_path", "/data")
+@pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
+def test_error_handler_redirect_with_root_path(app):
+
+    site_url = config.get_value("ckan.site_url")
+    root_path = config.get_value("ckan.root_path")
+
+    wrong_url = f"{site_url}{root_path}/about/////"
+    correct_url = app.get(wrong_url)
+
+    assert correct_url.request.path == "/data/about"

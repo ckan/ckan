@@ -517,8 +517,15 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
-    def error_handler(e: Exception) -> tuple[str, Optional[int]]:
+    def error_handler(
+        e: Exception,
+    ) -> Union[Response, tuple[str, Optional[int]]]:
         debug = config.get_value('debug')
+
+        if request.path.endswith('/'):
+            req_path = request.path.rstrip('/')
+            site_url = config.get_value('ckan.site_url')
+            return helpers.redirect_to(site_url + req_path)
         if isinstance(e, HTTPException):
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore

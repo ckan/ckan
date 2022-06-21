@@ -1166,7 +1166,8 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/new',
         methods=[u'GET', u'POST'],
         view_func=CreateGroupView.as_view(str(u'new')))
-    blueprint.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
+    blueprint.add_url_rule(
+        u'/<id>', methods=[u'GET'], view_func=read)
     blueprint.add_url_rule(
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
     blueprint.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
