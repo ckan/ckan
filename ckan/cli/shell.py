@@ -3,6 +3,8 @@ import click
 
 import ckan.model as model
 
+from ckan.plugins import toolkit
+
 from IPython import start_ipython
 
 
@@ -17,11 +19,13 @@ def shell(ctx: click.Context):
      - app (CKAN Application object)
      - config (CKAN config dictionary)
      - model (CKAN model module to access the Database)
+     - toolkit (CKAN toolkit module)
     '''
     namespace = {
         "app": ctx.obj.app._wsgi_app,
         "model": model,
-        "config": ctx.obj.config
+        "config": ctx.obj.config,
+        "toolkit": toolkit
         }
 
     start_ipython([], user_ns=namespace)
