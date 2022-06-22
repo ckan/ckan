@@ -129,7 +129,8 @@ class UserController(base.BaseController):
             item_count=users_list.count(),
             items_per_page=limit
         )
-        return render('user/list.html')
+        extra_vars = {u'page': c.page, u'q': c.q, u'order_by': c.order_by}
+        return render('user/list.html', extra_vars)
 
     def read(self, id=None):
         context = {'model': model, 'session': model.Session,
