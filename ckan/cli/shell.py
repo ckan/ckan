@@ -4,8 +4,7 @@ import click
 import ckan.model as model
 
 from ckan.plugins import toolkit
-
-from IPython import start_ipython
+from ckan.cli import error_shout
 
 
 @click.command()
@@ -21,6 +20,14 @@ def shell(ctx: click.Context):
      - model (CKAN model module to access the Database)
      - toolkit (CKAN toolkit module)
     '''
+    try:
+        from IPython import start_ipython
+    except ImportError:
+        error_shout("`ipython` library is missing from import path.")
+        error_shout("Make sure you have dev-dependencies installed:")
+        error_shout("\tpip install -r dev-requirements.txt")
+        raise click.Abort()
+
     namespace = {
         "app": ctx.obj.app._wsgi_app,
         "model": model,
