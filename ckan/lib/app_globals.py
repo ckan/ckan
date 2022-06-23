@@ -137,7 +137,6 @@ def reset() -> None:
     def get_config_value(key: str, default: str = ''):
         value = model.get_system_info(key)
         config_value = config.get(key)
-        # sort encodeings if needed
 
         # we want to store the config the first time we get here so we can
         # reset them if needed
