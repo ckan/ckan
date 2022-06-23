@@ -139,7 +139,6 @@ class ValidationError(ActionError):
                     assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
                 else:
-                    breakpoint()
                     assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]
             return summary

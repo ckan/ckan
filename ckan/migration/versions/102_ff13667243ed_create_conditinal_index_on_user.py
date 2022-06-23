@@ -21,4 +21,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index("only_one_active_email")
+    op.drop_index("idx_only_one_active_email")
