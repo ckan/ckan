@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.create_index(
-        "idx_only_one_active_email", "user", ["email", "state"], 
+        "idx_only_one_active_email", "user", ["email", "state"],
         unique=True, postgresql_where=sa.text('"user".state=\'active\''))
 
 
