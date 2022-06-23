@@ -1162,21 +1162,23 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
-        if len(unique_keys) < 1:
-            raise ValidationError({
-                'table': [u'table does not have a unique key defined']
-            })
 
         for num, record in enumerate(records):
-            # all key columns have to be defined
-            missing_fields = [field for field in unique_keys
-                              if field not in record]
-            if missing_fields:
+            if not unique_keys and '_id' not in record:
                 raise ValidationError({
-                    'key': [u'''fields "{fields}" are missing
-                        but needed as key'''.format(
-                            fields=', '.join(missing_fields))]
+                    'table': [u'unique key must be passed for update/upsert']
                 })
+
+            else:
+                # all key columns have to be defined
+                missing_fields = [field for field in unique_keys
+                                  if field not in record]
+                if missing_fields:
+                    raise ValidationError({
+                        'key': [u'''fields "{fields}" are missing
+                            but needed as key'''.format(
+                                fields=', '.join(missing_fields))]
+                    })
 
             for field in fields:
                 value = record.get(field['id'])
@@ -1184,15 +1186,24 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
-            non_existing_filed_names = [field for field in record
-                                        if field not in field_names]
-            if non_existing_filed_names:
+            non_existing_field_names = [
+                field for field in record
+                if field not in field_names and field != '_id'
+            ]
+            if non_existing_field_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
-                        ', '.join(non_existing_filed_names))]
+                        ', '.join(non_existing_field_names))]
                 })
 
-            unique_values = [record[key] for key in unique_keys]
+            if '_id' in record:
+                unique_values = [record['_id']]
+                pk_sql = '"_id"'
+                pk_values_sql = '%s'
+            else:
+                unique_values = [record[key] for key in unique_keys]
+                pk_sql = ','.join([identifier(part) for part in unique_keys])
+                pk_values_sql = ','.join(['%s'] * len(unique_keys))
 
             used_fields = [field for field in fields
                            if field['id'] in record]
@@ -1201,21 +1212,21 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             used_values = [record[field] for field in used_field_names]
 
+
             if method == _UPDATE:
                 sql_string = u'''
-                    UPDATE "{res_id}"
+                    UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
                 '''.format(
-                    res_id=data_dict['resource_id'],
+                    res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]).replace('%', '%%'),
                     values=u', '.join(
                         ['%s' for _ in used_field_names]),
-                    primary_key=u','.join(
-                        [u'"{0}"'.format(part) for part in unique_keys]),
-                    primary_value=u','.join(["%s"] * len(unique_keys))
+                    primary_key=pk_sql.replace('%', '%%'),
+                    primary_value=pk_values_sql,
                 )
                 try:
                     results = context['connection'].execute(
@@ -1233,24 +1244,23 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             elif method == _UPSERT:
                 sql_string = u'''
-                    UPDATE "{res_id}"
+                    UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
-                    INSERT INTO "{res_id}" ({columns})
+                    INSERT INTO {res_id} ({columns})
                            SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM "{res_id}"
+                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
-                    res_id=data_dict['resource_id'],
-                    columns=u', '.join([
-                        u'"{0}"'.format(field.replace('%', '%%'))
-                        for field in used_field_names]),
+                    res_id=identifier(data_dict['resource_id']),
+                    columns=u', '.join(
+                        [identifier(field)
+                         for field in used_field_names]).replace('%', '%%'),
                     values=u', '.join(['%s::nested'
                                        if field['type'] == 'nested' else '%s'
                                        for field in used_fields]),
-                    primary_key=u','.join([u'"{0}"'.format(part)
-                                           for part in unique_keys]),
-                    primary_value=u','.join(["%s"] * len(unique_keys))
+                    primary_key=pk_sql.replace('%', '%%'),
+                    primary_value=pk_values_sql,
                 )
                 try:
                     context['connection'].execute(
