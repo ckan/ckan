@@ -11,12 +11,12 @@ from ckan.cli import error_shout
 @click.help_option("-h", "--help")
 @click.pass_context
 def shell(ctx: click.Context):
-    """Run an interactive IPython shell in the context of the
+    """Run an interactive IPython shell with the context of the
     CKAN instance.
     """
     try:
-        from IPython import start_ipython
-        from traitlets.config import Config
+        from IPython import start_ipython # type: ignore
+        from traitlets.config.loader import Config
     except ImportError:
         error_shout("`ipython` library is missing from import path.")
         error_shout("Make sure you have dev-dependencies installed:")
@@ -24,7 +24,7 @@ def shell(ctx: click.Context):
         raise click.Abort()
 
     c = Config()
-    c.TerminalInteractiveShell.banner2 = """
+    banner = """
 ****** Welcome to the CKAN shell ******
 
 This IPython session has some variables pre-populated:
@@ -33,6 +33,7 @@ This IPython session has some variables pre-populated:
   - model (CKAN model module to access the Database)
   - toolkit (CKAN toolkit module)
     """
+    c.TerminalInteractiveShell.banner2 = banner # type: ignore
 
     namespace = {
         "app": ctx.obj.app._wsgi_app,
