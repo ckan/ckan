@@ -410,7 +410,7 @@ class EditView(MethodView):
 
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
-        breakpoint()
+
         return base.render(u'user/edit.html', extra_vars)
 
 
