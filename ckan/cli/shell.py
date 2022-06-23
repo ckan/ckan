@@ -15,7 +15,7 @@ def shell(ctx: click.Context):
     CKAN instance.
     """
     try:
-        from IPython import start_ipython  # type: ignore
+        import IPython
         from traitlets.config.loader import Config
     except ImportError:
         error_shout("`ipython` library is missing from import path.")
@@ -42,4 +42,4 @@ This IPython session has some variables pre-populated:
         "toolkit": toolkit,
     }
 
-    start_ipython([], user_ns=namespace, config=c)
+    IPython.start_ipython([], user_ns=namespace, config=c)  # type: ignore
