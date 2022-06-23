@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """create conditinal index on user
 
 Revision ID: ff13667243ed
