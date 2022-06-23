@@ -42,4 +42,4 @@ This IPython session has some variables pre-populated:
         "toolkit": toolkit,
     }
 
-    IPython.start_ipython([], user_ns=namespace, config=c)  # type: ignore
+    IPython.start_ipython([], user_ns=namespace, config=c)
