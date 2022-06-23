@@ -1,10 +1,41 @@
 # encoding: utf-8
 import click
+import logging
 
 import ckan.model as model
 
+from typing import Any, Mapping
+
 from ckan.plugins import toolkit
-from ckan.cli import error_shout
+
+
+log = logging.getLogger(__name__)
+
+
+_banner = """
+****** Welcome to the CKAN shell ******
+
+This session has some variables pre-populated:
+  - app (CKAN Application object)
+  - config (CKAN config dictionary)
+  - model (CKAN model module to access the Database)
+  - toolkit (CKAN toolkit module)
+    """
+
+
+def ipython(namespace: Mapping[str, Any], banner: str) -> None:
+    import IPython
+    from traitlets.config.loader import Config
+
+    c = Config()
+    c.TerminalInteractiveShell.banner2 = banner  # type: ignore
+
+    IPython.start_ipython([], user_ns=namespace, config=c)
+
+
+def python(namespace: Mapping[str, Any], banner: str) -> None:
+    import code
+    code.interact(banner=banner, local=namespace)
 
 
 @click.command()
@@ -13,27 +44,10 @@ from ckan.cli import error_shout
 def shell(ctx: click.Context):
     """Run an interactive IPython shell with the context of the
     CKAN instance.
-    """
-    try:
-        import IPython
-        from traitlets.config.loader import Config
-    except ImportError:
-        error_shout("`ipython` library is missing from import path.")
-        error_shout("Make sure you have dev-dependencies installed:")
-        error_shout("\tpip install -r dev-requirements.txt")
-        raise click.Abort()
 
-    c = Config()
-    banner = """
-****** Welcome to the CKAN shell ******
-
-This IPython session has some variables pre-populated:
-  - app (CKAN Application object)
-  - config (CKAN config dictionary)
-  - model (CKAN model module to access the Database)
-  - toolkit (CKAN toolkit module)
+    It will try to use IPython, if not installed it will callback
+    to the default Python's shell.
     """
-    c.TerminalInteractiveShell.banner2 = banner  # type: ignore
 
     namespace = {
         "app": ctx.obj.app._wsgi_app,
@@ -42,4 +56,8 @@ This IPython session has some variables pre-populated:
         "toolkit": toolkit,
     }
 
-    IPython.start_ipython([], user_ns=namespace, config=c)
+    try:
+        ipython(namespace, _banner)
+    except ImportError:
+        log.debug("`ipython` library is missing. Using default python shell.")
+        python(namespace, _banner)
