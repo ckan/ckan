@@ -33,6 +33,8 @@ Decorated = TypeVar("Decorated")
 log = logging.getLogger(__name__)
 _validate = df.validate
 
+_PG_ERR_CODE = {'unique_violation': '23505'}
+
 
 class NameConflict(Exception):
     pass
@@ -137,6 +139,7 @@ class ValidationError(ActionError):
                     assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
                 else:
+                    breakpoint()
                     assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]
             return summary
