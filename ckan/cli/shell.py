@@ -15,7 +15,7 @@ def shell(ctx: click.Context):
     CKAN instance.
     """
     try:
-        from IPython import start_ipython # type: ignore
+        from IPython import start_ipython  # type: ignore
         from traitlets.config.loader import Config
     except ImportError:
         error_shout("`ipython` library is missing from import path.")
@@ -33,7 +33,7 @@ This IPython session has some variables pre-populated:
   - model (CKAN model module to access the Database)
   - toolkit (CKAN toolkit module)
     """
-    c.TerminalInteractiveShell.banner2 = banner # type: ignore
+    c.TerminalInteractiveShell.banner2 = banner  # type: ignore
 
     namespace = {
         "app": ctx.obj.app._wsgi_app,
