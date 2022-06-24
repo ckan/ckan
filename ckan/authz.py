@@ -238,7 +238,7 @@ def is_authorized(action: str, context: Context,
                 name = auth_function.__name__
             return {
                 'success': False,
-                'msg': 'Action {0} requires an authenticated user'.format(name)
+                'msg': f'Action {name} requires an authenticated user'
             }
 
         return auth_function(context, data_dict or {})

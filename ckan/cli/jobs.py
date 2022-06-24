@@ -55,8 +55,9 @@ def list_jobs(queues: list[str]):
         if job[u"title"] is None:
             job[u"title"] = u""
         else:
-            job[u"title"] = u'"{}"'.format(job[u"title"])
-        click.secho(u"{created} {id} {queue} {title}".format(**job))
+            job[u"title"] = f'"{job[u"title"]}"'
+        click.secho(
+            f"{job['created']} {job['id']} {job['queue']} {job['title']}")
 
 
 @jobs.command(short_help=u"Show details about a specific job.")
@@ -67,17 +68,17 @@ def show(id: str):
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
-        error_shout(u'There is no job with ID "{}"'.format(id))
+        error_shout(f'There is no job with ID "{id}"')
         raise click.Abort()
 
-    click.secho(u"ID:      {}".format(job[u"id"]))
+    click.secho(f"ID:      {job['id']}")
     if job[u"title"] is None:
         title = u"None"
     else:
-        title = u'"{}"'.format(job[u"title"])
-    click.secho(u"Title:   {}".format(title))
-    click.secho(u"Created: {}".format(job[u"created"]))
-    click.secho(u"Queue:   {}".format(job[u"queue"]))
+        title = f'"{job[u"title"]}"'
+    click.secho(f"Title:   {title}")
+    click.secho(f"Created: {job['created']}")
+    click.secho(f"Queue:   {job['queue']}")
 
 
 @jobs.command(short_help=u"Cancel a specific job.")
@@ -93,10 +94,10 @@ def cancel(id: str):
             {u"ignore_auth": True}, {u"id": id}
         )
     except logic.NotFound:
-        error_shout(u'There is no job with ID "{}"'.format(id))
+        error_shout(f'There is no job with ID "{id}"')
         raise click.Abort()
 
-    click.secho(u"Cancelled job {}".format(id), fg=u"green")
+    click.secho(f"Cancelled job {id}", fg=u"green")
 
 
 @jobs.command(short_help=u"Cancel all jobs.")
@@ -113,7 +114,7 @@ def clear(queues: list[str]):
         {u"ignore_auth": True}, data_dict
     )
     queues = [u'"{}"'.format(q) for q in queues]
-    click.secho(u"Cleared queue(s) {}".format(u", ".join(queues)), fg=u"green")
+    click.secho(f'Cleared queue(s) {", ".join(queues)}', fg=u"green")
 
 
 @jobs.command(short_help=u"Enqueue a test job.")
@@ -128,7 +129,4 @@ def test(queues: list[str]):
         job = bg_jobs.enqueue(
             bg_jobs.test_job, [u"A test job"], title=u"A test job", queue=queue
         )
-        click.secho(
-            u'Added test job {} to queue "{}"'.format(job.id, queue),
-            fg=u"green",
-        )
+        click.secho(f'Added test job {job.id} to queue "{queue}"', fg=u"green")

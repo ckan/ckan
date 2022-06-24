@@ -24,7 +24,7 @@ def sass():
 
 
 def _compile_sass(root: str, command: tuple[str, ...], color: str):
-    click.echo(u'compile {}.css'.format(color))
+    click.echo(f'compile {color}.css')
     command = command + (u'--', u'--' + color)
 
     process = subprocess.Popen(

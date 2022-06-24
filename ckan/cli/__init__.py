@@ -132,12 +132,11 @@ def load_config(ini_path: Optional[str] = None) -> Config:
                 break
         if not filename:
             # give really clear error message for this common situation
-            msg = u'''
+            msg = f'''
 ERROR: You need to specify the CKAN config (.ini) file path.
 
 Use the --config parameter or set environment variable CKAN_INI
-or have one of {} in the current directory.'''
-            msg = msg.format(u', '.join(default_filenames))
+or have one of {', '.join(default_filenames)} in the current directory.'''
             raise CkanConfigurationException(msg)
 
     if not filename or not os.path.exists(filename):
@@ -147,6 +146,6 @@ or have one of {} in the current directory.'''
 
     config_loader = CKANConfigLoader(filename)
     loggingFileConfig(filename)
-    log.info(u'Using configuration file {}'.format(filename))
+    log.info(f'Using configuration file {filename}')
 
     return config_loader.get_config()

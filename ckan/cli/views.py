@@ -75,14 +75,12 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
         elif page == 1 and not yes:
 
             msg = (
-                u"\nYou are about to check {0} datasets for the "
-                + u"following view plugins: {1}\n"
-                + u" Do you want to continue?"
+                f"\nYou are about to check {query[u'count']} datasets for the "
+                + f"following view plugins: {loaded_view_plugins}\n"
+                + " Do you want to continue?"
             )
 
-            click.confirm(
-                msg.format(query[u"count"], loaded_view_plugins), abort=True
-            )
+            click.confirm(msg, abort=True)
 
         if query[u"results"]:
             for dataset_dict in query[u"results"]:
@@ -97,16 +95,10 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
                 if views:
                     view_types = list({view[u"view_type"] for view in views})
                     msg = (
-                        u"Added {0} view(s) of type(s) {1} to "
-                        + u"resources from dataset {2}"
+                        f'Added {len(views)} view(s) of type(s) {", ".join(view_types)} to '
+                        + f'resources from dataset {dataset_dict["name"]}'
                     )
-                    click.secho(
-                        msg.format(
-                            len(views),
-                            u", ".join(view_types),
-                            dataset_dict[u"name"],
-                        )
-                    )
+                    click.secho(msg)
 
             if len(query[u"results"]) < _page_size:
                 break
@@ -129,9 +121,8 @@ def clear(types: list[str], yes: bool):
     if not yes:
         if types:
             msg = (
-                u"Are you sure you want to delete all resource views "
-                + u"of type {0}?".format(u", ".join(types))
-            )
+                "Are you sure you want to delete all resource views "
+                + f'of type {", ".join(types)}?')
         else:
             msg = u"Are you sure you want to delete all resource views?"
         click.confirm(msg, abort=True)
@@ -215,9 +206,9 @@ def _get_view_plugins(view_plugin_types: list[str],
 
     if plugins_not_found:
         error_shout(
-            u"View plugin(s) not found : {0}. ".format(plugins_not_found)
-            + u"Have they been added to the `ckan.plugins` configuration"
-            + u" option?"
+            f"View plugin(s) not found : {plugins_not_found}. "
+            + "Have they been added to the `ckan.plugins` configuration"
+            + " option?"
         )
         return None
     return loaded_view_plugins

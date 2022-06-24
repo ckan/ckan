@@ -48,7 +48,7 @@ def plugin_info():
                 extra = _template_helpers(p[u'class'])
             if i == u'IActions':
                 extra = _actions(p[u'class'])
-            click.echo(u'    {i}'.format(i=i))
+            click.echo(f'    {i}')
             if extra:
                 click.echo(extra)
         click.echo()
@@ -87,11 +87,10 @@ def _function_info(functions: dict[str, Callable[..., Any]]):
         if inspect.ismethod(fn) and inspect.isclass(fn.__self__):
             params = params[1:]
         params = u', '.join(params)
-        output.append(u'        {function_name}({params})'.format(
-            function_name=function_name, params=params))
+        output.append(f'        {function_name}({params})')
         # doc string
         if fn.__doc__:
             bits = fn.__doc__.split(u'\n')
             for bit in bits:
-                output.append(u'            {bit}'.format(bit=bit))
+                output.append(f'            {bit}')
     return (u'\n').join(output)

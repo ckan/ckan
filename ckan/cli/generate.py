@@ -63,8 +63,7 @@ def extension(output_dir: str):
                             default=u"must begin 'ckanext-'")
         if not name.startswith(u"ckanext-"):
             error_shout(
-                u"ERROR: Project name must start with 'ckanext-' > {}\n"
-                .format(name))
+                f"ERROR: Project name must start with 'ckanext-' > {name}\n")
         else:
             break
 
@@ -114,7 +113,7 @@ def extension(output_dir: str):
             os.path.join(
                 output_dir, context["project"], "ckanext", project_short))
 
-    click.echo(u"\nWritten: {}/{}".format(output_dir, name))
+    click.echo(f"\nWritten: {output_dir}/{name}")
 
 
 _code_examples = [
@@ -280,10 +279,9 @@ def fake_data(ctx: click.Context, category: Optional[str],
         raise click.Abort()
 
     if not issubclass(factory, CKANFactory):
-        error_shout("Factory must be a subclass of `{module}:{cls}`".format(
-            module=CKANFactory.__module__,
-            cls=CKANFactory.__name__,
-        ))
+        module=CKANFactory.__module__
+        cls=CKANFactory.__name__
+        error_shout(f"Factory must be a subclass of `{module}:{cls}`")
         raise click.Abort()
 
     try:

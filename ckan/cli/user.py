@@ -181,11 +181,7 @@ def add_token(
         try:
             key, value = chunk.split(u"=")
         except ValueError:
-            error_shout(
-                u"Extras must be passed as `key=value`. Got: {}".format(
-                    chunk
-                )
-            )
+            error_shout(f"Extras must be passed as `key=value`. Got: {chunk}")
             raise click.Abort()
         data_dict[key] = value
 
@@ -237,8 +233,4 @@ def list_tokens(username: str):
 
         else:
             accessed = u"Never"
-        click.echo(
-            u"\t[{id}] {name} - {accessed}".format(
-                name=token[u"name"], id=token[u"id"], accessed=accessed
-            )
-        )
+        click.echo(f"\t[{token['id']}] {token['name']} - {accessed}")

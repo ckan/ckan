@@ -86,9 +86,9 @@ def pending_migrations(apply: bool):
     if not pending:
         click.secho("All plugins are up-to-date", fg="green")
     for plugin, n in sorted(pending.items()):
-        click.secho("{n} unapplied migrations for {p}".format(
-            p=click.style(plugin, bold=True),
-            n=click.style(str(n), bold=True)))
+        p=click.style(plugin, bold=True)
+        n=click.style(str(n), bold=True)
+        click.secho(f"{n} unapplied migrations for {p}")
         if apply:
             _run_migrations(plugin)
 
@@ -136,9 +136,7 @@ def version(plugin: str):
         current = _version_hash_to_ordinal(current)
     except ValueError:
         pass
-    click.secho(u'Current DB version: {}'.format(current),
-                fg=u'green',
-                bold=True)
+    click.secho(f'Current DB version: {current}', fg=u'green', bold=True)
 
 
 def current_revision(plugin: str) -> Optional[str]:
@@ -164,10 +162,8 @@ def duplicate_emails():
             users = [user[1] for user in grp]
             if len(users) > 1:
                 duplicates_found = True
-                s = u"{} appears {} time(s). Users: {}"
-                click.secho(
-                    s.format(k, len(users), u", ".join(users)),
-                    fg=u"green", bold=True)
+                s = f"{k} appears {len(users)} time(s). Users: {', '.join(users)}"
+                click.secho(s, fg=u"green", bold=True)
     except Exception as e:
         error_shout(e)
     if not duplicates_found:
@@ -187,15 +183,14 @@ def _version_hash_to_ordinal(version: str):
     for name in versions:
         if version in name:
             return int(name.split(u'_')[0])
-    error_shout(u'Version `{}` was not found in {}'.format(
-        version, versions_dir))
+    error_shout(f'Version `{version}` was not found in {versions_dir}')
 
 
 def _resolve_alembic_config(plugin: str):
     if plugin:
         plugin_obj = p.get_plugin(plugin)
         if plugin_obj is None:
-            error_shout(u"Plugin '{}' cannot be loaded.".format(plugin))
+            error_shout(f"Plugin '{plugin}' cannot be loaded.")
             raise click.Abort()
         source = inspect.getsourcefile(type(plugin_obj))
         assert source

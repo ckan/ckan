@@ -193,7 +193,7 @@ def asbool(obj: Any) -> bool:
         elif obj in falsy:
             return False
         else:
-            raise ValueError(u"String is not true/false: {}".format(obj))
+            raise ValueError(f"String is not true/false: {obj}")
     return bool(obj)
 
 
@@ -208,7 +208,7 @@ def asint(obj: Any) -> int:
     try:
         return int(obj)
     except (TypeError, ValueError):
-        raise ValueError(u"Bad integer value: {}".format(obj))
+        raise ValueError(f"Bad integer value: {obj}")
 
 
 T = TypeVar('T')

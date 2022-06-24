@@ -88,12 +88,8 @@ def check_po(files: list[str]):
     for file in files:
         errors = check_po_file(file)
         for msgid, msgstr in errors:
-            click.echo(u"Format specifiers don't match:")
-            click.echo(
-                u'\t{} -> {}'.format(
-                    msgid, msgstr.encode(u'ascii', u'replace')
-                )
-            )
+            click.echo("Format specifiers don't match:")
+            click.echo(f'\t{msgid} -> {msgstr.encode("ascii", "replace")}')
 
 
 @translation.command(
@@ -131,9 +127,7 @@ def sync_po_file_msgids(entries_to_change: dict[str, Any], path: str):
             cnt += 1
 
     po.save()
-    click.echo(
-        u'Entries updated in {} file: {}'.format(po.metadata[u'Language'], cnt)
-    )
+    click.echo(f'Entries updated in {po.metadata["Language"]} file: {cnt}')
 
 
 def get_i18n_path() -> str:

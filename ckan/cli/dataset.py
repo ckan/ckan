@@ -82,7 +82,5 @@ def purge(package: str):
 
 def _get_dataset(package: str):
     dataset = model.Package.get(str(package))
-    assert dataset, u'Could not find dataset matching reference: {}'.format(
-        package
-    )
+    assert dataset, f'Could not find dataset matching reference: {package}'
     return dataset

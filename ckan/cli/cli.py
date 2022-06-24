@@ -183,16 +183,14 @@ def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
     registered_entries = {}
     for entry in iter_entry_points(entry_point):
         if entry.name in registered_entries:
+            first=registered_entries[entry.name].dist
             error_shout((
-                u'Attempt to override entry_point `{name}`.\n'
-                u'First encounter:\n\t{first!r}\n'
-                u'Second encounter:\n\t{second!r}\n'
-                u'Either uninstall one of mentioned extensions or update'
-                u' corresponding `setup.py` and re-install the extension.'
-            ).format(
-                name=entry.name,
-                first=registered_entries[entry.name].dist,
-                second=entry.dist))
+                f'Attempt to override entry_point `{entry.name}`.\n'
+                f'First encounter:\n\t{first!r}\n'
+                f'Second encounter:\n\t{entry.dist!r}\n'
+                f'Either uninstall one of mentioned extensions or update'
+                f' corresponding `setup.py` and re-install the extension.'
+            ))
             raise click.Abort()
         registered_entries[entry.name] = entry
 

@@ -66,7 +66,7 @@ def update_all(engine: model.Engine, start_date: Optional[str] = None):
     while date < end_date:
         stop_date = date + datetime.timedelta(1)
         update_tracking(engine, date)
-        click.echo(u'tracking updated for {}'.format(date))
+        click.echo(f'tracking updated for {date}')
         date = stop_date
 
     update_tracking_solr(engine, start_date_solrsync)
@@ -212,16 +212,15 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
 
     total = len(package_ids)
     not_found = 0
-    click.echo(u'{} package index{} to be rebuilt starting from {}'.format(
-        total, u'' if total < 2 else u'es', start_date)
-    )
+    es = '' if total < 2 else 'es'
+    click.echo(f'{total} package index{es} to be rebuilt starting from {start_date}')
 
     from ckan.lib.search import rebuild
     for package_id in package_ids:
         try:
             rebuild(package_id)
         except logic.NotFound:
-            click.echo(u'Error: package {} not found.'.format(package_id))
+            click.echo(f'Error: package {package_id} not found.')
             not_found += 1
         except KeyboardInterrupt:
             click.echo(u'Stopped.')
@@ -230,6 +229,6 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
             error_shout(e)
     click.echo(
         u'search index rebuilding done.' + (
-            u' {} not found.'.format(not_found) if not_found else u''
+            f' {not_found if not_found else ""} not found.'
         )
     )
