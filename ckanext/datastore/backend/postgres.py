@@ -1212,7 +1212,6 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             used_values = [record[field] for field in used_field_names]
 
-
             if method == _UPDATE:
                 sql_string = u'''
                     UPDATE {res_id}
