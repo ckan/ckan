@@ -926,7 +926,7 @@ class TestDatastoreUpdate(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": "id",
+            "primary_key": "pk",
             "fields": [
                 {"id": "pk", "type": "text"},
                 {"id": "book", "type": "text"},
