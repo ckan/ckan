@@ -587,7 +587,7 @@ class TestDatastoreUpsert(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "primary_key": "id",
+            "primary_key": "pk",
             "fields": [
                 {"id": "pk", "type": "text"},
                 {"id": "book", "type": "text"},
@@ -612,6 +612,7 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["pk"] == "1000"
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "F Torres"
+
 
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreInsert(object):
