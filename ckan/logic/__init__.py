@@ -830,9 +830,17 @@ def guard_agains_duplicated_email(email: str):
     try:
         yield
     except exc.IntegrityError as e:
-        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
-            raise ValidationError(cast(ErrorDict, {
-                'email': ['The email address \'{email}\' belongs to '
-                                'a registered user.'.format(email=email)]}))
+            raise ValidationError(
+                cast(
+                    ErrorDict,
+                    {
+                        "email": [
+                            "The email address '{email}' belongs to "
+                            "a registered user.".format(email=email)
+                        ]
+                    },
+                )
+            )
         raise
