@@ -9,7 +9,6 @@ import datetime
 import time
 import json
 from typing import Any, Union, TYPE_CHECKING, cast
-from sqlalchemy import exc
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -42,7 +41,6 @@ _check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
-_PG_ERR_CODE = logic._PG_ERR_CODE
 
 
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
@@ -825,17 +823,8 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        try:
+        with logic.guard_agains_duplicated_email(data_dict['email']):
             model.repo.commit()
-        except exc.IntegrityError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
-                session.rollback()
-                raise ValidationError(cast(ErrorDict, {
-                    'constraints': ['The email address \'{email}\' belongs to '
-                                    'a registered user.'.format(
-                                        email=data_dict.get('email'))],
-                }))
-            raise
 
     author_obj = model.User.get(context.get('user'))
     include_plugin_extras = False

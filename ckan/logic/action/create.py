@@ -10,7 +10,6 @@ import re
 import datetime
 from socket import error as socket_error
 from typing import Any, Union, cast
-from sqlalchemy import exc
 
 import six
 
@@ -52,7 +51,6 @@ ValidationError = logic.ValidationError
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
-_PG_ERR_CODE = logic._PG_ERR_CODE
 
 
 def package_create(
@@ -1002,17 +1000,8 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        try:
+        with logic.guard_agains_duplicated_email(data_dict['email']):
             model.repo.commit()
-        except exc.IntegrityError as e:
-            if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
-                session.rollback()
-                raise ValidationError(cast(ErrorDict, {
-                    'constraints': ['The email address \'{email}\' belongs to '
-                                    'a registered user.'.format(
-                                        email=data_dict.get('email'))],
-                }))
-            raise
 
     # A new context is required for dictizing the newly constructed user in
     # order that all the new user's data is returned, in particular, the
