@@ -826,7 +826,7 @@ def _import_module_functions(
 
 
 @contextmanager
-def guard_agains_duplicated_email(email: str):
+def guard_against_duplicated_email(email: str):
     try:
         yield
     except exc.IntegrityError as e:
