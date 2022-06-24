@@ -1085,7 +1085,7 @@ def upsert_data(context, data_dict):
                     'table': [u'unique key must be passed for update/upsert']
                 })
 
-            else:
+            elif '_id' not in record:
                 # all key columns have to be defined
                 missing_fields = [field for field in unique_keys
                                   if field not in record]
