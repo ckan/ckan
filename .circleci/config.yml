@@ -21,8 +21,8 @@ defaults:
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
     run: |
-      mkdir -p ~/junit
-      python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --splits 4 --group $((CIRCLE_NODE_INDEX+1)) --splitting-algorithm least_duration
+      mkdir -p ~/junit/result
+      python -m pytest -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/result/junit.xml --splits 4 --group $((CIRCLE_NODE_INDEX+1)) --splitting-algorithm least_duration
 
   ckan_env: &ckan_env
     environment:
@@ -35,7 +35,7 @@ defaults:
       CKAN_POSTGRES_USER: ckan_default
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
-      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/junit.xml --test-group-count 4  --test-group-random-seed 1
+      PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=/root/junit/result/junit.xml --test-group-count 4  --test-group-random-seed 1
   pg_image: &pg_image
     image: postgres:10
     environment:
@@ -77,6 +77,7 @@ jobs:
 
       # Tests Backend, split across containers by segments
       - <<: *run_tests
+
       - store_test_results:
           path: /root/junit
 
