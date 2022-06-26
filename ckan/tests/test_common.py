@@ -183,3 +183,7 @@ def test_can_also_use_c_on_a_flask_request():
 def test_accessing_missing_key_raises_error_on_flask_request():
     with pytest.raises(AttributeError):
         getattr(ckan_g, u"user")
+
+
+def test_fail_for_ci():
+    assert False, "I'm here!"
