@@ -77,10 +77,8 @@ jobs:
 
       # Tests Backend, split across containers by segments
       - <<: *run_tests
-
       - store_test_results:
-          path: /root/junit
-
+          path: ~/junit
       - run: coveralls
 workflows:
   version: 2
