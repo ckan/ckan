@@ -4,14 +4,13 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import six
-from flask_login import logout_user
 
 from urllib.parse import quote
 from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-from ckan.common import g, request, config, session, current_user
+from ckan.common import g, request, config, session, current_user, logout_user
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
@@ -106,8 +105,8 @@ def identify_user() -> Optional[Response]:
     g.userobj = '' if current_user.is_anonymous else current_user
 
     # logout, if a user that was still logged in is deleted.
-    if not current_user.is_anonymous:
-        if not current_user.is_active():  # type: ignore
+    if current_user.is_authenticated:
+        if not current_user.is_active:
             logout_user()
 
     # If we have a user but not the userobj let's get the userobj. This means

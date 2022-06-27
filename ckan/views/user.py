@@ -22,8 +22,9 @@ import ckan.logic.schema as schema
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
-from ckan.common import _, config, g, request, current_user
-from flask_login import login_user, logout_user
+from ckan.common import (
+    _, config, g, request, current_user, login_user, logout_user
+)
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
 
@@ -59,7 +60,7 @@ def _new_form_to_db_schema() -> Schema:
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = False
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         is_sysadmin = authz.is_sysadmin(current_user.name)
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
@@ -263,7 +264,7 @@ class EditView(MethodView):
             u'auth_user_obj': current_user
         })
         if id is None:
-            if not current_user.is_anonymous:
+            if current_user.is_authenticated:
                 id = current_user.id  # type: ignore
             else:
                 base.abort(400, _(u'No user specified'))
@@ -495,7 +496,7 @@ def login() -> Union[Response, str]:
 
     extra_vars: dict[str, Any] = {}
 
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         return base.render("user/logout_first.html", extra_vars)
 
     if request.method == "POST":
@@ -565,7 +566,7 @@ def delete(id: str) -> Union[Response, Any]:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         if current_user.id == id:  # type: ignore
             return logout()
         else:

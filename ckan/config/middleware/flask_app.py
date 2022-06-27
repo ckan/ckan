@@ -38,7 +38,7 @@ from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
-from ckan.common import config, g, request, ungettext, current_user
+from ckan.common import config, g, request, ungettext, current_user, _
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware,
                                                       RootPathMiddleware)
@@ -531,10 +531,10 @@ def _register_error_handler(app: CKANApp):
         if isinstance(e, HTTPException):
             # If the current_user.is_anonymous and the
             # Exception code is 401(Unauthorized)/403(Forbidden)
-            # force the users to log in before we check for their access.
-            # This logic will be ignored if the ckan.login_required_disabled
-            # is set to True, in your .ini file.
-            if not config.get_value('ckan.login_required.disabled'):
+            # redirect the users to login page before trying to access it again
+            # If you want to raise a 401 or 403 error instead, 
+            # set this setting to `False`
+            if config.get_value('ckan.redirect_to_login_if_not_authorized'):
                 # if the url is not local we dont want to redirect the user
                 # instead, we want to show the actual 403(Forbidden)...
                 # same for user.perform_reset if the current_user.is_deleted()
@@ -551,7 +551,7 @@ def _register_error_handler(app: CKANApp):
                         redirect_url = h.make_login_url(
                             login_url, next_url=next_url
                         )
-                        h.flash('Please log in to access this page.')
+                        h.flash_error(_('Please log in to access this page.'))
                         return h.redirect_to(redirect_url)
 
             if debug:

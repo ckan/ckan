@@ -42,7 +42,7 @@ flask==2.0.3
     #   flask-multistatic
 flask-babel==1.0.0
     # via -r requirements.in
-flask-login==0.5.0
+flask-login==0.6.1
     # via -r requirements.in
 flask-multistatic==1.0
     # via -r requirements.in

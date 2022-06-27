@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import mock
+from flask_login import user_logged_in as signals_user_logged_in
 import pytest
 
 import ckan.model as model
@@ -81,7 +82,7 @@ class TestUserSignals:
         success = mock.Mock()
         fail = mock.Mock()
         invalid = factories.User.stub().name
-        with signals.successful_login.connected_to(success):
+        with signals_user_logged_in.connected_to(success):
             with signals.failed_login.connected_to(fail):
                 data = {u"login": invalid, u"password": u"invalid"}
                 app.post(url, data=data)

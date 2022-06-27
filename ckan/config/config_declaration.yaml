@@ -386,16 +386,14 @@ groups:
         type: bool
         description: If set to True, CKAN will not publicly expose its version number.
 
-      - key: ckan.login_required.disabled
-        default: False
+      - key: ckan.redirect_to_login_if_not_authorized
+        default: True
         type: bool
         description: |
-          This `CKAN` decorator exists only to decorate
-          the `error_handler`.
-          It will intercept ONLY if the `current_user.is_anonymous` and the
-          `Exception` code is `401(Unauthorized)/403(Forbidden)`
-          and will force the users to log in before we check for their access.
-          If disabled this decorator will be ignored.
+          By default, if a user is not authorized to visit a page, they will
+          get redirected to the login page before trying to access it again.
+          If you want to raise a 401 or 403 error instead,
+          set this setting to `False`
 
   - annotation: Authorization Settings
     options:

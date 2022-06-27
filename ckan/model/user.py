@@ -347,6 +347,11 @@ class User(core.StatefulObjectMixin,
         '''Needed by flask-login'''
         return False
 
+    @property
+    def is_active(self):
+        '''Needed by flask-login'''
+        return super().is_active()
+
     def set_user_last_active(self) -> None:
         if self.last_active:
             session["last_active"] = self.last_active
