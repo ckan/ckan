@@ -513,7 +513,7 @@ def _register_core_blueprints(app: CKANApp):
 
     path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
 
-    for loader, name, _ in pkgutil.iter_modules([path], 'ckan.views.'):
+    for loader, name, __ in pkgutil.iter_modules([path], 'ckan.views.'):
         # type_ignore_reason: incorrect external type declarations
         module = loader.find_module(name).load_module(name)  # type: ignore
         for blueprint in inspect.getmembers(module, is_blueprint):
