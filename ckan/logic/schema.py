@@ -442,6 +442,13 @@ def default_user_schema(
 
 
 @validator_args
+def create_user_for_user_invite_schema(ignore_missing: Validator):
+    schema = default_user_schema()
+    schema['password'] = [ignore_missing]
+    return schema
+
+
+@validator_args
 def user_new_form_schema(
         unicode_safe: Validator, user_both_passwords_entered: Validator,
         user_password_validator: Validator, user_passwords_match: Validator):
