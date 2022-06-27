@@ -755,7 +755,7 @@ class TestUser(object):
         app.post(url, params=params)
 
         userobj = model.User.get(userobj.id)
-        assert userobj.is_active()
+        assert userobj.is_active
 
     def test_perform_reset_doesnt_activate_deleted_user(self, app):
         password = "TestPassword1"
