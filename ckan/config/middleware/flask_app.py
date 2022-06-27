@@ -532,7 +532,7 @@ def _register_error_handler(app: CKANApp):
             # If the current_user.is_anonymous and the
             # Exception code is 401(Unauthorized)/403(Forbidden)
             # redirect the users to login page before trying to access it again
-            # If you want to raise a 401 or 403 error instead, 
+            # If you want to raise a 401 or 403 error instead,
             # set this setting to `False`
             if config.get_value('ckan.redirect_to_login_if_not_authorized'):
                 # if the url is not local we dont want to redirect the user
