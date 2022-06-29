@@ -14,35 +14,35 @@ def activities():
     org = factories.Organization()
     dataset = factories.Dataset(owner_org=org["id"])
 
-    dataset["notes"] = "First Update"
+    dataset["notes"] = "Update 0"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
         **dataset,
     )
 
-    dataset["notes"] = "Second Update"
+    dataset["notes"] = "Update 1"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
         **dataset,
     )
 
-    dataset["notes"] = "Third Update"
+    dataset["notes"] = "Update 2"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
         **dataset,
     )
 
-    dataset["notes"] = "Fourth Update"
+    dataset["notes"] = "Update 3"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
         **dataset,
     )
 
-    dataset["notes"] = "Fifth Update"
+    dataset["notes"] = "Update 4"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
@@ -64,16 +64,26 @@ def activities():
 @pytest.mark.usefixtures("clean_db", "with_plugins", "activities")
 class TestActivityPagination(object):
     def test_default_returns_ordered_by_time_desc(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With no filters
+        Returns [4, 3, 2, 1, 0]
+        """
         dataset, _ = activities
         complete_stream = helpers.call_action(
             "package_activity_list", context={}, id=dataset["id"]
         )
-        assert complete_stream[0]["data"]["package"]["notes"] == "Fifth Update"
+        assert complete_stream[0]["data"]["package"]["notes"] == "Update 4"
         assert (
-            complete_stream[-1]["data"]["package"]["notes"] == "First Update"
+            complete_stream[-1]["data"]["package"]["notes"] == "Update 0"
         )
 
     def test_offset_call_returns_ordered_by_time_desc(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With offset 0 and limit 3
+        Returns [4, 3, 2]
+        """
         dataset, _ = activities
         offset_stream = helpers.call_action(
             "package_activity_list",
@@ -82,10 +92,15 @@ class TestActivityPagination(object):
             offset=0,
             limit=3,
         )
-        assert offset_stream[0]["data"]["package"]["notes"] == "Fifth Update"
-        assert offset_stream[-1]["data"]["package"]["notes"] == "Third Update"
+        assert offset_stream[0]["data"]["package"]["notes"] == "Update 4"
+        assert offset_stream[-1]["data"]["package"]["notes"] == "Update 2"
 
     def test_before_call_returns_ordered_by_time_desc(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With before 4
+        Returns [3, 2, 1, 0]
+        """
         dataset, times = activities
         before_stream = helpers.call_action(
             "package_activity_list",
@@ -94,10 +109,15 @@ class TestActivityPagination(object):
             before=times[0],
         )
         assert len(before_stream) == 4
-        assert before_stream[0]["data"]["package"]["notes"] == "Fourth Update"
-        assert before_stream[-1]["data"]["package"]["notes"] == "First Update"
+        assert before_stream[0]["data"]["package"]["notes"] == "Update 3"
+        assert before_stream[-1]["data"]["package"]["notes"] == "Update 0"
 
-    def test_before_fifth_with_limit_2_should_get_fourth_and_third(self, activities):
+    def test_before_4_with_limit_2_should_get_3_and_2(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With limit 2
+        Returns [3, 2]
+        """
         dataset, times = activities
         before_stream = helpers.call_action(
             "package_activity_list",
@@ -107,20 +127,30 @@ class TestActivityPagination(object):
             limit=2,
         )
         assert len(before_stream) == 2
-        assert before_stream[0]["data"]["package"]["notes"] == "Fourth Update"
-        assert before_stream[-1]["data"]["package"]["notes"] == "Third Update"
+        assert before_stream[0]["data"]["package"]["notes"] == "Update 3"
+        assert before_stream[-1]["data"]["package"]["notes"] == "Update 2"
 
     def test_after_call_returns_ordered_by_time_desc(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With after 1
+        Returns [4, 3, 2]
+        """
         dataset, times = activities
         after_stream = helpers.call_action(
             "package_activity_list", context={}, id=dataset["id"], after=times[3]
         )
         assert len(after_stream) == 3
-        assert after_stream[0]["data"]["package"]["notes"] == "Fifth Update"
-        assert after_stream[1]["data"]["package"]["notes"] == "Fourth Update"
-        assert after_stream[2]["data"]["package"]["notes"] == "Third Update"
+        assert after_stream[0]["data"]["package"]["notes"] == "Update 4"
+        assert after_stream[1]["data"]["package"]["notes"] == "Update 3"
+        assert after_stream[2]["data"]["package"]["notes"] == "Update 2"
 
     def test_before_and_after_calls_returs_ordered_by_time_desc(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With after 0 and before 4
+        Returns [3, 2, 1]
+        """
         dataset, times = activities
         before_after_stream = helpers.call_action(
             "package_activity_list",
@@ -132,14 +162,19 @@ class TestActivityPagination(object):
         assert len(before_after_stream) == 3
         assert (
             before_after_stream[0]["data"]["package"]["notes"]
-            == "Fourth Update"
+            == "Update 3"
         )
         assert (
             before_after_stream[-1]["data"]["package"]["notes"]
-            == "Second Update"
+            == "Update 1"
         )
 
     def test_before_now_should_return_all(self, activities):
+        """
+        Given [4, 3, 2, 1, 0]
+        With before now
+        Returns [4, 3, 2, 1, 0]
+        """
         dataset, _ = activities
         now = datetime.datetime.utcnow().timestamp()
         total_before_stream = helpers.call_action(
@@ -151,18 +186,18 @@ class TestActivityPagination(object):
         assert len(total_before_stream) == 5
         assert (
             total_before_stream[0]["data"]["package"]["notes"]
-            == "Fifth Update"
+            == "Update 4"
         )
         assert (
             total_before_stream[-1]["data"]["package"]["notes"]
-            == "First Update"
+            == "Update 0"
         )
 
     def test_after_returns_closer_elements_order_time_desc(self, activities):
         """
-        Given [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-        Whith after 6 and limit 2
-        Returns [8, 7]
+        Given [4, 3, 2, 1, 0]
+        Whith after 0 and limit 2
+        Returns [2, 1]
         """
         dataset, time = activities
         total_before_stream = helpers.call_action(
@@ -175,9 +210,9 @@ class TestActivityPagination(object):
         assert len(total_before_stream) == 2
         assert (
             total_before_stream[0]["data"]["package"]["notes"]
-            == "Third Update"
+            == "Update 2"
         )
         assert (
             total_before_stream[-1]["data"]["package"]["notes"]
-            == "Second Update"
+            == "Update 1"
         )
