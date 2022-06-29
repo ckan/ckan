@@ -14,7 +14,6 @@ def activities():
     org = factories.Organization()
     dataset = factories.Dataset(owner_org=org["id"])
 
-    first = datetime.datetime.utcnow().timestamp()
     dataset["notes"] = "First Update"
     helpers.call_action(
         "package_update",
@@ -22,7 +21,6 @@ def activities():
         **dataset,
     )
 
-    second = datetime.datetime.utcnow().timestamp()
     dataset["notes"] = "Second Update"
     helpers.call_action(
         "package_update",
@@ -30,7 +28,6 @@ def activities():
         **dataset,
     )
 
-    third = datetime.datetime.utcnow().timestamp()
     dataset["notes"] = "Third Update"
     helpers.call_action(
         "package_update",
@@ -38,7 +35,6 @@ def activities():
         **dataset,
     )
 
-    fourth = datetime.datetime.utcnow().timestamp()
     dataset["notes"] = "Fourth Update"
     helpers.call_action(
         "package_update",
@@ -46,14 +42,22 @@ def activities():
         **dataset,
     )
 
-    fifth = datetime.datetime.utcnow().timestamp()
     dataset["notes"] = "Fifth Update"
     helpers.call_action(
         "package_update",
         context={"user": user["name"]},
         **dataset,
     )
-    return dataset, [first, second, third, fourth, fifth]
+
+    activity_list = helpers.call_action(
+            "package_activity_list", context={}, id=dataset["id"]
+        )
+    from_iso = datetime.datetime.fromisoformat
+    activity_times = [
+        from_iso(a['timestamp']).timestamp() for a in activity_list
+        ]
+
+    return dataset, activity_times
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
@@ -87,10 +91,10 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            before=times[3],
+            before=times[0],
         )
-        assert len(before_stream) == 3
-        assert before_stream[0]["data"]["package"]["notes"] == "Third Update"
+        assert len(before_stream) == 4
+        assert before_stream[0]["data"]["package"]["notes"] == "Fourth Update"
         assert before_stream[-1]["data"]["package"]["notes"] == "First Update"
 
     def test_before_fifth_with_limit_2_should_get_fourth_and_third(self, activities):
@@ -99,7 +103,7 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            before=times[4],
+            before=times[0],
             limit=2,
         )
         assert len(before_stream) == 2
@@ -109,7 +113,7 @@ class TestActivityPagination(object):
     def test_after_call_returns_ordered_by_time_desc(self, activities):
         dataset, times = activities
         after_stream = helpers.call_action(
-            "package_activity_list", context={}, id=dataset["id"], after=times[2]
+            "package_activity_list", context={}, id=dataset["id"], after=times[3]
         )
         assert len(after_stream) == 3
         assert after_stream[0]["data"]["package"]["notes"] == "Fifth Update"
@@ -122,27 +126,27 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            after=times[0],
-            before=times[4],
+            after=times[4],
+            before=times[0],
         )
-        assert len(before_after_stream) == 4
+        assert len(before_after_stream) == 3
         assert (
             before_after_stream[0]["data"]["package"]["notes"]
             == "Fourth Update"
         )
         assert (
             before_after_stream[-1]["data"]["package"]["notes"]
-            == "First Update"
+            == "Second Update"
         )
 
     def test_before_now_should_return_all(self, activities):
         dataset, _ = activities
-        last_time = datetime.datetime.utcnow().timestamp()
+        now = datetime.datetime.utcnow().timestamp()
         total_before_stream = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
-            before=last_time,
+            before=now,
         )
         assert len(total_before_stream) == 5
         assert (
@@ -165,7 +169,7 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            after=time[1],
+            after=time[4],
             limit=2
         )
         assert len(total_before_stream) == 2
