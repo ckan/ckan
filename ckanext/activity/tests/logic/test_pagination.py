@@ -113,7 +113,7 @@ class TestActivityPagination(object):
     def test_before_4_with_limit_2_should_get_3_and_2(self, activities):
         """
         Given [4, 3, 2, 1, 0]
-        With limit 2
+        With before 4 and limit 2
         Returns [3, 2]
         """
         dataset, times = activities
