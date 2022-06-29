@@ -70,12 +70,12 @@ class TestActivityPagination(object):
         Returns [4, 3, 2, 1, 0]
         """
         dataset, _ = activities
-        complete_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list", context={}, id=dataset["id"]
         )
-        assert complete_stream[0]["data"]["package"]["notes"] == "Update 4"
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
         assert (
-            complete_stream[-1]["data"]["package"]["notes"] == "Update 0"
+            activity_list[-1]["data"]["package"]["notes"] == "Update 0"
         )
 
     def test_offset_call_returns_ordered_by_time_desc(self, activities):
@@ -85,15 +85,15 @@ class TestActivityPagination(object):
         Returns [4, 3, 2]
         """
         dataset, _ = activities
-        offset_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             offset=0,
             limit=3,
         )
-        assert offset_stream[0]["data"]["package"]["notes"] == "Update 4"
-        assert offset_stream[-1]["data"]["package"]["notes"] == "Update 2"
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 2"
 
     def test_before_call_returns_ordered_by_time_desc(self, activities):
         """
@@ -102,15 +102,15 @@ class TestActivityPagination(object):
         Returns [3, 2, 1, 0]
         """
         dataset, times = activities
-        before_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             before=times[0],
         )
-        assert len(before_stream) == 4
-        assert before_stream[0]["data"]["package"]["notes"] == "Update 3"
-        assert before_stream[-1]["data"]["package"]["notes"] == "Update 0"
+        assert len(activity_list) == 4
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 3"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 0"
 
     def test_before_4_with_limit_2_should_get_3_and_2(self, activities):
         """
@@ -119,16 +119,16 @@ class TestActivityPagination(object):
         Returns [3, 2]
         """
         dataset, times = activities
-        before_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             before=times[0],
             limit=2,
         )
-        assert len(before_stream) == 2
-        assert before_stream[0]["data"]["package"]["notes"] == "Update 3"
-        assert before_stream[-1]["data"]["package"]["notes"] == "Update 2"
+        assert len(activity_list) == 2
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 3"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 2"
 
     def test_after_call_returns_ordered_by_time_desc(self, activities):
         """
@@ -137,13 +137,13 @@ class TestActivityPagination(object):
         Returns [4, 3, 2]
         """
         dataset, times = activities
-        after_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list", context={}, id=dataset["id"], after=times[3]
         )
-        assert len(after_stream) == 3
-        assert after_stream[0]["data"]["package"]["notes"] == "Update 4"
-        assert after_stream[1]["data"]["package"]["notes"] == "Update 3"
-        assert after_stream[2]["data"]["package"]["notes"] == "Update 2"
+        assert len(activity_list) == 3
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
+        assert activity_list[1]["data"]["package"]["notes"] == "Update 3"
+        assert activity_list[2]["data"]["package"]["notes"] == "Update 2"
 
     def test_before_and_after_calls_returs_ordered_by_time_desc(self, activities):
         """
@@ -152,20 +152,20 @@ class TestActivityPagination(object):
         Returns [3, 2, 1]
         """
         dataset, times = activities
-        before_after_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             after=times[4],
             before=times[0],
         )
-        assert len(before_after_stream) == 3
+        assert len(activity_list) == 3
         assert (
-            before_after_stream[0]["data"]["package"]["notes"]
+            activity_list[0]["data"]["package"]["notes"]
             == "Update 3"
         )
         assert (
-            before_after_stream[-1]["data"]["package"]["notes"]
+            activity_list[-1]["data"]["package"]["notes"]
             == "Update 1"
         )
 
@@ -177,19 +177,19 @@ class TestActivityPagination(object):
         """
         dataset, _ = activities
         now = datetime.datetime.utcnow().timestamp()
-        total_before_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             before=now,
         )
-        assert len(total_before_stream) == 5
+        assert len(activity_list) == 5
         assert (
-            total_before_stream[0]["data"]["package"]["notes"]
+            activity_list[0]["data"]["package"]["notes"]
             == "Update 4"
         )
         assert (
-            total_before_stream[-1]["data"]["package"]["notes"]
+            activity_list[-1]["data"]["package"]["notes"]
             == "Update 0"
         )
 
@@ -200,19 +200,19 @@ class TestActivityPagination(object):
         Returns [2, 1]
         """
         dataset, time = activities
-        total_before_stream = helpers.call_action(
+        activity_list = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
             after=time[4],
             limit=2
         )
-        assert len(total_before_stream) == 2
+        assert len(activity_list) == 2
         assert (
-            total_before_stream[0]["data"]["package"]["notes"]
+            activity_list[0]["data"]["package"]["notes"]
             == "Update 2"
         )
         assert (
-            total_before_stream[-1]["data"]["package"]["notes"]
+            activity_list[-1]["data"]["package"]["notes"]
             == "Update 1"
         )
