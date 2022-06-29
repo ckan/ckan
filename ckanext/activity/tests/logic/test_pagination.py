@@ -50,12 +50,12 @@ def activities():
     )
 
     activity_list = helpers.call_action(
-            "package_activity_list", context={}, id=dataset["id"]
-        )
+        "package_activity_list", context={}, id=dataset["id"]
+    )
     from_iso = datetime.datetime.fromisoformat
     activity_times = [
-        from_iso(a['timestamp']).timestamp() for a in activity_list
-        ]
+        from_iso(a["timestamp"]).timestamp() for a in activity_list
+    ]
 
     return dataset, activity_times
 
@@ -74,9 +74,7 @@ class TestActivityPagination(object):
             "package_activity_list", context={}, id=dataset["id"]
         )
         assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
-        assert (
-            activity_list[-1]["data"]["package"]["notes"] == "Update 0"
-        )
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 0"
 
     def test_offset_call_returns_ordered_by_time_desc(self, activities):
         """
@@ -138,14 +136,17 @@ class TestActivityPagination(object):
         """
         dataset, times = activities
         activity_list = helpers.call_action(
-            "package_activity_list", context={}, id=dataset["id"], after=times[3]
+            "package_activity_list",
+            context={},
+            id=dataset["id"],
+            after=times[3],
         )
         assert len(activity_list) == 3
         assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
         assert activity_list[1]["data"]["package"]["notes"] == "Update 3"
         assert activity_list[2]["data"]["package"]["notes"] == "Update 2"
 
-    def test_before_and_after_calls_returs_ordered_by_time_desc(self, activities):
+    def test_before_and_after_returns_ordered_by_time_desc(self, activities):
         """
         Given [4, 3, 2, 1, 0]
         With after 0 and before 4
@@ -160,14 +161,8 @@ class TestActivityPagination(object):
             before=times[0],
         )
         assert len(activity_list) == 3
-        assert (
-            activity_list[0]["data"]["package"]["notes"]
-            == "Update 3"
-        )
-        assert (
-            activity_list[-1]["data"]["package"]["notes"]
-            == "Update 1"
-        )
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 3"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 1"
 
     def test_before_now_should_return_all(self, activities):
         """
@@ -184,14 +179,8 @@ class TestActivityPagination(object):
             before=now,
         )
         assert len(activity_list) == 5
-        assert (
-            activity_list[0]["data"]["package"]["notes"]
-            == "Update 4"
-        )
-        assert (
-            activity_list[-1]["data"]["package"]["notes"]
-            == "Update 0"
-        )
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 4"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 0"
 
     def test_after_returns_closer_elements_order_time_desc(self, activities):
         """
@@ -205,14 +194,8 @@ class TestActivityPagination(object):
             context={},
             id=dataset["id"],
             after=time[4],
-            limit=2
+            limit=2,
         )
         assert len(activity_list) == 2
-        assert (
-            activity_list[0]["data"]["package"]["notes"]
-            == "Update 2"
-        )
-        assert (
-            activity_list[-1]["data"]["package"]["notes"]
-            == "Update 1"
-        )
+        assert activity_list[0]["data"]["package"]["notes"] == "Update 2"
+        assert activity_list[-1]["data"]["package"]["notes"] == "Update 1"
