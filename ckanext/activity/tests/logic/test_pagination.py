@@ -17,7 +17,7 @@ class TestActivityPagination(object):
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org["id"])
 
-        begin = datetime.datetime.utcnow().timestamp()
+        first = datetime.datetime.utcnow().timestamp()
         dataset["notes"] = "First Update"
         helpers.call_action(
             "package_update",
@@ -25,7 +25,7 @@ class TestActivityPagination(object):
             **dataset,
         )
 
-        middle = datetime.datetime.utcnow().timestamp()
+        second = datetime.datetime.utcnow().timestamp()
         dataset["notes"] = "Second Update"
         helpers.call_action(
             "package_update",
@@ -33,7 +33,7 @@ class TestActivityPagination(object):
             **dataset,
         )
 
-        end = datetime.datetime.utcnow().timestamp()
+        third = datetime.datetime.utcnow().timestamp()
         dataset["notes"] = "Third Update"
         helpers.call_action(
             "package_update",
@@ -41,13 +41,29 @@ class TestActivityPagination(object):
             **dataset,
         )
 
-        assert begin < middle < end
+        fourth = datetime.datetime.utcnow().timestamp()
+        dataset["notes"] = "Fourth Update"
+        helpers.call_action(
+            "package_update",
+            context={"user": user["name"]},
+            **dataset,
+        )
+
+        fifth = datetime.datetime.utcnow().timestamp()
+        dataset["notes"] = "Fifth Update"
+        helpers.call_action(
+            "package_update",
+            context={"user": user["name"]},
+            **dataset,
+        )
+
+        assert first < second < third < fourth < fifth
 
         # Default call returns list ordered by time desc. (Most recent update first)
         complete_stream = helpers.call_action(
             "package_activity_list", context={}, id=dataset["id"]
         )
-        assert complete_stream[0]["data"]["package"]["notes"] == "Third Update"
+        assert complete_stream[0]["data"]["package"]["notes"] == "Fifth Update"
         assert (
             complete_stream[-1]["data"]["package"]["notes"] == "First Update"
         )
@@ -60,53 +76,55 @@ class TestActivityPagination(object):
             offset=0,
             limit=3,
         )
-        assert offset_stream[0]["data"]["package"]["notes"] == "Third Update"
-        assert offset_stream[-1]["data"]["package"]["notes"] == "First Update"
+        assert offset_stream[0]["data"]["package"]["notes"] == "Fifth Update"
+        assert offset_stream[-1]["data"]["package"]["notes"] == "Third Update"
 
         # Before call
         before_stream = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
-            before=middle,
+            before=fourth,
         )
-        assert len(before_stream) == 1
-        assert before_stream[0]["data"]["package"]["notes"] == "First Update"
+        assert len(before_stream) == 3
+        assert before_stream[0]["data"]["package"]["notes"] == "Third Update"
+        assert before_stream[-1]["data"]["package"]["notes"] == "First Update"
 
-        # Before end with limit 1 should get Second Update
+        # Before Fifth with limit 2 should get fourth and third
         before_stream = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
-            before=end,
-            limit=1,
+            before=fifth,
+            limit=2,
         )
-        assert len(before_stream) == 1
-        assert before_stream[0]["data"]["package"]["notes"] == "Second Update"
+        assert len(before_stream) == 2
+        assert before_stream[0]["data"]["package"]["notes"] == "Fourth Update"
+        assert before_stream[-1]["data"]["package"]["notes"] == "Third Update"
 
         # After call
         after_stream = helpers.call_action(
-            "package_activity_list", context={}, id=dataset["id"], after=middle
+            "package_activity_list", context={}, id=dataset["id"], after=third
         )
-        assert len(after_stream) == 2
-        assert after_stream[0]["data"]["package"]["notes"] == "Third Update"
-        assert after_stream[1]["data"]["package"]["notes"] == "Second Update"
-
+        assert len(after_stream) == 3
+        assert after_stream[0]["data"]["package"]["notes"] == "Fifth Update"
+        assert after_stream[1]["data"]["package"]["notes"] == "Fourth Update"
+        assert after_stream[2]["data"]["package"]["notes"] == "Third Update"
         # Before and After
         before_after_stream = helpers.call_action(
             "package_activity_list",
             context={},
             id=dataset["id"],
-            after=begin,
-            before=end,
+            after=first,
+            before=fifth,
         )
-        assert len(before_after_stream) == 2
+        assert len(before_after_stream) == 4
         assert (
             before_after_stream[0]["data"]["package"]["notes"]
-            == "Second Update"
+            == "Fourth Update"
         )
         assert (
-            before_after_stream[1]["data"]["package"]["notes"]
+            before_after_stream[-1]["data"]["package"]["notes"]
             == "First Update"
         )
 
@@ -118,17 +136,13 @@ class TestActivityPagination(object):
             id=dataset["id"],
             before=last_time,
         )
-        assert len(total_before_stream) == 3
+        assert len(total_before_stream) == 5
         assert (
             total_before_stream[0]["data"]["package"]["notes"]
-            == "Third Update"
+            == "Fifth Update"
         )
         assert (
-            total_before_stream[1]["data"]["package"]["notes"]
-            == "Second Update"
-        )
-        assert (
-            total_before_stream[2]["data"]["package"]["notes"]
+            total_before_stream[-1]["data"]["package"]["notes"]
             == "First Update"
         )
 
@@ -137,12 +151,12 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            after=middle,
+            after=third,
             limit=1,
         )
         assert len(limit_after_stream) == 1
         assert (
-            limit_after_stream[0]["data"]["package"]["notes"] == "Third Update"
+            limit_after_stream[0]["data"]["package"]["notes"] == "Fifth Update"
         )
 
         # After begin with limit 1 and offset 1 should retrieve only the second update
@@ -150,12 +164,12 @@ class TestActivityPagination(object):
             "package_activity_list",
             context={},
             id=dataset["id"],
-            after=middle,
+            after=first,
             offset=1,
             limit=1,
         )
         assert len(after_offset_limit_stream) == 1
         assert (
             after_offset_limit_stream[0]["data"]["package"]["notes"]
-            == "Second Update"
+            == "Fourth Update"
         )
