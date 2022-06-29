@@ -153,3 +153,27 @@ class TestActivityPagination(object):
             total_before_stream[-1]["data"]["package"]["notes"]
             == "First Update"
         )
+
+    def test_after_returns_closer_elements_order_time_desc(self, activities):
+        """
+        Given [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+        Whith after 6 and limit 2
+        Returns [8, 7]
+        """
+        dataset, time = activities
+        total_before_stream = helpers.call_action(
+            "package_activity_list",
+            context={},
+            id=dataset["id"],
+            after=time[1],
+            limit=2
+        )
+        assert len(total_before_stream) == 2
+        assert (
+            total_before_stream[0]["data"]["package"]["notes"]
+            == "Third Update"
+        )
+        assert (
+            total_before_stream[-1]["data"]["package"]["notes"]
+            == "Second Update"
+        )
