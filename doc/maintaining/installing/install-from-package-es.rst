@@ -1,4 +1,4 @@
-.. include:: /\_substitutions.rst
+.. include:: /_substitutions.rst
 
 # ============================&#xD;&#xA;Instalación de CKAN desde el paquete
 
