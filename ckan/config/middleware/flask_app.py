@@ -174,6 +174,17 @@ def make_flask_stack(conf):
         def save_session(self, app, session, response):
             session.save()
 
+        def is_null_session(self, obj):
+
+            is_null = super(BeakerSessionInterface, self).is_null_session(obj)
+
+            if not is_null:
+                # Beaker always adds these keys on each request, so if these are
+                # the only keys present we assume it's an empty session
+                is_null = sorted(obj.keys()) == ["_accessed_time", "_creation_time"]
+
+            return is_null
+
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
                     for k, v in six.iteritems(config)
