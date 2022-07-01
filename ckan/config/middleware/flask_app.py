@@ -106,7 +106,9 @@ class BeakerSessionInterface(SessionInterface):
         if not is_null:
             # Beaker always adds these keys on each request, so if these are
             # the only keys present we assume it's an empty session
-            is_null = sorted(obj.keys()) == ["_accessed_time", "_creation_time"]
+            is_null = (
+                sorted(obj.keys()) == ["_accessed_time", "_creation_time"]
+            )
 
         return is_null
 
