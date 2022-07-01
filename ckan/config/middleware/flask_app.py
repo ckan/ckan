@@ -10,7 +10,7 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Iterable, Optional, Union, cast, Type
 
 from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
@@ -208,6 +208,20 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
         def save_session(self, app: Any, session: Any, response: Any):
             session.save()
+
+        def is_null_session(self, obj: object) -> bool:
+
+            is_null = super(BeakerSessionInterface, self).is_null_session(obj)
+
+            if not is_null:
+                # Beaker always adds these keys on each request, so if these are
+                # the only keys present we assume it's an empty session
+                is_null = (
+                    sorted(obj.keys()) == [
+                        "_accessed_time", "_creation_time", "_domain", "_path"]
+                )
+
+            return is_null
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
