@@ -1,0 +1,26 @@
+<style>
+div {
+    word-break: break-word;
+    white-space: pre-wrap;
+    font-family: monospace;
+    margin: 1em 0px;
+    color: #ffffff;
+}
+body {
+    background-color: #101010;
+}
+</style>
+
+<div>
+    User-agent: *
+    {% block all_user_agents -%}
+    Disallow: /dataset/rate/
+    Disallow: /revision/
+    Disallow: /dataset/*/history
+    Disallow: /api/
+    Crawl-Delay: 10
+    {%- endblock %}
+
+    {% block additional_user_agents -%}
+    {%- endblock %}
+</div>
