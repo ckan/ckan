@@ -89,6 +89,11 @@ def about() -> str:
     return base.render(u'home/about.html', extra_vars={})
 
 
+def robots_txt() -> str:
+    '''display robots.txt'''
+    return base.render('home/robots.txt')
+
+
 def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
 
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
@@ -101,7 +106,8 @@ def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
 
 util_rules: List[Tuple[str, Any]] = [
     (u'/', index),
-    (u'/about', about)
+    (u'/about', about),
+    (u'/robots.txt', robots_txt)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)
