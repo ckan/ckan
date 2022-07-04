@@ -111,7 +111,8 @@ class BeakerSessionInterface(SessionInterface):
                 (
                     # Beaker 0.11 (py3)
                     sorted(obj.keys()) == [
-                        u"_accessed_time", u"_creation_time", u"_domain", u"_path"]
+                        u"_accessed_time", u"_creation_time",
+                        u"_domain", u"_path"]
                 ) or (
                     # Beaker 0.10 (py2)
                     sorted(obj.keys()) == [
