@@ -10,7 +10,7 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast, Type
+from typing import Any, Iterable, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals

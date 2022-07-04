@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-import mock
+from unittest import mock
 from flask import Blueprint
 from ckan.config.middleware.flask_app import BeakerSessionInterface
 
