@@ -404,9 +404,9 @@ def test_no_session_stored_by_default(app, monkeypatch, test_request_context):
         save_session = save_session_mock
 
     monkeypatch.setattr(
-        app.flask_app, 'session_interface', CustomBeakerSessionInterface())
+        app.flask_app, u"session_interface", CustomBeakerSessionInterface())
 
     with test_request_context():
-        app.get("/")
+        app.get(u"/")
 
     save_session_mock.assert_not_called()
