@@ -1,8 +1,9 @@
 # encoding: utf-8
 
 import pytest
-import six
+import mock
 from flask import Blueprint
+from ckan.config.middleware.flask_app import BeakerSessionInterface
 
 import ckan.plugins as p
 from ckan.common import config, _
@@ -53,7 +54,7 @@ def test_flask_core_route_is_served(patched_app):
     assert res.status_code == 200
 
     res = patched_app.get(u"/flask_core")
-    assert six.ensure_text(res.data) == u"This was served from Flask"
+    assert res.get_data(as_text=True) == "This was served from Flask"
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
@@ -75,3 +76,20 @@ def test_no_beaker_secret_crashes(make_app):
     # RuntimeError instead (thrown on `make_flask_stack`)
     with pytest.raises(RuntimeError):
         make_app()
+
+
+def test_no_session_stored_by_default(app, monkeypatch, test_request_context):
+
+    save_session_mock = mock.Mock()
+
+    class CustomBeakerSessionInterface(BeakerSessionInterface):
+
+        save_session = save_session_mock
+
+    monkeypatch.setattr(
+        app.flask_app, 'session_interface', CustomBeakerSessionInterface())
+
+    with test_request_context():
+        app.get("/")
+
+    save_session_mock.assert_not_called()
