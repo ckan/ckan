@@ -10,7 +10,7 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Iterable, Optional, Union, cast, Dict
 
 from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
@@ -134,7 +134,7 @@ class BeakerSessionInterface(SessionInterface):
     def save_session(self, app: Any, session: Any, response: Any):
         session.save()
 
-    def is_null_session(self, obj: object) -> bool:
+    def is_null_session(self, obj: Dict[str, Any]) -> bool:
 
         is_null = super(BeakerSessionInterface, self).is_null_session(obj)
 
