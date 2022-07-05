@@ -434,7 +434,7 @@ def default_user_schema(
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
-        'state': [ignore_missing],
+        'state': [ignore_missing, ignore_not_sysadmin],
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
