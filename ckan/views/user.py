@@ -720,10 +720,10 @@ class PerformResetView(MethodView):
             updated_user = logic.get_action("user_update")(context, user_dict)
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
-                patch_context = {
+                patch_context = cast(Context, {
                     'user': logic.get_action("get_site_user")(
                         {"ignore_auth": True}, {})["name"]
-                }
+                })
                 logic.get_action("user_patch")(
                     patch_context,
                     {"id": user_dict['id'], "state": model.State.ACTIVE}
