@@ -717,8 +717,17 @@ class PerformResetView(MethodView):
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
             user_dict[u'reset_key'] = g.reset_key
-            user_dict[u'state'] = model.State.ACTIVE
-            logic.get_action(u'user_update')(context, user_dict)
+            updated_user = logic.get_action("user_update")(context, user_dict)
+            # Users can not change their own state, so we need another edit
+            if (updated_user["state"] == model.State.PENDING):
+                patch_context = {
+                    'user': logic.get_action("get_site_user")(
+                        {"ignore_auth": True}, {})["name"]
+                }
+                logic.get_action("user_patch")(
+                    patch_context,
+                    {"id": user_dict['id'], "state": model.State.ACTIVE}
+                )
             mailer.create_reset_key(context[u'user_obj'])
             signals.perform_password_reset.send(
                 username, user=context[u'user_obj'])
