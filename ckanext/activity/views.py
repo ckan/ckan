@@ -732,9 +732,11 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
 
 
 @bp.route("/user/activity/<id>")
-@bp.route("/user/activity/<id>/<int:offset>")
-def user_activity(id: str, offset: int = 0) -> str:
+def user_activity(id: str) -> str:
     """Render this user's public activity stream page."""
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
+
     context = cast(
         Context,
         {
@@ -754,16 +756,72 @@ def user_activity(id: str, offset: int = 0) -> str:
 
     extra_vars = _extra_template_variables(context, data_dict)
 
+    base_limit = tk.config.get_value("ckan.activity_list_limit")
+    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    limit = min(base_limit, max_limit)
+
+    offset = int(tk.h.get_request_param("offset", 0))
+
     try:
         activity_stream = tk.get_action(
             "user_activity_list"
-        )(context, {"id": extra_vars["user_dict"]["id"], "offset": offset})
+        )(context, {
+            "id": extra_vars["user_dict"]["id"],
+            "before": before,
+            "after": after,
+            "offset": offset,
+            "limit": limit + 1,
+        })
     except tk.ValidationError:
         tk.abort(400)
 
+    prev_page = None
+    next_page = None
+    is_first_page = after is None and before is None
+
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            # drop the first element
+            activity_stream.pop(0)
+        else:
+            # drop the last element
+            activity_stream.pop()
+
+    # if "after", we came from the next page. So it exists
+    # if "before" (or is_first_page), we only show next page if we know
+    # we have more rows
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            activity_stream[-1]["timestamp"]
+        )
+        next_page = tk.h.url_for(
+            "activity.user_activity",
+            id=id,
+            # activity_type=activity_type,
+            before=before_time.timestamp(),
+        )
+
+    # if "before", we came from the previous page. So it exists
+    # if "after", we only show previous page if we know
+    # we have more rows
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            activity_stream[0]["timestamp"]
+        )
+        prev_page = tk.h.url_for(
+            "activity.user_activity",
+            id=id,
+            # activity_type=activity_type,
+            after=after_time.timestamp(),
+        )
+
     extra_vars.update({
         "id":  id,
-        "activity_stream": activity_stream
+        "activity_stream": activity_stream,
+        "prev_page": prev_page,
+        "next_page": next_page
     })
 
     return tk.render("user/activity_stream.html", extra_vars)

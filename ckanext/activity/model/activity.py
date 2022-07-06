@@ -259,7 +259,11 @@ def _user_activity_query(user_id: str, limit: int) -> QActivity:
 
 
 def user_activity_list(
-    user_id: str, limit: int, offset: int
+    user_id: str,
+    limit: int,
+    offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
 ) -> list[Activity]:
     """Return user_id's public activity stream.
 
@@ -271,11 +275,38 @@ def user_activity_list(
     etc.
 
     """
-    q = _user_activity_query(user_id, limit + offset)
+    q1 = _activities_from_user_query(user_id)
+    q2 = _activities_about_user_query(user_id)
+
+    q = _activities_union_all(q1, q2)
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_limit(q, limit, offset).all()
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def _package_activity_query(package_id: str) -> QActivity:

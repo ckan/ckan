@@ -135,6 +135,12 @@ def user_activity_list(
         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
         site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
+    :param after: After timestamp
+        (optional, default: ``None``)
+    :type after: int, str
+    :param before: Before timestamp
+        (optional, default: ``None``)
+    :type before: int, str
 
     :rtype: list of dictionaries
 
@@ -152,9 +158,15 @@ def user_activity_list(
 
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
+    after = data_dict.get("after")
+    before = data_dict.get("before")
 
     activity_objects = model_activity.user_activity_list(
-        user.id, limit=limit, offset=offset
+        user.id,
+        limit=limit,
+        offset=offset,
+        after=after,
+        before=before,
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
