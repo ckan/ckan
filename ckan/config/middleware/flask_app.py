@@ -108,16 +108,12 @@ class BeakerSessionInterface(SessionInterface):
             # the only keys present we assume it's an empty session
 
             is_null = (
-                (
+                sorted(obj.keys()) in [
                     # Beaker 0.11 (py3)
-                    sorted(obj.keys()) == [
-                        u"_accessed_time", u"_creation_time",
-                        u"_domain", u"_path"]
-                ) or (
+                    [u"_accessed_time", u"_creation_time", u"_domain", u"_path"],
                     # Beaker 0.10 (py2)
-                    sorted(obj.keys()) == [
-                        u"_accessed_time", u"_creation_time"]
-                )
+                    [u"_accessed_time", u"_creation_time"]
+                ]
             )
 
         return is_null
