@@ -110,7 +110,8 @@ class BeakerSessionInterface(SessionInterface):
             is_null = (
                 sorted(obj.keys()) in [
                     # Beaker 0.11 (py3)
-                    [u"_accessed_time", u"_creation_time", u"_domain", u"_path"],
+                    [u"_accessed_time", u"_creation_time", u"_domain",
+                        u"_path"],
                     # Beaker 0.10 (py2)
                     [u"_accessed_time", u"_creation_time"]
                 ]
