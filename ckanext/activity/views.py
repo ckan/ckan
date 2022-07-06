@@ -515,10 +515,6 @@ def group_activity(id: str, group_type: str) -> str:
     else:
         filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
 
-    activity_url = 'activity.organization_activity'
-    if not group_dict.get("is_organization"):
-        activity_url = "activity.group_activity"
-
     prev_page = None
     next_page = None
     is_first_page = after is None and before is None
@@ -532,6 +528,10 @@ def group_activity(id: str, group_type: str) -> str:
         else:
             # drop the last element
             activity_stream.pop()
+
+    activity_url = 'activity.organization_activity'
+    if not group_dict.get("is_organization"):
+        activity_url = "activity.group_activity"
 
     # if "after", we came from the next page. So it exists
     # if "before" (or is_first_page), we only show next page if we know
@@ -755,12 +755,16 @@ def user_activity(id: str, offset: int = 0) -> str:
     extra_vars = _extra_template_variables(context, data_dict)
 
     try:
-        extra_vars["user_activity_stream"] = tk.get_action(
+        activity_stream = tk.get_action(
             "user_activity_list"
         )(context, {"id": extra_vars["user_dict"]["id"], "offset": offset})
     except tk.ValidationError:
         tk.abort(400)
-    extra_vars["id"] = id
+
+    extra_vars.update({
+        "id":  id,
+        "activity_stream": activity_stream
+    })
 
     return tk.render("user/activity_stream.html", extra_vars)
 
