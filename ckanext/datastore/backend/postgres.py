@@ -1901,7 +1901,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         elif fields and fts_q:
             field_ids = datastore_helpers.get_list(fields)
             all_field_ids = list(fields_types.keys())
-            all_field_ids.remove('rank')
+            all_field_ids.remove("rank")
             field_intersect = [x for x in field_ids
                                if x not in all_field_ids]
             field_ids = all_field_ids + field_intersect
