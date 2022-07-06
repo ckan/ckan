@@ -41,9 +41,6 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
@@ -147,9 +144,6 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "for_view": True,
             "auth_user_obj": tk.g.userobj,
         },
@@ -250,9 +244,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "for_view": True,
             "auth_user_obj": tk.g.userobj,
         },
@@ -352,15 +343,7 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
     Shows the changes to a dataset in one particular activity stream item.
     """
     activity_id = id
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context = cast(Context, {"auth_user_obj": tk.g.userobj})
     try:
         activity_diff = tk.get_action("activity_diff")(
             context,
@@ -404,15 +387,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context = cast(Context, {"auth_user_obj": tk.g.userobj})
 
     # check to ensure that the old activity is actually older than
     # the new activity
@@ -598,9 +573,6 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
         },
     )
@@ -659,9 +631,6 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
         },
     )
@@ -746,9 +715,6 @@ def user_activity(id: str, offset: int = 0) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
@@ -782,9 +748,6 @@ def dashboard(offset: int = 0) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
@@ -832,9 +795,6 @@ def _get_dashboard_context(
         context = cast(
             Context,
             {
-                "model": model,
-                "session": model.Session,
-                "user": tk.g.user,
                 "auth_user_obj": tk.g.userobj,
                 "for_view": True,
             },
