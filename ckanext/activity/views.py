@@ -469,6 +469,8 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 )
 def group_activity(id: str, group_type: str) -> str:
     """Render this group's public activity stream page."""
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
 
     if group_type == 'organization':
         set_org(True)
@@ -497,6 +499,8 @@ def group_activity(id: str, group_type: str) -> str:
         activity_stream = tk.get_action(action_name)(
             context, {
                 "id": group_dict["id"],
+                "before": before,
+                "after": after,
                 "offset": offset,
                 "limit": limit + 1,
                 "activity_types": activity_types
@@ -515,27 +519,46 @@ def group_activity(id: str, group_type: str) -> str:
     if not group_dict.get("is_organization"):
         activity_url = "activity.group_activity"
 
+    prev_page = None
     next_page = None
+    is_first_page = after is None and before is None
+
     has_more = len(activity_stream) > limit
+    # remove the extra item if exists
     if has_more:
-        activity_stream.pop()
+        if after:
+            # drop the first element
+            activity_stream.pop(0)
+        else:
+            # drop the last element
+            activity_stream.pop()
+
+    # if "after", we came from the next page. So it exists
+    # if "before" (or is_first_page), we only show next page if we know
+    # we have more rows
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            activity_stream[-1]["timestamp"]
+        )
         next_page = tk.h.url_for(
             activity_url,
             id=id,
             activity_type=activity_type,
-            offset=offset+limit
-            )
+            before=before_time.timestamp(),
+        )
 
-    prev_page = None
-    if offset:
-        prev_offset = offset - limit
-        if prev_offset < 0:
-            prev_offset = 0
+    # if "before", we came from the previous page. So it exists
+    # if "after", we only show previous page if we know
+    # we have more rows
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            activity_stream[0]["timestamp"]
+        )
         prev_page = tk.h.url_for(
             activity_url,
             id=id,
             activity_type=activity_type,
-            offset=prev_offset
+            after=after_time.timestamp(),
         )
 
     extra_vars = {
