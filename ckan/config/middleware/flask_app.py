@@ -50,7 +50,6 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
-                        check_session_cookie,
                         set_controller_and_action,
                         set_cache_control_headers_for_response,
                         handle_i18n,
@@ -381,9 +380,6 @@ def ckan_after_request(response: Response) -> Response:
 
     # Dispose of the SQLALchemy session
     model.Session.remove()
-
-    # Check session cookie
-    response = check_session_cookie(response)
 
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
