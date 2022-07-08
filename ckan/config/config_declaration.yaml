@@ -284,7 +284,6 @@ groups:
           Defaults to never expiring.
 
       - key: cookie_domain
-        type: str
         description: |
           What domain the cookie should be set to. When using sub-domains, 
           this should be set to the main domain the cookie should be valid for. For example, 
@@ -292,7 +291,6 @@ groups:
           Defaults to the current domain in its entirety.
 
       - key: key
-        type: str
         required: True
         description: Name of the cookie key used to save the session under.
 
@@ -302,7 +300,6 @@ groups:
         description: Whether beaker should save the session's access time (true) or only modification time (false).
 
       - key: secret
-        type: str
         required: True
         description: |
           Used with the HMAC to ensure session integrity. This value should ideally be a randomly generated string.
