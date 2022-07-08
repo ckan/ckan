@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from sqlalchemy import inspect
 import six
 
 from urllib.parse import quote
@@ -11,43 +10,12 @@ from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-from ckan.common import g, request, config, session
-from ckan.lib.helpers import redirect_to as redirect
+from ckan.common import g, request, config, current_user, logout_user
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
 import logging
 log = logging.getLogger(__name__)
-
-
-def check_session_cookie(response: Response) -> Response:
-    u'''
-    The cookies for auth (auth_tkt) and session (ckan) are separate. This
-    checks whether a user is logged in, and determines the validity of the
-    session cookie, removing it if necessary.
-    '''
-    for cookie in request.cookies:
-        # Remove the ckan session cookie if logged out.
-        if cookie == u'ckan' and not getattr(g, u'user', None):
-            # Check session for valid data (including flash messages)
-            is_valid_cookie_data = False
-            for key, value in session.items():
-                if not key.startswith(u'_') and value:
-                    is_valid_cookie_data = True
-                    break
-            if not is_valid_cookie_data:
-                if session.id:
-                    log.debug(u'No valid session data - deleting session')
-                    log.debug(u'Session: %r', session.items())
-                    session.delete()
-                else:
-                    log.debug(u'No session id - deleting session cookie')
-                    response.delete_cookie(cookie)
-        # Remove auth_tkt repoze.who cookie if user not logged in.
-        elif cookie == u'auth_tkt' and not session.id:
-            response.delete_cookie(cookie)
-
-    return response
 
 
 def set_cors_headers_for_response(response: Response) -> Response:
@@ -100,17 +68,10 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
 
 
 def identify_user() -> Optional[Response]:
-    u'''Try to identify the user
-    If the user is identified then:
-      g.user = user name (unicode)
-      g.userobj = user object
-      g.author = user name
-    otherwise:
-      g.user = None
-      g.userobj = None
-      g.author = user's IP address (unicode)
+    u'''This function exists only to maintain backward compatibility
+    to extensions that still need g.user/g.userobj.
 
-    Note: Remember, when running under Pylons, `g` is the Pylons `c` object
+    Note: flask_login now identifies users for us behind the scene.
     '''
     # see if it was proxied first
     g.remote_addr = request.environ.get(u'HTTP_X_FORWARDED_FOR', u'')
@@ -127,71 +88,38 @@ def identify_user() -> Optional[Response]:
             if response:
                 return response
             try:
-                if g.user:
+                if current_user.is_authenticated or g.user:
                     break
             except AttributeError:
                 continue
+    # sets the g.user/g.userobj for extensions
+    g.user = current_user.name
+    g.userobj = '' if current_user.is_anonymous else current_user
 
-    # We haven't identified the user so try the default methods
-    if not getattr(g, u'user', None):
-        _identify_user_default()
+    # logout, if a user that was still logged in is deleted.
+    if current_user.is_authenticated:
+        if not current_user.is_active:
+            logout_user()
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
     # directly.
     if g.user:
-        if not getattr(g, u'userobj', None) or inspect(g.userobj).expired:
+        if not getattr(g, u'userobj', None):
             g.userobj = model.User.by_name(g.user)
 
     # general settings
     if g.user:
         if g.userobj:
-            g.userobj.set_user_last_active()
+            userobj = model.User.by_name(g.user)
+            userobj.set_user_last_active()  # type: ignore
         g.author = g.user
     else:
         g.author = g.remote_addr
     g.author = str(g.author)
 
 
-def _identify_user_default():
-    u'''
-    Identifies the user using two methods:
-    a) If they logged into the web interface then repoze.who will
-       set REMOTE_USER.
-    b) For API calls they may set a header with an API key.
-    '''
-
-    # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
-    # user's cookie. But repoze.who doesn't check the user (still) exists
-    # in our database - we need to do that here. (Another way would be
-    # with an userid_checker, but that would mean another db access.
-    # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
-    # .plugins.sql )
-    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
-    if g.user:
-        g.userobj = model.User.by_name(g.user)
-
-        if g.userobj is None or not g.userobj.is_active():
-
-            # This occurs when a user that was still logged in is deleted, or
-            # when you are logged in, clean db and then restart (or when you
-            # change your username). There is no user object, so even though
-            # repoze thinks you are logged in and your cookie has
-            # ckan_display_name, we need to force user to logout and login
-            # again to get the User object.
-
-            ev = request.environ
-            if u'repoze.who.plugins' in ev:
-                pth = getattr(ev[u'repoze.who.plugins'][u'friendlyform'],
-                              u'logout_handler_path')
-                redirect(pth)
-    else:
-        g.userobj = _get_user_for_apitoken()
-        if g.userobj is not None:
-            g.user = g.userobj.name
-
-
-def _get_user_for_apitoken() -> Optional[model.User]:
+def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     apitoken_header_name = config.get_value("apikey_header_name")
 
     apitoken: str = request.headers.get(apitoken_header_name, u'')

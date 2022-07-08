@@ -409,3 +409,30 @@ class APIToken(CKANFactory):
     def _api_prepare_args(cls, data_dict):
         """Do not try to put `user` parameter into context."""
         return data_dict
+
+
+class UserWithToken(User):
+    """A factory class for creating CKAN users with an associated API token."""
+
+    password = "correct123"
+
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]
+
+
+class SysadminWithToken(Sysadmin):
+    """A factory class for creating CKAN sysadmin users
+    with an associated API token.
+    """
+    password = "correct123"
+
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]

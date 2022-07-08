@@ -14,7 +14,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.datastructures import MultiDict
 
 import ckan.model as model
-from ckan.common import json, _, g, request
+from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config
@@ -228,10 +228,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = cast(
-        Context,
-        {u'model': model, u'session': model.Session, u'user': g.user,
-         u'api_version': ver, u'auth_user_obj': g.userobj})
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'api_version': ver,
+        u'auth_user_obj': current_user
+    })
     model.Session()._context = context
 
     return_dict: dict[str, Any] = {
@@ -350,8 +353,10 @@ def dataset_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
 
@@ -370,8 +375,10 @@ def tag_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         if vocab != u'':
@@ -394,8 +401,10 @@ def format_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
@@ -415,8 +424,10 @@ def user_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {
             u'q': q, u'limit': limit, u'ignore_self': ignore_self}
@@ -432,7 +443,9 @@ def group_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
 
     if q:
         context = cast(
-            Context, {u'user': g.user, u'model': model}
+            Context, {
+                u'user': current_user.name,
+                u'model': model}
         )
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
@@ -445,7 +458,9 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     organization_list = []
 
     if q:
-        context = cast(Context, {u'user': g.user, u'model': model})
+        context = cast(Context, {
+            u'user': current_user.name,
+            u'model': model})
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)
