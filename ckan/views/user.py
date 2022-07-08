@@ -531,11 +531,11 @@ def login() -> Union[Response, str]:
             if _remember:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
-                login_user(user, remember=True, duration=duration_time)
+                login_user(user_obj, remember=True, duration=duration_time)
                 rotate_token()
                 return next_page_or_default(next)
             else:
-                login_user(user)
+                login_user(user_obj)
                 rotate_token()
                 return next_page_or_default(next)
         else:
