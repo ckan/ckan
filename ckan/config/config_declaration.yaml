@@ -544,6 +544,48 @@ groups:
         default: user.login
         description: The name of the view to redirect to when the user needs to log in
 
+  - annotation: Flask-Login Remember me cookie settings
+    options:
+      - key: REMEMBER_COOKIE_NAME
+        default: remember_token
+        description: The name of the cookie to store the “remember me” information in.
+
+      - key: REMEMBER_COOKIE_DURATION
+        default: 365 days (1 non-leap Gregorian year)
+        description: |
+          The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
+
+      - key: REMEMBER_COOKIE_DOMAIN
+        default: None
+        description: |
+          If the “Remember Me” cookie should cross domains, set the domain value here 
+          (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
+
+      - key: REMEMBER_COOKIE_PATH
+        default: /
+        description: Limits the “Remember Me” cookie to a certain path.
+
+      - key: REMEMBER_COOKIE_SECURE
+        type: bool
+        default: False
+        description: Restricts the “Remember Me” cookie's scope to secure channels (typically HTTPS).
+
+      - key: REMEMBER_COOKIE_HTTPONLY
+        type: bool
+        default: True
+        description: Prevents the “Remember Me” cookie from being accessed by client-side scripts.
+
+      - key: REMEMBER_COOKIE_REFRESH_EACH_REQUEST
+        type: bool
+        default: False
+        description: |
+          If set to True the cookie is refreshed on every request, which bumps the lifetime. 
+          Works like Flask's SESSION_REFRESH_EACH_REQUEST.
+
+      - key: REMEMBER_COOKIE_SAMESITE
+        default: None
+        description: Restricts the “Remember Me” cookie to first-party or same-site context.
+
   - annotation: API Token Settings
     options:
       - key: api_token.nbytes
