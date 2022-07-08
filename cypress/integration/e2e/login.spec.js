@@ -1,7 +1,7 @@
 describe('Login form', () => {
 
     beforeEach(() => {
-      cy.intercept('/login_generic?came_from=/user/logged_in').as('loginUrl')
+      cy.intercept('/user/login').as('loginUrl')
       cy.intercept('/dashboard').as('userDashboard')
      })
 
@@ -59,16 +59,13 @@ describe('Login form', () => {
         .should('contain.text', 'My Organizations')
         .should('contain.text', 'My Groups')
 
-      cy.get('.activity')
-        .find('.actor').contains('admin')
-
       cy.getCookie('ckan').should('exist')
     })
 
     it('Loging using a POST request', function () {
         cy.request({
           method: 'POST',
-          url: '/login_generic?came_from=/user/logged_in',
+          url: '/user/login',
           form: true,
           body: {
             login: 'admin',
