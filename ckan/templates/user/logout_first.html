@@ -6,7 +6,7 @@
 {% block actions %}{% endblock %}
 
 {% block form %}
-  <div class="alert alert-danger">{{ _("You're already logged in as {user}.").format(user=g.user) }} <a href="{{ logout_url }}">{{ _('Logout') }}</a>?</div>
+  <div class="alert alert-danger">{{ _("You're already logged in as {user}.").format(user=current_user.name) }} <a href="{{ logout_url }}">{{ _('Logout') }}</a>?</div>
     {{ form.input('login', label=_('Username'), id='field-login', value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
     {{ form.input('password', label=_('Password'), id='field-password', type="password", value="", error="", classes=["control-full"], attrs={"disabled": "disabled"}) }}
     {{ form.checkbox('remember', label=_('Remember me'), id='field-remember', checked=true, attrs={"disabled": "disabled"}) }}
