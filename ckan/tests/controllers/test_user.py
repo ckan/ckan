@@ -10,12 +10,6 @@ from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException
 
 
-@pytest.fixture
-def user():
-    user = factories.UserWithToken()
-    return user
-
-
 @pytest.mark.usefixtures("clean_db")
 class TestUserListings:
     def test_user_page_lists_users(self, app):
@@ -104,6 +98,12 @@ class TestUserListings:
 
 
 @pytest.fixture
+def user():
+    user = factories.UserWithToken()
+    return user
+
+
+@pytest.fixture
 def sysadmin():
     user = factories.SysadminWithToken()
     return user
@@ -169,8 +169,7 @@ class TestUser(object):
             extra_environ=env,
             follow_redirects=False,
         )
-
-        # assert "/dashboard/datasets" in response.headers["location"]
+        # assert "/user/activity" in response.headers["location"]
 
     @pytest.mark.ckan_config("ckan.plugins", "activity")
     @pytest.mark.usefixtures("with_plugins")
@@ -292,7 +291,7 @@ class TestUser(object):
         url = url_for("user.edit", id=factories.User.stub().name)
         res = app.get(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
+        assert "user/login?next=%2Fuser%2Fedit%2F" in res
 
     def test_user_edit_not_logged_in(self, app):
         """Attempt to read edit user for an existing, not-logged in user
@@ -303,7 +302,7 @@ class TestUser(object):
         url = url_for("user.edit", id=username)
         res = app.get(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fuser%2Fedit%2F" in res
+        assert "user/login?next=%2Fuser%2Fedit%2F" in res
 
     def test_edit_user(self, app, user):
         env = {"Authorization": user["token"]}
@@ -756,7 +755,7 @@ class TestUser(object):
         app.post(url, params=params)
 
         userobj = model.User.get(userobj.id)
-        assert userobj.is_active()
+        assert userobj.is_active
 
     def test_perform_reset_doesnt_activate_deleted_user(self, app):
         password = "TestPassword1"

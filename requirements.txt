@@ -42,7 +42,7 @@ flask==2.0.3
     #   flask-multistatic
 flask-babel==1.0.0
     # via -r requirements.in
-flask-login==0.5.0
+flask-login==0.6.1
     # via -r requirements.in
 flask-multistatic==1.0
     # via -r requirements.in
@@ -85,7 +85,7 @@ polib==1.1.1
     # via -r requirements.in
 psycopg2==2.9.3
     # via -r requirements.in
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging

@@ -4,6 +4,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 import ckan.authz as authz
+import ckan.model as model
 from ckan.lib.helpers import url_for
 from ckan.tests import factories, helpers
 
@@ -26,7 +27,7 @@ class TestOrganizationNew(object):
     def test_not_logged_in(self, app):
         res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fgroup%2Fnew" in res
+        assert "user/login?next=%2Fgroup%2Fnew" in res
 
     def test_name_required(self, app, user):
         url = url_for("organization.new")
@@ -220,7 +221,7 @@ class TestOrganizationDelete(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Forganization%2Fdelete%2F" in res
+        assert "user/login?next=%2Forganization%2Fdelete%2F" in res
 
         organization = helpers.call_action(
             "organization_show", id=group["id"]
@@ -566,7 +567,7 @@ class TestOrganizationMembership(object):
                 follow_redirects=False
             )
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Forganization%2Fmember_new%2F" in res
+            assert "user/login?next=%2Forganization%2Fmember_new%2F" in res
 
             res = app.post(
                 url_for("organization.member_new", id=organization["id"]),
@@ -579,3 +580,38 @@ class TestOrganizationMembership(object):
                 status=302,
                 follow_redirects=False
             )
+
+    def test_create_user_for_user_invite(self, mail_server, sysadmin):
+        group = factories.Group()
+        context = {"user": sysadmin["name"]}
+
+        user_form = {
+            "email": "user@ckan.org",
+            "group_id": group["id"],
+            "role": "member"
+        }
+
+        user_dict = helpers.call_action("user_invite", context, **user_form)
+        user_obj = model.User.get(user_dict["id"])
+
+        assert user_obj.password is None
+        assert user_obj.state == 'pending'
+        assert user_obj.last_active is None
+
+    def test_member_delete(self, app, sysadmin, user):
+        env = {"Authorization": sysadmin["token"]}
+        org = factories.Organization(
+            users=[{"name": user["name"], "capacity": "member"}]
+        )
+        # our user + test.ckan.net
+        assert len(org["users"]) == 2
+        with app.flask_app.test_request_context():
+            app.post(
+                url_for("organization.member_delete", id=org["id"], user=user["id"]),
+                extra_environ=env,
+            )
+            org = helpers.call_action('organization_show', id=org['id'])
+
+            # only test.ckan.net
+            assert len(org['users']) == 1
+            assert user["id"] not in org["users"][0]["id"]

@@ -2,7 +2,10 @@
 """Unit tests for ckan/logic/action/patch.py."""
 import pytest
 
+from unittest import mock
+
 from ckan.tests import helpers, factories
+from ckan.logic.action.get import package_show as core_package_show
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -190,3 +193,26 @@ class TestPatch(object):
 
         assert user2["fullname"] == "Mr. Test User"
         assert user2["about"] == "somethingnew"
+
+    def test_package_patch_for_update(self):
+
+        dataset = factories.Dataset()
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('package_patch', id=dataset['id'], notes='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_patch_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_patch', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True

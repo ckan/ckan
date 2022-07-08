@@ -513,13 +513,16 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
-            def wrapped(context: Optional[Context],
-                        data_dict: DataDict, **kw: Any):
+            def wrapped(context: Optional[Context] = None,
+                        data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
                     log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
+
+                if data_dict is None:
+                    data_dict = {}
 
                 # Auth Auditing - checks that the action function did call
                 # check_access (unless there is no accompanying auth function).

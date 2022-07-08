@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any, Collection, Optional
 
 import sqlalchemy as sa
+from typing_extensions import Self
 
 import ckan.model.meta as meta
 import ckan.model.types as _types
@@ -36,7 +37,7 @@ class ResourceView(domain_object.DomainObject):
     config: dict[str, Any]
 
     @classmethod
-    def get(cls, reference: str) -> Optional["ResourceView"]:
+    def get(cls, reference: str) -> Optional[Self]:
         '''Returns a ResourceView object referenced by its id.'''
         if not reference:
             return None

@@ -386,6 +386,15 @@ groups:
         type: bool
         description: If set to True, CKAN will not publicly expose its version number.
 
+      - key: ckan.redirect_to_login_if_not_authorized
+        default: True
+        type: bool
+        description: |
+          By default, if a user is not authorized to visit a page, they will
+          get redirected to the login page before trying to access it again.
+          If you want to raise a 401 or 403 error instead,
+          set this setting to `False`
+
   - annotation: Authorization Settings
     options:
       - key: ckan.auth.anon_create_dataset
@@ -531,6 +540,9 @@ groups:
           value), users can manually create an API token from their profile
           instead. See :ref:`api authentication`: for more details.
 
+      - key: ckan.auth.login_view
+        default: user.login
+        description: The name of the view to redirect to when the user needs to log in
 
   - annotation: API Token Settings
     options:

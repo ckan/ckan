@@ -34,7 +34,7 @@ import ckan.authz as authz
 import ckan.model
 
 from ckan.common import _
-from ckan.types import Context, DataDict, ErrorDict, Schema, FlattenErrorDict
+from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -282,7 +282,9 @@ def resource_create(context: Context,
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(
+        package_show_context, {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -1044,7 +1046,6 @@ def user_invite(context: Context,
     :returns: the newly created user
     :rtype: dictionary
     '''
-    import string
     _check_access('user_invite', context, data_dict)
 
     schema = context.get('schema',
@@ -1059,24 +1060,16 @@ def user_invite(context: Context,
         raise NotFound()
 
     name = _get_random_username_from_email(data['email'])
-    # Choose a password. However it will not be used - the invitee will not be
-    # told it - they will need to reset it
-    while True:
-        password = ''.join(random.SystemRandom().choice(
-            string.ascii_lowercase + string.ascii_uppercase + string.digits)
-            for _ in range(12))
-        # Occasionally it won't meet the constraints, so check
-        validation_errors: FlattenErrorDict = {}
-        ckan.logic.validators.user_password_validator(
-            ('password', ), {('password', ): password},
-            validation_errors, context)
-        if not validation_errors:
-            break
 
     data['name'] = name
-    data['password'] = password
+    # send the proper schema when creating a user from here
+    # so the password field would be ignored.
+    invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
+
     data['state'] = model.State.PENDING
-    user_dict = _get_action('user_create')(context, data)
+    user_dict = _get_action('user_create')(
+        cast(Context, dict(context, schema=invite_schema)),
+        data)
     user = model.User.get(user_dict['id'])
     assert user
     member_dict = {
@@ -1085,14 +1078,11 @@ def user_invite(context: Context,
         'role': data['role']
     }
 
-    if group.is_organization:
-        _get_action('organization_member_create')(context, member_dict)
-        group_dict = _get_action('organization_show')(context,
-                                                      {'id': data['group_id']})
-    else:
-        _get_action('group_member_create')(context, member_dict)
-        group_dict = _get_action('group_show')(context,
-                                               {'id': data['group_id']})
+    org_or_group = 'organization' if group.is_organization else 'group'
+    _get_action(f'{org_or_group}_member_create')(context, member_dict)
+    group_dict = _get_action(f'{org_or_group}_show')(
+        context, {'id': data['group_id']})
+
     try:
         mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:

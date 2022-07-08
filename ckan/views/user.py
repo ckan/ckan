@@ -15,14 +15,16 @@ import ckan.lib.base as base
 import ckan.lib.captcha as captcha
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
+import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
-from ckan.common import _, config, g, request, current_user
-from flask_login import login_user, logout_user
+from ckan.common import (
+    _, config, g, request, current_user, login_user, logout_user
+)
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
 
@@ -35,14 +37,16 @@ edit_user_form = u'user/edit_user_form.html'
 user = Blueprint(u'user', __name__, url_prefix=u'/user')
 
 
-def set_repoze_user(user_id: str, resp: Response) -> None:
+@maintain.deprecated('''set_repoze_user() is deprecated and will be removed.
+                        Use login_user() instead''', since="2.10.0")
+def set_repoze_user(user_id: str, resp: Optional[Response] = None) -> None:
     """
-    This function exists only to maintain backward compatibility
+    This function is deprecated and will be removed.
+    It exists only to maintain backward compatibility
     to extensions like saml2auth.
     """
-    if current_user.is_anonymous:
-        user = model.User.get(user_id)
-        login_user(user)
+    user_obj = model.User.get(user_id)
+    login_user(user_obj)
 
 
 def _edit_form_to_db_schema() -> Schema:
@@ -56,7 +60,7 @@ def _new_form_to_db_schema() -> Schema:
 def _extra_template_variables(context: Context,
                               data_dict: dict[str, Any]) -> dict[str, Any]:
     is_sysadmin = False
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         is_sysadmin = authz.is_sysadmin(current_user.name)
     try:
         user_dict = logic.get_action(u'user_show')(context, data_dict)
@@ -260,7 +264,7 @@ class EditView(MethodView):
             u'auth_user_obj': current_user
         })
         if id is None:
-            if not current_user.is_anonymous:
+            if current_user.is_authenticated:
                 id = current_user.id  # type: ignore
             else:
                 base.abort(400, _(u'No user specified'))
@@ -315,11 +319,12 @@ class EditView(MethodView):
                 u'login': current_user.name,
                 u'password': data_dict[u'old_password']
             }
-            auth = authenticator.UsernamePasswordAuthenticator()
+            auth_user = authenticator.ckan_authenticator(identity)
 
             # we are checking if the identity is not the
             # same with the current logged user if so raise error.
-            if auth.authenticate(identity) != current_user.name:
+            auth_username = auth_user.name if auth_user else ''
+            if auth_username != current_user.name:
                 errors = {"oldpassword": [_("Password entered was incorrect")]}
                 error_summary = (
                     {_("Old Password"): _("incorrect password")}
@@ -508,7 +513,7 @@ def login() -> Union[Response, str]:
 
     extra_vars: dict[str, Any] = {}
 
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         return base.render("user/logout_first.html", extra_vars)
 
     if request.method == "POST":
@@ -516,16 +521,13 @@ def login() -> Union[Response, str]:
         password = request.form.get("password")
         _remember = request.form.get("remember")
 
-        user = model.User.by_name(username_or_email)
-        if not user:
-            user = model.User.by_email(username_or_email)
         identity = {
             u"login": username_or_email,
             u"password": password
         }
 
-        auth = authenticator.ckan_authenticator(identity)
-        if auth:
+        user_obj = authenticator.ckan_authenticator(identity)
+        if user_obj:
             next = request.args.get('next', request.args.get('came_from'))
             if _remember:
                 from datetime import timedelta
@@ -545,7 +547,6 @@ def login() -> Union[Response, str]:
     return base.render("user/login.html", extra_vars)
 
 
-@user.route("/logout.html", methods=["GET", "POST"])
 def logout() -> Response:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
@@ -584,7 +585,7 @@ def delete(id: str) -> Union[Response, Any]:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if not current_user.is_anonymous:
+    if current_user.is_authenticated:
         if current_user.id == id:  # type: ignore
             return logout()
         else:
@@ -887,7 +888,7 @@ user.add_url_rule(u'/edit/<id>', view_func=_edit_view)
 user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
-user.add_url_rule(u'/login', view_func=login)
+user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
 user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 

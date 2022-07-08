@@ -447,7 +447,7 @@ class TestPackageNew(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2Fnew" in res
+        assert "user/login?next=%2Fdataset%2Fnew" in res
 
     def test_form_without_initial_data(self, app, user):
         url = url_for("dataset.new")
@@ -553,7 +553,7 @@ class TestPackageEdit(object):
         url = url_for("dataset.edit", id=dataset["name"])
         res = app.get(url=url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2Fedit%2F" in res
+        assert "user/login?next=%2Fdataset%2Fedit%2F" in res
 
         res = app.post(
             url=url,
@@ -562,7 +562,7 @@ class TestPackageEdit(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2Fedit%2F" in res
+        assert "user/login?next=%2Fdataset%2Fedit%2F" in res
 
     def test_validation_errors_for_dataset_name_appear(self, app, user):
         """fill out a bad dataset set name and make sure errors appear"""
@@ -683,10 +683,10 @@ class TestPackageRead(object):
 
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
-            "member": factories.User(),
-            "editor": factories.User(),
-            "admin": factories.User(),
-            "sysadmin": factories.Sysadmin(),
+            "member": factories.UserWithToken(),
+            "editor": factories.UserWithToken(),
+            "admin": factories.UserWithToken(),
+            "sysadmin": factories.SysadminWithToken(),
         }
         organization = factories.Organization(
             users=[
@@ -697,12 +697,10 @@ class TestPackageRead(object):
         )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         for _, user_dict in members.items():
-            user_token = factories.APIToken(user=user_dict["name"])
-            env = {"Authorization": user_token["token"]}
+            env = {"Authorization": user_dict["token"]}
             response = app.get(url_for("dataset.read", id=dataset["name"]), extra_environ=env)
             assert dataset["title"] in response.body
             assert dataset["notes"] in response.body
-            app.post(url_for("user.logout"))
 
     def test_anonymous_users_cannot_read_private_datasets(self, app):
         organization = factories.Organization()
@@ -781,7 +779,7 @@ class TestPackageDelete(object):
         url = url_for("dataset.delete", id=dataset["name"])
         res = app.post(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2Fdelete%2F" in res
+        assert "user/login?next=%2Fdataset%2Fdelete%2F" in res
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "active" == deleted["state"]
@@ -1012,7 +1010,7 @@ class TestResourceNew(object):
             ), status=302, follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2F" in res
+        assert "user/login?next=%2Fdataset%2F" in res
         res = app.post(
             url_for(
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
@@ -1021,7 +1019,7 @@ class TestResourceNew(object):
             status=302, follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2F" in res
+        assert "user/login?next=%2Fdataset%2F" in res
 
     def test_anonymous_users_cannot_edit_resource(self, app):
         organization = factories.Organization()
@@ -1040,7 +1038,7 @@ class TestResourceNew(object):
             )
 
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Fdataset%2F" in res
+            assert "user/login?next=%2Fdataset%2F" in res
             res = app.post(
                 url_for(
                     "{}_resource.edit".format(dataset["type"]),
@@ -1052,7 +1050,7 @@ class TestResourceNew(object):
                 follow_redirects=False
             )
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Fdataset%2F" in res
+            assert "user/login?next=%2Fdataset%2F" in res
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
@@ -1352,7 +1350,7 @@ class TestResourceDelete(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2F" in res
+        assert "user/login?next=%2Fdataset%2F" in res
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(
         self, app, user
@@ -1953,7 +1951,7 @@ class TestResourceListing(object):
         url = url_for("dataset.resources", id=pkg["name"])
         res = app.get(url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fdataset%2F" in res
+        assert "user/login?next=%2Fdataset%2F" in res
 
 
 @pytest.mark.usefixtures('clean_db', 'with_request_context')

@@ -20,7 +20,7 @@ class TestGroupController(object):
         )
         res = app.get(url=bulk_process_url, status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        redirect_url = "user/login.html?next=%2Forganization%2Fbulk_process%2Fdoes-not-exist"
+        redirect_url = "user/login?next=%2Forganization%2Fbulk_process%2Fdoes-not-exist"
         assert redirect_url in res
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
@@ -79,7 +79,7 @@ class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fgroup%2Fnew" in res
+        assert "user/login?next=%2Fgroup%2Fnew" in res
 
     def test_name_required(self, app, user):
         env = {"Authorization": user["token"]}
@@ -142,7 +142,7 @@ class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fgroup%2Fnew" in res
+        assert "user/login?next=%2Fgroup%2Fnew" in res
 
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
@@ -307,7 +307,7 @@ class TestGroupDelete(object):
             follow_redirects=False
         )
         # Anonymous users are redirected to login page
-        assert "user/login.html?next=%2Fgroup%2Fdelete%2F" in res
+        assert "user/login?next=%2Fgroup%2Fdelete%2F" in res
 
         group = helpers.call_action(
             "group_show", id=group["id"]
@@ -434,6 +434,7 @@ class TestGroupMembership(object):
         assert role_option and role_option.get('value') == 'admin'
         assert page.select_one('#username').get('value') == member['name']
 
+    @pytest.mark.usefixtures("clean_db")
     @mock.patch("flask_login.utils._get_user")
     def test_admin_add(self, current_user, app):
         """Admin can be added via add member page"""
@@ -532,7 +533,7 @@ class TestGroupMembership(object):
             url = url_for("group.member_new", id=group["id"])
             res = app.get(url, status=302, follow_redirects=False)
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Fgroup%2Fmember_new%2F" in res
+            assert "user/login?next=%2Fgroup%2Fmember_new%2F" in res
 
             res = app.post(
                 url,
@@ -546,7 +547,7 @@ class TestGroupMembership(object):
                 follow_redirects=False
             )
             # Anonymous users are redirected to login page
-            assert "user/login.html?next=%2Fgroup%2Fmember_new%2F" in res
+            assert "user/login?next=%2Fgroup%2Fmember_new%2F" in res
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")

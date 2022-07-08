@@ -4,27 +4,18 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import six
-from flask_login import logout_user
 
 from urllib.parse import quote
 from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-from ckan.common import g, request, config, session, current_user
+from ckan.common import g, request, config, current_user, logout_user
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
 import logging
 log = logging.getLogger(__name__)
-
-
-def check_session_cookie(response: Response) -> Response:
-    for cookie in request.cookies:
-        if cookie == 'ckan' and not session.get('_user_id'):
-            response.delete_cookie(cookie)
-
-    return response
 
 
 def set_cors_headers_for_response(response: Response) -> Response:
@@ -97,7 +88,7 @@ def identify_user() -> Optional[Response]:
             if response:
                 return response
             try:
-                if g.user:
+                if current_user.is_authenticated or g.user:
                     break
             except AttributeError:
                 continue
@@ -106,8 +97,8 @@ def identify_user() -> Optional[Response]:
     g.userobj = '' if current_user.is_anonymous else current_user
 
     # logout, if a user that was still logged in is deleted.
-    if not current_user.is_anonymous:
-        if not current_user.is_active():  # type: ignore
+    if current_user.is_authenticated:
+        if not current_user.is_active:
             logout_user()
 
     # If we have a user but not the userobj let's get the userobj. This means

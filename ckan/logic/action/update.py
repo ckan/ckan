@@ -8,7 +8,7 @@ import logging
 import datetime
 import time
 import json
-from typing import Any, TYPE_CHECKING, cast
+from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
 import ckan.plugins as plugins
@@ -83,7 +83,9 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(
+        package_show_context, {'id': package_id})
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
     for n, p in enumerate(resources):
@@ -541,7 +543,9 @@ def package_resource_reorder(
     if len(set(order)) != len(order):
         raise ValidationError({'order': 'Must supply unique resource_ids'})
 
-    package_dict = _get_action('package_show')(context, {'id': id})
+    package_show_context: Union[Context, Any] = dict(context, for_update=True)
+    package_dict = _get_action('package_show')(
+        package_show_context, {'id': id})
     existing_resources = package_dict.get('resources', [])
     ordered_resources = []
 
@@ -1157,7 +1161,7 @@ def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.B
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_private', context, data_dict)
@@ -1170,7 +1174,7 @@ def bulk_update_public(context: Context, data_dict: DataDict) -> ActionResult.Bu
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_public', context, data_dict)
@@ -1183,7 +1187,7 @@ def bulk_update_delete(context: Context, data_dict: DataDict) -> ActionResult.Bu
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_delete', context, data_dict)

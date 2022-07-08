@@ -61,3 +61,8 @@ def test_user_inside_context_of_check_access(is_authorized: mock.Mock):
     logic.check_access("site_read", {"user": "test"})
     context = is_authorized.call_args[0][1]
     assert context["user"] == "test"
+
+
+def test_get_action_optional_params():
+
+    assert "ckan_version" in logic.get_action("status_show")()

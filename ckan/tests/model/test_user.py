@@ -184,15 +184,15 @@ class TestUser:
     def test_user_is_active_by_default(self):
         data = factories.User()
         user = model.User.get(data["id"])
-        assert user.is_active()
+        assert user.is_active
 
     def test_activate(self):
         data = factories.User()
         user = model.User.get(data["id"])
         user.state = "some-state"
-        assert not user.is_active()
+        assert not user.is_active
         user.activate()
-        assert user.is_active()
+        assert user.is_active
 
     def test_is_pending(self):
         data = factories.User()
