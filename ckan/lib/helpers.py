@@ -27,7 +27,7 @@ from typing import (
 import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
-from ckan.common import asbool, config
+from ckan.common import asbool, config, current_user
 from flask import flash
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
@@ -1226,9 +1226,9 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    if not getattr(g, u'user', None):
-        g.user = ''
-    context = cast(Context, {'model': model, 'user': g.user})
+    context = cast(Context, {
+        'model': model,
+        'user': current_user.name})
     if not data_dict:
         data_dict = {}
     try:
@@ -1804,10 +1804,11 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     # If the user is logged in show the follow/unfollow button
-    if g.user:
+    user = current_user.name
+    if user:
         context = cast(
             Context,
-            {'model': model, 'session': model.Session, 'user': g.user})
+            {'model': model, 'session': model.Session, 'user': user})
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1834,7 +1835,11 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
     context = cast(
-        Context, {'model': model, 'session': model.Session, 'user': g.user}
+        Context, {
+            'model': model,
+            'session': model.Session,
+            'user': current_user.name
+        }
     )
     return logic.get_action(action)(context, {'id': obj_id})
 
@@ -1993,7 +1998,7 @@ def organizations_available(permission: str = 'manage_group',
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': g.user}
+    context: Context = {'user': current_user.name}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
@@ -2010,16 +2015,16 @@ def roles_translated() -> dict[str, str]:
 def user_in_org_or_group(group_id: str) -> bool:
     ''' Check if user is in a group or organization '''
     # we need a user
-    if not g.userobj:
+    if current_user.is_anonymous:
         return False
     # sysadmins can do anything
-    if g.userobj.sysadmin:
+    if current_user.sysadmin:  # type: ignore
         return True
     query = model.Session.query(model.Member) \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.group_id == group_id) \
-        .filter(model.Member.table_id == g.userobj.id)
+        .filter(model.Member.table_id == current_user.id)  # type: ignore
     return len(query.all()) != 0
 
 
@@ -2657,7 +2662,9 @@ def get_collaborators(package_id: str) -> list[tuple[str, str]]:
 
     Returns a list of tuples with the user id and the capacity
     '''
-    context: Context = {'ignore_auth': True, 'user': g.user}
+    context: Context = {
+        'ignore_auth': True,
+        'user': current_user.name}
     data_dict = {'id': package_id}
     _collaborators = logic.get_action('package_collaborator_list')(
         context, data_dict)
@@ -2693,7 +2700,7 @@ def can_update_owner_org(
     collaborators_can_change_owner_org = authz.check_config_permission(
         'allow_collaborators_to_change_owner_org')
 
-    user = model.User.get(g.user)
+    user = model.User.get(current_user.name)
 
     if (user
             and authz.check_config_permission('allow_dataset_collaborators')
@@ -2751,3 +2758,26 @@ def check_ckan_version(min_version: Optional[str] = None,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
+
+
+def make_login_url(
+    login_view: str, next_url: Optional[str] = None, next_field: str = "next"
+) -> str:
+    '''
+    Creates a URL for redirecting to a login page. If only `login_view` is
+    provided, this will just return the URL for it. If `next_url` is provided,
+    however, this will append a ``next=URL`` parameter to the query string
+    so that the login view can redirect back to that URL.
+    '''
+    base = login_view
+    if next_url is None:
+        return base
+
+    if url_is_local(next_url):
+        md = {}
+        md[next_field] = urlparse(next_url).path
+        parsed_base = urlparse(base)
+        netloc = parsed_base.netloc
+        parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
+        return urlunparse(parsed_base)
+    return base

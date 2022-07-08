@@ -15,6 +15,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from flask_login import AnonymousUserMixin
 from typing_extensions import Self
 
 from ckan.common import config
@@ -332,7 +333,26 @@ class User(core.StatefulObjectMixin,
                                  cls.id.in_(user_list)))  # type: ignore
         return [user.id for user in query.all()]
 
-    def set_user_last_active(self):
+    def get_id(self) -> str:
+        '''Needed by flask-login'''
+        return self.id
+
+    @property
+    def is_authenticated(self) -> bool:
+        '''Needed by flask-login'''
+        return True
+
+    @property
+    def is_anonymous(self):
+        '''Needed by flask-login'''
+        return False
+
+    @property
+    def is_active(self):
+        '''Needed by flask-login'''
+        return super().is_active()
+
+    def set_user_last_active(self) -> None:
         if self.last_active:
             session["last_active"] = self.last_active
 
@@ -342,6 +362,16 @@ class User(core.StatefulObjectMixin,
         else:
             self.last_active = datetime.datetime.utcnow()
             meta.Session.commit()
+
+
+class AnonymousUser(AnonymousUserMixin):
+    '''Extends the default AnonymousUserMixin to have an attribute
+    `name`/`email`, so, when retrieving the current_user.name/email on an
+    anonymous user, won't break our app with `AttributeError`.
+    '''
+    name: str = ""
+    email: str = ""
+
 
 meta.mapper(
     User, user_table,
