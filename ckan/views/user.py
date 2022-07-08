@@ -504,7 +504,6 @@ def rotate_token():
         generate_csrf()
 
 
-@user.route("/login.html", methods=["GET", "POST"])
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
