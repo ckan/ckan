@@ -38,7 +38,7 @@ describe('Login form', () => {
       cy.wait('@userDashboard')
 
       cy.get('.breadcrumb > .active > a').contains('Dashboard')
-      cy.url().should('include', '/dashboard')
+      cy.url().should('include', '/dashboard/datasets')
       cy.getCookie('ckan').should('exist')
     })
 
@@ -52,7 +52,7 @@ describe('Login form', () => {
       cy.wait('@userDashboard')
 
       cy.get('.breadcrumb > .active > a').contains('Dashboard')
-      cy.url().should('include', '/dashboard')
+      cy.url().should('include', '/dashboard/datasets')
       cy.get('.nav')
         .should('contain.text', 'News feed')
         .should('contain.text', 'My Datasets')
