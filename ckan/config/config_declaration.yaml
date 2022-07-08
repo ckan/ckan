@@ -543,6 +543,57 @@ groups:
       - key: ckan.auth.login_view
         default: user.login
         description: The name of the view to redirect to when the user needs to log in
+  
+  - annotation: CSRF Protection
+    options:
+      - key: WTF_CSRF_ENABLED
+        type: bool
+        default: True
+        description: Set to False to disable all CSRF protection. Default is True.
+
+      - key: WTF_CSRF_CHECK_DEFAULT
+        type: bool
+        default: True
+        description: |
+          When using the CSRF protection extension,
+          this controls whether every view is protected by default. Default is True.
+
+      - key: WTF_CSRF_SECRET_KEY
+        description: Random data for generating secure tokens. If this is not set then SECRET_KEY is used.
+
+      - key: WTF_CSRF_METHODS
+        default: {'POST', 'PUT', 'PATCH', 'DELETE'}
+        description: HTTP methods to protect from CSRF. Default is {'POST', 'PUT', 'PATCH', 'DELETE'}.
+
+      - key: WTF_CSRF_FIELD_NAME
+        default: csrf_token
+        description: Name of the form field and session key that holds the CSRF token. Default is csrf_token.
+
+      - key: WTF_CSRF_HEADERS
+        default: ['X-CSRFToken', 'X-CSRF-Token']
+        description: |
+          HTTP headers to search for CSRF token when it is not provided in the form.
+          Default is ['X-CSRFToken', 'X-CSRF-Token'].
+
+      - key: WTF_CSRF_TIME_LIMIT
+        default: 3600
+        description: |
+          Max age in seconds for CSRF tokens.
+          Default is 3600. If set to None, the CSRF token is valid for the life of the session.
+
+      - key: WTF_CSRF_SSL_STRICT
+        type: bool
+        default: True
+        description: |
+          Whether to enforce the same origin policy by checking that the referrer matches the host.
+          Only applies to HTTPS requests. Default is True.
+
+      - key: WTF_I18N_ENABLED
+        type: bool
+        default: True
+        description: |
+          Set to False to disable Flask-Babel I18N support.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
 
   - annotation: API Token Settings
     options:
