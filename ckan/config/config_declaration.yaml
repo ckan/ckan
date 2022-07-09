@@ -312,7 +312,6 @@ groups:
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
       - key: timeout
-        type: int
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
