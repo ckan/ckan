@@ -48,6 +48,7 @@ from ckan.model.tag import (
 from ckan.model.user import (
     User,
     user_table,
+    AnonymousUser
 )
 from ckan.model.group import (
     Member,
@@ -127,7 +128,7 @@ __all__ = [
     "PACKAGE_NAME_MIN_LENGTH", "PACKAGE_NAME_MAX_LENGTH",
     "PACKAGE_VERSION_MAX_LENGTH", "package_table", "package_member_table",
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
-    "package_tag_table", "User", "user_table", "Member", "Group",
+    "package_tag_table", "User", "user_table", "AnonymousUser", "Member", "Group",
     "group_table", "member_table",
     "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",

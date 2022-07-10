@@ -64,6 +64,9 @@ from ckan.common import (
     asbool,
     asint,
     aslist,
+    login_user,
+    logout_user,
+    current_user
 )
 
 from ckan.lib.plugins import (
@@ -90,7 +93,7 @@ __all__ = [
     "h", "literal", "chained_helper", "redirect_to", "url_for",
     "CkanVersionException", "HelperError",
     "config", "_", "ungettext", "g", "c", "request",
-    "asbool", "asint", "aslist",
+    "asbool", "asint", "aslist", "login_user", "logout_user", "current_user",
     "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
     "error_shout",
     "mail_recipient", "mail_user",
