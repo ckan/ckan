@@ -43,7 +43,7 @@
       {% if items|length > 0 %}
       <form method="POST" class="d-flex justify-content-end" action="{{ h.url_for('admin.trash') }}"
         id="form-purge-{{ ent_type }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+        <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
         <input type="hidden" name="action" value="{{ent_type}}">
         <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger purge-all"
           data-module="confirm-action" data-module-with-data=true

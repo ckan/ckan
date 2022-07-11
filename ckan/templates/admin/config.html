@@ -22,7 +22,7 @@
       {% set is_url = data[field_url] and data[field_url].startswith('http') %}
       {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
 
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+      <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
       {{ form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=data['ckan.site_about'], error=error, placeholder=_('About page text')) }}
 
       {{ form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=data['ckan.site_intro_text'], error=error, placeholder=_('Text on home page')) }}

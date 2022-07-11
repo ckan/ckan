@@ -8,7 +8,7 @@
   {% set show_table = true %}
 
   <form method="post" action="{{ action }}" class="datapusher-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+    <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>

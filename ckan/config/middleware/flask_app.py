@@ -251,6 +251,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # CSRF
     _csrf.init_app(app)
+    app.config['WTF_CSRF_FIELD_NAME'] = config.get_value(
+        'ckan.csrf_protection.field_name'
+    )
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -402,6 +405,9 @@ def ckan_before_request() -> Optional[Response]:
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Set the csrf_field_name so we can use it in our templates
+    g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions

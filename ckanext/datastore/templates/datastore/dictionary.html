@@ -9,7 +9,7 @@
   {% set action = h.url_for('datastore.dictionary', id=pkg.name, resource_id=res.id) %}
 
   <form method="post" action="{{ action }}" >
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+    <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
     {% block dictionary_form %}
       {% for field in fields %}
           {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}

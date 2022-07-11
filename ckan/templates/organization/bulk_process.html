@@ -36,7 +36,7 @@
       {% block form %}
         {% if page.item_count %}
           <form method="POST" data-module="basic-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+            <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
             <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
               <col width="8">
               <col width="120">

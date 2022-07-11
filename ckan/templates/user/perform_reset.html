@@ -16,7 +16,7 @@
       </h1>
       {% block form %}
         <form action="" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+          <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
           {{ form.errors(error_summary) }}
           {% if user_dict['state'] == 'pending' %}
             <p>{{ _('You can also change username. It can not be modified later.') }}</p>

@@ -24,7 +24,7 @@
     #}
     {%- block meta -%}
       <meta charset="utf-8" />
-      <meta name="csrf-token" content="{{ csrf_token() }}" />
+      <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
       {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
     {%- endblock -%}

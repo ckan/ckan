@@ -23,7 +23,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user
+    _, config, g, request, current_user, login_user, logout_user, session
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -557,6 +557,9 @@ def logout() -> Response:
 
     came_from = request.args.get('came_from', '')
     logout_user()
+
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    session.pop(field_name)
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
