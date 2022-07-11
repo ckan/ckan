@@ -559,7 +559,8 @@ def logout() -> Response:
     logout_user()
 
     field_name = config.get_value("WTF_CSRF_FIELD_NAME")
-    session.pop(field_name)
+    if session.get(field_name):
+        session.pop(field_name)
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
