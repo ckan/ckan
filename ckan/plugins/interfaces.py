@@ -113,7 +113,7 @@ class IMiddleware(Interface):
 
             class MyPlugin(p.SingletonPlugin):
 
-                p.implements(p.Middleware)
+                p.implements(p.IMiddleware)
 
                 def make_middleware(app, config):
 
