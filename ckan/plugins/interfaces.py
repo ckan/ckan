@@ -133,6 +133,18 @@ class IMiddleware(Interface):
         '''
         return app
 
+    def before_request(self, response: Response):
+        '''
+        Overrides the response of the ckan_before_request function
+        '''
+        return response
+
+    def after_request(self, response: Response):
+        '''
+        Overrides the response of the ckan_after_request function
+        '''
+        return response
+
 
 class IDomainObjectModification(Interface):
     u'''
