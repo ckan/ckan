@@ -372,6 +372,9 @@ def ckan_before_request() -> Optional[Response]:
 
     set_ckan_current_url(request.environ)
 
+    for plugin in PluginImplementations(IMiddleware):
+        response = plugin.before_request(response)
+
     return response
 
 
@@ -390,6 +393,9 @@ def ckan_after_request(response: Response) -> Response:
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
     status_code = response.status_code
+
+    for plugin in PluginImplementations(IMiddleware):
+        response = plugin.after_request(response)
 
     log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
