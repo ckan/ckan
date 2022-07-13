@@ -3394,8 +3394,6 @@ class TestPackageList:
         assert packages == [pkg1["name"]]
 
 
-@pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
-@pytest.mark.usefixtures("clean_index")
 @pytest.mark.usefixtures("clean_db")
 class TestPackagePluginData(object):
 
