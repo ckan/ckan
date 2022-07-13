@@ -34,7 +34,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
-from ckan.common import _
+from ckan.common import _, current_user
 from ckan.types import ActionResult, Context, DataDict, Query, Schema
 
 log = logging.getLogger('ckan.logic')
@@ -991,14 +991,12 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     '''
     model = context['model']
-    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
 
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
-
-    if user_obj:
-        include_plugin_data = user_obj.sysadmin and include_plugin_data
+    if current_user.is_authenticated:
+        include_plugin_data = current_user.sysadmin and include_plugin_data  # type: ignore
 
         if include_plugin_data:
             context['use_cache'] = False
