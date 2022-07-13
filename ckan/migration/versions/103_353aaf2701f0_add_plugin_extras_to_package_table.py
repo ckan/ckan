@@ -31,4 +31,3 @@ def upgrade():
 
 def downgrade():
     op.drop_column(u'package', u'plugin_data')
-
