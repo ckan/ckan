@@ -833,7 +833,8 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        model.repo.commit()
+        with logic.guard_against_duplicated_email(data_dict['email']):
+            model.repo.commit()
 
     author_obj = model.User.get(context.get('user'))
     include_plugin_extras = False
@@ -1171,7 +1172,7 @@ def bulk_update_private(context: Context, data_dict: DataDict) -> ActionResult.B
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_private', context, data_dict)
@@ -1184,7 +1185,7 @@ def bulk_update_public(context: Context, data_dict: DataDict) -> ActionResult.Bu
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_public', context, data_dict)
@@ -1197,7 +1198,7 @@ def bulk_update_delete(context: Context, data_dict: DataDict) -> ActionResult.Bu
     :type datasets: list of strings
 
     :param org_id: id of the owning organization
-    :type org_id: int
+    :type org_id: string
     '''
 
     _check_access('bulk_update_delete', context, data_dict)

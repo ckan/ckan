@@ -1001,8 +1001,9 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
     session = context['session']
 
     users = session.query(model.User) \
-        .filter(model.User.email == data[key]).all()
-    # is there is no users with this email it's free
+        .filter(model.User.email == data[key]) \
+        .filter(model.User.state == 'active').all()
+    # if there are no active users with this email, it's free
     if not users:
         return
     else:

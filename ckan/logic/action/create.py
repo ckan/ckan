@@ -1016,7 +1016,8 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        model.repo.commit()
+        with logic.guard_against_duplicated_email(data_dict['email']):
+            model.repo.commit()
 
     # A new context is required for dictizing the newly constructed user in
     # order that all the new user's data is returned, in particular, the

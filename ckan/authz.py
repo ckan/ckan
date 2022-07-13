@@ -10,13 +10,11 @@ from logging import getLogger
 from typing import Any, Callable, Collection, KeysView, Optional, Union
 from types import ModuleType
 
-from ckan.common import config
+from ckan.common import config, current_user
 
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import _, g
-
-import ckan.lib.maintain as maintain
+from ckan.common import _
 
 from ckan.types import AuthResult, AuthFunction, DataDict, Context
 
@@ -160,17 +158,17 @@ def is_sysadmin(username: Optional[str]) -> bool:
 
 def _get_user(username: Optional[str]) -> Optional['model.User']:
     '''
-    Try to get the user from g, if possible.
+    Try to get the user from current_user proxy, if possible.
     If not fallback to using the DB
     '''
     if not username:
         return None
     # See if we can get the user without touching the DB
     try:
-        if g.userobj and g.userobj.name == username:
-            return g.userobj
+        if current_user.name == username:
+            return current_user  # type: ignore
     except AttributeError:
-        # g.userobj not set
+        # current_user is anonymous
         pass
     except TypeError:
         # c is not available (py2)
@@ -546,21 +544,6 @@ def check_config_permission(permission: str) -> Union[list[str], bool]:
 
     return value
 
-
-@maintain.deprecated('Use auth_is_loggedin_user instead', since="2.2.0")
-def auth_is_registered_user() -> bool:
-    '''
-    This function is deprecated, please use the auth_is_loggedin_user instead
-    '''
-    return auth_is_loggedin_user()
-
-def auth_is_loggedin_user() -> bool:
-    ''' Do we have a logged in user '''
-    try:
-        context_user = g.user
-    except TypeError:
-        context_user = None
-    return bool(context_user)
 
 def auth_is_anon_user(context: Context) -> bool:
     ''' Is this an anonymous user?

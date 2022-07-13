@@ -15,6 +15,7 @@ from pyutilib.component.core import Interface as _pca_Interface
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
+from ckan.model import User
 from ckan.exceptions import CkanDeprecationWarning
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
@@ -112,7 +113,7 @@ class IMiddleware(Interface):
 
             class MyPlugin(p.SingletonPlugin):
 
-                p.implements(p.Middleware)
+                p.implements(p.IMiddleware)
 
                 def make_middleware(app, config):
 
@@ -1726,12 +1727,25 @@ class IAuthenticator(Interface):
         '''
 
     def abort(
-        self, status_code: int, detail: str, headers: Optional[dict[str, Any]],
-        comment: Optional[str]
+        self,
+        status_code: int,
+        detail: str,
+        headers: Optional[dict[str, Any]],
+        comment: Optional[str],
     ) -> tuple[int, str, Optional[dict[str, Any]], Optional[str]]:
-        u'''Called on abort.  This allows aborts due to authorization issues
-        to be overridden'''
+        """Called on abort.  This allows aborts due to authorization issues
+        to be overridden"""
         return (status_code, detail, headers, comment)
+
+    def authenticate(
+        self, identity: 'Mapping[str, Any]'
+    ) -> Optional["User"]:
+        """Called before the authentication starts (that is after clicking the login
+        button)
+
+        Plugins should return a user object if the authentication was
+        successful, or ``None``` otherwise.
+        """
 
 
 class ITranslation(Interface):

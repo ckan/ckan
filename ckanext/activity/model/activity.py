@@ -333,7 +333,7 @@ def package_activity_list(
         q = q.filter(Activity.timestamp < before)
 
     # revert sort queries for "only before" queries
-    revese_order = before and not after
+    revese_order = after and not before
     if revese_order:
         q = q.order_by(Activity.timestamp)
     else:
@@ -350,6 +350,7 @@ def package_activity_list(
     # revert result if required
     if revese_order:
         results.reverse()
+
     return results
 
 

@@ -194,7 +194,6 @@ class TestSearch(object):
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
-
         assert not result.output
         assert not result.exit_code, result.output
 

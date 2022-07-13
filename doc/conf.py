@@ -355,7 +355,7 @@ current_minor_version = current_release_version[:current_release_version.find(".
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:latest_release_version.find(".", 3)]
-is_master = release.endswith('a')
+is_master = "a" in release.split(".")[-1]
 is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 

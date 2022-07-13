@@ -10,10 +10,13 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic as logic
 from ckan import model
+from unittest import mock
 
 
 @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-def test_auth_user_list():
+@mock.patch("flask_login.utils._get_user")
+def test_auth_user_list(current_user):
+    current_user.return_value = mock.Mock(is_anonymous=True)
     context = {"user": None, "model": model}
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("user_list", context=context)
@@ -34,9 +37,11 @@ def test_user_list_email_parameter():
 @pytest.mark.usefixtures(u"non_clean_db")
 class TestGetAuth(object):
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-    def test_auth_user_show(self):
+    @mock.patch("flask_login.utils._get_user")
+    def test_auth_user_show(self, current_user):
         fred = factories.User()
         fred["capacity"] = "editor"
+        current_user.return_value = mock.Mock(is_anonymous=True)
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_show", context=context, id=fred["id"])
