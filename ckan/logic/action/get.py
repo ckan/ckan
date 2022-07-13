@@ -991,9 +991,17 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     '''
     model = context['model']
-    user = context.get('user')
+    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+
+    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
+
+    if user_obj:
+        include_plugin_data = user_obj.sysadmin and include_plugin_data
+
+        if include_plugin_data:
+            context['use_cache'] = False
 
     pkg = model.Package.get(
         name_or_id,
@@ -1012,7 +1020,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     package_dict = None
     use_cache = (context.get('use_cache', True))
     package_dict_validated = False
-    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
 
     if use_cache:
         try:
@@ -1036,10 +1043,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        if user:
-            user_obj = model.User.get(user)
-            if user_obj:
-                include_plugin_data = user_obj.sysadmin and include_plugin_data
         package_dict = model_dictize.package_dictize(
             pkg, context, include_plugin_data
         )

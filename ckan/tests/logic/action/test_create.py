@@ -1951,7 +1951,7 @@ class TestMemberCreate2:
 @pytest.mark.usefixtures("clean_db")
 class TestPackagePluginData(object):
 
-    def test_stored_on_create_if_sysadmin_and_use_cache_false(self):
+    def test_stored_on_create_if_sysadmin(self):
         sysadmin = factories.Sysadmin()
 
         pkg_dict = {
@@ -1965,7 +1965,7 @@ class TestPackagePluginData(object):
         context = {
             "user": sysadmin["name"],
             "ignore_auth": False,
-            "use_cache": False
+            "auth_user_obj": model.User.get(sysadmin["name"])
         }
         created_pkg = helpers.call_action(
             "package_create", context=context, **pkg_dict
@@ -1982,7 +1982,7 @@ class TestPackagePluginData(object):
 
         assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
 
-    def test_ignored_on_create_if_non_sysadmin_and_use_cache_false(self):
+    def test_ignored_on_create_if_non_sysadmin(self):
         user = factories.User()
 
         pkg_dict = {
@@ -1996,7 +1996,6 @@ class TestPackagePluginData(object):
         context = {
             "user": user["name"],
             "ignore_auth": False,
-            "use_cache": False
         }
         created_pkg = helpers.call_action(
             'package_create', context=context, **pkg_dict

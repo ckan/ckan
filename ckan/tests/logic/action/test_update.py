@@ -2363,7 +2363,7 @@ class TestPackagePluginData(object):
         context = {
             "user": sysadmin["name"],
             "ignore_auth": False,
-            "use_cache": False
+            "auth_user_obj": model.User.get(sysadmin["name"])
         }
 
         pkg_dict = {
@@ -2422,7 +2422,6 @@ class TestPackagePluginData(object):
         context = {
             "user": user["name"],
             "ignore_auth": False,
-            "use_cache": False
         }
         pkg_dict = {
             "id": dataset["id"],

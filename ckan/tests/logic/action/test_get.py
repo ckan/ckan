@@ -3394,6 +3394,8 @@ class TestPackageList:
         assert packages == [pkg1["name"]]
 
 
+@pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
+@pytest.mark.usefixtures("clean_index")
 @pytest.mark.usefixtures("clean_db")
 class TestPackagePluginData(object):
 
@@ -3411,8 +3413,7 @@ class TestPackagePluginData(object):
         context = {
             "user": sysadmin["name"],
             "ignore_auth": False,
-            # use_cache=False to avoid solr search
-            "use_cache": False
+            "auth_user_obj": model.User.get(sysadmin["name"])
         }
         # sysadmin and include_plugin_data = True
         pkg_dict = helpers.call_action(
@@ -3437,8 +3438,6 @@ class TestPackagePluginData(object):
         context = {
             "user": user["name"],
             "ignore_auth": False,
-            # use_cache=False to avoid solr search
-            "use_cache": False
         }
         pkg_dict = helpers.call_action(
             "package_show",
