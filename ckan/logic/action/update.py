@@ -823,7 +823,8 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        model.repo.commit()
+        with logic.guard_against_duplicated_email(data_dict['email']):
+            model.repo.commit()
 
     author_obj = model.User.get(context.get('user'))
     include_plugin_extras = False
