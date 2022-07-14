@@ -71,7 +71,11 @@ def user_delete(context: Context, data_dict: DataDict) -> ActionResult.UserDelet
 
 def package_delete(context: Context, data_dict: DataDict) -> ActionResult.PackageDelete:
     '''Delete a dataset (package).
-
+    
+    .. note::  Deleting multiple datasets using ``package_delete`` might 
+         affect the performance, use 
+         :py:func:`~ckan.logic.action.update.bulk_update_delete` instead.
+         
     This makes the dataset disappear from all web & API views, apart from the
     trash.
 
