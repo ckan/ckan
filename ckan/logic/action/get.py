@@ -2726,7 +2726,7 @@ def am_following_group(context: Context,
 def _followee_count(
         context: Context, data_dict: DataDict,
         FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
-        is_org: Optional[bool] = False
+        is_org: bool = False
         ) -> int:
     if not context.get('skip_validation'):
         schema = context.get('schema',
@@ -2735,7 +2735,7 @@ def _followee_count(
         if errors:
             raise ValidationError(errors)
     
-    followees = _group_or_org_followee_list(context, data_dict, is_org = is_org)
+    followees = _group_or_org_followee_list(context, data_dict, is_org)
 
     return len(followees)
 

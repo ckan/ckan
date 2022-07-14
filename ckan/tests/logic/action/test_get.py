@@ -2880,6 +2880,7 @@ class TestFollow(object):
     
     def test_followee_count_for_org_or_group(self):
         group = factories.Group(title="Finance")
+        group2 = factories.Group(title="Environment")
         org = factories.Organization(title="Acme")
 
         user = factories.User()
@@ -2887,6 +2888,7 @@ class TestFollow(object):
         context = {"user": user["name"]}
 
         helpers.call_action("follow_group", context, id=group["id"])
+        helpers.call_action("follow_group", context, id=group2["id"])
         helpers.call_action("follow_group", context, id=org["id"])
 
         group_followee_count = helpers.call_action(
@@ -2897,7 +2899,7 @@ class TestFollow(object):
             "organization_followee_count", context, id=user["name"]
         )
 
-        assert group_followee_count == 1
+        assert group_followee_count == 2
         assert organization_followee_count == 1
         
 class TestStatusShow(object):
