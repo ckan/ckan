@@ -63,11 +63,6 @@ class ModelFollowingModel(domain_object.DomainObject,
         return cls.get(follower_id, object_id) is not None
 
     @classmethod
-    def followee_count(cls, follower_id: str) -> int:
-        '''Return the number of objects followed by the follower.'''
-        return cls._get_followees(follower_id).count()
-
-    @classmethod
     def followee_list(cls, follower_id: Optional[str]) -> list[Self]:
         '''Return a list of objects followed by the follower.'''
         query = cls._get_followees(follower_id)
@@ -106,7 +101,8 @@ class ModelFollowingModel(domain_object.DomainObject,
 
     @classmethod
     def _get(
-            cls, follower_id: Optional[str] = None,
+            cls, 
+            follower_id: Optional[str] = None,
             object_id: Optional[str] = None
     ) -> Query[tuple[Self, Follower, Followed]]:
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())

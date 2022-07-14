@@ -2,6 +2,7 @@
 
 import datetime
 import re
+from ckan.logic.action.get import organization_followee_count
 
 import pytest
 
@@ -2876,8 +2877,29 @@ class TestFollow(object):
 
         assert len(followee_list) == 1
         assert followee_list[0]["display_name"] == "Environment"
+    
+    def test_followee_count_for_org_or_group(self):
+        group = factories.Group(title="Finance")
+        org = factories.Organization(title="Acme")
 
+        user = factories.User()
 
+        context = {"user": user["name"]}
+
+        helpers.call_action("follow_group", context, id=group["id"])
+        helpers.call_action("follow_group", context, id=org["id"])
+
+        group_followee_count = helpers.call_action(
+            "group_followee_count", context, id=user["name"]
+        )
+
+        organization_followee_count = helpers.call_action(
+            "organization_followee_count", context, id=user["name"]
+        )
+
+        assert group_followee_count == 1
+        assert organization_followee_count == 1
+        
 class TestStatusShow(object):
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.usefixtures("clean_db", "with_plugins")

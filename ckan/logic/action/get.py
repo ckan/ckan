@@ -2,6 +2,7 @@
 
 '''API functions for searching for and getting data from CKAN.'''
 from __future__ import annotations
+from multiprocessing.spawn import is_forking
 
 import uuid
 import logging
@@ -12,7 +13,7 @@ from typing import (Container, Optional,
 
 from ckan.common import config, asbool
 import sqlalchemy
-from sqlalchemy import text
+from sqlalchemy import false, text
 
 
 import ckan
@@ -20,6 +21,7 @@ import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
+import ckan.logic.validators as validators
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
@@ -2723,14 +2725,20 @@ def am_following_group(context: Context,
 
 def _followee_count(
         context: Context, data_dict: DataDict,
-        FollowerClass: Type['ModelFollowingModel[Any ,Any]']) -> int:
+        FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
+        is_org: Optional[bool] = False
+        ) -> int:
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    return FollowerClass.followee_count(data_dict['id'])
+    
+    followees = _group_or_org_followee_list(context, data_dict, is_org = is_org)
+
+    return len(followees)
+
 
 
 def followee_count(context: Context,
@@ -2807,8 +2815,24 @@ def group_followee_count(
     '''
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup)
+        context['model'].UserFollowingGroup,
+        is_org = False)
 
+def organization_followee_count(
+        context: Context,
+        data_dict: DataDict) -> ActionResult.GroupFolloweeCount:
+    '''Return the number of organizations that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingGroup,
+        is_org = True)
 
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
 def followee_list(
