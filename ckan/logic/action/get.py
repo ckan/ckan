@@ -2,7 +2,6 @@
 
 '''API functions for searching for and getting data from CKAN.'''
 from __future__ import annotations
-from multiprocessing.spawn import is_forking
 
 import uuid
 import logging
@@ -13,7 +12,7 @@ from typing import (Container, Optional,
 
 from ckan.common import config, asbool
 import sqlalchemy
-from sqlalchemy import false, text
+from sqlalchemy import text
 
 
 import ckan
@@ -21,7 +20,6 @@ import ckan.lib.dictization
 import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
-import ckan.logic.validators as validators
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
@@ -2820,7 +2818,7 @@ def group_followee_count(
 
 def organization_followee_count(
         context: Context,
-        data_dict: DataDict) -> ActionResult.GroupFolloweeCount:
+        data_dict: DataDict) -> ActionResult.OrganizationFolloweeCount:
     '''Return the number of organizations that are followed by the given user.
 
     :param id: the id of the user
