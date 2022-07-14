@@ -30,7 +30,6 @@ class TestPagination():
         url = tk.url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
 
-        import ipdb; ipdb.set_trace()
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
         assert f'<a href="/dataset/activity/{dataset["id"]}?before=' in response.body
 
