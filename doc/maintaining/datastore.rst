@@ -213,6 +213,16 @@ To install this please look at the docs here: https://github.com/ckan/datapusher
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
 
+--------------
+Express Loader
+--------------
+
+Express Loader(or Xloader) is designed as a replacement for DataPusher because it offers ten
+times the speed and more robustness. You can loads CSV (and similar) data into CKAN's DataStore.
+XLoader pipes the CSV file directly into PostgreSQL using COPY.
+
+To install this please look at the docs here: https://github.com/ckan/ckanext-xloader
+
 .. _data_dictionary:
 
 ---------------
