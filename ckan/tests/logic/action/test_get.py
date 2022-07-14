@@ -2876,7 +2876,7 @@ class TestFollow(object):
 
         assert len(followee_list) == 1
         assert followee_list[0]["display_name"] == "Environment"
-    
+
     def test_followee_count_for_org_or_group(self):
         group = factories.Group(title="Finance")
         group2 = factories.Group(title="Environment")
