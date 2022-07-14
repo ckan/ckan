@@ -2,7 +2,6 @@
 
 import datetime
 import re
-from ckan.logic.action.get import organization_followee_count
 
 import pytest
 
@@ -2901,7 +2900,8 @@ class TestFollow(object):
 
         assert group_followee_count == 2
         assert organization_followee_count == 1
-        
+
+
 class TestStatusShow(object):
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.usefixtures("clean_db", "with_plugins")
