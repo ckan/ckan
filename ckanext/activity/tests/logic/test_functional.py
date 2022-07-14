@@ -30,24 +30,12 @@ class TestPagination():
         url = tk.url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
 
+        import ipdb; ipdb.set_trace()
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
-        assert f'<a href="/dataset/activity/{dataset["id"]}?offset=5" class="btn btn-default">Older activities</a>' in response.body
+        assert f'<a href="/dataset/activity/{dataset["id"]}?before=' in response.body
 
         url = tk.url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
 
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
-        assert f'<a href="/organization/activity/{org["id"]}?offset=5" class="btn btn-default">Older activities</a>' in response.body
-
-        # Test offset pagination
-        url = tk.url_for("dataset.activity", id=dataset["id"], offset=5)
-        response = app.get(url)
-
-        assert f'<a href="/dataset/activity/{dataset["id"]}?offset=0" class="btn btn-default">Newer activities</a>' in response.body
-        assert '<a href="None" class="btn disabled">Older activities</a>' in response.body
-
-        url = tk.url_for("activity.organization_activity", id=org["id"], offset=5)
-        response = app.get(url)
-
-        assert f'<a href="/organization/activity/{org["id"]}?offset=0" class="btn btn-default">Newer activities</a>' in response.body
-        assert '<a href="None" class="btn disabled">Older activities</a>' in response.body
+        assert f'<a href="/organization/activity/{org["id"]}?before=' in response.body
