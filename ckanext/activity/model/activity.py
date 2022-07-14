@@ -632,7 +632,7 @@ def _activities_from_groups_followed_by_user_query(
 
 
 def _activities_from_everything_followed_by_user_query(
-    user_id: str, limit: int
+    user_id: str, limit: int = 0
 ) -> QActivity:
     """Return a query for all activities from everything user_id follows."""
     q1 = _activities_from_users_followed_by_user_query(user_id, limit)
@@ -656,7 +656,7 @@ def activities_from_everything_followed_by_user(
     return _activities_limit(q, limit, offset).all()
 
 
-def _dashboard_activity_query(user_id: str, limit: int) -> QActivity:
+def _dashboard_activity_query(user_id: str, limit: int = 0) -> QActivity:
     """Return an SQLAlchemy query for user_id's dashboard activity stream."""
     q1 = _user_activity_query(user_id, limit)
     q2 = _activities_from_everything_followed_by_user_query(user_id, limit)
@@ -664,7 +664,11 @@ def _dashboard_activity_query(user_id: str, limit: int) -> QActivity:
 
 
 def dashboard_activity_list(
-    user_id: str, limit: int, offset: int
+    user_id: str,
+    limit: int,
+    offset: int,
+    before: Optional[datetime.datetime] = None,
+    after: Optional[datetime.datetime] = None,
 ) -> list[Activity]:
     """Return the given user's dashboard activity stream.
 
@@ -675,11 +679,35 @@ def dashboard_activity_list(
     activities_from_everything_followed_by_user(user_id).
 
     """
-    q = _dashboard_activity_query(user_id, limit + offset)
+    q = _dashboard_activity_query(user_id)
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_limit(q, limit, offset).all()
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def _changed_packages_activity_query() -> QActivity:

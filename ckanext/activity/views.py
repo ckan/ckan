@@ -827,9 +827,8 @@ def user_activity(id: str) -> str:
     return tk.render("user/activity_stream.html", extra_vars)
 
 
-@bp.route("/dashboard/", strict_slashes=False, defaults={"offset": 0})
-@bp.route("/dashboard/<int:offset>")
-def dashboard(offset: int = 0) -> str:
+@bp.route("/dashboard/", strict_slashes=False)
+def dashboard() -> str:
     context = cast(
         Context,
         {
@@ -837,12 +836,19 @@ def dashboard(offset: int = 0) -> str:
             "for_view": True,
         },
     )
-    data_dict: dict[str, Any] = {"user_obj": tk.g.userobj, "offset": offset}
+    data_dict: dict[str, Any] = {"user_obj": tk.g.userobj}
     extra_vars = _extra_template_variables(context, data_dict)
 
     q = tk.request.args.get("q", "")
     filter_type = tk.request.args.get("type", "")
     filter_id = tk.request.args.get("name", "")
+    before = tk.request.args.get("before", None)
+    after = tk.request.args.get("after", None)
+    offset = tk.request.args.get("offset", None)
+
+    base_limit = tk.config.get_value("ckan.activity_list_limit")
+    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    limit = min(base_limit, max_limit)
 
     extra_vars["followee_list"] = tk.get_action("followee_list")(
         context, {"id": tk.g.userobj.id, "q": q}
@@ -850,9 +856,63 @@ def dashboard(offset: int = 0) -> str:
     extra_vars["dashboard_activity_stream_context"] = _get_dashboard_context(
         filter_type, filter_id, q
     )
-    extra_vars["dashboard_activity_stream"] = tk.h.dashboard_activity_stream(
-        tk.g.userobj.id, filter_type, filter_id, offset
+    activity_stream = tk.h.dashboard_activity_stream(
+        tk.g.userobj.id,
+        filter_type,
+        filter_id,
+        offset,
+        limit + 1,
+        before,
+        after
     )
+
+    prev_page = None
+    next_page = None
+    is_first_page = after is None and before is None
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            # drop the first element
+            activity_stream.pop(0)
+        else:
+            # drop the last element
+            activity_stream.pop()
+
+    # if "after", we came from the next page. So it exists
+    # if "before" (or is_first_page), we only show next page if we know
+    # we have more rows
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            activity_stream[-1]["timestamp"]
+        )
+        next_page = tk.h.url_for(
+            "activity.dashboard",
+            type=filter_type,
+            name=filter_id,
+            before=before_time.timestamp(),
+        )
+
+    # if "before", we came from the previous page. So it exists
+    # if "after", we only show previous page if we know
+    # we have more rows
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            activity_stream[0]["timestamp"]
+        )
+        prev_page = tk.h.url_for(
+            "activity.dashboard",
+            type=filter_type,
+            name=filter_id,
+            after=after_time.timestamp(),
+        )
+
+    extra_vars.update({
+        "id":  id,
+        "dashboard_activity_stream": activity_stream,
+        "prev_page": prev_page,
+        "next_page": next_page
+    })
 
     # Mark the user's new activities as old whenever they view their
     # dashboard page.

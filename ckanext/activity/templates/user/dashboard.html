@@ -21,4 +21,7 @@
     </h2>
     {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
   </div>
+
+  {% snippet 'snippets/pagination.html', prev_page=prev_page, next_page=next_page %}
+
 {% endblock %}

@@ -440,11 +440,12 @@ def dashboard_activity_list(
     user_id = user_obj.id
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
-
+    before = data_dict.get("before")
+    after = data_dict.get("after")
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     activity_objects = model_activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset
+        user_id, limit=limit, offset=offset, before=before, after=after
     )
 
     activity_dicts = model_activity.activity_list_dictize(
