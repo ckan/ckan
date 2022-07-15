@@ -64,6 +64,9 @@ from ckan.common import (
     asbool,
     asint,
     aslist,
+    login_user,
+    logout_user,
+    current_user
 )
 
 from ckan.lib.plugins import (
@@ -90,7 +93,7 @@ __all__ = [
     "h", "literal", "chained_helper", "redirect_to", "url_for",
     "CkanVersionException", "HelperError",
     "config", "_", "ungettext", "g", "c", "request",
-    "asbool", "asint", "aslist",
+    "asbool", "asint", "aslist", "login_user", "logout_user", "current_user",
     "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
     "error_shout",
     "mail_recipient", "mail_user",
@@ -365,22 +368,5 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "asbool": """Convert a string (e.g. 1,
-true, True) from the config file into a boolean.
-
-For example: ``if toolkit.asbool("yes"):``
-
-""",
-    "asint": """Convert a string from the config
-file into an int.
-
-For example: ``bar = toolkit.asint("111")``
-
-""",
-    "aslist": """Convert a space-separated
-string from the config file into a list.
-
-For example: `bar = toolkit.aslist(config.get('ckan.foo.bar', []))`
-
-""",
+    "ckan": "``ckan`` package itself."
 }

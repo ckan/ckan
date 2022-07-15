@@ -312,8 +312,8 @@ Migration notes
   migrate_package_activity.py like this::
 
     cd /usr/lib/ckan/default/src/ckan/
-    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/migrate_package_activity.py
-    wget https://raw.githubusercontent.com/ckan/ckan/3484_revision_ui_removal2/ckan/migration/revision_legacy_code.py
+    wget https://raw.githubusercontent.com/ckan/ckan/2.9/ckan/migration/migrate_package_activity.py
+    wget https://raw.githubusercontent.com/ckan/ckan/2.9/ckan/migration/revision_legacy_code.py
     python migrate_package_activity.py -c /etc/ckan/production.ini
 
   Future versions of CKAN are likely to need a slightly different procedure.
@@ -636,7 +636,7 @@ General notes:
  * Note: This version does not require a Solr schema upgrade
  * Note: This version includes changes in the way the ``SameSite`` flag is set on the ``auth_tkt`` authorization cookie.
    The new default setting for it is ``SameSite=Lax``, which aligns with the behaviour of all major browsers. If for some
-   reason you need a different value, you can set it via the :ref:`who.samesite` configuration option. You can find more
+   reason you need a different value, you can set it via the `who.samesite` configuration option. You can find more
    information on the ``SameSite`` attribute `here <https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#SameSite_cookies>`_.
 
 
@@ -969,7 +969,7 @@ General notes:
  * Note: This version does not require a Solr schema upgrade
  * Note: This version includes changes in the way the ``SameSite`` flag is set on the ``auth_tkt`` authorization cookie.
    The new default setting for it is ``SameSite=Lax``, which aligns with the behaviour of all major browsers. If for some
-   reason you need a different value, you can set it via the :ref:`who.samesite` configuration option. You can find more
+   reason you need a different value, you can set it via the `who.samesite` configuration option. You can find more
    information on the ``SameSite`` attribute `here <https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#SameSite_cookies>`_.
 
 
@@ -2103,7 +2103,7 @@ Changes and deprecations
 * The HttpOnly flag will be set on the authorization cookie by default. For
   enhanced security, we recommend using the HttpOnly flag, but this behaviour
   can be changed in the ``Repoze.who`` settings detailed in the Config File
-  Options documentation (:ref:`who.httponly`).
+  Options documentation (`who.httponly`).
 
 * The OpenID login option has been removed and is no longer supported. See
   "Troubleshooting" if you are upgrading an existing CKAN instance as you may

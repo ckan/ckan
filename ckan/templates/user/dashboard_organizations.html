@@ -2,8 +2,6 @@
 
 {% set group_type = h.default_group_type('organization') %}
 
-{% block dashboard_activity_stream_context %}{% endblock %}
-
 {% block page_primary_action %}
   {% if h.check_access('organization_create') %}
     {% link_for h.humanize_entity_type('organization', group_type, 'add link') or _('Add Organization'), named_route=group_type ~ '.new', class_="btn btn-primary", icon="plus-square" %}

@@ -1,8 +1,9 @@
 # encoding: utf-8
 
-"""The base Controller API
+"""The base functionality for web-views.
 
-Provides the BaseController class for subclassing.
+Provides functions for rendering templates, aborting the request, etc.
+
 """
 from __future__ import annotations
 
@@ -19,8 +20,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import request, config, session
-
+from ckan.common import request, config, session, g
 
 log = logging.getLogger(__name__)
 
@@ -115,10 +115,10 @@ def _allow_caching(cache_force: Optional[bool] = None):
     if cache_force is not None:
         allow_cache = cache_force
     # Do not allow caching of pages for logged in users/flash messages etc.
-    elif _is_valid_session_cookie_data():
+    elif ('user' in g and g.user) or _is_valid_session_cookie_data():
         allow_cache = False
     # Tests etc.
-    elif 'REMOTE_USER' in request.environ:
+    elif session.get("_user_id"):
         allow_cache = False
     # Don't cache if based on a non-cachable template used in this.
     elif request.environ.get('__no_cache__'):

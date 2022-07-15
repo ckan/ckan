@@ -8,7 +8,6 @@ from typing import Any, Optional, Union, cast
 from typing_extensions import Literal
 
 from urllib.parse import urlencode
-from datetime import datetime
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -19,7 +18,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins as lib_plugins
 import ckan.plugins as plugins
-from ckan.common import g, config, request, _
+from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
 
@@ -135,7 +134,7 @@ def index(group_type: str, is_organization: bool) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
         u'with_private': False
     })
@@ -160,9 +159,9 @@ def index(group_type: str, is_organization: bool) -> str:
 
     # pass user info to context as needed to view private datasets of
     # orgs correctly
-    if g.userobj:
-        context['user_id'] = g.userobj.id
-        context['user_is_admin'] = g.userobj.sysadmin
+    if current_user.is_authenticated:
+        context['user_id'] = current_user.id  # type: ignore
+        context['user_is_admin'] = current_user.sysadmin  # type: ignore
 
     try:
         data_dict_global_results: dict[str, Any] = {
@@ -218,7 +217,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
@@ -394,7 +393,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True
     })
     try:
@@ -415,7 +414,7 @@ def read(group_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True
     })
@@ -464,189 +463,16 @@ def read(group_type: str,
         extra_vars)
 
 
-def activity(id: str,
-             group_type: str,
-             is_organization: bool,
-             offset: int = 0) -> str:
-    u'''Render this group's public activity stream page.'''
-    extra_vars = {}
-    set_org(is_organization)
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'for_view': True
-    })
-    try:
-        group_dict = _get_group_dict(id, group_type)
-    except (NotFound, NotAuthorized):
-        base.abort(404, _(u'Group not found'))
-
-    try:
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html
-        # template to retrieve later.
-        extra_vars["activity_stream"] = \
-            _action(u'organization_activity_list'
-                    if group_dict.get(u'is_organization')
-                    else u'group_activity_list')(
-            context, {
-                u'id': group_dict['id'],
-                u'offset': offset
-            })
-
-    except ValidationError as error:
-        base.abort(400, error.message or '')
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.group_activity_stream = extra_vars["activity_stream"]
-    g.group_dict = group_dict
-
-    extra_vars["group_type"] = group_type
-    extra_vars["group_dict"] = group_dict
-    extra_vars["id"] = id
-    return base.render(
-        _get_group_template(u'activity_template', group_type), extra_vars)
-
-
-def changes(id: str, group_type: str, is_organization: bool) -> str:
-    '''
-    Shows the changes to an organization in one particular activity stream
-    item.
-    '''
-    set_org(is_organization)
-    extra_vars = {}
-    activity_id = id
-    context = cast(Context, {
-        u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
-    })
-    try:
-        activity_diff = get_action(u'activity_diff')(
-            context, {u'id': activity_id, u'object_type': u'group',
-                      u'diff_type': u'html'})
-    except NotFound as e:
-        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
-        return base.abort(404, _(u'Activity not found'))
-    except NotAuthorized:
-        return base.abort(403, _(u'Unauthorized to view activity data'))
-
-    # 'group_dict' needs to go to the templates for page title & breadcrumbs.
-    # Use the current version of the package, in case the name/title have
-    # changed, and we need a link to it which works
-    group_id = activity_diff[u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(group_type + u'_show')(
-        context, {u'id': group_id})
-    group_activity_list = get_action(group_type + u'_activity_list')(
-        context, {
-            u'id': group_id,
-            u'limit': 100
-        }
-    )
-
-    extra_vars: dict[str, Any] = {
-        u'activity_diffs': [activity_diff],
-        u'group_dict': current_group_dict,
-        u'group_activity_list': group_activity_list,
-        u'group_type': current_group_dict[u'type'],
-    }
-
-    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
-
-
-def changes_multiple(is_organization: bool, group_type: str) -> str:
-    '''
-    Called when a user specifies a range of versions they want to look at
-    changes between. Verifies that the range is valid and finds the set of
-    activity diffs for the changes in the given version range, then
-    re-renders changes.html with the list.
-    '''
-    set_org(is_organization)
-    extra_vars = {}
-    new_id = h.get_request_param(u'new_id')
-    old_id = h.get_request_param(u'old_id')
-
-    context = cast(Context, {
-        u'model': model, u'session': model.Session,
-        u'user': g.user, u'auth_user_obj': g.userobj
-    })
-
-    # check to ensure that the old activity is actually older than
-    # the new activity
-    old_activity = get_action(u'activity_show')(context, {
-        u'id': old_id,
-        u'include_data': False})
-    new_activity = get_action(u'activity_show')(context, {
-        u'id': new_id,
-        u'include_data': False})
-
-    old_timestamp = old_activity[u'timestamp']
-    new_timestamp = new_activity[u'timestamp']
-
-    t1 = datetime.strptime(old_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
-    t2 = datetime.strptime(new_timestamp, u'%Y-%m-%dT%H:%M:%S.%f')
-
-    time_diff = t2 - t1
-    # if the time difference is negative, just return the change that put us
-    # at the more recent ID we were just looking at
-    # TODO: do something better here - go back to the previous page,
-    # display a warning that the user can't look at a sequence where
-    # the newest item is older than the oldest one, etc
-    if time_diff.total_seconds() < 0:
-        return changes(
-            h.get_request_param(u'current_new_id'), group_type,
-            is_organization)
-
-    done = False
-    current_id = new_id
-    diff_list = []
-
-    while not done:
-        try:
-            activity_diff = get_action(u'activity_diff')(
-                context, {
-                    u'id': current_id,
-                    u'object_type': u'group',
-                    u'diff_type': u'html'})
-        except NotFound as e:
-            log.info(
-                u'Activity not found: {} - {}'.format(str(e), current_id)
-            )
-            return base.abort(404, _(u'Activity not found'))
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to view activity data'))
-
-        diff_list.append(activity_diff)
-
-        if activity_diff['activities'][0]['id'] == old_id:
-            done = True
-        else:
-            current_id = activity_diff['activities'][0]['id']
-
-    group_id: str = diff_list[0][u'activities'][1][u'data'][u'group'][u'id']
-    current_group_dict = get_action(group_type + u'_show')(
-        context, {u'id': group_id})
-    group_activity_list = get_action(group_type + u'_activity_list')(context, {
-        u'id': group_id,
-        u'limit': 100})
-
-    extra_vars: dict[str, Any] = {
-        u'activity_diffs': diff_list,
-        u'group_dict': current_group_dict,
-        u'group_activity_list': group_activity_list,
-        u'group_type': current_group_dict[u'type'],
-    }
-
-    return base.render(_replace_group_org(u'group/changes.html'), extra_vars)
-
-
 def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
     group_dict = _get_group_dict(id, group_type)
     group_type = group_dict['type']
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
@@ -668,7 +494,12 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
@@ -684,7 +515,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     except NotAuthorized:
         base.abort(403,
                    _(u'User %r not authorized to edit members of %s') %
-                   (g.user, id))
+                   (current_user.name, id))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -708,8 +539,12 @@ def member_delete(id: str, group_type: str,
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
-
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
     try:
         assert _check_access(u'group_member_delete', context, {u'id': id})
     except NotAuthorized:
@@ -724,14 +559,7 @@ def member_delete(id: str, group_type: str,
             })
             h.flash_notice(_(u'Group member has been deleted.'))
             return h.redirect_to(u'{}.members'.format(group_type), id=id)
-        user_dict = _action(u'group_show')(context, {u'id': user_id})
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.user_dict = user_dict
-        g.user_id = user_id
-        g.group_id = id
+        user_dict = _action(u'user_show')(context, {u'id': user_id})
 
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
@@ -740,22 +568,23 @@ def member_delete(id: str, group_type: str,
     extra_vars: dict[str, Any] = {
         u"user_id": user_id,
         u"user_dict": user_dict,
-        u"group_id": id
+        u"group_id": id,
+        u"group_type": group_type
     }
     return base.render(_replace_group_org(u'group/confirm_delete_member.html'),
                        extra_vars)
-
-
-# deprecated
-def history(id: str, group_type: str, is_organization: bool) -> Response:
-    return h.redirect_to(u'group.activity', id=id)
 
 
 def follow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Start following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
     data_dict = {u'id': id}
     try:
         get_action(u'follow_group')(context, data_dict)
@@ -776,7 +605,12 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     u'''Stop following this group.'''
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
     data_dict = {u'id': id}
     try:
         get_action(u'unfollow_group')(context, data_dict)
@@ -787,9 +621,12 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except (NotFound, NotAuthorized) as e:
+    except NotFound as e:
         error_message = e.message or ''
-        h.flash_error(error_message)
+        base.abort(404, _(error_message))
+    except NotAuthorized as e:
+        error_message = e.message or ''
+        base.abort(403, _(error_message))
     return h.redirect_to(u'group.read', id=id)
 
 
@@ -797,7 +634,12 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     context = cast(
-        Context, {u'model': model, u'session': model.Session, u'user': g.user})
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
     group_dict = _get_group_dict(id, group_type)
     try:
         followers = \
@@ -852,7 +694,7 @@ class BulkProcessView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': current_user.name,
             u'schema': _db_to_form_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
@@ -902,6 +744,7 @@ class BulkProcessView(MethodView):
         set_org(is_organization)
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
+        user = current_user.name
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
@@ -916,7 +759,7 @@ class BulkProcessView(MethodView):
             base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
-                       _(u'User %r not authorized to edit %s') % (g.user, id))
+                       _(u'User %r not authorized to edit %s') % (user, id))
 
         if not group_dict['is_organization']:
             # FIXME: better error
@@ -982,7 +825,7 @@ class CreateGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': current_user.name,
             u'save': u'save' in request.args,
             u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
@@ -1007,9 +850,9 @@ class CreateGroupView(MethodView):
             ))
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
-
+        user = current_user.name
         data_dict['type'] = group_type or u'group'
-        data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
+        data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
         except (NotFound, NotAuthorized):
@@ -1075,7 +918,7 @@ class EditGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': current_user.name,
             u'save': u'save' in request.args,
             u'for_edit': True,
             u'parent': request.args.get(u'parent', None),
@@ -1174,7 +1017,7 @@ class DeleteGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': current_user.name,
         })
         try:
             assert _check_access(u'group_delete', context, {u'id': id})
@@ -1201,8 +1044,7 @@ class DeleteGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            h.flash_error(e.error_dict['message'])
-            return h.redirect_to(u'{}.read'.format(group_type), id=id)
+            base.abort(403, _(e.error_dict['message']))
 
         return h.redirect_to(u'{}.index'.format(group_type))
 
@@ -1233,7 +1075,7 @@ class MembersGroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user
+            u'user': current_user.name
         })
         try:
             assert _check_access(u'group_member_create', context, {u'id': id})
@@ -1341,8 +1183,8 @@ organization = Blueprint(u'organization', __name__,
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
     actions = [
-        u'member_delete', u'history', u'followers', u'follow',
-        u'unfollow', u'admins', u'activity'
+        u'member_delete', u'followers', u'follow',
+        u'unfollow', u'admins',
     ]
     blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
     blueprint.add_url_rule(
@@ -1352,8 +1194,6 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
     blueprint.add_url_rule(u'/<id>', methods=[u'GET'], view_func=read)
     blueprint.add_url_rule(
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
-    blueprint.add_url_rule(
-        u'/activity/<id>/<int:offset>', methods=[u'GET'], view_func=activity)
     blueprint.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
     blueprint.add_url_rule(
         u'/members/<id>', methods=[u'GET', u'POST'], view_func=members)
@@ -1372,10 +1212,6 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
             u'/{0}/<id>'.format(action),
             methods=[u'GET', u'POST'],
             view_func=globals()[action])
-    blueprint.add_url_rule(u'/changes/<id>', view_func=changes)
-    blueprint.add_url_rule(
-        u'/changes_multiple',
-        view_func=changes_multiple)
 
 
 register_group_plugin_rules(group)

@@ -674,27 +674,6 @@ class TestVocabularyDictize(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
-class TestActivityDictize(object):
-    def test_include_data(self):
-        dataset = factories.Dataset()
-        user = factories.User()
-        activity = factories.Activity(
-            user_id=user["id"],
-            object_id=dataset["id"],
-            activity_type="new package",
-            data={"package": copy.deepcopy(dataset), "actor": "Mr Someone"},
-        )
-        activity_obj = model.Activity.get(activity["id"])
-        context = {"model": model, "session": model.Session}
-        dictized = model_dictize.activity_dictize(activity_obj, context)
-        assert dictized["user_id"] == user["id"]
-        assert dictized["activity_type"] == "new package"
-        assert dictized["data"]["package"]["title"] == dataset["title"]
-        assert dictized["data"]["package"]["id"] == dataset["id"]
-        assert dictized["data"]["actor"] == "Mr Someone"
-
-
-@pytest.mark.usefixtures("non_clean_db")
 class TestPackageSchema(object):
     def remove_changable_columns(self, dict):
         for key, value in list(dict.items()):

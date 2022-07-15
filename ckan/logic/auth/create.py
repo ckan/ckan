@@ -225,11 +225,6 @@ def vocabulary_create(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': False}
 
 
-def activity_create(context: Context, data_dict: DataDict) -> AuthResult:
-    # sysadmins only
-    return {'success': False}
-
-
 def tag_create(context: Context, data_dict: DataDict) -> AuthResult:
     # sysadmins only
     return {'success': False}

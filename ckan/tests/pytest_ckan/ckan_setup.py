@@ -3,10 +3,16 @@
 import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
+from ckan.common import config
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _tests_test_request_context = None
+
+# Initial config snapshot that is used to restore config object before each
+# test. This allows us to keep tests independent while we are using global
+# config object.
+_config = config.copy()
 
 
 def pytest_addoption(parser):
@@ -39,6 +45,10 @@ def pytest_sessionstart(session):
         flask_app = app._wsgi_app
     _tests_test_request_context = flask_app.test_request_context()
 
+    # Create the snapshot of the initial configuration
+    global _config
+    _config = config.copy()
+
 
 def pytest_runtestloop(session):
     """When all the tests collected, extra plugin may be enabled because python
@@ -60,6 +70,15 @@ def pytest_runtest_setup(item):
     `@mark.usefixtures("ckan_config")` every time.
 
     """
+    # Restore configuration from the snapshot, removing all customization that
+    # were done during previous tests.  Note, it is not related to
+    # `ckan_config` fixture, which restores config object itself. This is
+    # needed because such modules as `ckan.lib.app_globals` can mutate global
+    # config object. Potentially can be removed, when the logic behind
+    # `app_globals` stops modifying global config object.
+    config.clear()
+    config.update(_config)
+
     custom_config = [
         mark.args for mark in item.iter_markers(name=u"ckan_config")
     ]

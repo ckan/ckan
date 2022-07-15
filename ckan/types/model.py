@@ -20,7 +20,7 @@ class Meta(Protocol):
 
 
 class Model(Protocol):
-    Activity: ClassVar[Type["_model.Activity"]]
+    # Activity: ClassVar[Type["_model.Activity"]]
     ApiToken: ClassVar[Type["_model.ApiToken"]]
     Dashboard: ClassVar[Type["_model.Dashboard"]]
     DomainObject: ClassVar[Type["_model.DomainObject"]]
@@ -38,6 +38,7 @@ class Model(Protocol):
     TaskStatus: ClassVar[Type["_model.TaskStatus"]]
     TrackingSummary: ClassVar[Type["_model.TrackingSummary"]]
     User: ClassVar[Type["_model.User"]]
+    AnonymousUser: ClassVar[Type["_model.AnonymousUser"]]
     UserFollowingDataset: ClassVar[Type["_model.UserFollowingDataset"]]
     UserFollowingGroup: ClassVar[Type["_model.UserFollowingGroup"]]
     UserFollowingUser: ClassVar[Type["_model.UserFollowingUser"]]

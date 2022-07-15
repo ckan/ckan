@@ -48,6 +48,7 @@ from ckan.model.tag import (
 from ckan.model.user import (
     User,
     user_table,
+    AnonymousUser
 )
 from ckan.model.group import (
     Member,
@@ -91,12 +92,6 @@ from ckan.model.vocabulary import (
     VOCABULARY_NAME_MAX_LENGTH,
     VOCABULARY_NAME_MIN_LENGTH,
 )
-from ckan.model.activity import (
-    Activity,
-    ActivityDetail,
-    activity_table,
-    activity_detail_table,
-)
 from ckan.model.term_translation import (
     term_translation_table,
 )
@@ -133,7 +128,7 @@ __all__ = [
     "PACKAGE_NAME_MIN_LENGTH", "PACKAGE_NAME_MAX_LENGTH",
     "PACKAGE_VERSION_MAX_LENGTH", "package_table", "package_member_table",
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
-    "package_tag_table", "User", "user_table", "Member", "Group",
+    "package_tag_table", "User", "user_table", "AnonymousUser", "Member", "Group",
     "group_table", "member_table",
     "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",
@@ -142,7 +137,6 @@ __all__ = [
     "PackageRelationship", "package_relationship_table",
     "TaskStatus", "task_status_table",
     "Vocabulary", "VOCABULARY_NAME_MAX_LENGTH", "VOCABULARY_NAME_MIN_LENGTH",
-    "Activity", "ActivityDetail", "activity_table", "activity_detail_table",
     "term_translation_table", "UserFollowingUser", "UserFollowingDataset",
     "UserFollowingGroup", "system_info_table", "SystemInfo",
     "get_system_info", "set_system_info", "delete_system_info",

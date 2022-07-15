@@ -413,7 +413,7 @@ def default_user_schema(
         ignore_missing: Validator, unicode_safe: Validator,
         name_validator: Validator, user_name_validator: Validator,
         user_password_validator: Validator, user_password_not_empty: Validator,
-        email_is_unique: Validator, ignore_not_sysadmin: Validator,
+        ignore_not_sysadmin: Validator,
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
@@ -426,7 +426,7 @@ def default_user_schema(
         'password': [user_password_validator, user_password_not_empty,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
-        'email': [not_empty, strip_value, email_validator, email_is_unique,
+        'email': [not_empty, strip_value, email_validator,
                   unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
@@ -439,6 +439,13 @@ def default_user_schema(
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
     })
+
+
+@validator_args
+def create_user_for_user_invite_schema(ignore_missing: Validator):
+    schema = default_user_schema()
+    schema['password'] = [ignore_missing]
+    return schema
 
 
 @validator_args
@@ -542,25 +549,6 @@ def default_update_vocabulary_schema(
 
 
 @validator_args
-def default_create_activity_schema(
-        ignore: Validator, not_missing: Validator, not_empty: Validator,
-        unicode_safe: Validator, convert_user_name_or_id_to_id: Validator,
-        object_id_validator: Validator, activity_type_exists: Validator,
-        ignore_empty: Validator, ignore_missing: Validator):
-    return cast(Schema, {
-        'id': [ignore],
-        'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode_safe,
-                    convert_user_name_or_id_to_id],
-        'object_id': [
-            not_missing, not_empty, unicode_safe, object_id_validator],
-        'activity_type': [not_missing, not_empty, unicode_safe,
-                          activity_type_exists],
-        'data': [ignore_empty, ignore_missing],
-    })
-
-
-@validator_args
 def default_follow_user_schema(not_missing: Validator, not_empty: Validator,
                                unicode_safe: Validator,
                                convert_user_name_or_id_to_id: Validator,
@@ -621,41 +609,6 @@ def default_pagination_schema(ignore_missing: Validator,
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator]
     })
-
-
-@validator_args
-def default_dashboard_activity_list_schema(
-        configured_default: ValidatorFactory,
-        natural_number_validator: Validator,
-        limit_to_configured_maximum: ValidatorFactory):
-    schema = default_pagination_schema()
-    schema['limit'] = [
-        configured_default('ckan.activity_list_limit', 31),
-        natural_number_validator,
-        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
-    return schema
-
-
-@validator_args
-def default_activity_list_schema(
-        not_missing: Validator, unicode_safe: Validator,
-        configured_default: ValidatorFactory,
-        natural_number_validator: Validator,
-        limit_to_configured_maximum: ValidatorFactory,
-        ignore_missing: Validator, boolean_validator: Validator,
-        ignore_not_sysadmin: Validator, list_of_strings: Validator):
-
-    schema = default_pagination_schema()
-    schema['id'] = [not_missing, unicode_safe]
-    schema['limit'] = [
-        configured_default('ckan.activity_list_limit', 31),
-        natural_number_validator,
-        limit_to_configured_maximum('ckan.activity_list_limit_max', 100)]
-    schema['include_hidden_activity'] = [
-        ignore_missing, ignore_not_sysadmin, boolean_validator]
-    schema['activity_types'] = [ignore_missing, list_of_strings]
-    schema['exclude_activity_types'] = [ignore_missing, list_of_strings]
-    return schema
 
 
 @validator_args

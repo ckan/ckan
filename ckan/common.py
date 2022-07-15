@@ -21,12 +21,16 @@ import flask
 
 from werkzeug.local import Local, LocalProxy
 
+from flask_login import current_user as _cu
+from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration, Key
+from ckan.types import Model
+
 
 if TYPE_CHECKING:
     # starting from python 3.7 the following line can be used without any
@@ -34,6 +38,11 @@ if TYPE_CHECKING:
     MutableMapping = MutableMapping[str, Any]
 
 log = logging.getLogger(__name__)
+
+
+current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+login_user = _login_user
+logout_user = _logout_user
 
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")
@@ -178,6 +187,14 @@ def _get_session():
 
 
 def asbool(obj: Any) -> bool:
+    """Convert a string (e.g. 1, true, True) into a boolean.
+
+    Example::
+
+        assert asbool("yes") is True
+
+    """
+
     if isinstance(obj, str):
         obj = obj.strip().lower()
         if obj in truthy:
@@ -190,6 +207,13 @@ def asbool(obj: Any) -> bool:
 
 
 def asint(obj: Any) -> int:
+    """Convert a string into an int.
+
+    Example::
+
+        assert asint("111") == 111
+
+    """
     try:
         return int(obj)
     except (TypeError, ValueError):
@@ -222,6 +246,14 @@ def aslist(obj: Literal[None],
 
 
 def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
+    """Convert a space-separated string into a list.
+
+    Example::
+
+        assert aslist("a b c") == ["a", "b", "c"]
+
+    """
+
     if isinstance(obj, str):
         lst = obj.split(sep)
         if strip:

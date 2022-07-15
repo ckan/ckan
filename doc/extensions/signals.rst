@@ -165,8 +165,6 @@ plugins to subscribe:
    :annotation: (blueprint_type, blueprint)
 .. autodata:: resource_download
    :annotation: (resource_id)
-.. autodata:: successful_login
-   :annotation: (username)
 .. autodata:: failed_login
    :annotation: (username)
 .. autodata:: user_created
@@ -175,6 +173,8 @@ plugins to subscribe:
    :annotation: (username, user)
 .. autodata:: perform_password_reset
    :annotation: (username, user)
+.. autodata:: action_succeeded
+   :annotation: (action, context, data_dict, result)
 
 .. autodata:: datastore_upsert
    :annotation: (resource_id, records)

@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+from contextlib import contextmanager
 
 import functools
 import logging
@@ -12,6 +13,7 @@ from typing import (Any, Callable, Container, Iterable, Optional,
 from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
+from sqlalchemy import exc
 
 import six
 
@@ -20,6 +22,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
+import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
@@ -31,6 +34,8 @@ Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
+
+_PG_ERR_CODE = {'unique_violation': '23505'}
 
 
 class NameConflict(Exception):
@@ -328,7 +333,7 @@ def check_access(action: str,
     if not context.get('ignore_auth'):
         if not context.get('__auth_user_obj_checked'):
             if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.by_name(context['user'])
+                context['auth_user_obj'] = model.User.get(context['user'])
             context['__auth_user_obj_checked'] = True
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
@@ -501,13 +506,16 @@ def get_action(action: str) -> Action:
     # wrap the functions
     for action_name, _action in _actions.items():
         def make_wrapped(_action: Action, action_name: str):
-            def wrapped(context: Optional[Context],
-                        data_dict: DataDict, **kw: Any):
+            def wrapped(context: Optional[Context] = None,
+                        data_dict: Optional[DataDict] = None, **kw: Any):
                 if kw:
                     log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
+
+                if data_dict is None:
+                    data_dict = {}
 
                 # Auth Auditing - checks that the action function did call
                 # check_access (unless there is no accompanying auth function).
@@ -536,6 +544,9 @@ def get_action(action: str) -> Action:
                 except IndexError:
                     pass
 
+                signals.action_succeeded.send(
+                    action_name, context=context, data_dict=data_dict,
+                    result=result)
                 return result
             return wrapped
 
@@ -812,3 +823,24 @@ def _import_module_functions(
         k: v
         for k, v in authz.get_local_functions(module)
     }
+
+
+@contextmanager
+def guard_against_duplicated_email(email: str):
+    try:
+        yield
+    except exc.IntegrityError as e:
+        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+            model.Session.rollback()
+            raise ValidationError(
+                cast(
+                    ErrorDict,
+                    {
+                        "email": [
+                            "The email address '{email}' belongs to "
+                            "a registered user.".format(email=email)
+                        ]
+                    },
+                )
+            )
+        raise

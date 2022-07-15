@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import datetime
 from typing import (
-    Any, Optional, Type, TypeVar, Union, overload
+    Any, Optional, Union, overload
 )
-from typing_extensions import Literal
+from typing_extensions import Literal, Self
 
 from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
 from sqlalchemy.ext.associationproxy import AssociationProxy
@@ -23,7 +23,6 @@ __all__ = ['group_table', 'Group',
            'Member',
            'member_table']
 
-TGroup = TypeVar("TGroup", bound="Group")
 
 member_table = Table('member', meta.metadata,
                      Column('id', types.UnicodeText,
@@ -170,7 +169,7 @@ class Group(core.StatefulObjectMixin,
             return self.name
 
     @classmethod
-    def get(cls, reference: Optional[str]) -> Optional["Group"]:
+    def get(cls, reference: Optional[str]) -> Optional[Self]:
         '''Returns a group object referenced by its id or name.'''
         query = meta.Session.query(cls).filter(cls.id == reference)
         group = query.first()
@@ -180,8 +179,8 @@ class Group(core.StatefulObjectMixin,
     # Todo: Make sure group names can't be changed to look like group IDs?
 
     @classmethod
-    def all(cls: Type[TGroup], group_type: Optional[str] = None,
-            state: tuple[str]=('active',)) -> 'Query[TGroup]':
+    def all(cls, group_type: Optional[str] = None,
+            state: tuple[str]=('active',)) -> Query[Self]:
         """
         Returns all groups.
         """
@@ -205,7 +204,7 @@ class Group(core.StatefulObjectMixin,
         assert status in ["approved", "denied"]
         self.approval_status = status
 
-    def get_children_groups(self, type: str='group') -> list["Group"]:
+    def get_children_groups(self, type: str='group') -> list[Self]:
         '''Returns the groups one level underneath this group in the hierarchy.
         '''
         # The original intention of this method was to provide the full depth
@@ -242,7 +241,7 @@ class Group(core.StatefulObjectMixin,
             id=self.id, type=type).all()
         return results
 
-    def get_parent_groups(self, type: str='group') -> list["Group"]:
+    def get_parent_groups(self, type: str='group') -> list[Self]:
         '''Returns this group's parent groups.
         Returns a list. Will have max 1 value for organizations.
 
@@ -258,7 +257,7 @@ class Group(core.StatefulObjectMixin,
             all()
         return result
 
-    def get_parent_group_hierarchy(self, type: str='group') -> list["Group"]:
+    def get_parent_group_hierarchy(self, type: str='group') -> list[Self]:
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         result: list[Group] =  meta.Session.query(Group).\
@@ -267,7 +266,7 @@ class Group(core.StatefulObjectMixin,
         return result
 
     @classmethod
-    def get_top_level_groups(cls, type: str='group') -> list["Group"]:
+    def get_top_level_groups(cls, type: str='group') -> list[Self]:
         '''Returns a list of the groups (of the specified type) which have
         no parent groups. Groups are sorted by title.
         '''
@@ -284,7 +283,7 @@ class Group(core.StatefulObjectMixin,
         return result
 
     def groups_allowed_to_be_its_parent(
-            self, type: str='group') -> list["Group"]:
+            self, type: str='group') -> list[Self]:
         '''Returns a list of the groups (of the specified type) which are
         allowed to be this group's parent. It excludes ones which would
         create a loop in the hierarchy, causing the recursive CTE to
@@ -383,8 +382,8 @@ class Group(core.StatefulObjectMixin,
 
     @classmethod
     def search_by_name_or_title(
-            cls: Type[TGroup], text_query: str, group_type: Optional[str] = None,
-            is_org: bool = False, limit: int = 20) -> 'Query[TGroup]':
+            cls, text_query: str, group_type: Optional[str] = None,
+            is_org: bool = False, limit: int = 20) -> Query[Self]:
         text_query = text_query.strip().lower()
         # type_ignore_reason: incomplete SQLAlchemy types
         q = meta.Session.query(cls) \

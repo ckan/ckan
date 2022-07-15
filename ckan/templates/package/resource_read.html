@@ -25,11 +25,13 @@
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
-          <ul>
-            {% block resource_actions_inner %}
-            {% if h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
-              <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
-            {% endif %}
+            <ul>
+              {% block resource_actions_inner %}
+                {% block action_manage %}
+                  {% if h.check_access('package_update', {'id':pkg.id }) %}
+                    <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
+                  {% endif %}
+                {% endblock action_manage %}
             {% if res.url and h.is_url(res.url) %}
               <li>
                 <div class="btn-group">
@@ -58,11 +60,11 @@
                     <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
                       target="_blank" rel="noreferrer"><span>TSV</span></a>
                   </li>
-                  <li> 
+                  <li>
                       <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
                       target="_blank" rel="noreferrer"><span>JSON</span></a>
                   </li>
-                  <li>  
+                  <li>
                       <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
                       target="_blank" rel="noreferrer"><span>XML</span></a>
                   </li>
@@ -77,17 +79,6 @@
           {% endblock %}
         </div>
         {% block resource_content %}
-          {% block package_archive_notice %}
-            {% if is_activity_archive %}
-              <div id="activity-archive-notice" class="alert alert-danger">
-                {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-                You're currently viewing an old version of this dataset.
-                Data files may not match the old version of the metadata.
-                <a href="{{ url }}">View the current version</a>.
-                {% endtrans %}
-              </div>
-            {% endif %}
-          {% endblock %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
@@ -103,11 +94,10 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.id if is_activity_archive else package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
           </div>
         {% endblock %}
-      {% if not is_activity_archive %}
       {% block data_preview %}
       {% block resource_view %}
         {% block resource_view_nav %}
@@ -159,7 +149,6 @@
         </div>
       {% endblock %}
       {% endblock %}
-      {% endif %}
       {% endblock %}
     </section>
   {% endblock %}
@@ -217,7 +206,7 @@
 {% block secondary_content %}
 
   {% block resources_list %}
-    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read', is_activity_archive=is_activity_archive %}
+    {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read' %}
   {% endblock %}
 
   {% block resource_license %}

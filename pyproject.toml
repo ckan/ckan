@@ -33,7 +33,7 @@ showcontent = true
 
 [tool.black]
 line-length = 79
-experimental-string-processing = true
+preview = true
 
 [tool.pytest.ini_options]
 filterwarnings = [
@@ -147,6 +147,5 @@ module = [
     "repoze.*",
     "rq.*",
     "webassets.*",
-    "webob.*",
     "zope.*",
 ]

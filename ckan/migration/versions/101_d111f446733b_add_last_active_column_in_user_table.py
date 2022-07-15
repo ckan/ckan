@@ -23,4 +23,4 @@ def upgrade():
 
 
 def downgrade():
-    op.remove_column('user', sa.Column('last_active'))
+    op.drop_column('user', 'last_active')

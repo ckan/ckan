@@ -8,8 +8,8 @@ from typing import Any, Optional, TYPE_CHECKING, overload
 from typing_extensions import Literal
 
 import ckan.logic as logic
-import ckan.authz as authz
 from ckan.types import Context, AuthResult, DataDict
+from ckan.common import current_user
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -33,13 +33,6 @@ def _get_object(context: Context,
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
                 class_name: Literal['Group']) -> 'model_.Group':
-    ...
-
-
-@overload
-def _get_object(context: Context,
-                data_dict: Optional[DataDict], name: str,
-                class_name: Literal['Activity']) -> 'model_.Activity':
     ...
 
 
@@ -97,14 +90,8 @@ def get_user_object(
     return _get_object(context, data_dict, 'user_obj', 'User')
 
 
-def get_activity_object(
-        context: Context,
-        data_dict: Optional[DataDict] = None) -> 'model_.Activity':
-    return _get_object(context, data_dict, 'activity', 'Activity')
-
-
 def restrict_anon(context: Context) -> AuthResult:
-    if authz.auth_is_anon_user(context):
+    if current_user.is_anonymous:
         return {'success': False}
     else:
         return {'success': True}

@@ -123,7 +123,7 @@ def migrate_dataset(dataset_name, errors):
 
     import ckan.logic as logic
     from ckan import model
-
+    from ckanext.activity.model import Activity
     # 'hidden' activity is that by site_user, such as harvests, which are
     # not shown in the activity stream because they can be too numerous.
     # However these do have Activity objects, and if a hidden Activity is
@@ -150,14 +150,14 @@ def migrate_dataset(dataset_name, errors):
               i + 1, num_activities, activity[u'timestamp']))
 
         # we need activity.data and using the ORM is the fastest
-        activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
+        activity_obj = model.Session.query(Activity).get(activity[u'id'])
         if u'resources' in activity_obj.data.get(u'package', {}):
             print(u'    activity has full dataset already recorded'
                   ' - no action')
             continue
 
         # get the dataset as it was at this revision:
-        # call package_show just as we do in package.py:activity_stream_item(),
+        # call package_show just as we do in Activity::activity_stream_item(),
         # only with a revision_id (to get it as it was then)
         context = dict(
             get_context(),
@@ -195,8 +195,8 @@ def migrate_dataset(dataset_name, errors):
                 dataset = {u'title': u'unknown'}
 
         # get rid of revision_timestamp, which wouldn't be there if saved by
-        # during activity_stream_item() - something to do with not specifying
-        # revision_id.
+        # during Activity::activity_stream_item() - something to do with not
+        # specifying revision_id.
         if u'revision_timestamp' in (dataset.get(u'organization') or {}):
             del dataset[u'organization'][u'revision_timestamp']
         for res in dataset.get(u'resources', []):
@@ -206,7 +206,8 @@ def migrate_dataset(dataset_name, errors):
         actor = model.Session.query(model.User).get(activity[u'user_id'])
         actor_name = actor.name if actor else activity[u'user_id']
 
-        # add the data to the Activity, just as we do in activity_stream_item()
+        # add the data to the Activity, just as we do in
+        # Activity::activity_stream_item()
         data = {
             u'package': dataset,
             u'actor': actor_name,

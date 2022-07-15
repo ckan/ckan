@@ -6,6 +6,7 @@ import json
 import logging
 from typing import Any, cast, Optional, Union
 
+from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
 from flask.views import MethodView
 
@@ -18,7 +19,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, g, request
+from ckan.common import _, g, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
@@ -57,8 +58,8 @@ def read(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
 
@@ -66,33 +67,6 @@ def read(package_type: str, id: str, resource_id: str) -> str:
         package = get_action(u'package_show')(context, {u'id': id})
     except (NotFound, NotAuthorized):
         return base.abort(404, _(u'Dataset not found'))
-    activity_id = request.args.get(u'activity_id')
-    if activity_id:
-        # view an 'old' version of the package, as recorded in the
-        # activity stream
-        current_pkg = package
-        try:
-            activity = context['session'].query(model.Activity).get(
-                activity_id
-            )
-            assert activity
-            package = activity.data['package']
-        except AttributeError:
-            base.abort(404, _(u'Dataset not found'))
-
-        if package['id'] != current_pkg['id']:
-            log.info(u'Mismatch between pkg id in activity and URL {} {}'
-                     .format(package['id'], current_pkg['id']))
-            # the activity is not for the package in the URL - don't allow
-            # misleading URLs as could be malicious
-            base.abort(404, _(u'Activity not found'))
-        # The name is used lots in the template for links, so fix it to be
-        # the current one. It's not displayed to the user anyway.
-        package['name'] = current_pkg['name']
-
-        # Don't crash on old (unmigrated) activity records, which do not
-        # include resources or extras.
-        package.setdefault(u'resources', [])
 
     resource = None
     for res in package.get(u'resources', []):
@@ -148,10 +122,7 @@ def read(package_type: str, id: str, resource_id: str) -> str:
         u'pkg_dict': package,
         u'package': package,
         u'resource': resource,
-        u'pkg': pkg,  # NB it is the current version of the dataset, so ignores
-                      # activity_id. Still used though in resource views for
-                      # backward compatibility
-        u'is_activity_archive': bool(activity_id),
+        u'pkg': pkg,
     }
 
     template = _get_pkg_template(u'resource_template', dataset_type)
@@ -161,7 +132,8 @@ def read(package_type: str, id: str, resource_id: str) -> str:
 def download(package_type: str,
              id: str,
              resource_id: str,
-             filename: Optional[str] = None) -> Response:
+             filename: Optional[str] = None
+             ) -> Union[Response, WerkzeugResponse]:
     """
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
@@ -169,20 +141,23 @@ def download(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
 
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
         get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Resource not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Not authorized to download resource'))
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
-        resp = cast(Response, flask.send_file(filepath))
+        resp = flask.send_file(filepath, download_name=filename)
+
         if rsc.get('mimetype'):
             resp.headers['Content-Type'] = rsc['mimetype']
         signals.resource_download.send(resource_id)
@@ -210,8 +185,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
 
         # see if we have any data that we are trying to save
@@ -306,8 +281,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})
@@ -349,20 +324,21 @@ class CreateView(MethodView):
 
 class EditView(MethodView):
     def _prepare(self, id: str):
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': user,
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         return context
 
@@ -456,8 +432,8 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_delete', context, {u'id': id})
@@ -530,9 +506,9 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
 
@@ -541,7 +517,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (g.user, id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)
         )
     # check if package exists
     try:
@@ -595,8 +571,8 @@ def view(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
 
     try:
@@ -631,12 +607,13 @@ def view(package_type: str,
 class EditResourceViewView(MethodView):
     def _prepare(
             self, id: str, resource_id: str) -> tuple[Context, dict[str, Any]]:
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': user,
             u'for_view': True,
-            u'auth_user_obj': g.userobj
+            u'auth_user_obj': current_user
         })
 
         # update resource should tell us early if the user has privilages.
@@ -645,7 +622,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
 
         # get resource and package data

@@ -1,8 +1,6 @@
 {% extends "user/dashboard.html" %}
 {% set dataset_type = h.default_package_type() %}
 
-{% block dashboard_activity_stream_context %}{% endblock %}
-
 {% block page_primary_action %}
   {% if h.check_access('package_create') %}
     {% snippet 'snippets/add_dataset.html' %}

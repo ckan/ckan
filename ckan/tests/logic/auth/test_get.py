@@ -10,10 +10,13 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic as logic
 from ckan import model
+from unittest import mock
 
 
 @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-def test_auth_user_list():
+@mock.patch("flask_login.utils._get_user")
+def test_auth_user_list(current_user):
+    current_user.return_value = mock.Mock(is_anonymous=True)
     context = {"user": None, "model": model}
     with pytest.raises(logic.NotAuthorized):
         helpers.call_auth("user_list", context=context)
@@ -34,9 +37,11 @@ def test_user_list_email_parameter():
 @pytest.mark.usefixtures(u"non_clean_db")
 class TestGetAuth(object):
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-    def test_auth_user_show(self):
+    @mock.patch("flask_login.utils._get_user")
+    def test_auth_user_show(self, current_user):
         fred = factories.User()
         fred["capacity"] = "editor"
+        current_user.return_value = mock.Mock(is_anonymous=True)
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_show", context=context, id=fred["id"])
@@ -163,39 +168,6 @@ class TestGetAuth(object):
         fred = factories.Sysadmin()
         context = {"user": fred["name"], "model": None}
         assert helpers.call_auth("config_option_list", context=context)
-
-    @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"false"
-    )
-    def test_config_option_public_activity_stream_detail_denied(self):
-        """Config option says an anon user is not authorized to get activity
-            stream data/detail.
-            """
-        dataset = factories.Dataset()
-        context = {"user": None, "model": model}
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_auth(
-                "package_activity_list",
-                context=context,
-                id=dataset["id"],
-                include_data=True,
-            )
-
-    @pytest.mark.ckan_config(
-        u"ckan.auth.public_activity_stream_detail", u"true"
-    )
-    def test_config_option_public_activity_stream_detail(self):
-        """Config option says an anon user is authorized to get activity
-            stream data/detail.
-            """
-        dataset = factories.Dataset()
-        context = {"user": None, "model": model}
-        helpers.call_auth(
-            "package_activity_list",
-            context=context,
-            id=dataset["id"],
-            include_data=True,
-        )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -621,3 +593,11 @@ class TestFollowee:
         sysadmin = factories.Sysadmin()
         context = {"user": sysadmin["name"], "model": model}
         assert helpers.call_auth(func, context=context)
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestStatusShow:
+
+    def test_status_show_is_visible_to_anonymous(self):
+        context = {"user": "", "model": model}
+        assert helpers.call_auth("status_show", context)
