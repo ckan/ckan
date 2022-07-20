@@ -6,7 +6,6 @@ import datetime
 import logging
 import magic
 import mimetypes
-from six.moves.urllib.parse import urlparse
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
@@ -52,8 +51,6 @@ def get_uploader(upload_to, old_filename=None):
     upload = None
     for plugin in plugins.PluginImplementations(plugins.IUploader):
         upload = plugin.get_uploader(upload_to, old_filename)
-        if upload:
-            break
 
     # default uploader
     if upload is None:
@@ -67,8 +64,6 @@ def get_resource_uploader(data_dict):
     upload = None
     for plugin in plugins.PluginImplementations(plugins.IUploader):
         upload = plugin.get_resource_uploader(data_dict)
-        if upload:
-            break
 
     # default uploader
     if upload is None:
@@ -226,7 +221,7 @@ class ResourceUpload(object):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
-        if url and config_mimetype_guess == 'file_ext' and urlparse(url).path:
+        if config_mimetype_guess == 'file_ext':
             self.mimetype = mimetypes.guess_type(url)[0]
 
         if isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):

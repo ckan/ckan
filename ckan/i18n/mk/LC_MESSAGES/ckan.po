@@ -6,7 +6,7 @@
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
 # Aleksandar Jovanov <ace92bt@gmail.com>, 2018
-# Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2021
+# Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2018
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-03-31 17:05+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2021\n"
+"Last-Translator: Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2018\n"
 "Language-Team: Macedonian (https://www.transifex.com/okfn/teams/11162/mk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3728,7 +3728,7 @@ msgstr "Електронска пошта на одржувач"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
-msgstr "Ажурирање на ресурс"
+msgstr "Ажурирајње на ресурс"
 
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "Data"

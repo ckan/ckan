@@ -27,7 +27,7 @@ def before_request():
         base.abort(403, _(u'Not authorized to see this page'))
 
 
-def _get_dashboard_context(filter_type=None, filter_id=None, q=None):
+def _get_dashboard_context(self, filter_type=None, filter_id=None, q=None):
     u'''Return a dict needed by the dashboard view to determine context.'''
 
     def display_name(followee):

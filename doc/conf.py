@@ -100,10 +100,10 @@ project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge International</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
-    href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
+    href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
-    <img src="https://licensebuttons.net/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="https://opendefinition.org/"><img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
+    <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
+    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
       alt="{{ _('Open Content') }}" /></a>
   '''
 html_show_sphinx = False
@@ -183,26 +183,10 @@ def get_status_of_this_version():
         return 'unsupported'
 
 
-def get_current_release_tag():
-    ''' Return the name of the tag for the current release
-
-    e.g.: "ckan-2.7.4"
-
-    '''
-    release_tags_ = get_release_tags()
-
-    current_tag = "ckan-{}".format(version)
-
-    if release_tags_.__contains__(current_tag):
-        return current_tag
-    else:
-        return 'COULD_NOT_DETECT_TAG_VERSION'
-
-
 def get_latest_release_tag():
     '''Return the name of the git tag for the latest stable release.
 
-    e.g.: "ckan-2.7.4"
+    e.g.: "ckan-2.1.1"
 
     This requires git to be installed.
 
@@ -222,19 +206,6 @@ def get_latest_release_version():
 
     '''
     version = get_latest_release_tag()[len('ckan-'):]
-
-    # TODO: We could assert here that latest_version matches X.Y.Z.
-
-    return version
-
-
-def get_current_release_version():
-    '''Return the version number of the current release.
-
-    e.g. "2.1.1"
-
-    '''
-    version = get_current_release_tag()[len('ckan-'):]
 
     # TODO: We could assert here that latest_version matches X.Y.Z.
 
@@ -295,8 +266,7 @@ def write_substitutions_file(**kwargs):
             f.write('.. |{name}| replace:: {substitution}\n'.format(
                     name=name, substitution=substitution))
 
-current_release_tag_value = get_current_release_tag()
-current_release_version = get_current_release_version()
+
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
 latest_minor_version = latest_release_version[:3]
@@ -305,10 +275,8 @@ is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 
 write_substitutions_file(
-    current_release_tag=current_release_tag_value,
-    current_release_version=current_release_version,
     latest_release_tag=latest_release_tag_value,
-    latest_release_version=latest_release_version,
+    latest_release_version=get_latest_release_version(),
     latest_package_name_precise=get_latest_package_name('precise'),
     latest_package_name_trusty=get_latest_package_name('trusty'),
     latest_package_name_xenial=get_latest_package_name('xenial'),

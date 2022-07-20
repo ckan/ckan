@@ -4,7 +4,7 @@
 
 The more specific and detailed routes should be defined first so they
 may take precedent over the more generic routes. For more information
-refer to the routes manual at https://routes.readthedocs.io/en/latest/
+refer to the routes manual at http://routes.groovie.org/docs/
 
 """
 import re

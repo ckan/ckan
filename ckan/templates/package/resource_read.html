@@ -182,16 +182,14 @@
               </tr>
               <tr>
                 <th scope="row">{{ _('Format') }}</th>
-                <td>{{ res.format or res.mimetype_inner or res.mimetype or _('unknown') }}</td>
+                <td>{{ res.mimetype_inner or res.mimetype or res.format or _('unknown') }}</td>
               </tr>
               <tr>
                 <th scope="row">{{ _('License') }}</th>
                 <td>{% snippet "snippets/license.html", pkg_dict=pkg, text_only=True %}</td>
               </tr>
               {% for key, value in h.format_resource_items(res.items()) %}
-                {% if key not in ('created', 'metadata modified', 'last modified', 'format') %}
-                  <tr class="toggle-more"><th scope="row">{{ key | capitalize }}</th><td>{{ value }}</td></tr>
-                {% endif %}
+                <tr class="toggle-more"><th scope="row">{{ key }}</th><td>{{ value }}</td></tr>
               {% endfor %}
             </tbody>
           </table>

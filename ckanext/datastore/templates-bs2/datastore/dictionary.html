@@ -14,17 +14,10 @@
     {% block dictionary_form %}
       {% for f in fields %}
         <h3>{{ _( "Field {num}.").format(num=loop.index) }} {{ f.id }} ({{ f.type }})</h3>
-        {{ form.select('info__' ~ loop.index ~ '__type_override',
-          label=_('Type Override'), options=[
-          {'name': '', 'value': ''},
-          {'name': 'text', 'value': 'text'},
-          {'name': 'numeric', 'value': 'numeric'},
-          {'name': 'timestamp', 'value': 'timestamp'},
-          ], selected=f.get('info', {}).get('type_override', '')) }}
-        {{ form.input('info__' ~ loop.index ~ '__label',
+        {{ form.input('f' ~ loop.index ~ 'label',
           label=_('Label'), id='field-f' ~ loop.index ~ 'label',
           value=f.get('info', {}).get('label', ''), classes=['control-full']) }}
-        {{ form.markdown('info__' ~ loop.index ~ '__notes',
+        {{ form.markdown('f' ~ loop.index ~ 'notes',
           label=_('Description'), id='field-d' ~ loop.index ~ 'notes',
           value=f.get('info', {}).get('notes', '')) }}
       {% endfor %}

@@ -1594,32 +1594,7 @@ class IFacets(Interface):
 
 
 class IAuthenticator(Interface):
-    u'''Allows custom authentication methods to be integrated into CKAN.
-
-        All interface methods except for the ``abort()`` one support
-        returning a Flask response object. This can be used for instance to
-        issue redirects or set cookies in the response. If a response object
-        is returned there will be no further processing of the current request
-        and that response will be returned. This can be used by plugins to:
-
-        * Issue a redirect::
-
-            def identify(self):
-
-                return toolkit.redirect_to('myplugin.custom_endpoint')
-
-        * Set or clear cookies (or headers)::
-
-            from Flask import make_response
-
-            def identify(self)::
-
-                response = make_response(toolkit.render('my_page.html'))
-                response.set_cookie(cookie_name, expires=0)
-
-                return response
-
-    '''
+    u'''Allows custom authentication methods to be integrated into CKAN.'''
 
     def identify(self):
         u'''called to identify the user.
@@ -1629,32 +1604,13 @@ class IAuthenticator(Interface):
         c.userobj: The actual user object (this may be removed as a
         requirement in a later release so that access to the model is not
         required)
-
-        Alternatively, plugins can return a response object in order to prevent
-        the default CKAN authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
         '''
 
     def login(self):
-        u'''Called before the login starts (that is before asking the user for
-        user name and a password in the default authentication).
-
-        Plugins can return a response object to prevent the default CKAN
-        authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
-        '''
+        u'''called at login.'''
 
     def logout(self):
-        u'''Called before the logout starts (that is before clicking the logout
-        button in the default authentication).
-
-        Plugins can return a response object to prevent the default CKAN
-        authorization flow. See
-        the :py:class:`~ckan.plugins.interfaces.IAuthenticator` documentation
-        for more details.
-        '''
+        u'''called at logout.'''
 
     def abort(self, status_code, detail, headers, comment):
         u'''called on abort.  This allows aborts due to authorization issues

@@ -683,8 +683,8 @@ There are two places to look for CSS classes available in CKAN:
    provided by Bootstrap is available to use in CKAN.
 
 2. CKAN's development primer page, which can be found on any CKAN site at
-   ``/testing/primer``, for example
-   `demo.ckan.org/testing/primer <http://demo.ckan.org/testing/primer>`_.
+   ``/development/primer.html``, for example
+   `demo.ckan.org/development/primer.html <http://demo.ckan.org/development/primer.html>`_.
 
    The primer page demonstrates many of the HTML and CSS elements available in
    CKAN, and by viewing the source of the page you can see what HTML tags and

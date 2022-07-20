@@ -29,7 +29,7 @@ def validator_args(fn):
 def default_resource_schema(
         ignore_empty, unicode_safe, ignore, ignore_missing,
         remove_whitespace, if_empty_guess_format, clean_format, isodate,
-        int_validator, extras_valid_json, keep_extras):
+        int_validator, extras_unicode_convert, keep_extras):
     return {
         'id': [ignore_empty, unicode_safe],
         'revision_id': [ignore_missing, unicode_safe],
@@ -53,7 +53,7 @@ def default_resource_schema(
         'cache_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
-        '__extras': [ignore_missing, extras_valid_json, keep_extras],
+        '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
 

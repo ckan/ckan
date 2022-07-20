@@ -3,7 +3,6 @@
 import datetime
 import uuid
 import logging
-import six
 
 from sqlalchemy.orm import class_mapper
 from six import string_types
@@ -40,8 +39,9 @@ def resource_dict_save(res_dict, context):
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
-    has_changed = False
-    for key, value in six.iteritems(res_dict):
+    for key, value in res_dict.iteritems():
+        if isinstance(value, list):
+            continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:

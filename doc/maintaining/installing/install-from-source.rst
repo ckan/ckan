@@ -106,12 +106,12 @@ b. Install the recommended ``setuptools`` version:
 
 c. Install the CKAN source code into your virtualenv.
 
-   To install the latest stable release of CKAN (CKAN |current_release_version|),
+   To install the latest stable release of CKAN (CKAN |latest_release_version|),
    run:
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan[requirements]'
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of
@@ -119,7 +119,7 @@ c. Install the CKAN source code into your virtualenv.
 
    .. parsed-literal::
 
-       pip install -e 'git+\ |git_url|\#egg=ckan[requirements,dev]'
+       pip install -e 'git+\ |git_url|\#egg=ckan'
 
    .. warning::
 
@@ -127,8 +127,13 @@ c. Install the CKAN source code into your virtualenv.
       production websites! Only install this version if you're doing CKAN
       development.
 
+d. Install the Python modules that CKAN requires into your virtualenv:
 
-d. Deactivate and reactivate your virtualenv, to make sure you're using the
+   .. parsed-literal::
+
+       pip install -r |virtualenv|/src/ckan/requirements.txt
+
+e. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
    installed copies:
 

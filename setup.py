@@ -103,7 +103,6 @@ entry_points = {
         'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
-        'chained_functions = ckanext.chained_functions.plugin:ChainedFunctionsPlugin',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
@@ -130,7 +129,6 @@ entry_points = {
         'example_idatasetform_v2 = ckanext.example_idatasetform.plugin_v2:ExampleIDatasetFormPlugin',
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
-        'example_idatasetform_v5 = ckanext.example_idatasetform.plugin_v5:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
         'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_igroupform_organization = ckanext.example_igroupform.plugin:ExampleIGroupFormOrganizationPlugin',
@@ -175,7 +173,6 @@ entry_points = {
         'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
         'example_idatastorebackend = ckanext.example_idatastorebackend.plugin:ExampleIDatastoreBackendPlugin',
         'example_ipermissionlabels = ckanext.example_ipermissionlabels.plugin:ExampleIPermissionLabelsPlugin',
-        'example_iauthenticator = ckanext.example_iauthenticator.plugin:ExampleIAuthenticatorPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -209,20 +206,6 @@ entry_points = {
         'ckan = ckan.lib.extract:extract_ckan',
     ],
 }
-
-extras_require = {}
-_extras_groups = [
-    ('requirements', 'requirements.txt'),
-    ('setuptools', 'requirement-setuptools.txt'),
-    ('dev', 'dev-requirements.txt'),
-]
-
-for group, filepath in _extras_groups:
-    with open(os.path.join(HERE, filepath), 'r') as f:
-        extras_require[group] = f.readlines()
-
-# this is used to fix an incompatiblity with readthedocs dependencies
-extras_require['readthedocs'] = ["Jinja2>=2.3"]
 
 setup(
     name='ckan',
@@ -267,5 +250,4 @@ setup(
         'Programming Language :: Python :: 2 :: Only',
         'Programming Language :: Python :: 2.7',
     ],
-    extras_require=extras_require
 )

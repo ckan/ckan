@@ -6,12 +6,9 @@ import urllib2
 import hashlib
 import json
 import cgi
-from urlparse import urlparse
 
 import sqlalchemy as sa
 from webob.request import FakeCGIBody
-
-from ckan.common import config
 
 
 class RootPathMiddleware(object):
@@ -93,23 +90,4 @@ class TrackingMiddleware(object):
                      VALUES (%s, %s, %s)'''
             self.engine.execute(sql, key, data.get('url'), data.get('type'))
             return []
-        return self.app(environ, start_response)
-
-
-class HostHeaderMiddleware(object):
-    '''
-        Prevent the `Host` header from the incoming request to be used
-        in the `Location` header of a redirect.
-    '''
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        path_info = environ[u'PATH_INFO']
-        if path_info in ['/login_generic', '/user/login',
-                         '/user/logout', '/user/logged_in',
-                         '/user/logged_out']:
-            site_url = config.get('ckan.site_url')
-            parts = urlparse(site_url)
-            environ['HTTP_HOST'] = str(parts.netloc)
         return self.app(environ, start_response)

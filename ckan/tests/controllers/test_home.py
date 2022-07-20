@@ -118,26 +118,3 @@ class TestI18nURLs(helpers.FunctionalTestBase):
                 eq_(option['selected'], 'selected')
             else:
                 assert not option.has_attr('selected')
-
-    def test_redirects_legacy_locales(self):
-
-        app = self._get_test_app()
-        locales_mapping = [
-            ('zh_TW', 'zh_Hant_TW'),
-            ('zh_CN', 'zh_Hans_CN'),
-        ]
-
-        for locale in locales_mapping:
-
-            legacy_locale = locale[0]
-            new_locale = locale[1]
-
-            response = app.get('/{}/'.format(legacy_locale))
-
-            assert response.status_int == 308
-            assert response.headers['Location'].endswith(new_locale)
-
-            response = app.get('/{}/dataset'.format(legacy_locale))
-
-            assert response.status_int == 308
-            assert response.headers['Location'].endswith('{}/dataset'.format(new_locale))

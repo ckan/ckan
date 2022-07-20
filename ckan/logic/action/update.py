@@ -117,7 +117,7 @@ def resource_update(context, data_dict):
         context.pop('defer_commit')
     except ValidationError as e:
         try:
-            raise ValidationError(e.error_dict['resources'][n])
+            raise ValidationError(e.error_dict['resources'][-1])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
 
@@ -513,7 +513,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.get_uploader('group')
+    upload = uploader.get_uploader('group', group.image_url)
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
 
@@ -676,7 +676,7 @@ def user_update(context, data_dict):
 
     '''
     model = context['model']
-    user = author = context['user']
+    user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
@@ -706,7 +706,7 @@ def user_update(context, data_dict):
             }
     activity_create_context = {
         'model': model,
-        'user': author,
+        'user': user,
         'defer_commit': True,
         'ignore_auth': True,
         'session': session
@@ -783,6 +783,7 @@ def task_status_update(context, data_dict):
     session = model.meta.create_local_session()
     context['session'] = session
 
+    user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
 

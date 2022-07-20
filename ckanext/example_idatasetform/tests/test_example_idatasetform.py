@@ -7,7 +7,6 @@ from ckan.common import config
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
-import ckan.tests.factories as factories
 import ckanext.example_idatasetform as idf
 import ckan.lib.search
 
@@ -73,52 +72,6 @@ class TestVersion2(ExampleIDatasetFormPluginBase):
     def teardown_class(cls):
         plugins.unload('example_idatasetform_v2')
         super(TestVersion2, cls).teardown_class()
-
-
-class TestVersion5(ExampleIDatasetFormPluginBase):
-    @classmethod
-    def setup_class(cls):
-        super(TestVersion5, cls).setup_class()
-        plugins.load('example_idatasetform_v5')
-
-    @classmethod
-    def teardown_class(cls):
-        plugins.unload('example_idatasetform_v5')
-        super(TestVersion5, cls).teardown_class()
-
-    def test_custom_field_with_extras(self):
-        dataset = factories.Dataset(
-            type='fancy_type',
-            name='test-dataset',
-            custom_text='custom-text',
-            extras=[
-                {'key': 'key1', 'value': 'value1'},
-                {'key': 'key2', 'value': 'value2'},
-            ]
-        )
-        assert dataset['custom_text'] == 'custom-text'
-        assert dataset['extras'] == [
-            {'key': 'key1', 'value': 'value1'},
-            {'key': 'key2', 'value': 'value2'},
-        ]
-
-    def test_mixed_extras(self):
-        dataset = factories.Dataset(
-            type='fancy_type',
-            name='test-dataset',
-            custom_text='custom-text',
-            extras=[
-                {'key': 'key1', 'value': 'value1'},
-                {'key': 'custom_text_2', 'value': 'custom-text-2'},
-                {'key': 'key2', 'value': 'value2'},
-            ],
-        )
-        assert dataset['custom_text'] == 'custom-text'
-        assert dataset['custom_text_2'] == 'custom-text-2'
-        assert dataset['extras'] == [
-            {'key': 'key1', 'value': 'value1'},
-            {'key': 'key2', 'value': 'value2'},
-        ]
 
 
 class TestVersion3(ExampleIDatasetFormPluginBase):
