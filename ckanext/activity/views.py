@@ -299,7 +299,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             package_activity_stream[-1]["timestamp"]
         )
         next_page = tk.h.url_for(
-            "dataset.activity",
+            tk.request.endpoint,
             id=id,
             activity_type=activity_type,
             before=before_time.timestamp(),
@@ -313,7 +313,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             package_activity_stream[0]["timestamp"]
         )
         prev_page = tk.h.url_for(
-            "dataset.activity",
+            tk.request.endpoint,
             id=id,
             activity_type=activity_type,
             after=after_time.timestamp(),
@@ -529,10 +529,6 @@ def group_activity(id: str, group_type: str) -> str:
             # drop the last element
             activity_stream.pop()
 
-    activity_url = 'activity.organization_activity'
-    if not group_dict.get("is_organization"):
-        activity_url = "activity.group_activity"
-
     # if "after", we came from the next page. So it exists
     # if "before" (or is_first_page), we only show next page if we know
     # we have more rows
@@ -541,7 +537,7 @@ def group_activity(id: str, group_type: str) -> str:
             activity_stream[-1]["timestamp"]
         )
         next_page = tk.h.url_for(
-            activity_url,
+            tk.request.endpoint,
             id=id,
             activity_type=activity_type,
             before=before_time.timestamp(),
@@ -555,7 +551,7 @@ def group_activity(id: str, group_type: str) -> str:
             activity_stream[0]["timestamp"]
         )
         prev_page = tk.h.url_for(
-            activity_url,
+            tk.request.endpoint,
             id=id,
             activity_type=activity_type,
             after=after_time.timestamp(),
@@ -797,7 +793,7 @@ def user_activity(id: str) -> str:
             activity_stream[-1]["timestamp"]
         )
         next_page = tk.h.url_for(
-            "activity.user_activity",
+            tk.request.endpoint,
             id=id,
             # activity_type=activity_type,
             before=before_time.timestamp(),
@@ -811,7 +807,7 @@ def user_activity(id: str) -> str:
             activity_stream[0]["timestamp"]
         )
         prev_page = tk.h.url_for(
-            "activity.user_activity",
+            tk.request.endpoint,
             id=id,
             # activity_type=activity_type,
             after=after_time.timestamp(),
@@ -887,7 +883,7 @@ def dashboard() -> str:
             activity_stream[-1]["timestamp"]
         )
         next_page = tk.h.url_for(
-            "activity.dashboard",
+            tk.request.endpoint,
             type=filter_type,
             name=filter_id,
             before=before_time.timestamp(),
@@ -901,7 +897,7 @@ def dashboard() -> str:
             activity_stream[0]["timestamp"]
         )
         prev_page = tk.h.url_for(
-            "activity.dashboard",
+            tk.request.endpoint,
             type=filter_type,
             name=filter_id,
             after=after_time.timestamp(),
