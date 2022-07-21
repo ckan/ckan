@@ -1470,11 +1470,6 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     user_dict = model_dictize.user_dictize(
         user_obj, context, include_password_hash, include_plugin_extras)
 
-    if context.get('return_minimal'):
-        log.warning('Use of the "return_minimal" in user_show is '
-                    'deprecated.')
-        return user_dict
-
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
