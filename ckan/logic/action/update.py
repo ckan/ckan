@@ -651,9 +651,13 @@ def _group_or_org_update(
     if group is None:
         raise NotFound('Group was not found.')
     context["group"] = group
-
-    if data_dict['type'] != group.type:
-        raise ValidationError({"message": "type cannot be updated via API"})
+    
+    data_dict_type = data_dict.get('type', None) 
+    if data_dict_type is None:
+        data_dict_type = group.type
+    else:
+        if data_dict_type != group.type:
+            raise ValidationError({"message": "Type cannot be updated"})
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
