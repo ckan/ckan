@@ -1479,7 +1479,6 @@ class TestGroupUpdate(object):
             )
 
 
-
 @pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
