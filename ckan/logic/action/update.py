@@ -238,10 +238,6 @@ def package_update(
     .. note:: Update methods may delete parameters not explicitly provided in the
         data_dict. If you want to edit only a specific attribute use `package_patch`
         instead.
-        If you're trying to update multiple datasets to ``private`` or 
-        ``public`` using ``package_update``, use 
-        :py:func:`~ckan.logic.action.update.bulk_update_private` or
-        :py:func:`~ckan.logic.action.update.bulk_update_public` instead.
 
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
