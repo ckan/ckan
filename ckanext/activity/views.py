@@ -531,15 +531,12 @@ def group_activity(id: str, group_type: str) -> str:
 
     limit = _get_activity_stream_limit()
 
-    offset = int(tk.h.get_request_param("offset", 0))
-
     try:
         activity_stream = tk.get_action(action_name)(
             context, {
                 "id": group_dict["id"],
                 "before": before,
                 "after": after,
-                "offset": offset,
                 "limit": limit + 1,
                 "activity_types": activity_types
                 }
@@ -772,8 +769,6 @@ def user_activity(id: str) -> str:
 
     limit = _get_activity_stream_limit()
 
-    offset = int(tk.h.get_request_param("offset", 0))
-
     try:
         activity_stream = tk.get_action(
             "user_activity_list"
@@ -781,7 +776,6 @@ def user_activity(id: str) -> str:
             "id": extra_vars["user_dict"]["id"],
             "before": before,
             "after": after,
-            "offset": offset,
             "limit": limit + 1,
         })
     except tk.ValidationError:
@@ -834,7 +828,6 @@ def dashboard() -> str:
     filter_id = tk.request.args.get("name", "")
     before = tk.request.args.get("before", None)
     after = tk.request.args.get("after", None)
-    offset = tk.request.args.get("offset", None)
 
     limit = _get_activity_stream_limit()
 
@@ -848,7 +841,6 @@ def dashboard() -> str:
         tk.g.userobj.id,
         filter_type,
         filter_id,
-        offset,
         limit + 1,
         before,
         after
