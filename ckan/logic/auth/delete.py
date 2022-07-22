@@ -19,7 +19,7 @@ def package_delete(context: Context, data_dict: DataDict) -> AuthResult:
     
          Deleting multiple datasets using ``package_delete`` might 
          affect the performance, use 
-         :py:func:`~ckan.logic.action.update.bulk_update_delete` instead.
+         :py:func:`~ckan.logic.auth.update.bulk_update_delete` instead.
          
     '''
     # Defer authorization for package_delete to package_update, as deletions
