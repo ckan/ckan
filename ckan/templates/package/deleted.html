@@ -1,0 +1,26 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Dataset Deleted') }}{% endblock %}
+
+{% block primary_content_inner %}
+<div clss="module info alert alert-info">
+  <p class="module-content">
+    {{ _('This record has been removed from %s.') % site_url }}
+  </p>
+  <dl>
+    <dt>{{ _('Created On') }}</dt>
+    <dd>{{ h.date_str_to_datetime(created).strftime('%Y-%m-%d') }}</dd>
+    <dt>{{ _('Last Modified') }}</dt>
+    <dd>{{ h.date_str_to_datetime(modified).strftime('%Y-%m-%d') }}</dd>
+    {% if organization %}
+    <dt>{{ _('Organization') }}</dt>
+    <dd>{{ organization }}</dd>
+    {% endif %}
+  </dl>
+  <p class="module-content">
+    <a href="{{ h.url(controller='package', action='search') }}">
+      {{ _('Return to Index') }}
+    </a>
+  </p>
+</div>
+{% endblock %}

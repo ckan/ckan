@@ -2,6 +2,10 @@
 
 '''CKAN environment configuration'''
 import os
+import tempfile
+import atexit
+import shutil
+from functools import partial
 import logging
 import warnings
 import pytz
@@ -161,7 +165,6 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
 }
 # End CONFIG_FROM_ENV_VARS
-
 
 def update_config():
     ''' This code needs to be run when the config is changed to take those

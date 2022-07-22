@@ -1,1 +1,2 @@
-<img style="margin:auto; max-height:100%; display:block" src="{{ resource_view.get('image_url') or resource.get('url') }}" />
+<img style="margin:auto; max-height:100%; display:block" src="{{ resource_view.get('image_url') or resource.get('url') }}"
+alt="{%- if h.lang() == 'fr' -%}{{ resource_view.get('title_fr') }}{%- else -%}{{ resource_view.get('title') }}{%- endif -%}"/>

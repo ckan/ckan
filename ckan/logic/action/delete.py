@@ -35,9 +35,7 @@ _get_action = ckan.logic.get_action
 
 def user_delete(context, data_dict):
     '''Delete a user.
-
     Only sysadmins can delete users.
-
     :param id: the id or usernamename of the user to delete
     :type id: string
     '''
@@ -53,11 +51,17 @@ def user_delete(context, data_dict):
 
     user.delete()
 
-    user_memberships = model.Session.query(model.Member).filter(
-        model.Member.table_id == user.id).all()
+    with model.Session.begin_nested():
+        user.delete()
 
-    for membership in user_memberships:
-        membership.delete()
+        user_memberships = model.Session.query(
+            model.Member
+        ).filter(
+            model.Member.table_id == user.id
+        ).all()
+
+        for membership in user_memberships:
+            membership.delete()
 
     datasets_where_user_is_collaborator = model.Session.query(model.PackageMember).filter(
             model.PackageMember.user_id == user.id).all()
@@ -232,6 +236,29 @@ def resource_view_delete(context, data_dict):
 
     resource_view.delete()
     model.repo.commit()
+
+    # add activity for resource view delete
+    try:
+        user = context['user']
+        user_id = model.User.by_name(user.decode('utf8')).id
+    except AttributeError:
+        # do not create activity for non-users
+        pass
+    else:
+        activity_dict = {
+            'user_id': user_id,
+            'object_id': context['resource'].package_id,
+            'activity_type': 'deleted resource view',
+            'data': {'id': resource_view.id},
+        }
+        activity_create_context = {
+            'model': model,
+            'user': user,
+            'defer_commit': False,
+            'ignore_auth': True,
+            'session': context['session'],
+        }
+        ckan.logic.get_action('activity_create')(activity_create_context, activity_dict)
 
 
 def resource_view_clear(context, data_dict):

@@ -41,6 +41,7 @@ class ActionError(Exception):
         return six.ensure_text(msg)
 
 
+
 class NotFound(ActionError):
     '''Exception raised by logic functions when a given object is not found.
 
@@ -417,6 +418,7 @@ def get_action(action):
         if action not in _actions:
             raise KeyError("Action '%s' not found" % action)
         return _actions.get(action)
+
     # Otherwise look in all the plugins to resolve all possible
     # First get the default ones in the ckan/logic/action directory
     # Rather than writing them out in full will use __import__
@@ -638,6 +640,15 @@ def auth_sysadmins_check(action):
     '''
     action.auth_sysadmins_check = True
     return action
+
+
+def auth_read_safe(action):
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+
+    wrapper.auth_read_safe = True
+    return wrapper
 
 
 def auth_audit_exempt(action):

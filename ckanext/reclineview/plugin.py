@@ -157,7 +157,7 @@ class ReclineGraphView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_types = ['numeric', 'int4', 'timestamp']
+    datastore_field_types = ['numeric', 'int4', 'timestamp', 'text']
 
     def list_graph_types(self):
         return [t['value'] for t in self.graph_types]
@@ -209,7 +209,7 @@ class ReclineMapView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_latlon_types = ['numeric']
+    datastore_field_latlon_types = ['text']
 
     datastore_field_geojson_types = ['text']
 

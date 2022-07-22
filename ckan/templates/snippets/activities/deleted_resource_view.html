@@ -1,0 +1,17 @@
+{% set view_data = h.get_resource_view(activity.data.id) %}
+{% if view_data %}
+  <li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+    <i class="fa icon fa-file"></i>
+    <p>
+      {{ _('{actor} deleted the {view_type} view {view}').format(
+        actor=ah.actor(activity),
+        view=ah.view(view_data),
+        view_type=h.resource_view_type(view_data)
+      )|safe }}
+      <br />
+      <span class="date">
+        {{ h.time_ago_from_timestamp(activity.timestamp) }}
+      </span>
+    </p>
+  </li>
+{% endif %}

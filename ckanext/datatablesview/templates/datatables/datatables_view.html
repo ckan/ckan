@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
 {% block page %}
+  {% set filters = h.encode_datatables_request_filters() %}
   <table id="dtprv"
       class="table table-striped table-bordered"
       data-module="datatables_view"
+      data-module-lang="{{ h.lang() }}"
       data-paging="true"
       data-server-side="true"
       data-processing="true"
@@ -12,7 +14,7 @@
             'datatablesview.ajax',
             resource_view_id=resource_view.id) }}",
           "type": "POST",
-          "data": { "filters": "{{ request.args.get('filters', '')|e }}" }
+          "data": { "filters": "{{ filters }}" }
         }'
       {% if resource_view.get('responsive') %}
         data-responsive="true"
@@ -48,7 +50,7 @@
   <form id="filtered-datatables-download" method="POST" action="{{ h.url_for(
                                                                   'datatablesview.filtered_download',
                                                                   resource_view_id=resource_view.id) }}">
-    <input type="hidden" name="filters" value="{{ request.args.get('filters', '')|e }}" />
+    <input type="hidden" name="filters" value="{{ filters }}" />
   </form>
 
 

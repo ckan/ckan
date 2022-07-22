@@ -1054,6 +1054,8 @@ def upsert_data(context, data_dict):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
+                if value == '' and field['type'] != 'text':
+                    value = None
                 row.append(value)
             rows.append(row)
 
@@ -1097,6 +1099,8 @@ def upsert_data(context, data_dict):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
+                if value == '' and field['type'] != 'text':
+                    record[field['id']] = None
 
             non_existing_filed_names = [field for field in record
                                         if field not in field_names]
@@ -2074,7 +2078,9 @@ def create_function(name, arguments, rettype, definition, or_replace):
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=identifier(name),
         args=u', '.join(
-            u'{argname} {argtype}'.format(
+            u'{argmode} {argname} {argtype}'.format(
+                # validator OneOf checks for safety of argmode
+                argmode=a['argmode'] if 'argmode' in a else '',
                 argname=identifier(a['argname']),
                 argtype=identifier(a['argtype']))
             for a in arguments),

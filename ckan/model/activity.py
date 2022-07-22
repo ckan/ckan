@@ -13,6 +13,7 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
+    func
 )
 
 from ckan.common import config
@@ -151,6 +152,15 @@ def _user_activity_query(user_id, limit):
     q1 = _activities_limit(_activities_from_user_query(user_id), limit)
     q2 = _activities_limit(_activities_about_user_query(user_id), limit)
     return _activities_union_all(q1, q2)
+
+def _package_activity_query(package_id):
+    '''Return an SQLAlchemy query for all activities about package_id.
+
+    '''
+    import ckan.model as model
+    q = model.Session.query(model.Activity)
+    q = q.filter_by(object_id=package_id)
+    return q
 
 
 def user_activity_list(user_id, limit, offset):

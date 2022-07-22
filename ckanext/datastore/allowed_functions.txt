@@ -178,6 +178,7 @@ ntile
 num_nonnulls
 num_nulls
 numnode
+over
 parse_ident
 path
 pclose
