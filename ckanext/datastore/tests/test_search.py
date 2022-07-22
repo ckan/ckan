@@ -2089,10 +2089,8 @@ class TestDatastoreSearchRecordsFormat(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         ranks_from = [r["rank from"] for r in result["records"]]
-        ranks = [r["rank"] for r in result["records"]]
         assert len(result["records"]) == 2
         assert len(set(ranks_from)) == 1
-        assert len(set(ranks)) == 2
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
