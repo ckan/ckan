@@ -234,6 +234,62 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     )
 
 
+def _get_next_page_link(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's next page link.
+
+    If "after", we came from the next page, so we know it exists.
+    if "before" (or is_first_page), we only show next page if we know
+    we have more rows
+    """
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
+    is_first_page = after is None and before is None
+    next_page = None
+
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            stream[-1]["timestamp"]
+        )
+        next_page = tk.h.url_for(
+            tk.request.endpoint,
+            before=before_time.timestamp(),
+            **kwargs
+        )
+
+    return next_page
+
+
+def _get_prev_page_link(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's previous page link.
+
+    if "before", we came from the previous page, so it exists.
+    if "after", we only show previous page if we know
+    we have more rows
+    """
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
+    prev_page = None
+
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            stream[0]["timestamp"]
+        )
+        prev_page = tk.h.url_for(
+            tk.request.endpoint,
+            after=after_time.timestamp(),
+            **kwargs
+        )
+    return prev_page
+
+
 @bp.route("/dataset/activity/<id>")
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
@@ -254,7 +310,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     max_limit = tk.config.get_value("ckan.activity_list_limit_max")
     limit = min(base_limit, max_limit)
     activity_types = [activity_type] if activity_type else None
-    is_first_page = after is None and before is None
 
     try:
         pkg_dict = tk.get_action("package_show")(context, data_dict)
@@ -267,7 +322,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "activity_types": activity_types,
         }
         pkg = context["package"]
-        package_activity_stream = tk.get_action("package_activity_list")(
+        activity_stream = tk.get_action("package_activity_list")(
             context, activity_dict
         )
         dataset_type = pkg_dict["type"] or "dataset"
@@ -278,46 +333,27 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     except tk.ValidationError:
         return tk.abort(400, tk._("Invalid parameters"))
 
-    prev_page = None
-    next_page = None
-
-    has_more = len(package_activity_stream) > limit
+    has_more = len(activity_stream) > limit
     # remove the extra item if exists
     if has_more:
         if after:
-            # drop the first element
-            package_activity_stream.pop(0)
+            activity_stream.pop(0)
         else:
-            # drop the last element
-            package_activity_stream.pop()
+            activity_stream.pop()
 
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            package_activity_stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            activity_type=activity_type,
-            before=before_time.timestamp(),
+    next_page = _get_next_page_link(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
         )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            package_activity_stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            activity_type=activity_type,
-            after=after_time.timestamp(),
-        )
+    prev_page = _get_prev_page_link(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
 
     return tk.render(
         "package/activity_stream.html",
@@ -325,7 +361,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "dataset_type": dataset_type,
             "pkg_dict": pkg_dict,
             "pkg": pkg,
-            "activity_stream": package_activity_stream,
+            "activity_stream": activity_stream,
             "id": id,  # i.e. package's current name
             "limit": limit,
             "has_more": has_more,
