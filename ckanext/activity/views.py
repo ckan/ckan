@@ -325,7 +325,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "limit": limit + 1,
             "activity_types": activity_types,
         }
-        pkg = context["package"]
         activity_stream = tk.get_action("package_activity_list")(
             context, activity_dict
         )
@@ -364,7 +363,6 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         {
             "dataset_type": dataset_type,
             "pkg_dict": pkg_dict,
-            "pkg": pkg,
             "activity_stream": activity_stream,
             "id": id,  # i.e. package's current name
             "limit": limit,
