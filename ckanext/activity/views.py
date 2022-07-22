@@ -36,6 +36,68 @@ log = logging.getLogger(__name__)
 bp = Blueprint("activity", __name__)
 
 
+def _get_activity_stream_limit() -> int:
+    base_limit = tk.config.get_value("ckan.activity_list_limit")
+    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    return min(base_limit, max_limit)
+
+
+def _get_next_page_link(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's next page link.
+
+    If "after", we came from the next page, so we know it exists.
+    if "before" (or is_first_page), we only show next page if we know
+    we have more rows
+    """
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
+    is_first_page = after is None and before is None
+    next_page = None
+
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            stream[-1]["timestamp"]
+        )
+        next_page = tk.h.url_for(
+            tk.request.endpoint,
+            before=before_time.timestamp(),
+            **kwargs
+        )
+
+    return next_page
+
+
+def _get_prev_page_link(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's previous page link.
+
+    if "before", we came from the previous page, so it exists.
+    if "after", we only show previous page if we know
+    we have more rows
+    """
+    after = tk.h.get_request_param("after")
+    before = tk.h.get_request_param("before")
+    prev_page = None
+
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            stream[0]["timestamp"]
+        )
+        prev_page = tk.h.url_for(
+            tk.request.endpoint,
+            after=after_time.timestamp(),
+            **kwargs
+        )
+    return prev_page
+
+
 @bp.route("/dataset/<id>/resources/<resource_id>/history/<activity_id>")
 def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     context = cast(
@@ -234,62 +296,6 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     )
 
 
-def _get_next_page_link(
-    has_more: bool,
-    stream: list[dict[str, Any]],
-    **kwargs: Any
-) -> Any:
-    """ Returns pagination's next page link.
-
-    If "after", we came from the next page, so we know it exists.
-    if "before" (or is_first_page), we only show next page if we know
-    we have more rows
-    """
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
-    is_first_page = after is None and before is None
-    next_page = None
-
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            tk.request.endpoint,
-            before=before_time.timestamp(),
-            **kwargs
-        )
-
-    return next_page
-
-
-def _get_prev_page_link(
-    has_more: bool,
-    stream: list[dict[str, Any]],
-    **kwargs: Any
-) -> Any:
-    """ Returns pagination's previous page link.
-
-    if "before", we came from the previous page, so it exists.
-    if "after", we only show previous page if we know
-    we have more rows
-    """
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
-    prev_page = None
-
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            tk.request.endpoint,
-            after=after_time.timestamp(),
-            **kwargs
-        )
-    return prev_page
-
-
 @bp.route("/dataset/activity/<id>")
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
@@ -306,9 +312,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     )
 
     data_dict = {"id": id}
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
-    limit = min(base_limit, max_limit)
+    limit = _get_activity_stream_limit()
     activity_types = [activity_type] if activity_type else None
 
     try:
@@ -525,9 +529,7 @@ def group_activity(id: str, group_type: str) -> str:
     activity_type = tk.h.get_request_param("activity_type")
     activity_types = [activity_type] if activity_type else None
 
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
-    limit = min(base_limit, max_limit)
+    limit = _get_activity_stream_limit()
 
     offset = int(tk.h.get_request_param("offset", 0))
 
@@ -768,9 +770,7 @@ def user_activity(id: str) -> str:
 
     extra_vars = _extra_template_variables(context, data_dict)
 
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
-    limit = min(base_limit, max_limit)
+    limit = _get_activity_stream_limit()
 
     offset = int(tk.h.get_request_param("offset", 0))
 
@@ -836,9 +836,7 @@ def dashboard() -> str:
     after = tk.request.args.get("after", None)
     offset = tk.request.args.get("offset", None)
 
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
-    limit = min(base_limit, max_limit)
+    limit = _get_activity_stream_limit()
 
     extra_vars["followee_list"] = tk.get_action("followee_list")(
         context, {"id": tk.g.userobj.id, "q": q}
