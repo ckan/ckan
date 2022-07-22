@@ -3567,7 +3567,7 @@ msgstr "前往资源"
 #: ckan/templates/package/resource_read.html:44
 #: ckan/templates/package/snippets/resource_item.html:58
 msgid "Download"
-msgstr "下栽"
+msgstr "下载"
 
 #: ckan/templates/package/resource_read.html:87
 #: ckan/templates/package/resource_read.html:89
