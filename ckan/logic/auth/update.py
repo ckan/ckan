@@ -16,9 +16,8 @@ def package_update(context: Context, data_dict: DataDict) -> AuthResult:
     
     .. note::
         If you're trying to update multiple datasets to ``private`` or 
-        ``public`` using ``package_update``, use 
-        :py:func:`~ckan.logic.auth.update.bulk_update_private` or
-        :py:func:`~ckan.logic.auth.update.bulk_update_public` instead.
+        ``public`` using ``package_update``, use ``bulk_update_private`` or
+        ``bulk_update_public`` instead.
         
     '''
     model = context['model']
