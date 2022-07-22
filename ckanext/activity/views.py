@@ -551,47 +551,27 @@ def group_activity(id: str, group_type: str) -> str:
     else:
         filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
 
-    prev_page = None
-    next_page = None
-    is_first_page = after is None and before is None
-
     has_more = len(activity_stream) > limit
     # remove the extra item if exists
     if has_more:
         if after:
-            # drop the first element
             activity_stream.pop(0)
         else:
-            # drop the last element
             activity_stream.pop()
 
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            activity_stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            activity_type=activity_type,
-            before=before_time.timestamp(),
-        )
+    next_page = _get_next_page_link(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            activity_stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            activity_type=activity_type,
-            after=after_time.timestamp(),
-        )
+    prev_page = _get_prev_page_link(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
 
     extra_vars = {
         "id": id,
@@ -807,47 +787,25 @@ def user_activity(id: str) -> str:
     except tk.ValidationError:
         tk.abort(400)
 
-    prev_page = None
-    next_page = None
-    is_first_page = after is None and before is None
-
     has_more = len(activity_stream) > limit
     # remove the extra item if exists
     if has_more:
         if after:
-            # drop the first element
             activity_stream.pop(0)
         else:
-            # drop the last element
             activity_stream.pop()
 
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            activity_stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            # activity_type=activity_type,
-            before=before_time.timestamp(),
-        )
+    next_page = _get_next_page_link(
+        has_more,
+        activity_stream,
+        id=id
+    )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            activity_stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            tk.request.endpoint,
-            id=id,
-            # activity_type=activity_type,
-            after=after_time.timestamp(),
-        )
+    prev_page = _get_prev_page_link(
+        has_more,
+        activity_stream,
+        id=id
+    )
 
     extra_vars.update({
         "id":  id,
@@ -898,46 +856,27 @@ def dashboard() -> str:
         after
     )
 
-    prev_page = None
-    next_page = None
-    is_first_page = after is None and before is None
     has_more = len(activity_stream) > limit
     # remove the extra item if exists
     if has_more:
         if after:
-            # drop the first element
             activity_stream.pop(0)
         else:
-            # drop the last element
             activity_stream.pop()
 
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            activity_stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            tk.request.endpoint,
-            type=filter_type,
-            name=filter_id,
-            before=before_time.timestamp(),
-        )
+    next_page = _get_next_page_link(
+        has_more,
+        activity_stream,
+        type=filter_type,
+        name=filter_id
+    )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            activity_stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            tk.request.endpoint,
-            type=filter_type,
-            name=filter_id,
-            after=after_time.timestamp(),
-        )
+    prev_page = _get_prev_page_link(
+        has_more,
+        activity_stream,
+        type=filter_type,
+        name=filter_id
+    )
 
     extra_vars.update({
         "id":  id,
