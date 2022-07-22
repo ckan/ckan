@@ -53,8 +53,8 @@ def _get_next_page_link(
     if "before" (or is_first_page), we only show next page if we know
     we have more rows
     """
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
     is_first_page = after is None and before is None
     next_page = None
 
@@ -82,8 +82,8 @@ def _get_prev_page_link(
     if "after", we only show previous page if we know
     we have more rows
     """
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
     prev_page = None
 
     if before or (has_more and after):
@@ -299,9 +299,9 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 @bp.route("/dataset/activity/<id>")
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
-    activity_type = tk.h.get_request_param("activity_type")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+    activity_type = tk.request.args.get("activity_type")
 
     context = cast(
         Context,
@@ -509,8 +509,8 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 )
 def group_activity(id: str, group_type: str) -> str:
     """Render this group's public activity stream page."""
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
 
     if group_type == 'organization':
         set_org(True)
@@ -526,7 +526,7 @@ def group_activity(id: str, group_type: str) -> str:
     if not group_dict.get("is_organization"):
         action_name = "group_activity_list"
 
-    activity_type = tk.h.get_request_param("activity_type")
+    activity_type = tk.request.args.get("activity_type")
     activity_types = [activity_type] if activity_type else None
 
     limit = _get_activity_stream_limit()
@@ -745,8 +745,8 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
 @bp.route("/user/activity/<id>")
 def user_activity(id: str) -> str:
     """Render this user's public activity stream page."""
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
 
     context = cast(
         Context,
@@ -826,8 +826,8 @@ def dashboard() -> str:
     q = tk.request.args.get("q", "")
     filter_type = tk.request.args.get("type", "")
     filter_id = tk.request.args.get("name", "")
-    before = tk.request.args.get("before", None)
-    after = tk.request.args.get("after", None)
+    before = tk.request.args.get("before")
+    after = tk.request.args.get("after")
 
     limit = _get_activity_stream_limit()
 
