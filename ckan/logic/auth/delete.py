@@ -14,6 +14,14 @@ def user_delete(context: Context, data_dict: DataDict) -> AuthResult:
 
 
 def package_delete(context: Context, data_dict: DataDict) -> AuthResult:
+    '''
+    .. note::  
+    
+         Deleting multiple datasets using ``package_delete`` might 
+         affect the performance, use 
+         :py:func:`~ckan.logic.action.update.bulk_update_delete` instead.
+         
+    '''
     # Defer authorization for package_delete to package_update, as deletions
     # are essentially changing the state field
     return authz.is_authorized('package_update', context, data_dict)
