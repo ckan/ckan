@@ -42,60 +42,59 @@ def _get_activity_stream_limit() -> int:
     return min(base_limit, max_limit)
 
 
-def _get_next_page_link(
+def _get_older_activities_url(
     has_more: bool,
     stream: list[dict[str, Any]],
     **kwargs: Any
 ) -> Any:
-    """ Returns pagination's next page link.
+    """ Returns pagination's older activities url.
 
-    If "after", we came from the next page, so we know it exists.
-    if "before" (or is_first_page), we only show next page if we know
+    If "after", we came from older activities, so we know it exists.
+    if "before" (or is_first_page), we only show older activities if we know
     we have more rows
     """
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
     is_first_page = after is None and before is None
-    next_page = None
-
+    url = None
     if after or (has_more and (before or is_first_page)):
         before_time = datetime.fromisoformat(
             stream[-1]["timestamp"]
         )
-        next_page = tk.h.url_for(
+        url = tk.h.url_for(
             tk.request.endpoint,
             before=before_time.timestamp(),
             **kwargs
         )
 
-    return next_page
+    return url
 
 
-def _get_prev_page_link(
+def _get_newer_activities_url(
     has_more: bool,
     stream: list[dict[str, Any]],
     **kwargs: Any
 ) -> Any:
-    """ Returns pagination's previous page link.
+    """ Returns pagination's newer activities url.
 
-    if "before", we came from the previous page, so it exists.
-    if "after", we only show previous page if we know
+    if "before", we came from the newer activities, so it exists.
+    if "after", we only show newer activities if we know
     we have more rows
     """
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
-    prev_page = None
+    url = None
 
     if before or (has_more and after):
         after_time = datetime.fromisoformat(
             stream[0]["timestamp"]
         )
-        prev_page = tk.h.url_for(
+        url = tk.h.url_for(
             tk.request.endpoint,
             after=after_time.timestamp(),
             **kwargs
         )
-    return prev_page
+    return url
 
 
 @bp.route("/dataset/<id>/resources/<resource_id>/history/<activity_id>")
@@ -344,14 +343,14 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         else:
             activity_stream.pop()
 
-    next_page = _get_next_page_link(
+    older_activities_url = _get_older_activities_url(
         has_more,
         activity_stream,
         id=id,
         activity_type=activity_type
         )
 
-    prev_page = _get_prev_page_link(
+    newer_activities_url = _get_newer_activities_url(
         has_more,
         activity_stream,
         id=id,
@@ -369,8 +368,8 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "has_more": has_more,
             "activity_type": activity_type,
             "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            "prev_page": prev_page,
-            "next_page": next_page,
+            "newer_activities_url": newer_activities_url,
+            "older_activities_url": older_activities_url,
         },
     )
 
@@ -556,14 +555,14 @@ def group_activity(id: str, group_type: str) -> str:
         else:
             activity_stream.pop()
 
-    next_page = _get_next_page_link(
+    older_activities_url = _get_older_activities_url(
         has_more,
         activity_stream,
         id=id,
         activity_type=activity_type
     )
 
-    prev_page = _get_prev_page_link(
+    newer_activities_url = _get_newer_activities_url(
         has_more,
         activity_stream,
         id=id,
@@ -577,8 +576,8 @@ def group_activity(id: str, group_type: str) -> str:
         "group_dict": group_dict,
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),
-        "prev_page": prev_page,
-        "next_page": next_page
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
     }
 
     return tk.render(
@@ -787,13 +786,13 @@ def user_activity(id: str) -> str:
         else:
             activity_stream.pop()
 
-    next_page = _get_next_page_link(
+    older_activities_url = _get_older_activities_url(
         has_more,
         activity_stream,
         id=id
     )
 
-    prev_page = _get_prev_page_link(
+    newer_activities_url = _get_newer_activities_url(
         has_more,
         activity_stream,
         id=id
@@ -802,8 +801,8 @@ def user_activity(id: str) -> str:
     extra_vars.update({
         "id":  id,
         "activity_stream": activity_stream,
-        "prev_page": prev_page,
-        "next_page": next_page
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
     })
 
     return tk.render("user/activity_stream.html", extra_vars)
@@ -852,14 +851,14 @@ def dashboard() -> str:
         else:
             activity_stream.pop()
 
-    next_page = _get_next_page_link(
+    older_activities_url = _get_older_activities_url(
         has_more,
         activity_stream,
         type=filter_type,
         name=filter_id
     )
 
-    prev_page = _get_prev_page_link(
+    newer_activities_url = _get_newer_activities_url(
         has_more,
         activity_stream,
         type=filter_type,
@@ -869,8 +868,8 @@ def dashboard() -> str:
     extra_vars.update({
         "id":  id,
         "dashboard_activity_stream": activity_stream,
-        "prev_page": prev_page,
-        "next_page": next_page
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
     })
 
     # Mark the user's new activities as old whenever they view their
