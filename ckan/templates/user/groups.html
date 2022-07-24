@@ -1,0 +1,30 @@
+{% extends "user/read_base.html" %}
+
+{% block page_primary_action %}
+  {% if h.check_access('group_create') and user.groups %}
+    {% link_for _('Add Group'), controller='group', action='new', class_="btn btn-primary", icon="plus-square" %}
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ _('Groups') }}</h2>
+  {% set groups = h.groups_available() %}
+  {% if groups %}
+    <div class="wide">
+      {% snippet "group/snippets/group_list.html", groups=groups %}
+    </div>
+  {% else %}
+    {% if is_myself %}
+    <p class="empty">
+        {{ _('You are not a member of any groups.') }}
+        {% if h.check_access('group_create') %}
+            {% link_for _('Create one now?'), controller='group', action='new' %}
+        {% endif %}
+    </p>
+    {% else %}
+        <p class="empty">
+            {{ _('User isn\'t a member of any groups.') }}
+        </p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

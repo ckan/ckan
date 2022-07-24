@@ -1,0 +1,31 @@
+{% extends "user/read_base.html" %}
+
+{% block page_primary_action %}
+  {% if h.check_access('organization_create') and user.organizations %}
+    {% link_for _('Add Organization'), controller='organization', action='new', class_="btn btn-primary", icon="plus-square" %}
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{{ _('Organizations') }}</h2>
+  {% set organizations = h.organizations_available(permission='read',
+     include_dataset_count=True) %}
+  {% if organizations %}
+    <div class="wide">
+        {% snippet "organization/snippets/organization_list.html", organizations=organizations, show_capacity=True %}
+    </div>
+  {% else %}
+    {% if is_myself %}
+    <p class="empty">
+        {{ _('You are not a member of any organizations.') }}
+        {% if h.check_access('organization_create') %}
+            {% link_for _('Create one now?'), controller='organization', action='new' %}
+        {% endif %}
+    </p>
+    {% else %}
+        <p class="empty">
+            {{ _('User isn\'t a member of any organizations.') }}
+        </p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

@@ -17,6 +17,8 @@
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name, icon='sitemap') }}
+  {{ h.build_nav_icon('user.organizations', _('Organizations'), id=user.name, icon='building-o') }}
+  {{ h.build_nav_icon('user.groups', _('Groups'), id=user.name, icon='users') }}
   {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name, icon='clock-o') }}
   {% if h.check_access('api_token_list', {'user': user['name']}) %}
     {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}

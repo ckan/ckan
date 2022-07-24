@@ -590,6 +590,49 @@ def activity(id, offset=0):
 
     return base.render(u'user/activity_stream.html', extra_vars)
 
+def groups(id):
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'auth_user_obj': g.userobj,
+        u'for_view': True
+    }
+    data_dict = {
+        u'id': id,
+        u'user_obj': g.userobj,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    if extra_vars is None:
+        return h.redirect_to(u'user.login')
+    return base.render(u'user/groups.html', extra_vars)
+
+def organizations(id):
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'auth_user_obj': g.userobj,
+        u'for_view': True
+    }
+    data_dict = {
+        u'id': id,
+        u'user_obj': g.userobj,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    if extra_vars is None:
+        return h.redirect_to(u'user.login')
+    return base.render(u'user/organizations.html', extra_vars)
 
 class RequestResetView(MethodView):
     def _prepare(self):
@@ -847,6 +890,11 @@ user.add_url_rule(
 
 user.add_url_rule(u'/activity/<id>', view_func=activity)
 user.add_url_rule(u'/activity/<id>/<int:offset>', view_func=activity)
+
+# TODO: Might want to update url/properly namespace as requests to this 
+# page are also also hitting dashboard endpoints
+user.add_url_rule(u'/groups/<id>', view_func=groups)
+user.add_url_rule(u'/organizations/<id>', view_func=organizations)
 
 user.add_url_rule(
     u'/reset', view_func=RequestResetView.as_view(str(u'request_reset')))
