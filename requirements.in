@@ -29,7 +29,7 @@ Routes==1.13
 rq==1.0
 simplejson==3.10.0
 SQLAlchemy==1.3.5
-sqlparse==0.2.2
+sqlparse==0.4.2
 tzlocal==1.3
 unicodecsv>=0.9
 watchdog==2.1.5         # For py3 support
