@@ -9,13 +9,7 @@ CKAN releases
 This document describes the different types of CKAN releases, and explains which
 releases are officially supported at any given time.
 
-.. note::
-    The currently supported CKAN version is CKAN |latest_release_version| 
-
-    Security and performance fixes are also provided for CKAN |previous_release_version|.
-
-    Read more about :ref:`officially supported versions <supported_versions>`
-
+.. include:: /_supported_versions.rst
 
 -------------
 Release types

@@ -23,6 +23,8 @@ walk you through the steps to upgrade your CKAN site to a newer version of CKAN.
      Documentation of the process that the CKAN developers follow to do a
      CKAN release.
 
+.. include:: /_supported_versions.rst
+
 .. note::
 
     Before upgrading your version of CKAN you should check that any custom

@@ -369,9 +369,11 @@ def write_substitutions_file(**kwargs):
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
 previous_release_version = get_previous_release_version()
+previous_release_version_format = f"**CKAN {previous_release_version}**"
 current_minor_version = current_release_version[:current_release_version.find(".", 3)]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
+latest_release_version_format = f"**CKAN {latest_release_version}**"
 latest_minor_version = latest_release_version[:latest_release_version.find(".", 3)]
 is_master = "a" in release.split(".")[-1]
 is_supported = get_status_of_this_version() == 'supported'
@@ -381,9 +383,11 @@ write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
     previous_release_version=previous_release_version,
+    previous_release_version_format=previous_release_version_format,
     current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
+    latest_release_version_format=latest_release_version_format,
     latest_package_name_bionic=get_latest_package_name('bionic'),
     latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
     latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
