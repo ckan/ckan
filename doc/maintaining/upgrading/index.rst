@@ -9,50 +9,22 @@ Upgrading CKAN
 This document explains how to upgrade a site to a newer version of CKAN. It will
 walk you through the steps to upgrade your CKAN site to a newer version of CKAN.
 
-.. seealso::
-
-   :doc:`/maintaining/releases`
-     Information about the different CKAN releases and the officially supported
-     versions.
-
-   :doc:`/changelog`
-     The changelog lists all CKAN releases and the main changes introduced in
-     each release.
-
-   :doc:`/contributing/release-process`
-     Documentation of the process that the CKAN developers follow to do a
-     CKAN release.
-
 .. include:: /_supported_versions.rst
 
-.. note::
+1. Prepare the upgrade
+======================
 
-    Before upgrading your version of CKAN you should check that any custom
-    templates or extensions you're using work with the new version of CKAN.
-    For example, you could install the new version of CKAN in a new virtual
-    environment and use that to test your templates and extensions.
+*  Before upgrading your version of CKAN you should check that any custom
+   templates or extensions you're using work with the new version of CKAN.
+   For example, you could install the new version of CKAN in a new virtual
+   environment and use that to test your templates and extensions.
 
-.. note::
+* You should also read the :doc:`/changelog` to see if there are any extra
+  notes to be aware of when upgrading to the new version.
 
-    You should also read the :doc:`/changelog` to see if there are any extra
-    notes to be aware of when upgrading to the new version.
-
-
-1. Backup your database
-=======================
-
-You should always backup your CKAN database before upgrading CKAN. If something
-goes wrong with the CKAN upgrade you can use the backup to restore the database
-to its pre-upgrade state.
-
-#. Activate your virtualenv and switch to the ckan source directory, e.g.:
-
-   .. parsed-literal::
-
-    |activate|
-    cd |virtualenv|/src/ckan
-
-#. :ref:`Backup your CKAN database <db dumping and loading>`
+.. warning:: You should always **backup your CKAN database** before upgrading CKAN. If something
+   goes wrong with the CKAN upgrade you can use the backup to restore the database
+   to its pre-upgrade state. See :ref:`Backup your CKAN database <db dumping and loading>`
 
 
 2. Upgrade CKAN
@@ -72,3 +44,18 @@ appropriate one of these documents:
     upgrade-source
     upgrade-postgres
     upgrade-to-python3
+
+
+.. seealso::
+
+   :doc:`/maintaining/releases`
+     Information about the different CKAN releases and the officially supported
+     versions.
+
+   :doc:`/changelog`
+     The changelog lists all CKAN releases and the main changes introduced in
+     each release.
+
+   :doc:`/contributing/release-process`
+     Documentation of the process that the CKAN developers follow to do a
+     CKAN release.
