@@ -1,3 +1,6 @@
+
+.. include:: /_substitutions.rst
+
 .. note::
     The currently supported CKAN version is |latest_release_version_format| 
 

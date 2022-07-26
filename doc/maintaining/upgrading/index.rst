@@ -1,4 +1,3 @@
-.. include:: /_substitutions.rst
 
 .. _upgrading:
 

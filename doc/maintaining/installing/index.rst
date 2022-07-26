@@ -1,6 +1,3 @@
-
-.. include:: /_substitutions.rst
-
 ---------------
 Installing CKAN
 ---------------
