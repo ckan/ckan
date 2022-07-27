@@ -145,12 +145,16 @@ class TestSearchIndex(object):
     def test_index_date_field_wrong_value(self):
 
         pkg_dict = self.base_package_dict.copy()
-        pkg_dict.update({
-            'extras': [
-                {'key': 'test_wrong_date', 'value': 'Not a date'},
-                {'key': 'test_another_wrong_date', 'value': '2014-13-01'},
-            ]
-        })
+        pkg_dict.update(
+            {
+                "extras": [
+                    {"key": "test_wrong_date", "value": "Not a date"},
+                    {"key": "test_another_wrong_date", "value": "2014-13-01"},
+                    {"key": "test_yet_another_wrong_date", "value": "2014-15"},
+                    {"key": "test_yet_another_very_wrong_date", "value": "30/062012"},
+                ]
+            }
+        )
 
         self.package_index.index_package(pkg_dict)
 
@@ -158,8 +162,10 @@ class TestSearchIndex(object):
 
         assert_equal(len(response), 1)
 
-        assert 'test_wrong_date' not in response.docs[0]
-        assert 'test_another_wrong_date' not in response.docs[0]
+        assert "test_wrong_date" not in response.docs[0]
+        assert "test_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_very_wrong_date" not in response.docs[0]
 
     def test_index_date_field_empty_value(self):
 

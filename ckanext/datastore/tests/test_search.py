@@ -29,7 +29,8 @@ assert_in = nose.tools.assert_in
 class TestDatastoreSearchNewTest(object):
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
@@ -109,6 +110,23 @@ class TestDatastoreSearchNewTest(object):
         result_years = [r['the year'] for r in result['records']]
         assert_equals(result_years, [2013])
 
+    def test_search_without_total(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'the year': 2014},
+                {'the year': 2013},
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'include_total': False
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        assert 'total' not in result
 
 
 class TestDatastoreSearch(tests.WsgiAppCase):
@@ -119,7 +137,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -299,7 +318,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        assert result['total'] == 2
+        assert result['total'] == 1
         assert result['records'] == [{u'author': 'tolstoy'}], result['records']
 
     def test_search_filters(self):
@@ -838,6 +857,85 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
 
+    def test_validates_sql_has_a_single_statement(self):
+        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
+        assert_raises(p.toolkit.ValidationError,
+                      helpers.call_action, 'datastore_search_sql', sql=sql)
+
+    def test_works_with_semicolons_inside_strings(self):
+        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
+        helpers.call_action('datastore_search_sql', sql=sql)
+
+    def test_works_with_allowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT upper(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_not_authorized_with_disallowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = "SELECT query_to_xml('SELECT upper(author) from \"{}\"', true, true, '')".format(
+            resource["id"]
+        )
+        assert_raises(p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
+
+    def test_invalid_statement(self):
+        query = 'SELECT ** FROM foobar'
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_select_basic(self):
+        query = 'SELECT * FROM "{0}"'.format(self.data['resource_id'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert len(result['records']) == len(self.expected_records)
+        for (row_index, row) in enumerate(result['records']):
+            expected_row = self.expected_records[row_index]
+            assert set(row.keys()) == set(expected_row.keys())
+            for field in row:
+                if field == '_full_text':
+                    for ft_value in expected_row['_full_text']:
+                        assert ft_value in row['_full_text']
+                else:
+                    assert row[field] == expected_row[field]
+
+        # test alias search
+        query = 'SELECT * FROM "{0}"'.format(self.data['aliases'])
+        data = {'sql': query}
+        postparams = json.dumps(data)
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+                            extra_environ=auth)
+        res_dict_alias = json.loads(res.body)
+
+        assert result['records'] == res_dict_alias['result']['records']
+
     def test_select_where_like_with_percent(self):
         query = 'SELECT * FROM public."{0}" WHERE "author" LIKE \'tol%\''.format(self.data['resource_id'])
         data = {'sql': query}
@@ -1038,6 +1136,41 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
+            resource["id"]
+        )
+        assert_raises(
+            p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
 
 
 class TestDatastoreSearchRecordsFormat(DatastoreFunctionalTestBase):

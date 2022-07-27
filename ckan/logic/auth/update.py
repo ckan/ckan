@@ -78,7 +78,7 @@ def resource_view_update(context, data_dict):
     return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
 
 def resource_view_reorder(context, data_dict):
-    return authz.is_authorized('resource_update', context, {'id': data_dict['resource_id']})
+    return authz.is_authorized('resource_update', context, {'id': data_dict['id']})
 
 def package_relationship_update(context, data_dict):
     return authz.is_authorized('package_relationship_create',

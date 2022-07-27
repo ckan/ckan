@@ -105,12 +105,12 @@ b. Install the recommended ``setuptools`` version:
        pip install setuptools==\ |min_setuptools_version|
 
 c. Install the CKAN source code into your virtualenv.
-   To install the latest stable release of CKAN (CKAN |latest_release_version|),
+   To install the latest stable release of CKAN (CKAN |current_release_version|),
    run:
 
    .. parsed-literal::
 
-      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+      pip install -e 'git+\ |git_url|\@\ |current_release_tag|\#egg=ckan'
 
    If you're installing CKAN for development, you may want to install the
    latest development version (the most recent commit on the master branch of

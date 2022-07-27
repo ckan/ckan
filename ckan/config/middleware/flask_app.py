@@ -21,6 +21,7 @@ from fanstatic import Fanstatic
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
 from ckan.common import config, g
+from ckan.config.middleware.common_middleware import HostHeaderMiddleware
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware
@@ -133,7 +134,11 @@ def make_flask_stack(conf, **app_conf):
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
-            app.register_extension_blueprint(plugin.get_blueprint())
+            plugin_blueprints = plugin.get_blueprint()
+            if not isinstance(plugin_blueprints, list):
+                plugin_blueprints = [plugin_blueprints]
+            for blueprint in plugin_blueprints:
+                app.register_extension_blueprint(blueprint)
 
     # Start other middleware
 
@@ -177,6 +182,9 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    # Prevent the host from request to be added to the new header location.
+    app = HostHeaderMiddleware(app)
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -203,12 +211,17 @@ def ckan_after_request(response):
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
+    # Default to cache-control private if it was not set
+    if response.cache_control.private is None:
+        response.cache_control.private = True
+
     return response
 
 
 def helper_functions():
     u'''Make helper functions (`h`) available to Flask templates'''
-    helpers.load_plugin_helpers()
+    if not helpers.helper_functions:
+        helpers.load_plugin_helpers()
     return dict(h=helpers.helper_functions)
 
 

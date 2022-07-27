@@ -4,6 +4,7 @@ import datetime
 import uuid
 import logging
 
+from six import string_types
 from sqlalchemy.orm import class_mapper
 
 import ckan.lib.dictization as d
@@ -12,7 +13,9 @@ import ckan.authz as authz
 
 log = logging.getLogger(__name__)
 
+
 def resource_dict_save(res_dict, context):
+
     model = context["model"]
     session = context["session"]
 
@@ -29,17 +32,23 @@ def resource_dict_save(res_dict, context):
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
 
+    # Strip the full url for resources of type 'upload'
+    if res_dict.get('url') and res_dict.get('url_type') == u'upload':
+        res_dict['url'] = res_dict['url'].rsplit('/')[-1]
+
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
     for key, value in res_dict.iteritems():
-        if isinstance(value, list):
-            continue
         if key in ('extras', 'revision_timestamp', 'tracking_summary'):
             continue
         if key in fields:
             if isinstance(getattr(obj, key), datetime.datetime):
-                if getattr(obj, key).isoformat() == value:
+                if isinstance(value, string_types):
+                    db_value = getattr(obj, key).isoformat()
+                else:
+                    db_value = getattr(obj, key)
+                if  db_value == value:
                     continue
                 if key == 'last_modified' and not new:
                     obj.url_changed = True

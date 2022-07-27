@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: python:2
+      - image: python:2-stretch
         environment:
           CKAN_DATASTORE_POSTGRES_DB: datastore_test
           CKAN_DATASTORE_POSTGRES_READ_USER: datastore_read
@@ -15,7 +15,7 @@ jobs:
           PGPASSWORD: ckan
           NODE_TESTS_CONTAINER: 2
           NOSETEST_COMMON_OPTIONS: -v --ckan --reset-db --with-pylons=test-core-circle-ci.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=/root/junit/junit.xml ckan ckanext
-      - image: postgres:9
+      - image: postgres:10
         environment:
           POSTGRES_USER: ckan
           POSTGRES_PASSWORD: ckan
@@ -29,19 +29,11 @@ jobs:
       - checkout
 
       - run: |
-          # SO Dependencies
+          # OS Dependencies
           apt update
-          case $CIRCLE_NODE_INDEX in
-            $NODE_TESTS_CONTAINER)
-            curl -sL https://deb.nodesource.com/setup_10.x | bash -
-            apt install -y nodejs
-            npm install mocha-phantomjs@3.5.0 phantomjs@~1.9.1
-            ;;
-          esac
           apt install -y postgresql-client solr-jetty openjdk-8-jdk
 
           # Python Dependencies
-          pip install -r requirement-setuptools.txt
           pip install -r requirements.txt
           pip install -r dev-requirements.txt
           python setup.py develop
@@ -56,6 +48,7 @@ jobs:
           psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_READ_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_READ_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
           psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_DATASTORE_POSTGRES_WRITE_USER} WITH PASSWORD '${CKAN_DATASTORE_POSTGRES_WRITE_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
           createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_DATASTORE_POSTGRES_WRITE_USER} ${CKAN_DATASTORE_POSTGRES_DB}
+          psql --host=ckan-postgres --username=ckan --dbname=${CKAN_DATASTORE_POSTGRES_DB} --command="CREATE extension tablefunc;"
 
           # Database Initialization
           paster datastore -c test-core-circle-ci.ini set-permissions | psql --host=ckan-postgres --username=ckan
@@ -77,27 +70,8 @@ jobs:
       - store_test_results:
           path: ~/junit
 
-      # Tests Frontend, only in one container
-      - run:
-          command: |
-            case $CIRCLE_NODE_INDEX in
-              $NODE_TESTS_CONTAINER) paster serve test-core-circle-ci.ini
-              ;;
-            esac
-          background: true
-      - run:
-          command: |
-            case $CIRCLE_NODE_INDEX in
-              $NODE_TESTS_CONTAINER)
-                sleep 5
-                /root/project/node_modules/mocha-phantomjs/bin/mocha-phantomjs \
-                  http://localhost:5000/base/test/index.html
-              ;;
-            esac
-
 workflows:
   version: 2
   build_and_test:
     jobs:
       - test
-

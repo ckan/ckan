@@ -184,21 +184,6 @@ def test_basic_errors():
 
     assert errors == {('__junk',): [u"The input field [('4', 1, '30')] was not expected."], ('1',): [u'Missing value'], ('__extras',): [u'The input field __extras was not expected.']}, errors
 
-def test_default():
-    schema = {
-        "__junk": [ignore],
-        "__extras": [ignore, default("weee")],
-        "__before": [ignore],
-        "__after": [ignore],
-        "0": [default("default")],
-        "1": [default("default")],
-    }
-
-    converted_data, errors = validate_flattened(data, schema)
-
-    assert not errors
-    assert converted_data == {('1',): 'default', ('0',): '0 value'}, converted_data
-
 
 def test_flatten():
 
@@ -246,6 +231,43 @@ def test_flatten():
                                  ('url',): u'http://blahblahblah.mydomain'}, pformat(flatten_dict(data))
 
     assert data == unflatten(flatten_dict(data))
+
+
+def test_flatten_deeper():
+    data = {
+        u"resources": [
+            {
+                u"subfields": [
+                    {
+                        u"test": u"hello",
+                    },
+                ],
+            },
+        ],
+    }
+
+    assert flatten_dict(data) == {
+        ("resources", 0, u"subfields", 0, u"test"): u"hello",
+    }, pformat(flatten_dict(data))
+
+    assert data == unflatten(flatten_dict(data)), pformat(
+        unflatten(flatten_dict(data)))
+
+
+def test_unflatten_regression():
+    fdata = {
+        (u"items", 0, u"name"): u"first",
+        (u"items", 0, u"value"): u"v1",
+        (u"items", 3, u"name"): u"second",
+        (u"items", 3, u"value"): u"v2",
+    }
+    expected = {
+        u"items": [
+            {u"name": u"first", u"value": u"v1"},
+            {u"name": u"second", u"value": u"v2"},
+        ],
+    }
+    assert unflatten(fdata) == expected, pformat(unflatten(fdata))
 
 
 def test_simple():

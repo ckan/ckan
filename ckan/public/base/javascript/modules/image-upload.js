@@ -129,6 +129,11 @@ this.ckan.module('image-upload', function($) {
      * Returns String.
      */
     _fileNameFromUpload: function(url) {
+      // If it's a local CKAN image return the entire URL.
+      if (/^\/base\/images/.test(url)) {
+        return url;
+      }
+
       // remove fragment (#)
       url = url.substring(0, (url.indexOf("#") === -1) ? url.length : url.indexOf("#"));
       // remove query string
@@ -192,6 +197,16 @@ this.ckan.module('image-upload', function($) {
      */
     _onInputChange: function() {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
+
+      // Internet Explorer 6-11 and Edge 20+
+      var isIE = !!document.documentMode;
+      var isEdge = !isIE && !!window.StyleMedia;
+      // for IE/Edge when 'include filepath option' is enabled
+      if (isIE || isEdge) {
+        var fName = file_name.match(/[^\\\/]+$/);
+        file_name = fName ? fName[0] : file_name;
+      }
+
       this.field_url_input.val(file_name);
       this.field_url_input.prop('readonly', true);
 

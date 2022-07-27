@@ -191,7 +191,7 @@ def dump_to(resource_id, output, fmt, offset, limit, options, sort, search_param
             'offset': offs,
             'sort': sort,
             'records_format': records_format,
-            'include_total': 'false',  # XXX: default() is broken
+            'include_total': False,
             'fields': field_list,
             }, **search_params))
 

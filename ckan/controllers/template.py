@@ -30,7 +30,7 @@ class TemplateController(base.BaseController):
         Found)
         """
         if url.endswith(u'.txt'):
-            response.headers[u'Content-Type'] = u'text/plain; charset=utf-8'
+            response.headers[b'Content-Type'] = b'text/plain; charset=utf-8'
         # Default content-type is text/html
         try:
             return base.render(url)

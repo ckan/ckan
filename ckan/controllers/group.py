@@ -325,7 +325,7 @@ class GroupController(base.BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            self._update_facet_titles(facets, group_type)
+            facets = self._update_facet_titles(facets, group_type)
 
             c.facet_titles = facets
 
@@ -376,6 +376,7 @@ class GroupController(base.BaseController):
         for plugin in plugins.PluginImplementations(plugins.IFacets):
             facets = plugin.group_facets(
                 facets, group_type, None)
+        return facets
 
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
@@ -469,7 +470,7 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to create a group'))
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_new(context, group_type)
 
         data = data or {}
@@ -500,7 +501,7 @@ class GroupController(base.BaseController):
                    }
         data_dict = {'id': id, 'include_datasets': False}
 
-        if context['save'] and not data:
+        if context['save'] and not data and request.method == 'POST':
             return self._save_edit(id, context)
 
         try:
@@ -623,6 +624,7 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(403, _('Unauthorized to delete group %s') % '')
 
+        c.group_dict = self._action('group_show')(context, {'id': id})
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
@@ -634,7 +636,6 @@ class GroupController(base.BaseController):
                     h.flash_notice(_('%s has been deleted.')
                                    % _(group_type.capitalize()))
                 self._redirect_to_this_controller(action='index')
-            c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(403, _('Unauthorized to delete group %s') % '')
         except NotFound:
