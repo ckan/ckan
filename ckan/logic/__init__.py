@@ -157,7 +157,8 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     We don't want the csrf_token to be a part of a data_dict
     as it will expose the token to the metadata.
     This way we are deleting the token from every data_dict that fills
-    from request.form instead of deleting it separately in every view/blueprint.
+    from request.form instead of deleting it separately in every
+    view/blueprint.
     '''
     from ckan.common import config
 
