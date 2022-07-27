@@ -8,7 +8,7 @@
 
   {% if group_dropdown %}
     <form class="add-to-group" method="post">
-      <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
+      {{ form.csrf_protection() }} 
       <select id="field-add_group" name="group_added" data-module="autocomplete">
         {% for option in group_dropdown %}
           <option value="{{ option[0] }}"> {{ option[1] }}</option>

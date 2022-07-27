@@ -2,7 +2,7 @@
 
 {% block form %}
   <form id="user-register-form" action="" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="{{ g.csrf_field_name }}" value="{{ csrf_token() }}"/> 
+    {{ form.csrf_protection() }} 
     {{ form.errors(error_summary) }}
 
     {% block core_fields %}
