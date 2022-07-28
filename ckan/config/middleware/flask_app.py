@@ -36,7 +36,7 @@ from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
-from ckan.common import config, g, request, ungettext, _
+from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware,
                                                       RootPathMiddleware)
@@ -523,32 +523,6 @@ def _register_error_handler(app: CKANApp):
     ]:
         debug = config.get_value('debug')
         if isinstance(e, HTTPException):
-            # If the current_user.is_anonymous and the
-            # Exception code is 401(Unauthorized)/403(Forbidden)
-            # redirect the users to login page before trying to access it again
-            # If you want to raise a 401 or 403 error instead,
-            # set this setting to `False`
-
-            # if config.get_value('ckan.redirect_to_login_if_not_authorized'):
-                # if the url is not local we dont want to redirect the user
-                # instead, we want to show the actual 403(Forbidden)...
-                # same for user.perform_reset if the current_user.is_deleted()
-                # the view returns 403 hence we want to show the exception.
-                # endpoints = tuple(
-                #     ['util.internal_redirect', 'user.perform_reset']
-                # )
-                # if request.endpoint not in endpoints:
-                #     if current_user.is_anonymous and type(e) in (
-                #         Unauthorized, Forbidden
-                #     ):
-                #         login_url = h.url_for('user.login', qualified=True)
-                #         next_url = request.url
-                #         redirect_url = h.make_login_url(
-                #             login_url, next_url=next_url
-                #         )
-                #         h.flash_error(_('Please log in to access this page.'))
-                #         return h.redirect_to(redirect_url)
-
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
             else:

@@ -1930,7 +1930,7 @@ class TestResourceListing(object):
     def test_resource_listing_premissions_not_logged_in(self, app):
         pkg = factories.Dataset()
         url = url_for("dataset.resources", id=pkg["name"])
-        res = app.get(url, status=403)
+        app.get(url, status=403)
 
 
 @pytest.mark.usefixtures('clean_db', 'with_request_context')
