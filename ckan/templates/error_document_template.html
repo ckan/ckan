@@ -10,6 +10,11 @@
       {% endif %}
       {{ content}}
     </div>
+    {% if current_user.is_anonymous %}
+    <div class="module-content">
+      Please <a href="{{ h.url_for('user.login') }}">log</a> in to access this page.
+    </div>
+    {% endif %}
   </article>
 {% endblock %}
 
