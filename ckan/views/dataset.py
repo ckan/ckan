@@ -446,7 +446,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
     except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Dataset not found or you've no permission to view it'))
+        return base.abort(404, _(u'Dataset not found or you have no permission to view it'))
 
     g.pkg_dict = pkg_dict
     g.pkg = pkg
