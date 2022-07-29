@@ -304,7 +304,7 @@ def resource_create(context: Context,
     if 'size' not in data_dict:
         if hasattr(upload, 'filesize'):
             data_dict['size'] = upload.filesize
-   
+
     if 'format' not in data_dict:
         # Get resource formats from ckan/config/resource_formats.json file.
         RESOURCE_FORMATS = resource_formats()
@@ -313,7 +313,7 @@ def resource_create(context: Context,
             data_dict['format'] = file_format
         else:
             data_dict['format'] = ''
-            
+
     pkg_dict['resources'].append(data_dict)
 
     try:
