@@ -10,6 +10,7 @@ import re
 import datetime
 from socket import error as socket_error
 from typing import Any, Union, cast
+from ckan.lib.helpers import resource_formats
 
 import six
 
@@ -303,7 +304,16 @@ def resource_create(context: Context,
     if 'size' not in data_dict:
         if hasattr(upload, 'filesize'):
             data_dict['size'] = upload.filesize
-
+   
+    if 'format' not in data_dict:
+        # Get resource formats from ckan/config/resource_formats.json file.
+        RESOURCE_FORMATS = resource_formats() 
+        file_format = data_dict['url'].split('.')[-1]
+        if file_format in RESOURCE_FORMATS:
+            data_dict['format'] = file_format
+        else:
+            data_dict['format'] = ''
+            
     pkg_dict['resources'].append(data_dict)
 
     try:
