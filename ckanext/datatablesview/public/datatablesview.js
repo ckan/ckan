@@ -691,6 +691,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'viewToggleButton',
           text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
           titleAttr: that._('Table/List toggle'),
+          className: 'btn-default',
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -710,6 +711,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'copy',
           text: '<i class="fa fa-copy"></i>',
           titleAttr: that._('Copy to clipboard'),
+          className: 'btn-default',
           title: function () {
             // remove html tags from filterInfo msg
             const filternohtml = filterInfo(datatable, true)
@@ -723,6 +725,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
+          className: 'btn-default',
           columns: ':gt(0)',
           collectionLayout: 'fixed four-column',
           postfixButtons: [{
@@ -760,6 +763,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           text: '<i class="fa fa-download"></i>',
           titleAttr: that._('Filtered download'),
+          className: 'btn-default',
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -795,7 +799,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'resetButton',
           text: '<i class="fa fa-repeat"></i>',
           titleAttr: that._('Reset'),
-          className: 'resetButton',
+          className: 'btn-default resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -806,6 +810,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
           titleAttr: that._('Print'),
+          className: 'btn-default',
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
             return filterInfo(datatable)
@@ -821,6 +826,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
+          className: 'btn-default',
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))
