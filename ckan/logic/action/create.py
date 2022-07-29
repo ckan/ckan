@@ -307,7 +307,7 @@ def resource_create(context: Context,
    
     if 'format' not in data_dict:
         # Get resource formats from ckan/config/resource_formats.json file.
-        RESOURCE_FORMATS = resource_formats() 
+        RESOURCE_FORMATS = resource_formats()
         file_format = data_dict['url'].split('.')[-1]
         if file_format in RESOURCE_FORMATS:
             data_dict['format'] = file_format
