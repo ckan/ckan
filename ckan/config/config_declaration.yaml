@@ -595,10 +595,6 @@ groups:
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
 
-      - key: ckan.csrf_protection.field_name
-        default: csrf_token
-        description: Name of the form field and session key that holds the CSRF token.
-
   - annotation: API Token Settings
     options:
       - key: api_token.nbytes
