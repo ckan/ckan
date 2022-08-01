@@ -552,6 +552,67 @@ class TestDatastoreUpsert(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_no_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "book", "type": "text"},
+            ],
+            "records": [{"book": u"El Niño"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"_id": "1", "book": u"The boy"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_id_instead_of_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"pk": "1000", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"_id": "1", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["pk"] == "1000"
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "F Torres"
+
 
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreInsert(object):
@@ -829,3 +890,64 @@ class TestDatastoreUpdate(object):
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
         assert u'fields "dummy" do not exist' in str(context.value)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_no_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "book", "type": "text"},
+            ],
+            "records": [{"book": u"El Niño"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"_id": "1", "book": u"The boy"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["book"] == "The boy"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_id_instead_of_pk_update(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+            ],
+            "records": [{"pk": "1000", "book": u"El Niño", "author": "Torres"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"_id": "1", "book": u"The boy", "author": u"F Torres"}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["pk"] == "1000"
+        assert search_result["records"][0]["book"] == "The boy"
+        assert search_result["records"][0]["author"] == "F Torres"
