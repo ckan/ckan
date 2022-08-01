@@ -319,6 +319,7 @@ class TestActionAuth(object):
         "get: dataset_follower_count",
         "get: followee_count",
         "get: group_followee_count",
+        "get: organization_followee_count",
         "get: group_follower_count",
         "get: group_package_show",
         "get: member_list",
