@@ -726,8 +726,8 @@ this.ckan.module('datatables_view', function (jQuery) {
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
           className: 'btn-default',
-          columns: ':gt(0)',
-          collectionLayout: 'fixed four-column',
+          columns: 'th:gt(0):not(:contains("colspacer"))',
+          collectionLayout: 'fixed',
           postfixButtons: [{
             extend: 'colvisRestore',
             text: '<i class="fa fa-undo"></i> ' + that._('Restore visibility')
