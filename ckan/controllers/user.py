@@ -383,7 +383,7 @@ class UserController(base.BaseController):
                 # Changing currently logged in user's name.
                 # Update repoze.who cookie to match
                 set_repoze_user(data_dict['name'])
-            h.redirect_to(controller='user', action='read', id=user['name'], locale=h.lang())
+            h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
             abort(403, _('Unauthorized to edit user %s') % id)
         except NotFound as e:
@@ -417,7 +417,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return h.redirect_to(controller='user', action='logged_in', locale=h.lang())
+            return h.redirect_to(controller='user', action='logged_in')
 
     def logged_in(self):
         # redirect if needed
