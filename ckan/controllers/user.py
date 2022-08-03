@@ -383,7 +383,7 @@ class UserController(base.BaseController):
                 # Changing currently logged in user's name.
                 # Update repoze.who cookie to match
                 set_repoze_user(data_dict['name'])
-            h.redirect_to(controller='user', action='read', id=user['name'])
+            h.redirect_to(controller='user', action='read', id=user['name'], locale=h.lang())
         except NotAuthorized:
             abort(403, _('Unauthorized to edit user %s') % id)
         except NotFound as e:
@@ -417,7 +417,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return h.redirect_to(controller='user', action='logged_in')
+            return h.redirect_to(controller='user', action='logged_in', locale=h.lang())
 
     def logged_in(self):
         # redirect if needed
@@ -512,14 +512,13 @@ class UserController(base.BaseController):
                         _(u'Error sending the email. Try again later '
                           'or contact an administrator for help')
                     )
-                    log.exception(e)
-                    return h.redirect_to(u'/')
+                    return h.redirect_to(u'/', locale=h.lang())
             # always tell the user it succeeded, because otherwise we reveal
             # which accounts exist or not
             h.flash_success(
                 _(u'A reset link has been emailed to you '
                   '(unless the account specified does not exist)'))
-            return h.redirect_to(u'/')
+            return h.redirect_to(u'/', locale=h.lang())
         return render('user/request_reset.html')
 
     def perform_reset(self, id):
