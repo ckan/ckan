@@ -195,12 +195,12 @@ Instead, create a :doc:`ckan command </maintaining/cli>` which can be run separa
 Implementing CSRF protection
 ----------------------------
 
-CKAN 2.10 introduces CSRF protection for all the forms. This behavior will be enforced for all extensions 
+CKAN 2.10 introduces CSRF protection for all the forms. This behavior will be enforced for all extensions
 in the upcoming release.
 
-To add CSRF protection to your extensions use the CSRF macro in all your 
+To add CSRF protection to your extensions use the CSRF macro in all your
 forms
 
 ::
-  
+
     {{ form.csrf_protection() }}

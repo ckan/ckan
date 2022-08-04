@@ -63,7 +63,7 @@ def _finish(status_int: int,
     :rtype: response object. Return this value from the view function
         e.g. return _finish(404, 'Dataset not found')
     '''
-    assert(isinstance(status_int, int))
+    assert (isinstance(status_int, int))
     response_msg = u''
     if headers is None:
         headers = {}

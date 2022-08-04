@@ -46,7 +46,7 @@ def package_dictize_with_revisions(pkg, context):
         # CKAN>2.8
         revision_model = RevisionTableMappings.instance()
 
-    is_latest_revision = not(context.get(u'revision_id') or
+    is_latest_revision = not (context.get(u'revision_id') or
                              context.get(u'revision_date'))
     execute = _execute if is_latest_revision else _execute_with_revision
     # package

@@ -1740,8 +1740,8 @@ class IAuthenticator(Interface):
     def authenticate(
         self, identity: 'Mapping[str, Any]'
     ) -> Optional["User"]:
-        """Called before the authentication starts (that is after clicking the login
-        button)
+        """Called before the authentication starts (that is after clicking
+        the login button)
 
         Plugins should return a user object if the authentication was
         successful, or ``None``` otherwise.
