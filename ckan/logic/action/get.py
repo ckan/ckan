@@ -1470,11 +1470,6 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     user_dict = model_dictize.user_dictize(
         user_obj, context, include_password_hash, include_plugin_extras)
 
-    if context.get('return_minimal'):
-        log.warning('Use of the "return_minimal" in user_show is '
-                    'deprecated.')
-        return user_dict
-
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
@@ -2723,14 +2718,20 @@ def am_following_group(context: Context,
 
 def _followee_count(
         context: Context, data_dict: DataDict,
-        FollowerClass: Type['ModelFollowingModel[Any ,Any]']) -> int:
+        FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
+        is_org: bool = False
+        ) -> int:
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    return FollowerClass.followee_count(data_dict['id'])
+    
+    followees = _group_or_org_followee_list(context, data_dict, is_org)
+
+    return len(followees)
+
 
 
 def followee_count(context: Context,
@@ -2807,8 +2808,24 @@ def group_followee_count(
     '''
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup)
+        context['model'].UserFollowingGroup,
+        is_org = False)
 
+def organization_followee_count(
+        context: Context,
+        data_dict: DataDict) -> ActionResult.OrganizationFolloweeCount:
+    '''Return the number of organizations that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingGroup,
+        is_org = True)
 
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
 def followee_list(
