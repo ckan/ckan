@@ -189,12 +189,8 @@ def redirect_to(*args, **kw):
     if skip_url_parsing is False:
         _url = url_for(*uargs, **kw)
 
-    locale = kw.pop('locale', '')
-    if locale:
-        locale = "/" + locale
-
     if _url.startswith('/'):
-        _url = str(config['ckan.site_url'].rstrip('/') + locale + _url)
+        _url = str(config['ckan.site_url'].rstrip('/') + _url)
 
     if is_flask_request():
         return _flask_redirect(_url)
