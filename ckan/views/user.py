@@ -608,7 +608,7 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
