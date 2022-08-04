@@ -63,16 +63,16 @@ log = logging.getLogger(__name__)
 
 csrf = CSRFProtect()
 
-csrf_warn_extensions = """
-        Extensions are excluded from CSRF protection!
-        We allow extensions to run without CSRF protection
-        but will be forced in the future.
-        To be able to use CSRF protection you would need to
-        set ckan.csrf_protection.ignore_extensions=False in your .ini file
-        and to set the csrf_token in your forms.
-        e.g {% import 'macros/form.html' as form %}
-        then you can use it like: {{ form.csrf_protection() }}
-        """
+csrf_warn_extensions = (
+        "Extensions are excluded from CSRF protection! "
+        "We allow extensions to run without CSRF protection "
+        "but will be forced in the future. "
+        "To be able to use CSRF protection you would need to "
+        "set ckan.csrf_protection.ignore_extensions=False in your .ini file "
+        "and to set the csrf_token in your forms. "
+        "e.g {% import 'macros/form.html' as form %} "
+        "then you can use it like: {{ form.csrf_protection() }}"
+    )
 
 
 class I18nMiddleware(object):
@@ -263,6 +263,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # CSRF
     app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
     csrf.init_app(app)
+    log.warn(csrf_warn_extensions)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
@@ -274,7 +275,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         # to implement the csrf_token to their forms, otherwise
         # they will get 400 Bad Request: The CSRF token is missing.
         if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
-            log.warn(csrf_warn_extensions)
             csrf.exempt(plugin_blueprints)
         # register extensions blueprints
         for blueprint in [plugin_blueprints]:
