@@ -512,6 +512,7 @@ class UserController(base.BaseController):
                         _(u'Error sending the email. Try again later '
                           'or contact an administrator for help')
                     )
+                    log.exception(e)
                     return h.redirect_to(u'/', locale=h.lang())
             # always tell the user it succeeded, because otherwise we reveal
             # which accounts exist or not

@@ -190,7 +190,7 @@ def redirect_to(*args, **kw):
         _url = url_for(*uargs, **kw)
 
     locale = kw.pop('locale', '')
-    if len(locale) > 0:
+    if locale:
         locale = "/" + locale
 
     if _url.startswith('/'):
