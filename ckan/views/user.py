@@ -514,7 +514,7 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = {u'model': model, u'user': g.user, u'ignore_auth': True}
@@ -568,14 +568,14 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(u'/')
+                return h.redirect_to(u'user.login')
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(u'/')
+        return h.redirect_to(u'user.login')
 
     def get(self):
         self._prepare()
