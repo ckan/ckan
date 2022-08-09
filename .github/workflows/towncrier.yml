@@ -1,0 +1,16 @@
+name: Changelog entries
+on: [pull_request]
+
+jobs:
+  towncrier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Install python deps
+        run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
+
+      - name: Check that changelog is updated
+        run: towncrier check
