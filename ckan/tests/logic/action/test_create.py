@@ -2002,8 +2002,8 @@ class TestPackagePluginData(object):
         )
         assert "plugin_data" not in created_pkg
 
-        plugin_daya_from_db = model.Session.execute(
+        plugin_data_from_db = model.Session.execute(
             'SELECT plugin_data FROM "package" WHERE id=:id',
             {'id': created_pkg["id"]}
         ).first()[0]
-        assert plugin_daya_from_db is None
+        assert plugin_data_from_db is None
