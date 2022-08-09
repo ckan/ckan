@@ -40,6 +40,12 @@
           <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
           <dd>{{ h.SI_number_span(group.package_count) }}</dd>
         </dl>
+        {% if group_member_count %}
+          <dl>
+            <dt>{{ _('Members') }}</dt>
+            <dd>{{ group_member_count }}</dd>
+          </dl>
+        {% endif %}
       </div>
       {% endblock %}
       {% block follow %}

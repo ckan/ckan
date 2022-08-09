@@ -434,6 +434,11 @@ def read(group_type: str,
         data_dict['include_users'] = False
 
         group_dict = _action(u'group_show')(context, data_dict)
+
+        member_count = len(get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user'
+        }))
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -452,11 +457,13 @@ def read(group_type: str,
     # compatibility with templates in existing extensions
     g.q = q
     g.group_dict = group_dict
+    g.member_count = member_count
 
     extra_vars = _read(id, limit, group_type)
 
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["member_count"] = member_count
 
     return base.render(
         _get_group_template(u'read_template', cast(str, g.group_dict['type'])),
@@ -473,18 +480,32 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
             u'user': current_user.name
         }
     )
-    group_dict = _get_group_dict(id, group_type)
-    group_type = group_dict['type']
-    _setup_template_variables(context, {u'id': id}, group_type=group_type)
+
+    try:
+        group_dict = _get_group_dict(id, group_type)
+        group_type = group_dict['type']
+        _setup_template_variables(context, {u'id': id}, group_type=group_type)
+        member_count = len(get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user'
+        }))
+    except NotFound:
+        base.abort(404, _(u'Group not found'))
+    except NotAuthorized:
+        base.abort(403,
+                   _(u'User %r not authorized to edit members of %s') %
+                   (current_user.name, id))
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.group_dict = group_dict
     g.group_type = group_type
+    g.member_count = member_count
 
     extra_vars: dict[str, Any] = {u"group_dict": group_dict,
-                                  u"group_type": group_type}
+                                  u"group_type": group_type,
+                                  u"member_count": member_count}
 
     return base.render(
         _get_group_template(u'about_template', group_type), extra_vars)
@@ -503,11 +524,12 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
-        assert check_access(u'group_edit_permissions', context, data_dict)
+        assert check_access(u'group_show', context, data_dict)
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
         })
+        member_count = len(members)
         data_dict['include_datasets'] = False
         group_dict = _action(u'group_show')(context, data_dict)
     except NotFound:
@@ -522,13 +544,59 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     # compatibility with templates in existing extensions
     g.members = members
     g.group_dict = group_dict
+    g.member_count = member_count
 
     extra_vars: dict[str, Any] = {
         u"members": members,
         u"group_dict": group_dict,
-        u"group_type": group_type
+        u"group_type": group_type,
+        u"member_count": member_count
     }
     return base.render(_replace_group_org(u'group/members.html'), extra_vars)
+
+
+def manage_members(id: str, group_type: str, is_organization: bool) -> str:
+    extra_vars = {}
+    set_org(is_organization)
+    context = cast(
+        Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name
+        }
+    )
+
+    try:
+        data_dict: dict[str, Any] = {u'id': id}
+        assert check_access(u'group_edit_permissions', context, data_dict)
+        members = get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user'
+        })
+        member_count = len(members)
+        data_dict['include_datasets'] = False
+        group_dict = _action(u'group_show')(context, data_dict)
+    except NotFound:
+        base.abort(404, _(u'Group not found'))
+    except NotAuthorized:
+        base.abort(403,
+                   _(u'User %r not authorized to edit members of %s') %
+                   (current_user.name, id))
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.members = members
+    g.group_dict = group_dict
+    g.member_count = member_count
+
+    extra_vars: dict[str, Any] = {
+        u"members": members,
+        u"group_dict": group_dict,
+        u"group_type": group_type,
+        u"member_count": member_count
+    }
+    return base.render(_replace_group_org(u'group/manage_members.html'), extra_vars)
 
 
 def member_delete(id: str, group_type: str,
@@ -558,7 +626,7 @@ def member_delete(id: str, group_type: str,
                 u'user_id': user_id
             })
             h.flash_notice(_(u'Group member has been deleted.'))
-            return h.redirect_to(u'{}.members'.format(group_type), id=id)
+            return h.redirect_to(u'{}.manage_members'.format(group_type), id=id)
         user_dict = _action(u'user_show')(context, {u'id': user_id})
 
     except NotAuthorized:
@@ -1129,7 +1197,7 @@ class MembersGroupView(MethodView):
         # TODO: Remove
         g.group_dict = group_dict
 
-        return h.redirect_to(u'{}.members'.format(group_type), id=id)
+        return h.redirect_to(u'{}.manage_members'.format(group_type), id=id)
 
     def get(self,
             group_type: str,
@@ -1196,7 +1264,9 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
     blueprint.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
     blueprint.add_url_rule(
-        u'/members/<id>', methods=[u'GET', u'POST'], view_func=members)
+        u'/manage_members/<id>', methods=[u'GET', u'POST'], view_func=manage_members)
+    blueprint.add_url_rule(
+        u'/members/<id>', methods=[u'GET'], view_func=members)
     blueprint.add_url_rule(
         u'/member_new/<id>',
         view_func=MembersGroupView.as_view(str(u'member_new')))

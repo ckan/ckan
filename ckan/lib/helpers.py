@@ -1993,16 +1993,24 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False
-                            ) -> list[dict[str, Any]]:
+                            include_dataset_count: bool = False,
+                            current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user,
+                            org_type: bool = True) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': current_user.name}
+    if type(current_user) is dict:
+        user = current_user['name']
+    else:
+        user = current_user.name
+    context: Context = {'user': user }
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count}
-    return logic.get_action('organization_list_for_user')(context, data_dict)
+    return logic.get_action('organization_list_for_user')(context, data_dict, org_type=org_type)
+
+
+#TODO: add helper to get group member count from logic.get_action('member_list')(context, data_dict)
 
 
 @core_helper

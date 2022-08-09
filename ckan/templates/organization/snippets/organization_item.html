@@ -28,9 +28,16 @@ Example:
   {% endblock %}
   {% block datasets %}
     {% if organization.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong><br/>
     {% else %}
-      <span class="count">{{ _('0 Datasets') }}</span>
+      <span class="count">{{ _('0 Datasets') }}</span><br/>
+    {% endif %}
+  {% endblock %}
+  {% block members %}
+    {% if 'member_count' in members and members.member_count %}
+      <strong class="count">{{ ungettext('{num} Member', '{num} Members', members.member_count).format(num=members.member_count) }}</strong>
+    {% else %}
+      <span class="count">{{ _('0 Members') }}</span>
     {% endif %}
   {% endblock %}
   {% block capacity %}

@@ -164,6 +164,54 @@ def read(id: str) -> Union[Response, str]:
     return base.render(u'user/read.html', extra_vars)
 
 
+def read_organizations(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    if extra_vars is None:
+        return h.redirect_to(u'user.login')
+    return base.render(u'user/read_organizations.html', extra_vars)
+
+
+def read_groups(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    if extra_vars is None:
+        return h.redirect_to(u'user.login')
+    return base.render(u'user/read_groups.html', extra_vars)
+
+
 class ApiTokenView(MethodView):
     def get(self,
             id: str,
@@ -901,6 +949,8 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(u'/<id>/organizations', view_func=read_organizations)
+user.add_url_rule(u'/<id>/groups', view_func=read_groups)
 user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )

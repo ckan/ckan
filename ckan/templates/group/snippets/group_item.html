@@ -29,9 +29,21 @@ Example:
   {% endblock %}
   {% block datasets %}
     {% if group.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong><br/>
     {% elif group.package_count == 0 %}
-      <span class="count">{{ _('0 Datasets') }}</span>
+      <span class="count">{{ _('0 Datasets') }}</span><br/>
+    {% endif %}
+  {% endblock %}
+  {% block members %}
+    {% if 'member_count' in group and group.member_count %}
+      <strong class="count">{{ ungettext('{num} Member', '{num} Members', group.member_count).format(num=group.member_count) }}</strong>
+    {% else %}
+      <span class="count">{{ _('0 Members') }}</span>
+    {% endif %}
+  {% endblock %}
+  {% block capacity %}
+    {% if show_capacity and group.capacity %}
+    <p><span class="label label-default">{{ h.roles_translated().get(group.capacity, group.capacity) }}</span></p>
     {% endif %}
   {% endblock %}
   {% block link %}

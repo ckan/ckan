@@ -629,7 +629,8 @@ def group_list_authz(context: Context,
 
 
 def organization_list_for_user(context: Context,
-                               data_dict: DataDict) -> ActionResult.OrganizationListForUser:
+                               data_dict: DataDict,
+                               org_type: bool = True) -> ActionResult.OrganizationListForUser:
     '''Return the organizations that the user has a given permission for.
 
     Specifically it returns the list of organizations that the currently
@@ -685,7 +686,7 @@ def organization_list_for_user(context: Context,
     sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.is_organization == org_type) \
         .filter(model.Group.state == 'active')
 
     if sysadmin:
@@ -742,7 +743,8 @@ def organization_list_for_user(context: Context,
 
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')))
+        with_package_counts=asbool(data_dict.get('include_dataset_count')),
+        include_groups=org_type)
     return orgs_list
 
 
@@ -2734,7 +2736,7 @@ def _followee_count(
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    
+
     followees = _group_or_org_followee_list(context, data_dict, is_org)
 
     return len(followees)
