@@ -830,6 +830,9 @@ def user_list(
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
     :type all_fields: bool
+    :param include_site_user: add site_user to the result
+      (optional, default: ``False``)
+    :type include_site_user: bool
 
     :rtype: list of user dictionaries. User properties include:
       ``number_created_packages`` which excludes datasets which are private
@@ -863,6 +866,10 @@ def user_list(
         )
     else:
         query = model.Session.query(model.User.name)
+
+    if not asbool(data_dict.get('include_site_user', False)):
+        site_id = config.get_value('ckan.site_id')
+        query = query.filter(model.User.name != site_id)
 
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
