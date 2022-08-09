@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+from contextlib import contextmanager
 
 import functools
 import logging
@@ -12,6 +13,7 @@ from typing import (Any, Callable, Container, Iterable, Optional,
 from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
+from sqlalchemy import exc
 
 import six
 
@@ -32,6 +34,8 @@ Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
+
+_PG_ERR_CODE = {'unique_violation': '23505'}
 
 
 class NameConflict(Exception):
@@ -839,3 +843,24 @@ def _import_module_functions(
         k: v
         for k, v in authz.get_local_functions(module)
     }
+
+
+@contextmanager
+def guard_against_duplicated_email(email: str):
+    try:
+        yield
+    except exc.IntegrityError as e:
+        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+            model.Session.rollback()
+            raise ValidationError(
+                cast(
+                    ErrorDict,
+                    {
+                        "email": [
+                            "The email address '{email}' belongs to "
+                            "a registered user.".format(email=email)
+                        ]
+                    },
+                )
+            )
+        raise

@@ -14,7 +14,6 @@ from ckan.lib.mailer import create_reset_key, MailerException
 class TestUserListings:
     def test_user_page_lists_users(self, app):
         """/users/ lists registered users"""
-        initial_user_count = model.User.count()
         factories.User(fullname="User One")
         factories.User(fullname="User Two")
         factories.User(fullname="User Three")
@@ -24,7 +23,7 @@ class TestUserListings:
 
         user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 3 + initial_user_count
+        assert len(user_list) == 3
 
         user_names = [u.text.strip() for u in user_list]
         assert "User One" in user_names
@@ -33,7 +32,6 @@ class TestUserListings:
 
     def test_user_page_doesnot_list_deleted_users(self, app):
         """/users/ doesn't list deleted users"""
-        initial_user_count = model.User.count()
 
         factories.User(fullname="User One", state="deleted")
         factories.User(fullname="User Two")
@@ -44,7 +42,7 @@ class TestUserListings:
 
         user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 2 + initial_user_count
+        assert len(user_list) == 2
 
         user_names = [u.text.strip() for u in user_list]
         assert "User One" not in user_names
@@ -775,6 +773,28 @@ class TestUser(object):
 
         userobj = model.User.get(userobj.id)
         assert userobj.is_deleted(), userobj
+
+    def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
+
+        sysadmin = factories.Sysadmin(password="correct123")
+        deleted_user = factories.User(state="deleted")
+
+        env = {"REMOTE_USER": sysadmin["name"]}
+        data = {
+            "name": deleted_user["name"],
+            "id": deleted_user["id"],
+            "activate_user": True,
+            "email": deleted_user["email"],
+            "old_password": "correct123",
+            "password1": "",
+            "password2": "",
+            "save": ""
+        }
+        url = url_for("user.edit", id=deleted_user["name"])
+        app.post(url, extra_environ=env, data=data)
+
+        user = model.User.get(deleted_user["name"])
+        assert user.state == "active"
 
 
 @pytest.mark.usefixtures("non_clean_db")

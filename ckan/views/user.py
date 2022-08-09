@@ -296,7 +296,18 @@ class EditView(MethodView):
         data_dict.setdefault(u'activity_streams_email_notifications', False)
 
         data_dict[u'id'] = id
-
+        # deleted user can be reactivated by sysadmin on WEB-UI
+        is_deleted = False
+        if asbool(data_dict.get('activate_user', False)):
+            user_dict = logic.get_action('user_show')(context, {'id': id})
+            # set the flag so if validation error happens we will
+            # change back the user state to deleted
+            is_deleted = user_dict.get('state') == 'deleted'
+            # if activate_user is checked, change the user's state to active
+            data_dict['state'] = 'active'
+            # pop the value as we don't want to send it for
+            # validation on user_update
+            data_dict.pop('activate_user')
         # we need this comparison when sysadmin edits a user,
         # this will return True
         # and we can utilize it for later use.
@@ -342,6 +353,11 @@ class EditView(MethodView):
         except logic.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
+            # the user state was deleted, we are trying to reactivate it but
+            # validation error happens so we want to change back the state
+            # to deleted, as it was before
+            if is_deleted and data_dict.get('state') == 'active':
+                data_dict['state'] = 'deleted'
             return self.get(id, data_dict, errors, error_summary)
 
         h.flash_success(_(u'Profile updated'))

@@ -113,7 +113,7 @@ class IMiddleware(Interface):
 
             class MyPlugin(p.SingletonPlugin):
 
-                p.implements(p.Middleware)
+                p.implements(p.IMiddleware)
 
                 def make_middleware(app, config):
 
@@ -1740,8 +1740,8 @@ class IAuthenticator(Interface):
     def authenticate(
         self, identity: 'Mapping[str, Any]'
     ) -> Optional["User"]:
-        """Called before the authentication starts (that is after clicking
-        the login button)
+        """Called before the authentication starts
+        (that is after clicking the login button)
 
         Plugins should return a user object if the authentication was
         successful, or ``None``` otherwise.

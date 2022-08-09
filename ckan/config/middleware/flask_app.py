@@ -10,7 +10,7 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Iterable, Optional, Union, cast, Dict
 
 from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
@@ -115,6 +115,29 @@ def _ungettext_alias():
     return dict(ungettext=ungettext)
 
 
+class BeakerSessionInterface(SessionInterface):
+    def open_session(self, app: Any, request: Any):
+        if 'beaker.session' in request.environ:
+            return request.environ['beaker.session']
+
+    def save_session(self, app: Any, session: Any, response: Any):
+        session.save()
+
+    def is_null_session(self, obj: Dict[str, Any]) -> bool:
+
+        is_null = super(BeakerSessionInterface, self).is_null_session(obj)
+
+        if not is_null:
+            # Beaker always adds these keys on each request, so if these are
+            # the only keys present we assume it's an empty session
+            is_null = (
+                sorted(obj.keys()) == [
+                    "_accessed_time", "_creation_time", "_domain", "_path"]
+            )
+
+        return is_null
+
+
 def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
@@ -188,15 +211,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-
-    # Use Beaker as the Flask session interface
-    class BeakerSessionInterface(SessionInterface):
-        def open_session(self, app: Any, request: Any):
-            if 'beaker.session' in request.environ:
-                return request.environ['beaker.session']
-
-        def save_session(self, app: Any, session: Any, response: Any):
-            session.save()
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v

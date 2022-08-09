@@ -119,7 +119,8 @@ def default_create_package_schema(
         ignore_not_package_admin: Validator, boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
-        owner_org_validator: Validator):
+        owner_org_validator: Validator, json_object: Validator,
+        ignore_not_sysadmin: Validator):
     return cast(Schema, {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -147,6 +148,7 @@ def default_create_package_schema(
         'resources': default_resource_schema(),
         'tags': default_tags_schema(),
         'tag_string': [ignore_missing, tag_string_convert],
+        'plugin_data': [ignore_missing, json_object, ignore_not_sysadmin],
         'extras': default_extras_schema(),
         'save': [ignore],
         'return_to': [ignore],
@@ -413,7 +415,7 @@ def default_user_schema(
         ignore_missing: Validator, unicode_safe: Validator,
         name_validator: Validator, user_name_validator: Validator,
         user_password_validator: Validator, user_password_not_empty: Validator,
-        email_is_unique: Validator, ignore_not_sysadmin: Validator,
+        ignore_not_sysadmin: Validator,
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
@@ -426,7 +428,7 @@ def default_user_schema(
         'password': [user_password_validator, user_password_not_empty,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
-        'email': [not_empty, strip_value, email_validator, email_is_unique,
+        'email': [not_empty, strip_value, email_validator,
                   unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
