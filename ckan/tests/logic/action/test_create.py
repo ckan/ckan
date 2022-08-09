@@ -1975,12 +1975,12 @@ class TestPackagePluginData(object):
                 "key1": "value1"
             }
         }
-        plugin_extras_from_db = model.Session.execute(
+        plugin_data_from_db = model.Session.execute(
             'SELECT plugin_data FROM "package" WHERE id=:id',
             {'id': created_pkg["id"]}
         ).first()[0]
 
-        assert plugin_extras_from_db == {"plugin1": {"key1": "value1"}}
+        assert plugin_data_from_db == {"plugin1": {"key1": "value1"}}
 
     def test_ignored_on_create_if_non_sysadmin(self):
         user = factories.User()
@@ -2001,5 +2001,9 @@ class TestPackagePluginData(object):
             'package_create', context=context, **pkg_dict
         )
         assert "plugin_data" not in created_pkg
-        pkg = model.Package.get(created_pkg["id"])
-        assert pkg.plugin_data is None
+
+        plugin_daya_from_db = model.Session.execute(
+            'SELECT plugin_data FROM "package" WHERE id=:id',
+            {'id': created_pkg["id"]}
+        ).first()[0]
+        assert plugin_daya_from_db is None
