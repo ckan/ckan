@@ -156,7 +156,9 @@ def _execute(q: Select, table: Table, context: Context) -> Any:
     return result
 
 
-def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
+def package_dictize(
+    pkg: model.Package, context: Context, include_plugin_data: bool = False
+    ) -> dict[str, Any]:
     '''
     Given a Package object, returns an equivalent dictionary.
     '''
@@ -172,6 +174,11 @@ def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
     # strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
+    # plugin_data
+    plugin_data = result_dict.pop('plugin_data', None)
+    if include_plugin_data:
+        result_dict['plugin_data'] = copy.deepcopy(
+            plugin_data) if plugin_data else plugin_data
 
     # resources
     res = model.resource_table

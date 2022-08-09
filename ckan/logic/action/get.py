@@ -991,12 +991,23 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param include_tracking: add tracking information to dataset and
         resources (default: ``False``)
     :type include_tracking: bool
+    :param include_plugin_data: Include the internal plugin data object
+        (sysadmin only, optional, default:``False``)
+    :type: include_plugin_data: bool
     :rtype: dictionary
 
     '''
     model = context['model']
+    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+
+    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
+    if user_obj and user_obj.is_authenticated:
+        include_plugin_data = user_obj.sysadmin and include_plugin_data
+
+        if include_plugin_data:
+            context['use_cache'] = False
 
     pkg = model.Package.get(
         name_or_id,
@@ -1006,7 +1017,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         raise NotFound
 
     context['package'] = pkg
-
     _check_access('package_show', context, data_dict)
 
     if data_dict.get('use_default_schema', False):
@@ -1039,7 +1049,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict = model_dictize.package_dictize(
+            pkg, context, include_plugin_data
+        )
         package_dict_validated = False
 
     if include_tracking:
