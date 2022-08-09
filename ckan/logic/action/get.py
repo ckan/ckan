@@ -2547,29 +2547,11 @@ def package_activity_list(context, data_dict):
         raise logic.NotFound
 
     offset = int(data_dict.get('offset', 0))
-<<<<<<< HEAD
     limit = data_dict['limit']  # defaulted, limited & made an int by schema
 
     activity_objects = model.activity.package_activity_list(
         package.id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
-=======
-    limit = int(
-        data_dict.get(
-            'limit',
-            config.get('ckan.activity_list_limit', 31)
-        )
-    )
-
-    _activity_objects = model.activity.package_activity_list(
-        package.id,
-        limit=limit,
-        offset=offset
-    )
-    activity_objects = _filter_activity_by_user(
-        _activity_objects,
-        _activity_stream_get_filtered_users()
->>>>>>> canada-v2.8-backports-removed
     )
 
     return model_dictize.activity_list_dictize(
@@ -2670,19 +2652,10 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-<<<<<<< HEAD
     activity_objects = model.activity.organization_activity_list(
         org_id, limit=limit, offset=offset,
         include_hidden_activity=include_hidden_activity,
     )
-=======
-    activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
-    """
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
-    """
->>>>>>> canada-v2.8-backports-removed
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
@@ -2715,34 +2688,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     activity_objects = \
         model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-<<<<<<< HEAD
 
     return model_dictize.activity_list_dictize(
         activity_objects, context,
         include_data=data_dict['include_data'])
-=======
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
-
-    return model_dictize.activity_list_dictize(activity_objects, context)
-
-
-def activity_detail_list(context, data_dict):
-    '''Return an activity's list of activity detail items.
-
-    :param id: the id of the activity
-    :type id: string
-    :rtype: list of dictionaries.
-
-    '''
-    # FIXME: Filter out activities whose subject or object the user is not
-    # authorized to read.
-    model = context['model']
-    activity_id = _get_or_bust(data_dict, 'id')
-    activity_detail_objects = model.ActivityDetail.by_activity_id(activity_id)
-    return model_dictize.activity_detail_list_dictize(
-        activity_detail_objects, context)
->>>>>>> canada-v2.8-backports-removed
 
 
 def _follower_count(context, data_dict, default_schema, ModelClass):
