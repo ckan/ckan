@@ -15,7 +15,7 @@ from pyutilib.component.core import Interface as _pca_Interface
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model import User
+from ckan.model.user import User
 from ckan.exceptions import CkanDeprecationWarning
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
