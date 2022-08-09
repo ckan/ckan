@@ -16,4 +16,4 @@ jobs:
         run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
 
       - name: Check that changelog is updated
-        run: towncrier check
+        run: towncrier check >> $GITHUB_STEP_SUMMARY
