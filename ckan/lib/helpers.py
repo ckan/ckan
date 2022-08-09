@@ -258,29 +258,6 @@ def get_site_protocol_and_host():
     return (None, None)
 
 
-@core_helper
-def get_site_protocol_and_host():
-    '''Return the protocol and host of the configured `ckan.site_url`.
-    This is needed to generate valid, full-qualified URLs.
-
-    If `ckan.site_url` is set like this::
-
-        ckan.site_url = http://example.com
-
-    Then this function would return a tuple `('http', 'example.com')`
-    If the setting is missing, `(None, None)` is returned instead.
-
-    '''
-    site_url = config.get('ckan.site_url', None)
-    if site_url is not None:
-        parsed_url = urlparse.urlparse(site_url)
-        return (
-            parsed_url.scheme.encode('utf-8'),
-            parsed_url.netloc.encode('utf-8')
-        )
-    return (None, None)
-
-
 def _get_auto_flask_context():
     '''
     Provides a Flask test request context if we are outside the context
