@@ -203,4 +203,6 @@ forms
 
 ::
 
+    {% import 'macros/form.html' as form %}
+    ...
     {{ form.csrf_protection() }}

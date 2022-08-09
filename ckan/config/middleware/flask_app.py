@@ -66,12 +66,9 @@ csrf = CSRFProtect()
 csrf_warn_extensions = (
         "Extensions are excluded from CSRF protection! "
         "We allow extensions to run without CSRF protection "
-        "but will be forced in the future. "
-        "To be able to use CSRF protection you would need to "
-        "set ckan.csrf_protection.ignore_extensions=False in your .ini file "
-        "and to set the csrf_token in your forms. "
-        "e.g {% import 'macros/form.html' as form %} "
-        "then you can use it like: {{ form.csrf_protection() }}"
+        "but it will be forced future releases. "
+        "Read the documentation for more information on how to add "
+        "CSRF protection to your extension."
     )
 
 
@@ -366,30 +363,6 @@ def set_remote_user_as_current_user_for_tests():
             session["_user_id"] = userobj.id
 
 
-# def add_csrf_token_to_session():
-#     from itsdangerous import URLSafeTimedSerializer
-
-#     login_blueprint = "user.login"
-#     register_blueprint = "user.register"
-#     is_login_form = request.endpoint == login_blueprint
-#     is_register_form = request.endpoint == register_blueprint
-
-#     # WTF_CSRF_FIELD_NAME//TIME_LIMIT// are set by flask_wtf
-#     field_name = config.get_value("WTF_CSRF_FIELD_NAME")
-#     time_limit = config.get_value("WTF_CSRF_TIME_LIMIT")
-#     # If this is not set then CKAN's SECRET_KEY is used.
-#     secret_key = config.get_value("WTF_CSRF_SECRET_KEY")
-
-#     if not session.get(field_name) and (is_login_form or is_register_form):
-#         secret_key = secret_key
-#         token = request.form.get(field_name)
-#         salt = "wtf-csrf-token"
-#         s = URLSafeTimedSerializer(secret_key, salt)
-#         if token:
-#             token_key = s.loads(token, max_age=time_limit)
-#             session[field_name] = token_key
-
-
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -402,8 +375,6 @@ def ckan_before_request() -> Optional[Response]:
     response = None
 
     g.__timer = time.time()
-
-    # add_csrf_token_to_session()
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
