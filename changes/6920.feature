@@ -1,0 +1,1 @@
+Added CSRF protection for all the forms. Read the documentation for more information.
