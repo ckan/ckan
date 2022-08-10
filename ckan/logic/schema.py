@@ -342,6 +342,7 @@ def default_show_group_schema(
     schema['display_name'] = []
     schema['extras'] = cast(Schema, {'__extras': [keep_extras]})
     schema['package_count'] = [ignore_missing]
+    schema['member_count'] = [ignore_missing]
     schema['packages'] = cast(Schema, {'__extras': [keep_extras]})
     schema['state'] = []
     schema['users'] = cast(Schema, {'__extras': [keep_extras]})

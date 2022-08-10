@@ -1976,7 +1976,10 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False,
+                    include_dataset_count: bool = False,
+                    include_member_count: bool = False,
+                    current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1986,16 +1989,23 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
     :type am-member: bool
 
     '''
-    context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    if type(current_user) is dict:
+        user = current_user['name']
+    else:
+        user = current_user.name
+    context: Context = {'user': user }
+    data_dict = {'available_only': True,
+                'am_member': am_member,
+                'include_dataset_count': include_dataset_count,
+                'include_member_count': include_member_count}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
                             include_dataset_count: bool = False,
-                            current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user,
-                            org_type: bool = True) -> list[dict[str, Any]]:
+                            include_member_count: bool = False,
+                            current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
@@ -2006,11 +2016,24 @@ def organizations_available(permission: str = 'manage_group',
     context: Context = {'user': user }
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
-    return logic.get_action('organization_list_for_user')(context, data_dict, org_type=org_type)
+        'include_dataset_count': include_dataset_count,
+        'include_member_count': include_member_count}
+    return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
-#TODO: add helper to get group member count from logic.get_action('member_list')(context, data_dict)
+@core_helper
+def member_count(group: ckan.model.Group | dict) -> int:
+    '''Return the number of members belonging to the group'''
+    if type(group) is dict:
+        group = group['id']
+    else:
+        group = group.id
+    context: Context = {}
+    data_dict = {
+        u'id': group,
+        u'object_type': u'user'
+    }
+    return len(logic.get_action(u'member_list')(context, data_dict))
 
 
 @core_helper

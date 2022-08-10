@@ -45,6 +45,7 @@ def group_list_dictize(
         context: Context,
         sort_key: Callable[..., Any]=lambda x: x['display_name'], reverse: bool=False,
         with_package_counts: bool=True,
+        with_member_counts: bool=True,
         include_groups: bool=False,
         include_tags: bool=False,
         include_extras: bool=False) -> list[dict[str, Any]]:
@@ -68,12 +69,12 @@ def group_list_dictize(
         group_list = [
             group_dictize(
                 group, group_dictize_context,
-                capacity=capacity, **group_dictize_options)
+                capacity=capacity, include_member_count=with_member_counts, **group_dictize_options)
             for group, capacity
             in cast("list[tuple[model.Group, str]]", obj_list)]
     else:
         group_list = [
-            group_dictize(group, group_dictize_context,
+            group_dictize(group, group_dictize_context, include_member_count=with_member_counts,
                           **group_dictize_options)
             for group in cast("list[model.Group]", obj_list)]
 
@@ -325,6 +326,7 @@ def group_dictize(group: model.Group, context: Context,
                   include_tags: bool=True,
                   include_users: bool=True,
                   include_extras: bool=True,
+                  include_member_count: bool=False,
                   packages_field: Optional[str]='datasets',
                   **kw: Any) -> dict[str, Any]:
     '''
@@ -424,6 +426,9 @@ def group_dictize(group: model.Group, context: Context,
         result_dict['users'] = user_list_dictize(
             _get_members(context, group, 'users'),
             context)
+
+    if include_member_count:
+        result_dict['member_count'] = len(_get_members(context, group, 'users'))
 
     context['with_capacity'] = False
 

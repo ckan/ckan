@@ -6,12 +6,13 @@
 {% set group_type = h.default_group_type('group') %}
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
+  include_member_count=True,
   current_user=user)
 %}
-{% set groups_available = h.organizations_available(permission='manage_group',
+{% set groups_available = h.groups_available(am_member=True,
   include_dataset_count=True,
-  current_user=user,
-  org_type=False)
+  include_member_count=True,
+  current_user=user)
 %}
 
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}

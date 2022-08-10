@@ -1,6 +1,5 @@
 {% extends "page.html" %}
 {% set dataset_type = h.default_package_type() %}
-{% set group_member_count = member_count %}
 
 {% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
@@ -22,7 +21,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet "group/snippets/info.html", group=group_dict, show_nums=true, group_member_count=group_member_count %}
+  {% snippet "group/snippets/info.html", group=group_dict, show_nums=true %}
 {% endblock %}
 
 {% block links %}
