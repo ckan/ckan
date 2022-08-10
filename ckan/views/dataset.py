@@ -325,6 +325,7 @@ def search(package_type):
             items_per_page=limit
         )
         extra_vars[u'search_facets'] = query[u'search_facets']
+        extra_vars[u'facet_ranges'] = query[u'facet_ranges']
         extra_vars[u'page'].items = query[u'results']
     except SearchQueryError as se:
         # User's search parameters are invalid, in such a way that is not
