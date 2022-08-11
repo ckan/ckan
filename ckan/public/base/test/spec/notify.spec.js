@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.notify()', function () {
+describe.skip('ckan.notify()', function () {
   beforeEach(function () {
     this.element = jQuery('<div />');
     this.fixture.append(this.element);

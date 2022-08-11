@@ -188,6 +188,9 @@ this.ckan.module('resource-upload-field', function (jQuery) {
     _onUploadAdd: function (event, data) {
       this.uploading(true);
       if (data.files && data.files.length) {
+        for (var i = 0; i < data.files.length; i++) {
+          data.files[i].name = data.files[i].name.split('/').pop();
+        }
         var key = this.generateKey(data.files[0].name);
 
         this.authenticate(key, data);

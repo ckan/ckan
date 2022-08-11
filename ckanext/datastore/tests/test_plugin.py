@@ -88,7 +88,7 @@ class TestPluginDatastoreSearch(object):
         expected_ts_query = ', plainto_tsquery(\'french\', \'foo\') "query"'
         data_dict = {
             'q': 'foo',
-            'lang': 'french',
+            'language': 'french',
         }
 
         result = self._datastore_search(data_dict=data_dict)
@@ -99,7 +99,7 @@ class TestPluginDatastoreSearch(object):
         expected_select_content = u'to_tsvector(\'french\', cast("country" as text))'
         data_dict = {
             'q': {'country': 'Brazil'},
-            'lang': 'french',
+            'language': 'french',
         }
 
         result = self._datastore_search(data_dict=data_dict)
@@ -163,7 +163,7 @@ class TestPluginDatastoreSearch(object):
                            u' @@ "query country"',)]
         data_dict = {
             'q': {'country': 'Brazil'},
-            'lang': 'french',
+            'language': 'french',
         }
         fields_types = {
             'country': 'text',
@@ -182,7 +182,7 @@ class TestPluginDatastoreSearch(object):
                            u' @@ "query country"',)]
         data_dict = {
             'q': {'country': 'Brazil'},
-            'lang': 'english',
+            'language': 'english',
         }
         fields_types = {
             'country': 'non-indexed field type',

@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.modules.ResourceUploadFieldModule()', function () {
+describe.skip('ckan.modules.ResourceUploadFieldModule()', function () {
   var ResourceFileUploadModule = ckan.module.registry['resource-upload-field'];
 
   beforeEach(function () {

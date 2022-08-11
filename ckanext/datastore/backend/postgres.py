@@ -72,6 +72,11 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
+)
+
+
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
 else:
@@ -305,9 +310,12 @@ def _cache_types(connection):
             # redo cache types with json now available.
             return _cache_types(connection)
 
-        psycopg2.extras.register_composite('nested',
-                                           connection.connection,
-                                           True)
+        try:
+            psycopg2.extras.register_composite(
+                'nested', connection.connection.connection, True)
+        except AttributeError:
+            psycopg2.extras.register_composite(
+                'nested', connection.connection, True)
 
 
 def _pg_version_is_at_least(connection, version):
@@ -420,7 +428,7 @@ def _where_clauses(data_dict, fields_types):
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
         elif isinstance(q, dict):
-            lang = _fts_lang(data_dict.get('lang'))
+            lang = _fts_lang(data_dict.get('language'))
             for field, value in q.iteritems():
                 if field not in fields_types:
                     continue
@@ -601,7 +609,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
-    fts_lang = data_dict.get('lang', default_fts_lang)
+    fts_lang = data_dict.get('language', default_fts_lang)
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -1271,6 +1279,9 @@ def search_data(context, data_dict):
     else:
         distinct = ''
 
+    if not sort and not distinct:
+        sort = ['_id']
+
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
@@ -1290,9 +1301,9 @@ def search_data(context, data_dict):
         ).replace('%', '%%')
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
-                SELECT '[' || {select} || ']' v
+                SELECT {distinct} '[' || {select} || ']' v
                 FROM (
-                    SELECT {distinct} * FROM "{resource}" {ts_query}
+                    SELECT * FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}) as z
             ) AS j'''
     elif records_format == u'csv':
@@ -1343,9 +1354,11 @@ def search_data(context, data_dict):
     _insert_links(data_dict, limit, offset)
 
     if data_dict.get('include_total', True):
-        count_sql_string = u'''SELECT {distinct} count(*)
-            FROM "{resource}" {ts_query} {where};'''.format(
+        count_sql_string = u'''SELECT count(*) FROM (
+            SELECT {distinct} {select}
+            FROM "{resource}" {ts_query} {where}) as t;'''.format(
             distinct=distinct,
+            select=select_columns,
             resource=resource_id,
             ts_query=ts_query,
             where=where_clause)
@@ -1542,14 +1555,27 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        get_names = datastore_helpers.get_table_and_function_names_from_sql
+        table_names, function_names = get_names(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(
+            function_names))
 
         system_tables = [t for t in table_names if t.startswith('pg_')]
         if len(system_tables):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+
+        for f in function_names:
+            for name_variant in [f.lower(), '"{}"'.format(f)]:
+                if name_variant in backend.allowed_sql_functions:
+                    break
+            else:
+                raise toolkit.NotAuthorized({
+                    'permissions': [
+                        'Not authorized to call function {}'.format(f)]
+                })
 
         results = context['connection'].execute(sql)
 
@@ -1729,6 +1755,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # Check whether users have disabled datastore_search_sql
         self.enable_sql_search = toolkit.asbool(
             self.config.get('ckan.datastore.sqlsearch.enabled', True))
+
+        if self.enable_sql_search:
+            allowed_sql_functions_file = self.config.get(
+                'ckan.datastore.sqlsearch.allowed_functions_file',
+                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            )
+
+            def format_entry(line):
+                '''Prepare an entry from the 'allowed_functions' file
+                to be used in the whitelist.
+
+                Leading and trailing whitespace is removed, and the
+                entry is lowercased unless enclosed in "double quotes".
+                '''
+                entry = line.strip()
+                if not entry.startswith('"'):
+                    entry = entry.lower()
+                return entry
+
+            with open(allowed_sql_functions_file, 'r') as f:
+                self.allowed_sql_functions = set(format_entry(line)
+                                                 for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.

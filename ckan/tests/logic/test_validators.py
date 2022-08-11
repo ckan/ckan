@@ -315,7 +315,9 @@ class TestValidators(object):
              'format': df.Missing},
             {'url': 'http://fakedomain/my.pdf', 'format': 'pdf'},
             {'url': 'http://fakedomain/my.pdf',
-             'id': 'fake_resource_id', 'format': ''}
+             'id': 'fake_resource_id', 'format': ''},
+            {"url": "http://example.com", "format": ""},
+            {"url": "my.csv", "format": ""},
         ]}
         data = df.flatten_dict(data)
 
@@ -342,6 +344,16 @@ class TestValidators(object):
         call_validator(key=('resources', 3, 'format'), data=new_data,
                        errors={}, context={})
         assert new_data[('resources', 3, 'format')] == ''
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 4, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 4, 'format')] == ''
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 5, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 5, 'format')] == 'text/csv'
 
     def test_clean_format(self):
         format = validators.clean_format('csv')
@@ -583,5 +595,59 @@ class TestExistsValidator(helpers.FunctionalTestBase):
     def test_role_exists_empty(self):
         ctx = self._make_context()
         v = validators.role_exists('', ctx)
+
+
+class TestPasswordValidator(object):
+
+    def test_ok(self):
+        passwords = ['MyPassword1', 'my1Password', '1PasswordMY']
+        key = ('password',)
+
+        @t.does_not_modify_errors_dict
+        def call_validator(*args, **kwargs):
+            return validators.user_password_validator(*args, **kwargs)
+        for password in passwords:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: password}, errors, None)
+
+    def test_too_short(self):
+        password = 'MyP'
+        key = ('password',)
+
+        @adds_message_to_errors_dict('Your password must be 4 characters or '
+                                     'longer')
+        def call_validator(*args, **kwargs):
+            return validators.user_password_validator(*args, **kwargs)
+        errors = factories.validator_errors_dict()
+        errors[key] = []
+        call_validator(key, {key: password}, errors, None)
+
+
+class TestUrlValidator(object):
+
+    def test_ok(self):
+        urls = ['http://example.com', 'https://example.com', 'https://example.com/path?test=1&key=2']
+        key = ('url',)
+
+        @t.does_not_modify_errors_dict
+        def call_validator(*args, **kwargs):
+            return validators.url_validator(*args, **kwargs)
+        for url in urls:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: url}, errors, None)
+
+    def test_invalid(self):
+        urls = ['ftp://example.com', 'test123', 'https://example.com]']
+        key = ('url',)
+
+        @adds_message_to_errors_dict('Please provide a valid URL')
+        def call_validator(*args, **kwargs):
+            return validators.url_validator(*args, **kwargs)
+        for url in urls:
+            errors = factories.validator_errors_dict()
+            errors[key] = []
+            call_validator(key, {key: url}, errors, None)
 
 # TODO: Need to test when you are not providing owner_org and the validator queries for the dataset with package_show

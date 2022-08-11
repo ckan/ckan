@@ -177,6 +177,9 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
     if asbool(config.get('ckan.page_cache_enabled')):
         app = common_middleware.PageCacheMiddleware(app, config)
 
+    # Prevent the host from request to be added to the new header location.
+    app = common_middleware.HostHeaderMiddleware(app)
+
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = common_middleware.TrackingMiddleware(app, config)

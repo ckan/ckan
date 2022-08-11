@@ -8,6 +8,10 @@ import copy
 import nose.tools
 
 import ckan.tests.factories as factories
+import ckan.lib.navl.validators as validators
+
+
+eq_ = nose.tools.eq_
 
 
 def returns_None(function):
@@ -222,7 +226,6 @@ class TestValidators(object):
 
         '''
         import ckan.lib.navl.dictization_functions as df
-        import ckan.lib.navl.validators as validators
 
         for value in (None, df.missing, 'skip'):
 
@@ -251,8 +254,6 @@ class TestValidators(object):
         nothing.
 
         '''
-        import ckan.lib.navl.validators as validators
-
         key = ('key to be validated',)
         data = factories.validator_data_dict()
         data[key] = 'value to be validated'
@@ -265,3 +266,32 @@ class TestValidators(object):
         def call_validator(*args, **kwargs):
             return validators.ignore_missing(*args, **kwargs)
         call_validator(key=key, data=data, errors=errors, context={})
+
+
+class TestDefault(object):
+    def test_key_doesnt_exist(self):
+        dict_ = {}
+        validators.default('default_value')('key', dict_, {}, {})
+        eq_(dict_, {'key': 'default_value'})
+
+    def test_value_is_none(self):
+        dict_ = {'key': None}
+        validators.default('default_value')('key', dict_, {}, {})
+        eq_(dict_, {'key': 'default_value'})
+
+    def test_value_is_empty_string(self):
+        dict_ = {'key': ''}
+        validators.default('default_value')('key', dict_, {}, {})
+        eq_(dict_, {'key': 'default_value'})
+
+    def test_value_is_false(self):
+        # False is a consciously set value, so should not be changed to the
+        # default
+        dict_ = {'key': False}
+        validators.default('default_value')('key', dict_, {}, {})
+        eq_(dict_, {'key': False})
+
+    def test_already_has_a_value(self):
+        dict_ = {'key': 'original'}
+        validators.default('default_value')('key', dict_, {}, {})
+        eq_(dict_, {'key': 'original'})

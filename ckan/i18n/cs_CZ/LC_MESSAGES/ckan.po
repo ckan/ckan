@@ -3,21 +3,25 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 # 
+# Translators:
+# Jakub Klímek <klimek@ksi.mff.cuni.cz>, 2018
+# Adrià Mercader <adria.mercader@okfn.org>, 2018
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.7.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Jakub Klímek <klimek@ksi.mff.cuni.cz>, 2017\n"
+"PO-Revision-Date: 2017-06-21 12:27+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
 "Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
 "Language: cs_CZ\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -383,6 +387,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} dataset"
 msgstr[1] "{num} datasety"
 msgstr[2] "{num} datových sad"
+msgstr[3] "{num} datových sad"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -1462,6 +1467,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "{n} nová aktivita z {site_title}"
 msgstr[1] "{n} nové aktivity z {site_title}"
 msgstr[2] "{n} nových aktivit z {site_title}"
+msgstr[3] "{n} nových aktivit z {site_title}"
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -1521,6 +1527,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "před {mins} minutou"
 msgstr[1] "před {mins} minutami"
 msgstr[2] "před {mins} minutami"
+msgstr[3] "před {mins} minutami"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
@@ -1528,6 +1535,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "před {hours} hodinou"
 msgstr[1] "před {hours} hodinami"
 msgstr[2] "před {hours} hodinami"
+msgstr[3] "před {hours} hodinami"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
@@ -1535,6 +1543,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "před {days} dnem"
 msgstr[1] "před {days} dny"
 msgstr[2] "před {days} dny"
+msgstr[3] "před {days} dny"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
@@ -1542,6 +1551,7 @@ msgid_plural "{months} months ago"
 msgstr[0] "před {months} měsícem"
 msgstr[1] "před {months} měsíci"
 msgstr[2] "před {months} měsíci"
+msgstr[3] "před {months} měsíci"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
@@ -1549,6 +1559,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] "před více než {years} rokem"
 msgstr[1] "před více než {years} roky"
 msgstr[2] "před více než {years} roky"
+msgstr[3] "před více než {years} roky"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1644,6 +1655,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} shlédnutí"
 msgstr[1] "{number} shlédnutí"
 msgstr[2] "{number} shlédnutí"
+msgstr[3] "{number} shlédnutí"
 
 #: ckan/lib/helpers.py:1650
 msgid "{number} recent view"
@@ -1651,6 +1663,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} nedávné shlédnutí"
 msgstr[1] "{number} nedávné shlédnutí"
 msgstr[2] "{number} nedávných shlédnutí"
+msgstr[3] "{number} nedávných shlédnutí"
 
 #: ckan/lib/mailer.py:39
 #, python-format
@@ -2434,6 +2447,7 @@ msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Vstup je příliš krátky, musí mít alespoň jeden znak"
 msgstr[1] "Vstup je příliš krátky, musí mít alespoň %(num)d znaky"
 msgstr[2] "Vstup je příliš krátky, musí mít alespoň %(num)d znaků"
+msgstr[3] "Vstup je příliš krátky, musí mít alespoň %(num)d znaků"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2626,6 +2640,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Přehled (%(num)d nová položka)"
 msgstr[1] "Přehled (%(num)d nové položky)"
 msgstr[2] "Přehled (%(num)d nových položek)"
+msgstr[3] "Přehled (%(num)d nových položek)"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -3451,6 +3466,7 @@ msgid_plural "{count} members"
 msgstr[0] "{count} člen"
 msgstr[1] "{count} členové"
 msgstr[2] "{count} členů"
+msgstr[3] "{count} členů"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -4316,6 +4332,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} dataset nalezen na dotaz \"{query}\""
 msgstr[1] "{number} datasety nalezeny na dotaz \"{query}\""
 msgstr[2] "{number} datasetů nalezeno na dotaz \"{query}\""
+msgstr[3] "{number} datasetů nalezeno na dotaz \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4327,6 +4344,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] "{number} dataset nalezen"
 msgstr[1] "{number} datasety nalezeny"
 msgstr[2] "{number} datových sad nalezeno"
+msgstr[3] "{number} datových sad nalezeno"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4338,6 +4356,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} nalezena na dotaz \"{query}\""
 msgstr[1] "{number} nalezeny na dotaz \"{query}\""
 msgstr[2] "{number} skupin nalezeno na dotaz \"{query}\""
+msgstr[3] "{number} skupin nalezeno na dotaz \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4349,6 +4368,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "{number} skupina nalezena"
 msgstr[1] "{number} skupiny nalezeny"
 msgstr[2] "{number} skupin nalezeno"
+msgstr[3] "{number} skupin nalezeno"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4360,6 +4380,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} organizace nalezena na dotaz \"{query}\""
 msgstr[1] "{number} organizace nalezeny na dotaz \"{query}\""
 msgstr[2] "{number} organizací nalezeno na dotaz \"{query}\""
+msgstr[3] "{number} organizací nalezeno na dotaz \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4371,6 +4392,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] "{number} organizace nalezena"
 msgstr[1] "{number} organizace nalezeny"
 msgstr[2] "{number} organizací nalezeno"
+msgstr[3] "{number} organizací nalezeno"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"

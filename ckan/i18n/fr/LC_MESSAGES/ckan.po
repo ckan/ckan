@@ -3,17 +3,23 @@
 # This file is distributed under the same license as the ckan project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 # 
+# Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2017
+# Steve King <steve.king@kimepe.com>, 2017
+# Mayeul Kauffmann, 2018
+# fvanderbiest <francois.vanderbiest@free.fr>, 2019
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.7.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2017-06-21 15:47+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Steve King <steve.king@kimepe.com>, 2017\n"
+"PO-Revision-Date: 2017-06-21 12:27+0000\n"
+"Last-Translator: fvanderbiest <francois.vanderbiest@free.fr>, 2019\n"
 "Language-Team: French (https://www.transifex.com/okfn/teams/11162/fr/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
 "Language: fr\n"
@@ -2455,8 +2461,8 @@ msgstr "Aucune correspondance trouvée"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Saisie trop courte, au moins un caractère est nécessaire"
+msgstr[1] "Saisie trop courte, au moins %(num)d caractères sont nécessaires"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
@@ -2860,7 +2866,7 @@ msgstr "Medium"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr "Entrée ayant la largeur du medium"
+msgstr "Entrée ayant un longueur moyenne"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
@@ -3495,7 +3501,7 @@ msgstr "Mise à jour de l'Organisation"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr "Créer une Orgaisation"
+msgstr "Créer une Organisation"
 
 #: ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16

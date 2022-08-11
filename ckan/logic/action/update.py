@@ -7,6 +7,7 @@ import datetime
 import time
 import json
 import mimetypes
+import os
 
 from ckan.common import config
 import paste.deploy.converters as converters
@@ -115,7 +116,7 @@ def resource_update(context, data_dict):
         context.pop('defer_commit')
     except ValidationError, e:
         try:
-            raise ValidationError(e.error_dict['resources'][-1])
+            raise ValidationError(e.error_dict['resources'][n])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
 
@@ -485,7 +486,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.get_uploader('group', group.image_url)
+    upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
 
@@ -522,8 +523,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    group = model_save.group_dict_save(data, context,
-        prevent_packages_update=is_org)
+    contains_packages = 'packages' in data_dict
+
+    group = model_save.group_dict_save(
+        data, context,
+        prevent_packages_update=is_org or not contains_packages
+    )
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -644,7 +649,7 @@ def user_update(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
+    user = author = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
     id = _get_or_bust(data_dict, 'id')
@@ -674,7 +679,7 @@ def user_update(context, data_dict):
             }
     activity_create_context = {
         'model': model,
-        'user': user,
+        'user': author,
         'defer_commit': True,
         'ignore_auth': True,
         'session': session
@@ -751,7 +756,6 @@ def task_status_update(context, data_dict):
     session = model.meta.create_local_session()
     context['session'] = session
 
-    user = context['user']
     id = data_dict.get("id")
     schema = context.get('schema') or schema_.default_task_status_schema()
 
@@ -1273,8 +1277,11 @@ def config_option_update(context, data_dict):
     for key, value in data.iteritems():
 
         # Set full Logo url
-        if key =='ckan.site_logo' and value and not value.startswith('http'):
-            value = h.url_for_static('uploads/admin/{0}'.format(value))
+        if key == 'ckan.site_logo' and value and not value.startswith('http')\
+                and not value.startswith('/'):
+            image_path = 'uploads/admin/'
+
+            value = h.url_for_static('{0}{1}'.format(image_path, value))
 
         # Save value in database
         model.set_system_info(key, value)
