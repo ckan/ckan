@@ -18,6 +18,7 @@ and here, we are importing them all to maintain backward compatibility.
 {% from "macros/form/hidden_from_list.html" import hidden_from_list %}
 {% from "macros/form/required_message.html" import required_message %}
 {% from "macros/form/image_upload.html" import image_upload %}
+{% from "macros/form/csrf_token.html" import csrf_protection %}
 
 {% set input = input %}
 {% set input_block = input_block %}
@@ -34,3 +35,4 @@ and here, we are importing them all to maintain backward compatibility.
 {% set hidden_from_list = hidden_from_list %}
 {% set required_message = required_message %}
 {% set image_upload = image_upload %}
+{% set csrf_protection = csrf_protection %}
