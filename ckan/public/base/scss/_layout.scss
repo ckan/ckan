@@ -86,6 +86,23 @@
         border-width: 0;
         @include box-shadow(0);
         @include border-radius(0);
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-box-align: start;
+        -moz-box-align: start;
+        -webkit-align-items: flex-start;
+        align-items: flex-start;
+    }
+    .main .secondary {
+        -webkit-box-ordinal-group: 2;
+        -moz-box-ordinal-group: 2;
+        -webkit-order: 2;
+        order: 2;
     }
     .js .main .secondary .filters {
         display: none;
