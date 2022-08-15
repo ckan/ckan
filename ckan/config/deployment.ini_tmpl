@@ -10,6 +10,13 @@
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #
+
+[DEFAULT]
+
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PUBLIC ENVIRONMENT*
+# With debug mode enabled, a visitor to your site could execute malicious commands.
+debug = false
+
 [app:main]
 $declaration
 ## Logging configuration
