@@ -30,6 +30,7 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from ckan.common import CKANConfig, asbool, session
 
 import ckan.model as model
@@ -59,6 +60,16 @@ from ckan.views import (identify_user,
 from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
+
+csrf = CSRFProtect()
+
+csrf_warn_extensions = (
+        "Extensions are excluded from CSRF protection! "
+        "We allow extensions to run without CSRF protection "
+        "but it will be forced future releases. "
+        "Read the documentation for more information on how to add "
+        "CSRF protection to your extension."
+    )
 
 
 class I18nMiddleware(object):
@@ -260,12 +271,24 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_core_blueprints(app)
     _register_error_handler(app)
 
+    # CSRF
+    app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
+    csrf.init_app(app)
+    log.warn(csrf_warn_extensions)
+
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()
-        if not isinstance(plugin_blueprints, list):
-            plugin_blueprints = [plugin_blueprints]
-        for blueprint in plugin_blueprints:
+        # plugin_blueprints must not send as list in csrf.exempt
+        if isinstance(plugin_blueprints, list):
+            plugin_blueprints = plugin_blueprints[0]
+        # we need to exempt CKAN extensions till they are ready
+        # to implement the csrf_token to their forms, otherwise
+        # they will get 400 Bad Request: The CSRF token is missing.
+        if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
+            csrf.exempt(plugin_blueprints)
+        # register extensions blueprints
+        for blueprint in [plugin_blueprints]:
             app.register_extension_blueprint(blueprint)
 
     lib_plugins.register_package_blueprints(app)
@@ -379,6 +402,9 @@ def ckan_before_request() -> Optional[Response]:
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Set the csrf_field_name so we can use it in our templates
+    g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions

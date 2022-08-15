@@ -155,6 +155,24 @@ class ValidationError(ActionError):
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 
+def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
+    '''
+    Checks and delete, if the csrf_token is in "parsed".
+    We don't want the csrf_token to be a part of a data_dict
+    as it will expose the token to the metadata.
+    This way we are deleting the token from every data_dict that fills
+    from request.form instead of deleting it separately in every
+    view/blueprint.
+    '''
+    from ckan.common import config
+
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    if csrf_token in parsed:
+        parsed.pop(csrf_token)
+    return parsed
+
+
 def parse_params(
     params: 'MultiDict[str, Any]',
     ignore_keys: Optional['Container[str]'] = None
@@ -181,6 +199,8 @@ def parse_params(
         if len(value) == 1:
             value = value[0]
         parsed[key] = value
+
+    parsed = checks_and_delete_if_csrf_token_in_forms(parsed)
     return parsed
 
 
