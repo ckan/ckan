@@ -9,7 +9,7 @@ from typing import Optional
 import click
 from werkzeug.serving import run_simple
 
-from ckan.common import config
+from ckan.common import config, asbool
 from . import error_shout
 
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         processes: int, ssl_cert: Optional[str], ssl_key: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
-    if config.get_value("debug"):
+    if asbool(config.get("debug")):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
 
     # passthrough_errors overrides conflicting options

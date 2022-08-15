@@ -563,7 +563,7 @@ def _register_error_handler(app: CKANApp):
     def error_handler(e: Exception) -> Union[
         tuple[str, Optional[int]], Optional[Response]
     ]:
-        debug = config.get_value('debug')
+        debug = asbool(config.get('debug'))
         if isinstance(e, HTTPException):
             # If the current_user.is_anonymous and the
             # Exception code is 401(Unauthorized)/403(Forbidden)

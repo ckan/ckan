@@ -20,7 +20,7 @@ from flask import (
 import ckan.lib.helpers as h
 import ckan.plugins as p
 
-from ckan.common import request, config, session, g
+from ckan.common import request, config, session, g, asbool
 
 log = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def render_snippet(*template_names: str, **kw: Any) -> str:
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.get_value('debug'):
+            if asbool(config.get('debug')):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))

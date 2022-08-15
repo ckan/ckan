@@ -38,7 +38,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 
 import ckan.plugins as plugins
-from ckan.common import CKANConfig, config
+from ckan.common import CKANConfig, config, asbool
 
 from ckanext.datastore.backend import (
     DatastoreBackend,
@@ -1741,7 +1741,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message: str):
-        if self.config.get_value('debug'):
+        if asbool(self.config.get('debug')):
             log.critical(message)
         else:
             raise DatastoreException(message)
