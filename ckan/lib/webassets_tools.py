@@ -11,7 +11,7 @@ from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
-from ckan.common import config, g
+from ckan.common import config, g, asbool
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def webassets_init() -> None:
 
     env = Environment()
     env.directory = static_path
-    env.debug = config.get_value(u'debug')
+    env.debug = asbool(config.get('debug'))
     env.url = u'/webassets/'
 
     add_public_path(base_path, u'/base/')
