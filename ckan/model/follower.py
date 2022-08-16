@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import datetime as _datetime
-from typing import Generic, Optional, Type, TypeVar, Any
+from typing import Generic, Optional, Type, TypeVar
 
 import sqlalchemy
+from typing_extensions import Self
 
 import ckan.model
 import ckan.model.meta as meta
@@ -18,7 +19,6 @@ Follower = TypeVar("Follower", bound='ckan.model.User')
 Followed = TypeVar(
     "Followed", 'ckan.model.User', 'ckan.model.Package', 'ckan.model.Group')
 
-T = TypeVar('T', bound='ModelFollowingModel[Any, Any]')
 
 class ModelFollowingModel(domain_object.DomainObject,
                           Generic[Follower, Followed]):
@@ -32,17 +32,17 @@ class ModelFollowingModel(domain_object.DomainObject,
         self.datetime = _datetime.datetime.utcnow()
 
     @classmethod
-    def _follower_class(cls: Type[T]) -> Type[Follower]:
+    def _follower_class(cls) -> Type[Follower]:
         raise NotImplementedError()
 
     @classmethod
-    def _object_class(cls: Type[T]) -> Type[Followed]:
+    def _object_class(cls) -> Type[Followed]:
         raise NotImplementedError()
 
     @classmethod
     def get(
-            cls: Type[T], follower_id: Optional[str],
-            object_id: Optional[str]) -> Optional[T]:
+            cls, follower_id: Optional[str],
+            object_id: Optional[str]) -> Optional[Self]:
         '''Return a ModelFollowingModel object for the given follower_id and
         object_id, or None if no such follower exists.
 
@@ -68,7 +68,7 @@ class ModelFollowingModel(domain_object.DomainObject,
         return cls._get_followees(follower_id).count()
 
     @classmethod
-    def followee_list(cls: Type[T], follower_id: Optional[str]) -> list[T]:
+    def followee_list(cls, follower_id: Optional[str]) -> list[Self]:
         '''Return a list of objects followed by the follower.'''
         query = cls._get_followees(follower_id)
         followees = cls._filter_following_objects(query)
@@ -80,7 +80,7 @@ class ModelFollowingModel(domain_object.DomainObject,
         return cls._get_followers(object_id).count()
 
     @classmethod
-    def follower_list(cls: Type[T], object_id: Optional[str]) -> list[T]:
+    def follower_list(cls, object_id: Optional[str]) -> list[Self]:
         '''Return a list of followers of the object.'''
         query = cls._get_followers(object_id)
         followers = cls._filter_following_objects(query)
@@ -88,34 +88,35 @@ class ModelFollowingModel(domain_object.DomainObject,
 
     @classmethod
     def _filter_following_objects(
-            cls: Type[T],
-            query: 'Query[tuple[T, Follower, Followed]]') -> list[T]:
+            cls,
+            query: Query[tuple[Self, Follower, Followed]]) -> list[Self]:
         return [q[0] for q in query]
 
     @classmethod
     def _get_followees(
-            cls: Type[T], follower_id: Optional[str]
-    ) -> 'Query[tuple[T, Follower, Followed]]':
+            cls, follower_id: Optional[str]
+    ) -> Query[tuple[Self, Follower, Followed]]:
         return cls._get(follower_id)
 
     @classmethod
     def _get_followers(
-            cls: Type[T],
-            object_id: Optional[str]) -> 'Query[tuple[T, Follower, Followed]]':
+            cls,
+            object_id: Optional[str]) -> Query[tuple[Self, Follower, Followed]]:
         return cls._get(None, object_id)
 
     @classmethod
     def _get(
-            cls: Type[T], follower_id: Optional[str] = None,
+            cls, 
+            follower_id: Optional[str] = None,
             object_id: Optional[str] = None
-    ) -> 'Query[tuple[T, Follower, Followed]]':
+    ) -> Query[tuple[Self, Follower, Followed]]:
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())
         object_alias = sqlalchemy.orm.aliased(cls._object_class())
 
         follower_id = follower_id or cls.follower_id
         object_id = object_id or cls.object_id
 
-        query: 'Query[tuple[T, Follower, Followed]]' = meta.Session.query(
+        query: Query[tuple[Self, Follower, Followed]] = meta.Session.query(
             cls, follower_alias, object_alias)\
             .filter(sqlalchemy.and_(
                 follower_alias.id == follower_id,

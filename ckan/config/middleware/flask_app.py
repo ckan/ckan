@@ -10,33 +10,36 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Iterable, Optional, Union, cast, Dict
 
 from flask import Blueprint, send_from_directory
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
 
-import webob
-
-from werkzeug.exceptions import default_exceptions, HTTPException
+from werkzeug.exceptions import (
+    default_exceptions,
+    HTTPException,
+    Unauthorized,
+    Forbidden
+)
 from werkzeug.routing import Rule
 from werkzeug.local import LocalProxy
 
 from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
-from ckan.common import CKANConfig, asbool
-from repoze.who.config import WhoConfig
-from repoze.who.middleware import PluggableAuthenticationMiddleware
+from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
+from ckan.common import CKANConfig, asbool, session
 
 import ckan.model as model
 from ckan.lib import base
-from ckan.lib import helpers
+from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
-from ckan.common import config, g, request, ungettext
+from ckan.common import config, g, request, ungettext, current_user, _
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware,
                                                       RootPathMiddleware)
@@ -48,15 +51,25 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
 from ckan.views import (identify_user,
                         set_cors_headers_for_response,
-                        check_session_cookie,
                         set_controller_and_action,
                         set_cache_control_headers_for_response,
                         handle_i18n,
                         set_ckan_current_url,
+                        _get_user_for_apitoken,
                         )
 from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
+
+csrf = CSRFProtect()
+
+csrf_warn_extensions = (
+        "Extensions are excluded from CSRF protection! "
+        "We allow extensions to run without CSRF protection "
+        "but it will be forced future releases. "
+        "Read the documentation for more information on how to add "
+        "CSRF protection to your extension."
+    )
 
 
 class I18nMiddleware(object):
@@ -67,30 +80,6 @@ class I18nMiddleware(object):
 
         handle_i18n(environ)
         return self.app(environ, start_response)
-
-
-class RepozeAdapterMiddleware(object):
-    """When repoze.who interrupts requrests for anonymous user because of
-    insufficient permission, it closes requrest stream and make an
-    attempt to return response to user as quick as possible. But when
-    werkzeug sees POST request with some payload it tries to parse
-    request data and it leads to BadRequests(400), because there is no
-    way to parse closed request stream. This middlewary just
-    reproduces part of internal Fanstatic bevavior: don't drop request
-    stream while response is written to the client.
-
-    The middleware only requred because of repoze.who and it should be
-    removed as soon as PluggableAuthenticationMiddlewary is replaced
-    with some alternative solution.
-
-    """
-    def __init__(self, app: CKANApp):
-        self.app = app
-
-    def __call__(self, environ: Any, start_response: Any) -> Any:
-        request = webob.Request(environ)
-        response = request.get_response(self.app)
-        return response(environ, start_response)
 
 
 class CKANBabel(Babel):
@@ -124,6 +113,29 @@ def _ungettext_alias():
     compatibility
     '''
     return dict(ungettext=ungettext)
+
+
+class BeakerSessionInterface(SessionInterface):
+    def open_session(self, app: Any, request: Any):
+        if 'beaker.session' in request.environ:
+            return request.environ['beaker.session']
+
+    def save_session(self, app: Any, session: Any, response: Any):
+        session.save()
+
+    def is_null_session(self, obj: Dict[str, Any]) -> bool:
+
+        is_null = super(BeakerSessionInterface, self).is_null_session(obj)
+
+        if not is_null:
+            # Beaker always adds these keys on each request, so if these are
+            # the only keys present we assume it's an empty session
+            is_null = (
+                sorted(obj.keys()) == [
+                    "_accessed_time", "_creation_time", "_domain", "_path"]
+            )
+
+        return is_null
 
 
 def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
@@ -200,15 +212,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
-    # Use Beaker as the Flask session interface
-    class BeakerSessionInterface(SessionInterface):
-        def open_session(self, app: Any, request: Any):
-            if 'beaker.session' in request.environ:
-                return request.environ['beaker.session']
-
-        def save_session(self, app: Any, session: Any, response: Any):
-            session.save()
-
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
                     for k, v in config.items()
@@ -255,7 +258,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
-    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(h.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -268,12 +271,24 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_core_blueprints(app)
     _register_error_handler(app)
 
+    # CSRF
+    app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
+    csrf.init_app(app)
+    log.warn(csrf_warn_extensions)
+
     # Set up each IBlueprint extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         plugin_blueprints = plugin.get_blueprint()
-        if not isinstance(plugin_blueprints, list):
-            plugin_blueprints = [plugin_blueprints]
-        for blueprint in plugin_blueprints:
+        # plugin_blueprints must not send as list in csrf.exempt
+        if isinstance(plugin_blueprints, list):
+            plugin_blueprints = plugin_blueprints[0]
+        # we need to exempt CKAN extensions till they are ready
+        # to implement the csrf_token to their forms, otherwise
+        # they will get 400 Bad Request: The CSRF token is missing.
+        if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
+            csrf.exempt(plugin_blueprints)
+        # register extensions blueprints
+        for blueprint in [plugin_blueprints]:
             app.register_extension_blueprint(blueprint)
 
     lib_plugins.register_package_blueprints(app)
@@ -291,22 +306,22 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
                          'make_error_log_middleware.'
                          .format(plugin.__class__.__name__))
 
-    # Initialize repoze.who
-    who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(cast(str, conf['who.config_file'])))
+    # Initialize flask-login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    # make anonymous_user an instance of CKAN custom class
+    login_manager.anonymous_user = model.AnonymousUser
+    # The name of the view to redirect to when the user needs to log in.
+    login_manager.login_view = config.get_value("ckan.auth.login_view")
 
-    app = PluggableAuthenticationMiddleware(
-        RepozeAdapterMiddleware(app),
-        who_parser.identifiers,
-        who_parser.authenticators,
-        who_parser.challengers,
-        who_parser.mdproviders,
-        who_parser.request_classifier,
-        who_parser.challenge_decider,
-        logging.getLogger('repoze.who'),
-        logging.WARN,  # ignored
-        who_parser.remote_user_key
-    )
+    @login_manager.user_loader
+    def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
+        return model.User.get(user_id)
+
+    @login_manager.request_loader
+    def load_user_from_request(request):  # type: ignore
+        user = _get_user_for_apitoken()
+        return user
 
     # Update the main CKAN config object with the Flask specific keys
     # that were set here or autogenerated
@@ -340,6 +355,28 @@ def get_locale() -> str:
         config.get_value(u'ckan.locale_default'))
 
 
+def set_remote_user_as_current_user_for_tests():
+    '''This function exists to maintain backward compatibility
+    for the `TESTS` of the `CKAN` extensions
+
+    If `REMOTE_USER` is in the request environ we will try to get
+    the user_obj from the DB, if there is an user_obj, we will set the
+    `session['_user_id']` with that user_obj.id
+
+    This way, `Flask-Login` will load the user from
+    `session['_user_id']` and will set the `current_user`
+    proxy for us behind the scene.
+    '''
+    if "REMOTE_USER" in request.environ:
+        username = request.environ["REMOTE_USER"]
+        if isinstance(username, bytes):
+            username = username.decode()
+
+        userobj = model.User.get(username)
+        if userobj:
+            session["_user_id"] = userobj.id
+
+
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -356,9 +393,18 @@ def ckan_before_request() -> Optional[Response]:
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
-    # Identify the user from the repoze cookie or the API header
-    # Sets g.user and g.userobj
+    # This is needed for the TESTS of the CKAN extensions only!
+    # we should remove it as soon as the maintainers of the
+    # CKAN extensions change their tests according to the new changes.
+    if config.get_value("testing"):
+        set_remote_user_as_current_user_for_tests()
+
+    # Identify the user from the flask-login cookie or the API header
+    # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Set the csrf_field_name so we can use it in our templates
+    g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
@@ -375,9 +421,6 @@ def ckan_after_request(response: Response) -> Response:
     # Dispose of the SQLALchemy session
     model.Session.remove()
 
-    # Check session cookie
-    response = check_session_cookie(response)
-
     # Set CORS headers if necessary
     response = set_cors_headers_for_response(response)
 
@@ -393,11 +436,11 @@ def ckan_after_request(response: Response) -> Response:
     return response
 
 
-def helper_functions() -> dict[str, helpers.HelperAttributeDict]:
+def helper_functions() -> dict[str, h.HelperAttributeDict]:
     u'''Make helper functions (`h`) available to Flask templates'''
-    if not helpers.helper_functions:
-        helpers.load_plugin_helpers()
-    return dict(h=helpers.helper_functions)
+    if not h.helper_functions:
+        h.load_plugin_helpers()
+    return dict(h=h.helper_functions)
 
 
 def c_object() -> dict[str, LocalProxy]:
@@ -506,7 +549,7 @@ def _register_core_blueprints(app: CKANApp):
 
     path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
 
-    for loader, name, _ in pkgutil.iter_modules([path], 'ckan.views.'):
+    for loader, name, __ in pkgutil.iter_modules([path], 'ckan.views.'):
         # type_ignore_reason: incorrect external type declarations
         module = loader.find_module(name).load_module(name)  # type: ignore
         for blueprint in inspect.getmembers(module, is_blueprint):
@@ -517,9 +560,36 @@ def _register_core_blueprints(app: CKANApp):
 def _register_error_handler(app: CKANApp):
     u'''Register error handler'''
 
-    def error_handler(e: Exception) -> tuple[str, Optional[int]]:
+    def error_handler(e: Exception) -> Union[
+        tuple[str, Optional[int]], Optional[Response]
+    ]:
         debug = config.get_value('debug')
         if isinstance(e, HTTPException):
+            # If the current_user.is_anonymous and the
+            # Exception code is 401(Unauthorized)/403(Forbidden)
+            # redirect the users to login page before trying to access it again
+            # If you want to raise a 401 or 403 error instead,
+            # set this setting to `False`
+            if config.get_value('ckan.redirect_to_login_if_not_authorized'):
+                # if the url is not local we dont want to redirect the user
+                # instead, we want to show the actual 403(Forbidden)...
+                # same for user.perform_reset if the current_user.is_deleted()
+                # the view returns 403 hence we want to show the exception.
+                endpoints = tuple(
+                    ['util.internal_redirect', 'user.perform_reset']
+                )
+                if request.endpoint not in endpoints:
+                    if current_user.is_anonymous and type(e) in (
+                        Unauthorized, Forbidden
+                    ):
+                        login_url = h.url_for('user.login', qualified=True)
+                        next_url = request.url
+                        redirect_url = h.make_login_url(
+                            login_url, next_url=next_url
+                        )
+                        h.flash_error(_('Please log in to access this page.'))
+                        return h.redirect_to(redirect_url)
+
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
             else:

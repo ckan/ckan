@@ -2,6 +2,8 @@
 Installing CKAN
 ---------------
 
+.. include:: /_supported_versions.rst
+
 Before you can use CKAN on your own computer, you need to install it.
 There are three ways to install CKAN:
 

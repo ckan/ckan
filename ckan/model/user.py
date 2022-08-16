@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Iterable, Optional, TYPE_CHECKING, Type, TypeVar
+from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 import datetime
 import re
@@ -15,6 +15,8 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from flask_login import AnonymousUserMixin
+from typing_extensions import Self
 
 from ckan.common import config
 from ckan.model import meta
@@ -26,8 +28,6 @@ from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import Group, ApiToken
-
-TUser = TypeVar("TUser", bound="User")
 
 
 def last_active_check():
@@ -87,18 +87,18 @@ class User(core.StatefulObjectMixin,
     DOUBLE_SLASH = re.compile(r':\/([^/])')
 
     @classmethod
-    def by_email(cls: Type[TUser], email: str) -> Optional["User"]:
+    def by_email(cls, email: str) -> Optional[Self]:
         return meta.Session.query(cls).filter_by(email=email).first()
 
     @classmethod
-    def get(cls, user_reference: Optional[str]) -> Optional["User"]:
+    def get(cls, user_reference: Optional[str]) -> Optional[Self]:
         query = meta.Session.query(cls).autoflush(False)
         query = query.filter(or_(cls.name == user_reference,
                                  cls.id == user_reference))
         return query.first()
 
     @classmethod
-    def all(cls: Type[TUser]) -> list["TUser"]:
+    def all(cls) -> list[Self]:
         '''Return all users in this CKAN instance.
 
         :rtype: list of ckan.model.user.User objects
@@ -279,7 +279,7 @@ class User(core.StatefulObjectMixin,
     def get_groups(self, group_type: Optional[str]=None, capacity: Optional[str]=None) -> list['Group']:
         import ckan.model as model
 
-        q: 'Query[model.Group]' = meta.Session.query(model.Group)\
+        q: Query[model.Group] = meta.Session.query(model.Group)\
             .join(model.Member, model.Member.group_id == model.Group.id and \
                        model.Member.table_name == 'user').\
                join(model.User, model.User.id == model.Member.table_id).\
@@ -298,9 +298,9 @@ class User(core.StatefulObjectMixin,
         return groups
 
     @classmethod
-    def search(cls: Type[TUser], querystr: str,
+    def search(cls, querystr: str,
                sqlalchemy_query: Optional[Any] = None,
-               user_name: Optional[str] = None) -> 'Query[TUser]':
+               user_name: Optional[str] = None) -> Query[Self]:
         '''Search name, fullname, email. '''
         if sqlalchemy_query is None:
             query = meta.Session.query(cls)
@@ -333,7 +333,26 @@ class User(core.StatefulObjectMixin,
                                  cls.id.in_(user_list)))  # type: ignore
         return [user.id for user in query.all()]
 
-    def set_user_last_active(self):
+    def get_id(self) -> str:
+        '''Needed by flask-login'''
+        return self.id
+
+    @property
+    def is_authenticated(self) -> bool:
+        '''Needed by flask-login'''
+        return True
+
+    @property
+    def is_anonymous(self):
+        '''Needed by flask-login'''
+        return False
+
+    @property
+    def is_active(self):
+        '''Needed by flask-login'''
+        return super().is_active()
+
+    def set_user_last_active(self) -> None:
         if self.last_active:
             session["last_active"] = self.last_active
 
@@ -343,6 +362,16 @@ class User(core.StatefulObjectMixin,
         else:
             self.last_active = datetime.datetime.utcnow()
             meta.Session.commit()
+
+
+class AnonymousUser(AnonymousUserMixin):
+    '''Extends the default AnonymousUserMixin to have an attribute
+    `name`/`email`, so, when retrieving the current_user.name/email on an
+    anonymous user, won't break our app with `AttributeError`.
+    '''
+    name: str = ""
+    email: str = ""
+
 
 meta.mapper(
     User, user_table,

@@ -41,7 +41,7 @@ def deprecated(
                             'It must include the word `deprecated`.'
                             % (fn.__name__, fn.__module__))
 
-        def wrapped(*args: Any, **kw: Any):
+        def wrapped(*args: P.args, **kw: P.kwargs) -> RT:
             since_msg = f'since CKAN v{since}' if since else ''
             msg = (
                 'Function %s() in module %s has been deprecated %s'

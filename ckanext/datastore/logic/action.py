@@ -219,14 +219,14 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
 
     *upsert*
         Update if record with same key already exists, otherwise insert.
-        Requires unique key.
+        Requires unique key or _id field.
     *insert*
         Insert only. This method is faster that upsert, but will fail if any
         inserted record matches an existing one. Does *not* require a unique
         key.
     *update*
         Update only. An exception will occur if the key that should be updated
-        does not exist. Requires unique key.
+        does not exist. Requires unique key or _id field.
 
 
     :param resource_id: resource id that the data is going to be stored under.

@@ -190,3 +190,15 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     # legacy support for the deprecated method works.
     def check_data_dict(self, data_dict: dict[str, Any], schema: Any = None):
         ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
+
+
+class ExampleIDatasetFormInheritPlugin(plugins.SingletonPlugin,
+        tk.DefaultDatasetForm):
+    """An example IDatasetForm CKAN plugin, inheriting all methods
+    from the default interface.
+    """
+    plugins.implements(plugins.IDatasetForm, inherit=True)
+
+    def package_types(self):
+
+        return ["custom_dataset"]

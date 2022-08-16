@@ -556,7 +556,7 @@ def resolve_string_key(data: Union[dict[str, Any], list[Any]],
     with an id field matching "1492a..."
     """
     parent_path: list[Any] = []
-    current = data
+    current: Union[dict[str, Any], list[Any], Any] = data
     for k in string_key.split('__'):
         if isinstance(current, dict):
             if k not in current:
@@ -677,7 +677,7 @@ def _filter_glob_match(data: Union[list[Any], dict[str, Any], Any],
                 removed.update(set(range(len(data))) - protected)
             continue
         try:
-            _child, (index,) = resolve_string_key(data, head)
+            index = resolve_string_key(data, head)[1][0]
         except DataError:
             continue
 

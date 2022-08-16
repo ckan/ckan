@@ -30,6 +30,19 @@ this.ckan.module('follow', function($) {
 			this.el.on('click', this._onClick);
 		},
 
+		/* Adds the X-CSRFToken header
+		*/
+		addCsrfTokenHeader: function() {
+			var csrftoken = $('meta[name=csrf-token]').attr('content')
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+					if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+						xhr.setRequestHeader("X-CSRFToken", csrftoken)
+					}
+				}
+			})
+		},
+
 		/* Handles the clicking of the follow button
 		 *
 		 * event - An event object.
@@ -38,6 +51,7 @@ this.ckan.module('follow', function($) {
 		 */
 		_onClick: function(event) {
 			var options = this.options;
+			this.addCsrfTokenHeader()
 			if (
 				options.action
 				&& options.type
