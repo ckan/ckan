@@ -15,7 +15,7 @@ from pyutilib.component.core import Interface as _pca_Interface
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model import User
+from ckan.model.user import User
 from ckan.exceptions import CkanDeprecationWarning
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
@@ -1740,8 +1740,8 @@ class IAuthenticator(Interface):
     def authenticate(
         self, identity: 'Mapping[str, Any]'
     ) -> Optional["User"]:
-        """Called before the authentication starts (that is after clicking the login
-        button)
+        """Called before the authentication starts
+        (that is after clicking the login button)
 
         Plugins should return a user object if the authentication was
         successful, or ``None``` otherwise.

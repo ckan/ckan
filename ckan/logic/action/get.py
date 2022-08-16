@@ -830,6 +830,9 @@ def user_list(
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
     :type all_fields: bool
+    :param include_site_user: add site_user to the result
+      (optional, default: ``False``)
+    :type include_site_user: bool
 
     :rtype: list of user dictionaries. User properties include:
       ``number_created_packages`` which excludes datasets which are private
@@ -863,6 +866,10 @@ def user_list(
         )
     else:
         query = model.Session.query(model.User.name)
+
+    if not asbool(data_dict.get('include_site_user', False)):
+        site_id = config.get_value('ckan.site_id')
+        query = query.filter(model.User.name != site_id)
 
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
@@ -984,12 +991,23 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param include_tracking: add tracking information to dataset and
         resources (default: ``False``)
     :type include_tracking: bool
+    :param include_plugin_data: Include the internal plugin data object
+        (sysadmin only, optional, default:``False``)
+    :type: include_plugin_data: bool
     :rtype: dictionary
 
     '''
     model = context['model']
+    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+
+    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
+    if user_obj and user_obj.is_authenticated:
+        include_plugin_data = user_obj.sysadmin and include_plugin_data
+
+        if include_plugin_data:
+            context['use_cache'] = False
 
     pkg = model.Package.get(
         name_or_id,
@@ -999,7 +1017,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         raise NotFound
 
     context['package'] = pkg
-
     _check_access('package_show', context, data_dict)
 
     if data_dict.get('use_default_schema', False):
@@ -1032,7 +1049,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict = model_dictize.package_dictize(
+            pkg, context, include_plugin_data
+        )
         package_dict_validated = False
 
     if include_tracking:
@@ -2718,14 +2737,20 @@ def am_following_group(context: Context,
 
 def _followee_count(
         context: Context, data_dict: DataDict,
-        FollowerClass: Type['ModelFollowingModel[Any ,Any]']) -> int:
+        FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
+        is_org: bool = False
+        ) -> int:
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    return FollowerClass.followee_count(data_dict['id'])
+    
+    followees = _group_or_org_followee_list(context, data_dict, is_org)
+
+    return len(followees)
+
 
 
 def followee_count(context: Context,
@@ -2802,8 +2827,24 @@ def group_followee_count(
     '''
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup)
+        context['model'].UserFollowingGroup,
+        is_org = False)
 
+def organization_followee_count(
+        context: Context,
+        data_dict: DataDict) -> ActionResult.OrganizationFolloweeCount:
+    '''Return the number of organizations that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingGroup,
+        is_org = True)
 
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
 def followee_list(

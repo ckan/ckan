@@ -23,7 +23,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user
+    _, config, g, request, current_user, login_user, logout_user, session
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -471,6 +471,7 @@ class RegisterView(MethodView):
         userobj = model.User.get(user_dict["id"])
         if userobj:
             login_user(userobj)
+            rotate_token()
         resp = h.redirect_to(u'user.me')
         return resp
 
@@ -504,6 +505,21 @@ def next_page_or_default(target: Optional[str]) -> Response:
     return me()
 
 
+def rotate_token():
+    """
+    Change the CSRF token - should be done on login
+    for security purposes.
+    """
+    from flask_wtf.csrf import generate_csrf
+    from ckan.common import session
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+
+    if session.get(field_name):
+        session.pop(field_name)
+        generate_csrf()
+
+
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
@@ -532,9 +548,11 @@ def login() -> Union[Response, str]:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
                 login_user(user_obj, remember=True, duration=duration_time)
+                rotate_token()
                 return next_page_or_default(next)
             else:
                 login_user(user_obj)
+                rotate_token()
                 return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")
@@ -555,6 +573,10 @@ def logout() -> Response:
 
     came_from = request.args.get('came_from', '')
     logout_user()
+
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))

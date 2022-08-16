@@ -15,6 +15,7 @@ from werkzeug.datastructures import MultiDict
 
 import ckan.model as model
 from ckan.common import json, _, g, request, current_user
+from ckan.config.middleware.flask_app import csrf
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config
@@ -62,7 +63,7 @@ def _finish(status_int: int,
     :rtype: response object. Return this value from the view function
         e.g. return _finish(404, 'Dataset not found')
     '''
-    assert(isinstance(status_int, int))
+    assert isinstance(status_int, int)
     response_msg = u''
     if headers is None:
         headers = {}
@@ -207,7 +208,8 @@ def _get_request_data(try_url_params: bool = False):
 
 # View functions
 
-
+# exempt the CKAN API actions from csrf-validation.
+@csrf.exempt
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 

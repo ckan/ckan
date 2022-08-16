@@ -14,6 +14,8 @@ from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 from ckan.common import config
 
@@ -71,6 +73,7 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('plugin_data', MutableDict.as_mutable(JSONB)),
 )
 
 
@@ -107,6 +110,7 @@ class Package(core.StatefulObjectMixin,
     metadata_modified: datetime.datetime
     private: bool
     state: str
+    plugin_data: dict[str, Any]
 
     package_tags: list["PackageTag"]
 
