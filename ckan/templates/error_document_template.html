@@ -11,9 +11,9 @@
       {{ content}}
     </div>
     {% block login_redirect %}
-    {% if current_user.is_anonymous %}
+    {% if show_login_redirect_link %}
     <div class="module-content">
-      Please <a href="{{ h.url_for('user.login') }}">log</a> in to access this page.
+      {{ _("You might need to login to access this page.") }} <a href="{{ h.url_for('user.login') }}">{{ _("Click here to login") }}</a> 
     </div>
   {% endif %}
   {% endblock %}

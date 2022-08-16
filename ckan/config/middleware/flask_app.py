@@ -20,6 +20,8 @@ from flask_multistatic import MultiStaticFlask
 from werkzeug.exceptions import (
     default_exceptions,
     HTTPException,
+    Unauthorized,
+    Forbidden
 )
 from werkzeug.routing import Rule
 from werkzeug.local import LocalProxy
@@ -28,7 +30,7 @@ from flask_babel import Babel
 
 from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager
-from ckan.common import CKANConfig, asbool, session
+from ckan.common import CKANConfig, asbool, session, current_user, _
 
 import ckan.model as model
 from ckan.lib import base
@@ -527,11 +529,18 @@ def _register_error_handler(app: CKANApp):
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
             else:
                 log.info(e)
+
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
-                u'name': e.name
+                u'name': e.name,
+                u'show_login_redirect_link': False
             }
+
+            if current_user.is_anonymous and type(e) in (
+                        Unauthorized, Forbidden
+                    ):
+                extra_vars.update({"show_login_redirect_link": True})
 
             return base.render(
                 u'error_document_template.html', extra_vars), e.code
