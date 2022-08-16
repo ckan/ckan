@@ -31,7 +31,7 @@ from flask_babel import Babel
 from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from ckan.common import CKANConfig, asbool, session, current_user, _
+from ckan.common import CKANConfig, asbool, session, current_user
 
 import ckan.model as model
 from ckan.lib import base
