@@ -3,12 +3,10 @@
 import logging
 import six
 import click
-from six import text_type
+from six import text_type as str
 from datetime import datetime
 
-import ckan.logic as logic
-import ckan.plugins as plugin
-import ckan.model as model
+from ckan import logic, model, plugins as plugin
 from ckan.cli import error_shout
 from ckan.common import json
 
@@ -56,8 +54,6 @@ def add_user(ctx, username, args):
     # pprint(u'Creating user: %r' % username)
 
     try:
-        import ckan.logic as logic
-        import ckan.model as model
         site_user = logic.get_action(u'get_site_user')({
             u'model': model,
             u'ignore_auth': True},
@@ -90,7 +86,6 @@ def get_user_str(user):
 
 @user.command(u'list', short_help=u'List all users')
 def list_users():
-    import ckan.model as model
     click.secho(u'Users:')
     users = model.Session.query(model.User).filter_by(state=u'active')
     click.secho(u'count = %i' % users.count())
@@ -102,7 +97,6 @@ def list_users():
 @click.argument(u'username')
 @click.pass_context
 def remove_user(ctx, username):
-    import ckan.model as model
     if not username:
         error_shout(u'Please specify the username to be removed')
         return
@@ -117,18 +111,16 @@ def remove_user(ctx, username):
 @user.command(u'show', short_help=u'Show user')
 @click.argument(u'username')
 def show_user(username):
-    import ckan.model as model
     if not username:
         error_shout(u'Please specify the username for the user')
         return
-    user = model.User.get(text_type(username))
+    user = model.User.get(str(username))
     click.secho(u'User: %s' % user)
 
 
 @user.command(u'setpass', short_help=u'Set password for the user')
 @click.argument(u'username')
 def set_password(username):
-    import ckan.model as model
     if not username:
         error_shout(u'Need name of the user.')
         return
