@@ -1895,7 +1895,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         data_dict.setdefault('fq', '')
 
         # Remove before these hit solr FIXME: whitelist instead
-        include_private = asbool(data_dict.pop('include_private', False))
+        include_private = asbool(data_dict.pop('include_private', True))
         include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_deleted = asbool(data_dict.pop('include_deleted', False))
 
