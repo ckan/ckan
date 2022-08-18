@@ -220,7 +220,7 @@ def package_create(context, data_dict):
             {'package': data})
 
     # Create activity
-    if not pkg.private:
+    if not pkg.private or config.get('ckan.record_private_activity', False):
         user_obj = model.User.by_name(user)
         if user_obj:
             user_id = user_obj.id
