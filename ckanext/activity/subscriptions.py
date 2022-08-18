@@ -93,7 +93,7 @@ def package_changed(sender: str, **kwargs: Any):
     pkg = context["model"].Package.get(id_)
     assert pkg
 
-    if pkg.private:
+    if pkg.private and not tk.config.get('ckan.record_private_activity', False):
         return
 
     user_obj = context["model"].User.get(context["user"])
