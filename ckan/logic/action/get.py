@@ -2747,6 +2747,7 @@ def followee_count(context: Context,
     :rtype: int
 
     '''
+    _check_access('followee_count', context, data_dict)
     model = context['model']
     followee_users = _followee_count(context, data_dict,
                                      model.UserFollowingUser)
@@ -2774,6 +2775,7 @@ def user_followee_count(
     :rtype: int
 
     '''
+    _check_access('user_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingUser)
@@ -2790,6 +2792,7 @@ def dataset_followee_count(
     :rtype: int
 
     '''
+    _check_access('dataset_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingDataset)
@@ -2806,6 +2809,7 @@ def group_followee_count(
     :rtype: int
 
     '''
+    _check_access('group_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingGroup,
@@ -2822,6 +2826,7 @@ def organization_followee_count(
     :rtype: int
 
     '''
+    _check_access('organization_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingGroup,

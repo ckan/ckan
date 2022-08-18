@@ -382,3 +382,30 @@ def package_collaborator_list_for_user(context: Context,
 def status_show(context: Context, data_dict: DataDict) -> AuthResult:
     '''Show information about the site's configuration. Visible to all by default.'''
     return {'success': True}
+
+
+def dataset_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of datasets followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of groups followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def organization_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of organizations followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def user_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of users followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of objects (of any type) followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+

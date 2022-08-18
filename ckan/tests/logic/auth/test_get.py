@@ -601,3 +601,19 @@ class TestStatusShow:
     def test_status_show_is_visible_to_anonymous(self):
         context = {"user": "", "model": model}
         assert helpers.call_auth("status_show", context)
+
+class TestFolloweeCount:
+
+    functions = [
+        "dataset_followee_count",
+        "followee_count",
+        "group_followee_count",
+        "organization_followee_count",
+        "user_followee_count",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_see_followee_count(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])
