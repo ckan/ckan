@@ -29,7 +29,7 @@ import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
 
 
-from ckan.common import _, request
+from ckan.common import _, request, asbool
 
 log = logging.getLogger(__name__)
 
@@ -362,7 +362,7 @@ def package_update(context, data_dict):
         item.after_update(context, data)
 
     # Create activity
-    if not pkg.private  or config.get('ckan.record_private_activity', False):
+    if not pkg.private or asbool(config.get('ckan.record_private_activity', False)):
         user_obj = model.User.by_name(user)
         if user_obj:
             user_id = user_obj.id
