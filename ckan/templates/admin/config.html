@@ -10,7 +10,7 @@
 
   <form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
-      {{ form.csrf_protection() }}
+    {{ h.csrf_input() }}
 
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
 

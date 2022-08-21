@@ -7,8 +7,6 @@ To enable the CSRF protection in your extensions you would need to set:
 
 and to set csrf_token in your forms:
 
-`{% import 'macros/form.html' as form %}`
-
-`{{ form.csrf_protection() }}`
+`{{ h.csrf_input() }}`
 
 See the documentation at `https://docs.ckan.org/en/latest/extensions/best-practices.html` for more info.

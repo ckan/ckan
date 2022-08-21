@@ -48,6 +48,7 @@ from ckan.lib.helpers import (
     chained_helper,
     redirect_to,
     url_for,
+    csrf_input
 )
 from ckan.exceptions import (
     CkanVersionException,
@@ -99,7 +100,7 @@ __all__ = [
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "check_ckan_version", "requires_ckan_version", "get_endpoint", "csrf_input",
 ]
 
 get_converter = get_validator

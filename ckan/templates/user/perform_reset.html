@@ -16,7 +16,7 @@
       </h1>
       {% block form %}
         <form action="" method="post">
-          {{ form.csrf_protection() }} 
+          {{ h.csrf_input() }} 
           {{ form.errors(error_summary) }}
           {% if user_dict['state'] == 'pending' %}
             <p>{{ _('You can also change username. It can not be modified later.') }}</p>

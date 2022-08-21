@@ -2781,3 +2781,8 @@ def make_login_url(
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
         return urlunparse(parsed_base)
     return base
+
+
+@core_helper
+def csrf_input():
+    return snippet('snippets/csrf_token.html')
