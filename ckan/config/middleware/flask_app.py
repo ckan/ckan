@@ -570,8 +570,9 @@ def _register_error_handler(app: CKANApp):
             else:
                 log.info(e)
 
-            show_login_redirect_link = current_user.is_anonymous and type(e)\
-                 in (Unauthorized, Forbidden)
+            show_login_redirect_link = current_user.is_anonymous and type(
+                e
+            ) in (Unauthorized, Forbidden)
             extra_vars = {
                 u'code': e.code,
                 u'content': e.description,
