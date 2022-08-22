@@ -1,9 +1,7 @@
 # encoding: utf-8
 
 import pytest
-from unittest import mock
 from flask import Blueprint
-from ckan.config.middleware.flask_app import BeakerSessionInterface
 
 import ckan.plugins as p
 from ckan.common import config, _
@@ -76,20 +74,3 @@ def test_no_beaker_secret_crashes(make_app):
     # RuntimeError instead (thrown on `make_flask_stack`)
     with pytest.raises(RuntimeError):
         make_app()
-
-
-def test_no_session_stored_by_default(app, monkeypatch, test_request_context):
-
-    save_session_mock = mock.Mock()
-
-    class CustomBeakerSessionInterface(BeakerSessionInterface):
-
-        save_session = save_session_mock
-
-    monkeypatch.setattr(
-        app.flask_app, 'session_interface', CustomBeakerSessionInterface())
-
-    with test_request_context():
-        app.get("/")
-
-    save_session_mock.assert_not_called()
