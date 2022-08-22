@@ -743,7 +743,12 @@ def organization_list_for_user(context: Context,
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
         with_package_counts=asbool(data_dict.get('include_dataset_count')))
-    return orgs_list
+    return_list = []
+    for org in orgs_list:
+        return_list.append(logic.get_action('organization_show')(
+                                context,
+                                {'id': org['id']}))
+    return return_list
 
 
 def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseList:
@@ -2746,7 +2751,7 @@ def _followee_count(
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    
+
     followees = _group_or_org_followee_list(context, data_dict, is_org)
 
     return len(followees)
