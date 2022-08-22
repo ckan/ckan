@@ -28,7 +28,7 @@ import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
 
-from ckan.common import _, config
+from ckan.common import _, config, asbool
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -220,7 +220,7 @@ def package_create(context, data_dict):
             {'package': data})
 
     # Create activity
-    if not pkg.private:
+    if not pkg.private or asbool(config.get('ckan.record_private_activity', False)):
         user_obj = model.User.by_name(user)
         if user_obj:
             user_id = user_obj.id

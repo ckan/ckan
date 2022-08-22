@@ -16,7 +16,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.api_token as api_token
 from ckan import authz
 
-from ckan.common import _
+from ckan.common import _, config, asbool
 
 
 log = logging.getLogger('ckan.logic')
@@ -115,7 +115,7 @@ def package_delete(context, data_dict):
         collaborator.delete()
 
     # Create activity
-    if not entity.private:
+    if not entity.private or asbool(config.get('ckan.record_private_activity', False)):
         user_obj = model.User.by_name(user)
         if user_obj:
             user_id = user_obj.id
