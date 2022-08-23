@@ -812,3 +812,4 @@ def register_dataset_plugin_rules(blueprint: Blueprint) -> None:
 
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
+resource.auto_register = False
