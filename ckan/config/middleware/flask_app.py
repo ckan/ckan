@@ -537,7 +537,7 @@ def _register_core_blueprints(app):
     u'''Register all blueprints defined in the `views` folder
     '''
     def is_blueprint(mm):
-        return isinstance(mm, Blueprint)
+        return isinstance(mm, Blueprint) and getattr(mm, 'auto_register', True)
 
     path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
 

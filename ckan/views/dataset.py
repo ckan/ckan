@@ -1429,3 +1429,4 @@ def register_dataset_plugin_rules(blueprint):
 
 
 register_dataset_plugin_rules(dataset)
+dataset.auto_register = False
