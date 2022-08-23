@@ -35,6 +35,7 @@ from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
+from ckan.plugins.core import plugin_loaded
 
 from urllib.parse import (
     urlencode, quote, unquote, urlparse, urlunparse
@@ -2607,6 +2608,7 @@ core_helper(localised_number)
 core_helper(localised_SI_number)
 core_helper(localised_nice_date)
 core_helper(localised_filesize)
+core_helper(plugin_loaded)
 # Useful additionsfrom the i18n library.
 core_helper(i18n.get_available_locales)
 core_helper(i18n.get_locales_dict)
