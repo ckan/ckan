@@ -115,7 +115,8 @@ def update_config() -> None:
 
     webassets_init()
 
-    for plugin in p.PluginImplementations(p.IConfigurer):
+    breakpoint()
+    for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
