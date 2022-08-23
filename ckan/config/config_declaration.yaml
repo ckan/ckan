@@ -543,7 +543,7 @@ groups:
       - key: ckan.auth.login_view
         default: user.login
         description: The name of the view to redirect to when the user needs to log in
-  
+
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
@@ -559,7 +559,8 @@ groups:
           this controls whether every view is protected by default. Default is True.
 
       - key: WTF_CSRF_SECRET_KEY
-        description: Random data for generating secure tokens. If this is not set then SECRET_KEY is used.
+        description: Random data for generating secure tokens.
+        placeholder_callable: secrets:token_urlsafe
 
       - key: WTF_CSRF_METHODS
         default: {'POST', 'PUT', 'PATCH', 'DELETE'}
@@ -604,6 +605,7 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
+        placeholder: string:%(beaker.session.secret)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -617,6 +619,7 @@ groups:
           * ``file:`` - Path to file. Content of the file will be used as key.
 
       - key: api_token.jwt.decode.secret
+        placeholder: string:%(beaker.session.secret)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
