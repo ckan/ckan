@@ -741,13 +741,12 @@ def organization_list_for_user(context: Context,
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
     context['with_capacity'] = True
-    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')))
     return_list = []
-    for org in orgs_list:
+    for org, cap in orgs_and_capacities:
         return_list.append(logic.get_action('organization_show')(
                                 context,
-                                {'id': org['id']}))
+                                {'id': org.id,
+                                'include_dataset_count': asbool(data_dict.get('include_dataset_count'))}))
     return return_list
 
 
