@@ -287,6 +287,20 @@ def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
         return {}
 
 
+def _get_primary_key(connection: Any, resource_id: str) -> str:
+    qtext = sqlalchemy.text('''
+        select trim(trailing ')' from split_part(indexdef,'(',2))
+        from pg_indexes
+        where tablename=:res_id
+            and indexdef like 'CREATE UNIQUE INDEX%'
+            and not indexdef like '%(_id)'
+    ''')
+    try:
+        return connection.execute(qtext, res_id=resource_id).fetchall()[0][0]
+    except IndexError:
+        return ''
+
+
 def _get_fields(connection: Any, resource_id: str):
     u'''
     return a list of {'id': column_name, 'type': column_type} dicts
@@ -1296,6 +1310,7 @@ def validate(context: Context, data_dict: dict[str, Any]):
 
     data_dict_copy.pop('id', None)
     data_dict_copy.pop('include_total', None)
+    data_dict_copy.pop('include_primary_key', None)
     data_dict_copy.pop('total_estimation_threshold', None)
     data_dict_copy.pop('records_format', None)
     data_dict_copy.pop('calculate_record_count', None)
@@ -1419,6 +1434,12 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         fields_types,
         _get_field_info(context['connection'], data_dict['resource_id']),
         datastore_helpers.get_list(data_dict.get('fields')))
+
+    if data_dict.get('include_primary_key', False):
+        data_dict['primary_key'] = _get_primary_key(
+            context['connection'],
+            data_dict['resource_id'],
+        )
 
     _unrename_json_field(data_dict)
 

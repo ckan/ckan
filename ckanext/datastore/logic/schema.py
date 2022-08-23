@@ -193,7 +193,8 @@ def datastore_search_schema() -> Schema:
             one_of([u'objects', u'lists', u'csv', u'tsv'])],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')],
-        'full_text': [ignore_missing, unicode_safe]
+        'full_text': [ignore_missing, unicode_safe],
+        'include_primary_key': [ignore_missing, default(False), boolean_validator],
     }
     return schema
 
