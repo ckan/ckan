@@ -2785,4 +2785,4 @@ def make_login_url(
 
 @core_helper
 def csrf_input():
-    return snippet('snippets/csrf_token.html')
+    return snippet('snippets/csrf_input.html')
