@@ -739,7 +739,8 @@ class TestPackageRead(object):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         response = app.get(
-            url_for("dataset.read", id=dataset["name"]), status=302
+            url_for("dataset.read", id=dataset["name"]),
+            follow_redirects=False
         )
         assert 302 == response.status_code
         assert '/login' in response.headers[u"Location"]
@@ -1305,18 +1306,21 @@ class TestResourceRead(object):
             )
             assert resource["description"][:60].split("\n")[0] in response.body
 
-    def test_anonymous_users_cannot_see_private_datasets(self, app):
+    def test_anonymous_users_cannot_see_resources_in_private_datasets(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        resource = factories.Resource(package_id=dataset["id"])
         response = app.get(
-            url_for("dataset.read", id=dataset["name"]), status=404
+            url_for("{}_resource.read".format(dataset["type"]),
+                    id=dataset["id"], resource_id=resource['id']),
+            status=404
         )
         assert 404 == response.status_code
 
     # Test the 'reveal_private_datasets' flag
 
     @pytest.mark.ckan_config("ckan.auth.reveal_private_datasets", "True")
-    def test_user_not_in_organization_cannot_read_private_dataset(self, app, user):
+    def test_user_not_in_organization_cannot_read_resources_in_private_dataset(self, app, user):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
@@ -1329,11 +1333,14 @@ class TestResourceRead(object):
         app.get(url, extra_environ=env, status=403)
 
     @pytest.mark.ckan_config("ckan.auth.reveal_private_datasets", "True")
-    def test_anonymous_users_cannot_read_private_datasets(self, app):
+    def test_anonymous_users_cannot_read_resources_in_private_dataset(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        resource = factories.Resource(package_id=dataset["id"])
         response = app.get(
-            url_for("dataset.read", id=dataset["name"]), status=302
+            url_for("{}_resource.read".format(dataset["type"]),
+                    id=dataset["id"], resource_id=resource['id']),
+            follow_redirects=False
         )
         assert 302 == response.status_code
         assert '/login' in response.headers[u"Location"]
