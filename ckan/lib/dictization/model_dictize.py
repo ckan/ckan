@@ -28,7 +28,7 @@ import ckan.lib.munge as munge
 ## package save
 
 def group_list_dictize(obj_list, context,
-                       sort_key=lambda x: x['display_name'], reverse=False,
+                       sort_key=lambda x: x['display_name'].lower(), reverse=False,
                        with_package_counts=True,
                        include_groups=False,
                        include_tags=False,
