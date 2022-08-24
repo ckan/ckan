@@ -43,7 +43,7 @@ def group_list_dictize(
         obj_list: Union[Iterable[model.Group],
                         Iterable[tuple[model.Group, str]]],
         context: Context,
-        sort_key: Callable[..., Any]=lambda x: x['display_name'], reverse: bool=False,
+        sort_key: Callable[..., Any]=lambda x: x['display_name'].lower(), reverse: bool=False,
         with_package_counts: bool=True,
         include_groups: bool=False,
         include_tags: bool=False,
