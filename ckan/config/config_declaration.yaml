@@ -535,7 +535,7 @@ groups:
         type: bool
         example: "true"
         description: |
-          Determines if a an API key should be automatically created for every
+          Determines if an API key should be automatically created for every
           user when creating a user account. If set to False (the default
           value), users can manually create an API token from their profile
           instead. See :ref:`api authentication`: for more details.
@@ -543,7 +543,19 @@ groups:
       - key: ckan.auth.login_view
         default: user.login
         description: The name of the view to redirect to when the user needs to log in
-  
+
+      - key: ckan.auth.reveal_private_datasets
+        type: bool
+        example: "true"
+        description: |
+          Determines whether unauthorised requests for private datasets should have
+          the existence of the datasets revealed (True) or hidden (False).
+          If True, then unauthenticated requests will be redirected to the login page,
+          and redirected back to the dataset after logging in, while authenticated
+          but unauthorised requests will receive HTTP 403 Forbidden.
+          If False, all unauthorised requests will receive HTTP 404 Not Found.
+          Default is False.
+
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
