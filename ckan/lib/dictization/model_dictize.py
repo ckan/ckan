@@ -532,7 +532,7 @@ def tag_dictize(tag: model.Tag, context: Context,
 def user_list_dictize(
         obj_list: Union[list[model.User], list[tuple[model.User, str]]],
         context: Context,
-        sort_key: Callable[[Any], Any] = lambda x:x['name'],
+        sort_key: Callable[[Any], Any] = lambda x: x['name'].lower(),
         reverse: bool=False) -> list[dict[str, Any]]:
 
     result_list = []
