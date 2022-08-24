@@ -54,7 +54,7 @@ prefixed_resource = Blueprint(
 )
 
 
-def read(package_type: str, id: str, resource_id: str) -> str:
+def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
