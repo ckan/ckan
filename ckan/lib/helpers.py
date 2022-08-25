@@ -2987,3 +2987,8 @@ def can_update_owner_org(package_dict, user_orgs=None):
         return True
 
     return False
+
+
+@core_helper
+def csrf_input():
+    return ''
