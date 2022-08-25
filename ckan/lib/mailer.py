@@ -59,7 +59,8 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
     msg['Date'] = utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
-    if reply_to and reply_to != '':
+    # Check if extension is setting reply-to via headers or use config option
+    if reply_to and reply_to != '' and not msg['Reply-to']:
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
