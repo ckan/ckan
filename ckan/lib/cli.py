@@ -531,7 +531,7 @@ class SearchIndexCommand(CkanCommand):
       search-index clear [dataset_name]                             - clears the search index for the provided dataset or
                                                                     for the whole ckan instance
       search-index list-orphans                                     - lists any non-existant packages from the search-index
-      search-index remove-orphans                                   - removes any non-existant packages from the search-index
+      search-index clear-orphans                                    - clears any non-existant packages from the search-index
     '''
 
     summary = __doc__.split('\n')[0]
@@ -587,8 +587,8 @@ Default is false.''')
             self.clear()
         elif cmd == 'list-orphans':
             self.list_orphans()
-        elif cmd == 'remove-orphans':
-            self.remove_orphans()
+        elif cmd == 'clear-orphans':
+            self.clear_orphans()
         else:
             print('Command %s not recognized' % cmd)
 
@@ -652,7 +652,7 @@ Default is false.''')
         pprint(orphaned_package_ids)
 
 
-    def remove_orphans(self):
+    def clear_orphans(self):
         from ckan.lib.search import clear
         for orphaned_package_id in self.list_orphans(return_list=True):
             clear(orphaned_package_id)
