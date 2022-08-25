@@ -530,6 +530,7 @@ class SearchIndexCommand(CkanCommand):
       search-index show DATASET_NAME                                - shows index of a dataset
       search-index clear [dataset_name]                             - clears the search index for the provided dataset or
                                                                     for the whole ckan instance
+      search-index remove-orphans                                   - removes any non-existant packages from the search-index
     '''
 
     summary = __doc__.split('\n')[0]
@@ -583,6 +584,8 @@ Default is false.''')
             self.show()
         elif cmd == 'clear':
             self.clear()
+        elif cmd == 'remove-orphans':
+            self.remove_orphans()
         else:
             print('Command %s not recognized' % cmd)
 
@@ -624,6 +627,35 @@ Default is false.''')
             clear_all()
         else:
             clear(package_id)
+
+
+    def remove_orphans(self):
+        indexed_package_ids = []
+        rows = 100
+        while True:
+            search = logic.get_action('package_search')({},{
+                                'q': '*:*',
+                                'start': rows - 100,
+                                'rows': rows,
+                                'fl': 'id'})
+            indexed_package_ids += [r['id'] for r in search['results']]
+            if len(search['results']) == 0:
+                break
+            rows += 100
+
+        import ckan.model as model
+        from sqlalchemy.sql import select
+        package_ids = [r[0] for r in select([model.package_table.c['id']]).execute()]
+
+        orphaned_package_ids = []
+        for indexed_package_id in indexed_package_ids:
+            if indexed_package_id not in package_ids:
+                orphaned_package_ids.append(indexed_package_id)
+
+        from ckan.lib.search import clear
+        for orphaned_package_id in orphaned_package_ids:
+            clear(orphaned_package_id)
+
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
