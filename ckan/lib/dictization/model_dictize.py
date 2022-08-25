@@ -531,7 +531,7 @@ def tag_dictize(tag, context, include_datasets=True):
     return tag_dict
 
 def user_list_dictize(obj_list, context,
-                      sort_key=lambda x:x['name'], reverse=False):
+                      sort_key=lambda x: x['name'].lower(), reverse=False):
 
     result_list = []
 
