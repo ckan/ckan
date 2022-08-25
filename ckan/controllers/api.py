@@ -19,6 +19,7 @@ import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
+from ckan.lib.i18n import get_locales_from_config
 
 from ckan.views import identify_user
 
@@ -514,6 +515,10 @@ class ApiController(base.BaseController):
 
     def i18n_js_translations(self, lang):
         ''' translation strings for front end '''
+
+        if lang not in get_locales_from_config():
+            return self._finish_bad_request('Unknown locale: {}'.format(lang))
+
         ckan_path = os.path.join(os.path.dirname(__file__), '..')
         source = os.path.abspath(os.path.join(ckan_path, 'public',
                                  'base', 'i18n', '%s.js' % lang))
