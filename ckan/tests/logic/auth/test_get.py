@@ -579,6 +579,7 @@ class TestAuthFunctions(object):
         "resource_search",
         "tag_search",
         "term_translation_show",
+        "recently_changed_packages_activity_list"
     ]
 
     @pytest.mark.parametrize("func", functions)

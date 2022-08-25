@@ -572,3 +572,9 @@ def term_translation_show(context, data_dict):
     '''Check if the translations for the given term(s) and language(s) are visible.
     Visible to all by default.'''
     return {'success': True}
+
+
+def recently_changed_packages_activity_list(context, data_dict):
+    '''Check if the activity stream of all recently added or changed packages is
+    visible. Visible to all by default.'''
+    return {'success': True}

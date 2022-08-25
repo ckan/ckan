@@ -2680,6 +2680,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+    _check_access('recently_changed_packages_activity_list', context, data_dict)
     model = context['model']
     offset = data_dict.get('offset', 0)
     data_dict['include_data'] = False
