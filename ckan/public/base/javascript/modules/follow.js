@@ -33,7 +33,7 @@ this.ckan.module('follow', function($) {
 		/* Adds the X-CSRFToken header
 		*/
 		addCsrfTokenHeader: function() {
-			var csrftoken = $('meta[name=csrf-token]').attr('content')
+			var csrftoken = $('meta[name=_csrf_token]').attr('content')
 			$.ajaxSetup({
 				beforeSend: function(xhr, settings) {
 					if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {

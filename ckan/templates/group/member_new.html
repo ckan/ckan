@@ -11,7 +11,7 @@
   </h1>
   {% block form %}
   <form class="dataset-form add-member-form" method='post' id="add-member-form">
-    {{ form.csrf_protection() }}
+    {{ h.csrf_input() }}
     <div class="row">
       <div class="col-md-5">
         <div class="form-group control-medium">

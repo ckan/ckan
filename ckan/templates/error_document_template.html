@@ -10,6 +10,13 @@
       {% endif %}
       {{ content}}
     </div>
+    {% block login_redirect %}
+    {% if show_login_redirect_link %}
+    <div class="module-content">
+      {{ _("You might need to login to access this page.") }} <a href="{{ h.url_for('user.login') }}">{{ _("Click here to login") }}</a> 
+    </div>
+  {% endif %}
+  {% endblock %}
   </article>
 {% endblock %}
 

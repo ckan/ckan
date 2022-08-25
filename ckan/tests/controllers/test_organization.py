@@ -25,9 +25,7 @@ def sysadmin():
 class TestOrganizationNew(object):
 
     def test_not_logged_in(self, app):
-        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fgroup%2Fnew" in res
+        app.get(url=url_for("group.new"), status=403)
 
     def test_name_required(self, app, user):
         url = url_for("organization.new")
@@ -213,15 +211,12 @@ class TestOrganizationDelete(object):
 
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Organization()
-        res = app.get(
+        app.get(
             url=url_for(
                 "organization.delete", id=group["id"]
             ),
-            status=302,
-            follow_redirects=False
+            status=403,
         )
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Forganization%2Fdelete%2F" in res
 
         organization = helpers.call_action(
             "organization_show", id=group["id"]
@@ -561,15 +556,12 @@ class TestOrganizationMembership(object):
         organization = factories.Organization()
 
         with app.flask_app.test_request_context():
-            res = app.get(
+            app.get(
                 url_for("organization.member_new", id=organization["id"]),
-                status=302,
-                follow_redirects=False
+                status=403,
             )
-            # Anonymous users are redirected to login page
-            assert "user/login?next=%2Forganization%2Fmember_new%2F" in res
 
-            res = app.post(
+            app.post(
                 url_for("organization.member_new", id=organization["id"]),
                 data={
                     "id": "test",
@@ -577,8 +569,7 @@ class TestOrganizationMembership(object):
                     "save": "save",
                     "role": "test",
                 },
-                status=302,
-                follow_redirects=False
+                status=403,
             )
 
     def test_create_user_for_user_invite(self, mail_server, sysadmin):

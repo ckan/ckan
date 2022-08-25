@@ -287,9 +287,7 @@ class TestUser(object):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
         url = url_for("user.edit", id=factories.User.stub().name)
-        res = app.get(url, status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fuser%2Fedit%2F" in res
+        app.get(url, status=403)
 
     def test_user_edit_not_logged_in(self, app):
         """Attempt to read edit user for an existing, not-logged in user
@@ -298,9 +296,7 @@ class TestUser(object):
         user = factories.User()
         username = user["name"]
         url = url_for("user.edit", id=username)
-        res = app.get(url, status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fuser%2Fedit%2F" in res
+        app.get(url, status=403)
 
     def test_edit_user(self, app, user):
         env = {"Authorization": user["token"]}
