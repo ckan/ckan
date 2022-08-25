@@ -40,7 +40,15 @@
         {% for field in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
           {% if 'show_fields' not in resource_view
             or field.id in resource_view.show_fields %}
-            <th scope="col">{{ field.id }}</th>
+            <th scope="col">
+              {%- block datatable_column_label scoped -%}
+                {%- if 'label' in field.info and field.info.label -%}
+                  {{ field.info.label }}
+                {%- else -%}
+                  {{ field.id }}
+                {%- endif -%}
+              {%- endblock -%}
+            </th>
           {% endif %}
         {% endfor %}
       </tr>
