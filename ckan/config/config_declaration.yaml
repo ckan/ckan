@@ -265,6 +265,59 @@ groups:
           cookie sent to the client. `ckan generate config` generates a unique
           value for this each time it generates a config file.
 
+  - annotation: Beaker session settings
+    options:
+      - key: auto
+        type: bool
+        default: False
+        description: |
+          When set to True, the session will save itself anytime it is accessed during a request, 
+          negating the need to issue the save() method.
+      
+      - key: cookie_expires
+        description: |
+          Determines when the cookie used to track the client-side of the session will expire.
+          When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
+          Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
+          Setting to an integer will result in the cookie being set to expire in that many seconds. 
+          I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
+          Defaults to never expiring.
+
+      - key: cookie_domain
+        description: |
+          What domain the cookie should be set to. When using sub-domains, 
+          this should be set to the main domain the cookie should be valid for. For example, 
+          if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
+          Defaults to the current domain in its entirety.
+
+      - key: key
+        required: True
+        description: Name of the cookie key used to save the session under.
+
+      - key: save_accessed_time
+        type: bool
+        default: True
+        description: Whether beaker should save the session's access time (true) or only modification time (false).
+
+      - key: secret
+        required: True
+        description: |
+          Used with the HMAC to ensure session integrity. This value should ideally be a randomly generated string.
+          When using in a cluster environment, the secret must be the same on every machine.
+
+      - key: secure
+        type: bool
+        description: |
+          Whether or not the session cookie should be marked as secure. When marked as secure,
+          browsers are instructed to not send the cookie over anything other than an SSL connection.
+
+      - key: timeout
+        description: |
+          Seconds until the session is considered invalid, after which it will be ignored and invalidated.
+          This number is based on the time since the session was last accessed, not from when the session was created.
+          Defaults to never expiring.
+          Requires that save_accessed_time be true.
+
   - annotation: Database settings
     options:
       - key: sqlalchemy.url
