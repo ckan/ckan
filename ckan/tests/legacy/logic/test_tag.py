@@ -149,12 +149,15 @@ class TestAction(object):
 
     def test_15a_tag_search_with_vocab_that_does_not_exist(self, app):
         paramd = {"q": "neo", "vocabulary_id": "xxxxxx"}
-        app.post("/api/action/tag_search", json=paramd, status=404)
+        res = app.post("/api/action/tag_search", json=paramd)
+        assert json.loads(res.body)['result']['results']== []
+
 
     def test_15a_tag_search_with_invalid_vocab(self, app):
         for vocab_name in (None, "", "a", "e" * 200):
             paramd = {"q": "neo", "vocabulary_id": vocab_name}
-            app.post("/api/action/tag_search", json=paramd, status=404)
+            res = app.post("/api/action/tag_search", json=paramd)
+            assert json.loads(res.body)['result']['results']== []
 
     def test_15_tag_autocomplete(self, app):
         # Empty query
@@ -388,15 +391,17 @@ class TestAction(object):
             paramd = {"vocabulary_id": "does_not_exist", "q": q}
 
             res = app.post(
-                "/api/action/tag_autocomplete", json=paramd, status=404
+                "/api/action/tag_autocomplete", json=paramd
             )
-            assert res.json["success"] is False
+            assert res.json["success"] is True
+            assert json.loads(res.body)['result'] == []
 
     def test_15_tag_autocomplete_with_invalid_vocab(self, app):
         for vocab_name in (None, "", "a", "e" * 200):
             for q in (None, "", "son"):
                 paramd = {"vocabulary_id": vocab_name, "q": q}
                 res = app.post(
-                    "/api/action/tag_autocomplete", json=paramd, status=404
+                    "/api/action/tag_autocomplete", json=paramd
                 )
-                assert res.json["success"] is False
+                assert res.json["success"] is True
+                assert json.loads(res.body)['result'] == []
