@@ -428,3 +428,44 @@ def user_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the number of followers of a user are visible.
     Visible to all by default.'''
     return {'success': True}
+
+def am_following_dataset(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a dataset is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def am_following_group(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def am_following_user(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a user is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_package_show(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the set of datasets belonging to a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def member_list(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the members of a given group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def resource_search(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if resource search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+def tag_search(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if tag search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+def term_translation_show(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the translations for the given term(s) and language(s) are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
