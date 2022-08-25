@@ -42,7 +42,7 @@
             or field.id in resource_view.show_fields %}
             <th scope="col">
               {% set label = 'label_' + h.lang() %}
-              {% if label in field.info and field.info[label]|length %}
+              {% if label in field.info and field.info[label] %}
                 {{ field.info[label] }}
               {% else %}
                 {{ field.id }}
