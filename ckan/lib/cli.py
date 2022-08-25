@@ -530,6 +530,7 @@ class SearchIndexCommand(CkanCommand):
       search-index show DATASET_NAME                                - shows index of a dataset
       search-index clear [dataset_name]                             - clears the search index for the provided dataset or
                                                                     for the whole ckan instance
+      search-index list-orphans                                     - lists any non-existant packages from the search-index
       search-index remove-orphans                                   - removes any non-existant packages from the search-index
     '''
 
@@ -584,6 +585,8 @@ Default is false.''')
             self.show()
         elif cmd == 'clear':
             self.clear()
+        elif cmd == 'list-orphans':
+            self.list_orphans()
         elif cmd == 'remove-orphans':
             self.remove_orphans()
         else:
@@ -629,31 +632,29 @@ Default is false.''')
             clear(package_id)
 
 
-    def remove_orphans(self):
-        indexed_package_ids = []
-        rows = 100
-        while True:
-            search = logic.get_action('package_search')({},{
-                                'q': '*:*',
-                                'start': rows - 100,
-                                'rows': rows,
-                                'fl': 'id'})
-            indexed_package_ids += [r['id'] for r in search['results']]
-            if len(search['results']) == 0:
-                break
-            rows += 100
+    def list_orphans(self, return_list=False):
+        search = logic.get_action('package_search')({},{
+                    'q': '*:*',
+                    'fl': 'id'})
+        indexed_package_ids = {r['id'] for r in search['results']}
 
         import ckan.model as model
         from sqlalchemy.sql import select
-        package_ids = [r[0] for r in select([model.package_table.c['id']]).execute()]
+        package_ids = {r[0] for r in select([model.package_table.c['id']]).execute()}
 
         orphaned_package_ids = []
         for indexed_package_id in indexed_package_ids:
             if indexed_package_id not in package_ids:
                 orphaned_package_ids.append(indexed_package_id)
 
+        if return_list:
+            return orphaned_package_ids
+        pprint(orphaned_package_ids)
+
+
+    def remove_orphans(self):
         from ckan.lib.search import clear
-        for orphaned_package_id in orphaned_package_ids:
+        for orphaned_package_id in self.list_orphans(return_list=True):
             clear(orphaned_package_id)
 
 
