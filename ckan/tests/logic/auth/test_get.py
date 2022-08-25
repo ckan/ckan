@@ -556,8 +556,9 @@ class TestPackageMemberList(object):
         assert helpers.call_auth(
             'package_collaborator_list', context=context, id=dataset['id'])
 
+
 class TestAuthFunctions(object):
-    '''Simple tests (can anonymous call it?) for a group of auth functions for actions 
+    '''Simple tests (can anonymous call it?) for a group of auth functions for actions
     that previously didn't have an auth function.'''
 
     functions = [
