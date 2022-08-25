@@ -409,3 +409,22 @@ def followee_count(context: Context, data_dict: DataDict) -> AuthResult:
     Visible to all by default.'''
     return {'success': True}
 
+def dataset_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a dataset are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def organization_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of an organization are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def user_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a user are visible.
+    Visible to all by default.'''
+    return {'success': True}

@@ -2499,6 +2499,7 @@ def user_follower_count(
     :rtype: int
 
     '''
+    _check_access('user_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
@@ -2516,6 +2517,7 @@ def dataset_follower_count(
     :rtype: int
 
     '''
+    _check_access('dataset_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
@@ -2533,6 +2535,7 @@ def group_follower_count(
     :rtype: int
 
     '''
+    _check_access('group_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
@@ -2550,6 +2553,7 @@ def organization_follower_count(
     :rtype: int
 
     '''
+    _check_access('organization_follower_count', context, data_dict)
     return group_follower_count(context, data_dict)
 
 

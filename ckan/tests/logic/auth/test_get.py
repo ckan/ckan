@@ -602,6 +602,7 @@ class TestStatusShow:
         context = {"user": "", "model": model}
         assert helpers.call_auth("status_show", context)
 
+@pytest.mark.usefixtures("non_clean_db")
 class TestFolloweeCount:
 
     functions = [
@@ -614,6 +615,23 @@ class TestFolloweeCount:
 
     @pytest.mark.parametrize("func", functions)
     def test_anonymous_can_see_followee_count(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestFollowerCount:
+
+    functions = [
+        "dataset_follower_count",
+        "group_follower_count",
+        "organization_follower_count",
+        "user_follower_count",
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_see_follower_count(self, func):
         user = factories.User()
         context = {"user": "", "model": model}
         assert helpers.call_auth(func, context, id=user["id"])
