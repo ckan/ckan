@@ -365,8 +365,11 @@ class GroupController(base.BaseController):
 
     def _update_facet_titles(self, facets, group_type):
         for plugin in plugins.PluginImplementations(plugins.IFacets):
-            facets = plugin.group_facets(
-                facets, group_type, None)
+	    facets = (
+		plugin.group_facets(facets, group_type, None)
+		if group_type == "group"
+		else plugin.organization_facets(facets, group_type, None)
+	    )
         return facets
 
     def bulk_process(self, id):
