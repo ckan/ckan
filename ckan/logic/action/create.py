@@ -289,8 +289,9 @@ def resource_create(context, data_dict):
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
+    package_show_context = dict(context, for_update=True, return_type='dict')
     pkg_dict = _get_action('package_show')(
-        dict(context, return_type='dict'),
+        package_show_context,
         {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
