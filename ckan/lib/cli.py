@@ -655,6 +655,8 @@ Default is false.''')
     def clear_orphans(self):
         from ckan.lib.search import clear
         for orphaned_package_id in self.list_orphans(return_list=True):
+            if self.verbose:
+                print("Clearing search index for dataset %s..." % orphaned_package_id)
             clear(orphaned_package_id)
 
 
