@@ -18,10 +18,7 @@ class TestGroupController(object):
         bulk_process_url = url_for(
             "organization.bulk_process", id="does-not-exist"
         )
-        res = app.get(url=bulk_process_url, status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        redirect_url = "user/login?next=%2Forganization%2Fbulk_process%2Fdoes-not-exist"
-        assert redirect_url in res
+        app.get(url=bulk_process_url, status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = sorted([factories.Organization() for _ in range(35)],
@@ -77,9 +74,7 @@ def user():
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
-        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fgroup%2Fnew" in res
+        app.get(url=url_for("group.new"), status=403)
 
     def test_name_required(self, app, user):
         env = {"Authorization": user["token"]}
@@ -140,9 +135,7 @@ class TestGroupControllerNew(object):
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
-        res = app.get(url=url_for("group.new"), status=302, follow_redirects=False)
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fgroup%2Fnew" in res
+        app.get(url=url_for("group.new"), status=403)
 
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
@@ -301,13 +294,10 @@ class TestGroupDelete(object):
 
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Group()
-        res = app.get(
+        app.get(
             url=url_for("group.delete", id=group["id"]),
-            status=302,
-            follow_redirects=False
+            status=403,
         )
-        # Anonymous users are redirected to login page
-        assert "user/login?next=%2Fgroup%2Fdelete%2F" in res
 
         group = helpers.call_action(
             "group_show", id=group["id"]
@@ -531,11 +521,9 @@ class TestGroupMembership(object):
 
         with app.flask_app.test_request_context():
             url = url_for("group.member_new", id=group["id"])
-            res = app.get(url, status=302, follow_redirects=False)
-            # Anonymous users are redirected to login page
-            assert "user/login?next=%2Fgroup%2Fmember_new%2F" in res
+            app.get(url, status=403)
 
-            res = app.post(
+            app.post(
                 url,
                 data={
                     "id": "test",
@@ -543,11 +531,8 @@ class TestGroupMembership(object):
                     "save": "save",
                     "role": "test",
                 },
-                status=302,
-                follow_redirects=False
+                status=403,
             )
-            # Anonymous users are redirected to login page
-            assert "user/login?next=%2Fgroup%2Fmember_new%2F" in res
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
