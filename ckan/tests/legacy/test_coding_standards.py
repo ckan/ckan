@@ -526,7 +526,6 @@ class TestActionAuth(object):
         "delete: unfollow_dataset",
         "delete: unfollow_group",
         "delete: unfollow_user",
-        "get: recently_changed_packages_activity_list",
         "get: roles_show",
         "update: task_status_update_many",
         "update: term_translation_update_many",
