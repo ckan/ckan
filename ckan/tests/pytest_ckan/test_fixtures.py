@@ -40,10 +40,10 @@ def test_with_plugins_is_able_to_run_with_stats():
     assert plugins.plugin_loaded(u"stats")
 
 
-@pytest.mark.ckan_config("ckan.site_url", "https://example.org")
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.ckan_config(u"ckan.site_url", u"https://example.org")
+@pytest.mark.usefixtures(u"with_request_context")
 def test_existing_ckan_config_mark_with_test_request(ckan_config):
-    assert ckan_config["ckan.site_url"] == "https://example.org"
+    assert ckan_config[u"ckan.site_url"] == u"https://example.org"
 
 
 class TestMethodLevelConfig(object):
