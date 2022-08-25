@@ -2703,3 +2703,8 @@ def sanitize_id(id_):
     ValueError.
     '''
     return str(uuid.UUID(id_))
+
+
+@core_helper
+def csrf_input():
+    return ''

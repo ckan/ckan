@@ -473,7 +473,7 @@ def snippet(snippet_path, ver=API_REST_DEFAULT_VERSION):
 def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
 
     if lang not in get_locales_from_config():
-        return _finish_bad_request('Unknown locale: {}'.format(lang))
+        return _finish_bad_request(u'Unknown locale: {}'.format(lang))
 
     ckan_path = os.path.join(os.path.dirname(__file__), u'..')
     source = os.path.abspath(os.path.join(ckan_path, u'public',
