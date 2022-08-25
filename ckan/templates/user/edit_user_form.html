@@ -2,7 +2,7 @@
 
 {% block form %}
   <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
-    {{ form.csrf_protection() }} 
+    {{ h.csrf_input() }}
     {{ form.errors(error_summary) }}
 
     {% block core_fields %}
