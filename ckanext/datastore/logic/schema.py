@@ -198,7 +198,7 @@ def datastore_function_create_schema():
         'arguments': {
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
-            'argmode': [ignore_missing, unicode_only, OneOf([
+            'argmode': [ignore_missing, unicode_only, one_of([
                 u'in', u'out', u'inout'
             ])],
         },
