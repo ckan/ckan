@@ -530,6 +530,8 @@ class SearchIndexCommand(CkanCommand):
       search-index show DATASET_NAME                                - shows index of a dataset
       search-index clear [dataset_name]                             - clears the search index for the provided dataset or
                                                                     for the whole ckan instance
+      search-index list-orphans                                     - lists any non-existant packages from the search-index
+      search-index clear-orphans                                    - clears any non-existant packages from the search-index
     '''
 
     summary = __doc__.split('\n')[0]
@@ -583,6 +585,10 @@ Default is false.''')
             self.show()
         elif cmd == 'clear':
             self.clear()
+        elif cmd == 'list-orphans':
+            self.list_orphans()
+        elif cmd == 'clear-orphans':
+            self.clear_orphans()
         else:
             print('Command %s not recognized' % cmd)
 
@@ -624,6 +630,35 @@ Default is false.''')
             clear_all()
         else:
             clear(package_id)
+
+
+    def list_orphans(self, return_list=False):
+        search = logic.get_action('package_search')({},{
+                    'q': '*:*',
+                    'fl': 'id'})
+        indexed_package_ids = {r['id'] for r in search['results']}
+
+        import ckan.model as model
+        from sqlalchemy.sql import select
+        package_ids = {r[0] for r in select([model.package_table.c['id']]).execute()}
+
+        orphaned_package_ids = []
+        for indexed_package_id in indexed_package_ids:
+            if indexed_package_id not in package_ids:
+                orphaned_package_ids.append(indexed_package_id)
+
+        if return_list:
+            return orphaned_package_ids
+        pprint(orphaned_package_ids)
+
+
+    def clear_orphans(self):
+        from ckan.lib.search import clear
+        for orphaned_package_id in self.list_orphans(return_list=True):
+            if self.verbose:
+                print("Clearing search index for dataset %s..." % orphaned_package_id)
+            clear(orphaned_package_id)
+
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
