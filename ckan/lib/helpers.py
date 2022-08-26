@@ -18,6 +18,7 @@ import pprint
 import copy
 import uuid
 import functools
+import unicodedata
 
 from collections import defaultdict
 from typing import (
@@ -662,6 +663,15 @@ def current_url() -> str:
 def lang() -> Optional[str]:
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
+
+
+@core_helper
+def strxfrm(s: str) -> str:
+    '''
+    Transform a string to one that can be used in locale-aware comparisons.
+    Override this helper if you have different text sorting needs.
+    '''
+    return unicodedata.normalize('NFD', s).lower()
 
 
 @core_helper

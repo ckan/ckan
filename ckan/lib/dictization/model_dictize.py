@@ -43,7 +43,7 @@ def group_list_dictize(
         obj_list: Union[Iterable[model.Group],
                         Iterable[tuple[model.Group, str]]],
         context: Context,
-        sort_key: Callable[..., Any]=lambda x: x['display_name'].lower(), reverse: bool=False,
+        sort_key: Callable[..., Any]=lambda x: h.strxfrm(x['display_name']), reverse: bool=False,
         with_package_counts: bool=True,
         include_groups: bool=False,
         include_tags: bool=False,
@@ -532,7 +532,7 @@ def tag_dictize(tag: model.Tag, context: Context,
 def user_list_dictize(
         obj_list: Union[list[model.User], list[tuple[model.User, str]]],
         context: Context,
-        sort_key: Callable[[Any], Any] = lambda x: x['name'].lower(),
+        sort_key: Callable[[Any], Any] = lambda x: h.strxfrm(x['name']),
         reverse: bool=False) -> list[dict[str, Any]]:
 
     result_list = []
