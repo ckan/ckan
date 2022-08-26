@@ -602,6 +602,7 @@ class TestStatusShow:
         context = {"user": "", "model": model}
         assert helpers.call_auth("status_show", context)
 
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestFolloweeCount:
 
@@ -618,6 +619,7 @@ class TestFolloweeCount:
         user = factories.User()
         context = {"user": "", "model": model}
         assert helpers.call_auth(func, context, id=user["id"])
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollowerCount:
@@ -650,6 +652,7 @@ class TestAmFollowing:
         user = factories.User()
         context = {"user": "", "model": model}
         assert helpers.call_auth(func, context, id=user["id"])
+
 
 class TestVariousGetMethods:
 
