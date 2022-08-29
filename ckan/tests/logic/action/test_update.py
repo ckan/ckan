@@ -378,7 +378,7 @@ class TestUpdate(object):
         user = factories.User()
         context = {"user": user["name"]}
         org = factories.Organization(type="organization", user=user)
-        
+
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "organization_update",
@@ -387,9 +387,6 @@ class TestUpdate(object):
                 name=org["name"],
                 type="ragtagband",
             )
-
-
-
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
@@ -1468,7 +1465,7 @@ class TestGroupUpdate(object):
         user = factories.User()
         context = {"user": user["name"]}
         group = factories.Group(type="group", user=user)
-        
+
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "group_update",
