@@ -651,10 +651,10 @@ def _group_or_org_update(
     if group is None:
         raise NotFound('Group was not found.')
     context["group"] = group
-    
-    data_dict_type = data_dict.get('type', None) 
+
+    data_dict_type = data_dict.get('type') 
     if data_dict_type is None:
-        data_dict_type = group.type
+        data_dict['type'] = group.type
     else:
         if data_dict_type != group.type:
             raise ValidationError({"message": "Type cannot be updated"})
