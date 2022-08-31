@@ -461,7 +461,7 @@ sudo apachectl restart
 ```
 
 ### Enable sitemap generation
-create a cronjob on the host machine to generate a sitemap. Daily is likely sufficent. The cron job must be run as the same user running docker. This could be root on some systems. The sitemap files will be placed into the ckan home volume via the ckan container.
+create a cronjob on the host machine to generate a sitemap. Daily is likely sufficent. The cron job must be run as the same user running docker. This could be root on some systems. The sitemap files will be placed into the ckan home volume via the ckan container. The sitemap will be accesable at https://[ckan_site]/sitemap/sitemap.xml
 
 ```bash
 crontab -e
