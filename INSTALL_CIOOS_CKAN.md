@@ -460,6 +460,19 @@ Once all these changes have been made you'll need to restart Apache to see the r
 sudo apachectl restart
 ```
 
+### Enable sitemap generation
+create a cronjob on the host machine to generate a sitemap. Daily is likely sufficent. The cron job must be run as the same user running docker. This could be root on some systems. The sitemap files will be placed into the ckan home volume via the ckan container.
+
+```bash
+crontab -e
+or
+sudo crontab -e
+```
+
+```crontab
+0 * * * * docker exec -it ckan ckan --config=/etc/ckan/production.ini sitemap create
+```
+
 ## Setup Harvesters
 
 Add Organization
