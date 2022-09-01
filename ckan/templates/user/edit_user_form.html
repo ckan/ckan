@@ -3,7 +3,7 @@
 {% block form %}
   <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
     {{ h.csrf_input() }}
-    {{ form.errors(error_summary) }}
+    {% block form_errors %}{{ form.errors(error_summary) }}{% endblock %}
 
     {% block core_fields %}
       <fieldset>
