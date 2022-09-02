@@ -11,6 +11,7 @@
         <p>{{ _('Are you sure you want to delete group - {name}?').format(name=group_dict.name) }}</p>
         <p class="form-actions">
           <form id="group-confirm-delete-form" action="{% url_for group_type+'.delete', id=group_dict.name %}" method="post">
+            {{ h.csrf_input() }}
             <button class="btn btn-danger" type="submit" name="cancel" >{{ _('Cancel') }}</button>
             <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
           </form>

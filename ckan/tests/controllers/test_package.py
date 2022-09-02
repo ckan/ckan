@@ -7,7 +7,6 @@ import unittest.mock as mock
 import ckan.authz as authz
 from ckan.lib.helpers import url_for
 import pytest
-import six
 from urllib.parse import urlparse
 import ckan.model as model
 import ckan.plugins as p
@@ -18,9 +17,15 @@ import ckan.tests.factories as factories
 
 
 @pytest.fixture
-def user_env():
-    user = factories.User()
-    return {"REMOTE_USER": six.ensure_str(user["name"])}
+def sysadmin():
+    user = factories.SysadminWithToken()
+    return user
+
+
+@pytest.fixture
+def user():
+    user = factories.UserWithToken()
+    return user
 
 
 def _get_location(res):
@@ -28,18 +33,25 @@ def _get_location(res):
     return urlparse(location)._replace(scheme='', netloc='').geturl()
 
 
+def mock_current_user(current_user):
+    user = factories.User()
+    user_obj = model.User.get(user["name"])
+    # mock current_user
+    current_user.return_value = user_obj
+
+
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageNew(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
     @pytest.mark.usefixtures("with_plugins")
-    def test_new_plugin_hook(self, app):
-        user = factories.User()
+    def test_new_plugin_hook(self, app, user):
         plugin = p.get_plugin("test_package_controller_plugin")
+        env = {"Authorization": user["token"]}
         app.post(
             url_for("dataset.new"),
-            extra_environ={"REMOTE_USER": user["name"]},
-            data={"name": factories.Dataset.stub().name, "save": ""},
+            extra_environ=env,
+            data={"name": u"plugged", "save": ""},
             follow_redirects=False,
         )
         assert plugin.calls["edit"] == 0, plugin.calls
@@ -47,13 +59,13 @@ class TestPackageNew(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
     @pytest.mark.usefixtures("with_plugins")
-    def test_after_create_plugin_hook(self, app):
-        user = factories.User()
+    def test_after_create_plugin_hook(self, app, user):
         plugin = p.get_plugin("test_package_controller_plugin")
+        env = {"Authorization": user["token"]}
         app.post(
             url_for("dataset.new"),
-            extra_environ={"REMOTE_USER": user["name"]},
-            data={"name": factories.Dataset.stub().name, "save": ""},
+            extra_environ=env,
+            data={"name": u"plugged2", "save": ""},
             follow_redirects=False,
         )
         assert plugin.calls["after_dataset_update"] == 0, plugin.calls
@@ -62,48 +74,45 @@ class TestPackageNew(object):
         assert plugin.id_in_dict
 
     @pytest.mark.usefixtures("clean_index")
-    def test_new_indexerror(self, app):
+    def test_new_indexerror(self, app, user):
         from ckan.lib.search.common import SolrSettings
-        user = factories.User()
         bad_solr_url = "http://example.com/badsolrurl"
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
-            new_package_name = factories.Dataset.stub().name
-
+            new_package_name = u"new-package-missing-solr"
             offset = url_for("dataset.new")
+            env = {"Authorization": user["token"]}
             res = app.post(
                 offset,
-                extra_environ={"REMOTE_USER": user["name"]},
+                extra_environ=env,
                 data={"save": "", "name": new_package_name},
             )
             assert "Unable to add package to search index" in res, res
         finally:
             SolrSettings.init(solr_url)
 
-    def test_change_locale(self, app):
-        user = factories.User()
+    def test_change_locale(self, app, user):
         url = url_for("dataset.new")
-        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
-        res = app.get("/de/dataset/new", extra_environ={"REMOTE_USER": user["name"]})
+        env = {"Authorization": user["token"]}
+        res = app.get(url, extra_environ=env)
+        res = app.get("/de/dataset/new", extra_environ=env)
         assert helpers.body_contains(res, "Datensatz")
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
-    def test_needs_organization_but_no_organizations_has_button(self, app):
+    def test_needs_organization_but_no_organizations_has_button(self, app, sysadmin):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is allowed to create an
         organization they should be prompted to do so when they try to create
         a new dataset"""
-        sysadmin = factories.Sysadmin()
-
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+        env = {"Authorization": sysadmin["token"]}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
         assert url_for("organization.new") in response
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
     @pytest.mark.ckan_config("ckan.auth.user_create_organizations", "false")
     def test_needs_organization_but_no_organizations_no_button(
-        self, monkeypatch, app
+        self, monkeypatch, app, user
     ):
         """ Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
@@ -114,59 +123,59 @@ class TestPackageNew(object):
         monkeypatch.setitem(
             authz._AuthFunctions._functions, 'package_create',
             lambda *_: {'success': True})
-
-        user = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.get(url=url_for("dataset.new"), extra_environ=env)
 
         assert url_for("organization.new") not in response
         assert "Ask a system administrator" in response
 
-    def test_name_required(self, app, user_env):
+    def test_name_required(self, app, user):
+        env = {"Authorization": user["token"]}
         url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=user_env, data={"save": ""})
+        response = app.post(url, extra_environ=env, data={"save": ""})
         assert "Name: Missing value" in response
 
-    def test_first_page_creates_draft_package(self, app, user_env):
+    def test_first_page_creates_draft_package(self, app, user):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-
-        app.post(url, environ_overrides=user_env, data={
+        env = {"Authorization": user["token"]}
+        app.post(url, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         pkg = model.Package.by_name(name)
         assert pkg.state == "draft"
 
-    def test_resource_required(self, app, user_env):
+    def test_resource_required(self, app, user):
         url = url_for("dataset.new")
-        name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+        name = "one-resource-required"
+        env = {"Authorization": user["token"]}
+        response = app.post(url, extra_environ=env, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "",
             "save": "go-metadata",
         })
         assert "You must add at least one data resource" in response
 
-    def test_complete_package_with_one_resource(self, app, user_env):
+    def test_complete_package_with_one_resource(self, app, user):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+        env = {"Authorization": user["token"]}
+        response = app.post(url, extra_environ=env, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
 
         }, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata"
@@ -176,21 +185,24 @@ class TestPackageNew(object):
         assert pkg.resources[0].url == u"http://example.com/resource"
         assert pkg.state == "active"
 
-    def test_complete_package_with_two_resources(self, app, user_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_complete_package_with_two_resources(self, current_user, app):
+        mock_current_user(current_user)
+
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+        response = app.post(url, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
         location = _get_location(response)
-        app.post(location, environ_overrides=user_env, data={
+        app.post(location, data={
             "id": "",
             "url": "http://example.com/resource0",
             "save": "again"
         })
-        app.post(location, environ_overrides=user_env, data={
+        app.post(location, data={
             "id": "",
             "url": "http://example.com/resource1",
             "save": "go-metadata"
@@ -201,33 +213,39 @@ class TestPackageNew(object):
         assert resources[1].url == u"http://example.com/resource1"
         assert pkg.state == "active"
 
-    def test_previous_button_works(self, app, user_env):
+    # resource upload is tested in TestExampleIUploaderPlugin
+
+    def test_previous_button_works(self, app, user):
         url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=user_env, data={
-            "name": factories.Dataset.stub().name,
+        env = {"Authorization": user["token"]}
+        response = app.post(url, extra_environ=env, data={
+            "name": "previous-button-works",
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
 
         location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "save": "go-dataset"
         }, follow_redirects=False)
 
         assert '/dataset/edit/' in response.headers['location']
 
-    def test_previous_button_populates_form(self, app, user_env):
+    @mock.patch("flask_login.utils._get_user")
+    def test_previous_button_populates_form(self, current_user, app):
+        mock_current_user(current_user)
+
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+        response = app.post(url, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
 
         location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
+        response = app.post(location, data={
             "id": "",
             "save": "go-dataset"
         })
@@ -235,17 +253,18 @@ class TestPackageNew(object):
         assert 'name="title"' in response
         assert f'value="{name}"'
 
-    def test_previous_next_maintains_draft_state(self, app, user_env):
+    def test_previous_next_maintains_draft_state(self, app, user):
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=user_env, data={
+        env = {"Authorization": user["token"]}
+        response = app.post(url, extra_environ=env, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
 
         location = _get_location(response)
-        response = app.post(location, environ_overrides=user_env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "save": "go-dataset"
         })
@@ -254,30 +273,29 @@ class TestPackageNew(object):
         assert pkg.state == "draft"
 
     def test_dataset_edit_org_dropdown_visible_to_normal_user_with_orgs_available(
-        self, app
+        self, app, user
     ):
         """
         The 'Organization' dropdown is available on the dataset create/edit
         page to normal (non-sysadmin) users who have organizations available
         to them.
         """
-        user = factories.User()
+        env = {"Authorization": user["token"]}
         # user is admin of org.
         org = factories.Organization(
-            name=factories.Organization.stub().name, users=[{"name": user["id"], "capacity": "admin"}]
+            name="my-org", users=[{"name": user["name"], "capacity": "admin"}]
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         name = factories.Dataset.stub().name
         url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
+        response = app.post(url, data={
             "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata"
@@ -299,28 +317,27 @@ class TestPackageNew(object):
         ]
         assert org["id"] in owner_org_options
 
-    def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self, app):
+    def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self, app, user):
         """
         A normal user (non-sysadmin) can remove an organization from a dataset
         have permissions on.
         """
-        user = factories.User()
+        env = {"Authorization": user["token"]}
         # user is admin of org.
         org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            name="my-org", users=[{"name": user["name"], "capacity": "admin"}]
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         name = factories.Dataset.stub().name
         url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
+        response = app.post(url, data={
             "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata"
@@ -339,26 +356,25 @@ class TestPackageNew(object):
         assert post_edit_pkg.owner_org != org["id"]
 
     def test_dataset_edit_org_dropdown_not_visible_to_normal_user_with_no_orgs_available(
-        self, app
+        self, app, user
     ):
         """
         The 'Organization' dropdown is not available on the dataset
         create/edit page to normal (non-sysadmin) users who have no
         organizations available to them.
         """
-        user = factories.User()
         # user isn't admin of org.
-        org = factories.Organization()
+        org = factories.Organization(name="my-org")
         name = factories.Dataset.stub().name
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         url = url_for("dataset.new")
-        response = app.post(url, environ_overrides=env, data={
+        env = {"Authorization": user["token"]}
+        response = app.post(url, data={
             "name": name,
             "save": "",
             "_ckan_phase": 1
-        }, follow_redirects=False)
+        }, extra_environ=env, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata"
@@ -376,34 +392,34 @@ class TestPackageNew(object):
         assert 'value="{0}"'.format(org["id"]) not in pkg_edit_response
 
     def test_dataset_edit_org_dropdown_visible_to_sysadmin_with_no_orgs_available(
-        self, app
+        self, app, sysadmin
     ):
         """
         The 'Organization' dropdown is available to sysadmin users regardless
         of whether they personally have an organization they administrate.
         """
         user = factories.User()
-        sysadmin = factories.Sysadmin()
         # user is admin of org.
         org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            name="my-org", users=[{"name": user["name"], "capacity": "admin"}]
         )
 
-        # user in env is sysadmin
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         url = url_for("dataset.new")
+        # user in env is sysadmin
+        env = {"Authorization": sysadmin["token"]}
         response = app.get(url=url, extra_environ=env)
         # organization dropdown available in create page.
         assert 'id="field-organizations"' in response
         name = factories.Dataset.stub().name
-        response = app.post(url, environ_overrides=env, data={
+
+        response = app.post(url, extra_environ=env, data={
             "name": name,
             "owner_org": org["id"],
             "save": "",
             "_ckan_phase": 1
         }, follow_redirects=False)
         location = _get_location(response)
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata"
@@ -430,10 +446,9 @@ class TestPackageNew(object):
             status=403,
         )
 
-    def test_form_without_initial_data(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_form_without_initial_data(self, app, user):
         url = url_for("dataset.new")
+        env = {"Authorization": user["token"]}
         resp = app.get(url=url, extra_environ=env)
         page = BeautifulSoup(resp.body)
         form = page.select_one('#dataset-edit')
@@ -441,11 +456,10 @@ class TestPackageNew(object):
         assert not form.select_one('[name=name]')['value']
         assert not form.select_one('[name=notes]').text
 
-    def test_form_with_initial_data(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_form_with_initial_data(self, app, user):
         url = url_for("dataset.new", name="name",
                       notes="notes", title="title")
+        env = {"Authorization": user["token"]}
         resp = app.get(url=url, extra_environ=env)
         page = BeautifulSoup(resp.body)
         form = page.select_one('#dataset-edit')
@@ -456,31 +470,31 @@ class TestPackageNew(object):
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageEdit(object):
-    def test_redirect_after_edit_using_param(self, app):
+    def test_redirect_after_edit_using_param(self, app, sysadmin):
         return_url = "http://random.site.com/dataset/<NAME>?test=param"
         pkg = factories.Dataset()
-        admin = factories.Sysadmin()
         url = url_for("dataset.edit", id=pkg["name"], return_to=return_url)
-        resp = app.post(url, extra_environ={"REMOTE_USER": admin["name"]}, follow_redirects=False)
+        env = {"Authorization": sysadmin["token"]}
+        resp = app.post(url, extra_environ=env, follow_redirects=False)
         assert resp.headers["location"] == return_url.replace("<NAME>", pkg["name"])
 
-    def test_redirect_after_edit_using_config(self, app, ckan_config):
+    def test_redirect_after_edit_using_config(self, app, ckan_config, sysadmin):
         expected_redirect = ckan_config["package_edit_return_url"]
         pkg = factories.Dataset()
-        admin = factories.Sysadmin()
         url = url_for("dataset.edit", id=pkg["name"])
-        resp = app.post(url, extra_environ={"REMOTE_USER": admin["name"]}, follow_redirects=False)
+        env = {"Authorization": sysadmin["token"]}
+        resp = app.post(url, extra_environ=env, follow_redirects=False)
         assert resp.headers["location"] == expected_redirect.replace("<NAME>", pkg["name"])
 
-    def test_organization_admin_can_edit(self, app):
-        user = factories.User()
+    def test_organization_admin_can_edit(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         app.post(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
             data={
                 "notes": u"edited description",
                 "save": ""
@@ -489,15 +503,15 @@ class TestPackageEdit(object):
         result = helpers.call_action("package_show", id=dataset["id"])
         assert u"edited description" == result["notes"]
 
-    def test_organization_editor_can_edit(self, app):
-        user = factories.User()
+    def test_organization_editor_can_edit(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "editor"}]
+            users=[{"name": user["name"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         app.post(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
             data={
                 "notes": u"edited description",
                 "save": ""
@@ -507,61 +521,51 @@ class TestPackageEdit(object):
         result = helpers.call_action("package_show", id=dataset["id"])
         assert u"edited description" == result["notes"]
 
-    def test_organization_member_cannot_edit(self, app):
-        user = factories.User()
+    def test_organization_member_cannot_edit(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         app.get(
             url_for("dataset.edit", id=dataset["name"]),
             extra_environ=env,
-            status=403,
-        )
+            status=403)
 
-    def test_user_not_in_organization_cannot_edit(self, app):
-        user = factories.User()
+    def test_user_not_in_organization_cannot_edit(self, app, user):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        app.get(
-            url_for("dataset.edit", id=dataset["name"]),
-            extra_environ=env,
-            status=403,
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        url = url_for("dataset.edit", id=dataset["name"])
+        env = {"Authorization": user["token"]}
+        app.get(url=url, extra_environ=env, status=403)
         app.post(
-            url_for("dataset.edit", id=dataset["name"]),
-            data={"notes": "edited description"},
+            url=url,
             extra_environ=env,
-            status=403,
-        )
+            data={"notes": "edited description"},
+            status=403)
 
     def test_anonymous_user_cannot_edit(self, app):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        app.get(
-            url_for("dataset.edit", id=dataset["name"]), status=403
-        )
+        url = url_for("dataset.edit", id=dataset["name"])
+        app.get(url=url, status=403)
 
         app.post(
-            url_for("dataset.edit", id=dataset["name"]),
+            url=url,
             data={"notes": "edited description"},
             status=403,
         )
 
-    def test_validation_errors_for_dataset_name_appear(self, app):
+    def test_validation_errors_for_dataset_name_appear(self, app, user):
         """fill out a bad dataset set name and make sure errors appear"""
-        user = factories.User()
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
             data={
                 "name": "this is not a valid name",
                 "save": ""
@@ -574,14 +578,9 @@ class TestPackageEdit(object):
             "characters and these symbols: -_" in response.body
         )
 
-    def test_edit_a_dataset_that_does_not_exist_404s(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.edit", id="does-not-exist"),
-            extra_environ=env,
-
-        )
+    def test_edit_a_dataset_that_does_not_exist_404s(self, app, user):
+        env = {"Authorization": user["token"]}
+        response = app.get(url_for("dataset.edit", extra_environ=env, id="does-not-exist"))
         assert 404 == response.status_code
 
 
@@ -590,51 +589,42 @@ class TestPackageOwnerOrgList(object):
 
     owner_org_select = '<select id="field-organizations" name="owner_org"'
 
-    def test_org_list_shown_if_new_dataset_and_user_is_admin_or_editor_in_an_org(self, app):
-        user = factories.User()
+    def test_org_list_shown_if_new_dataset_and_user_is_admin_or_editor_in_an_org(self, app, user):
+        env = {"Authorization": user["token"]}
         factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.new"), extra_environ=env
-        )
+        response = app.get(url_for("dataset.new"), extra_environ=env)
         assert self.owner_org_select in response.body
 
-    def test_org_list_shown_if_admin_or_editor_of_the_dataset_org(self, app):
-        user = factories.User()
+    def test_org_list_shown_if_admin_or_editor_of_the_dataset_org(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
-        )
+        response = app.get(url_for("dataset.edit", id=dataset["name"]), extra_environ=env)
         assert self.owner_org_select in response.body
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
-    def test_org_list_not_shown_if_user_is_a_collaborator_with_default_config(self, app):
-
+    def test_org_list_not_shown_if_user_is_a_collaborator_with_default_config(self, app, user):
+        env = {"Authorization": user["token"]}
         organization1 = factories.Organization()
         dataset = factories.Dataset(owner_org=organization1["id"])
 
-        user = factories.User()
         factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         helpers.call_action(
             'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user["name"], capacity='editor')
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env
-        )
+        response = app.get(url_for("dataset.edit", id=dataset["name"]), extra_environ=env)
         assert self.owner_org_select not in response.body
 
         response = app.post(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
             data={
                 "notes": "changed",
                 "save": ""
@@ -646,27 +636,24 @@ class TestPackageOwnerOrgList(object):
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
     @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
-    def test_org_list_shown_if_user_is_a_collaborator_with_config_enabled(self, app):
-
+    def test_org_list_shown_if_user_is_a_collaborator_with_config_enabled(self, app, user):
+        env = {"Authorization": user["token"]}
         organization1 = factories.Organization()
         dataset = factories.Dataset(owner_org=organization1["id"])
 
-        user = factories.User()
         organization2 = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         helpers.call_action(
             'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            id=dataset['id'], user_id=user["name"], capacity='editor')
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
-        )
+        response = app.get(url_for("dataset.edit", id=dataset["name"]), extra_environ=env)
         assert self.owner_org_select in response.body
 
         response = app.post(
-            url_for("dataset.edit", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.edit", id=dataset["name"]),
+            extra_environ=env,
             data={
                 "notes": "changed",
                 "owner_org": organization2['id'],
@@ -688,10 +675,10 @@ class TestPackageRead(object):
 
     def test_organization_members_can_read_private_datasets(self, app):
         members = {
-            "member": factories.User(),
-            "editor": factories.User(),
-            "admin": factories.User(),
-            "sysadmin": factories.Sysadmin(),
+            "member": factories.UserWithToken(),
+            "editor": factories.UserWithToken(),
+            "admin": factories.UserWithToken(),
+            "sysadmin": factories.SysadminWithToken(),
         }
         organization = factories.Organization(
             users=[
@@ -702,12 +689,8 @@ class TestPackageRead(object):
         )
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         for _, user_dict in members.items():
-            response = app.get(
-                url_for("dataset.read", id=dataset["name"]),
-                extra_environ={
-                    "REMOTE_USER": six.ensure_str(user_dict["name"])
-                },
-            )
+            env = {"Authorization": user_dict["token"]}
+            response = app.get(url_for("dataset.read", id=dataset["name"]), extra_environ=env)
             assert dataset["title"] in response.body
             assert dataset["notes"] in response.body
 
@@ -719,15 +702,12 @@ class TestPackageRead(object):
         )
         assert 404 == response.status_code
 
-    def test_user_not_in_organization_cannot_read_private_datasets(self, app):
-        user = factories.User()
+    def test_user_not_in_organization_cannot_read_private_datasets(self, app, user):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
+        env = {"Authorization": user["token"]}
         response = app.get(
-            url_for("dataset.read", id=dataset["name"]),
-            extra_environ={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=404,
-        )
+            url_for("dataset.read", id=dataset["name"]), extra_environ=env, status=404)
         assert 404 == response.status_code
 
     def test_read_rdf(self, app):
@@ -747,17 +727,17 @@ class TestPackageRead(object):
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageDelete(object):
-    def test_owner_delete(self, app):
-        user = factories.User()
+    def test_owner_delete(self, app, user):
+        env = {"Authorization": user["token"]}
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
-            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
-        )
+            url_for("dataset.delete", id=dataset["name"]),
+            extra_environ=env
+            )
         assert 200 == response.status_code
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
@@ -770,25 +750,22 @@ class TestPackageDelete(object):
         )
         assert 404 == response.status_code
 
-    def test_sysadmin_can_delete_any_dataset(self, app):
+    def test_sysadmin_can_delete_any_dataset(self, app, sysadmin):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
-
-        user = factories.Sysadmin()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        env = {"Authorization": sysadmin["token"]}
         response = app.post(
-            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
-        )
+            url_for("dataset.delete", id=dataset["name"]),
+            extra_environ=env
+            )
         assert 200 == response.status_code
 
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "deleted" == deleted["state"]
 
-    def test_anon_user_cannot_delete_owned_dataset(self, app):
-        user = factories.User()
+    def test_anon_user_cannot_delete_owned_dataset(self, app, user):
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
@@ -800,60 +777,57 @@ class TestPackageDelete(object):
         deleted = helpers.call_action("package_show", id=dataset["id"])
         assert "active" == deleted["state"]
 
-    def test_logged_in_user_cannot_delete_owned_dataset(self, app):
+    def test_logged_in_user_cannot_delete_owned_dataset(self, app, user):
+        env = {"Authorization": user["token"]}
         owner = factories.User()
         owner_org = factories.Organization(
             users=[{"name": owner["id"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
 
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]),
-            extra_environ=env,
-
-        )
+            extra_environ=env
+            )
         assert 403 == response.status_code
         assert helpers.body_contains(response, "Unauthorized to delete package")
 
-    def test_confirm_cancel_delete(self, app):
+    @mock.patch("flask_login.utils._get_user")
+    def test_confirm_cancel_delete(self, current_user, app):
         """Test confirmation of deleting datasets
 
         When package_delete is made as a get request, it should return a
         'do you want to delete this dataset? confirmation page"""
         user = factories.User()
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url_for("dataset.delete", id=dataset["name"]), extra_environ=env
-        )
+        response = app.get(url_for("dataset.delete", id=dataset["name"]))
         assert 200 == response.status_code
         message = "Are you sure you want to delete dataset - {name}?"
         assert helpers.body_contains(response, message.format(name=dataset["title"]))
 
         response = app.post(
-            url_for("dataset.delete", id=dataset["name"]), extra_environ=env,
+            url_for("dataset.delete", id=dataset["name"]),
             data={"cancel": ""}
-        )
-
+            )
         assert 200 == response.status_code
 
     @pytest.mark.ckan_config("ckan.plugins", "test_package_controller_plugin")
     @pytest.mark.usefixtures("with_plugins")
-    def test_delete(self, app):
-        user = factories.User()
-        admin = factories.Sysadmin()
+    def test_delete(self, app, user, sysadmin):
         dataset = factories.Dataset()
         plugin = p.get_plugin("test_package_controller_plugin")
         plugin.calls.clear()
         url = url_for("dataset.delete", id=dataset["name"])
-        app.post(url, extra_environ={"REMOTE_USER": user["name"]})
-        app.post(url, extra_environ={"REMOTE_USER": admin["name"]})
+        user_env = {"Authorization": user["token"]}
+        app.post(url, extra_environ=user_env)
+        sysadmin_env = {"Authorization": sysadmin["token"]}
+        app.post(url, extra_environ=sysadmin_env)
 
         assert model.Package.get(dataset["name"]).state == u"deleted"
 
@@ -863,51 +837,47 @@ class TestPackageDelete(object):
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestResourceNew(object):
-    def test_manage_dataset_resource_listing_page(self, app):
-        user = factories.User()
+    def test_manage_dataset_resource_listing_page(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
-            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
-        )
+            url_for("dataset.resources", id=dataset["name"]),
+            extra_environ=env
+            )
         assert resource["name"] in response
         assert resource["description"][:60].split("\n")[0] in response
         assert resource["format"] in response
 
     def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(
-        self, app
+        self, app, user
     ):
-        user = factories.User()
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=organization["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
-            url_for("dataset.resources", id=dataset["name"]), extra_environ=env
-        )
+            url_for("dataset.resources", id=dataset["name"]),
+            extra_environ=env
+            )
         assert resource["name"] in response
         assert resource["description"][:60].split("\n")[0] in response
         assert resource["format"] in response
 
     def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(
-        self, app
+        self, app, user
     ):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.get(
             url_for("dataset.resources", id="does-not-exist"),
-            extra_environ=env,
-
-        )
+            extra_environ=env
+            )
         assert 404 == response.status_code
 
-    def test_add_new_resource_with_link_and_download(self, app):
-        user = factories.User()
+    def test_add_new_resource_with_link_and_download(self, app, user):
         dataset = factories.Dataset()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        env = {"Authorization": user["token"]}
         response = app.post(
             url_for(
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
@@ -919,9 +889,7 @@ class TestResourceNew(object):
                 "save": "go-dataset-complete"
             }
         )
-
         result = helpers.call_action("package_show", id=dataset["id"])
-
         response = app.get(
             url_for(
                 "{}_resource.download".format(dataset["type"]),
@@ -933,13 +901,12 @@ class TestResourceNew(object):
         )
         assert 302 == response.status_code
 
-    def test_editor_can_add_new_resource(self, app):
-        user = factories.User()
+    def test_editor_can_add_new_resource(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "editor"}]
+            users=[{"name": user["name"], "capacity": "editor"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         app.post(
             url_for(
@@ -957,13 +924,12 @@ class TestResourceNew(object):
         assert 1 == len(result["resources"])
         assert u"test resource" == result["resources"][0]["name"]
 
-    def test_admin_can_add_new_resource(self, app):
-        user = factories.User()
+    def test_admin_can_add_new_resource(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         app.post(
             url_for(
@@ -981,13 +947,12 @@ class TestResourceNew(object):
         assert 1 == len(result["resources"])
         assert u"test resource" == result["resources"][0]["name"]
 
-    def test_member_cannot_add_new_resource(self, app):
-        user = factories.User()
+    def test_member_cannot_add_new_resource(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
 
         app.get(
             url_for(
@@ -1001,18 +966,16 @@ class TestResourceNew(object):
             url_for(
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
             ),
-            data={"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
+            data={"name": "test", "url": "test", "save": "save", "id": ""},
             status=403,
         )
 
-    def test_non_organization_users_cannot_add_new_resource(self, app):
+    def test_non_organization_users_cannot_add_new_resource(self, app, user):
         """on an owned dataset"""
-        user = factories.User()
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        env = {"Authorization": user["token"]}
         app.get(
             url_for(
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
@@ -1025,8 +988,8 @@ class TestResourceNew(object):
             url_for(
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
             ),
-            data={"name": "test", "url": "test", "save": "save", "id": ""},
             extra_environ=env,
+            data={"name": "test", "url": "test", "save": "save", "id": ""},
             status=403,
         )
 
@@ -1045,7 +1008,7 @@ class TestResourceNew(object):
                 "{}_resource.new".format(dataset["type"]), id=dataset["id"]
             ),
             data={"name": "test", "url": "test", "save": "save", "id": ""},
-            status=403,
+            status=403
         )
 
     def test_anonymous_users_cannot_edit_resource(self, app):
@@ -1100,12 +1063,14 @@ class TestResourceDownload(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestResourceView(object):
-    def test_resource_view_create(self, app):
+    @mock.patch("flask_login.utils._get_user")
+    def test_resource_view_create(self, current_user, app):
         user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
@@ -1117,17 +1082,17 @@ class TestResourceView(object):
             view_type="image_view",
         )
 
-        response = app.post(
-            url, data={"title": "Test Image View"}, extra_environ=env
-        )
+        response = app.post(url, data={"title": "Test Image View"})
         assert helpers.body_contains(response, "Test Image View")
 
-    def test_resource_view_edit(self, app):
+    @mock.patch("flask_login.utils._get_user")
+    def test_resource_view_edit(self, current_user, app):
         user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
@@ -1140,18 +1105,18 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
 
-        response = app.post(
-            url, data={"title": "Updated RV Title"}, extra_environ=env
-        )
+        response = app.post(url, data={"title": "Updated RV Title"})
         assert helpers.body_contains(response, "Updated RV Title")
 
+    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.views.default_views", "")
-    def test_resource_view_delete(self, app):
+    def test_resource_view_delete(self, current_user, app):
         user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
@@ -1164,9 +1129,7 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
 
-        response = app.post(
-            url, data={"delete": "Delete"}, extra_environ=env
-        )
+        response = app.post(url, data={"delete": "Delete"})
         assert helpers.body_contains(response, "This resource has no views")
 
     def test_existent_resource_view_page_returns_ok_code(self, app):
@@ -1219,12 +1182,10 @@ class TestResourceRead(object):
 
         app.get(url, status=404)
 
-    def test_resource_read_logged_in_user(self, app):
+    def test_resource_read_logged_in_user(self, app, user):
         """
         A logged-in user can view resource page.
         """
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1232,8 +1193,8 @@ class TestResourceRead(object):
             "{}_resource.read".format(dataset["type"]),
             id=dataset["id"], resource_id=resource["id"]
         )
-
-        app.get(url, status=200, extra_environ=env)
+        env = {"Authorization": user["token"]}
+        app.get(url, extra_environ=env, status=200)
 
     def test_resource_read_anon_user(self, app):
         """
@@ -1249,12 +1210,10 @@ class TestResourceRead(object):
 
         app.get(url, status=200)
 
-    def test_resource_read_sysadmin(self, app):
+    def test_resource_read_sysadmin(self, app, sysadmin):
         """
         A sysadmin can view resource page.
         """
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset["id"])
 
@@ -1262,12 +1221,10 @@ class TestResourceRead(object):
             "{}_resource.read".format(dataset["type"]),
             id=dataset["id"], resource_id=resource["id"]
         )
+        env = {"Authorization": sysadmin["token"]}
+        app.get(url, extra_environ=env, status=200)
 
-        app.get(url, status=200, extra_environ=env)
-
-    def test_user_not_in_organization_cannot_read_private_dataset(self, app):
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_user_not_in_organization_cannot_read_private_dataset(self, app, user):
         organization = factories.Organization()
         dataset = factories.Dataset(owner_org=organization["id"], private=True)
         resource = factories.Resource(package_id=dataset["id"])
@@ -1276,17 +1233,17 @@ class TestResourceRead(object):
             "{}_resource.read".format(dataset["type"]),
             id=dataset["id"], resource_id=resource["id"]
         )
-
-        app.get(url, status=404, extra_environ=env)
+        env = {"Authorization": user["token"]}
+        app.get(url, extra_environ=env, status=404)
 
     def test_organization_members_can_read_resources_in_private_datasets(
         self, app
     ):
         members = {
-            "member": factories.User(),
-            "editor": factories.User(),
-            "admin": factories.User(),
-            "sysadmin": factories.Sysadmin(),
+            "member": factories.User(password="correct123"),
+            "editor": factories.User(password="correct123"),
+            "admin": factories.User(password="correct123"),
+            "sysadmin": factories.Sysadmin(password="correct123"),
         }
         organization = factories.Organization(
             users=[
@@ -1299,15 +1256,15 @@ class TestResourceRead(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         for _, user_dict in members.items():
+            user_token = factories.APIToken(user=user_dict["name"])
+            env = {"Authorization": user_token["token"]}
             response = app.get(
                 url_for(
                     "{}_resource.read".format(dataset["type"]),
                     id=dataset["name"],
                     resource_id=resource["id"],
                 ),
-                extra_environ={
-                    "REMOTE_USER": six.ensure_str(user_dict["name"])
-                },
+                extra_environ=env
             )
             assert resource["description"][:60].split("\n")[0] in response.body
 
@@ -1322,21 +1279,20 @@ class TestResourceRead(object):
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestResourceDelete(object):
-    def test_dataset_owners_can_delete_resources(self, app):
-        user = factories.User()
+    def test_dataset_owners_can_delete_resources(self, app, user):
+        env = {"Authorization": user["token"]}
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            extra_environ=env,
+            extra_environ=env
         )
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
@@ -1344,21 +1300,19 @@ class TestResourceDelete(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
-    def test_deleting_non_existing_resource_404s(self, app):
-        user = factories.User()
+    def test_deleting_non_existing_resource_404s(self, app, user):
+        env = {"Authorization": user["token"]}
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.post(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id="doesnotexist",
             ),
-            extra_environ=env,
-
+            extra_environ=env
         )
         assert 404 == response.status_code
 
@@ -1370,7 +1324,7 @@ class TestResourceDelete(object):
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
 
-        response = app.post(
+        app.post(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
@@ -1378,10 +1332,9 @@ class TestResourceDelete(object):
             ),
             status=403,
         )
-        assert helpers.body_contains(response, "Unauthorized to delete package")
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(
-        self, app
+        self, app, user
     ):
         # setup our dataset
         owner = factories.User()
@@ -1392,34 +1345,30 @@ class TestResourceDelete(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         # access as another user
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            extra_environ=env,
-
+            extra_environ=env
         )
         assert 403 == response.status_code
         assert helpers.body_contains(response, "Unauthorized to delete package")
 
-    def test_sysadmins_can_delete_any_resource(self, app):
+    def test_sysadmins_can_delete_any_resource(self, app, sysadmin):
         owner_org = factories.Organization()
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
+        env = {"Authorization": sysadmin["token"]}
         response = app.post(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            extra_environ=env,
+            extra_environ=env
         )
         assert 200 == response.status_code
         assert helpers.body_contains(response, "This dataset has no data")
@@ -1427,25 +1376,27 @@ class TestResourceDelete(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
-    def test_confirm_and_cancel_deleting_a_resource(self, app):
+    @mock.patch("flask_login.utils._get_user")
+    def test_confirm_and_cancel_deleting_a_resource(self, current_user, app):
         """Test confirmation of deleting resources
 
         When resource_delete is made as a get request, it should return a
         'do you want to delete this reource? confirmation page"""
         user = factories.User()
+        user_obj = model.User.get(user["name"])
+        # mock current_user
+        current_user.return_value = user_obj
         owner_org = factories.Organization(
-            users=[{"name": user["id"], "capacity": "admin"}]
+            users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         resource = factories.Resource(package_id=dataset["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         response = app.get(
             url_for(
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
-            ),
-            extra_environ=env,
+            )
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete resource - {name}?"
@@ -1457,8 +1408,7 @@ class TestResourceDelete(object):
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            extra_environ=env,
-            data={"cancel": ""}
+            data={"cancel": ""},
         )
         assert 200 == response.status_code
 
@@ -1694,14 +1644,13 @@ class TestSearch(object):
         assert "Dataset Three" in ds_titles
 
     def test_user_not_in_organization_cannot_search_private_datasets(
-        self, app
+        self, app, user
     ):
 
-        user = factories.User()
         organization = factories.Organization()
         factories.Dataset(owner_org=organization["id"], private=True)
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
+        env = {"Authorization": user["token"]}
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.data)
@@ -1710,18 +1659,16 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == []
 
-    def test_user_in_organization_can_search_private_datasets(self, app):
-
-        user = factories.User()
+    def test_user_in_organization_can_search_private_datasets(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
         factories.Dataset(
             title="A private dataset",
             owner_org=organization["id"],
             private=True,
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1732,17 +1679,16 @@ class TestSearch(object):
         assert [n.string.strip() for n in ds_titles] == ["A private dataset"]
 
     def test_user_in_different_organization_cannot_search_private_datasets(
-        self, app
+        self, app, user
     ):
-        user = factories.User()
+        env = {"Authorization": user["token"]}
         factories.Organization(
-            users=[{"name": user["id"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
         org2 = factories.Organization()
         factories.Dataset(
             title="A private dataset", owner_org=org2["id"], private=True
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1753,13 +1699,12 @@ class TestSearch(object):
         assert [n.string for n in ds_titles] == []
 
     @pytest.mark.ckan_config("ckan.search.default_include_private", "false")
-    def test_search_default_include_private_false(self, app):
-        user = factories.User()
+    def test_search_default_include_private_false(self, app, user):
+        env = {"Authorization": user["token"]}
         organization = factories.Organization(
-            users=[{"name": user["id"], "capacity": "member"}]
+            users=[{"name": user["name"], "capacity": "member"}]
         )
         factories.Dataset(owner_org=organization["id"], private=True)
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
         search_response = app.get(search_url, extra_environ=env)
 
@@ -1769,16 +1714,15 @@ class TestSearch(object):
         )
         assert [n.string for n in ds_titles] == []
 
-    def test_sysadmin_can_search_private_datasets(self, app):
-        user = factories.Sysadmin()
+    def test_sysadmin_can_search_private_datasets(self, app, sysadmin):
         organization = factories.Organization()
         factories.Dataset(
             title="A private dataset",
             owner_org=organization["id"],
             private=True,
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         search_url = url_for("dataset.search")
+        env = {"Authorization": sysadmin["token"]}
         search_response = app.get(search_url, extra_environ=env)
 
         search_response_html = BeautifulSoup(search_response.data)
@@ -1807,92 +1751,71 @@ class TestSearch(object):
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestPackageFollow(object):
-    def test_package_follow(self, app):
+    def test_package_follow(self, app, user):
 
-        user = factories.User()
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
         follow_url = url_for("dataset.follow", id=package["id"])
+        env = {"Authorization": user["token"]}
         response = app.post(follow_url, extra_environ=env)
         assert "You are now following {0}".format(package["title"]) in response
 
-    def test_package_follow_not_exist(self, app):
+    def test_package_follow_not_exist(self, app, user):
         """Pass an id for a package that doesn't exist"""
-
-        user_one = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
         assert "Dataset not found" in response
 
-    def test_package_unfollow(self, app):
+    def test_package_unfollow(self, app, user):
 
-        user_one = factories.User()
         package = factories.Dataset()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id=package["id"])
         app.post(follow_url, extra_environ=env)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env
-        )
+        unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
             "You are no longer following {0}".format(package["title"])
             in unfollow_response
         )
 
-    def test_package_unfollow_not_following(self, app):
+    def test_package_unfollow_not_following(self, app, user):
         """Unfollow a package not currently following"""
 
-        user_one = factories.User()
         package = factories.Dataset()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env
-        )
+        unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
             "You are not following {0}".format(package["id"])
             in unfollow_response
         )
 
-    def test_package_unfollow_not_exist(self, app):
+    def test_package_unfollow_not_exist(self, app, user):
         """Unfollow a package that doesn't exist."""
-
-        user_one = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
-        unfollow_response = app.post(
-            unfollow_url, extra_environ=env
-        )
+        unfollow_response = app.post(unfollow_url, extra_environ=env)
         assert "Dataset not found" in unfollow_response
 
-    def test_package_follower_list(self, app):
+    def test_package_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
-
-        user_one = factories.Sysadmin()
+        env = {"Authorization": sysadmin["token"]}
         package = factories.Dataset()
 
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("dataset.follow", id=package["id"])
         app.post(follow_url, extra_environ=env)
 
         followers_url = url_for("dataset.followers", id=package["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(
-            followers_url, extra_environ=env, status=200
-        )
-        assert user_one["display_name"] in followers_response
+        followers_response = app.get(followers_url, extra_environ=env, status=200)
+        assert sysadmin["display_name"] in followers_response
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
@@ -1925,39 +1848,39 @@ class TestDatasetRead(object):
 @pytest.mark.usefixtures('non_clean_db', 'with_request_context')
 class TestCollaborators(object):
 
-    def test_collaborators_tab_not_shown(self, app):
+    def test_collaborators_tab_not_shown(self, app, sysadmin):
         dataset = factories.Dataset()
-        sysadmin = factories.Sysadmin()
-
-        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
-        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        env = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for('dataset.edit', id=dataset['name']),
+            extra_environ=env
+            )
         assert 'Collaborators' not in response
 
         # Route not registered
         with pytest.raises(BuildError):
             url_for('dataset.collaborators_read', id=dataset['name'])
         app.get(
-            '/dataset/collaborators/{}'.format(dataset['name']), extra_environ=env, status=404)
+            '/dataset/collaborators/{}'.format(dataset['name']), status=404)
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
-    def test_collaborators_tab_shown(self, app):
+    def test_collaborators_tab_shown(self, app, sysadmin):
         dataset = factories.Dataset()
-        sysadmin = factories.Sysadmin()
-
-        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
-        response = app.get(url=url_for('dataset.edit', id=dataset['name']), extra_environ=env)
+        env = {"Authorization": sysadmin["token"]}
+        response = app.get(
+            url_for('dataset.edit', id=dataset['name']),
+            extra_environ=env
+            )
         assert 'Collaborators' in response
 
         # Route registered
         url = url_for('dataset.collaborators_read', id=dataset['name'])
-        app.get(url, extra_environ=env)
+        app.get(url,  extra_environ=env)
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
-    def test_collaborators_no_admins_by_default(self, app):
+    def test_collaborators_no_admins_by_default(self, app, sysadmin):
         dataset = factories.Dataset()
-        sysadmin = factories.Sysadmin()
-
-        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        env = {"Authorization": sysadmin["token"]}
         url = url_for('dataset.new_collaborator', id=dataset['name'])
         response = app.get(url, extra_environ=env)
 
@@ -1965,62 +1888,63 @@ class TestCollaborators(object):
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', 'true')
     @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', 'true')
-    def test_collaborators_admins_enabled(self, app):
+    def test_collaborators_admins_enabled(self, app, sysadmin):
         dataset = factories.Dataset()
-        sysadmin = factories.Sysadmin()
-
-        env = {'REMOTE_USER': six.ensure_str(sysadmin['name'])}
+        env = {"Authorization": sysadmin["token"]}
         url = url_for('dataset.new_collaborator', id=dataset['name'])
         response = app.get(url, extra_environ=env)
 
         assert '<option value="admin">' in response
 
 
-@pytest.mark.usefixtures('non_clean_db')
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
 class TestResourceListing(object):
-    def test_resource_listing_premissions_sysadmin(self, app):
-        admin = factories.Sysadmin()
+    def test_resource_listing_premissions_sysadmin(self, app, sysadmin):
         org = factories.Organization()
         pkg = factories.Dataset(owner_org=org["id"])
+        env = {"Authorization": sysadmin["token"]}
         app.get(
             url_for("dataset.resources", id=pkg["name"]),
-            extra_environ={"REMOTE_USER": admin["name"]}, status=200)
+            extra_environ=env,
+            status=200)
 
-    def test_resource_listing_premissions_auth_user(self, app):
-        user = factories.User()
+    def test_resource_listing_premissions_auth_user(self, app, user):
+        env = {"Authorization": user["token"]}
         org = factories.Organization(user=user)
         pkg = factories.Dataset(owner_org=org["id"])
 
         app.get(
             url_for("dataset.resources", id=pkg["name"]),
-            extra_environ={"REMOTE_USER": user["name"]}, status=200)
+            extra_environ=env,
+            status=200)
 
-    def test_resource_listing_premissions_non_auth_user(self, app):
+    def test_resource_listing_premissions_non_auth_user(self, app, user):
         org = factories.Organization()
         pkg = factories.Dataset(owner_org=org["id"])
+        env = {"Authorization": user["token"]}
         app.get(
             url_for("dataset.resources", id=pkg["name"]),
-            extra_environ={"REMOTE_USER": "someone_else"}, status=403)
+            extra_environ=env,
+            status=403)
 
     def test_resource_listing_premissions_not_logged_in(self, app):
         pkg = factories.Dataset()
-        app.get(url_for("dataset.resources", id=pkg["name"]), status=403)
+        url = url_for("dataset.resources", id=pkg["name"])
+        app.get(url, status=403)
 
 
-@pytest.mark.usefixtures('non_clean_db')
+@pytest.mark.usefixtures('clean_db', 'with_request_context')
 class TestNonActivePackages:
     def test_read(self, app):
         pkg = factories.Dataset(state="deleted")
         url = url_for("dataset.read", id=pkg["name"])
         app.get(url, status=404)
 
-    def test_read_as_admin(self, app):
-        admin = factories.Sysadmin()
+    def test_read_as_admin(self, app, sysadmin):
         pkg = factories.Dataset(state="deleted")
         url = url_for("dataset.read", id=pkg["name"])
-        app.get(
-            url, status=200, extra_environ={"REMOTE_USER": admin["name"]}
-        )
+        env = {"Authorization": sysadmin["token"]}
+        app.get(url, extra_environ=env, status=200)
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")

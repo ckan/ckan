@@ -13,7 +13,7 @@ import ckan.lib.base as base
 import ckan.lib.search as search
 import ckan.lib.helpers as h
 
-from ckan.common import g, config, _
+from ckan.common import g, config, current_user, _
 from ckan.types import Context
 
 
@@ -29,8 +29,8 @@ def before_request() -> None:
     try:
         context = cast(Context, {
             u'model': model,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj})
+            u'user': current_user.name,
+            u'auth_user_obj': current_user})
         logic.check_access(u'site_read', context)
     except logic.NotAuthorized:
         abort(403)
@@ -39,8 +39,14 @@ def before_request() -> None:
 def index() -> str:
     u'''display home page'''
     try:
-        context = cast(Context, {u'model': model, u'session': model.Session,
-                                 u'user': g.user, u'auth_user_obj': g.userobj})
+        context = cast(Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
+            }
+        )
+
         data_dict: dict[str, Any] = {
             u'q': u'*:*',
             u'facet.field': h.facets(),
@@ -73,7 +79,7 @@ def index() -> str:
     except search.SearchError:
         g.package_count = 0
 
-    if g.userobj and not g.userobj.email:
+    if current_user.is_authenticated and not current_user.email:
         url = h.url_for('user.edit')
         msg = _(u'Please <a href="%s">update your profile</a>'
                 u' and add your email address. ') % url + \

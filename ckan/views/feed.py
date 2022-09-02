@@ -12,7 +12,7 @@ from flask import Blueprint, make_response
 
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
-from ckan.common import _, config, g, request
+from ckan.common import _, config, request, current_user
 import ckan.lib.helpers as h
 import ckan.lib.base as base
 import ckan.model as model
@@ -35,8 +35,8 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
     if u'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = u'metadata_modified desc'
@@ -199,8 +199,8 @@ def group(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
@@ -216,8 +216,8 @@ def organization(id: str) -> Response:
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         group_dict = logic.get_action(u'organization_show')(context, {
             u'id': id

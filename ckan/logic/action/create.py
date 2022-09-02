@@ -34,7 +34,7 @@ import ckan.authz as authz
 import ckan.model
 
 from ckan.common import _
-from ckan.types import Context, DataDict, ErrorDict, Schema, FlattenErrorDict
+from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -115,6 +115,19 @@ def package_create(
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string)
     :type extras: list of dataset extra dictionaries
+    :param plugin_data: private package data belonging to plugins.
+        Only sysadmin users may set this value. It should be a dict that can
+        be dumped into JSON, and plugins should namespace their data with the
+        plugin name to avoid collisions with other plugins, eg::
+
+            {
+                "name": "test-dataset",
+                "plugin_data": {
+                    "plugin1": {"key1": "value1"},
+                    "plugin2": {"key2": "value2"}
+                }
+            }
+    :type plugin_data: dict
     :param relationships_as_object: see :py:func:`package_relationship_create`
         for the format of relationship dictionaries (optional)
     :type relationships_as_object: list of relationship dictionaries
@@ -185,13 +198,15 @@ def package_create(
         model.Session.rollback()
         raise ValidationError(errors)
 
+    plugin_data = data.get('plugin_data', False)
+    include_plugin_data = False
     if user:
-
         user_obj = model.User.by_name(six.ensure_text(user))
         if user_obj:
             data['creator_user_id'] = user_obj.id
+            include_plugin_data = user_obj.sysadmin and plugin_data
 
-    pkg = model_save.package_dict_save(data, context)
+    pkg = model_save.package_dict_save(data, context, include_plugin_data)
 
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
@@ -232,7 +247,8 @@ def package_create(
         return pkg.id
 
     return _get_action('package_show')(
-        context.copy(), {'id': pkg.id}
+        context.copy(),
+        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
     )
 
 
@@ -1000,7 +1016,8 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        model.repo.commit()
+        with logic.guard_against_duplicated_email(data_dict['email']):
+            model.repo.commit()
 
     # A new context is required for dictizing the newly constructed user in
     # order that all the new user's data is returned, in particular, the
@@ -1046,7 +1063,6 @@ def user_invite(context: Context,
     :returns: the newly created user
     :rtype: dictionary
     '''
-    import string
     _check_access('user_invite', context, data_dict)
 
     schema = context.get('schema',
@@ -1061,24 +1077,16 @@ def user_invite(context: Context,
         raise NotFound()
 
     name = _get_random_username_from_email(data['email'])
-    # Choose a password. However it will not be used - the invitee will not be
-    # told it - they will need to reset it
-    while True:
-        password = ''.join(random.SystemRandom().choice(
-            string.ascii_lowercase + string.ascii_uppercase + string.digits)
-            for _ in range(12))
-        # Occasionally it won't meet the constraints, so check
-        validation_errors: FlattenErrorDict = {}
-        ckan.logic.validators.user_password_validator(
-            ('password', ), {('password', ): password},
-            validation_errors, context)
-        if not validation_errors:
-            break
 
     data['name'] = name
-    data['password'] = password
+    # send the proper schema when creating a user from here
+    # so the password field would be ignored.
+    invite_schema = ckan.logic.schema.create_user_for_user_invite_schema()
+
     data['state'] = model.State.PENDING
-    user_dict = _get_action('user_create')(context, data)
+    user_dict = _get_action('user_create')(
+        cast(Context, dict(context, schema=invite_schema)),
+        data)
     user = model.User.get(user_dict['id'])
     assert user
     member_dict = {
@@ -1087,14 +1095,11 @@ def user_invite(context: Context,
         'role': data['role']
     }
 
-    if group.is_organization:
-        _get_action('organization_member_create')(context, member_dict)
-        group_dict = _get_action('organization_show')(context,
-                                                      {'id': data['group_id']})
-    else:
-        _get_action('group_member_create')(context, member_dict)
-        group_dict = _get_action('group_show')(context,
-                                               {'id': data['group_id']})
+    org_or_group = 'organization' if group.is_organization else 'group'
+    _get_action(f'{org_or_group}_member_create')(context, member_dict)
+    group_dict = _get_action(f'{org_or_group}_show')(
+        context, {'id': data['group_id']})
+
     try:
         mailer.send_invite(user, group_dict, data['role'])
     except (socket_error, mailer.MailerException) as error:

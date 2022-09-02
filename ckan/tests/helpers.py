@@ -268,6 +268,8 @@ def _get_test_app():
 
     """
     config["testing"] = True
+    # exempt the CKAN TESTS from csrf-validation.
+    config["WTF_CSRF_METHODS"] = []
     app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 

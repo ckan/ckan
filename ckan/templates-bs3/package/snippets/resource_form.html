@@ -7,6 +7,7 @@
 
 <form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
 
+  {{ h.csrf_input() }}	
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}

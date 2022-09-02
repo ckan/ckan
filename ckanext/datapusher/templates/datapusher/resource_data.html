@@ -8,6 +8,7 @@
   {% set show_table = true %}
 
   <form method="post" action="{{ action }}" class="datapusher-form">
+    {{ h.csrf_input() }} 
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>

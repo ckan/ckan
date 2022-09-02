@@ -83,9 +83,7 @@ function printModal (title) {
 
 // helper for modal clipboard copy
 function copyModal (title) {
-  const origHeaderText = $('#modalHeader').text()
-  $('#modalHeader').text(title + ' ' + origHeaderText)
-  const el = document.querySelector('.dtr-modal-content')
+  const el = document.querySelector('.dtr-details')
   const body = document.body
   let range
   let sel
@@ -107,7 +105,6 @@ function copyModal (title) {
   }
   document.execCommand('copy')
   window.getSelection().removeAllRanges()
-  $('#modalHeader').text(origHeaderText)
 }
 
 // force column auto width adjustment to kick in
@@ -415,12 +412,13 @@ this.ckan.module('datatables_view', function (jQuery) {
             display: $.fn.dataTable.Responsive.display.modal({
               header: function (row) {
                 // add clipboard and print buttons to modal record display
-                return '<div id ="modalHeader"><span style="font-size:200%;font-weight:bold;">Details:</span><div class="dt-buttons btn-group">' +
+                var data = row.data();
+                return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
                   '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
-                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-files-o"></i></button>' +
+                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
                   '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
                   packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
-                  '&nbsp;&nbsp;&nbsp;&nbsp;</div></div>'
+                  '</div>&nbsp;'
               }
             }),
             // render the Record Details in a modal dialog box
@@ -430,7 +428,7 @@ this.ckan.module('datatables_view', function (jQuery) {
             // also, when a column's content has been truncated with an ellipsis, show the untruncated content
             renderer: function (api, rowIdx, columns) {
               const data = $.map(columns, function (col, i) {
-                return col.className !== 'none'
+                return col.className !== ' none'
                   ? '<tr class="dt-body-right" data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
                     '<td>' + col.title + ':' + '</td><td>' +
                     (col.data.startsWith('<span class="ellipsis"') ? col.data.substr(30, col.data.indexOf('">') - 30) : col.data) +
@@ -481,7 +479,7 @@ this.ckan.module('datatables_view', function (jQuery) {
       datatable = $('#dtprv').DataTable({
         paging: true,
         serverSide: true,
-        processing: true,
+        processing: false,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         colReorder: {
@@ -693,6 +691,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'viewToggleButton',
           text: gcurrentView === 'table' ? '<i class="fa fa-list"></i>' : '<i class="fa fa-table"></i>',
           titleAttr: that._('Table/List toggle'),
+          className: 'btn-default',
           action: function (e, dt, node, config) {
             if (gcurrentView === 'list') {
               dt.button('viewToggleButton:name').text('<i class="fa fa-table"></i>')
@@ -710,8 +709,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           }
         }, {
           extend: 'copy',
-          text: '<i class="fa fa-files-o"></i>',
+          text: '<i class="fa fa-copy"></i>',
           titleAttr: that._('Copy to clipboard'),
+          className: 'btn-default',
           title: function () {
             // remove html tags from filterInfo msg
             const filternohtml = filterInfo(datatable, true)
@@ -725,8 +725,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'colvis',
           text: '<i class="fa fa-eye-slash"></i>',
           titleAttr: that._('Toggle column visibility'),
-          columns: ':gt(0)',
-          collectionLayout: 'fixed four-column',
+          className: 'btn-default',
+          columns: 'th:gt(0):not(:contains("colspacer"))',
+          collectionLayout: 'fixed',
           postfixButtons: [{
             extend: 'colvisRestore',
             text: '<i class="fa fa-undo"></i> ' + that._('Restore visibility')
@@ -762,6 +763,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         }, {
           text: '<i class="fa fa-download"></i>',
           titleAttr: that._('Filtered download'),
+          className: 'btn-default',
           autoClose: true,
           extend: 'collection',
           buttons: [{
@@ -797,7 +799,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'resetButton',
           text: '<i class="fa fa-repeat"></i>',
           titleAttr: that._('Reset'),
-          className: 'resetButton',
+          className: 'btn-default resetButton',
           action: function (e, dt, node, config) {
             dt.state.clear()
             $('.resetButton').css('color', 'black')
@@ -808,6 +810,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           extend: 'print',
           text: '<i class="fa fa-print"></i>',
           titleAttr: that._('Print'),
+          className: 'btn-default',
           title: packagename + ' — ' + resourcename,
           messageTop: function () {
             return filterInfo(datatable)
@@ -823,6 +826,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           name: 'shareButton',
           text: '<i class="fa fa-share"></i>',
           titleAttr: that._('Share current view'),
+          className: 'btn-default',
           action: function (e, dt, node, config) {
             dt.state.save()
             const sharelink = window.location.href + '?state=' + window.btoa(JSON.stringify(dt.state()))

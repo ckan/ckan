@@ -124,7 +124,7 @@ release = ckan.__version__
 version_re = None
 point_releases_ = None
 
-SUPPORTED_CKAN_VERSIONS = 3
+SUPPORTED_CKAN_VERSIONS = 2
 
 
 def get_release_tags():
@@ -249,6 +249,23 @@ def get_current_release_version():
     return version
 
 
+def get_previous_release_version() -> str:
+    """Returns the version number of the previous release
+
+    eg if the latest release is 2.9.5, it returns 2.8.10
+
+    """
+    current_version = parse_version(get_current_release_version())
+
+    previous_tag_prefix = f"ckan-{current_version[0]}.{int(current_version[1]) - 1}"
+
+    previous_version_tags = [
+        r for r in get_release_tags() if r.startswith(previous_tag_prefix)
+    ]
+    previous_release_version = previous_version_tags[-1][len("ckan-"):]
+    return previous_release_version
+
+
 def get_latest_package_name(distro, py_version=None):
     '''Return the filename of the Ubuntu package for the latest stable release.
 
@@ -351,20 +368,26 @@ def write_substitutions_file(**kwargs):
 
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
+previous_release_version = get_previous_release_version()
+previous_release_version_format = f"**CKAN {previous_release_version}**"
 current_minor_version = current_release_version[:current_release_version.find(".", 3)]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
+latest_release_version_format = f"**CKAN {latest_release_version}**"
 latest_minor_version = latest_release_version[:latest_release_version.find(".", 3)]
-is_master = release.endswith('a')
+is_master = "a" in release.split(".")[-1]
 is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 
 write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
+    previous_release_version=previous_release_version,
+    previous_release_version_format=previous_release_version_format,
     current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
+    latest_release_version_format=latest_release_version_format,
     latest_package_name_bionic=get_latest_package_name('bionic'),
     latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
     latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),

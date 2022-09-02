@@ -1946,3 +1946,64 @@ class TestMemberCreate2:
                 object_type="notvalid",
                 capacity="member",
             )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+
+    def test_stored_on_create_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+        created_pkg = helpers.call_action(
+            "package_create", context=context, **pkg_dict
+        )
+        assert created_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data FROM "package" WHERE id=:id',
+            {'id': created_pkg["id"]}
+        ).first()[0]
+
+        assert plugin_data_from_db == {"plugin1": {"key1": "value1"}}
+
+    def test_ignored_on_create_if_non_sysadmin(self):
+        user = factories.User()
+
+        pkg_dict = {
+            "name": "test-dataset",
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        }
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        created_pkg = helpers.call_action(
+            'package_create', context=context, **pkg_dict
+        )
+        assert "plugin_data" not in created_pkg
+
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data FROM "package" WHERE id=:id',
+            {'id': created_pkg["id"]}
+        ).first()[0]
+        assert plugin_data_from_db is None
