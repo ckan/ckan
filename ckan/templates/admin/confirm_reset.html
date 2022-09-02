@@ -4,6 +4,7 @@
 
 {% block primary_content_inner %}
   <form action="{% url_for 'admin.reset_config' %}" method="post">
+    {{ h.csrf_input() }} 
     <p>{{ _('Are you sure you want to reset the config?') }}</p>
     <p class="form-actions">
       <button class="btn btn-danger" type="submit" name="cancel" >{{ _('Cancel') }}</button>

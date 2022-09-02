@@ -857,14 +857,11 @@ class TestOrganizationShow(object):
 @pytest.mark.usefixtures("clean_db")
 class TestUserList(object):
     def test_user_list_default_values(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -881,9 +878,7 @@ class TestUserList(object):
         assert "datasets" not in got_user
 
     def test_user_list_edits(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Edited title"
         helpers.call_action(
@@ -891,32 +886,34 @@ class TestUserList(object):
         )
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["number_created_packages"] == 1
 
+    def test_include_site_user(self, ckan_config):
+        factories.User()
+
+        users = helpers.call_action("user_list")
+        assert len(users) == 1
+
+        users = helpers.call_action("user_list", include_site_user=True)
+        assert len(users) == 2
+
     def test_user_list_excludes_deleted_users(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
         factories.User(state="deleted")
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
-        # we need to set fullname because user_list by default sorts by
-        # display_name
-        user = factories.User(fullname="Guido")
+        user = factories.User()
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user["name"]
 
@@ -2877,6 +2874,30 @@ class TestFollow(object):
         assert len(followee_list) == 1
         assert followee_list[0]["display_name"] == "Environment"
 
+    def test_followee_count_for_org_or_group(self):
+        group = factories.Group(title="Finance")
+        group2 = factories.Group(title="Environment")
+        org = factories.Organization(title="Acme")
+
+        user = factories.User()
+
+        context = {"user": user["name"]}
+
+        helpers.call_action("follow_group", context, id=group["id"])
+        helpers.call_action("follow_group", context, id=group2["id"])
+        helpers.call_action("follow_group", context, id=org["id"])
+
+        group_followee_count = helpers.call_action(
+            "group_followee_count", context, id=user["name"]
+        )
+
+        organization_followee_count = helpers.call_action(
+            "organization_followee_count", context, id=user["name"]
+        )
+
+        assert group_followee_count == 2
+        assert organization_followee_count == 1
+
 
 class TestStatusShow(object):
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -3392,3 +3413,55 @@ class TestPackageList:
         factories.Dataset(private=True, owner_org=org["id"])
         packages = helpers.call_action("package_list")
         assert packages == [pkg1["name"]]
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+
+    def test_returned_if_sysadmin_and_include_plugin_data_only(self):
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+        # sysadmin and include_plugin_data = True
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }
+
+        # sysadmin and include_plugin_data = False
+        pkg_dict = helpers.call_action(
+            "package_show", context=context, id=dataset["id"]
+        )
+        assert "plugin_data" not in pkg_dict
+
+        # non-sysadmin and include_plugin_data = True
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert "plugin_data" not in pkg_dict

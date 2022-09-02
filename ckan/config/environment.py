@@ -73,11 +73,6 @@ def load_environment(conf: Union[Config, CKANConfig]):
 
     app_globals.reset()
 
-    # issue #3260: remove idle transaction
-    # Session that was used for getting all config params nor committed,
-    # neither removed and we have idle connection as result
-    model.Session.commit()
-
     # Build JavaScript translations. Must be done after plugins have
     # been loaded.
     build_js_translations()
@@ -120,7 +115,7 @@ def update_config() -> None:
 
     webassets_init()
 
-    for plugin in p.PluginImplementations(p.IConfigurer):
+    for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)

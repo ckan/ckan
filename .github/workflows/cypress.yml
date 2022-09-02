@@ -4,6 +4,9 @@ env:
   NODE_VERSION: '16'
   PYTHON_VERSION: '3.7'
 
+permissions:
+  contents: read
+
 jobs:
   cypress:
     runs-on: ubuntu-latest

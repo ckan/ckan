@@ -2,7 +2,6 @@
 
 import flask
 import pytest
-import six
 from unittest.mock import patch
 from ckan.lib.helpers import url_for
 
@@ -32,7 +31,8 @@ def test_resource_download_iuploader_called(
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     user = factories.User()
-    env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    user_token = factories.APIToken(user=user["name"])
+    env = {"Authorization": user_token["token"]}
     url = url_for("dataset.new")
 
     dataset_name = u"package_with_resource"
@@ -41,8 +41,7 @@ def test_resource_download_iuploader_called(
         "save": "",
         "_ckan_phase": 1
     }
-    response = app.post(
-        url, data=form, environ_overrides=env, follow_redirects=False)
+    response = app.post(url, data=form, extra_environ=env, follow_redirects=False)
     location = response.headers['location']
     location = urlparse(location)._replace(scheme='', netloc='').geturl()
 
@@ -54,7 +53,7 @@ def test_resource_download_iuploader_called(
         side_effect=plugin.ResourceUpload.get_path,
         autospec=True,
     ) as mock_get_path:
-        response = app.post(location, environ_overrides=env, data={
+        response = app.post(location, extra_environ=env, data={
             "id": "",
             "url": "http://example.com/resource",
             "save": "go-metadata",

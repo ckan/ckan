@@ -2,6 +2,7 @@
 
 {% block form %}
   <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
+    {{ h.csrf_input() }}	  
     {{ form.errors(error_summary) }}
 
     {% block core_fields %}
@@ -25,7 +26,7 @@
     {% block extra_fields %}
     {% endblock %}
 
-    {% if is_sysadmin and g.user != data.name %}
+    {% if is_sysadmin and current_user.name != data.name %}
     {% block sysadmin_password %}
       <fieldset>
       <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>

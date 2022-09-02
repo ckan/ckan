@@ -189,3 +189,18 @@ and other problems`_.
 Instead, create a :doc:`ckan command </maintaining/cli>` which can be run separately.
 
 .. _dead-locks and other problems: https://github.com/ckan/ideas-and-roadmap/issues/164
+
+
+----------------------------
+Implementing CSRF protection
+----------------------------
+
+CKAN 2.10 introduces CSRF protection for all the forms. This behavior will be enforced for all extensions
+in the upcoming release.
+
+To add CSRF protection to your extensions use the template helper in all your
+forms
+
+::
+
+    {{ h.csrf_input() }}

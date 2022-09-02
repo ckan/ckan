@@ -9,6 +9,7 @@ from typing import Iterable, Optional
 
 import click
 from werkzeug.serving import run_simple
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from ckan.common import config
 from ckan.exceptions import CkanDeprecationWarning
@@ -47,10 +48,15 @@ DEFAULT_PORT = 5000
     u"-K", u"--ssl-key", default=None,
     help=u"Key file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
+@click.option(
+    u"-P", u"--prefix", default="",
+    help=u"Run ckan in prefix path."
+)
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         passthrough_errors: bool, threaded: bool, extra_files: Iterable[str],
-        processes: int, ssl_cert: Optional[str], ssl_key: Optional[str]):
+        processes: int, ssl_cert: Optional[str], ssl_key: Optional[str],
+        prefix: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
     if config.get_value("debug"):
@@ -91,6 +97,14 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
     else:
         ssl_context = None
 
+    if prefix:
+        if not prefix.startswith(u'/'):
+            error_shout(u"Prefix must start with /, example /data.")
+            raise click.Abort()
+        ctx.obj.app = DispatcherMiddleware(ctx.obj.app, {
+            prefix: ctx.obj.app
+        })
+
     host = host or config.get_value('ckan.devserver.host')
     port = port or config.get_value('ckan.devserver.port')
     try:
@@ -99,8 +113,9 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         error_shout(u"Server port must be an integer, not {}".format(port))
         raise click.Abort()
 
-    log.info(u"Running CKAN on {scheme}://{host}:{port}".format(
-        scheme='https' if ssl_context else 'http', host=host, port=port_int))
+    log.info(u"Running CKAN on {scheme}://{host}:{port}{prefix}".format(
+        scheme='https' if ssl_context else 'http', host=host, port=port_int,
+        prefix=prefix))
 
     run_simple(
         host,
