@@ -2,6 +2,7 @@
 
 
 <form id='organization-edit-form' class="dataset-form" method="post" data-module="basic-form" enctype="multipart/form-data">
+  {{ h.csrf_input() }}
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}

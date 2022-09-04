@@ -198,11 +198,9 @@ Implementing CSRF protection
 CKAN 2.10 introduces CSRF protection for all the forms. This behavior will be enforced for all extensions
 in the upcoming release.
 
-To add CSRF protection to your extensions use the CSRF macro in all your
+To add CSRF protection to your extensions use the template helper in all your
 forms
 
 ::
 
-    {% import 'macros/form.html' as form %}
-    ...
-    {{ form.csrf_protection() }}
+    {{ h.csrf_input() }}

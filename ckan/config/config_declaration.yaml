@@ -265,6 +265,59 @@ groups:
           cookie sent to the client. `ckan generate config` generates a unique
           value for this each time it generates a config file.
 
+  - annotation: Beaker session settings
+    options:
+      - key: auto
+        type: bool
+        default: False
+        description: |
+          When set to True, the session will save itself anytime it is accessed during a request, 
+          negating the need to issue the save() method.
+      
+      - key: cookie_expires
+        description: |
+          Determines when the cookie used to track the client-side of the session will expire.
+          When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
+          Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
+          Setting to an integer will result in the cookie being set to expire in that many seconds. 
+          I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
+          Defaults to never expiring.
+
+      - key: cookie_domain
+        description: |
+          What domain the cookie should be set to. When using sub-domains, 
+          this should be set to the main domain the cookie should be valid for. For example, 
+          if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
+          Defaults to the current domain in its entirety.
+
+      - key: key
+        required: True
+        description: Name of the cookie key used to save the session under.
+
+      - key: save_accessed_time
+        type: bool
+        default: True
+        description: Whether beaker should save the session's access time (true) or only modification time (false).
+
+      - key: secret
+        required: True
+        description: |
+          Used with the HMAC to ensure session integrity. This value should ideally be a randomly generated string.
+          When using in a cluster environment, the secret must be the same on every machine.
+
+      - key: secure
+        type: bool
+        description: |
+          Whether or not the session cookie should be marked as secure. When marked as secure,
+          browsers are instructed to not send the cookie over anything other than an SSL connection.
+
+      - key: timeout
+        description: |
+          Seconds until the session is considered invalid, after which it will be ignored and invalidated.
+          This number is based on the time since the session was last accessed, not from when the session was created.
+          Defaults to never expiring.
+          Requires that save_accessed_time be true.
+
   - annotation: Database settings
     options:
       - key: sqlalchemy.url
@@ -399,18 +452,19 @@ groups:
     options:
       - key: ckan.auth.anon_create_dataset
         type: bool
+        default: false
         example: "false"
         description: Allow users to create datasets without registering and logging in.
 
       - key: ckan.auth.create_unowned_dataset
-        default: true
         type: bool
+        default: false
         example: "false"
         description: Allow the creation of datasets not owned by any organization.
 
       - key: ckan.auth.create_dataset_if_not_in_organization
-        default: true
         type: bool
+        default: true
         example: "false"
         description: |
           Allow users who are not members of any organization to create datasets,
@@ -419,12 +473,13 @@ groups:
 
       - key: ckan.auth.user_create_groups
         type: bool
+        default: true
         example: "true"
         description: Allow users to create groups.
 
       - key: ckan.auth.user_create_organizations
-        default: true
         type: bool
+        default: true
         example: "false"
         description: Allow users to create organizations.
 
@@ -442,6 +497,7 @@ groups:
 
       - key: ckan.auth.create_user_via_api
         type: bool
+        default: false
         example: "false"
         description: Allow new user accounts to be created via the API by anyone. When ``False`` only sysadmins are authorised.
 
@@ -481,6 +537,7 @@ groups:
 
       - key: ckan.auth.public_activity_stream_detail
         type: bool
+        default: false
         example: "true"
         description: |
           Restricts access to 'view this version' and 'changes' in the Activity
@@ -493,6 +550,7 @@ groups:
 
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Enables or disable collaborators in individual datasets. If ``True``,
@@ -508,6 +566,7 @@ groups:
 
       - key: ckan.auth.allow_admin_collaborators
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to have the "Admin" role, allowing them
@@ -524,6 +583,7 @@ groups:
 
       - key: ckan.auth.allow_collaborators_to_change_owner_org
         type: bool
+        default: false
         example: "true"
         description: |
           Allows dataset collaborators to change the owner organization of the
@@ -533,6 +593,7 @@ groups:
 
       - key: ckan.auth.create_default_api_keys
         type: bool
+        default: false
         example: "true"
         description: |
           Determines if an API key should be automatically created for every
@@ -571,7 +632,8 @@ groups:
           this controls whether every view is protected by default. Default is True.
 
       - key: WTF_CSRF_SECRET_KEY
-        description: Random data for generating secure tokens. If this is not set then SECRET_KEY is used.
+        description: Random data for generating secure tokens.
+        placeholder_callable: secrets:token_urlsafe
 
       - key: WTF_CSRF_METHODS
         default: {'POST', 'PUT', 'PATCH', 'DELETE'}
@@ -607,6 +669,48 @@ groups:
           Set to False to disable Flask-Babel I18N support.
           Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
 
+  - annotation: Flask-Login Remember me cookie settings
+    options:
+      - key: REMEMBER_COOKIE_NAME
+        default: remember_token
+        description: The name of the cookie to store the “remember me” information in.
+
+      - key: REMEMBER_COOKIE_DURATION
+        default: 365 days (1 non-leap Gregorian year)
+        description: |
+          The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
+
+      - key: REMEMBER_COOKIE_DOMAIN
+        default: None
+        description: |
+          If the “Remember Me” cookie should cross domains, set the domain value here 
+          (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
+
+      - key: REMEMBER_COOKIE_PATH
+        default: /
+        description: Limits the “Remember Me” cookie to a certain path.
+
+      - key: REMEMBER_COOKIE_SECURE
+        type: bool
+        default: False
+        description: Restricts the “Remember Me” cookie's scope to secure channels (typically HTTPS).
+
+      - key: REMEMBER_COOKIE_HTTPONLY
+        type: bool
+        default: True
+        description: Prevents the “Remember Me” cookie from being accessed by client-side scripts.
+
+      - key: REMEMBER_COOKIE_REFRESH_EACH_REQUEST
+        type: bool
+        default: False
+        description: |
+          If set to True the cookie is refreshed on every request, which bumps the lifetime. 
+          Works like Flask's SESSION_REFRESH_EACH_REQUEST.
+
+      - key: REMEMBER_COOKIE_SAMESITE
+        default: None
+        description: Restricts the “Remember Me” cookie to first-party or same-site context.
+
   - annotation: API Token Settings
     options:
       - key: api_token.nbytes
@@ -616,6 +720,7 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
+        placeholder: string:%(beaker.session.secret)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -629,6 +734,7 @@ groups:
           * ``file:`` - Path to file. Content of the file will be used as key.
 
       - key: api_token.jwt.decode.secret
+        placeholder: string:%(beaker.session.secret)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
