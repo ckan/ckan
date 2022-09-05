@@ -235,7 +235,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         u'auth_user_obj': current_user
     })
     model.Session()._context = context
- 
+
     return_dict: dict[str, Any] = {
         u'help': url_for(u'api.action',
                          logic_function=u'help_show',
