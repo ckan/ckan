@@ -51,6 +51,7 @@
       if (type == 'POST') {
         options.type = 'POST';
         options.data = JSON.stringify(data);
+        csrfInput()
       } else {
         options.type = 'GET';
         options.url += data;
