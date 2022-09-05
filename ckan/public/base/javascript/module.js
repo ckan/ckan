@@ -201,7 +201,7 @@ this.ckan = this.ckan || {};
 
   /* Adds the X-CSRFToken header
     */
-  csrfInput = function() {
+  addCsrfHeader = function() {
     var csrftoken = $('meta[name=_csrf_token]').attr('content')
     $.ajaxSetup({
       beforeSend: function(xhr, settings) {
