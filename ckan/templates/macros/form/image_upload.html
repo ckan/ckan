@@ -33,16 +33,16 @@ Example
   {% endif %}
 
 
-   {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=classes, attrs=attrs) }}
+  {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=classes, attrs=attrs) }}
 
 
-    {% if is_upload_enabled %}
+  {% if is_upload_enabled %}
     {{ input(field_upload, label=upload_label, id='field-image-upload', type='file', placeholder='', value='', error='', classes=classes, attrs=attrs) }}
     {% if is_upload %}
-    {{ checkbox(field_clear, label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=classes, attrs=attrs) }}
+      {{ checkbox(field_clear, label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=classes, attrs=attrs) }}
     {% endif %}
-    {% endif %}
+  {% endif %}
 
     {% if is_upload_enabled %}</div>{% endif %}
-   {{ extra_html }}
+  {{ extra_html }}
   {% endmacro %}
