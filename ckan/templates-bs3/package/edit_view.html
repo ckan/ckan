@@ -14,6 +14,7 @@
 
 {% block form %}
   <form class="dataset-form dataset-resource-form" method="post" data-module="basic-form resource-form">
+    {{ h.csrf_input() }}	  
     {% include 'package/snippets/view_form.html' %}
     <div class="form-actions">
       <button class="btn btn-danger pull-left" name="delete" value="Delete"> {{ _('Delete') }} </button>
