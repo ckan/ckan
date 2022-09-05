@@ -24,6 +24,12 @@
     {% endblock %}
 
     {% block extra_fields %}
+    {% if g.userobj.sysadmin and data.state == 'deleted' %}
+      {% call form.checkbox('activate_user', label=_('Reactivate User'), id='activate_user', value=True, checked=false) %}
+      {% set helper_text = _('This account is deactivated, if you want to reactivate it, please click on checkbox.') %}
+      {{ form.info(helper_text, classes='info-help-tight') }}
+      {% endcall %}
+    {% endif %}
     {% endblock %}
 
     {% if is_sysadmin and current_user.name != data.name %}
