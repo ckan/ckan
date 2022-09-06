@@ -452,7 +452,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         )
     except NotAuthorized:
         if config.get_value(u'ckan.auth.reveal_private_datasets'):
-            if current_user:
+            if current_user.is_authenticated:
                 return base.abort(
                     403, _(u'Unauthorized to read package %s') % id)
             else:
