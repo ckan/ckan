@@ -67,7 +67,7 @@ jinja2==3.0.3
     #   flask-babel
 lxml==4.8.0
     # via feedgen
-mako==1.2.0
+mako==1.2.2
     # via alembic
 markdown==3.3.6
     # via -r requirements.in
