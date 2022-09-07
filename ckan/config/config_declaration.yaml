@@ -271,22 +271,22 @@ groups:
         type: bool
         default: False
         description: |
-          When set to True, the session will save itself anytime it is accessed during a request, 
+          When set to True, the session will save itself anytime it is accessed during a request,
           negating the need to issue the save() method.
-      
+
       - key: cookie_expires
         description: |
           Determines when the cookie used to track the client-side of the session will expire.
           When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
           Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
-          Setting to an integer will result in the cookie being set to expire in that many seconds. 
+          Setting to an integer will result in the cookie being set to expire in that many seconds.
           I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
           Defaults to never expiring.
 
       - key: cookie_domain
         description: |
-          What domain the cookie should be set to. When using sub-domains, 
-          this should be set to the main domain the cookie should be valid for. For example, 
+          What domain the cookie should be set to. When using sub-domains,
+          this should be set to the main domain the cookie should be valid for. For example,
           if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
           Defaults to the current domain in its entirety.
 
@@ -607,7 +607,7 @@ groups:
 
       - key: ckan.auth.reveal_private_datasets
         type: bool
-        example: "true"
+        default: False
         description: |
           Determines whether unauthorised requests for private datasets should have
           the existence of the datasets revealed (True) or hidden (False).
@@ -683,7 +683,7 @@ groups:
       - key: REMEMBER_COOKIE_DOMAIN
         default: None
         description: |
-          If the “Remember Me” cookie should cross domains, set the domain value here 
+          If the “Remember Me” cookie should cross domains, set the domain value here
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
 
       - key: REMEMBER_COOKIE_PATH
@@ -704,7 +704,7 @@ groups:
         type: bool
         default: False
         description: |
-          If set to True the cookie is refreshed on every request, which bumps the lifetime. 
+          If set to True the cookie is refreshed on every request, which bumps the lifetime.
           Works like Flask's SESSION_REFRESH_EACH_REQUEST.
 
       - key: REMEMBER_COOKIE_SAMESITE
