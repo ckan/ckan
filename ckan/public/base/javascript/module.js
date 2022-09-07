@@ -199,6 +199,19 @@ this.ckan = this.ckan || {};
     }
   });
 
+  /* Adds the X-CSRFToken header
+    */
+  addCsrfHeader = function() {
+    var csrftoken = $('meta[name=_csrf_token]').attr('content')
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+      }
+    })
+  };
+
   /* Add a new module to the registry.
    *
    * This expects an object of methods/properties to be provided. These will
