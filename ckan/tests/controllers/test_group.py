@@ -357,13 +357,13 @@ class TestGroupMembership(object):
         user_obj = model.User.get(user["name"])
         # mock current_user
         current_user.return_value = user_obj
-        factories.User(fullname="My Fullname", name="my-user")
+        factories.User(fullname="My Fullname", name="my-new-user")
         group = self._create_group(user["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            data={"save": "", "username": "my-user", "role": "member"},
+            data={"save": "", "username": "my-new-user", "role": "member"},
         )
 
         assert "2 members" in add_response.body
@@ -432,13 +432,13 @@ class TestGroupMembership(object):
         user_obj = model.User.get(owner["name"])
         # mock current_user
         current_user.return_value = user_obj
-        factories.User(fullname="My Fullname", name="my-user")
+        factories.User(fullname="My Fullname", name="my-admin-user")
         group = self._create_group(owner["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            data={"save": "", "username": "my-user", "role": "admin"},
+            data={"save": "", "username": "my-admin-user", "role": "admin"},
         )
 
         assert "2 members" in add_response
