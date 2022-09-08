@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements.in
 #
-alembic==1.7.6
+alembic==1.8.1
     # via -r requirements.in
-babel==2.9.1
+babel==2.10.3
     # via
     #   -r requirements.in
     #   flask-babel
@@ -16,22 +16,22 @@ backports-zoneinfo==0.2.1
     #   tzlocal
 beaker==1.11.0
     # via -r requirements.in
-bleach==4.1.0
+bleach==5.0.1
     # via -r requirements.in
-blinker==1.4
+blinker==1.5
     # via -r requirements.in
 certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.12
     # via requests
-click==8.0.3
+click==8.1.3
     # via
     #   -r requirements.in
     #   flask
     #   rq
 deprecated==1.2.13
     # via redis
-dominate==2.6.0
+dominate==2.7.0
     # via -r requirements.in
 feedgen==0.9.0
     # via -r requirements.in
@@ -39,14 +39,16 @@ flask==2.0.3
     # via
     #   -r requirements.in
     #   flask-babel
+    #   flask-login
     #   flask-multistatic
+    #   flask-wtf
 flask-babel==1.0.0
     # via -r requirements.in
-flask-login==0.6.1
-    # via -r requirements.in
-flask-wtf==1.0.1
+flask-login==0.6.2
     # via -r requirements.in
 flask-multistatic==1.0
+    # via -r requirements.in
+flask-wtf==1.0.1
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
@@ -59,7 +61,9 @@ importlib-metadata==4.11.3
 importlib-resources==5.4.0
     # via alembic
 itsdangerous==2.1.1
-    # via flask
+    # via
+    #   flask
+    #   flask-wtf
 jinja2==3.0.3
     # via
     #   -r requirements.in
@@ -69,18 +73,21 @@ lxml==4.8.0
     # via feedgen
 mako==1.2.0
     # via alembic
-markdown==3.3.6
+markdown==3.4.1
     # via -r requirements.in
 markupsafe==2.1.1
     # via
     #   jinja2
     #   mako
+    #   wtforms
+mypy==0.971
+    # via sqlalchemy
+mypy-extensions==0.4.3
+    # via mypy
 nose==1.3.7
     # via pyutilib
 packaging==21.3
-    # via
-    #   bleach
-    #   redis
+    # via redis
 passlib==1.7.4
     # via -r requirements.in
 polib==1.1.1
@@ -97,7 +104,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   feedgen
-python-magic==0.4.25
+python-magic==0.4.27
     # via -r requirements.in
 pytz==2021.3
     # via
@@ -112,11 +119,11 @@ pyyaml==6.0
     # via -r requirements.in
 redis==4.1.4
     # via rq
-requests==2.27.1
+requests==2.28.1
     # via
     #   -r requirements.in
     #   pysolr
-rq==1.10.1
+rq==1.11.0
     # via -r requirements.in
 simplejson==3.17.6
     # via -r requirements.in
@@ -125,17 +132,24 @@ six==1.16.0
     #   bleach
     #   python-dateutil
     #   pyutilib
-sqlalchemy[mypy]==1.4.0
+sqlalchemy[mypy]==1.4.41
     # via
     #   -r requirements.in
     #   alembic
+sqlalchemy2-stubs==0.0.2a27
+    # via sqlalchemy
 sqlparse==0.4.2
     # via -r requirements.in
-typing-extensions==4.1.1
-    # via -r requirements.in
+tomli==2.0.1
+    # via mypy
+typing-extensions==4.3.0
+    # via
+    #   -r requirements.in
+    #   mypy
+    #   sqlalchemy2-stubs
 tzdata==2022.1
     # via pytz-deprecation-shim
-tzlocal==4.1
+tzlocal==4.2
     # via -r requirements.in
 urllib3==1.26.9
     # via requests
@@ -149,16 +163,17 @@ werkzeug[watchdog]==2.0.3
     # via
     #   -r requirements.in
     #   flask
+    #   flask-login
 wrapt==1.14.0
     # via deprecated
+wtforms==3.0.1
+    # via flask-wtf
 zipp==3.7.0
     # via
     #   importlib-metadata
     #   importlib-resources
 zope-interface==5.4.0
-    # via
-    #   -r requirements.in
-    #   repoze-who
+    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
