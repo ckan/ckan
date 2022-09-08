@@ -1258,3 +1258,5 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
 
 
 register_dataset_plugin_rules(dataset)
+# remove this when we improve blueprint registration to be explicit:
+dataset.auto_register = False  # type: ignore
