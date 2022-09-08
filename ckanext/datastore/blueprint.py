@@ -220,6 +220,7 @@ def dump_to(
             wr.write_records(records)
 
             if records_format == u'objects' or records_format == u'lists':
+                records = records.__dict__
                 if len(records) < paginate_by:
                     break
             elif not records:
