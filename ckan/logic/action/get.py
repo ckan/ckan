@@ -183,6 +183,7 @@ def member_list(context, data_dict=None):
     :raises: :class:`ckan.logic.NotFound`: if the group doesn't exist
 
     '''
+    _check_access('member_list', context, data_dict)
     model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
@@ -1309,6 +1310,7 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_package_show', context, data_dict)
 
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
@@ -2040,6 +2042,7 @@ def resource_search(context, data_dict):
     :rtype: dict
 
     '''
+    _check_access('resource_search', context, data_dict)
     model = context['model']
 
     # Allow either the `query` or `fields` parameter to be given, but not both.
@@ -2246,6 +2249,7 @@ def tag_search(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('tag_search', context, data_dict)
     tags, count = _tag_search(context, data_dict)
     return {'count': count,
             'results': [_table_dictize(tag, context) for tag in tags]}
@@ -2343,6 +2347,7 @@ def term_translation_show(context, data_dict):
         (the translation of the term into the target language) and
         ``'lang_code'`` (the language code of the target language)
     '''
+    _check_access('term_translation_show', context, data_dict)
     model = context['model']
 
     trans_table = model.term_translation_table
@@ -2416,6 +2421,7 @@ def status_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('status_show', context, data_dict)
     return {
         'site_title': config.get('ckan.site_title'),
         'site_description': config.get('ckan.site_description'),
@@ -2681,6 +2687,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+    _check_access('recently_changed_packages_activity_list', context, data_dict)
     model = context['model']
     offset = data_dict.get('offset', 0)
     data_dict['include_data'] = False
@@ -2712,6 +2719,7 @@ def user_follower_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('user_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
@@ -2727,6 +2735,7 @@ def dataset_follower_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('dataset_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
@@ -2742,6 +2751,7 @@ def group_follower_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('group_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
@@ -2757,6 +2767,7 @@ def organization_follower_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('organization_follower_count', context, data_dict)
     return group_follower_count(context, data_dict)
 
 
@@ -2871,6 +2882,7 @@ def am_following_user(context, data_dict):
     :rtype: bool
 
     '''
+    _check_access('am_following_user', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
@@ -2886,6 +2898,7 @@ def am_following_dataset(context, data_dict):
     :rtype: bool
 
     '''
+    _check_access('am_following_dataset', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
@@ -2901,6 +2914,7 @@ def am_following_group(context, data_dict):
     :rtype: bool
 
     '''
+    _check_access('am_following_group', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
@@ -2929,6 +2943,7 @@ def followee_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('followee_count', context, data_dict)
     model = context['model']
     followee_users = _followee_count(context, data_dict,
                                      model.UserFollowingUser)
@@ -2954,6 +2969,7 @@ def user_followee_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('user_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingUser)
@@ -2968,6 +2984,7 @@ def dataset_followee_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('dataset_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingDataset)
@@ -2982,6 +2999,7 @@ def group_followee_count(context, data_dict):
     :rtype: int
 
     '''
+    _check_access('group_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingGroup)
