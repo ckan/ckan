@@ -3,6 +3,7 @@
 # This file is code to do with vdm revisions, which was removed from CKAN after
 # version 2.8. It is only used by a migration and its tests.
 
+from typing import Any
 import uuid
 import six
 import datetime
@@ -19,6 +20,7 @@ import ckan.lib.dictization as d
 from ckan.lib.dictization.model_dictize import (
     _execute, resource_list_dictize, extras_list_dictize, group_list_dictize)
 from ckan import model
+from ckanext.activity.model import Activity
 
 
 # This is based on ckan.lib.dictization.model_dictize:package_dictize
@@ -44,8 +46,9 @@ def package_dictize_with_revisions(pkg, context):
         # CKAN>2.8
         revision_model = RevisionTableMappings.instance()
 
-    is_latest_revision = not(context.get(u'revision_id') or
-                             context.get(u'revision_date'))
+    is_latest_revision = not (
+        context.get(u'revision_id') or context.get(u'revision_date')
+    )
     execute = _execute if is_latest_revision else _execute_with_revision
     # package
     if is_latest_revision:
@@ -539,8 +542,8 @@ def make_revision(instances):
 
     # the related Activity would get the revision_id added to it too.
     # Here we simply assume it's the latest activity.
-    activity = model.Session.query(model.Activity) \
-        .order_by(model.Activity.timestamp.desc()) \
+    activity = model.Session.query(Activity) \
+        .order_by(Activity.timestamp.desc()) \
         .first()
     activity.revision_id = revision.id
     model.Session.flush()
@@ -586,7 +589,7 @@ def make_revision(instances):
 
 # Revision tables (singleton)
 class RevisionTableMappings(object):
-    _instance = None
+    _instance: Any = None
 
     @classmethod
     def instance(cls):
@@ -668,7 +671,7 @@ class RevisionTableMappings(object):
 # It's easiest if this code works on all versions of CKAN. After CKAN 2.8 the
 # revision model is separate from the main model.
 try:
-    model.PackageExtraRevision
+    model.PackageExtraRevision  # type: ignore
     # CKAN<=2.8
     revision_model = model
 except AttributeError:

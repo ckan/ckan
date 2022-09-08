@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import mock
+from flask_login import user_logged_in as signals_user_logged_in
 import pytest
 
 import ckan.model as model
@@ -39,9 +40,8 @@ def test_request_signals(app):
     assert finish_receiver.call_count == 2
 
 
-@pytest.mark.usefixtures(u"clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_request_context")
 class TestUserSignals:
-    @pytest.mark.usefixtures("app")
     def test_user_created(self):
         created = mock.Mock()
         with signals.user_created.connected_to(created):
@@ -77,13 +77,14 @@ class TestUserSignals:
             assert perform_reset.call_count == 1
 
     def test_login(self, app):
-        user = factories.User(password=u"correct123")
-        url = u"/login_generic"
+        user = factories.User(email='user@ckan.org', password=u"correct123")
+        url = url_for(u"user.login")
         success = mock.Mock()
         fail = mock.Mock()
-        with signals.successful_login.connected_to(success):
+        invalid = factories.User.stub().name
+        with signals_user_logged_in.connected_to(success):
             with signals.failed_login.connected_to(fail):
-                data = {u"login": u"invalid", u"password": u"invalid"}
+                data = {u"login": invalid, u"password": u"invalid"}
                 app.post(url, data=data)
                 assert success.call_count == 0
                 assert fail.call_count == 1
@@ -93,7 +94,7 @@ class TestUserSignals:
                 assert success.call_count == 0
                 assert fail.call_count == 2
 
-                data = {u"login": u"invalid", u"password": u"correct123"}
+                data = {u"login": invalid, u"password": u"correct123"}
                 app.post(url, data=data)
                 assert success.call_count == 0
                 assert fail.call_count == 3

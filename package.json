@@ -3,24 +3,27 @@
   "version": "1.0.0",
   "description": "CKAN: The Open Source Data Portal Software ==========================================",
   "dependencies": {
-    "@highlightjs/cdn-assets": "^10.7.3",
-    "blueimp-file-upload": "^10.31.0",
-    "bootstrap-sass": "^3.4.1",
-    "font-awesome": "^4.7.0",
+    "@fortawesome/fontawesome-free": "^6.0.0",
+    "@highlightjs/cdn-assets": "^11.5.0",
+    "@popperjs/core": "^2.10.2",
+    "blueimp-file-upload": "^10.32.0",
+    "bootstrap": "^5.1.3",
+    "dompurify": "^2.3.3",
+    "jquery": "^3.6.0",
+    "moment": "^2.29.2",
+    "qs": "^6.10.3"
+  },
+  "devDependencies": {
+    "axe-core": "^4.4.1",
+    "cypress": "^9.5.1",
+    "cypress-axe": "^0.14.0",
+    "pyright": "^1.1.234",
+    "sass": "^1.49.8",
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.0.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "jquery": "^3.6.0",
-    "moment": "^2.29.1",
-    "qs": "^6.10.1",
-    "sass": "^1.35.2"
-  },
-  "devDependencies": {
-    "axe-core": "^4.3.3",
-    "cypress": "^8.7.0",
-    "cypress-axe": "^0.13.0"
+    "gulp-sourcemaps": "^2.6.5"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

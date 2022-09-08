@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import enum
 from typing import Any, Generic, Optional, TypeVar, Dict
+
+from ckan.types import Validator
 
 
 T = TypeVar("T")
@@ -42,25 +45,28 @@ class Option(Generic[T]):
         "description",
         "_validators",
         "placeholder",
+        "example",
     )
 
     flags: Flag
     default: Optional[T]
     description: Optional[str]
     placeholder: Optional[str]
+    example: Optional[Any]
     _validators: str
 
     def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
         self.description = None
         self.placeholder = None
+        self.example = None
         self._validators = ""
         self.default = default
 
     def __str__(self):
         as_list = "as_list" in self.get_validators()
         if isinstance(self.default, list) and as_list:
-            return " ".join(self.default)
+            return " ".join(map(str, self.default))
         return str(self.default)
 
     def _unset_flag(self, flag: Flag):
@@ -72,11 +78,15 @@ class Option(Generic[T]):
     def _has_flag(self, flag: Flag) -> bool:
         return bool(self.flags & flag)
 
-    def has_default(self):
+    def has_default(self) -> bool:
         return self.default is not None
 
     def set_default(self, default: T):
         self.default = default
+        return self
+
+    def set_example(self, example: str):
+        self.example = example
         return self
 
     def set_description(self, description: str):
@@ -92,14 +102,23 @@ class Option(Generic[T]):
         return self
 
     def append_validators(self, validators: str, before: bool = False):
+        """Add extra validators before or after the current list.
+
+        Use it together with `Declaration.declare_*` shortcuts in order to
+        define more specific common options::
+
+            declaration.declare_bool(...).append_validators(
+                "not_missing", before=True)
+
+        """
         left = self._validators
         right = validators
         if before:
             left, right = right, left
 
         glue = " " if left and right else ""
-
         self._validators = left + glue + right
+        return self
 
     def get_validators(self):
         return self._validators
@@ -138,7 +157,7 @@ class Option(Generic[T]):
 # (https://github.com/ckan/ckanext-scheming/blob/release-2.1.0/ckanext/scheming/validation.py#L407-L426).
 # This syntax is familiar for everyone and it we can switch to the original
 # when scheming become a part of core.
-def _validators_from_string(s: str):
+def _validators_from_string(s: str) -> list[Validator]:
     """
     convert a schema validators string to a list of validators
     e.g. "if_empty_same_as(name) unicode" becomes:
@@ -151,7 +170,7 @@ def _validators_from_string(s: str):
     for p in parts:
         if "(" in p and p[-1] == ")":
             name, args = p.split("(", 1)
-            args = args[:-1].split(",")  # trim trailing ')', break up
+            args: Any = args[:-1].split(",")  # trim trailing ')', break up
             v = get_validator(name)(*args)
         else:
             v = get_validator(p)

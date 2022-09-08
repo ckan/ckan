@@ -1,0 +1,52 @@
+{#
+  Template variables:
+
+  user - currently viewed user
+  tokens - list of ApiToken entities
+
+  #}
+
+<table class="table table-stripped table-condensed table-header table-hover table-bordered">
+  <thead>
+    <tr>
+      {% block head_cells %}
+        {% block head_cell_token %}<th scope="col">{{ _('Token') }}</th>{% endblock %}
+        {% block head_cell_last_access %}<th scope="col">{{ _('Last access') }}</th>{% endblock %}
+        {% block head_cell_actions %}<th scope="col">{{ _('Actions') }}</th>{% endblock %}
+      {% endblock head_cells %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for token in tokens %}
+      <tr>
+        {% block token_cells scoped %}
+          {% block token_cell_token %}
+            <td colspan="1">
+              <code>
+                {{ token.name }}
+              </code>
+            </td>
+          {% endblock token_cell_token %}
+          {% block token_cell_last_access %}
+            <td>
+              {{ h.render_datetime(token.last_access, with_hours=True) or _('Never') }}
+            </td>
+          {% endblock token_cell_last_access %}
+          {% block token_cell_actions %}
+            <td>
+              {% set action = h.url_for("user.api_token_revoke", id=user['name'], jti=token['id']) %}
+              <form action="{{ action }}" method="POST">
+		{{ h.csrf_input() }}      
+                <div class="btn-group">
+                  <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" title="{{ _('Revoke') }}" data-module="confirm-action">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+              </form>
+            </td>
+          {% endblock token_cell_actions %}
+        {% endblock token_cells %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

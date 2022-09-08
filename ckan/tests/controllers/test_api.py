@@ -12,7 +12,6 @@ from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
 @pytest.mark.parametrize(
@@ -65,9 +64,9 @@ class TestApiController(object):
         self, app, monkeypatch, tmpdir, ckan_config
     ):
         monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u"_storage_path", str(tmpdir))
 
         user = factories.User()
+        user_token = factories.APIToken(user=user["name"])
         pkg = factories.Dataset(creator_user_id=user["id"])
 
         url = url_for(
@@ -75,7 +74,7 @@ class TestApiController(object):
             logic_function="resource_create",
             ver=3,
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user_token["token"]}
 
         content = six.ensure_binary('upload-content')
         upload_content = BytesIO(content)
@@ -87,8 +86,8 @@ class TestApiController(object):
 
         resp = app.post(
             url,
+            extra_environ=env,
             data=postparams,
-            environ_overrides=env,
             content_type="multipart/form-data",
         )
         result = resp.json["result"]
@@ -235,33 +234,25 @@ class TestApiController(object):
 
     def test_config_option_list_access_sysadmin(self, app):
         user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=200,
-        )
+        env = {"Authorization": user_token["token"]}
+        app.get(url=url, extra_environ=env, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
             "api.action",
             logic_function="config_option_list",
             ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={"callback": "myfn"},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=403,
-        )
+        env = {"Authorization": user_token["token"]}
+        app.get(url=url, extra_environ=env, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 
@@ -335,4 +326,16 @@ class TestApiController(object):
             url_for("api.format_autocomplete", ver=2, incomplete=incomplete)
         )
         result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
+
         assert result == expected
+
+
+def test_i18n_only_known_locales_are_accepted(app):
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="fr")
+
+    assert app.get(url).status_code == 200
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
+    r = app.get(url, status=400)
+    assert "Bad request - Unknown locale" in r.get_data(as_text=True)

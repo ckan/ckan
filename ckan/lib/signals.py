@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Contains ``ckan`` and ``ckanext`` namespaces for signals as well as a bunch
+of predefined core-level signals.
 
+Check :doc:`signals` for extra detais.
+
+"""
+
+from typing import Any
 import flask.signals
 from blinker import Namespace
 
@@ -7,14 +14,18 @@ ckan = Namespace()
 ckanext = Namespace()
 
 
-@flask.signals.request_finished.connect
-def _request_finished_listener(*args, **kwargs):
+def _request_finished_listener(*args: Any, **kwargs: Any):
     request_finished.send(*args, **kwargs)
 
 
-@flask.signals.request_started.connect
-def _request_started_listener(*args, **kwargs):
+flask.signals.request_finished.connect(_request_finished_listener)
+
+
+def _request_started_listener(*args: Any, **kwargs: Any):
     request_started.send(*args, **kwargs)
+
+
+flask.signals.request_started.connect(_request_started_listener)
 
 
 request_started = ckan.signal(u"request_started")
@@ -40,10 +51,6 @@ resource_download = ckan.signal(u"resource_download")
 to the user.
 """
 
-successful_login = ckan.signal(u"successful_login")
-"""This signal is sent after successful login attempt.
-"""
-
 failed_login = ckan.signal(u"failed_login")
 """This signal is sent after failed login attempt.
 """
@@ -62,6 +69,12 @@ perform_password_reset = ckan.signal(u"perform_password_reset")
 providing new password.
 
 """
+
+
+action_succeeded = ckan.signal(u"action_succeed")
+"""This signal is sent when an action finished without an exception.
+"""
+
 
 datastore_upsert = ckanext.signal(u"datastore_upsert")
 """This signal is sent after datasetore records inserted/updated via

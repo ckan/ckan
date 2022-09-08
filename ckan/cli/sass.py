@@ -1,9 +1,10 @@
 # encoding: utf-8
+from __future__ import annotations
 
-import click
 import subprocess
 import os
 
+import click
 import six
 
 from ckan.common import config
@@ -22,7 +23,7 @@ def sass():
     _compile_sass(root, command, u'main')
 
 
-def _compile_sass(root, command, color):
+def _compile_sass(root: str, command: tuple[str, ...], color: str):
     click.echo(u'compile {}.css'.format(color))
     command = command + (u'--', u'--' + color)
 

@@ -7,7 +7,7 @@ import ckan.tests.helpers as helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestExampleIConfigurer(object):
     def test_template_renders(self, app):
         """Our controller renders the extension's config template."""
@@ -31,7 +31,7 @@ class TestExampleIConfigurer(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
     """Tests for helpers.build_extra_admin_nav method."""
 
