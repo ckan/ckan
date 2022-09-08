@@ -631,11 +631,11 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
-            "/datastore/dump/{0}?limit=6&format=json".format(
+            "/datastore/dump/{0}?limit=5&format=json".format(
                 str(resource["id"])
             )
         )
-        assert get_json_record_values(response.data) == list(range(6))
+        assert get_json_record_values(response.data) == list(range(5))
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -651,11 +651,11 @@ class TestDatastoreDump(object):
         helpers.call_action("datastore_create", **data)
 
         response = app.get(
-            "/datastore/dump/{0}?limit=7&format=json".format(
+            "/datastore/dump/{0}?limit=5&format=json".format(
                 str(resource["id"])
             )
         )
-        assert get_json_record_values(response.data) == list(range(7))
+        assert get_json_record_values(response.data) == list(range(5))
 
 
 def get_csv_record_values(response_body):
