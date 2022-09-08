@@ -60,7 +60,7 @@ def not_empty(key: FlattenKey, data: FlattenDataDict,
     .. code-block::
 
         data, errors = tk.navl_validate(
-            {"hello": 0},
+            {"hello": None},
             {"hello": [not_empty]}
         )
         assert errors == {"hello": [error_message]}
@@ -68,7 +68,11 @@ def not_empty(key: FlattenKey, data: FlattenDataDict,
     """
     value = data.get(key)
     valid_values = [False, 0, 0.0]
-    if (not value and value not in valid_values) or value is missing:
+
+    if value in valid_values:
+        return
+
+    if value is missing or not value:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
