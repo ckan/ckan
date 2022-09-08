@@ -56,7 +56,11 @@
             {{ 'checked' if 'show_fields' not in data else
               'checked' if f.id in data.show_fields else '' }}
             />{{ f.id }}</label></td>
-          <td>{{ f.get('info', {}).label }}</td>
+          <td>
+            {%- block dict_field_label scoped -%}
+              {{ f.get('info', {}).label }}
+            {%- endblock -%}
+          </td>
         </tr>
       {% endfor %}
     </table>
