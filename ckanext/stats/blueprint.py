@@ -1,4 +1,7 @@
 # encoding: utf-8
+from __future__ import annotations
+from typing import Any
+
 from flask import Blueprint
 
 from ckan.plugins.toolkit import render
@@ -12,7 +15,7 @@ stats = Blueprint(u'stats', __name__)
 @stats.route(u'/stats')
 def index():
     stats = stats_lib.Stats()
-    extra_vars = {
+    extra_vars: dict[str, Any] = {
         'largest_groups': stats.largest_groups(),
         'top_tags': stats.top_tags(),
         'top_package_creators': stats.top_package_creators(),
@@ -31,21 +34,21 @@ def index():
              'total_packages': cumulative_num_packages})
 
     extra_vars['raw_all_package_revisions'] = []
-    for week_date, revs, num_revisions, cumulative_num_revisions\
+    for week_date, _revs, num_revisions, _cumulative_num_revisions\
             in stats.get_by_week('package_revisions'):
         extra_vars['raw_all_package_revisions'].append(
             {'date': h.date_str_to_datetime(week_date),
              'total_revisions': num_revisions})
 
     extra_vars['raw_new_datasets'] = []
-    for week_date, pkgs, num_packages, cumulative_num_revisions\
+    for week_date, _pkgs, num_packages, _cumulative_num_revisions\
             in stats.get_by_week('new_packages'):
         extra_vars['raw_new_datasets'].append(
             {'date': h.date_str_to_datetime(week_date),
              'new_packages': num_packages})
 
     extra_vars['raw_deleted_datasets'] = []
-    for week_date, pkgs, num_packages, cumulative_num_packages\
+    for week_date, _pkgs, num_packages, cumulative_num_packages\
             in stats.get_by_week('deleted_packages'):
         extra_vars['raw_deleted_datasets'].append(
             {'date': h.date_str_to_datetime(

@@ -58,7 +58,7 @@
 
 @mixin simple-item {
     font-size: 12px;
-    line-height: (14em/12);
+    line-height: math.div(14em,12);
     padding: 7px $gutterX;
     border-bottom: 1px dotted $genericBorderColor;
     &:last-of-type {

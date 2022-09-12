@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# type: ignore
 
 import logging
 from sqlalchemy import create_engine
@@ -33,7 +34,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
             pass
 
     def configure(self, config):
-        self.write_url = config.get(
+        self.write_url = config.get_value(
             u'ckan.datastore.write_url'
         ).replace(u'example-', u'')
 

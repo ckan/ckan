@@ -1,11 +1,13 @@
 # encoding: utf-8
 
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import types, Column, Table, UniqueConstraint
+from typing_extensions import Self
 
-from ckan.model import meta
-from ckan.model import types as _types
-from ckan.model import domain_object
+import ckan.model.meta as meta
+import ckan.model.types as _types
+import ckan.model.domain_object as domain_object
 
 __all__ = ['TaskStatus', 'task_status_table']
 
@@ -23,8 +25,18 @@ task_status_table = Table('task_status', meta.metadata,
 )
 
 class TaskStatus(domain_object.DomainObject):
+    id: str
+    entity_id: str
+    entuty_type: str
+    task_type: str
+    key: str
+    value: str
+    state: str
+    error: str
+    last_updated: datetime
+
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference: str) -> Optional[Self]:
         '''Returns a task status object referenced by its id.'''
         if not reference:
             return None

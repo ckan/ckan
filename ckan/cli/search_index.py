@@ -1,10 +1,12 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
-import ckan.plugins.toolkit as tk
+from ckan.common import config
+from . import error_shout
 
 
 @click.group(name=u'search-index', short_help=u'Search index commands')
@@ -30,7 +32,8 @@ def search_index():
               is_flag=True)
 @click.argument(u'package_id', required=False)
 def rebuild(
-        verbose, force, only_missing, quiet, commit_each, package_id, clear
+        verbose: bool, force: bool, only_missing: bool, quiet: bool,
+        commit_each: bool, package_id: str, clear: bool
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -40,10 +43,10 @@ def rebuild(
                 only_missing=only_missing,
                 force=force,
                 defer_commit=(not commit_each),
-                quiet=quiet,
+                quiet=quiet and not verbose,
                 clear=clear)
     except Exception as e:
-        tk.error_shout(e)
+        error_shout(e)
     if not commit_each:
         commit()
 
@@ -56,7 +59,7 @@ def check():
 
 @search_index.command(name=u'show', short_help=u'Show index of a dataset')
 @click.argument(u'dataset_name')
-def show(dataset_name):
+def show(dataset_name: str):
     from ckan.lib.search import show
 
     index = show(dataset_name)
@@ -65,7 +68,7 @@ def show(dataset_name):
 
 @search_index.command(name=u'clear', short_help=u'Clear the search index')
 @click.argument(u'dataset_name', required=False)
-def clear(dataset_name):
+def clear(dataset_name: str):
     from ckan.lib.search import clear, clear_all
 
     if dataset_name:
@@ -79,18 +82,18 @@ def clear(dataset_name):
 def rebuild_fast():
     from ckan.lib.search import commit
 
-    db_url = tk.config['sqlalchemy.url']
+    db_url = config['sqlalchemy.url']
     engine = sa.create_engine(db_url)
     package_ids = []
     result = engine.execute(u"select id from package where state = 'active';")
     for row in result:
         package_ids.append(row[0])
 
-    def start(ids):
+    def start(ids: list[str]):
         from ckan.lib.search import rebuild
         rebuild(package_ids=ids)
 
-    def chunks(list_, n):
+    def chunks(list_: list[str], n: int):
         u""" Yield n successive chunks from list_"""
         newn = int(len(list_) / n)
         for i in range(0, n - 1):
@@ -110,4 +113,4 @@ def rebuild_fast():
             process.join()
         commit()
     except Exception as e:
-        click.echo(e.message)
+        error_shout(e)

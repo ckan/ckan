@@ -1,0 +1,12 @@
+{% ckan_extends %}
+
+{% block extra_fields %}
+  {% if h.activity_show_email_notifications() %}
+    {% call form.checkbox('activity_streams_email_notifications', label=_('Subscribe to notification emails'), id='field-activity-streams-email-notifications', value=True, checked=g.userobj.activity_streams_email_notifications) %}
+      {% set helper_text = _("You will receive notification emails from {site_title}, e.g. when you have new activities on your dashboard."|string) %}
+      {{ form.info(helper_text.format(site_title=g.site_title)) }}
+    {% endcall %}
+  {% endif %}
+
+  {{ super() }}
+{% endblock %}

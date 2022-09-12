@@ -1,0 +1,96 @@
+{% import 'macros/form.html' as form %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+{% set action = form_action or h.url_for(dataset_type ~ '_resource.new', id=pkg_name) %}
+
+
+<form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+
+  {{ h.csrf_input() }}	
+  {% block stages %}
+    {# An empty stages variable will not show the stages #}
+    {% if stage %}
+      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name, dataset_type=dataset_type) }}
+    {% endif %}
+  {% endblock %}
+
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+
+  <input name="id" value="{{ data.id }}" type="hidden"/>
+
+  {% block basic_fields %}
+    {% block basic_fields_url %}
+      {% set is_upload = (data.url_type == 'upload') %}
+      {% snippet 'package/snippets/resource_upload_field.html',
+        data=data,
+        errors=errors,
+        is_url=data.url and not is_upload,
+        is_upload=is_upload,
+        is_upload_enabled=h.uploads_enabled(),
+        url_label=_('URL'),
+        upload_label=_('File'),
+        placeholder=_('http://example.com/external-data.csv') %}
+    {% endblock %}
+
+    {% block basic_fields_name %}
+      {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+    {% endblock %}
+
+    {% block basic_fields_description %}
+      {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+    {% endblock %}
+
+    {% block basic_fields_format %}
+      {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
+      {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
+        <span class="info-block info-block-small">
+          <i class="fa fa-info-circle"></i>
+          {{ _('This will be guessed automatically. Leave blank if you wish') }}
+        </span>
+      {% endcall %}
+    {% endblock %}
+  {% endblock basic_fields %}
+
+  {% block metadata_fields %}
+    {% if include_metadata %}
+      {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
+      {# {{ form.select('resource_type', id='field-type', label=_('Resource Type'), options=[{'value': 'empty', 'text': _('Select a type…')}], selected="empty", error=errors.type) }} #}
+
+      {{ form.input('last_modified', id='field-last-modified', label=_('Last Modified'), placeholder=_('eg. 2012-06-05'), value=data.last_modified, error=errors.last_modified, classes=[]) }}
+
+      {{ form.input('size', id='field-size', label=_('File Size'), placeholder=_('eg. 1024'), value=data.size, error=errors.size, classes=[]) }}
+
+      {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
+
+      {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
+    {% endif %}
+  {% endblock %}
+
+  <div class="form-actions">
+    {% block delete_button %}
+      {% if data.id %}
+        {% if h.check_access('resource_delete', {'id': data.id})  %}
+          <a class="btn btn-danger pull-left" href="{% url_for dataset_type ~ '_resource.delete', resource_id=data.id, id=pkg_name %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this resource?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+        {% endif %}
+      {% endif %}
+    {% endblock %}
+    {% if stage %}
+      {% block previous_button %}
+        <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+      {% endblock %}
+    {% endif %}
+    {% block again_button %}
+      <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+    {% endblock %}
+    {% if stage %}
+      {% block save_button %}
+        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
+      {% endblock %}
+    {% else %}
+      {% block add_button %}
+        <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% endblock %}
+    {% endif %}
+  </div>
+</form>

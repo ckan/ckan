@@ -4,8 +4,9 @@
 {# This provides a full page that renders a form for adding a dataset. It can
 then itself be extended to add/remove blocks of functionality. #}
 <form id="dataset-edit" class="dataset-form" method="post" action="{{ action }}" data-module="basic-form" novalidate>
+  {{ h.csrf_input() }}
   {% block stages %}
-    {{ h.snippet('package/snippets/stages.html', stages=stage) }}
+    {{ h.snippet('package/snippets/stages.html', stages=stage, dataset_type=dataset_type) }}
   {% endblock %}
 
   <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
@@ -36,7 +37,7 @@ then itself be extended to add/remove blocks of functionality. #}
       {% endblock %}
       {% block delete_button %}
         {% if h.check_access('package_delete', {'id': data.id}) and not data.state == 'deleted' %}
-          <a class="btn btn-danger pull-left" href="{% url_for dataset_type ~ '.delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this dataset?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+          <a class="btn btn-danger pull-left" href="{% url_for dataset_type ~ '.delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ h.humanize_entity_type('package', dataset_type, 'delete confirmation') or _('Are you sure you want to delete this dataset?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
         {% endif %}
       {% endblock %}
       {% block save_button %}

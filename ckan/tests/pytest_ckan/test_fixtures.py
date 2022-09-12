@@ -6,13 +6,12 @@ import pytest
 from urllib.parse import urlparse
 
 import ckan.plugins as plugins
-import ckan.plugins.toolkit as tk
-from ckan.common import config
+from ckan.common import config, asbool
 from ckan.tests import factories
 
 
 def test_ckan_config_fixture(ckan_config):
-    assert tk.asbool(ckan_config[u"testing"])
+    assert asbool(ckan_config[u"testing"])
 
 
 def test_ckan_config_do_not_have_some_new_config(ckan_config):
@@ -38,6 +37,12 @@ def test_ckan_config_mark_without_explicit_config_fixture():
 @pytest.mark.usefixtures(u"with_plugins")
 def test_with_plugins_is_able_to_run_with_stats():
     assert plugins.plugin_loaded(u"stats")
+
+
+@pytest.mark.ckan_config("ckan.site_url", "https://example.org")
+@pytest.mark.usefixtures("with_request_context")
+def test_existing_ckan_config_mark_with_test_request(ckan_config):
+    assert ckan_config["ckan.site_url"] == "https://example.org"
 
 
 class TestMethodLevelConfig(object):
@@ -116,3 +121,8 @@ class TestMigrateDbFor(object):
 
         assert has_table("example_database_migrations_x")
         assert has_table("example_database_migrations_y")
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_non_clean_db_does_not_fail(package_factory):
+    assert package_factory()

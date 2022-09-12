@@ -8,15 +8,13 @@ import os
 import pytz
 import tzlocal
 from babel import Locale
+import flask_babel
 
 import pytest
 
 import ckan.lib.helpers as h
-import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers, factories
-import ckan.lib.base as base
-
 
 CkanUrlException = ckan.exceptions.CkanUrlException
 
@@ -436,9 +434,9 @@ class TestHelpersRemoveLineBreaks(object):
         test_string = UnicodeLike("foo")
         result = h.remove_linebreaks(test_string)
 
-        strType = u"".__class__
+        str_type = u"".__class__
         assert (
-            result.__class__ == strType
+            result.__class__ == str_type
         ), '"remove_linebreaks" casts into unicode()'
 
 
@@ -468,7 +466,6 @@ def test_unified_resource_format(fmt, exp):
 
 
 class TestGetDisplayTimezone(object):
-    @pytest.mark.ckan_config("ckan.display_timezone", "")
     def test_missing_config(self):
         assert h.get_display_timezone() == pytz.timezone("utc")
 
@@ -613,7 +610,7 @@ class TestBuildNavMain(object):
                 '<li><a href="/about">About</a></li>'
             )
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_active_in_resource_controller(self, test_request_context):
 
         dataset = factories.Dataset()
@@ -662,87 +659,6 @@ class TestBuildNavMain(object):
         assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
 
 
-class HelpersTestPlugin(p.SingletonPlugin):
-
-    p.implements(p.IRoutes, inherit=True)
-
-    controller = "ckan.tests.lib.test_helpers:TestHelperController"
-
-    def after_map(self, _map):
-
-        _map.connect(
-            "/broken_helper_as_attribute",
-            controller=self.controller,
-            action="broken_helper_as_attribute",
-        )
-
-        _map.connect(
-            "/broken_helper_as_item",
-            controller=self.controller,
-            action="broken_helper_as_item",
-        )
-
-        _map.connect(
-            "/helper_as_attribute",
-            controller=self.controller,
-            action="helper_as_attribute",
-        )
-
-        _map.connect(
-            "/helper_as_item",
-            controller=self.controller,
-            action="helper_as_item",
-        )
-
-        return _map
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestActivityListSelect(object):
-    def test_simple(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" >February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_selected(self):
-        pkg_activity = {
-            "id": "id1",
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "id1")
-
-        html = out[0]
-        assert (
-            str(html)
-            == '<option value="id1" selected>February 1, 2018 at 10:58:59 AM UTC'
-            "</option>"
-        )
-        assert hasattr(html, "__html__")  # shows it is safe Markup
-
-    def test_escaping(self):
-        pkg_activity = {
-            "id": '">',  # hacked somehow
-            "timestamp": datetime.datetime(2018, 2, 1, 10, 58, 59),
-        }
-
-        out = h.activity_list_select([pkg_activity], "")
-
-        html = out[0]
-        assert str(html).startswith(u'<option value="&#34;&gt;" >')
-
-
 class TestRemoveUrlParam:
     def test_current_url(self, test_request_context):
         base = "/organization/name"
@@ -774,7 +690,7 @@ class TestAddUrlParam(object):
         ('dataset', 'search', {'q': '*:*'}),
         ('organization', 'index', {}),
         ('home', 'index', {'a': '1'}),
-        ('dashboard', 'index', {}),
+        ('dashboard', 'datasets', {}),
     ])
     def test_controller_action(
             self, test_request_context, controller, action, extras):
@@ -806,15 +722,15 @@ def test_sanitize_url():
 
 
 def test_extract_markdown():
-    WITH_HTML = u"""Data exposed: &mdash;
+    with_html = u"""Data exposed: &mdash;
 Size of dump and data set: size?
 Notes: this is the classic RDF source but historically has had some problems with RDF correctness.
 """
 
-    WITH_UNICODE = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
+    with_unicode = u"""[From the project website] This project collects information on China’s foreign aid from the China Commerce Yearbook (中国商务年鉴) and the Almanac of China’s Foreign Economic Relations & Trade (中国对外经济贸易年间), published annually by China’s Ministry of Commerce (MOFCOM). Data is reported for each year between 1990 and 2005, with the exception of 2002, in which year China’s Ministry of Commerce published no project-level data on its foreign aid giving."""
 
-    assert "Data exposed" in h.markdown_extract(WITH_HTML)
-    assert "collects information" in h.markdown_extract(WITH_UNICODE)
+    assert "Data exposed" in h.markdown_extract(with_html)
+    assert "collects information" in h.markdown_extract(with_unicode)
 
 
 @pytest.mark.parametrize("string, date", [
@@ -837,6 +753,25 @@ def test_date_str_to_datetime_invalid(string):
         h.date_str_to_datetime(string)
 
 
+@pytest.mark.parametrize("dict_in,dict_out", [
+    ({"number_bool": True}, {"number bool": "True"}),
+    ({"number_bool": False}, {"number bool": "False"}),
+    ({"number_int": 0}, {"number int": "0"}),
+    ({"number_int": 42}, {"number int": "42"}),
+    ({"number_float": 0.0}, {"number float": "0"}),
+    ({"number_float": 0.1}, {"number float": "0.1"}),
+    ({"number_float": "0.10"}, {"number float": "0.1"}),
+    ({"string_basic": "peter"}, {"string basic": "peter"}),
+    ({"string_empty": ""}, {}),  # empty strings are ignored
+    ({"name": "hans"}, {}),  # blocked string
+])
+def test_format_resource_items_data_types(dict_in, dict_out, monkeypatch):
+    # set locale to en (formatting of decimals)
+    monkeypatch.setattr(flask_babel, "get_locale", lambda: "en")
+    items_out = h.format_resource_items(dict_in.items())
+    assert items_out == list(dict_out.items())
+
+
 def test_gravatar():
     email = "zephod@gmail.com"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
@@ -849,7 +784,7 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get("ckan.gravatar_default", "identicon")
+    default = ckan_config.get_value("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
@@ -910,7 +845,6 @@ def test_get_pkg_dict_extra():
 
     from ckan.lib.create_test_data import CreateTestData
     from ckan import model
-    from ckan.logic import get_action
 
     CreateTestData.create()
 
@@ -926,3 +860,15 @@ def test_get_pkg_dict_extra():
     )
 
     model.repo.rebuild_db()
+
+
+@pytest.mark.usefixtures("with_request_context")
+def test_decode_view_request_filters(test_request_context):
+
+    with test_request_context(u'?filters=Titl%25C3%25A8:T%25C3%25A9st|Dat%25C3%25AA%2520Time:2022-01-01%252001%253A01%253A01|_id:1|_id:2|_id:3|Piped%257CFilter:Piped%257CValue'):
+        assert h.decode_view_request_filters() == {
+            'Titlè': ['Tést'],
+            'Datê Time': ['2022-01-01 01:01:01'],
+            '_id': ['1', '2', '3'],
+            'Piped|Filter': ['Piped|Value']
+        }

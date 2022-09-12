@@ -4,8 +4,7 @@ import six
 import pytest
 
 import ckan.tests.factories as factories
-import ckan.model as model
-import ckan.tests.helpers as h
+import ckan.lib.helpers as h
 
 
 @pytest.mark.ckan_config("debug", True)
@@ -22,11 +21,16 @@ def test_comment_absent_if_debug_false(app):
 
 def test_apitoken_missing(app):
     request_headers = {}
+    data_dict = {"type": "dataset", "name": "a-name"}
+    url = h.url_for(
+            "api.action",
+            logic_function="package_create",
+            ver=3,
+        )
+    app.post(url, json=data_dict, headers=request_headers, status=403)
 
-    app.get("/dataset/new", headers=request_headers, status=403)
 
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_apitoken_in_authorization_header(app):
     user = factories.Sysadmin()
     user_token = factories.APIToken(user=user["id"], context={})
@@ -37,7 +41,7 @@ def test_apitoken_in_authorization_header(app):
     app.get("/dataset/new", headers=request_headers)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 def test_apitoken_in_x_ckan_header(app):
     user = factories.Sysadmin()
     user_token = factories.APIToken(user=user["id"], context={})
@@ -51,8 +55,13 @@ def test_apitoken_contains_unicode(app):
     # there is no valid apitoken containing unicode, but we should fail
     # nicely if unicode is supplied
     request_headers = {"Authorization": "\xc2\xb7"}
-
-    app.get("/dataset/new", headers=request_headers, status=403)
+    data_dict = {"type": "dataset", "name": "a-name"}
+    url = h.url_for(
+            "api.action",
+            logic_function="package_create",
+            ver=3,
+        )
+    app.post(url, json=data_dict, headers=request_headers, status=403)
 
 
 def test_options(app):
@@ -468,10 +477,14 @@ def test_cache_control_when_cache_is_not_set_in_config(app):
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
 def test_cache_control_while_logged_in(app):
-    user = factories.User()
-    env = {'REMOTE_USER': user['name'].encode('ascii')}
+    from ckan.lib.helpers import url_for
+    user = factories.User(password="correct123")
+    identity = {"login": user["name"], "password": "correct123"}
     request_headers = {}
-    response = app.get('/', headers=request_headers, extra_environ=env)
+
+    response = app.post(
+        url_for("user.login"), data=identity, headers=request_headers
+    )
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers

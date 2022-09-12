@@ -95,7 +95,7 @@ class TestBuildJSTranslations(object):
 
         # Remove an output file and back-date another one
         removed_filename, outdated_filename = sorted(mtimes.keys())[:2]
-        removed_mtime = mtimes.pop(removed_filename)
+        mtimes.pop(removed_filename)
         outdated_mtime = mtimes.pop(outdated_filename)
         os.remove(os.path.join(self.temp_dir, removed_filename))
         os.utime(os.path.join(self.temp_dir, outdated_filename), (0, 0))

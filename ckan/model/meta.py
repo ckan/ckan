@@ -1,23 +1,25 @@
 # encoding: utf-8
 
 """SQLAlchemy Metadata and Session object"""
+from typing import Any, Optional
 from sqlalchemy import MetaData, event
 import sqlalchemy.orm as orm
+from sqlalchemy.engine import Engine
 
-from ckan.model import extension
+from ckan.types import AlchemySession
 
-__all__ = ['Session', 'engine_is_sqlite', 'engine_is_pg']
+
+__all__ = ['Session']
 
 
 # SQLAlchemy database engine. Updated by model.init_model()
-engine = None
+engine: Optional[Engine] = None
 
 
-Session = orm.scoped_session(orm.sessionmaker(
+Session: AlchemySession = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 ))
 
 
@@ -25,13 +27,12 @@ create_local_session = orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    extension=[extension.PluginSessionExtension(),],
 )
 
 
 @event.listens_for(create_local_session, 'before_flush')
 @event.listens_for(Session, 'before_flush')
-def ckan_before_flush(session, flush_context, instances):
+def ckan_before_flush(session: Any, flush_context: Any, instances: Any):
     """ Create a new _object_cache in the Session object.
 
     _object_cache is used in DomainObjectModificationExtension to trigger
@@ -49,26 +50,29 @@ def ckan_before_flush(session, flush_context, instances):
     session._object_cache['deleted'].update(session.deleted)
     session._object_cache['changed'].update(changed)
 
+
 @event.listens_for(create_local_session, 'after_commit')
 @event.listens_for(Session, 'after_commit')
-def ckan_after_commit(session):
+def ckan_after_commit(session: Any):
     """ Cleans our custom _object_cache attribute after commiting.
     """
     if hasattr(session, '_object_cache'):
         del session._object_cache
 
+
 @event.listens_for(create_local_session, 'before_commit')
 @event.listens_for(Session, 'before_commit')
-def ckan_before_commit(session):
-    session.flush()
-    try:
-        session._object_cache
-    except AttributeError:
-        return
+def ckan_before_commit(session: Any):
+    """ Calls all extensions implementing IDomainObjectModification interface.
+    """
+    from ckan.model.modification import DomainObjectModificationExtension
+    dome = DomainObjectModificationExtension()
+    dome.before_commit(session)
+
 
 @event.listens_for(create_local_session, 'after_rollback')
 @event.listens_for(Session, 'after_rollback')
-def ckan_after_rollback(session):
+def ckan_after_rollback(session: Any):
     """ Cleans our custom _object_cache attribute after rollback.
     """
     if hasattr(session, '_object_cache'):
@@ -81,16 +85,3 @@ mapper = orm.mapper
 # Global metadata. If you have multiple databases with overlapping table
 # names, you'll need a metadata for each database
 metadata = MetaData()
-
-
-def engine_is_sqlite(sa_engine=None):
-    # Returns true iff the engine is connected to a sqlite database.
-
-    return (sa_engine or engine).engine.url.drivername == 'sqlite'
-
-
-def engine_is_pg(sa_engine=None):
-    # Returns true iff the engine is connected to a postgresql database.
-    # According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
-    # all Postgres driver names start with `postgres`
-    return (sa_engine or engine).engine.url.drivername.startswith('postgres')

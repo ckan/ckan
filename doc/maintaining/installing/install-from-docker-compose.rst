@@ -142,6 +142,19 @@ The location of these named volumes needs to be backed up in a production enviro
 To migrate CKAN data between different hosts, simply transfer the content of the named volumes.
 A detailed use case of data transfer will be discussed in step 5.
 
+You have the option of using environment variables rather than hard coding the actual docker
+container name. For example, if you want to remove the "db" container name replace "db" with
+name of your environment variable in docker-compose.yml:
+
+     links:
+      - db
+
+     depends_on:
+      - db
+
+     db:
+       container_name: ${POSTGRES_HOST}
+
 c. Convenience: paths to named volumes
 
 The files inside named volumes reside on a long-ish path on the host.
@@ -350,7 +363,7 @@ E.g., `ckanext-spatial <https://github.com/ckan/ckanext-spatial.git>`_::
     exit
 
     # On the host
-    docker exec -it db psql -U ckan -f 20_postgis_permissions.sql
+    docker exec -it db psql -U ckan -f /docker-entrypoint-initdb.d/20_postgis_permissions.sql
     docker exec -it ckan /usr/local/bin/ckan -c /etc/ckan/production.ini spatial initdb 
 
     sudo vim $VOL_CKAN_CONFIG/production.ini

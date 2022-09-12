@@ -25,16 +25,15 @@ import contextlib
 import functools
 import logging
 import re
-import json
 import smtplib
+from typing import Any
 
-from flask.testing import Client as FlaskClient
+from flask.testing import Client as FlaskClient  # type: ignore
 from flask.wrappers import Response
 from click.testing import CliRunner
 import pytest
 import unittest.mock as mock
 import rq
-import six
 
 from ckan.common import config
 import ckan.lib.jobs as jobs
@@ -186,7 +185,7 @@ class CKANTestApp(object):
     It adds some convenience methods for CKAN
     """
 
-    _flask_app = None
+    _flask_app: Any = None
 
     @property
     def flask_app(self):
@@ -268,8 +267,9 @@ def _get_test_app():
     Unit tests shouldn't need this.
 
     """
-    config["ckan.legacy_templates"] = False
     config["testing"] = True
+    # exempt the CKAN TESTS from csrf-validation.
+    config["WTF_CSRF_METHODS"] = []
     app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 

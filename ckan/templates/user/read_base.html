@@ -1,6 +1,7 @@
 {% extends "page.html" %}
 
 {% set user = user_dict %}
+{% set dataset_type = h.default_package_type() %}
 
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
@@ -16,8 +17,7 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name, icon='sitemap') }}
-  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name, icon='clock-o') }}
+  {{ h.build_nav_icon('user.read', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=user.name, icon='sitemap') }}
   {% if h.check_access('api_token_list', {'user': user['name']}) %}
     {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
   {% endif %}
@@ -53,7 +53,7 @@
           <dd data-module="followers-counter" data-module-id="{{ user.id }}" data-module-num_followers="{{ user.num_followers }}">{{ h.SI_number_span(user.num_followers) }}</dd>
         </dl>
         <dl>
-          <dt>{{ _('Datasets') }}</dt>
+          <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
           <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
         </dl>
       </div>
@@ -86,6 +86,12 @@
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
         </dl>
+        {% if is_sysadmin %}
+        <dl>
+          <dt>{{_('Last Active') }}</dt>
+          <dd>{{ h.time_ago_from_timestamp(user.last_active) }}</dd>
+        </dl>
+        {% endif %}
         <dl>
           <dt>{{ _('State') }}</dt>
           <dd>{{ _(user.state) }}</dd>

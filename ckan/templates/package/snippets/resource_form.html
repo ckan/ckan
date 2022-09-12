@@ -6,11 +6,11 @@
 
 
 <form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
-
+  {{ h.csrf_input() }} 
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
-      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name, dataset_type=dataset_type) }}
     {% endif %}
   {% endblock %}
 
