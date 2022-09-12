@@ -243,7 +243,9 @@ class Upload(object):
             raise logic.ValidationError(err)
 
     def _get_storage_path(self, filename: str) -> str:
-        # not sure why pyright chokes on this
+        # Not sure why pyright chokes on this.
+        # 'str' is a valid type for a path-like object, per
+        # https://docs.python.org/3/glossary.html#term-path-like-object
         return os.path.join(self.storage_path, filename)  # type: ignore
 
     def delete(self, filename: str) -> None:

@@ -189,7 +189,7 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
         upload = uploader.get_resource_uploader(data_dict)
         # Don't break if old plugin/interface is found
         if hasattr(upload, "delete"):
-            upload.delete(id)  # type: ignore
+            upload.delete(id)
         else:
             log.warning("%s does not have delete function, could not cleanup: %s",
                         type(upload).__name__, id)
