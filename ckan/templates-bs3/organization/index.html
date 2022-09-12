@@ -1,5 +1,12 @@
 {% extends "page.html" %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="Organizations" />
+<meta name="DCTERMS.description" content="List of all organizations" />
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
+
 {% block subtitle %}{{ h.humanize_entity_type('organization', group_type, 'page title') or _('Organizations') }}{% endblock %}
 
 {% block breadcrumb_content %}

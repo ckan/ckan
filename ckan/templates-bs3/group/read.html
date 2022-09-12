@@ -1,6 +1,10 @@
 {% extends "group/read_base.html" %}
 {% set dataset_type = h.default_package_type() %}
 
+{% block meta_doctype %}
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
+
 {% block primary_content_inner %}
   {% block groups_search_form %}
     {% set facets = {

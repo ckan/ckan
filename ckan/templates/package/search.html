@@ -1,6 +1,13 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="Datasets" />
+<meta name="DCTERMS.description" content="List of all datasets" />
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
+
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
 {% block breadcrumb_content %}

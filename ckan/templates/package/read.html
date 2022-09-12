@@ -1,5 +1,21 @@
 {% extends "package/read_base.html" %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="{{ pkg.title or pkg.name }}" />
+
+{% if pkg.organization and pkg.organization.title %}
+  <meta name="DCTERMS.creator" content="c=AU; o={{ pkg.organization.title }}" scheme="AGLSTERMS.GOLD" />
+{% endif %}
+
+<meta name="DCTERMS.created" content="{{ h.render_datetime(pkg.metadata_created, date_format='%Y-%m-%d') or 'unknown' }}" />
+<meta name="DCTERMS.modified" content="{{ h.render_datetime(pkg.metadata_modified or pkg.metadata_created, date_format='%Y-%m-%d') or 'unknown' }}" />
+<meta name="DCTERMS.description" content="{{ (pkg.notes or pkg.title or pkg.name) | truncate(500) }}" />
+<meta name="DCTERMS.identifier" content="{{ pkg.id }}" />
+
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
+
 {% block primary_content_inner %}
   {{ super() }}
   {% block package_description %}

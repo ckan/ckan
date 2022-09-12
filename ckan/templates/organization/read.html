@@ -1,6 +1,10 @@
 {% extends "organization/read_base.html" %}
 {% set dataset_type = h.default_package_type() %}
 
+{% block meta_doctype %}
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
+
 {% block page_primary_action %}
   {% if h.check_access('package_create', {'owner_org': group_dict.id}) %}
     {% snippet 'snippets/add_dataset.html', group=group_dict.id %}

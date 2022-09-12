@@ -1,5 +1,11 @@
 {% extends "page.html" %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="Groups" />
+<meta name="DCTERMS.description" content="List of all groups" />
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="index" />
+{% endblock %}
 
 {% block subtitle %}{{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 

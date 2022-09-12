@@ -1,6 +1,20 @@
 {% extends "page.html" %}
 {% set dataset_type = h.default_package_type() %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="{{ group_dict.display_name }}" />
+
+<meta name="DCTERMS.creator" scheme="AGLSTERMS.GOLD" content="c=AU; o={{ group_dict.display_name }}" />
+<meta name="DCTERMS.created" content="{{ h.render_datetime(group_dict.created, date_format='%Y-%m-%d') or 'unknown' }}" />
+<meta name="DCTERMS.description" content="{{ (group_dict.get('description') or group_dict.display_name or '') | truncate(500) }}" />
+<meta name="DCTERMS.identifier" content="{{ group_dict.id }}" />
+
+{% block meta_doctype %}
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="guidelines" />
+{% endblock %}
+{% endblock %}
+
 {% block subtitle %}{{ group_dict.display_name }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('organization', group_type, 'page title') or _('Organizations') }}{% endblock %}
 
 {% block breadcrumb_content %}

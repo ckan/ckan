@@ -2,6 +2,22 @@
 
 {% set res = resource %}
 
+{% block meta %}
+{{ super() }}
+<meta name="DCTERMS.title" content="{{ h.resource_display_name(res) }}" />
+
+{% if pkg.organization and pkg.organization['title'] %}
+  <meta name="DCTERMS.creator" content="c=AU; o={{ pkg.organization['title'] }}" scheme="AGLSTERMS.GOLD" />
+{% endif %}
+
+<meta name="DCTERMS.created" content="{{ h.render_datetime(res.created, date_format='%Y-%m-%d') or 'unknown' }}" />
+<meta name="DCTERMS.modified" content="{{ h.render_datetime(res.metadata_modified or res.last_modified or res.created, date_format='%Y-%m-%d') or 'unknown' }}" />
+<meta name="DCTERMS.description" content="{{ (res.description or res.name or '') | truncate(500) }}" />
+<meta name="DCTERMS.identifier" content="{{ res.id }}" />
+
+<meta name="AGLSTERMS.documentType" scheme="AGLSTERMS.agls-document" content="dataset" />
+{% endblock %}
+
 {% block head_extras -%}
   {{ super() }}
   {% set description = h.markdown_extract(h.get_translated(res, 'description'), extract_length=200) if res.description else h.markdown_extract(h.get_translated(package, 'notes'), extract_length=200) %}
