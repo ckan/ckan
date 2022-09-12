@@ -1124,6 +1124,14 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     method = data_dict.get('method', _UPSERT)
 
     fields = _get_fields(context['connection'], data_dict['resource_id'])
+    
+    non_first_field=fields[1:]
+    first_field=fields[0:1]
+    value=first_field[0]['type']
+    if value=='nested':
+        new_field=non_first_field+first_field
+        fields=new_field
+    
     field_names = _pluck('id', fields)
     records = data_dict['records']
     sql_columns = ", ".join(
