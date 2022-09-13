@@ -236,7 +236,7 @@ file settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats text_view recline_view
+        ckan.plugins = stats text_view datatables_view
 
    If the same option is set more than once in your config file, exeption will
    be raised and CKAN application will not start

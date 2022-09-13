@@ -282,8 +282,8 @@ database and the API as thin as possible to allow you to use the features you wo
 expect from a powerful database management system.
 
 A DataStore resource can not be created on its own. It is always required to have an
-associated CKAN resource. If data is stored in the DataStore, it will automatically be
-previewed by the :ref:`recline preview extension <data-explorer>`.
+associated CKAN resource. If data is stored in the DataStore, it can automatically be
+previewed by a :ref:`preview extension <data-explorer>`.
 
 
 Making a Data API request
