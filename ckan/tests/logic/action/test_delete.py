@@ -117,7 +117,7 @@ class TestDeleteResourceViews(object):
             helpers.call_action("resource_view_delete", context={}, **params)
 
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.ckan_config("ckan.plugins", "image_view datatables_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestClearResourceViews(object):
@@ -127,8 +127,8 @@ class TestClearResourceViews(object):
         factories.ResourceView(view_type="image_view")
         factories.ResourceView(view_type="image_view")
 
-        factories.ResourceView(view_type="recline_view")
-        factories.ResourceView(view_type="recline_view")
+        factories.ResourceView(view_type="datatables_view")
+        factories.ResourceView(view_type="datatables_view")
 
         count = model.Session.query(model.ResourceView).count()
 
@@ -147,8 +147,8 @@ class TestClearResourceViews(object):
         factories.ResourceView(view_type="image_view")
         factories.ResourceView(view_type="image_view")
 
-        factories.ResourceView(view_type="recline_view")
-        factories.ResourceView(view_type="recline_view")
+        factories.ResourceView(view_type="datatables_view")
+        factories.ResourceView(view_type="datatables_view")
 
         count = model.Session.query(model.ResourceView).count()
 
@@ -162,7 +162,7 @@ class TestClearResourceViews(object):
 
         assert len(view_types) == 2
         for view_type in view_types:
-            assert view_type[0] == "recline_view"
+            assert view_type[0] == "datatables_view"
 
 
 class TestDeleteTags(object):

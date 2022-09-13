@@ -581,7 +581,7 @@ def view(package_type: str,
 
     Depending on the type, different views are loaded. This could be an
     img tag where the image is loaded directly or an iframe that embeds a
-    webpage or a recline preview.
+    webpage or another preview.
     """
     context = cast(Context, {
         u'model': model,
