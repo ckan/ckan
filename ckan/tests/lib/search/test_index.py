@@ -320,4 +320,3 @@ def test_index_only_called_once():
         assert m.call_count == 1
 
         assert helpers.call_action("package_show", id=dataset["id"])["notes"] == "hi"
-
