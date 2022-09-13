@@ -49,9 +49,9 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
 
 
         changed_pkgs = set()
-        new_ids = [obj.id for obj in new]
+        new_pkg_ids = [obj.id for obj in new if isinstance(obj, model.Package)]
         for obj in changed:
-            if isinstance(obj, model.Package) and obj.id not in new_ids:
+            if isinstance(obj, model.Package) and obj.id not in new_pkg_ids:
                 changed_pkgs.add(obj)
 
         for obj in new | changed | deleted:
