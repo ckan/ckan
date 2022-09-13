@@ -83,6 +83,8 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_template_directory(config, 'theme/templates')
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
+        log.warning("The Recline-based views are deprecated and will be removed in future versions")
+
     def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
         return (resource.get('datastore_active') or
