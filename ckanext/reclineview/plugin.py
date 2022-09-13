@@ -66,7 +66,6 @@ def datastore_fields(resource: dict[str, Any],
             if f['type'] in valid_field_types]
 
 
-@p.toolkit.blanket.config_declarations
 class ReclineViewBase(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
@@ -104,6 +103,7 @@ class ReclineViewBase(p.SingletonPlugin):
         }
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineView(ReclineViewBase):
     '''
     This extension views resources using a Recline MultiView.
@@ -133,6 +133,7 @@ class ReclineView(ReclineViewBase):
             return False
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineGridView(ReclineViewBase):
     '''
     This extension views resources using a Recline grid.
@@ -148,6 +149,7 @@ class ReclineGridView(ReclineViewBase):
                 }
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineGraphView(ReclineViewBase):
     '''
     This extension views resources using a Recline graph.
