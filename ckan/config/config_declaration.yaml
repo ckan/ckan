@@ -928,7 +928,7 @@ groups:
         required: true
         type: list
         placeholder: activity
-        example: disqus datapreview googleanalytics follower
+        example: activity scheming_datasets datatables_view datastore xloader
         description: |
           Specify which CKAN plugins are to be enabled.
 
@@ -1116,8 +1116,8 @@ groups:
         type: list
         default:
           - image_view
-          - recline_view
-        example: image_view webpage_view recline_grid_view
+          - datatables_view
+        example: image_view webpage_view datatables_view
         description: |
           Defines the resource views that should be created by default when creating or
           updating a dataset. From this list only the views that are relevant to a particular
@@ -1128,8 +1128,8 @@ groups:
 
 
           .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins`` setting to be able to create the default views, eg::
-                        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
-                        ckan.views.default_views = image_view webpage_view recline_grid_view
+                        ckan.plugins = image_view webpage_view geo_view datatables_view ...
+                        ckan.views.default_views = image_view webpage_view datatables_view
 
   - annotation: Theming Settings
     options:
