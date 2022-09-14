@@ -194,6 +194,8 @@ def update_config() -> None:
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
+    if 'plugin_template_paths' in config:
+        template_paths.extend(config['plugin_template_paths'])
     config['computed_template_paths'] = template_paths
 
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
