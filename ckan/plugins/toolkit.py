@@ -159,7 +159,7 @@ def _add_served_directory(
     absolute_path = os.path.join(this_dir, relative_path)
     if absolute_path not in config_.get_value(config_var).split(","):
         if config_.get_value(config_var):
-            config_[config_var] += "," + absolute_path
+            config_[config_var] = absolute_path + "," + config_[config_var]
         else:
             config_[config_var] = absolute_path
     return absolute_path
