@@ -9,6 +9,8 @@ groups:
         internal: true
       - key: ckan.admin_tabs
         internal: true
+      - key: plugin_template_paths
+        ignored: true
       - key: computed_template_paths
         ignored: true
       - key: clear_logo_upload
