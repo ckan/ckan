@@ -388,6 +388,7 @@ class TestUpdate(object):
                 type="ragtagband",
             )
 
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
