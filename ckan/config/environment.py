@@ -115,6 +115,9 @@ def update_config() -> None:
 
     webassets_init()
 
+    # clear generated values before reloading config:
+    config.pop('plugin_template_paths', None)
+    config.pop('plugin_public_paths', None)
     for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
