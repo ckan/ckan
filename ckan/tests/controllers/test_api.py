@@ -380,4 +380,3 @@ def test_cookie_based_auth_disabled(app):
     res = app.get(url, environ_overrides=env)
 
     assert res.status_code == 200
-
