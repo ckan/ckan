@@ -115,9 +115,6 @@ def update_config() -> None:
 
     webassets_init()
 
-    # clear generated values before reloading config:
-    config.pop('plugin_template_paths', None)
-    config.pop('plugin_public_paths', None)
     for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
@@ -194,11 +191,11 @@ def update_config() -> None:
     template_paths = [jinja2_templates_path]
 
     extra_template_paths = config.get_value('extra_template_paths')
+    if 'plugin_template_paths' in config:
+        template_paths = config['plugin_template_paths'] + template_paths
     if extra_template_paths:
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
-    if 'plugin_template_paths' in config:
-        template_paths.extend(config['plugin_template_paths'])
     config['computed_template_paths'] = template_paths
 
     # Enable pessimistic disconnect handling (added in SQLAlchemy 1.2)
