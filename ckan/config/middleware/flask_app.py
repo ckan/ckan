@@ -302,10 +302,27 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
+        """
+        This callback function is called whenever we need to reload from
+        the database the logged in user in the session (ie the cookie).
+
+        Site maintainers can choose to completely ignore cookie based
+        authentication for API calls, but that is likely to affect JS widgets
+        that rely on API calls so it should be used with caution.
+        """
+        endpoint = request.endpoint or ""
+        is_api = endpoint.split(".")[0] == "api"
+        if config.get_value("ckan.auth.disable_cookie_auth_in_api") and is_api:
+            return
+
         return model.User.get(user_id)
 
     @login_manager.request_loader
     def load_user_from_request(request):  # type: ignore
+        """
+        This callback function is called whenever a user could not be authenticated
+        via the session cookie, so we fall back to the API token
+        """
         user = _get_user_for_apitoken()
         return user
 
