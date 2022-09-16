@@ -10,6 +10,7 @@ from ckan.logic import (
 from ckan.types import Context, DataDict
 from ckan.types.logic import ActionResult
 
+
 def package_patch(
         context: Context, data_dict: DataDict) -> ActionResult.PackagePatch:
     '''Patch a dataset (package).
