@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 from flask import Blueprint
 
 import ckan.plugins as p
@@ -53,7 +52,7 @@ def test_flask_core_route_is_served(patched_app):
     assert res.status_code == 200
 
     res = patched_app.get(u"/flask_core")
-    assert six.ensure_text(res.data) == u"This was served from Flask"
+    assert res.get_data(as_text=True) == "This was served from Flask"
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")

@@ -1,5 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
+from contextlib import contextmanager
 
 import functools
 import logging
@@ -12,6 +13,7 @@ from typing import (Any, Callable, Container, Iterable, Optional,
 from typing_extensions import Literal
 
 from werkzeug.datastructures import MultiDict
+from sqlalchemy import exc
 
 import six
 
@@ -32,6 +34,8 @@ Decorated = TypeVar("Decorated")
 
 log = logging.getLogger(__name__)
 _validate = df.validate
+
+_PG_ERR_CODE = {'unique_violation': '23505'}
 
 
 class NameConflict(Exception):
@@ -151,6 +155,24 @@ class ValidationError(ActionError):
         return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
 
 
+def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
+    '''
+    Checks and delete, if the csrf_token is in "parsed".
+    We don't want the csrf_token to be a part of a data_dict
+    as it will expose the token to the metadata.
+    This way we are deleting the token from every data_dict that fills
+    from request.form instead of deleting it separately in every
+    view/blueprint.
+    '''
+    from ckan.common import config
+
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    if csrf_token in parsed:
+        parsed.pop(csrf_token)
+    return parsed
+
+
 def parse_params(
     params: 'MultiDict[str, Any]',
     ignore_keys: Optional['Container[str]'] = None
@@ -177,6 +199,8 @@ def parse_params(
         if len(value) == 1:
             value = value[0]
         parsed[key] = value
+
+    parsed = checks_and_delete_if_csrf_token_in_forms(parsed)
     return parsed
 
 
@@ -329,7 +353,7 @@ def check_access(action: str,
     if not context.get('ignore_auth'):
         if not context.get('__auth_user_obj_checked'):
             if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.by_name(context['user'])
+                context['auth_user_obj'] = model.User.get(context['user'])
             context['__auth_user_obj_checked'] = True
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
@@ -819,3 +843,24 @@ def _import_module_functions(
         k: v
         for k, v in authz.get_local_functions(module)
     }
+
+
+@contextmanager
+def guard_against_duplicated_email(email: str):
+    try:
+        yield
+    except exc.IntegrityError as e:
+        if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
+            model.Session.rollback()
+            raise ValidationError(
+                cast(
+                    ErrorDict,
+                    {
+                        "email": [
+                            "The email address '{email}' belongs to "
+                            "a registered user.".format(email=email)
+                        ]
+                    },
+                )
+            )
+        raise

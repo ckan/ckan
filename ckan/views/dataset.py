@@ -13,7 +13,7 @@ from flask import Blueprint
 from flask.views import MethodView
 from jinja2.exceptions import TemplateNotFound
 from werkzeug.datastructures import MultiDict
-from ckan.common import asbool
+from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -213,8 +213,8 @@ def search(package_type: str) -> str:
     try:
         context = cast(Context, {
             u'model': model,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         check_access(u'site_read', context)
     except NotAuthorized:
@@ -256,9 +256,9 @@ def search(package_type: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
 
     # Unless changed via config options, don't show other dataset
@@ -393,9 +393,9 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
     data_dict: dict[str, Any] = {u'id': id, u'include_tracking': True}
 
@@ -406,7 +406,7 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (g.user, id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)
         )
     # check if package exists
     try:
@@ -435,9 +435,9 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id, u'include_tracking': True}
 
@@ -445,8 +445,25 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
-    except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Dataset not found'))
+    except NotFound:
+        return base.abort(
+            404,
+            _(u'Dataset not found or you have no permission to view it')
+        )
+    except NotAuthorized:
+        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+            if current_user.is_authenticated:
+                return base.abort(
+                    403, _(u'Unauthorized to read package %s') % id)
+            else:
+                return h.redirect_to(
+                    "user.login",
+                    came_from=h.url_for('{}.read'.format(package_type), id=id)
+                )
+        return base.abort(
+            404,
+            _(u'Dataset not found or you have no permission to view it')
+        )
 
     g.pkg_dict = pkg_dict
     g.pkg = pkg
@@ -505,8 +522,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': current_user.name,
+            u'auth_user_obj': current_user,
             u'save': self._is_save()
         })
         try:
@@ -698,8 +715,8 @@ class EditView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
+            u'user': current_user.name,
+            u'auth_user_obj': current_user,
             u'save': u'save' in request.form
         })
         return context
@@ -786,13 +803,13 @@ class EditView(MethodView):
 
         pkg = context.get(u"package")
         resources_json = h.json.dumps(data.get(u'resources', []))
-
+        user = current_user.name
         try:
             check_access(u'package_update', context)
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
@@ -848,8 +865,8 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         return context
 
@@ -901,8 +918,8 @@ def follow(package_type: str, id: str) -> Response:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
     try:
@@ -922,14 +939,14 @@ def follow(package_type: str, id: str) -> Response:
     return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
 
-def unfollow(package_type: str, id: str) -> Response:
+def unfollow(package_type: str, id: str) -> Union[Response, str]:
     """Stop following this dataset.
     """
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
     try:
@@ -939,9 +956,12 @@ def unfollow(package_type: str, id: str) -> Response:
     except ValidationError as e:
         error_message = (e.message or e.error_summary or e.error_dict)
         h.flash_error(error_message)
-    except (NotFound, NotAuthorized) as e:
+    except NotFound as e:
         error_message = e.message or ''
-        h.flash_error(error_message)
+        base.abort(404, _(error_message))
+    except NotAuthorized as e:
+        error_message = e.message or ''
+        base.abort(403, _(error_message))
     else:
         h.flash_success(
             _(u"You are no longer following {0}").format(
@@ -957,9 +977,9 @@ def followers(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
 
     data_dict = {u'id': id}
@@ -998,9 +1018,9 @@ class GroupView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': current_user.name,
             u'for_view': True,
-            u'auth_user_obj': g.userobj,
+            u'auth_user_obj': current_user,
             u'use_cache': False
         })
 
@@ -1076,7 +1096,7 @@ class GroupView(MethodView):
 
 
 def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # noqa
-    context = cast(Context, {u'model': model, u'user': g.user})
+    context = cast(Context, {u'model': model, u'user': current_user.name})
     data_dict = {u'id': id}
 
     try:
@@ -1094,7 +1114,7 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
 
 
 def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
-    context = cast(Context, {u'model': model, u'user': g.user})
+    context = cast(Context, {u'model': model, u'user': current_user.name})
 
     try:
         get_action(u'package_collaborator_delete')(context, {
@@ -1115,7 +1135,7 @@ def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  
 class CollaboratorEditView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:  # noqa
-        context = cast(Context, {u'model': model, u'user': g.user})
+        context = cast(Context, {u'model': model, u'user': current_user.name})
 
         try:
             form_dict = logic.clean_dict(
@@ -1153,7 +1173,7 @@ class CollaboratorEditView(MethodView):
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
     def get(self, package_type: str, id: str) -> Union[Response, str]:  # noqa
-        context = cast(Context, {u'model': model, u'user': g.user})
+        context = cast(Context, {u'model': model, u'user': current_user.name})
         data_dict = {u'id': id}
 
         try:
@@ -1238,3 +1258,5 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
 
 
 register_dataset_plugin_rules(dataset)
+# remove this when we improve blueprint registration to be explicit:
+dataset.auto_register = False  # type: ignore

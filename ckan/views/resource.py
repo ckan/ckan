@@ -19,7 +19,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, g, request
+from ckan.common import _, config, g, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
@@ -54,19 +54,34 @@ prefixed_resource = Blueprint(
 )
 
 
-def read(package_type: str, id: str, resource_id: str) -> str:
+def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
         u'for_view': True
     })
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Dataset not found'))
+    except NotAuthorized:
+        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+            if current_user.is_authenticated:
+                return base.abort(
+                    403, _(u'Unauthorized to read resource %s') % resource_id)
+            else:
+                return h.redirect_to(
+                    "user.login",
+                    came_from=h.url_for('resource.read',
+                                        id=id, resource_id=resource_id)
+                )
+        return base.abort(
+            404,
+            _(u'Dataset not found')
+        )
 
     resource = None
     for res in package.get(u'resources', []):
@@ -141,8 +156,8 @@ def download(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
 
     try:
@@ -185,8 +200,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
 
         # see if we have any data that we are trying to save
@@ -281,8 +296,8 @@ class CreateView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})
@@ -324,20 +339,21 @@ class CreateView(MethodView):
 
 class EditView(MethodView):
     def _prepare(self, id: str):
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'api_version': 3,
             u'for_edit': True,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': user,
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
         return context
 
@@ -431,8 +447,8 @@ class DeleteView(MethodView):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'user': current_user.name,
+            u'auth_user_obj': current_user
         })
         try:
             check_access(u'package_delete', context, {u'id': id})
@@ -505,9 +521,9 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
+        u'user': current_user.name,
         u'for_view': True,
-        u'auth_user_obj': g.userobj
+        u'auth_user_obj': current_user
     })
     data_dict = {u'id': id}
 
@@ -516,7 +532,7 @@ def views(package_type: str, id: str, resource_id: str) -> str:
     except NotAuthorized:
         return base.abort(
             403,
-            _(u'User %r not authorized to edit %s') % (g.user, id)
+            _(u'User %r not authorized to edit %s') % (current_user.name, id)
         )
     # check if package exists
     try:
@@ -570,8 +586,8 @@ def view(package_type: str,
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
     })
 
     try:
@@ -606,12 +622,13 @@ def view(package_type: str,
 class EditResourceViewView(MethodView):
     def _prepare(
             self, id: str, resource_id: str) -> tuple[Context, dict[str, Any]]:
+        user = current_user.name
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
-            u'user': g.user,
+            u'user': user,
             u'for_view': True,
-            u'auth_user_obj': g.userobj
+            u'auth_user_obj': current_user
         })
 
         # update resource should tell us early if the user has privilages.
@@ -620,7 +637,7 @@ class EditResourceViewView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
+                _(u'User %r not authorized to edit %s') % (user, id)
             )
 
         # get resource and package data
@@ -810,3 +827,5 @@ def register_dataset_plugin_rules(blueprint: Blueprint) -> None:
 
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
+# remove this when we improve blueprint registration to be explicit:
+resource.auto_register = False  # type: ignore

@@ -47,7 +47,7 @@ from ckan.lib.helpers import (
     literal,
     chained_helper,
     redirect_to,
-    url_for,
+    url_for
 )
 from ckan.exceptions import (
     CkanVersionException,
@@ -64,6 +64,9 @@ from ckan.common import (
     asbool,
     asint,
     aslist,
+    login_user,
+    logout_user,
+    current_user
 )
 
 from ckan.lib.plugins import (
@@ -90,13 +93,13 @@ __all__ = [
     "h", "literal", "chained_helper", "redirect_to", "url_for",
     "CkanVersionException", "HelperError",
     "config", "_", "ungettext", "g", "c", "request",
-    "asbool", "asint", "aslist",
+    "asbool", "asint", "aslist", "login_user", "logout_user", "current_user",
     "DefaultDatasetForm", "DefaultGroupForm", "DefaultOrganizationForm",
     "error_shout",
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "check_ckan_version", "requires_ckan_version", "get_endpoint"
 ]
 
 get_converter = get_validator

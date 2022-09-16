@@ -11,6 +11,7 @@
         <p>{{ _('Are you sure you want to delete resource - {name}?').format(name=h.resource_display_name(resource_dict)) }}</p>
         <p class="form-actions">
           <form id='confirm-resource-delete-form' action="{% url_for 'resource.delete', resource_id=resource_dict.id, id=pkg_id %}" method="post">
+            {{ h.csrf_input() }}
             <button class="btn btn-danger" type="submit" name="cancel" >{{ _('Cancel') }}</button>
             <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
           </form>

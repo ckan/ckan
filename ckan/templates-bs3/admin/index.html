@@ -17,6 +17,7 @@
           <td>
             <div class="btn-group pull-right">
               <form method="POST" action="{% url_for 'user.sysadmin' %}">
+                {{ h.csrf_input() }}
                 <input type="hidden" value="{{ user }}" name="username" />
                 <input type="hidden" value="0" name="status" />
                 <button
@@ -39,6 +40,7 @@
   <h2>{{ _('Promote user to Sysadmin') }}</h2>
 
   <form method="POST" action="{% url_for 'user.sysadmin' %}">
+    {{ h.csrf_input() }}
     <div class="row">
       <div class="col-md-6">
 

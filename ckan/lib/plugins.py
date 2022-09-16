@@ -135,16 +135,16 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
     from ckan.views.dataset import dataset, register_dataset_plugin_rules
     from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
 
+    registered_dataset = False
+
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         for package_type in plugin.package_types():
 
-            if package_type == u'dataset':
-                # The default routes are registered with the core
-                # 'dataset' blueprint
-                continue
+            if package_type == 'dataset':
+                registered_dataset = True
 
-            elif package_type in app.blueprints:
+            if package_type in app.blueprints:
                 raise ValueError(
                     'A blueprint for has already been associated for the '
                     'package type {}'.format(package_type))
@@ -180,6 +180,11 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
             log.debug(
                 'Registered blueprints for custom dataset type \'{}\''.format(
                     package_type))
+
+    if not registered_dataset:
+        # core dataset blueprint not overridden
+        app.register_blueprint(dataset)
+        app.register_blueprint(resource)
 
 
 def set_default_package_plugin() -> None:
@@ -662,7 +667,7 @@ class DefaultPermissionLabels(object):
 
     def get_user_dataset_labels(self, user_obj: model.User) -> list[str]:
         labels = [u'public']
-        if not user_obj:
+        if not user_obj or user_obj.is_anonymous:
             return labels
 
         labels.append(u'creator-%s' % user_obj.id)

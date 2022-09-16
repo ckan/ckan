@@ -184,15 +184,15 @@ class TestUser:
     def test_user_is_active_by_default(self):
         data = factories.User()
         user = model.User.get(data["id"])
-        assert user.is_active()
+        assert user.is_active
 
     def test_activate(self):
         data = factories.User()
         user = model.User.get(data["id"])
         user.state = "some-state"
-        assert not user.is_active()
+        assert not user.is_active
         user.activate()
-        assert user.is_active()
+        assert user.is_active
 
     def test_is_pending(self):
         data = factories.User()
@@ -239,7 +239,8 @@ class TestUser:
         frozen_time = datetime.datetime.utcnow()
         data = factories.User()
         dataset = factories.Dataset()
-        env = {"REMOTE_USER": str(data["name"])}
+        user_token = factories.APIToken(user=data["name"])
+        env = {"Authorization": user_token["token"]}
 
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])

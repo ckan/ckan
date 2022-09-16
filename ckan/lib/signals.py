@@ -51,10 +51,6 @@ resource_download = ckan.signal(u"resource_download")
 to the user.
 """
 
-successful_login = ckan.signal(u"successful_login")
-"""This signal is sent after successful login attempt.
-"""
-
 failed_login = ckan.signal(u"failed_login")
 """This signal is sent after failed login attempt.
 """

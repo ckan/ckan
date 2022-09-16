@@ -118,7 +118,7 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif ('user' in g and g.user) or _is_valid_session_cookie_data():
         allow_cache = False
     # Tests etc.
-    elif 'REMOTE_USER' in request.environ:
+    elif session.get("_user_id"):
         allow_cache = False
     # Don't cache if based on a non-cachable template used in this.
     elif request.environ.get('__no_cache__'):

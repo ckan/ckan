@@ -10,6 +10,7 @@ For more details, check :doc:`maintaining/configuration`.
 from typing import Any, Optional
 
 from sqlalchemy import types, Column, Table
+from sqlalchemy.exc import ProgrammingError
 
 
 import ckan.model.meta as meta
@@ -48,9 +49,9 @@ meta.mapper(SystemInfo, system_info_table)
 
 def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:
     ''' get data from system_info table '''
-    from sqlalchemy.exc import ProgrammingError
     try:
         obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+        meta.Session.commit()
         if obj:
             return obj.value
     except ProgrammingError:

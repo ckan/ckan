@@ -13,6 +13,7 @@
       </p>
         <p class="form-actions">
           <form id="{{ ent_type }}-confirm-delete-form" action="{{ h.url_for('admin.trash') }}" method="POST">
+            {{ h.csrf_input() }} 
             <button class="btn btn-danger" type="submit" name="cancel">Cancel</button>
             <button class="btn btn-primary" type="submit" name="action" value="{{ ent_type }}">{{ _('Confirm Delete') }}</button>
           </form>

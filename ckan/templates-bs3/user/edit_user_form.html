@@ -2,7 +2,8 @@
 
 {% block form %}
   <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
-    {{ form.errors(error_summary) }}
+    {{ h.csrf_input() }}
+    {% block form_errors %}{{ form.errors(error_summary) }}{% endblock %}
 
     {% block core_fields %}
       <fieldset>
@@ -23,18 +24,26 @@
     {% endblock %}
 
     {% block extra_fields %}
+    {% if g.userobj.sysadmin and data.state == 'deleted' %}
+      {% call form.checkbox('activate_user', label=_('Reactivate User'), id='activate_user', value=True, checked=false) %}
+      {% set helper_text = _('This account is deactivated, if you want to reactivate it, please click on checkbox.') %}
+      {{ form.info(helper_text, classes='info-help-tight') }}
+      {% endcall %}
+    {% endif %}
     {% endblock %}
 
-    {% if is_sysadmin and g.user != data.name %}
+    {% if is_sysadmin and current_user.name != data.name %}
     {% block sysadmin_password %}
       <fieldset>
       <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>
       {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
       {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
-    </fieldset>
+      </fieldset>
+    {% endblock %}
 
-    <fieldset>
-      <legend>{{ _('Sysadmin password') }}</legend>
+    {% block sysadmin_old_password %}
+      <fieldset>
+        <legend>{{ _('Sysadmin password') }}</legend>
         {{ form.input('old_password',
                       type='password',
                       label=_('Sysadmin Password'),
