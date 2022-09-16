@@ -16,7 +16,7 @@
         {% block page_heading %}
           {%- if page.item_count -%}
             {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
-          {%- elif request.params -%}
+          {%- elif request.args -%}
             {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
           {%- else -%}
             {{ _('Datasets') }}
@@ -36,6 +36,7 @@
       {% block form %}
         {% if page.item_count %}
           <form method="POST" data-module="basic-form">
+            {{ h.csrf_input() }}
             <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
               <col width="8">
               <col width="120">
@@ -108,6 +109,6 @@
 {% block secondary_content %}
     {{  super() }}
     {% for facet in c.facet_titles %}
-    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}) }}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets) }}
   {% endfor %}
 {% endblock %}

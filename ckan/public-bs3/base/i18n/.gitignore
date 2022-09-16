@@ -1,0 +1,6 @@
+// This directory contains CKAN's automatically generated JavaScript
+// translation files, which are ignored by git. This file makes sure that the
+// directory itself is tracked.
+
+*.js
+

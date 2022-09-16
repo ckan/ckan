@@ -1,0 +1,5 @@
+// Add this alert class for backwards compatibility, since Bootstrap 3 removed
+// the "alert-error" class, but it has the same properties as "alert-danger".
+.alert-error {
+  @include alert-variant($alert-danger-bg, $alert-danger-border, $alert-danger-text);
+}

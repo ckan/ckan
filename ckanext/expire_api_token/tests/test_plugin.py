@@ -14,7 +14,7 @@ from ckan.lib.helpers import url_for
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"expire_api_token")
-@pytest.mark.usefixtures(u"clean_db", u"with_plugins")
+@pytest.mark.usefixtures(u"non_clean_db", u"with_plugins")
 class TestExpireApiTokenPlugin(object):
     def test_token_is_removed_on_second_use(self, app):
         user = factories.User()
@@ -32,8 +32,7 @@ class TestExpireApiTokenPlugin(object):
         decoded = api_token.decode(data["token"])
         id = decoded["jti"]
         assert model.ApiToken.get(id)
-
-        url = url_for(u"user.api_tokens", id=user["id"])
+        url = url_for("api.action", logic_function=u"api_token_list", ver=3, user=user["id"])
         app.get(
             url, headers={u"authorization": six.ensure_str(data[u"token"])},
         )

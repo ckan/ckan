@@ -1,14 +1,13 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
-import time
 
 import unittest.mock as mock
 import pytest
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -17,16 +16,7 @@ from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
-def datetime_from_string(s):
-    """Return a standard datetime.datetime object initialised from a string in
-    the same format used for timestamps in dictized activities (the format
-    produced by datetime.datetime.isoformat())
-
-    """
-    return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -94,8 +84,8 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
-        fred = factories.User(name="fred")
-        bob = factories.User(name="bob")
+        fred = factories.User()
+        bob = factories.User()
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
@@ -189,35 +179,6 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
-
-    def test_user_update_activity_stream(self):
-        """Test that the right activity is emitted when updating a user."""
-
-        user = factories.User()
-        before = datetime.datetime.utcnow()
-
-        # FIXME we have to pass the email address and password to user_update
-        # even though we're not updating those fields, otherwise validation
-        # fails.
-        helpers.call_action(
-            "user_update",
-            id=user["id"],
-            name=user["name"],
-            email=user["email"],
-            password=factories.User.stub().password,
-            fullname="updated full name",
-        )
-
-        activity_stream = helpers.call_action(
-            "user_activity_list", id=user["id"]
-        )
-        latest_activity = activity_stream[0]
-        assert latest_activity["activity_type"] == "changed user"
-        assert latest_activity["object_id"] == user["id"]
-        assert latest_activity["user_id"] == user["id"]
-        after = datetime.datetime.utcnow()
-        timestamp = datetime_from_string(latest_activity["timestamp"])
-        assert timestamp >= before and timestamp <= after
 
     def test_user_update_with_custom_schema(self):
         """Test that custom schemas passed to user_update do get used.
@@ -394,6 +355,29 @@ class TestUpdate(object):
             "http://a.html",
         ]
 
+    def test_normal_user_can_not_change_their_state(self):
+
+        user = factories.User(state='pending')
+
+        user['state'] = 'active'
+
+        updated_user = helpers.call_action("user_update", **user)
+
+        updated_user['state'] == 'pending'
+
+    def test_sysadmin_user_can_change_a_user_state(self):
+
+        user = factories.User(state='pending')
+        sysadmin = factories.Sysadmin()
+
+        user['state'] = 'active'
+
+        context = {'user': sysadmin['name']}
+
+        updated_user = helpers.call_action("user_update", context=context, **user)
+
+        updated_user['state'] == 'active'
+
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -416,26 +400,24 @@ class TestUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        org = factories.Organization(
-            type="organization", name="unchanging", user=user
-        )
+        org = factories.Organization(type="organization", user=user)
 
         org = helpers.call_action(
             "organization_update",
             context=context,
             id=org["id"],
-            name="unchanging",
+            name=org["name"],
             type="ragtagband",
         )
 
         assert org["type"] == "organization"
         assert (
-            helpers.call_action("organization_show", id="unchanging")["type"]
+            helpers.call_action("organization_show", id=org["name"])["type"]
             == "organization"
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
@@ -448,14 +430,15 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
+        stub = factories.Dataset.stub()
         dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], name="new-name"
+            "package_update", id=dataset["id"], name=stub.name
         )
 
-        assert dataset_["name"] == "new-name"
+        assert dataset_["name"] == stub.name
         assert (
             helpers.call_action("package_show", id=dataset["id"])["name"]
-            == "new-name"
+            == stub.name
         )
 
     def test_title(self):
@@ -558,7 +541,7 @@ class TestDatasetUpdate(object):
                     "alt_url": "alt123",
                     "description": "Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {"someotherkey": "alt234"},  # this isnt
+                    "extras": {"someotherkey": "alt234"},  # this isn't
                     "format": "plain text",
                     "hash": "abc123",
                     "position": 0,
@@ -607,18 +590,19 @@ class TestDatasetUpdate(object):
     def test_tags(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-
+        tag1 = factories.Tag.stub().name
+        tag2 = factories.Tag.stub().name
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            tags=[{"name": "russian"}, {"name": "tolstoy"}],
+            tags=[{"name": tag1}, {"name": tag2}],
         )
 
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
 
     def test_return_id_only(self):
         user = factories.User()
@@ -634,130 +618,9 @@ class TestDatasetUpdate(object):
         assert updated_dataset == dataset["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestSendEmailNotifications(object):
-    # TODO: this action doesn't do much. Maybe it well be better to move tests
-    # into lib.email_notifications eventually
-
-    def check_email(self, email, address, name, subject):
-        assert email[1] == "info@test.ckan.net"
-        assert email[2] == [address]
-        assert subject in email[3]
-        # TODO: Check that body contains link to dashboard and email prefs.
-
-    def test_fresh_setupnotifications(self, mail_server):
-        helpers.call_action("send_email_notifications")
-        assert (
-            len(mail_server.get_smtp_messages()) == 0
-        ), "Notification came out of nowhere"
-
-    def test_single_notification(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 1
-        self.check_email(
-            messages[0],
-            user["email"],
-            user["name"],
-            "1 new activity from CKAN",
-        )
-
-    def test_multiple_notifications(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        for i in range(3):
-            helpers.call_action(
-                "package_update", id=pkg["id"], notes=f"updated {i} times"
-            )
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 1
-        self.check_email(
-            messages[0],
-            user["email"],
-            user["name"],
-            "3 new activities from CKAN",
-        )
-
-    def test_no_notifications_if_dashboard_visited(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        new_activities_count = helpers.call_action(
-            "dashboard_new_activities_count",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        assert new_activities_count == 1
-
-        helpers.call_action(
-            "dashboard_mark_activities_old",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-
-    def test_notifications_disabled_by_default(self):
-        user = factories.User()
-        assert not user["activity_streams_email_notifications"]
-
-    def test_no_emails_when_notifications_disabled(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User()
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-        new_activities_count = helpers.call_action(
-            "dashboard_new_activities_count",
-            {"user": user["name"]},
-            id=pkg["id"],
-        )
-        assert new_activities_count == 1
-
-    @pytest.mark.ckan_config(
-        "ckan.activity_streams_email_notifications", False
-    )
-    def test_send_email_notifications_feature_disabled(self, mail_server):
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-
-    @pytest.mark.ckan_config("ckan.email_notifications_since", ".000001")
-    def test_email_notifications_since(self, mail_server):
-        pkg = factories.Dataset()
-        user = factories.User(activity_streams_email_notifications=True)
-        helpers.call_action(
-            "follow_dataset", {"user": user["name"]}, id=pkg["id"]
-        )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
-        time.sleep(0.01)
-        helpers.call_action("send_email_notifications")
-        messages = mail_server.get_smtp_messages()
-        assert len(messages) == 0
-
-
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -849,7 +712,7 @@ class TestResourceViewUpdate(object):
             resource_id=resource_id, title="View 2"
         )
 
-        # Reorder Views back just by specifiying a single view to go first
+        # Reorder Views back just by specifying a single view to go first
 
         result = helpers.call_action(
             "resource_view_reorder",
@@ -877,7 +740,7 @@ class TestResourceViewUpdate(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
         dataset = factories.Dataset()
@@ -1051,7 +914,7 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -1062,7 +925,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1279,7 +1142,7 @@ class TestResourceUpdate(object):
             "resource_update",
             id=dataset["resources"][0]["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={"someotherkey": "alt234"},  # this isnt
+            extras={"someotherkey": "alt234"},  # this isn't
             format="plain text",
             url="http://datahub.io/download/",
         )
@@ -1508,8 +1371,35 @@ class TestResourceUpdate(object):
             )
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
+    def test_resource_update_for_update(self):
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_update', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_reorder_for_update(self):
+
+        dataset = factories.Dataset()
+        resource1 = factories.Resource(package_id=dataset['id'])
+        resource2 = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action(
+                'package_resource_reorder',
+                id=dataset['id'], order=[resource2['id'], resource1['id']])
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1530,7 +1420,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1539,7 +1429,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=sysadmin["email"],
             id=sysadmin["name"],
             password_hash="pretend-this-is-a-valid-hash",
         )
@@ -1554,7 +1444,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=normal_user["email"],
             id=normal_user["name"],
             password="required",
             password_hash="pretend-this-is-a-valid-hash",
@@ -1571,21 +1461,20 @@ class TestUserUpdate(object):
             "user_update",
             context=context,
             id=user["name"],
-            email="test@example.com",
+            email=user["email"],
             image_url="new_image_url.jpg",
         )
 
         assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupUpdate(object):
     def test_group_update_image_url_field(self):
         user = factories.User()
         context = {"user": user["name"]}
         group = factories.Group(
             type="group",
-            name="testing",
             user=user,
             image_url="group_image.jpg",
         )
@@ -1604,24 +1493,24 @@ class TestGroupUpdate(object):
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        group = factories.Group(type="group", name="unchanging", user=user)
+        group = factories.Group(type="group", user=user)
 
         group = helpers.call_action(
             "group_update",
             context=context,
+            name=group["name"],
             id=group["id"],
-            name="unchanging",
             type="favouritecolour",
         )
 
         assert group["type"] == "group"
         assert (
-            helpers.call_action("group_show", id="unchanging")["type"]
+            helpers.call_action("group_show", id=group["name"])["type"]
             == "group"
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1674,7 +1563,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1737,10 +1626,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert not (dataset.private)
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]["activity_type"] == "changed package"
 
     def test_bulk_delete(self):
 
@@ -1772,73 +1657,8 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert dataset.state == "deleted"
 
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]["activity_type"] == "deleted package"
 
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestDashboardMarkActivitiesOld(object):
-    def test_mark_as_old_some_activities_by_a_followed_user(self):
-        # do some activity that will show up on user's dashboard
-        user = factories.User()
-        # now some activity that is "new" because it is by a followed user
-        followed_user = factories.User()
-        helpers.call_action(
-            "follow_user", context={"user": user["name"]}, **followed_user
-        )
-        dataset = factories.Dataset(user=followed_user)
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update",
-            context={"user": followed_user["name"]},
-            **dataset,
-        )
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 3
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", True),
-            ("new package", True),
-            ("changed package", True),
-        ]
-
-        helpers.call_action(
-            "dashboard_mark_activities_old", context={"user": user["name"]}
-        )
-
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 0
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", False),
-            ("new package", False),
-            ("changed package", False),
-        ]
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsUpdate(object):
     @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
@@ -1972,42 +1792,42 @@ class TestCollaboratorsUpdate(object):
         assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetRevise(object):
     def test_revise_description(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
             "package_revise",
-            match={"notes": "old notes", "name": "xyz"},
+            match={"notes": "old notes", "name": dataset["name"]},
             update={"notes": "new notes"},
         )
         assert response["package"]["notes"] == "new notes"
 
     def test_revise_failed_match(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
                 "package_revise",
-                match={"notes": "wrong notes", "name": "xyz"},
+                match={"notes": "wrong notes", "name": dataset["name"]},
                 update={"notes": "new notes"},
             )
 
     def test_revise_description_flattened(self):
-        factories.Dataset(name="xyz", notes="old notes")
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
             "package_revise",
             match__notes="old notes",
-            match__name="xyz",
+            match__name=dataset["name"],
             update__notes="new notes",
         )
         assert response["package"]["notes"] == "new notes"
 
     def test_revise_dataset_fields_only(self):
         dataset = factories.Dataset(
-            name="xyz",
             notes="old notes",
             resources=[{"url": "http://example.com"}],
         )
+        stub = factories.Dataset.stub()
         response = helpers.call_action(
             "package_revise",
             match={"id": dataset["id"]},
@@ -2015,10 +1835,10 @@ class TestDatasetRevise(object):
                 "+resources",  # keep everything under resources
                 "-*",  # remove everything else
             ],
-            update={"name": "fresh-start", "title": "Fresh Start"},
+            update={"name": stub.name, "title": "Fresh Start"},
         )
         assert response["package"]["notes"] is None
-        assert response["package"]["name"] == "fresh-start"
+        assert response["package"]["name"] == stub.name
         assert (
             response["package"]["resources"][0]["url"] == "http://example.com"
         )
@@ -2098,7 +1918,7 @@ class TestDatasetRevise(object):
         assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
     def test_stored_on_update_if_sysadmin(self):
 
@@ -2144,8 +1964,7 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras_from_db == {
@@ -2243,15 +2062,14 @@ class TestUserPluginExtras(object):
                 'SELECT plugin_extras FROM "user" WHERE id=:id',
                 {"id": user["id"]},
             )
-            .first()
-            .values()[0]
+            .first()[0]
         )
 
         assert plugin_extras["plugin1"]["key1"] == "value2"
 
 
 class TestVocabularyUpdate(object):
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_no_real_update(self):
         vocab = factories.Vocabulary()
         updated = helpers.call_action("vocabulary_update", id=vocab["id"])
@@ -2262,20 +2080,25 @@ class TestVocabularyUpdate(object):
         )
         assert vocab == updated
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_update_name(self):
-        vocab = factories.Vocabulary(name="old_name")
-        updated = helpers.call_action(
-            "vocabulary_update", id=vocab["id"], name="new_name"
-        )
-        assert updated["name"] == "new_name"
+        vocab = factories.Vocabulary()
+        stub = factories.Vocabulary.stub()
 
-    @pytest.mark.usefixtures("clean_db")
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name=stub.name
+        )
+        assert updated["name"] == stub.name
+
+    @pytest.mark.usefixtures("non_clean_db")
     def test_add_tags(self):
-        vocab = factories.Vocabulary(name="old_name")
+        vocab = factories.Vocabulary()
         assert vocab["tags"] == []
 
-        tags = [{"name": "new test tag one"}, {"name": "new test tag two"}]
+        tags = [
+            {"name": factories.Tag.stub().name},
+            {"name": factories.Tag.stub().name},
+        ]
 
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=tags
@@ -2285,7 +2108,7 @@ class TestVocabularyUpdate(object):
         }
 
         tags.append(
-            {"name": "new test tag three"},
+            {"name": factories.Tag.stub().name},
         )
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=tags
@@ -2296,14 +2119,16 @@ class TestVocabularyUpdate(object):
 
     def test_non_existing(self):
         with pytest.raises(logic.NotFound):
-            helpers.call_action("vocabulary_update", id="not-a-real-vocab")
+            helpers.call_action(
+                "vocabulary_update", id=factories.Vocabulary.stub().name
+            )
 
     def test_missing_id(self):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("vocabulary_update")
 
     @pytest.mark.parametrize("tags", [])
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_bad_tags(self, tags):
         vocab = factories.Vocabulary()
         for tags in [
@@ -2319,22 +2144,24 @@ class TestVocabularyUpdate(object):
                     "vocabulary_update", id=vocab["id"], tags=tags
                 )
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_with_no_tags(self):
         vocab = factories.Vocabulary()
         with pytest.raises(DataError):
             helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_clen_tags(self):
-        vocab = factories.Vocabulary(tags=[{"name": "foo"}])
+        vocab = factories.Vocabulary(
+            tags=[{"name": factories.Tag.stub().name}]
+        )
         updated = helpers.call_action(
             "vocabulary_update", id=vocab["id"], tags=[]
         )
         assert updated["tags"] == []
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTaskStatusUpdate:
     def test_task_status_update(self):
         pkg = factories.Dataset()
@@ -2468,7 +2295,7 @@ class TestTaskStatusUpdate:
         helpers.call_action("task_status_delete", id=task_status_updated["id"])
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestTermTranslations:
     def test_update_single(self, app):
 
@@ -2542,3 +2369,100 @@ class TestTermTranslations:
             ],
             key=dict.items,
         )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+    def test_stored_on_update_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+        assert updated_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data from "package" where id=:id',
+            {"id": dataset["id"]}
+        ).first()
+
+        assert plugin_data_from_db[0] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+
+        assert "plugin_data" not in updated_pkg
+        pkg = model.Package.get(dataset["id"])
+        assert pkg.plugin_data == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }

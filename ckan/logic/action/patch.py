@@ -7,9 +7,11 @@ from ckan.logic import (
     check_access as _check_access,
     get_or_bust as _get_or_bust,
 )
+from ckan.types import Context, DataDict
+from ckan.types.logic import ActionResult
 
-
-def package_patch(context, data_dict):
+def package_patch(
+        context: Context, data_dict: DataDict) -> ActionResult.PackagePatch:
     '''Patch a dataset (package).
 
     :param id: the id or name of the dataset
@@ -32,12 +34,13 @@ def package_patch(context, data_dict):
     '''
     _check_access('package_patch', context, data_dict)
 
-    show_context = {
+    show_context: Context = {
         'model': context['model'],
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
         'ignore_auth': context.get('ignore_auth', False),
+        'for_update': True
     }
 
     package_dict = _get_action('package_show')(
@@ -50,7 +53,8 @@ def package_patch(context, data_dict):
     return _get_action('package_update')(context, patched)
 
 
-def resource_patch(context, data_dict):
+def resource_patch(context: Context,
+                   data_dict: DataDict) -> ActionResult.ResourcePatch:
     '''Patch a resource
 
     :param id: the id of the resource
@@ -63,11 +67,12 @@ def resource_patch(context, data_dict):
     '''
     _check_access('resource_patch', context, data_dict)
 
-    show_context = {
+    show_context: Context = {
         'model': context['model'],
         'session': context['session'],
         'user': context['user'],
         'auth_user_obj': context['auth_user_obj'],
+        'for_update': True
     }
 
     resource_dict = _get_action('resource_show')(
@@ -79,7 +84,8 @@ def resource_patch(context, data_dict):
     return _get_action('resource_update')(context, patched)
 
 
-def group_patch(context, data_dict):
+def group_patch(context: Context,
+                data_dict: DataDict) -> ActionResult.GroupPatch:
     '''Patch a group
 
     :param id: the id or name of the group
@@ -92,7 +98,7 @@ def group_patch(context, data_dict):
     '''
     _check_access('group_patch', context, data_dict)
 
-    show_context = {
+    show_context: Context = {
         'model': context['model'],
         'session': context['session'],
         'user': context['user'],
@@ -106,11 +112,15 @@ def group_patch(context, data_dict):
     patched = dict(group_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _get_action('group_update')(
-        dict(context, allow_partial_update=True), patched)
+
+    patch_context = context.copy()
+    patch_context['allow_partial_update'] = True
+    return _get_action('group_update')(patch_context, patched)
 
 
-def organization_patch(context, data_dict):
+def organization_patch(
+        context: Context,
+        data_dict: DataDict) -> ActionResult.OrganizationPatch:
     '''Patch an organization
 
     :param id: the id or name of the organization
@@ -123,7 +133,7 @@ def organization_patch(context, data_dict):
     '''
     _check_access('organization_patch', context, data_dict)
 
-    show_context = {
+    show_context: Context = {
         'model': context['model'],
         'session': context['session'],
         'user': context['user'],
@@ -137,11 +147,14 @@ def organization_patch(context, data_dict):
     patched = dict(organization_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _get_action('organization_update')(
-        dict(context, allow_partial_update=True), patched)
+
+    patch_context = context.copy()
+    patch_context['allow_partial_update'] = True
+    return _get_action('organization_update')(patch_context, patched)
 
 
-def user_patch(context, data_dict):
+def user_patch(context: Context,
+               data_dict: DataDict) -> ActionResult.UserPatch:
     '''Patch a user
 
     :param id: the id or name of the user
@@ -154,7 +167,7 @@ def user_patch(context, data_dict):
     '''
     _check_access('user_patch', context, data_dict)
 
-    show_context = {
+    show_context: Context = {
         'model': context['model'],
         'session': context['session'],
         'user': context['user'],

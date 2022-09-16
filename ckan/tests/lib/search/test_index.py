@@ -38,7 +38,7 @@ class TestSearchIndex(object):
 
     def test_search_all(self):
         self.package_index.index_package(self.base_package_dict)
-        assert len(self.solr_client.search("*:*")) == 1
+        assert len(self.solr_client.search(q="*:*", fq=self.fq)) == 1
 
     def test_index_basic(self):
 
@@ -272,18 +272,6 @@ class TestPackageSearchIndex:
 
         validated_data_dict = json.loads(indexed_pkg["validated_data_dict"])
         assert "data_dict" not in validated_data_dict
-
-    def test_index_package_stores_unvalidated_data_dict_without_validated_data_dict(
-        self,
-    ):
-        # This is a regression test for #2208
-        index = search.index.PackageSearchIndex()
-        pkg_dict = self._get_pkg_dict()
-
-        index.index_package(pkg_dict)
-        data_dict = json.loads(search.show(pkg_dict["name"])["data_dict"])
-
-        assert "validated_data_dict" not in data_dict
 
     def test_index_package_stores_resource_extras_in_config_file(self):
         index = search.index.PackageSearchIndex()

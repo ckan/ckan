@@ -1,0 +1,77 @@
+{% extends "package/edit_base.html" %}
+
+{% import 'macros/form.html' as form %}
+
+{% block subtitle %}{{ _('Edit Collaborator') if user else _('Add Collaborator') }} - {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  {% link_for _('Back to all collaborators'), named_route='dataset.collaborators_read', id=pkg_dict.name, class_='btn btn-default pull-right', icon='arrow-left' %}
+  <h1 class="page-heading">
+    {% block page_heading %}{{ _('Edit Collaborator') if user else _('Add Collaborator') }}{% endblock %}
+  </h1>
+  {% block form %}
+  {{ h.csrf_input() }}
+  <form class="dataset-form add-member-form" method='post'>
+    <div class="row">
+      <div class="col-md-5">
+        <div class="form-group control-medium">
+          {% if not user %}
+            <label class="control-label" for="username">
+              {{ _('Existing User') }}
+            </label>
+            <p>
+              {{ _('If you wish to add an existing user, search for their username below.') }}
+            </p>
+          {% endif %}
+          <div class="controls">
+            {% if user %}
+              <input type="hidden" name="username" value="{{ user.name }}" />
+              <input id="username" name="username" type="text" value="{{ user.name }}"
+              disabled="True" class="form-control">
+            {% else %}
+                <input id="username" type="text" name="username" placeholder="{{ _('Username') }}"
+              value="" class="control-medium" data-module="autocomplete"
+              data-module-source="/api/2/util/user/autocomplete?q=?">
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% set format_attrs = {'data-module': 'autocomplete'} %}
+    {{ form.select('capacity', label=_('Role'), options=capacities, selected=user_capacity, error='', attrs=format_attrs) }}
+    <div class="form-actions">
+      {% if user %}
+        <a href="{{ h.url_for('dataset.collaborator_delete', id=pkg_dict.id, user_id=user.name) }}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this collaborator?') }}">{{ _('Delete') }}</a>
+        <button class="btn btn-primary" type="submit" name="submit" >
+          {{ _('Update Collaborator') }}
+        </button>
+      {% else %}
+        <button class="btn btn-primary" type="submit" name="submit" >
+          {{ _('Add Collaborator') }}
+        </button>
+      {% endif %}
+    </div>
+  </form>
+  {% endblock %}
+{% endblock %}
+
+{% block secondary_content %}
+{{ super() }}
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="fa fa-lg fa-info-circle"></i>
+    {{ _('What are the available roles?') }}
+  </h2>
+  <div class="module-content">
+    {% if h.check_config_permission('allow_admin_collaborators') %}
+      {% trans %}
+        <p><strong>Admin:</strong> In addition to managing the dataset, admins can add and remove collaborators from a dataset.</p>
+      {% endtrans %}
+    {% endif %}
+    {% trans %}
+      <p><strong>Editor:</strong> Editors can edit the dataset and its resources, as well accessing the dataset if private.</p>
+      <p><strong>Member:</strong> Members can access the dataset if private, but not edit it.</p>
+    {% endtrans %}
+  </div>
+{% endblock %}

@@ -11,7 +11,7 @@ from ckan.tests.helpers import call_action
 
 @pytest.mark.ckan_config("ckan.plugins", "test_resource_view")
 @pytest.mark.ckan_config("ckan.views.default_views", "test_resource_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestPluggablePreviews:
     def test_hook(self, app):
         res = factories.Resource()
@@ -123,7 +123,7 @@ def update_tracking_summary():
     tracking.update_all(engine=ckan.model.meta.engine, start_date=date)
 
 
-@pytest.mark.usefixtures("clean_db", "app")
+@pytest.mark.usefixtures("non_clean_db", "app")
 class TestTracking(object):
     def test_package_with_0_views(self):
         package = factories.Dataset()
@@ -312,6 +312,7 @@ class TestTracking(object):
             "views"
         )
 
+    @pytest.mark.usefixtures("clean_db")
     def test_view_page(self, track):
         # Visit the front page.
         track(url="", type_="page")
@@ -342,6 +343,7 @@ class TestTracking(object):
                 tracking_summary.running_total == 0
             ), "running_total for a page is always 0"
 
+    @pytest.mark.usefixtures("clean_db")
     def test_package_with_many_views(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
@@ -416,6 +418,7 @@ class TestTracking(object):
             "package's total views"
         )
 
+    @pytest.mark.usefixtures("clean_db")
     def test_page_with_many_views(self, track):
 
         # View each page three times, from three different IPs.
@@ -505,22 +508,22 @@ class TestTracking(object):
             tracking_summary["total"] == 1
         ), "Repeat resource downloads should not add to total views count"
 
-    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.usefixtures("clean_index", "clean_db")
     def test_sorting_datasets_by_recent_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        factories.Dataset(name="consider_phlebas")
-        factories.Dataset(name="the_player_of_games")
-        factories.Dataset(name="use_of_weapons")
+        d1 = factories.Dataset()
+        d2 = factories.Dataset()
+        d3 = factories.Dataset()
 
-        url = h.url_for("dataset.read", id="consider_phlebas")
+        url = h.url_for("dataset.read", id=d1["name"])
         track(url)
 
-        url = h.url_for("dataset.read", id="the_player_of_games")
+        url = h.url_for("dataset.read", id=d2["name"])
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
 
-        url = h.url_for("dataset.read", id="use_of_weapons")
+        url = h.url_for("dataset.read", id=d3["name"])
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
         track(url, ip="333.33.333.333")
@@ -531,11 +534,11 @@ class TestTracking(object):
         assert response["count"] == 3
         assert response["sort"] == "views_recent desc"
         packages = response["results"]
-        assert packages[0]["name"] == "use_of_weapons"
-        assert packages[1]["name"] == "the_player_of_games"
-        assert packages[2]["name"] == "consider_phlebas"
+        assert packages[0]["name"] == d3["name"]
+        assert packages[1]["name"] == d2["name"]
+        assert packages[2]["name"] == d1["name"]
 
-    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.usefixtures("clean_db", "clean_index")
     def test_sorting_datasets_by_total_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
@@ -565,6 +568,7 @@ class TestTracking(object):
         assert packages[1]["name"] == "the_player_of_games"
         assert packages[2]["name"] == "consider_phlebas"
 
+    @pytest.mark.usefixtures("clean_db")
     def test_export(self, track, export):
         """`paster tracking export` should export tracking data for all
         datasets in CSV format.

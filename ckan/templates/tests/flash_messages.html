@@ -5,9 +5,9 @@
     </head>
     <body>
         Flash messages:
-        {% for message in h.flash.pop_messages() | list %}
+        {% for category, message in h.get_flashed_messages(with_categories=true) %}
           <div>
-            {{ message.category }}: {{ h.literal(message) }}
+            {{ category }}: {{ h.literal(message) }}
           </div>
         {% endfor %}
     </body>
