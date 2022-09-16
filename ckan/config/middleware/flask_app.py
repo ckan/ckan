@@ -307,12 +307,12 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         the database the logged in user in the session (ie the cookie).
 
         Site maintainers can choose to completely ignore cookie based
-        authentication for API calls, but that is likely to affect JS widgets
+        authentication for API calls, but that will break existing JS widgets
         that rely on API calls so it should be used with caution.
         """
         endpoint = request.endpoint or ""
         is_api = endpoint.split(".")[0] == "api"
-        if config.get_value("ckan.auth.disable_cookie_auth_in_api") and is_api:
+        if not config.get_value("ckan.auth.enable_cookie_auth_in_api") and is_api:
             return
 
         return model.User.get(user_id)

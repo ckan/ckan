@@ -358,7 +358,7 @@ def test_cookie_based_auth_default(app):
 
 
 @pytest.mark.usefixtures("clean_db")
-@pytest.mark.ckan_config("ckan.auth.disable_cookie_auth_in_api", True)
+@pytest.mark.ckan_config("ckan.auth.enable_cookie_auth_in_api", False)
 def test_cookie_based_auth_disabled(app):
 
     sysadmin = factories.Sysadmin()
