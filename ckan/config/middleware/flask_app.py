@@ -312,7 +312,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         """
         endpoint = request.endpoint or ""
         is_api = endpoint.split(".")[0] == "api"
-        if not config.get_value("ckan.auth.enable_cookie_auth_in_api") and is_api:
+        if (
+            not config.get_value("ckan.auth.enable_cookie_auth_in_api")
+                and is_api):
             return
 
         return model.User.get(user_id)
