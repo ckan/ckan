@@ -610,6 +610,16 @@ groups:
           If False, all unauthorised requests will receive HTTP 404 Not Found.
           Default is False.
 
+      - key: ckan.auth.enable_cookie_auth_in_api
+        type: bool
+        default: True
+        description: |
+          When set to False, cookie-based authentication is entirely ignored in all API requests,
+          and authentication must be always done using :ref:`API Tokens <api authentication>`. Note
+          that this will break some existing JS modules from the frontend that perform API calls,
+          so it should be used with caution.
+
+
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
