@@ -208,3 +208,24 @@ class TestPatch(object):
         with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
             helpers.call_action('resource_update', id=resource['id'], description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_user_patch_updating_single_field(self):
+        user = factories.User(
+            fullname="Mr. Test User",
+            about="Just another test user.",
+        )
+
+        user = helpers.call_action(
+            "user_patch",
+            id=user["id"],
+            about="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert user["fullname"] == "Mr. Test User"
+        assert user["about"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["fullname"] == "Mr. Test User"
+        assert user2["about"] == "somethingnew"
