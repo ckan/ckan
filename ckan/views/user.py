@@ -731,7 +731,6 @@ class PerformResetView(MethodView):
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
             user_dict[u'reset_key'] = g.reset_key
-            user_dict[u'state'] = model.State.ACTIVE
             updated_user = logic.get_action("user_update")(context, user_dict)
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
@@ -743,7 +742,7 @@ class PerformResetView(MethodView):
                     patch_context,
                     {"id": user_dict['id'], "state": model.State.ACTIVE}
                 )
-
+            mailer.create_reset_key(context[u'user_obj'])
             h.flash_success(_(u'Your password has been reset.'))
             return h.redirect_to(u'home.index')
         except logic.NotAuthorized:
