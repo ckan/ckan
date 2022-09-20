@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Luís Manuel Maia, 2022
 # 
 #, fuzzy
 msgid ""
@@ -13,26 +14,26 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
+"Last-Translator: Luís Manuel Maia, 2022\n"
 "Language-Team: Portuguese (Portugal) (https://www.transifex.com/okfn/teams/11162/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 "Language: pt_PT\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
-msgstr ""
+msgstr "Áudio"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "Audio url"
-msgstr ""
+msgstr "Áudio URL"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
-msgstr ""
+msgstr "P.ex. http://example.com/audio.mp3 (se em branco usa URL do recurso)"
 
 #: ckanext/audioview/theme/templates/audio_view.html:5
 #, python-format
@@ -40,6 +41,8 @@ msgid ""
 "Your browser does not support the <code>audio</code> element. But don't "
 "worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
 msgstr ""
+"O browser não suporta o elemento de <code>áudio</code>. Mas não se preocupe,"
+" pode fazer o <a href=\"%(res_url)s\" alt=\"video url\">download</a>."
 
 #: ckan/controllers/package.py:612 ckan/controllers/package.py:1079
 #: ckan/controllers/package.py:1099 ckan/controllers/package.py:1165
@@ -279,7 +282,7 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:18
 msgid "Label"
-msgstr ""
+msgstr "Designação"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -456,6 +459,7 @@ msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] "{num} Conjunto de dados"
 msgstr[1] "{num} Conjuntos de dados"
+msgstr[2] "{num} Conjuntos de dados"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -495,23 +499,23 @@ msgstr "Recursos"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:6
 msgid "Second"
-msgstr ""
+msgstr "Segundo"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:7
 msgid "Minute"
-msgstr ""
+msgstr "Minuto"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:8
 msgid "Hour"
-msgstr ""
+msgstr "Hora"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:9
 msgid "Day"
-msgstr ""
+msgstr "Dia"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:15
 msgid "Expires in"
-msgstr ""
+msgstr "Expira em"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:16
 msgid "Units"
@@ -1419,6 +1423,7 @@ msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/lib/formatters.py:49
 msgid "Just now"
@@ -1506,12 +1511,14 @@ msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} visualização"
 msgstr[1] "{number} visualizações"
+msgstr[2] "{number} visualizações"
 
 #: ckan/lib/helpers.py:2098
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} visualização recente"
 msgstr[1] "{number} visualizações recentes"
+msgstr[2] "{number} visualizações recentes"
 
 #: ckan/lib/mailer.py:58
 #, python-format
@@ -2340,6 +2347,7 @@ msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.min.js:1
@@ -2584,6 +2592,7 @@ msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Painel de Controlo (%(num)d novo item)"
 msgstr[1] "Painel de Controlo (%(num)d novos itens)"
+msgstr[2] "Painel de Controlo (%(num)d novos itens)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2592,7 +2601,7 @@ msgstr "Painel de controlo"
 #: ckan/templates/header.html:33 ckan/templates/header.html:35
 #: ckan/templates/user/dashboard.html:16
 msgid "Profile settings"
-msgstr ""
+msgstr "Definições de perfil"
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
@@ -3407,6 +3416,7 @@ msgid "{count} member"
 msgid_plural "{count} members"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3608,6 +3618,8 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"Está a ver uma versão antiga deste conjunto de dados. Para ver a versão "
+"atual, clique <a href=\"%(url)s\">aqui</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3647,7 +3659,7 @@ msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:97
 msgid "Dataset description:"
-msgstr ""
+msgstr "Descrição do conjunto de dados:"
 
 #: ckan/templates/package/resource_read.html:99
 #, python-format
@@ -3844,6 +3856,7 @@ msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -4255,6 +4268,7 @@ msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} conjunto de dados encontrado para \"{query}\""
 msgstr[1] "{number} conjuntos de dados encontrados para \"{query}\""
+msgstr[2] "{number} conjuntos de dados encontrados para \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4265,6 +4279,7 @@ msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
 msgstr[0] "{number} conjunto de dados encontrado"
 msgstr[1] "{number} conjuntos de dados encontrados"
+msgstr[2] "{number} conjuntos de dados encontrados"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4275,6 +4290,7 @@ msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} grupo encontrado para \"{query}\""
 msgstr[1] "{number} grupos encontrados para \"{query}\""
+msgstr[2] "{number} grupos encontrados para \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4285,6 +4301,7 @@ msgid "{number} group found"
 msgid_plural "{number} groups found"
 msgstr[0] "{number} grupo encontrado "
 msgstr[1] "{number} grupos encontrados"
+msgstr[2] "{number} grupos encontrados"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4295,6 +4312,7 @@ msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} organização encontrada para \"{query}\""
 msgstr[1] "{number} organizações encontradas para \"{query}\""
+msgstr[2] "{number} organizações encontradas para \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4305,6 +4323,7 @@ msgid "{number} organization found"
 msgid_plural "{number} organizations found"
 msgstr[0] "{number} organização encontrada"
 msgstr[1] "{number} organizações encontradas"
+msgstr[2] "{number} organizações encontradas"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -4348,7 +4367,7 @@ msgstr "O {actor} atualizou o conjunto de dados {dataset}"
 #: ckan/templates/snippets/activities/changed_package.html:16
 #: ckan/templates/snippets/activities/new_package.html:15
 msgid "View this version"
-msgstr ""
+msgstr "Ver esta versão"
 
 #: ckan/templates/snippets/activities/changed_resource.html:4
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
@@ -4836,12 +4855,12 @@ msgstr "Subscrever notificações por email"
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture"
-msgstr ""
+msgstr "Imagem do perfil"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture URL"
-msgstr ""
+msgstr "Imagem do perfil URL"
 
 #: ckan/templates/user/edit_user_form.html:31
 msgid "Change password"
@@ -5042,7 +5061,7 @@ msgstr "Redefina a sua palavra-passe"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Email or username"
-msgstr ""
+msgstr "Email ou utilizador"
 
 #: ckan/templates/user/request_reset.html:22
 msgid "Request Reset"
@@ -5097,7 +5116,7 @@ msgstr ""
 
 #: ckan/views/admin.py:212
 msgid "success"
-msgstr ""
+msgstr "Sucesso"
 
 #: ckan/views/dataset.py:360
 msgid "Parameter u\"{parameter_name}\" is not an integer"
@@ -5132,7 +5151,7 @@ msgstr ""
 
 #: ckan/views/dataset.py:1272
 msgid "User removed from collaborators"
-msgstr ""
+msgstr "Utilizador removido dos colaboradores"
 
 #: ckan/views/dataset.py:1304
 msgid "Unauthorized to edit collaborators {}"
@@ -5140,7 +5159,7 @@ msgstr ""
 
 #: ckan/views/dataset.py:1311
 msgid "User added to collaborators"
-msgstr ""
+msgstr "Utilizador adicionado a colaboradores"
 
 #: ckan/views/user.py:169
 msgid "Unauthorized to view API tokens."
