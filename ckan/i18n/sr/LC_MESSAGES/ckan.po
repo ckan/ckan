@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
-# Željko Kojić <kojicz983@gmail.com>, 2021
+# Željko Kojić <kojicz983@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-03-31 17:05+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Željko Kojić <kojicz983@gmail.com>, 2021\n"
+"Last-Translator: Željko Kojić <kojicz983@gmail.com>, 2022\n"
 "Language-Team: Serbian (https://www.transifex.com/okfn/teams/11162/sr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -997,11 +997,11 @@ msgstr "Направи нови скуп података."
 
 #: ckan/lib/helpers.py:1668
 msgid "Edited resources."
-msgstr "Измењени ресурси."
+msgstr "Ажурирани ресурси."
 
 #: ckan/lib/helpers.py:1670
 msgid "Edited settings."
-msgstr "Измењена подешавања."
+msgstr "Ажурирана подешавања."
 
 #: ckan/lib/helpers.py:1916
 msgid "{number} view"
