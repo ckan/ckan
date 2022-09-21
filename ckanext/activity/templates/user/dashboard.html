@@ -19,6 +19,9 @@
       {% endblock %}
       <small class="text-muted fs-5">{{ _("Activity from items that I'm following") }}</small>
     </h2>
-    {% snippet 'snippets/activity_stream.html', activity_stream=dashboard_activity_stream %}
+    {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
   </div>
+
+  {% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+
 {% endblock %}

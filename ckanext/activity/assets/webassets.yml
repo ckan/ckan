@@ -6,3 +6,4 @@ activity:
       - base/main
   contents:
     - dashboard.js
+    - activity-stream.js

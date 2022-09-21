@@ -25,11 +25,76 @@ from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response
 from .model import Activity
-from .logic.validators import VALIDATORS_PACKAGE_ACTIVITY_TYPES
+from .logic.validators import (
+    VALIDATORS_PACKAGE_ACTIVITY_TYPES,
+    VALIDATORS_GROUP_ACTIVITY_TYPES,
+    VALIDATORS_ORGANIZATION_ACTIVITY_TYPES
+)
 
 
 log = logging.getLogger(__name__)
 bp = Blueprint("activity", __name__)
+
+
+def _get_activity_stream_limit() -> int:
+    base_limit = tk.config.get_value("ckan.activity_list_limit")
+    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    return min(base_limit, max_limit)
+
+
+def _get_older_activities_url(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's older activities url.
+
+    If "after", we came from older activities, so we know it exists.
+    if "before" (or is_first_page), we only show older activities if we know
+    we have more rows
+    """
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+    is_first_page = after is None and before is None
+    url = None
+    if after or (has_more and (before or is_first_page)):
+        before_time = datetime.fromisoformat(
+            stream[-1]["timestamp"]
+        )
+        url = tk.h.url_for(
+            tk.request.endpoint,
+            before=before_time.timestamp(),
+            **kwargs
+        )
+
+    return url
+
+
+def _get_newer_activities_url(
+    has_more: bool,
+    stream: list[dict[str, Any]],
+    **kwargs: Any
+) -> Any:
+    """ Returns pagination's newer activities url.
+
+    if "before", we came from the newer activities, so it exists.
+    if "after", we only show newer activities if we know
+    we have more rows
+    """
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+    url = None
+
+    if before or (has_more and after):
+        after_time = datetime.fromisoformat(
+            stream[0]["timestamp"]
+        )
+        url = tk.h.url_for(
+            tk.request.endpoint,
+            after=after_time.timestamp(),
+            **kwargs
+        )
+    return url
 
 
 @bp.route("/dataset/<id>/resources/<resource_id>/history/<activity_id>")
@@ -37,9 +102,6 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
@@ -143,9 +205,6 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "for_view": True,
             "auth_user_obj": tk.g.userobj,
         },
@@ -239,27 +298,21 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
 @bp.route("/dataset/activity/<id>")
 def package_activity(id: str) -> Union[Response, str]:  # noqa
     """Render this package's public activity stream page."""
-    after = tk.h.get_request_param("after")
-    before = tk.h.get_request_param("before")
-    activity_type = tk.h.get_request_param("activity_type")
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+    activity_type = tk.request.args.get("activity_type")
 
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "for_view": True,
             "auth_user_obj": tk.g.userobj,
         },
     )
 
     data_dict = {"id": id}
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
-    limit = min(base_limit, max_limit)
+    limit = _get_activity_stream_limit()
     activity_types = [activity_type] if activity_type else None
-    is_first_page = after is None and before is None
 
     try:
         pkg_dict = tk.get_action("package_show")(context, data_dict)
@@ -271,8 +324,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
             "limit": limit + 1,
             "activity_types": activity_types,
         }
-        pkg = context["package"]
-        package_activity_stream = tk.get_action("package_activity_list")(
+        activity_stream = tk.get_action("package_activity_list")(
             context, activity_dict
         )
         dataset_type = pkg_dict["type"] or "dataset"
@@ -283,61 +335,41 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     except tk.ValidationError:
         return tk.abort(400, tk._("Invalid parameters"))
 
-    prev_page = None
-    next_page = None
-
-    has_more = len(package_activity_stream) > limit
+    has_more = len(activity_stream) > limit
     # remove the extra item if exists
     if has_more:
         if after:
-            # drop the first element
-            package_activity_stream.pop(0)
+            activity_stream.pop(0)
         else:
-            # drop the last element
-            package_activity_stream.pop()
+            activity_stream.pop()
 
-    # if "after", we came from the next page. So it exists
-    # if "before" (or is_first_page), we only show next page if we know
-    # we have more rows
-    if after or (has_more and (before or is_first_page)):
-        before_time = datetime.fromisoformat(
-            package_activity_stream[-1]["timestamp"]
-        )
-        next_page = tk.h.url_for(
-            "dataset.activity",
-            id=id,
-            activity_type=activity_type,
-            before=before_time.timestamp(),
+    older_activities_url = _get_older_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
         )
 
-    # if "before", we came from the previous page. So it exists
-    # if "after", we only show previous page if we know
-    # we have more rows
-    if before or (has_more and after):
-        after_time = datetime.fromisoformat(
-            package_activity_stream[0]["timestamp"]
-        )
-        prev_page = tk.h.url_for(
-            "dataset.activity",
-            id=id,
-            activity_type=activity_type,
-            after=after_time.timestamp(),
-        )
+    newer_activities_url = _get_newer_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
 
     return tk.render(
-        "package/activity.html",
+        "package/activity_stream.html",
         {
             "dataset_type": dataset_type,
             "pkg_dict": pkg_dict,
-            "pkg": pkg,
-            "activity_stream": package_activity_stream,
+            "activity_stream": activity_stream,
             "id": id,  # i.e. package's current name
             "limit": limit,
             "has_more": has_more,
             "activity_type": activity_type,
             "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            "prev_page": prev_page,
-            "next_page": next_page,
+            "newer_activities_url": newer_activities_url,
+            "older_activities_url": older_activities_url,
         },
     )
 
@@ -348,15 +380,7 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
     Shows the changes to a dataset in one particular activity stream item.
     """
     activity_id = id
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context = cast(Context, {"auth_user_obj": tk.g.userobj})
     try:
         activity_diff = tk.get_action("activity_diff")(
             context,
@@ -400,15 +424,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context = cast(Context, {"auth_user_obj": tk.g.userobj})
 
     # check to ensure that the old activity is actually older than
     # the new activity
@@ -479,61 +495,91 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
 
 
 @bp.route(
-    "/group/activity/<id>/<int:offset>",
+    "/group/activity/<id>",
     endpoint="group_activity",
-    defaults={"is_organization": False, "group_type": "group", "offset": 0},
+    defaults={"group_type": "group"},
 )
 @bp.route(
-    "/organization/activity/<id>/<int:offset>",
+    "/organization/activity/<id>",
     endpoint="organization_activity",
-    defaults={
-        "is_organization": True,
-        "group_type": "organization",
-        "offset": 0,
-    },
+    defaults={"group_type": "organization"},
 )
-def group_activity(
-    id: str, group_type: str, is_organization: bool, offset: int = 0
-) -> str:
+def group_activity(id: str, group_type: str) -> str:
     """Render this group's public activity stream page."""
-    extra_vars = {}
-    set_org(is_organization)
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
-            "for_view": True,
-        },
-    )
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+
+    if group_type == 'organization':
+        set_org(True)
+
+    context = cast(Context, {"user": tk.g.user, "for_view": True})
+
     try:
         group_dict = _get_group_dict(id, group_type)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
-    try:
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html
-        # template to retrieve later.
-        extra_vars["activity_stream"] = tk.get_action(
-            "organization_activity_list"
-            if group_dict.get("is_organization")
-            else "group_activity_list"
-        )(context, {"id": group_dict["id"], "offset": offset})
+    action_name = "organization_activity_list"
+    if not group_dict.get("is_organization"):
+        action_name = "group_activity_list"
 
+    activity_type = tk.request.args.get("activity_type")
+    activity_types = [activity_type] if activity_type else None
+
+    limit = _get_activity_stream_limit()
+
+    try:
+        activity_stream = tk.get_action(action_name)(
+            context, {
+                "id": group_dict["id"],
+                "before": before,
+                "after": after,
+                "limit": limit + 1,
+                "activity_types": activity_types
+                }
+            )
     except tk.ValidationError as error:
         tk.abort(400, error.message or "")
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    tk.g.group_activity_stream = extra_vars["activity_stream"]
-    tk.g.group_dict = group_dict
+    filter_types = VALIDATORS_PACKAGE_ACTIVITY_TYPES.copy()
+    if group_type == 'organization':
+        filter_types.update(VALIDATORS_ORGANIZATION_ACTIVITY_TYPES)
+    else:
+        filter_types.update(VALIDATORS_GROUP_ACTIVITY_TYPES)
 
-    extra_vars["group_type"] = group_type
-    extra_vars["group_dict"] = group_dict
-    extra_vars["id"] = id
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            activity_stream.pop(0)
+        else:
+            activity_stream.pop()
+
+    older_activities_url = _get_older_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
+
+    newer_activities_url = _get_newer_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
+
+    extra_vars = {
+        "id": id,
+        "activity_stream": activity_stream,
+        "group_type": group_type,
+        "group_dict": group_dict,
+        "activity_type": activity_type,
+        "activity_types": filter_types.keys(),
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
+    }
+
     return tk.render(
         _get_group_template("activity_template", group_type), extra_vars
     )
@@ -553,15 +599,11 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     Shows the changes to an organization in one particular activity stream
     item.
     """
-    set_org(is_organization)
     extra_vars = {}
     activity_id = id
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
         },
     )
@@ -613,7 +655,6 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     activity diffs for the changes in the given version range, then
     re-renders changes.html with the list.
     """
-    set_org(is_organization)
     extra_vars = {}
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
@@ -621,9 +662,6 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
         },
     )
@@ -702,15 +740,14 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
 
 
 @bp.route("/user/activity/<id>")
-@bp.route("/user/activity/<id>/<int:offset>")
-def user_activity(id: str, offset: int = 0) -> str:
+def user_activity(id: str) -> str:
     """Render this user's public activity stream page."""
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
@@ -727,36 +764,69 @@ def user_activity(id: str, offset: int = 0) -> str:
 
     extra_vars = _extra_template_variables(context, data_dict)
 
+    limit = _get_activity_stream_limit()
+
     try:
-        extra_vars["user_activity_stream"] = tk.get_action(
+        activity_stream = tk.get_action(
             "user_activity_list"
-        )(context, {"id": extra_vars["user_dict"]["id"], "offset": offset})
+        )(context, {
+            "id": extra_vars["user_dict"]["id"],
+            "before": before,
+            "after": after,
+            "limit": limit + 1,
+        })
     except tk.ValidationError:
         tk.abort(400)
-    extra_vars["id"] = id
+
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            activity_stream.pop(0)
+        else:
+            activity_stream.pop()
+
+    older_activities_url = _get_older_activities_url(
+        has_more,
+        activity_stream,
+        id=id
+    )
+
+    newer_activities_url = _get_newer_activities_url(
+        has_more,
+        activity_stream,
+        id=id
+    )
+
+    extra_vars.update({
+        "id":  id,
+        "activity_stream": activity_stream,
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
+    })
 
     return tk.render("user/activity_stream.html", extra_vars)
 
 
-@bp.route("/dashboard/", strict_slashes=False, defaults={"offset": 0})
-@bp.route("/dashboard/<int:offset>")
-def dashboard(offset: int = 0) -> str:
+@bp.route("/dashboard/", strict_slashes=False)
+def dashboard() -> str:
     context = cast(
         Context,
         {
-            "model": model,
-            "session": model.Session,
-            "user": tk.g.user,
             "auth_user_obj": tk.g.userobj,
             "for_view": True,
         },
     )
-    data_dict: dict[str, Any] = {"user_obj": tk.g.userobj, "offset": offset}
+    data_dict: dict[str, Any] = {"user_obj": tk.g.userobj}
     extra_vars = _extra_template_variables(context, data_dict)
 
     q = tk.request.args.get("q", "")
     filter_type = tk.request.args.get("type", "")
     filter_id = tk.request.args.get("name", "")
+    before = tk.request.args.get("before")
+    after = tk.request.args.get("after")
+
+    limit = _get_activity_stream_limit()
 
     extra_vars["followee_list"] = tk.get_action("followee_list")(
         context, {"id": tk.g.userobj.id, "q": q}
@@ -764,9 +834,43 @@ def dashboard(offset: int = 0) -> str:
     extra_vars["dashboard_activity_stream_context"] = _get_dashboard_context(
         filter_type, filter_id, q
     )
-    extra_vars["dashboard_activity_stream"] = tk.h.dashboard_activity_stream(
-        tk.g.userobj.id, filter_type, filter_id, offset
+    activity_stream = tk.h.dashboard_activity_stream(
+        tk.g.userobj.id,
+        filter_type,
+        filter_id,
+        limit + 1,
+        before,
+        after
     )
+
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            activity_stream.pop(0)
+        else:
+            activity_stream.pop()
+
+    older_activities_url = _get_older_activities_url(
+        has_more,
+        activity_stream,
+        type=filter_type,
+        name=filter_id
+    )
+
+    newer_activities_url = _get_newer_activities_url(
+        has_more,
+        activity_stream,
+        type=filter_type,
+        name=filter_id
+    )
+
+    extra_vars.update({
+        "id":  id,
+        "dashboard_activity_stream": activity_stream,
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url
+    })
 
     # Mark the user's new activities as old whenever they view their
     # dashboard page.
@@ -794,9 +898,6 @@ def _get_dashboard_context(
         context = cast(
             Context,
             {
-                "model": model,
-                "session": model.Session,
-                "user": tk.g.user,
                 "auth_user_obj": tk.g.userobj,
                 "for_view": True,
             },
