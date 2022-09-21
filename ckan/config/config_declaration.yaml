@@ -679,12 +679,13 @@ groups:
         description: The name of the cookie to store the “remember me” information in.
 
       - key: REMEMBER_COOKIE_DURATION
-        default: 365 days (1 non-leap Gregorian year)
+        default: 31_536_000
+        type: int
         description: |
           The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
 
       - key: REMEMBER_COOKIE_DOMAIN
-        default: None
+        default: null
         description: |
           If the “Remember Me” cookie should cross domains, set the domain value here
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
