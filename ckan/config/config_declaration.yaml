@@ -9,6 +9,10 @@ groups:
         internal: true
       - key: ckan.admin_tabs
         internal: true
+      - key: plugin_template_paths
+        ignored: true
+      - key: plugin_public_paths
+        ignored: true
       - key: computed_template_paths
         ignored: true
       - key: clear_logo_upload
@@ -254,6 +258,7 @@ groups:
         placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
         default: ckan
+        description: Name of the cookie key used to save the session under.
       - key: beaker.session.secret
         validators: not_empty
         required: true
@@ -263,55 +268,43 @@ groups:
         description: |
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file.
-
-  - annotation: Beaker session settings
-    options:
-      - key: auto
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+      - key: beaker.session.auto
         type: bool
         default: False
         description: |
-          When set to True, the session will save itself anytime it is accessed during a request, 
+          When set to True, the session will save itself anytime it is accessed during a request,
           negating the need to issue the save() method.
-      
-      - key: cookie_expires
+
+      - key: beaker.session.cookie_expires
         description: |
           Determines when the cookie used to track the client-side of the session will expire.
           When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
           Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
-          Setting to an integer will result in the cookie being set to expire in that many seconds. 
+          Setting to an integer will result in the cookie being set to expire in that many seconds.
           I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
           Defaults to never expiring.
 
-      - key: cookie_domain
+      - key: beaker.session.cookie_domain
         description: |
-          What domain the cookie should be set to. When using sub-domains, 
-          this should be set to the main domain the cookie should be valid for. For example, 
+          What domain the cookie should be set to. When using sub-domains,
+          this should be set to the main domain the cookie should be valid for. For example,
           if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
           Defaults to the current domain in its entirety.
 
-      - key: key
-        required: True
-        description: Name of the cookie key used to save the session under.
-
-      - key: save_accessed_time
+      - key: beaker.session.save_accessed_time
         type: bool
         default: True
         description: Whether beaker should save the session's access time (true) or only modification time (false).
 
-      - key: secret
-        required: True
-        description: |
-          Used with the HMAC to ensure session integrity. This value should ideally be a randomly generated string.
-          When using in a cluster environment, the secret must be the same on every machine.
-
-      - key: secure
+      - key: beaker.session.secure
         type: bool
         description: |
           Whether or not the session cookie should be marked as secure. When marked as secure,
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
-      - key: timeout
+      - key: beaker.session.timeout
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
@@ -596,7 +589,7 @@ groups:
         default: false
         example: "true"
         description: |
-          Determines if a an API key should be automatically created for every
+          Determines if an API key should be automatically created for every
           user when creating a user account. If set to False (the default
           value), users can manually create an API token from their profile
           instead. See :ref:`api authentication`: for more details.
@@ -604,6 +597,28 @@ groups:
       - key: ckan.auth.login_view
         default: user.login
         description: The name of the view to redirect to when the user needs to log in
+
+      - key: ckan.auth.reveal_private_datasets
+        type: bool
+        default: False
+        description: |
+          Determines whether unauthorised requests for private datasets should have
+          the existence of the datasets revealed (True) or hidden (False).
+          If True, then unauthenticated requests will be redirected to the login page,
+          and redirected back to the dataset after logging in, while authenticated
+          but unauthorised requests will receive HTTP 403 Forbidden.
+          If False, all unauthorised requests will receive HTTP 404 Not Found.
+          Default is False.
+
+      - key: ckan.auth.enable_cookie_auth_in_api
+        type: bool
+        default: True
+        description: |
+          When set to False, cookie-based authentication is entirely ignored in all API requests,
+          and authentication must be always done using :ref:`API Tokens <api authentication>`. Note
+          that this will break some existing JS modules from the frontend that perform API calls,
+          so it should be used with caution.
+
 
   - annotation: CSRF Protection
     options:
@@ -664,14 +679,15 @@ groups:
         description: The name of the cookie to store the “remember me” information in.
 
       - key: REMEMBER_COOKIE_DURATION
-        default: 365 days (1 non-leap Gregorian year)
+        default: 31_536_000
+        type: int
         description: |
           The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
 
       - key: REMEMBER_COOKIE_DOMAIN
-        default: None
+        default: null
         description: |
-          If the “Remember Me” cookie should cross domains, set the domain value here 
+          If the “Remember Me” cookie should cross domains, set the domain value here
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
 
       - key: REMEMBER_COOKIE_PATH
@@ -692,7 +708,7 @@ groups:
         type: bool
         default: False
         description: |
-          If set to True the cookie is refreshed on every request, which bumps the lifetime. 
+          If set to True the cookie is refreshed on every request, which bumps the lifetime.
           Works like Flask's SESSION_REFRESH_EACH_REQUEST.
 
       - key: REMEMBER_COOKIE_SAMESITE

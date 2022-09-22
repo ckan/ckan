@@ -10,7 +10,6 @@
     <a href="{{ h.url_for(dataset_type ~ '.read', id=activity.object_id ) }}">
       {{ activity.data.package.title if activity.data.package else _("unknown") }}
     </a>
-    {# object_id because the object_name may be out of date) #}
   </span>
 {% endmacro %}
 
@@ -18,7 +17,6 @@
   <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>
-    {# object_id because the object_name may be out of date) #}
 {% endmacro %}
 
 {% macro user(activity) %}
@@ -32,11 +30,10 @@
   <a href="{{ h.url_for('group.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>
-    {# object_id because the object_name may be out of date) #}
 </span>
 {% endmacro %}
 
-{# Displays an activity stream
+{# Renders the actual stream of activities
 
 activity_stream - the activity data. e.g. the output from package_activity_list
 id - the id or current name of the object (e.g. package name, user id)

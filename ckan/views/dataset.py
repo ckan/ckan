@@ -445,7 +445,21 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
-    except (NotFound, NotAuthorized):
+    except NotFound:
+        return base.abort(
+            404,
+            _(u'Dataset not found or you have no permission to view it')
+        )
+    except NotAuthorized:
+        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+            if current_user.is_authenticated:
+                return base.abort(
+                    403, _(u'Unauthorized to read package %s') % id)
+            else:
+                return h.redirect_to(
+                    "user.login",
+                    came_from=h.url_for('{}.read'.format(package_type), id=id)
+                )
         return base.abort(
             404,
             _(u'Dataset not found or you have no permission to view it')
@@ -1244,3 +1258,5 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
 
 
 register_dataset_plugin_rules(dataset)
+# remove this when we improve blueprint registration to be explicit:
+dataset.auto_register = False  # type: ignore

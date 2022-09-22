@@ -1,0 +1,25 @@
+{# 
+  Renders a select element to filter the activity stream
+
+  It uses the activity-stream.js module to dinamically request for a new URl upon selection.
+
+  id - the id or current name of the object (e.g. package name, user id)
+  activity_type - the current selected activity type
+  activity_types - the list of activity types the user can filter on
+  blueprint - blueprint to call when selecting an activity type to filter by (eg: dataset.activity)
+#}
+
+<div id="activity_types_filter" style="margin-bottom: 15px;" data-module="activity-stream">
+  <label for="activity_types_filter_select">Activity type</label>
+  <select id="activity_types_filter_select">
+    <option {% if not activity_types %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id) }}">
+      {{ _('All activity types') }}
+    </option>
+    {% for type_ in activity_types %}
+      <option {% if activity_type == type_ %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id, activity_type=type_) }}">
+        {# TODO: Calling humanize gets complex when displaying orgs/groups since the activities also contains dataset activities #}
+        {{ type_ }}
+      </option>
+    {% endfor %}
+  </select>
+</div>

@@ -19,7 +19,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.lib import signals
-from ckan.common import _, g, request, current_user
+from ckan.common import _, config, g, request, current_user
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
@@ -54,7 +54,7 @@ prefixed_resource = Blueprint(
 )
 
 
-def read(package_type: str, id: str, resource_id: str) -> str:
+def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     context = cast(Context, {
         u'model': model,
         u'session': model.Session,
@@ -65,8 +65,23 @@ def read(package_type: str, id: str, resource_id: str) -> str:
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Dataset not found'))
+    except NotAuthorized:
+        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+            if current_user.is_authenticated:
+                return base.abort(
+                    403, _(u'Unauthorized to read resource %s') % resource_id)
+            else:
+                return h.redirect_to(
+                    "user.login",
+                    came_from=h.url_for('resource.read',
+                                        id=id, resource_id=resource_id)
+                )
+        return base.abort(
+            404,
+            _(u'Dataset not found')
+        )
 
     resource = None
     for res in package.get(u'resources', []):
@@ -812,3 +827,5 @@ def register_dataset_plugin_rules(blueprint: Blueprint) -> None:
 
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
+# remove this when we improve blueprint registration to be explicit:
+resource.auto_register = False  # type: ignore

@@ -145,7 +145,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     public_folder = config.get_value(u'ckan.base_public_folder')
     app.static_folder = config.get_value(
         'extra_public_paths'
-    ).split(',') + [os.path.join(root, public_folder)] + storage_folder
+    ).split(',') + config.get('plugin_public_paths', []) + [
+        os.path.join(root, public_folder)
+    ] + storage_folder
 
     app.jinja_options = jinja_extensions.get_jinja_env_options()
     app.jinja_env.policies['ext.i18n.trimmed'] = True
@@ -302,10 +304,29 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
+        """
+        This callback function is called whenever we need to reload from
+        the database the logged in user in the session (ie the cookie).
+
+        Site maintainers can choose to completely ignore cookie based
+        authentication for API calls, but that will break existing JS widgets
+        that rely on API calls so it should be used with caution.
+        """
+        endpoint = request.endpoint or ""
+        is_api = endpoint.split(".")[0] == "api"
+        if (
+            not config.get_value("ckan.auth.enable_cookie_auth_in_api")
+                and is_api):
+            return
+
         return model.User.get(user_id)
 
     @login_manager.request_loader
     def load_user_from_request(request):  # type: ignore
+        """
+        This callback function is called whenever a user could not be
+        authenticated via the session cookie, so we fall back to the API token.
+        """
         user = _get_user_for_apitoken()
         return user
 
@@ -531,7 +552,7 @@ def _register_core_blueprints(app: CKANApp):
     u'''Register all blueprints defined in the `views` folder
     '''
     def is_blueprint(mm: Any):
-        return isinstance(mm, Blueprint)
+        return isinstance(mm, Blueprint) and getattr(mm, 'auto_register', True)
 
     path = os.path.join(os.path.dirname(__file__), '..', '..', 'views')
 
