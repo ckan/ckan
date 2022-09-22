@@ -2572,7 +2572,7 @@ def license_options(
 @core_helper
 def get_translated(data_dict: dict[str, Any], field: str) -> Union[str, Any]:
     language = i18n.get_lang()
-    log.error("language: %s",language)
+    log.error("language: %s", language)
     log.error("data_dict: %s", data_dict)
     try:
         return data_dict[field + u'_translated'][language]
