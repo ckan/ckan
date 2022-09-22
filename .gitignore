@@ -48,3 +48,12 @@ node_modules/
 # docker
 contrib/docker/.env
 cypress.env.json
+
+#testing
+junit
+.coverage*
+.cache
+.bash_history
+.gitconfig
+.npm
+.test_durations
