@@ -12,6 +12,7 @@ import flask_babel
 
 import pytest
 
+from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
@@ -889,5 +890,5 @@ def test_decode_view_request_filters(test_request_context):
 ])
 @pytest.mark.usefixtures("with_request_context")
 def test_get_translated(data_dict, locale, result, monkeypatch):
-    monkeypatch.setattr(flask_babel, "get_locale", lambda: locale)
+    monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
     assert h.get_translated(data_dict, 'notes') == result
