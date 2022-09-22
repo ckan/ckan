@@ -327,7 +327,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         This callback function is called whenever a user could not be
         authenticated via the session cookie, so we fall back to the API token.
         """
+        g.login_via_request = True
+
         user = _get_user_for_apitoken()
+
         return user
 
     # Update the main CKAN config object with the Flask specific keys
@@ -409,6 +412,11 @@ def ckan_before_request() -> Optional[Response]:
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Disable CSRF protection if user was logged in via the Authorization
+    # header from the request
+    if g.get("login_via_request"):
+        csrf.exempt(f"ckan.views.{request.endpoint}")
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
