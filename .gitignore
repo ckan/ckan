@@ -52,3 +52,9 @@ cypress.env.json
 
 # cypress
 cypress/videos
+
+#testing
+junit
+.coverage*
+.cache
+.bash_history
