@@ -29,5 +29,9 @@ class FormatHandler(Generic[T]):
         try:
             handler = self._types[fmt]
         except KeyError:
-            raise TypeError(f"Cannot generate {fmt} annotation")
+            raise TypeError(
+                "Cannot handle {}. Allowed formats are: {}".format(
+                    fmt, list(self._types.keys())
+                )
+            )
         return handler(declaration, *args, **kwargs)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
+"""This module defines Option class and its helpers.
+
 """
 from __future__ import annotations
 
