@@ -293,7 +293,7 @@ def package_update(context, data_dict):
             if hasattr(upload, 'mimetype'):
                 resource['mimetype'] = upload.mimetype
 
-        if 'size' not in resource and 'url_type' in resource:
+        if 'url_type' in resource:
             if hasattr(upload, 'filesize'):
                 resource['size'] = upload.filesize
 
