@@ -138,7 +138,7 @@ class CKANConfig(MutableMapping):
             return self.get(key)
 
         value = self.get(key, option.default)
-        return option._normalize(value)
+        return option.normalize(value)
 
     def subset(
             self, pattern: Key,

@@ -69,7 +69,7 @@ class AbstractDescriber(metaclass=abc.ABCMeta):
                 self.annotate(item)
             elif isinstance(item, Key):
                 option = declaration._mapping[item]
-                if option._has_flag(exclude):
+                if option.has_flag(exclude):
                     continue
                 self.add_option(item, option)
         return self.finalize()
@@ -127,13 +127,13 @@ class BaseDictDescriber(AbstractDescriber):
         if option.placeholder:
             data["placeholder"] = option.placeholder
 
-        if option._has_flag(Flag.required):
+        if option.has_flag(Flag.required):
             data["required"] = True
-        if option._has_flag(Flag.ignored):
+        if option.has_flag(Flag.ignored):
             data["ignored"] = True
-        if option._has_flag(Flag.internal):
+        if option.has_flag(Flag.internal):
             data["internal"] = True
-        if option._has_flag(Flag.experimental):
+        if option.has_flag(Flag.experimental):
             data["experimental"] = True
 
         self.current_listing.append(data)
@@ -212,13 +212,13 @@ class PythonDescriber(AbstractDescriber):
         if validators:
             self.output.write(f".set_validators({repr(validators)})")
 
-        if option._has_flag(Flag.required):
+        if option.has_flag(Flag.required):
             self.output.write(".required()")
-        if option._has_flag(Flag.ignored):
+        if option.has_flag(Flag.ignored):
             self.output.write(".ignore()")
-        if option._has_flag(Flag.internal):
+        if option.has_flag(Flag.internal):
             self.output.write(".internal()")
-        if option._has_flag(Flag.experimental):
+        if option.has_flag(Flag.experimental):
             self.output.write(".experimental()")
 
         self.output.write("\n")

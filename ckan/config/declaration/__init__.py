@@ -73,7 +73,7 @@ class Declaration:
         if isinstance(pattern, str):
             pattern = Pattern.from_string(pattern)
         for k, v in self._mapping.items():
-            if v._has_flag(exclude):
+            if v.has_flag(exclude):
                 continue
             if pattern != k:
                 continue
@@ -174,19 +174,23 @@ class Declaration:
     def declare(
         self, key: Union[Key, str], default: Optional[T] = None
     ) -> Option[T]:
+        return self.declare_option(key, Option(default))
+
+    def declare_option(
+        self, key: Union[Key, str], option: Option[T]
+    ) -> Option[T]:
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
 
         if isinstance(key, str):
             key = Key.from_string(key)
 
-        value = Option(default)
         if key in self._mapping:
             raise ValueError(f"{key} already declared")
         self._order.append(key)
 
-        self._mapping[key] = value
-        return value
+        self._mapping[key] = option
+        return option
 
     def declare_bool(
             self, key: Key, default: Optional[bool] = False) -> Option[bool]:

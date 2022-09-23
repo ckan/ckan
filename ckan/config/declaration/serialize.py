@@ -24,9 +24,9 @@ def serialize_ini(
     for item in declaration._order:
         if isinstance(item, Key):
             option = declaration._mapping[item]
-            if option._has_flag(Flag.non_iterable()):
+            if option.has_flag(Flag.non_iterable()):
                 continue
-            if minimal and not option._has_flag(Flag.required):
+            if minimal and not option.has_flag(Flag.required):
                 if item == "config.mode":
                     result += "config.mode = strict\n"
                 continue
@@ -37,9 +37,9 @@ def serialize_ini(
             if not option.has_default():
                 value = option.placeholder or ""
             elif isinstance(option.default, bool):
-                value = str(option).lower()
+                value = option.str_value().lower()
             else:
-                value = str(option)
+                value = option.str_value()
 
             if isinstance(item, Pattern):
                 result += "# "
@@ -76,7 +76,7 @@ def serialize_rst(declaration: "Declaration"):
 
         elif isinstance(item, Key):
             option = declaration._mapping[item]
-            if option._has_flag(Flag.non_iterable()):
+            if option.has_flag(Flag.non_iterable()):
                 continue
             if not option.description:
                 continue
@@ -87,7 +87,7 @@ def serialize_rst(declaration: "Declaration"):
             if option.example:
                 result += f"Example::\n\n\t{item} = {option.example}\n\n"
 
-            default = str(option) if option.has_default() else ''
+            default = option.str_value()
 
             if default != '':
                 if default.startswith(ckan_root):

@@ -29,13 +29,17 @@ handler: FormatHandler[Callable[..., None]] = FormatHandler()
 
 class OptionV1(TypedDict, total=False):
     key: str
+
     default: Any
     default_callable: str
     placeholder_callable: str
     callable_args: Dict[str, Any]
+
     description: str
+
     validators: str
     type: str
+
     disabled: bool
     ignored: bool
     experimental: bool
@@ -97,7 +101,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
                 for flag in Flag:
                     if details.get(flag.name):
-                        option._set_flag(flag)
+                        option.set_flag(flag)
 
                 if details["description"]:
                     option.set_description(details["description"])
