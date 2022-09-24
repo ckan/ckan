@@ -867,11 +867,6 @@ def config_declaration_v1(
                 "placeholder": [default(""), unicode_safe],
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(list(option_types))],
-
-                "ignored": [default(False), boolean_validator],
-                "experimental": [default(False), boolean_validator],
-                "internal": [default(False), boolean_validator],
-                "required": [default(False), boolean_validator],
             }
         }
     })

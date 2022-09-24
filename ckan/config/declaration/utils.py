@@ -1,15 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, TypeVar
-
-if TYPE_CHECKING:
-    from . import Declaration
+from typing import Any, Callable, Dict, Generic, TypeVar
 
 
 T = TypeVar("T", bound=Callable[..., Any])
 
 
 class FormatHandler(Generic[T]):
+    """Registry for different implementations of serializers, loaders, etc.
+
+    Allows to collect a set of functions that can handle certain base value in
+    different ways. For example, serializers can convert config declaration
+    into config template, documentation, validation schema, etc.
+
+    Usage:
+        >>> registry = FormatHandler()
+        >>>
+        >>> # add a handler for "format-name"
+        >>> @registry.register("format-name")
+        >>> def format_handler(certain_base_value): ...
+        >>>
+        >>> # invoke a handler for `certain_base_value` in "format-name" mode
+        >>> # i.e:  serializers.handle(declaration, "ini")
+        >>> registry.handle(certain_base_value, "format-name")
+
+    """
     __slots__ = "_types"
     _types: Dict[str, T]
 
@@ -24,7 +39,7 @@ class FormatHandler(Generic[T]):
         return decorator
 
     def handle(
-        self, declaration: "Declaration", fmt: str, *args: Any, **kwargs: Any
+        self, subject: Any, fmt: str, *args: Any, **kwargs: Any
     ):
         try:
             handler = self._types[fmt]
@@ -34,4 +49,4 @@ class FormatHandler(Generic[T]):
                     fmt, list(self._types.keys())
                 )
             )
-        return handler(declaration, *args, **kwargs)
+        return handler(subject, *args, **kwargs)
