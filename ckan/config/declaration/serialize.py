@@ -13,7 +13,8 @@ def serialize_into_custom(declaration, *args, **kwargs):
     ...
 
 ## and now new `custom-format` can be used like this:
-serialized_declaration = serializer(declaration, "custom-format", *args, **kwargs)
+serialized_declaration = serializer(
+    declaration, "custom-format", *args, **kwargs)
 ```
 
 This mechanism allows you to re-define default serializers, though it should be
@@ -58,7 +59,7 @@ def serialize_ini(
     """
     result = ""
 
-    for item in declaration._order:
+    for item in declaration._members:
 
         if isinstance(item, Annotation):
             if minimal:
@@ -67,7 +68,7 @@ def serialize_ini(
             result += f"\n{heading}\n"
 
         elif isinstance(item, Key):
-            option = declaration._mapping[item]
+            option = declaration._options[item]
             if option.has_flag(Flag.non_iterable()):
                 continue
 
@@ -108,7 +109,7 @@ def serialize_validation_schema(declaration: "Declaration") -> Dict[str, Any]:
     """
     return {
         str(key): option._parse_validators()
-        for key, option in declaration._mapping.items()
+        for key, option in declaration._options.items()
     }
 
 
@@ -125,7 +126,7 @@ def serialize_rst(declaration: "Declaration"):
     ckan_root = os.path.dirname(
         os.path.dirname(os.path.realpath(ckan.__file__)))
 
-    for item in declaration._order:
+    for item in declaration._members:
         if isinstance(item, Annotation):
             result += ".. _{anchor}:\n\n{header}\n{divider}\n\n".format(
                 anchor=item.lower().replace(' ', '-'),
@@ -134,7 +135,7 @@ def serialize_rst(declaration: "Declaration"):
             )
 
         elif isinstance(item, Key):
-            option = declaration._mapping[item]
+            option = declaration._options[item]
             if option.has_flag(Flag.non_iterable()):
                 continue
             if not option.description:

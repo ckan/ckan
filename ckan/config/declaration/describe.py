@@ -104,11 +104,11 @@ class AbstractDescriber(metaclass=abc.ABCMeta):
         declaration: "Declaration",
         exclude: Flag,
     ):
-        for item in declaration._order:
+        for item in declaration._members:
             if isinstance(item, Annotation):
                 self.annotate(item)
             elif isinstance(item, Key):
-                option = declaration._mapping[item]
+                option = declaration._options[item]
                 if option.has_flag(exclude):
                     continue
                 self.add_option(item, option)
