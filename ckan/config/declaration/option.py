@@ -158,7 +158,7 @@ class Option(Generic[T]):
         self.default = default
 
     def str_value(self) -> str:
-        """Convert option's defautl value into the string.
+        """Convert option's default value into the string.
 
         If the option has `as_list` validator and default value is represented
         by the Python's `list` object, result is a space-separated list of all
@@ -186,10 +186,6 @@ class Option(Generic[T]):
 
     def set_flag(self, flag: Flag) -> Self:
         """Enable specified flag.
-
-        In order to disable the flag, use bit-wise inversion:
-
-            >>> option.set_flag(~Flag.required)
         """
         self.flags |= flag
         return self
