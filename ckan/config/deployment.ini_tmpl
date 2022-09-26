@@ -10,8 +10,10 @@
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #
+[DEFAULT]
+$default_section
 [app:main]
-$declaration
+$app_main_section
 ## Logging configuration
 [loggers]
 keys = root, ckan, ckanext, werkzeug

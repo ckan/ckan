@@ -14,6 +14,18 @@ from ckan.types import Validator
 T = TypeVar("T")
 
 
+class SectionMixin:
+    """Mixin that allows adding objects to different sections of INI-file.
+    """
+    _section = "app:main"
+
+    def set_section(self, section: str) -> Self:
+        """Change the section of this annotation
+        """
+        self._section = section
+        return self
+
+
 class Flag(enum.Flag):
     """Modifiers for :py:class:`~ckan.config.declaration.option.Option`
 
@@ -106,7 +118,7 @@ class Flag(enum.Flag):
         return cls.ignored | cls.internal
 
 
-class Annotation(str):
+class Annotation(SectionMixin, str):
     """Details that are not attached to any option.
 
     Mainly serves documentation purposes. Can be used for creating section
@@ -116,8 +128,7 @@ class Annotation(str):
     """
     pass
 
-
-class Option(Generic[T]):
+class Option(SectionMixin, Generic[T]):
     """All the known details about config option.
 
     Option-objects are created from the config declaration and describe the

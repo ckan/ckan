@@ -65,6 +65,7 @@ class OptionV1(TypedDict, total=False):
 
 class GroupV1(TypedDict):
     annotation: str
+    section: str
     options: List[OptionV1]
 
 
@@ -112,13 +113,16 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
 
         for group in data["groups"]:
             if group["annotation"]:
-                declaration.annotate(group["annotation"])
+                declaration.annotate(group["annotation"]).set_section(
+                    group["section"]
+                )
 
             for details in group["options"]:
                 factory = option_types[details["type"]]
                 option: Option[Any] = getattr(declaration, factory)(
                     details["key"], details.get("default")
                 )
+                option.set_section(group["section"])
                 option.append_validators(details["validators"])
 
                 extras = details.setdefault("__extras", {})

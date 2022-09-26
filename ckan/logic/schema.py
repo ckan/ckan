@@ -836,7 +836,6 @@ def package_revise_schema(ignore_missing: Validator,
 def config_declaration_v1(
         ignore_missing: Validator, unicode_safe: Validator,
         not_empty: Validator, default: ValidatorFactory,
-        boolean_validator: Validator,
         dict_only: Validator, one_of: ValidatorFactory,
         ignore_empty: Validator):
     from ckan.config.declaration import Key
@@ -856,6 +855,7 @@ def config_declaration_v1(
     return cast(Schema, {
         "groups": {
             "annotation": [default(""), unicode_safe],
+            "section": [default("app:main"), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
                 "default": [ignore_missing],

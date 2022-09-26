@@ -127,12 +127,9 @@ groups:
       - key: DEBUG_TB_PANELS
         internal: true
 
-  - annotation: General settings
+  - annotation: ~
+    section: DEFAULT
     options:
-      - key: use
-        placeholder: egg:ckan
-        validators: not_empty
-        required: true
       - key: debug
         type: bool
         example: 'true'
@@ -159,6 +156,13 @@ groups:
           .. warning:: This option should be set to ``False`` for a public site.
              With debug mode enabled, a visitor to your site could execute malicious
              commands.
+
+  - annotation: General settings
+    options:
+      - key: use
+        placeholder: egg:ckan
+        validators: not_empty
+        required: true
 
       - key: ckan.legacy_route_mappings
         default: {}

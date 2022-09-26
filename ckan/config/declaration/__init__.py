@@ -29,11 +29,12 @@ from .serialize import serializer
 if TYPE_CHECKING:
     from ckan.common import CKANConfig
 
-log = logging.getLogger(__name__)
 
 __all__ = ["Declaration", "Key"]
 
 _non_iterable = Flag.non_iterable()
+
+log = logging.getLogger(__name__)
 
 
 class Declaration:
@@ -223,10 +224,15 @@ class Declaration:
         """
         loader(self, "dict", data)
 
-    def into_ini(self, minimal: bool, include_docs: bool = False) -> str:
+    def into_ini(
+            self,
+            minimal: bool,
+            include_docs: bool = False,
+            section: str = "app:main"
+    ) -> str:
         """Serialize declaration into config template.
         """
-        return serializer(self, "ini", minimal, include_docs)
+        return serializer(self, "ini", minimal, include_docs, section)
 
     def into_schema(self) -> Dict[str, Any]:
         """Serialize declaration into validation schema.
@@ -309,7 +315,7 @@ class Declaration:
         option: Option[Any] = self.declare(key, default)
         return option
 
-    def annotate(self, annotation: str):
+    def annotate(self, text: str) -> Annotation:
         """Add section annotation.
 
         All the options added after this call(and till the next annotation)
@@ -322,4 +328,6 @@ class Declaration:
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
 
-        self._members.append(Annotation(annotation))
+        annotation = Annotation(text)
+        self._members.append(annotation)
+        return annotation

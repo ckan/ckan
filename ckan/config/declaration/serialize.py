@@ -42,7 +42,7 @@ serializer = handler.handle
 
 @handler.register("ini")
 def serialize_ini(
-    declaration: "Declaration", minimal: bool, include_docs: bool
+    declaration: "Declaration", minimal: bool, include_docs: bool, section: str
 ):
     """Serialize declaration into config template.
 
@@ -62,13 +62,21 @@ def serialize_ini(
     for item in declaration._members:
 
         if isinstance(item, Annotation):
+            if item._section != section:
+                continue
+
             if minimal:
                 continue
+
             heading = f"## {item} #".ljust(80, "#")
             result += f"\n{heading}\n"
 
         elif isinstance(item, Key):
             option = declaration._options[item]
+
+            if option._section != section:
+                continue
+
             if option.has_flag(Flag.non_iterable()):
                 continue
 
