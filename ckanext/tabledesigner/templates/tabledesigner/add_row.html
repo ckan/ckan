@@ -12,7 +12,14 @@
   <form method="post" action="{{ action }}" >
     {% block add_row %}
       {% for field in fields %}
-          {% snippet "tabledesigner/snippets/row_field.html", field=field, position=loop.index, res=res, value=row.get(field.id), errors=errors %}
+          {% snippet "tabledesigner/snippets/row_field.html",
+            field=field,
+            position=loop.index,
+            res=res,
+            value=row.get(field.id),
+            errors=errors,
+            pk=field.info.get('pk')
+          %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">

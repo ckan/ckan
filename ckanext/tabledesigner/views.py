@@ -136,6 +136,7 @@ class _TableDesignerEditRow(MethodView):
         if not r['records']:
             return base.abort(404, _('Row not found'))
         data_dict['row'] = r['records'][0]
+        data_dict['errors'] = {}
         return render('tabledesigner/edit_row.html', data_dict)
 
     def post(self, id, resource_id):

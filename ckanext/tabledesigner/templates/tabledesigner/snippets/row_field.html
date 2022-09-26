@@ -2,7 +2,8 @@
 
 {{
   form.input('col__' ~ position ~ '__value',
-    label=field.get('info', {}).get('label', '') or field.id, classes=['control-full'],
+    label=field.get('info', {}).get('label', '') or field.id
+      ~ _(' (Primary Key)') if pk else '', classes=['control-full'],
     id='field-' ~ position,
     value=value or '',
     error=errors.get(field.id),
