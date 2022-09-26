@@ -15,6 +15,7 @@ from ckan.plugins.toolkit import (
     _,
     request,
     render,
+    ValidationError,
 )
 
 tabledesigner = Blueprint(u'tabledesigner', __name__)
@@ -72,7 +73,7 @@ class _TableDesignerAddRow(MethodView):
     def get(self, id, resource_id):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        return render('tabledesigner/add_row.html', data_dict)
+        return render('tabledesigner/add_row.html', dict(data_dict, errors={}, row={}))
 
     def post(self, id, resource_id):
         _datastore_view = DictionaryView()
@@ -84,14 +85,30 @@ class _TableDesignerAddRow(MethodView):
         for f, c in zip(data_dict['fields'], col):
             row[f['id']] = c['value'] or None
 
-        get_action('datastore_upsert')(
-            None, {
-                'resource_id': resource_id,
-                'method': 'insert',
-                'force': True,  # FIXME: don't require this for tabledesigner tables
-                'records': [row],
-            }
-        )
+        try:
+            get_action('datastore_upsert')(
+                None, {
+                    'resource_id': resource_id,
+                    'method': 'insert',
+                    'force': True,  # FIXME: don't require this for tabledesigner tables
+                    'records': [row],
+                }
+            )
+        except ValidationError as err:
+            if err.error_dict.get('records', [''])[0].startswith('duplicate key'):
+                info = get_action('datastore_info')(None, {'id': resource_id})
+                pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pk')]
+                return render(
+                    'tabledesigner/add_row.html',
+                    dict(
+                        data_dict,
+                        row=row,
+                        errors={
+                            k:[_('Duplicate primary key exists')] for k in pk_fields
+                        }
+                    ),
+                )
+            raise
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
 
 
