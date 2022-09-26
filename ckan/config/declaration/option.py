@@ -128,6 +128,7 @@ class Annotation(SectionMixin, str):
     """
     pass
 
+
 class Option(SectionMixin, Generic[T]):
     """All the known details about config option.
 
