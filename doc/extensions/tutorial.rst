@@ -187,7 +187,7 @@ you gave to your plugin class in the :ref:`left-hand-side of the assignment in
 the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
 the name you'll use for your plugin in CKAN's config file::
 
-    ckan.plugins = stats text_view recline_view example_iauthfunctions
+    ckan.plugins = stats text_view datatables_view example_iauthfunctions
 
 You should now be able to start CKAN in the development web server and have it
 start up without any problems:
