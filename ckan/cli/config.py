@@ -66,7 +66,7 @@ def describe(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
 )
 @click.option(
     "-d",
-    "--include_docs",
+    "--include-docs",
     is_flag=True,
     help="Include documentation for options",
 )

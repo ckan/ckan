@@ -127,7 +127,7 @@ groups:
       - key: DEBUG_TB_PANELS
         internal: true
 
-  - annotation: ~
+  - annotation: Default settings
     section: DEFAULT
     options:
       - key: debug
@@ -982,19 +982,23 @@ groups:
         default: CKAN
         example: Open Data Scotland
         description: This sets the name of the site, as displayed in the CKAN web interface.
+        editable: true
 
       - key: ckan.site_description
         example: The easy way to get, use and share data
         description: This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+        editable: true
 
       - key: ckan.site_intro_text
         example: Nice introductory paragraph about CKAN or the site in general.
         description: This is for an introductory text used in the default template's index page.
+        editable: true
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
         example: /images/ckan_logo_fullname_long.png
         description: This sets the logo used in the title bar.
+        editable: true
 
       - key: ckan.site_about
         example: A _community-driven_ catalogue of _open data_ for the Greenfield area.
@@ -1009,6 +1013,7 @@ groups:
             option will not be translatable. For this reason, it's better to
             overload the snippet in ``home/snippets/about_text.html``. For more
             information, see :doc:`/theming/index`.
+        editable: true
 
       - key: ckan.main_css
         default: /base/css/main.css
@@ -1115,7 +1120,10 @@ groups:
 
       - key: ckan.homepage_style
         default: "1"
+        editable: true
+
       - key: ckan.site_custom_css
+        editable: true
 
 
   - annotation: Resource Views Settings
