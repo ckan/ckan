@@ -66,7 +66,6 @@ def datastore_fields(resource: dict[str, Any],
             if f['type'] in valid_field_types]
 
 
-@p.toolkit.blanket.config_declarations
 class ReclineViewBase(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
@@ -83,6 +82,11 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_public_directory(config, 'theme/public')
         toolkit.add_template_directory(config, 'theme/templates')
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
+
+        log.warning(
+            "The Recline-based views are deprecated and"
+            "will be removed in future versions"
+        )
 
     def can_view(self, data_dict: dict[str, Any]):
         resource = data_dict['resource']
@@ -104,6 +108,7 @@ class ReclineViewBase(p.SingletonPlugin):
         }
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineView(ReclineViewBase):
     '''
     This extension views resources using a Recline MultiView.
@@ -133,6 +138,7 @@ class ReclineView(ReclineViewBase):
             return False
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineGridView(ReclineViewBase):
     '''
     This extension views resources using a Recline grid.
@@ -148,6 +154,7 @@ class ReclineGridView(ReclineViewBase):
                 }
 
 
+@p.toolkit.blanket.config_declarations
 class ReclineGraphView(ReclineViewBase):
     '''
     This extension views resources using a Recline graph.

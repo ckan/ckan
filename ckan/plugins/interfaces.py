@@ -232,7 +232,7 @@ class IResourceView(Interface):
         The available keys are:
 
         :param name: name of the view type. This should match the name of the
-            actual plugin (eg ``image_view`` or ``recline_view``).
+            actual plugin (eg ``image_view`` or ``datatables_view``).
         :param title: title of the view type. Will be displayed on the
             frontend. This should be translatable (ie wrapped with
             ``toolkit._('Title')``).

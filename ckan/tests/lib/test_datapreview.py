@@ -56,7 +56,7 @@ class MockDatastoreBasedResourceView(p.SingletonPlugin):
 
 
 @pytest.mark.ckan_config(
-    "ckan.plugins", "image_view recline_view webpage_view test_datastore_view"
+    "ckan.plugins", "image_view datatables_view webpage_view test_datastore_view"
 )
 @pytest.mark.usefixtures("with_plugins")
 class TestDatapreviewWithWebpageView(object):
@@ -66,7 +66,15 @@ class TestDatapreviewWithWebpageView(object):
 
         assert sorted(
             [view_plugin.info()["name"] for view_plugin in default_views]
-        ) == sorted(datapreview.DEFAULT_RESOURCE_VIEW_TYPES)
+        ) == ["image_view"]
+
+    def test_no_config_with_datastore_plugins(self):
+
+        default_views = datapreview.get_default_view_plugins(get_datastore_views=True)
+
+        assert sorted(
+            [view_plugin.info()["name"] for view_plugin in default_views]
+        ) == ["datatables_view"]
 
     @pytest.mark.ckan_config("ckan.views.default_views", "")
     def test_empty_config(self):
