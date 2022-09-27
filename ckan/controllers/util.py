@@ -14,6 +14,7 @@ class UtilController(base.BaseController):
     def redirect(self):
         ''' redirect to the url parameter. '''
         url = base.request.params.get('url')
+        url = url.replace('\r', ' ').replace('\n', ' ').replace('\0', ' ')
         if not url:
             base.abort(400, _('Missing Value') + ': url')
 
