@@ -227,7 +227,7 @@ class CKANTestApp(object):
         extra_environ = kwargs.get("extra_environ")
         # Inject the csrf token to all POST forms that are not using
         # the Authorization header
-        if not extra_environ:
+        if not extra_environ.get("Authorization") and not kwargs.get('json'):
             csrf = ckan_generate_csrf()
             if not kwargs.get("data"):
                 kwargs["data"] = {}

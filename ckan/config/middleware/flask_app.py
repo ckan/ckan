@@ -77,15 +77,16 @@ class CKANCSRFProtect(CSRFProtect):
     '''
     def protect(self):
 
-        if config.get_value("TESTING"):
-            # for the tests we are using the Authorization header
-            authorization_token = request.environ.get('Authorization')
-            if authorization_token:
-                return
-
         api_action = toolkit.request.view_args.get(  # type: ignore
             'logic_function', None
         )
+
+        if config.get_value("TESTING"):
+            # for the tests we are using the Authorization header
+            authorization_token = request.environ.get('Authorization')
+            if authorization_token or api_action:
+                return
+
         authorization_token = request.environ.get('HTTP_AUTHORIZATION')
         if api_action and authorization_token:
             return
