@@ -16,7 +16,7 @@ import six
 from six.moves.urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type, StringIO
+from six import string_types, text_type, StringIO, PY2
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -685,7 +685,9 @@ def _insert_links(data_dict, limit, offset):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
+    if PY2 and isinstance(query, unicode):
+        query = query.encode('utf-8')
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
