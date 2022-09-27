@@ -1,0 +1,1 @@
+Add CKAN wrapper for CSRFProtect, re-enable the CSRF protection for the tests.
