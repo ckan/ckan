@@ -175,7 +175,8 @@ def identify_user():
 
 def _get_remote_user_content():
 
-    parts = six.ensure_text(request.environ.get(u'REMOTE_USER', u'')).split(u',')
+    parts = six.ensure_text(
+        request.environ.get(u'REMOTE_USER', u'')).split(u',')
 
     if len(parts) == 1:
         # Tests can pass just a user name or id
