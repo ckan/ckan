@@ -22,7 +22,7 @@ from collections import OrderedDict
 
 import six
 from urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl, urlparse
+    urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
 
