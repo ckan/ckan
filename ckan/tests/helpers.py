@@ -165,7 +165,7 @@ def call_auth(auth_name: str, context, **kwargs) -> bool:
 
 def ckan_generate_csrf() -> "dict[str, Any]":
     '''
-    A Helper function to generate and inject the token into the forms, 
+    A Helper function to generate and inject the token into the forms,
     so the tests can pass the csrf validation.
     '''
     import os
