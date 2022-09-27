@@ -21,7 +21,7 @@ def internal_redirect():
     if not url:
         base.abort(400, _(u'Missing Value') + u': url')
 
-    url = url.replace('\r', ' ').replace('\n', ' ').replace('\0', ' ')
+    url = url.replace(u'\r', u' ').replace(u'\n', u' ').replace(u'\0', u' ')
     if h.url_is_local(url):
         return h.redirect_to(url)
     else:

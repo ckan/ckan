@@ -296,7 +296,7 @@ class EditView(MethodView):
 
             auth_user_id = auth.authenticate(request.environ, identity)
             if auth_user_id:
-                auth_user_id = auth_user_id.split(',')[0]
+                auth_user_id = auth_user_id.split(u',')[0]
             if auth_user_id != g.userobj.id:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]

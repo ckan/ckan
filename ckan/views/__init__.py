@@ -156,7 +156,7 @@ def identify_user():
     if not getattr(g, u'user', None):
         response = _identify_user_default()
         if response:
-             return response
+            return response
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
@@ -173,10 +173,9 @@ def identify_user():
     g.author = text_type(g.author)
 
 
-
 def _get_remote_user_content():
 
-    parts = six.ensure_text(request.environ.get('REMOTE_USER', '')).split(',')
+    parts = six.ensure_text(request.environ.get(u'REMOTE_USER', u'')).split(u',')
 
     if len(parts) == 1:
         # Tests can pass just a user name or id
@@ -209,21 +208,21 @@ def _identify_user_default():
     '''
 
     # environ['REMOTE_USER'] can be set:
-    #   1. By repoze.who if it authenticates a user's cookie (a standard browser
-    #      request). This has the format user_id,serial_counter
-    #   2. Manually in tests when passing `extra_environ` to a test client request.
-    #      This can have just the user name or id
+    #   1. By repoze.who if it authenticates a user's cookie (a standard
+    #      browser request). This has the format user_id,serial_counter
+    #   2. Manually in tests when passing `extra_environ` to a test client
+    #      request. This can have just the user name or id
     # But repoze.who doesn't check the user (still) exists in the database,
     # we need to do that here.
-    g.user = ''
+    g.user = u''
 
     user_id, serial_counter = _get_remote_user_content()
 
     if user_id:
 
-        if request.environ.get('CKAN_TESTING'):
-            # For requests coming from the test client we allow users to be identified
-            # either by user name or id
+        if request.environ.get(u'CKAN_TESTING'):
+            # For requests coming from the test client we allow users to be
+            # identified either by user name or id
             g.userobj = model.User.get(user_id)
 
             # Serial counter is optional in tests
@@ -231,9 +230,10 @@ def _identify_user_default():
                 return _logout_user()
 
         else:
-            # For normal, browser cookie based requests we enforce that the user is
-            # identified by its id
-            g.userobj = model.Session.query(model.User).filter_by(id=user_id).first()
+            # For normal, browser cookie based requests we enforce that the
+            # user is identified by its id
+            g.userobj = model.Session.query(model.User).filter_by(
+                id=user_id).first()
 
             if serial_counter is None or int(serial_counter) != 1:
                 return _logout_user()
