@@ -687,8 +687,8 @@ def is_rtl_language():
 
 
 @core_helper
-def get_rtl_css():
-    return config.get('ckan.i18n.rtl_css', '/base/css/main-rtl.css')
+def get_rtl_theme():
+    return config.get('ckan.i18n.rtl_theme', 'css/main-rtl')
 
 
 class Message(object):

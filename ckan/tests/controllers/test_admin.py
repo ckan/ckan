@@ -63,7 +63,7 @@ class TestConfig(object):
         for option in style_select_options:
             assert option.string in STYLE_NAMES
 
-    def test_main_css(self, app, sysadmin_env):
+    def test_main_theme(self, app, sysadmin_env):
         """Select a colour style"""
 
         # current style
@@ -72,7 +72,7 @@ class TestConfig(object):
 
         url = url_for(u"admin.config")
         # set new style css
-        form = {"ckan.main_css": "/base/css/red.css", "save": ""}
+        form = {"ckan.theme": "css/red", "save": ""}
         resp = app.post(url, data=form, environ_overrides=sysadmin_env)
 
         assert "red.css" in resp or "red.min.css" in resp
