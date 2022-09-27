@@ -1,0 +1,7 @@
+Fix theme settings. Options which were used to specify a CSS file
+with a base theme are replaced. Use altenatives below in order
+to specify **asset** with a base theme for application:
+
+* `ckan.main_css` replaced by `ckan.theme`
+* `ckan.i18n.rtl_css` replaced by `ckan.i18n.rtl_theme`
+

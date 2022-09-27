@@ -448,7 +448,7 @@ values for the (key, value, delete) fields respectively.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
     is_required - Boolean of whether this input is required for the form to validate
-    
+
 
 Examples:
 
@@ -481,7 +481,7 @@ Example
 
     {% set form_info = [
         {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
-        {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
+        {'name': 'ckan.theme', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
         {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': ''},
         {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': ''},
         {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},

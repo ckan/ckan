@@ -78,7 +78,7 @@ class TestConfig(object):
         reset_index_response = app.get("/")
         assert "Welcome - CKAN" in reset_index_response
 
-    def test_main_css(self, app, sysadmin_env):
+    def test_main_theme(self, app, sysadmin_env):
         """Define a custom css file"""
 
         # current style
@@ -88,7 +88,7 @@ class TestConfig(object):
         url = url_for(u"admin.config")
 
         # set new style css
-        form = {"ckan.main_css": "/base/css/main-rtl.css", "save": ""}
+        form = {"ckan.theme": "css/main-rtl", "save": ""}
         resp = app.post(url, extra_environ=sysadmin_env, data=form)
 
         assert "main-rtl.css" in resp or "main-rtl.min.css" in resp
@@ -224,7 +224,7 @@ class TestConfig(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
 
