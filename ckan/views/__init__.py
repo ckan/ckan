@@ -281,8 +281,6 @@ def set_ckan_current_url(environ):
 
     qs = environ.get(u'QUERY_STRING')
     if qs:
-        # sort out weird encodings
-        qs = quote(qs, u'')
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info

@@ -72,12 +72,23 @@ app_globals_from_config_details = {
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
 
-def set_main_css(css_file):
-    ''' Sets the main_css.  The css_file must be of the form file.css '''
-    assert css_file.endswith('.css')
-    new_css = css_file
-    # FIXME we should check the css file exists
-    app_globals.main_css = str(new_css)
+def set_theme(asset):
+    ''' Sets the theme.
+    The `asset` argument is a name of existing web-asset registered by CKAN
+    itself or by any enabled extension.
+    If asset is not registered, use default theme instead.
+    '''
+    from ckan.lib.webassets_tools import env
+
+    assert env
+    if asset not in env:
+        log.error(
+            "Asset '%s' does not exist. Fallback to '%s'",
+            asset, 'css/main'
+        )
+        asset = 'css/main'
+
+    app_globals.theme = asset
 
 
 def set_app_global(key, value):
@@ -168,8 +179,8 @@ def reset():
         get_config_value(key)
 
     # custom styling
-    main_css = get_config_value('ckan.main_css', '/base/css/main.css')
-    set_main_css(main_css)
+    theme = get_config_value('ckan.theme') or 'css/main'
+    set_theme(theme)
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'

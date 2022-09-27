@@ -654,7 +654,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return unquote(request.environ['CKAN_CURRENT_URL'])
+    return request.environ['CKAN_CURRENT_URL']
 
 
 @core_helper
@@ -687,8 +687,8 @@ def is_rtl_language():
 
 
 @core_helper
-def get_rtl_css():
-    return config.get('ckan.i18n.rtl_css', '/base/css/main-rtl.css')
+def get_rtl_theme():
+    return config.get('ckan.i18n.rtl_theme', 'css/main-rtl')
 
 
 class Message(object):
