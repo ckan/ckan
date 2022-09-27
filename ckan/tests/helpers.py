@@ -163,6 +163,22 @@ def call_auth(auth_name: str, context, **kwargs) -> bool:
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
+def ckan_generate_csrf() -> "dict[str, Any]":
+    '''
+    A Helper function to generate and inject the token into the forms, 
+    so the tests can pass the csrf validation.
+    '''
+    import os
+    import hashlib
+    from itsdangerous import URLSafeTimedSerializer
+
+    field_name = config.get_value('WTF_CSRF_FIELD_NAME')
+    secret_key = config.get_value("WTF_CSRF_SECRET_KEY")
+    s = URLSafeTimedSerializer(secret_key, salt="wtf-csrf-token")
+    token = s.dumps(hashlib.sha1(os.urandom(64)).hexdigest())
+    return {"field_name": field_name, "token": token}
+
+
 class CKANCliRunner(CliRunner):
     def invoke(self, *args, **kwargs):
         # prevent cli runner from str/bytes exceptions
@@ -207,6 +223,16 @@ class CKANTestApp(object):
         params = kwargs.pop("params", None)
         if params:
             kwargs["data"] = params
+
+        extra_environ = kwargs.get("extra_environ")
+        # Inject the csrf token to all POST forms that are not using
+        # the Authorization header
+        if not extra_environ:
+            csrf = ckan_generate_csrf()
+            if not kwargs.get("data"):
+                kwargs["data"] = {}
+            kwargs["data"].update({csrf["field_name"]: csrf["token"]})
+
         res = self.test_client().post(url, *args, **kwargs)
         return res
 
@@ -268,8 +294,7 @@ def _get_test_app():
 
     """
     config["testing"] = True
-    # exempt the CKAN TESTS from csrf-validation.
-    config["WTF_CSRF_METHODS"] = []
+    config['WTF_CSRF_SECRET_KEY'] = 'This_is_a_secret_or_is_it'
     app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 

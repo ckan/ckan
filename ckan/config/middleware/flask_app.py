@@ -34,6 +34,7 @@ from flask_wtf.csrf import CSRFProtect
 from ckan.common import CKANConfig, asbool, session, current_user
 
 import ckan.model as model
+import ckan.plugins.toolkit as toolkit
 from ckan.lib import base
 from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
@@ -61,8 +62,6 @@ from ckan.types import CKANApp, Config, Response
 
 log = logging.getLogger(__name__)
 
-csrf = CSRFProtect()
-
 csrf_warn_extensions = (
         "Extensions are excluded from CSRF protection! "
         "We allow extensions to run without CSRF protection "
@@ -70,6 +69,31 @@ csrf_warn_extensions = (
         "Read the documentation for more information on how to add "
         "CSRF protection to your extension."
     )
+
+
+class CKANCSRFProtect(CSRFProtect):
+    '''
+    Prevent the csrf validation on external API calls.
+    '''
+    def protect(self):
+
+        if config.get_value("TESTING"):
+            # for the tests we are using the Authorization header
+            authorization_token = request.environ.get('Authorization')
+            if authorization_token:
+                return
+
+        api_action = toolkit.request.view_args.get(  # type: ignore
+            'logic_function', None
+        )
+        authorization_token = request.environ.get('HTTP_AUTHORIZATION')
+        if api_action and authorization_token:
+            return
+
+        return super().protect()
+
+
+csrf = CKANCSRFProtect()
 
 
 class I18nMiddleware(object):
@@ -384,6 +408,27 @@ def set_remote_user_as_current_user_for_tests():
             session["_user_id"] = userobj.id
 
 
+def set_csrf_token_in_session_for_tests():
+    '''
+    A helper function to set the csrf token to the CKAN session so it can pass
+    the validation process.
+    '''
+    from itsdangerous import URLSafeTimedSerializer
+
+    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    time_limit = config.get_value("WTF_CSRF_TIME_LIMIT")
+    secret_key = config.get_value("WTF_CSRF_SECRET_KEY")
+
+    if field_name in request.form:
+        token = request.form.get(field_name)
+        salt = "wtf-csrf-token"
+        s = URLSafeTimedSerializer(secret_key, salt)
+
+        if token:
+            token_key = s.loads(token, max_age=time_limit)
+            session[field_name] = token_key
+
+
 def ckan_before_request() -> Optional[Response]:
     u'''
     Common handler executed before all Flask requests
@@ -405,6 +450,10 @@ def ckan_before_request() -> Optional[Response]:
     # CKAN extensions change their tests according to the new changes.
     if config.get_value("testing"):
         set_remote_user_as_current_user_for_tests()
+        set_csrf_token_in_session_for_tests()
+
+    if request.method in config.get('WTF_CSRF_METHODS'):  # type: ignore
+        csrf.protect()
 
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
