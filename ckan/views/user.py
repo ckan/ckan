@@ -294,7 +294,10 @@ class EditView(MethodView):
             }
             auth = authenticator.UsernamePasswordAuthenticator()
 
-            if auth.authenticate(request.environ, identity) != g.user:
+            auth_user_id = auth.authenticate(request.environ, identity)
+            if auth_user_id:
+                auth_user_id = auth_user_id.split(',')[0]
+            if auth_user_id != g.userobj.id:
                 errors = {
                     u'oldpassword': [_(u'Password entered was incorrect')]
                 }
