@@ -12,6 +12,7 @@ import flask_babel
 
 import pytest
 
+from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
@@ -872,3 +873,22 @@ def test_decode_view_request_filters(test_request_context):
             '_id': ['1', '2', '3'],
             'Piped|Filter': ['Piped|Value']
         }
+
+
+@pytest.mark.parametrize("data_dict, locale, result", [
+    # no matching local returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'es', 'untranslated'),
+    # specific returns specfic
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en', 'en_GB': 'en_GB'}}, 'en_GB', 'en_GB'),
+    # variant returns base
+    ({"notes": "untranslated",
+      "notes_translated": {'en': 'en'}}, 'en_GB', 'en'),
+    # Null case, falls all the way through.
+    ({}, 'en', ''),
+])
+@pytest.mark.usefixtures("with_request_context")
+def test_get_translated(data_dict, locale, result, monkeypatch):
+    monkeypatch.setattr(flask_app, "get_locale", lambda: locale)
+    assert h.get_translated(data_dict, 'notes') == result
