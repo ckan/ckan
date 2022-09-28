@@ -9,7 +9,7 @@ from ckan.common import config, _
 from ckan.lib.helpers import url_for
 
 
-class TestBlueprintPlugin(p.SingletonPlugin):
+class BlueprintPlugin(p.SingletonPlugin):
 
     p.implements(p.IBlueprint)
 
