@@ -1443,18 +1443,18 @@ Format tips:
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
           For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`/theming/index`.
 
-.. _ckan.main_css:
+.. _ckan.theme:
 
-ckan.main_css
+ckan.theme
 ^^^^^^^^^^^^^
 
 Example::
 
-  ckan.main_css = /base/css/my-custom.css
+  ckan.theme = my_extension/my_custom_theme
 
-Default value: ``/base/css/main.css``
+Default value: ``css/main``
 
-With this option, instead of using the default `main.css`, you can use your own.
+With this option, instead of using the default ``css/main`` asset with your theme, you can use your own.
 
 .. _ckan.favicon:
 
@@ -2347,18 +2347,18 @@ Default value: ``he ar fa_IR``
 
 Allows to modify the right-to-left languages
 
-.. _ckan.i18n.rtl_css:
+.. _ckan.i18n.rtl_theme:
 
-ckan.i18n.rtl_css
-^^^^^^^^^^^^^^^^^^^^^^^
+ckan.i18n.rtl_theme
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+  ckan.i18n.rtl_theme = my_extension/my-custom-rtl-theme
 
-Default value: ``/base/css/rtl.css``
+Default value: ``css/main-rtl``
 
-Allows to override the default rtl css file used for the languages defined
+Allows to override the default RTL asset used for the languages defined
 in ``ckan.i18n.rtl_languages``.
 
 .. _ckan.display_timezone:

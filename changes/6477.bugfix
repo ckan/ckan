@@ -1,3 +1,0 @@
-Type of uploads for group and user image can be restricted via the
-`ckan.upload.{object_type}.types` and `ckan.upload.{object_type}.mimetypes`
-config options (eg :ref:`ckan.upload.group.types`, :ref:`ckan.upload.user.mimetypes`)
