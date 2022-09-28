@@ -551,7 +551,7 @@ def _register_plugins_blueprints(app: CKANApp):
             app.register_extension_blueprint(plugin_blueprints)
 
 
-def _exempt_plugins_blueprints_from_csrf(csrf: CSR):
+def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
     """Exempt plugins blueprints from CSRF protection.
 
     This feature will be deprecated in future versions.
