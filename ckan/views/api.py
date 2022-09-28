@@ -43,7 +43,7 @@ API_MAX_VERSION = 3
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
-def _json_serial(obj):
+def _json_serial(obj: Any):
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
     raise TypeError("Unhandled Object")
