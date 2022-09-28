@@ -6,6 +6,7 @@
 # Translators:
 # Alberto Miedes <alberto@populate.tools>, 2019
 # David Portoles <dportoles@idearium-consultores.com>, 2019
+# Adrià Mercader <adria.mercader@okfn.org>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-03-31 17:05+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: David Portoles <dportoles@idearium-consultores.com>, 2019\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
 "Language-Team: Basque (https://www.transifex.com/okfn/teams/11162/eu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2843,7 +2844,7 @@ msgstr "0 Datu Multzo"
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
 msgid "View {name}"
-msgstr "Ikusi {izena}"
+msgstr "Ikusi {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
@@ -3226,7 +3227,7 @@ msgstr "Gorde Erakundea"
 #: ckan/templates/organization/snippets/organization_item.html:42
 #: ckan/templates/organization/snippets/organization_item.html:43
 msgid "View {organization_name}"
-msgstr "Ikusi (erakunde_izena)"
+msgstr "Ikusi {organization_name}"
 
 #: ckan/templates/package/base.html:23 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2

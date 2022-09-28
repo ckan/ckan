@@ -17,6 +17,8 @@ class UtilController(base.BaseController):
         if not url:
             base.abort(400, _('Missing Value') + ': url')
 
+        url = url.replace('\r', ' ').replace('\n', ' ').replace('\0', ' ')
+
         if h.url_is_local(url):
             return h.redirect_to(url)
         else:

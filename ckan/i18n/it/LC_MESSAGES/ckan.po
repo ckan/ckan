@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
 "Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ckan/authz.py:214
 #, python-format
@@ -831,6 +831,7 @@ msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/lib/formatters.py:19
 msgid "January"
@@ -889,30 +890,35 @@ msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} minuto fa"
 msgstr[1] "{mins} minuti fa"
+msgstr[2] "{mins} minuti fa"
 
 #: ckan/lib/formatters.py:119
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} ora fa"
 msgstr[1] "{hours} ore fa"
+msgstr[2] "{hours} ore fa"
 
 #: ckan/lib/formatters.py:125
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
 msgstr[0] "{days} giorno fa"
 msgstr[1] "{days} giorni fa"
+msgstr[2] "{days} giorni fa"
 
 #: ckan/lib/formatters.py:128
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
 msgstr[0] "{months} mese fa"
 msgstr[1] "{months} mesi fa"
+msgstr[2] "{months} mesi fa"
 
 #: ckan/lib/formatters.py:130
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
 msgstr[0] "più di {years} anno fa"
 msgstr[1] "più di {years} anni fa"
+msgstr[2] "più di {years} anni fa"
 
 #: ckan/lib/formatters.py:146
 msgid "{month} {day}, {year}, {hour:02}:{min:02} ({timezone})"
@@ -1007,12 +1013,14 @@ msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} visualizzazione"
 msgstr[1] "{number} visualizzazioni"
+msgstr[2] "{number} visualizzazioni"
 
 #: ckan/lib/helpers.py:1918
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} visualizzazione recente"
 msgstr[1] "{number} visualizzazioni recenti"
+msgstr[2] "{number} visualizzazioni recenti"
 
 #: ckan/lib/mailer.py:48
 #, python-format
@@ -1861,6 +1869,7 @@ msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4
@@ -2126,6 +2135,7 @@ msgid "no translation"
 msgid_plural "no translations"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:22
 #: ckan/public/base/test/spec/i18n.spec.js:22
@@ -2148,6 +2158,7 @@ msgid "no %(attr)s translation"
 msgid_plural "no %(attr)s translations"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:39
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:40
@@ -2167,6 +2178,7 @@ msgid "bar"
 msgid_plural "bars"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:61
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:65
@@ -2180,6 +2192,7 @@ msgid "%(color)s shirt"
 msgid_plural "%(color)s shirts"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:93
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:94
@@ -2193,6 +2206,7 @@ msgid "%(num)d item"
 msgid_plural "%(num)d items"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:100
 #: ckan/public-bs2/base/test/spec/i18n.spec.js:105
@@ -2206,6 +2220,7 @@ msgid "%(num)d missing translation"
 msgid_plural "%(num)d missing translations"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2246,6 +2261,7 @@ msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Dashboard (%(num)d nuovo elemento)"
 msgstr[1] "Dashboard (%(num)d nuovi elementi)"
+msgstr[2] "Dashboard (%(num)d nuovi elementi)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2845,6 +2861,7 @@ msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
 msgstr[0] "{num} Dataset"
 msgstr[1] "{num} Dataset"
+msgstr[2] "{num} Dataset"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -3183,6 +3200,7 @@ msgid "{count} member"
 msgid_plural "{count} members"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -4017,6 +4035,7 @@ msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} dataset trovato per \"{query}\""
 msgstr[1] "{number} dataset trovati per \"{query}\""
+msgstr[2] "{number} dataset trovati per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4027,6 +4046,7 @@ msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
 msgstr[0] "{number} dataset trovato"
 msgstr[1] "{number} dataset trovati"
+msgstr[2] "{number} dataset trovati"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4037,6 +4057,7 @@ msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} gruppo trovato per \"{query}\""
 msgstr[1] "{number} gruppi trovati per \"{query}\""
+msgstr[2] "{number} gruppi trovati per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4047,6 +4068,7 @@ msgid "{number} group found"
 msgid_plural "{number} groups found"
 msgstr[0] "{number} gruppo trovato"
 msgstr[1] "{number} gruppi trovati"
+msgstr[2] "{number} gruppi trovati"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4057,6 +4079,7 @@ msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} organizzazione trovata per \"{query}\""
 msgstr[1] "{number} organizzazioni trovate per \"{query}\""
+msgstr[2] "{number} organizzazioni trovate per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4067,6 +4090,7 @@ msgid "{number} organization found"
 msgid_plural "{number} organizations found"
 msgstr[0] "{number} organizzazione trovata"
 msgstr[1] "{number} organizzazioni trovate"
+msgstr[2] "{number} organizzazioni trovate"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"

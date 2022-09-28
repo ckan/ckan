@@ -601,7 +601,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
+    return request.environ['CKAN_CURRENT_URL']
 
 
 @core_helper
@@ -2703,3 +2703,33 @@ def sanitize_id(id_):
     ValueError.
     '''
     return str(uuid.UUID(id_))
+
+
+@core_helper
+def check_ckan_version(min_version, max_version):
+    """Return ``True`` if the CKAN version is greater than or equal to
+    ``min_version`` and less than or equal to ``max_version``,
+    return ``False`` otherwise.
+
+    If no ``min_version`` is given, just check whether the CKAN version is
+    less than or equal to ``max_version``.
+
+    If no ``max_version`` is given, just check whether the CKAN version is
+    greater than or equal to ``min_version``.
+
+    :param min_version: the minimum acceptable CKAN version,
+        eg. ``'2.1'``
+    :type min_version: string
+
+    :param max_version: the maximum acceptable CKAN version,
+        eg. ``'2.3'``
+    :type max_version: string
+
+    """
+    return p.toolkit.check_ckan_version(min_version=min_version,
+                                        max_version=max_version)
+
+
+@core_helper
+def csrf_input():
+    return ''

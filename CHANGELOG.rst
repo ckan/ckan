@@ -7,6 +7,24 @@
 Changelog
 ---------
 
+v.2.8.11 2022-09-28
+===================
+
+Fixes:
+
+* Fixes incorrectly encoded url current_url (`#6685 <https://github.com/ckan/ckan/pull/6685>`_)
+* Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+* Add ``csrf_input()`` helper for cross-CKAN version compatibilty (`#7016 <https://github.com/ckan/ckan/issues/7016>`_)
+* Fix not empty validator (`#6658 <https://github.com/ckan/ckan/pull/6658>`_)
+* Use ``get_action()`` in patch actions to allow custom logic (`#6519 <https://github.com/ckan/ckan/pull/6519>`_)
+* Allow to extend organization_facets (`#6682 <https://github.com/ckan/ckan/pull/6682>`_)
+* Expose check_ckan_version to templates (`#6741 <https://github.com/ckan/ckan/pull/6741>`_)
+* Allow get_translated helper to fall back to base version of a language (`#6815 <https://github.com/ckan/ckan/pull/6815>`_)
+* Fix server error in tag autocomplete when vocabulary does not exist  (`#6820 <https://github.com/ckan/ckan/pull/6820>`_)
+* Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+* Fix updating a non-existing resource causes an internal sever error (`#6928 <https://github.com/ckan/ckan/pull/6928>`_)
+
+
 v.2.8.10 2022-01-19
 ===================
 
