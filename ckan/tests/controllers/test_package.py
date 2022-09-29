@@ -249,7 +249,8 @@ class TestPackageNew(object):
                 "save": "",
                 "_ckan_phase": 1
             },
-        follow_redirects=False)
+            follow_redirects=False
+        )
 
         location = _get_location(response)
         response = app.post(location, data={

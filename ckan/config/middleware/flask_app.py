@@ -418,8 +418,9 @@ def ckan_before_request() -> Optional[Response]:
     if g.get("login_via_auth_header"):
         # Get the actual view function, as it might not match the endpoint,
         # eg "organization.edit" -> "group.edit", or custom dataset types
-        view = current_app.view_functions.get(request.endpoint)
-        dest = f"{view.__module__}.{view.__name__}"
+        endpoint = request.endpoint or ""
+        view = current_app.view_functions.get(endpoint)
+        dest = f"{view.__module__}.{view.__name__}"     # type: ignore
         csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
