@@ -135,7 +135,7 @@ class TestOrganizationEdit(object):
     def test_all_fields_saved(self, app, user):
         env = {"Authorization": user["token"]}
         group = factories.Organization(user=user)
-        app.post(
+        xx = app.post(
             url=url_for(
                 "organization.edit", id=group["id"]
             ),

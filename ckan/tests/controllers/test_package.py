@@ -186,7 +186,7 @@ class TestPackageNew(object):
         assert pkg.state == "active"
 
     @mock.patch("flask_login.utils._get_user")
-    def test_complete_package_with_two_resources(self, current_user, app):
+    def test_complete_package_with_two_resources(self, app):
         mock_current_user(current_user)
 
         url = url_for("dataset.new")
@@ -233,7 +233,7 @@ class TestPackageNew(object):
         assert '/dataset/edit/' in response.headers['location']
 
     @mock.patch("flask_login.utils._get_user")
-    def test_previous_button_populates_form(self, current_user, app):
+    def test_previous_button_populates_form(self, app):
         mock_current_user(current_user)
 
         url = url_for("dataset.new")
@@ -815,7 +815,7 @@ class TestPackageDelete(object):
         assert helpers.body_contains(response, "Unauthorized to delete package")
 
     @mock.patch("flask_login.utils._get_user")
-    def test_confirm_cancel_delete(self, current_user, app):
+    def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
 
         When package_delete is made as a get request, it should return a
@@ -1085,12 +1085,8 @@ class TestResourceDownload(object):
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
 class TestResourceView(object):
-    @mock.patch("flask_login.utils._get_user")
-    def test_resource_view_create(self, current_user, app):
+    def test_resource_view_create(self, app):
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1104,15 +1100,15 @@ class TestResourceView(object):
             view_type="image_view",
         )
 
-        response = app.post(url, data={"title": "Test Image View"})
+        response = app.post(
+            url,
+            environ_overrides={"REMOTE_USER": user["name"]},
+            data={"title": "Test Image View"}
+        )
         assert helpers.body_contains(response, "Test Image View")
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_resource_view_edit(self, current_user, app):
+    def test_resource_view_edit(self, app):
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1127,16 +1123,16 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
 
-        response = app.post(url, data={"title": "Updated RV Title"})
+        response = app.post(
+            url,
+            environ_overrides={"REMOTE_USER": user["name"]},
+            data={"title": "Updated RV Title"}
+        )
         assert helpers.body_contains(response, "Updated RV Title")
 
-    @mock.patch("flask_login.utils._get_user")
     @pytest.mark.ckan_config("ckan.views.default_views", "")
-    def test_resource_view_delete(self, current_user, app):
+    def test_resource_view_delete(self, app):
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1151,7 +1147,11 @@ class TestResourceView(object):
             view_id=resource_view["id"],
         )
 
-        response = app.post(url, data={"delete": "Delete"})
+        response = app.post(
+            url,
+            environ_overrides={"REMOTE_USER": user["name"]},
+            data={"delete": "Delete"}
+        )
         assert helpers.body_contains(response, "This resource has no views")
 
     def test_existent_resource_view_page_returns_ok_code(self, app):
@@ -1430,7 +1430,7 @@ class TestResourceDelete(object):
             helpers.call_action("resource_show", id=resource["id"])
 
     @mock.patch("flask_login.utils._get_user")
-    def test_confirm_and_cancel_deleting_a_resource(self, current_user, app):
+    def test_confirm_and_cancel_deleting_a_resource(self, app):
         """Test confirmation of deleting resources
 
         When resource_delete is made as a get request, it should return a
