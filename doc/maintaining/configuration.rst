@@ -271,7 +271,7 @@ only for explanation and you don't need them in the real file::
 
 There is a special option type, ``dynamic``. This option type is used for a set
 of options that have common name-pattern. Because ``dynamic`` type defines
-multiple options, it has no validators and serves mostly documentation
+multiple options, it has no default, validators and serves mostly documentation
 purpose. Let's use CKAN's ``sqlalchemy.*`` options as example. Every option
 whoose name follows pattern ``sqlalchemy.SOMETHING`` is passed to the
 SQLAlchemy engine created by CKAN. CKAN doesn't actually know, which options
@@ -298,13 +298,13 @@ label, the only important part here are angle brackets::
       Custom sqlalchemy config parameters used to establish the main
       database connection.
 
-That's it! Now CKAN won't report any "undeclared" ``sqlalchemy.*`` option,
-because you've just declared any possible config option with the
-``sqlalchemy.`` prefix. Use this feature sparsely, only when you really want to
-declare literally ANY value following the pattern. If you have finite set of
-possible options, consider declaring all of them, because it allows you to
-provide validators and prevents you from accidental shadowing of unrelated
-options.
+Dynamic options should not be accessed via ``config.get_value`` at the
+moment. Use ``config.get``(which is identical to ``dict.get``) instead.
+
+Use this feature sparsely, only when you really want to declare literally ANY
+value following the pattern. If you have finite set of possible options,
+consider declaring all of them, because it allows you to provide validators,
+defaults, and prevents you from accidental shadowing of unrelated options.
 
 
 Accessing config options
