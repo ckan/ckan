@@ -327,7 +327,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         This callback function is called whenever a user could not be
         authenticated via the session cookie, so we fall back to the API token.
         """
-        g.login_via_request = True
+        g.login_via_auth_header = True
 
         user = _get_user_for_apitoken()
 
@@ -414,8 +414,8 @@ def ckan_before_request() -> Optional[Response]:
     response = identify_user()
 
     # Disable CSRF protection if user was logged in via the Authorization
-    # header from the request
-    if g.get("login_via_request"):
+    # header
+    if g.get("login_via_auth_header"):
         csrf.exempt(f"ckan.views.{request.endpoint}")
 
     # Set the csrf_field_name so we can use it in our templates
