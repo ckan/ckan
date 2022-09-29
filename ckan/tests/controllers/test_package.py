@@ -33,13 +33,6 @@ def _get_location(res):
     return urlparse(location)._replace(scheme='', netloc='').geturl()
 
 
-def mock_current_user(current_user):
-    user = factories.User()
-    user_obj = model.User.get(user["name"])
-    # mock current_user
-    current_user.return_value = user_obj
-
-
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestPackageNew(object):
 
@@ -185,28 +178,38 @@ class TestPackageNew(object):
         assert pkg.resources[0].url == u"http://example.com/resource"
         assert pkg.state == "active"
 
-    @mock.patch("flask_login.utils._get_user")
     def test_complete_package_with_two_resources(self, app):
-        mock_current_user(current_user)
+
+        user = factories.User()
 
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, data={
-            "name": name,
-            "save": "",
-            "_ckan_phase": 1
-        }, follow_redirects=False)
+        response = app.post(
+            url,
+            data={
+                "name": name,
+                "save": "",
+                "_ckan_phase": 1
+            },
+            environ_overrides={"REMOTE_USER": user["name"]},
+            follow_redirects=False
+        )
         location = _get_location(response)
         app.post(location, data={
-            "id": "",
-            "url": "http://example.com/resource0",
-            "save": "again"
-        })
+                "id": "",
+                "url": "http://example.com/resource0",
+                "save": "again"
+            },
+
+            environ_overrides={"REMOTE_USER": user["name"]},
+        )
         app.post(location, data={
-            "id": "",
-            "url": "http://example.com/resource1",
-            "save": "go-metadata"
-        })
+                "id": "",
+                "url": "http://example.com/resource1",
+                "save": "go-metadata"
+            },
+            environ_overrides={"REMOTE_USER": user["name"]},
+        )
         pkg = model.Package.by_name(name)
         resources = sorted(pkg.resources, key=lambda r: r.url)
         assert resources[0].url == u"http://example.com/resource0"
@@ -232,23 +235,29 @@ class TestPackageNew(object):
 
         assert '/dataset/edit/' in response.headers['location']
 
-    @mock.patch("flask_login.utils._get_user")
     def test_previous_button_populates_form(self, app):
-        mock_current_user(current_user)
+
+        user = factories.User()
 
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
-        response = app.post(url, data={
-            "name": name,
-            "save": "",
-            "_ckan_phase": 1
-        }, follow_redirects=False)
+        response = app.post(
+            url,
+            environ_overrides={"REMOTE_USER": user["name"]},
+            data={
+                "name": name,
+                "save": "",
+                "_ckan_phase": 1
+            },
+        follow_redirects=False)
 
         location = _get_location(response)
         response = app.post(location, data={
             "id": "",
             "save": "go-dataset"
-        })
+            },
+            environ_overrides={"REMOTE_USER": user["name"]},
+        )
 
         assert 'name="title"' in response
         assert f'value="{name}"'
@@ -814,27 +823,27 @@ class TestPackageDelete(object):
         assert 403 == response.status_code
         assert helpers.body_contains(response, "Unauthorized to delete package")
 
-    @mock.patch("flask_login.utils._get_user")
     def test_confirm_cancel_delete(self, app):
         """Test confirmation of deleting datasets
 
         When package_delete is made as a get request, it should return a
         'do you want to delete this dataset? confirmation page"""
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
-        response = app.get(url_for("dataset.delete", id=dataset["name"]))
+        response = app.get(
+            url_for("dataset.delete", id=dataset["name"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
+        )
         assert 200 == response.status_code
         message = "Are you sure you want to delete dataset - {name}?"
         assert helpers.body_contains(response, message.format(name=dataset["title"]))
 
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={"cancel": ""}
             )
         assert 200 == response.status_code
@@ -1429,16 +1438,12 @@ class TestResourceDelete(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_show", id=resource["id"])
 
-    @mock.patch("flask_login.utils._get_user")
     def test_confirm_and_cancel_deleting_a_resource(self, app):
         """Test confirmation of deleting resources
 
         When resource_delete is made as a get request, it should return a
         'do you want to delete this reource? confirmation page"""
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1449,7 +1454,8 @@ class TestResourceDelete(object):
                 "{}_resource.delete".format(dataset["type"]),
                 id=dataset["name"],
                 resource_id=resource["id"],
-            )
+            ),
+            environ_overrides={"REMOTE_USER": user["name"]},
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete resource - {name}?"
@@ -1461,6 +1467,7 @@ class TestResourceDelete(object):
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={"cancel": ""},
         )
         assert 200 == response.status_code
