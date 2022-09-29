@@ -12,7 +12,7 @@ import logging
 from logging.handlers import SMTPHandler
 from typing import Any, Iterable, Optional, Union, cast
 
-from flask import Blueprint, send_from_directory
+from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
@@ -416,7 +416,11 @@ def ckan_before_request() -> Optional[Response]:
     # Disable CSRF protection if user was logged in via the Authorization
     # header
     if g.get("login_via_auth_header"):
-        csrf.exempt(f"ckan.views.{request.endpoint}")
+        # Get the actual view function, as it might not match the endpoint,
+        # eg "organization.edit" -> "group.edit", or custom dataset types
+        view = current_app.view_functions.get(request.endpoint)
+        dest = f"{view.__module__}.{view.__name__}"
+        csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
