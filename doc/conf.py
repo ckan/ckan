@@ -119,7 +119,7 @@ release = ckan.__version__
 version_re = None
 point_releases_ = None
 
-SUPPORTED_CKAN_VERSIONS = 3
+SUPPORTED_CKAN_VERSIONS = 2
 
 
 def get_release_tags():
