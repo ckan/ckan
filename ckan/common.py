@@ -13,7 +13,7 @@ import logging
 from collections.abc import MutableMapping
 
 from typing import (
-    Any, Iterable, Optional, TYPE_CHECKING,
+    Any, Iterable, List, Optional, TYPE_CHECKING,
     TypeVar, cast, overload, Container, Union)
 from typing_extensions import Literal
 
@@ -29,7 +29,7 @@ from flask_babel import (gettext as flask_ugettext,
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration, Key
-from ckan.types import Model
+from ckan.types import Model, Context
 
 
 if TYPE_CHECKING:
@@ -265,6 +265,28 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return []
     else:
         return [obj]
+
+
+def clean_context(
+    context: Context,
+    fields: Optional[List[str]] = None
+) -> Context:
+    """ Copy just the minimum fields into a new context
+        for cases in which we reuse the context and
+        we want a clean version with minimum fields """
+    new_context = {}
+    if fields is None:
+        fields = [
+            'model', 'session', 'user', 'auth_user_obj',
+            'ignore_auth'
+        ]
+
+    for field in fields:
+        if field in context:
+            new_context[field] = context[field]
+
+    new_context = cast(Context, new_context)
+    return new_context
 
 
 local = Local()
