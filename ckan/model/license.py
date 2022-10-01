@@ -303,7 +303,7 @@ class LicenseOpenGovernment(DefaultLicense):
     id = "uk-ogl"
     od_conformance = 'approved'
     # CS: bad_spelling ignore
-    url = "http://reference.data.gov.uk/id/open-government-licence"
+    url = "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
 
     @property
     def title(self):
