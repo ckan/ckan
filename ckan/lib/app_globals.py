@@ -91,6 +91,14 @@ def set_theme(asset):
     app_globals.theme = asset
 
 
+def set_main_css(css_file):
+    ''' Sets the main_css.  The css_file must be of the form file.css '''
+    assert css_file.endswith('.css')
+    new_css = css_file
+    # FIXME we should check the css file exists
+    app_globals.main_css = str(new_css)
+
+
 def set_app_global(key, value):
     '''
     Set a new key on the app_globals (g) object
@@ -181,6 +189,9 @@ def reset():
     # custom styling
     theme = get_config_value('ckan.theme') or 'css/main'
     set_theme(theme)
+    # legacy -- preserve for extensinos
+    main_css = get_config_value('ckan.main_css', '/base/css/main.css')
+    set_main_css(main_css)
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'
