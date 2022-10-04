@@ -9,6 +9,23 @@ var run_query = function(params, format) {
   form.submit();
 }
 
+var ga_event_tracking = function() {
+  var location_url = encodeURIComponent(window.location);
+  if (location_url) {
+    var url_parse = jQuery(location).prop('pathname').split('/');
+    if (url_parse) {
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'resource',
+        eventAction: 'download',
+        eventLabel: location_url,
+        dimension1: url_parse[jQuery.inArray( "resource", url_parse ) + 1],
+        dimension2: url_parse[jQuery.inArray( "dataset", url_parse ) + 1],
+      });
+    }
+  }
+};
+
 this.ckan.module('datatables_view', function (jQuery) {
   return {
     initialize: function() {
@@ -34,31 +51,51 @@ this.ckan.module('datatables_view', function (jQuery) {
             extend: 'collection',
             buttons: [{
               text: 'CSV',
+              className: 'resource-url-analytics',
+              attr: {
+                  'data-gc-analytics': "manualDownload",
+              },
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'csv');
+                ga_event_tracking();
               }
             }, {
               text: 'TSV',
+              className: 'resource-url-analytics',
+              attr: {
+                  'data-gc-analytics': "manualDownload",
+              },
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'tsv');
+                ga_event_tracking();
               }
             }, {
               text: 'JSON',
+              className: 'resource-url-analytics',
+              attr: {
+                  'data-gc-analytics': "manualDownload",
+              },
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'json');
+                ga_event_tracking();
               }
             }, {
               text: 'XML',
+              className: 'resource-url-analytics',
+              attr: {
+                  'data-gc-analytics': "manualDownload",
+              },
               action: function (e, dt, button, config) {
                 var params = tableInstance.ajax.params();
                 params.visible = tableInstance.columns().visible().toArray();
                 run_query(params, 'xml');
+                ga_event_tracking();
               }
             }]
           });
