@@ -1,0 +1,2 @@
+Creates a `fresh_context` function to allow cleaning the `context` dict preserving most importan values (`user`, `model`, etc)
+
