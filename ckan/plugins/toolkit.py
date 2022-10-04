@@ -31,6 +31,7 @@ from ckan.logic import (  # noqa: re-export
     auth_sysadmins_check,
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
+    fresh_context,
 )
 
 import ckan.plugins.blanket as blanket
@@ -99,7 +100,8 @@ __all__ = [
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint"
+    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "fresh_context",
 ]
 
 get_converter = get_validator

@@ -34,7 +34,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
-from ckan.common import _, clean_context
+from ckan.common import _
 from ckan.types import ActionResult, Context, DataDict, Query, Schema
 
 log = logging.getLogger('ckan.logic')
@@ -1254,7 +1254,7 @@ def _group_or_org_show(
         schema = group_plugin.db_to_form_schema()
 
     if include_followers:
-        context = clean_context(context)
+        context = plugins.toolkit.fresh_context(context)
         group_dict['num_followers'] = logic.get_action('group_follower_count')(
             context,
             {'id': group_dict['id']})
