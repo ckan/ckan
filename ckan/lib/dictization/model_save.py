@@ -87,10 +87,9 @@ def package_resource_list_save(
     # according to their ordering in the obj_list.
     resource_list[:] = obj_list
 
-    # Mark any left-over resources as deleted
+    # Permanently remove any left-over resources
     for resource in set(old_list) - set(obj_list):
-        resource.state = 'deleted'
-        resource_list.append(resource)
+        resource.purge()
 
 
 def package_extras_save(
