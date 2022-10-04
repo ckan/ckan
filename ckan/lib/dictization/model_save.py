@@ -73,8 +73,12 @@ def package_resource_list_save(res_dicts, package, context):
     if res_dicts is None and allow_partial_update:
         return
 
+    session = context['session']
+    model = context['model']
     resource_list = package.resources_all
-    old_list = package.resources_all[:]
+    old_list = session.query(model.Resource) \
+        .filter(model.Resource.package_id == package.id) \
+        .filter(model.Resource.state != 'deleted')[:]
 
     obj_list = []
     for res_dict in res_dicts or []:
