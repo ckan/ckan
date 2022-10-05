@@ -239,21 +239,21 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
     assert "Access-Control-Allow-Headers" not in response_headers
 
 
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_options_2(app):
-    response = app.options(url="/simple_flask", status=200)
+    response = app.options(url="/simple_url", status=200)
     assert len(six.ensure_str(response.data)) == 0, "OPTIONS must return no content"
 
 
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_no_cors_2(app):
     """
     No ckan.cors settings in config, so no Access-Control-Allow headers in
     response.
     """
-    response = app.get("/simple_flask")
+    response = app.get("/simple_url")
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" not in response_headers
@@ -261,7 +261,7 @@ def test_cors_config_no_cors_2(app):
     assert "Access-Control-Allow-Headers" not in response_headers
 
 
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_no_cors_with_origin(app):
     """
@@ -269,7 +269,7 @@ def test_cors_config_no_cors_with_origin(app):
     response, even with origin header in request.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" not in response_headers
@@ -278,14 +278,14 @@ def test_cors_config_no_cors_with_origin(app):
 
 
 @pytest.mark.ckan_config("ckan.cors.origin_allow_all", "true")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_true_no_origin_2(app):
     """
     With origin_allow_all set to true, but no origin in the request
     header, no Access-Control-Allow headers should be in the response.
     """
-    response = app.get("/simple_flask")
+    response = app.get("/simple_url")
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" not in response_headers
@@ -295,7 +295,7 @@ def test_cors_config_origin_allow_all_true_no_origin_2(app):
 
 @pytest.mark.ckan_config("ckan.cors.origin_allow_all", "true")
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_true_with_origin_2(app):
     """
@@ -304,7 +304,7 @@ def test_cors_config_origin_allow_all_true_with_origin_2(app):
     response.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" in response_headers
@@ -321,7 +321,7 @@ def test_cors_config_origin_allow_all_true_with_origin_2(app):
 
 @pytest.mark.ckan_config("ckan.cors.origin_allow_all", "false")
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_origin_without_whitelist_2(
     app,
@@ -332,7 +332,7 @@ def test_cors_config_origin_allow_all_false_with_origin_without_whitelist_2(
     Allow headers in the response.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" not in response_headers
@@ -345,7 +345,7 @@ def test_cors_config_origin_allow_all_false_with_origin_without_whitelist_2(
     "ckan.cors.origin_whitelist", "http://thirdpartyrequests.org"
 )
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_whitelisted_origin_2(app):
     """
@@ -354,7 +354,7 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin_2(app):
     appropriate Access-Control-Allow headers should be in the response.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" in response_headers
@@ -378,7 +378,7 @@ def test_cors_config_origin_allow_all_false_with_whitelisted_origin_2(app):
     "http://google.com http://thirdpartyrequests.org http://yahoo.co.uk",
 )
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
     app,
@@ -390,7 +390,7 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
     the response.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" in response_headers
@@ -413,7 +413,7 @@ def test_cors_config_origin_allow_all_false_with_multiple_whitelisted_origins_2(
     "ckan.cors.origin_whitelist", "http://google.com http://yahoo.co.uk"
 )
 @pytest.mark.ckan_config("ckan.site_url", "http://test.ckan.org")
-@pytest.mark.ckan_config("ckan.plugins", "test_routing_plugin")
+@pytest.mark.ckan_config("ckan.plugins", "test_blueprint_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin_2(
     app,
@@ -425,7 +425,7 @@ def test_cors_config_origin_allow_all_false_with_whitelist_not_containing_origin
     Allow headers in the response.
     """
     request_headers = {"Origin": "http://thirdpartyrequests.org"}
-    response = app.get("/simple_flask", headers=request_headers)
+    response = app.get("/simple_url", headers=request_headers)
     response_headers = dict(response.headers)
 
     assert "Access-Control-Allow-Origin" not in response_headers

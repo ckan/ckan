@@ -262,22 +262,13 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # CSRF
     app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
     csrf.init_app(app)
-    log.warn(csrf_warn_extensions)
 
     # Set up each IBlueprint extension as a Flask Blueprint
-    for plugin in PluginImplementations(IBlueprint):
-        plugin_blueprints = plugin.get_blueprint()
-        # plugin_blueprints must not send as list in csrf.exempt
-        if isinstance(plugin_blueprints, list):
-            plugin_blueprints = plugin_blueprints[0]
-        # we need to exempt CKAN extensions till they are ready
-        # to implement the csrf_token to their forms, otherwise
-        # they will get 400 Bad Request: The CSRF token is missing.
-        if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
-            csrf.exempt(plugin_blueprints)
-        # register extensions blueprints
-        for blueprint in [plugin_blueprints]:
-            app.register_extension_blueprint(blueprint)
+    _register_plugins_blueprints(app)
+
+    if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
+        log.warn(csrf_warn_extensions)
+        _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -546,6 +537,32 @@ class CKANFlask(MultiStaticFlask):
         for r in bp_rules:
             setattr(r, "ckan_core", False)
             setattr(r, "match_compare_key", lambda: top_compare_key)
+
+
+def _register_plugins_blueprints(app: CKANApp):
+    """ Resgister all blueprints defined in plugins by IBlueprint
+    """
+    for plugin in PluginImplementations(IBlueprint):
+        plugin_blueprints = plugin.get_blueprint()
+        if isinstance(plugin_blueprints, list):
+            for blueprint in plugin_blueprints:
+                app.register_extension_blueprint(blueprint)
+        else:
+            app.register_extension_blueprint(plugin_blueprints)
+
+
+def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
+    """Exempt plugins blueprints from CSRF protection.
+
+    This feature will be deprecated in future versions.
+    """
+    for plugin in PluginImplementations(IBlueprint):
+        plugin_blueprints = plugin.get_blueprint()
+        if isinstance(plugin_blueprints, list):
+            for blueprint in plugin_blueprints:
+                csrf.exempt(blueprint)
+        else:
+            csrf.exempt(plugin_blueprints)
 
 
 def _register_core_blueprints(app: CKANApp):
