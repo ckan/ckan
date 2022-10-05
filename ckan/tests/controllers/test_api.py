@@ -397,6 +397,7 @@ def test_header_based_auth_default(app):
 
     assert res.status_code == 200
 
+
 @pytest.mark.usefixtures("clean_db")
 def test_header_based_auth_default_post(app):
 
