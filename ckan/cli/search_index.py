@@ -6,6 +6,8 @@ import multiprocessing as mp
 import click
 import sqlalchemy as sa
 from ckan.common import config
+import ckan.logic as logic
+import ckan.model as model
 from . import error_shout
 
 
@@ -77,38 +79,40 @@ def clear(dataset_name: str):
         clear_all()
 
 
-def list_orphans(return_list: bool=False) -> list|None:
-    import ckan.logic as logic
-    search = logic.get_action('package_search')({},{
+def get_orphans() -> list[str]:
+    search = None
+    indexed_package_ids = []
+    while search is None or len(indexed_package_ids) < search['count']:
+        search = logic.get_action('package_search')({},{
                 'q': '*:*',
-                'fl': 'id'})
-    indexed_package_ids = {r['id'] for r in search['results']}
+                'fl': 'id',
+                'start': len(indexed_package_ids),
+                'rows': 1000})
+        indexed_package_ids += search['results']
 
-    import ckan.model as model
-    from sqlalchemy.sql import select
-    package_ids = {r[0] for r in select([model.package_table.c['id']]).execute()}
+    package_ids = {r[0] for r in model.Session.query(model.Package.id)}
 
     orphaned_package_ids = []
-    for indexed_package_id in indexed_package_ids:
-        if indexed_package_id not in package_ids:
-            orphaned_package_ids.append(indexed_package_id)
 
-    if return_list:
-        return orphaned_package_ids
-    from pprint import pprint
-    pprint(orphaned_package_ids)
+    for indexed_package_id in indexed_package_ids:
+        if indexed_package_id['id'] not in package_ids:
+            orphaned_package_ids.append(indexed_package_id['id'])
+
+    return orphaned_package_ids
 
 
 @search_index.command(name=u'list-orphans', short_help=u'Lists any non-existant packages in the search index')
 def list_orphans_command():
-    return list_orphans()
+    orphaned_package_ids = get_orphans()
+    if len(orphaned_package_ids):
+        click.echo(orphaned_package_ids)
+    click.echo("Found {} orphaned package(s).".format(len(orphaned_package_ids)))
 
 
 @search_index.command(name=u'clear-orphans', short_help=u'Clear any non-existant packages in the search index')
 @click.option(u'-v', u'--verbose', is_flag=True)
 def clear_orphans(verbose: bool=False):
-    from ckan.lib.search import clear
-    for orphaned_package_id in list_orphans(return_list=True):
+    for orphaned_package_id in get_orphans():
         if verbose:
             print("Clearing search index for dataset %s..." % orphaned_package_id)
         clear(orphaned_package_id)
