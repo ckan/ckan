@@ -83,7 +83,7 @@ def get_orphans() -> list[str]:
     search = None
     indexed_package_ids = []
     while search is None or len(indexed_package_ids) < search['count']:
-        search = logic.get_action('package_search')({},{
+        search = logic.get_action('package_search')({}, {
                 'q': '*:*',
                 'fl': 'id',
                 'start': len(indexed_package_ids),
@@ -101,20 +101,30 @@ def get_orphans() -> list[str]:
     return orphaned_package_ids
 
 
-@search_index.command(name=u'list-orphans', short_help=u'Lists any non-existant packages in the search index')
+@search_index.command(
+    name=u'list-orphans',
+    short_help=u'Lists any non-existant packages in the search index'
+)
 def list_orphans_command():
     orphaned_package_ids = get_orphans()
     if len(orphaned_package_ids):
         click.echo(orphaned_package_ids)
-    click.echo("Found {} orphaned package(s).".format(len(orphaned_package_ids)))
+    click.echo("Found {} orphaned package(s).".format(
+        len(orphaned_package_ids)
+    ))
 
 
-@search_index.command(name=u'clear-orphans', short_help=u'Clear any non-existant packages in the search index')
+@search_index.command(
+    name=u'clear-orphans',
+    short_help=u'Clear any non-existant packages in the search index'
+)
 @click.option(u'-v', u'--verbose', is_flag=True)
-def clear_orphans(verbose: bool=False):
+def clear_orphans(verbose: bool = False):
     for orphaned_package_id in get_orphans():
         if verbose:
-            print("Clearing search index for dataset %s..." % orphaned_package_id)
+            click.echo("Clearing search index for dataset {}...".format(
+                orphaned_package_id
+            ))
         clear(orphaned_package_id)
 
 
