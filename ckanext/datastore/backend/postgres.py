@@ -165,43 +165,15 @@ def _rename_field(data_dict, term, replace):
     return data_dict
 
 
-def _get_fields_types(connection, resource_id):
-    u'''
-    return a OrderedDict([(column_name, column_type)...]) for the passed
-    resource_id including '_id' but excluding other '_'-prefixed columns.
-    '''
-    all_fields = _get_fields(connection, resource_id)
+def _get_fields_types(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
     field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
 
 
-def _result_fields(fields_types, field_info, fields):
-    u'''
-    return a list of field information based on the fields present,
-    passed and query passed.
-
-    :param fields_types: OrderedDict returned from _get_fields_types(..)
-        with rank column types added by plugins' datastore_search
-    :param field_info: dict returned from _get_field_info(..)
-    :param fields: list of field names passed to datastore_search
-        or None for all
-    '''
-    result_fields = []
-
-    if fields is None:
-        fields = list(fields_types)
-
-    for field_id in fields:
-        f = {u'id': field_id, u'type': fields_types[field_id]}
-        if field_id in field_info:
-            f[u'info'] = field_info[f['id']]
-        result_fields.append(f)
-    return result_fields
-
-
-def _get_type(connection, oid):
-    _cache_types(connection)
+def _get_type(context, oid):
+    _cache_types(context)
     return _pg_types[oid]
 
 
@@ -277,26 +249,23 @@ def _get_field_info(connection, resource_id):
         return {}
 
 
-def _get_fields(connection, resource_id):
-    u'''
-    return a list of {'id': column_name, 'type': column_type} dicts
-    for the passed resource_id, excluding '_'-prefixed columns.
-    '''
+def _get_fields(context, data_dict):
     fields = []
-    all_fields = connection.execute(
-        u'SELECT * FROM "{0}" LIMIT 1'.format(resource_id)
+    all_fields = context['connection'].execute(
+        u'SELECT * FROM "{0}" LIMIT 1'.format(data_dict['resource_id'])
     )
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
                 'id': field[0].decode('utf-8'),
-                'type': _get_type(connection, field[1])
+                'type': _get_type(context, field[1])
             })
     return fields
 
 
-def _cache_types(connection):
+def _cache_types(context):
     if not _pg_types:
+        connection = context['connection']
         results = connection.execute(
             'SELECT oid, typname FROM pg_type;'
         )
@@ -311,14 +280,14 @@ def _cache_types(connection):
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             engine = backend._get_write_engine()
-            with engine.begin() as write_connection:
-                write_connection.execute(
+            with engine.begin() as connection:
+                connection.execute(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
                         'json' if native_json else 'text'))
             _pg_types.clear()
 
             # redo cache types with json now available.
-            return _cache_types(connection)
+            return _cache_types(context)
 
         try:
             register_composite(
@@ -400,11 +369,10 @@ def _where_clauses(data_dict, fields_types):
                     clause_str = u'_full_text @@ {0}'.format(query_field)
                     clauses.append((clause_str,))
 
-                clause_str = (
-                    u'to_tsvector({0}, cast({1} as text)) @@ {2}').format(
-                        literal_string(lang),
-                        identifier(field),
-                        query_field)
+                clause_str = (u'to_tsvector({0}, cast("{1}" as text)) '
+                              u'@@ {2}').format(
+                                  literal_string(lang),
+                                  field, query_field)
                 clauses.append((clause_str,))
 
     return clauses
@@ -439,6 +407,7 @@ def _textsearch_query(data_dict):
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
     query_alias = _ts_query_alias(field)
+    rank_alias = _ts_rank_alias(field)
     lang_literal = literal_string(lang)
     query_literal = literal_string(query)
     if plain:
@@ -449,12 +418,14 @@ def _build_query_and_rank_statements(lang, query, plain, field=None):
         lang_literal=lang_literal,
         literal=query_literal, alias=query_alias)
     if field is None:
-        rank_field = u'_full_text'
+        rank_field = '_full_text'
     else:
-        rank_field = u'to_tsvector({0}, cast({1} as text))'.format(
-            lang_literal, identifier(field))
-    rank_statement = u'ts_rank({0}, {1}, 32)'.format(
-        rank_field, query_alias)
+        rank_field = u'to_tsvector({lang_literal}, cast("{field}" as text))'
+        rank_field = rank_field.format(lang_literal=lang_literal, field=field)
+    rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
+    rank_statement = rank_statement.format(rank_field=rank_field,
+                                           query_alias=query_alias,
+                                           alias=rank_alias)
     return statement, rank_statement
 
 
@@ -465,18 +436,25 @@ def _fts_lang(lang=None):
     return lang or default_fts_lang
 
 
-def _sort(sort, fields_types, rank_columns):
-    u'''
-    :param sort: string or list sort parameter passed to datastore_search,
-        use None if not given
-    :param fields_types: OrderedDict returned from _get_fields_types(..)
-    :param rank_columns: rank_columns returned from _ts_query(..)
+def _ts_rank_alias(field=None):
+    rank_alias = u'rank'
+    if field:
+        rank_alias += u' ' + field
+    return u'"{0}"'.format(rank_alias)
 
-    returns sort expression as a string. When sort is None use rank_columns
-    to order by best text search match
-    '''
+
+def _sort(data_dict, fields_types):
+    sort = data_dict.get('sort')
     if not sort:
-        return rank_columns.values()
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, string_types):
+                return [_ts_rank_alias()]
+            elif isinstance(q, dict):
+                return [_ts_rank_alias(field) for field in q
+                        if field not in fields_types]
+        else:
+            return []
 
     clauses = datastore_helpers.get_list(sort, False)
 
@@ -494,7 +472,7 @@ def _ts_query_alias(field=None):
     query_alias = u'query'
     if field:
         query_alias += u' ' + field
-    return identifier(query_alias)
+    return u'"{0}"'.format(query_alias)
 
 
 def _get_aliases(context, data_dict):
@@ -773,7 +751,7 @@ def create_indexes(context, data_dict):
     sql_index_string = sql_index_tmpl + u' ({fields})'
     sql_index_strings = []
 
-    fields = _get_fields(connection, data_dict['resource_id'])
+    fields = _get_fields(context, data_dict)
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
@@ -938,8 +916,7 @@ def alter_table(context, data_dict):
     :type records: list of dicts
     '''
     supplied_fields = data_dict.get('fields', [])
-    current_fields = _get_fields(
-        context['connection'], data_dict['resource_id'])
+    current_fields = _get_fields(context, data_dict)
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
@@ -1030,7 +1007,7 @@ def upsert_data(context, data_dict):
 
     method = data_dict.get('method', _UPSERT)
 
-    fields = _get_fields(context['connection'], data_dict['resource_id'])
+    fields = _get_fields(context, data_dict)
     field_names = _pluck('id', fields)
     records = data_dict['records']
     sql_columns = ", ".join(
@@ -1047,8 +1024,6 @@ def upsert_data(context, data_dict):
                 if value and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
-                if value == '' and field['type'] != 'text':
-                    value = None
                 row.append(value)
             rows.append(row)
 
@@ -1093,8 +1068,6 @@ def upsert_data(context, data_dict):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
-                if value == '' and field['type'] != 'text':
-                    record[field['id']] = None
 
             non_existing_filed_names = [field for field in record
                                         if field not in field_names]
@@ -1174,8 +1147,7 @@ def upsert_data(context, data_dict):
 
 
 def validate(context, data_dict):
-    fields_types = _get_fields_types(
-        context['connection'], data_dict['resource_id'])
+    fields_types = _get_fields_types(context, data_dict)
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -1221,8 +1193,7 @@ def validate(context, data_dict):
 
 def search_data(context, data_dict):
     validate(context, data_dict)
-    fields_types = _get_fields_types(
-        context['connection'], data_dict['resource_id'])
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'select': [],
@@ -1314,11 +1285,15 @@ def search_data(context, data_dict):
             records = LazyJSONObject(v)
     data_dict['records'] = records
 
-    data_dict['fields'] = _result_fields(
-        fields_types,
-        _get_field_info(context['connection'], data_dict['resource_id']),
-        datastore_helpers.get_list(data_dict.get('fields')))
-
+    field_info = _get_field_info(
+        context['connection'], data_dict['resource_id'])
+    result_fields = []
+    for field_id, field_type in fields_types.iteritems():
+        f = {u'id': field_id, u'type': field_type}
+        if field_id in field_info:
+            f['info'] = field_info[f['id']]
+        result_fields.append(f)
+    data_dict['fields'] = result_fields
     _unrename_json_field(data_dict)
 
     _insert_links(data_dict, limit, offset)
@@ -1355,7 +1330,7 @@ def format_results(context, results, data_dict):
     for field in results.cursor.description:
         result_fields.append({
             'id': field[0].decode('utf-8'),
-            'type': _get_type(context['connection'], field[1])
+            'type': _get_type(context, field[1])
         })
 
     records = []
@@ -1373,8 +1348,7 @@ def format_results(context, results, data_dict):
 
 def delete_data(context, data_dict):
     validate(context, data_dict)
-    fields_types = _get_fields_types(
-        context['connection'], data_dict['resource_id'])
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'where': []
@@ -1452,10 +1426,7 @@ def upsert(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
         upsert_data(context, data_dict)
-        if data_dict.get(u'dry_run', False):
-            trans.rollback()
-        else:
-            trans.commit()
+        trans.commit()
         return _unrename_json_field(data_dict)
     except IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
@@ -1492,7 +1463,7 @@ def search(context, data_dict):
     engine = backend._get_read_engine()
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
+    _cache_types(context)
 
     try:
         context['connection'].execute(
@@ -1521,7 +1492,7 @@ def search_sql(context, data_dict):
 
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
+    _cache_types(context)
 
     sql = data_dict['sql'].replace('%', '%%')
 
@@ -1736,26 +1707,16 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         fields = data_dict.get('fields')
 
-        ts_query, rank_columns = _textsearch_query(
-            _fts_lang(data_dict.get('lang')),
-            data_dict.get('q'),
-            data_dict.get('plain', True))
-        # mutate parameter to add rank columns for _result_fields
-        for rank_alias in rank_columns:
-            fields_types[rank_alias] = u'float'
-
         if fields:
             field_ids = datastore_helpers.get_list(fields)
         else:
             field_ids = fields_types.keys()
 
+        ts_query, rank_column = _textsearch_query(data_dict)
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
-        sort = _sort(
-            data_dict.get('sort'),
-            fields_types,
-            rank_columns)
+        sort = _sort(data_dict, fields_types)
         where = _where_clauses(data_dict, fields_types)
 
         select_cols = []
@@ -1771,15 +1732,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     fmt = u"to_json({0})".format(fmt)
             elif typ.startswith(u'_') or typ.endswith(u'[]'):
                 fmt = u'array_to_json({0})'
-
-            if field_id in rank_columns:
-                select_cols.append((fmt + ' as {1}').format(
-                    rank_columns[field_id], identifier(field_id)))
-                continue
-
             if records_format == u'objects':
                 fmt += u' as {0}'
-            select_cols.append(fmt.format(identifier(field_id)))
+            select_cols.append(fmt.format(
+                identifier(field_id)))
+        if rank_column:
+            select_cols.append(rank_column)
 
         query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
@@ -1794,7 +1752,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def delete(self, context, data_dict):
         engine = self._get_write_engine()
         context['connection'] = engine.connect()
-        _cache_types(context['connection'])
+        _cache_types(context)
 
         trans = context['connection'].begin()
         try:
@@ -1836,7 +1794,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         engine = get_write_engine()
         context['connection'] = engine.connect()
         timeout = context.get('query_timeout', _TIMEOUT)
-        _cache_types(context['connection'])
+        _cache_types(context)
 
         _rename_json_field(data_dict)
 
@@ -2004,9 +1962,7 @@ def create_function(name, arguments, rettype, definition, or_replace):
         or_replace=u'OR REPLACE' if or_replace else u'',
         name=identifier(name),
         args=u', '.join(
-            u'{argmode} {argname} {argtype}'.format(
-                # validator OneOf checks for safety of argmode
-                argmode=a['argmode'] if 'argmode' in a else '',
+            u'{argname} {argtype}'.format(
                 argname=identifier(a['argname']),
                 argtype=identifier(a['argtype']))
             for a in arguments),
