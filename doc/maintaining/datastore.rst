@@ -205,7 +205,7 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
-To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
+To install this please look at the docs here: https://github.com/ckan/datapusher
 
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.

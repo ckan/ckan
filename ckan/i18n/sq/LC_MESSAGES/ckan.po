@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2018
+# Ina Z <ina.zjarri@tirana.al>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-03-31 17:05+0200\n"
 "PO-Revision-Date: 2018-03-27 14:15+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2018\n"
+"Last-Translator: Ina Z <ina.zjarri@tirana.al>, 2022\n"
 "Language-Team: Albanian (https://www.transifex.com/okfn/teams/11162/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -794,7 +795,7 @@ msgstr "{actor} shtoi ekstra {extra} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:109
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr "{actor} shtoi burimin {resource} në setin e të dhënave {dataset}"
+msgstr "{actor} shtoi burimin {resource} ne setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:112
 msgid "{actor} signed up"
@@ -2289,7 +2290,7 @@ msgstr "Regjistrohu"
 #: ckan/templates/user/read.html:11 ckan/templates/user/read_base.html:19
 #: ckan/templates/user/read_base.html:53
 msgid "Datasets"
-msgstr "Seti i të dhënave"
+msgstr "Dataset"
 
 #: ckan/templates/header.html:94
 msgid "Search Datasets"

@@ -296,6 +296,42 @@ Default value:  ``True``
 This option allows you to disable the datastore_search_sql action function, and
 corresponding API endpoint if you do not wish it to be activated.
 
+This action function has protections from abuse including:
+
+- parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+- parsing of the query to prevent multiple statements
+- prevention of data modification by using a read-only database role
+- use of ``explain`` to resolve tables accessed in the query to check against user permissions
+- use of a statement timeout to prevent queries from running indefinitely
+
+These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
+
+
+.. _ckan.datastore.sqlsearch.allowed_functions_file:
+
+ckan.datastore.sqlsearch.allowed_functions_file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.allowed_functions_file = /path/to/my_allowed_functions.txt
+
+Default value: File included in the source code at ``ckanext/datastore/allowed_functions.txt``.
+
+Allows to define the path to a text file listing the SQL functions that should be allowed to run
+on queries sent to the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` function
+(if enabled, see :ref:`ckan.datastore.sqlsearch.enabled`). Function names should be listed one on
+each line, eg::
+
+    abbrev
+    abs
+    abstime
+    ...
+
+
+
+
+
 Site Settings
 -------------
 
@@ -433,6 +469,34 @@ Example::
 Default value: ``http https ftp``
 
 Controls what uri schemes are rendered as links.
+
+.. _ckan.requests.timeout:
+
+ckan.requests.timeout
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.requests.timeout = 3
+
+Default value: 5
+
+Default timeout for GET requests performed by the requests library.
+
+
+.. _ckan.resource_proxy.timeout:
+
+ckan.resource_proxy.timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.resource_proxy.timeout = 5
+
+Default value: 10
+
+Default timeout for GET requests performed in the resourceproxy plugin by the requests library.
+
 
 .. _config-authorization:
 
@@ -744,6 +808,39 @@ Example::
 Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
+
+
+.. _ckan.group_and_organization_list_max:
+
+ckan.group_and_organization_list_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_max = 1000
+
+Default value: ``1000``
+
+Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=false``
+* ``organization_list``'s ``limit`` when ``all_fields=false``
+
+.. _ckan.group_and_organization_list_all_fields_max:
+
+ckan.group_and_organization_list_all_fields_max
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.group_and_organization_list_all_fields_max = 100
+
+Default value: ``25``
+
+Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+* ``group_list``'s ``limit`` when ``all_fields=true``
+* ``organization_list``'s ``limit`` when ``all_fields=true``
 
 
 Redis Settings
@@ -1802,6 +1899,33 @@ Default value: (none)
 If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
+
+.. _ckan.i18n.rtl_languages:
+
+ckan.i18n.rtl_languages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_languages = he ar fa_IR
+
+Default value: ``he ar fa_IR``
+
+Allows to modify the right-to-left languages
+
+.. _ckan.i18n.rtl_css:
+
+ckan.i18n.rtl_css
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+
+Default value: ``/base/css/rtl.css``
+
+Allows to override the default rtl css file used for the languages defined
+in ``ckan.i18n.rtl_languages``.
 
 .. _ckan.display_timezone:
 

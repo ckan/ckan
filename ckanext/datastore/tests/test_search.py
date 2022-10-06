@@ -843,6 +843,35 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
         sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
         helpers.call_action('datastore_search_sql', sql=sql)
 
+    def test_works_with_allowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT upper(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_not_authorized_with_disallowed_functions(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = "SELECT query_to_xml('SELECT upper(author) from \"{}\"', true, true, '')".format(
+            resource["id"]
+        )
+        assert_raises(p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
+
     def test_invalid_statement(self):
         query = 'SELECT ** FROM foobar'
         data = {'sql': query}
@@ -1004,6 +1033,40 @@ class TestDatastoreSQLLegacyTests(DatastoreLegacyTestBase):
             res_dict = json.loads(res.body)
             assert res_dict['success'] is False
             assert res_dict['error']['__type'] == 'Authorization Error'
+
+    def test_allowed_functions_are_case_insensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT UpPeR(author) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+    def test_quoted_allowed_functions_are_case_sensitive(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [{"author": "bob"}, {"author": "jane"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        sql = 'SELECT count(*) from "{}"'.format(
+            resource["id"]
+        )
+        helpers.call_action("datastore_search_sql", sql=sql)
+
+        sql = 'SELECT CoUnT(*) from "{}"'.format(
+            resource["id"]
+        )
+        assert_raises(p.toolkit.NotAuthorized,
+            helpers.call_action, "datastore_search_sql", sql=sql)
 
 
 class TestDatastoreSQLFunctional(DatastoreFunctionalTestBase):

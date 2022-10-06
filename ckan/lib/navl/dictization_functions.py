@@ -437,28 +437,31 @@ def unflatten(data):
     '''
 
     unflattened = {}
-    convert_to_list = []
+    clean_lists = {}
 
     for flattend_key in sorted(data.keys(), key=flattened_order_key):
         current_pos = unflattened
 
-        if (len(flattend_key) > 1
-                and not flattend_key[0] in convert_to_list
-                and not flattend_key[0] in unflattened):
-            convert_to_list.append(flattend_key[0])
-
         for key in flattend_key[:-1]:
             try:
                 current_pos = current_pos[key]
+            except IndexError:
+                while True:
+                    new_pos = {}
+                    current_pos.append(new_pos)
+                    if key < len(current_pos):
+                        break
+                    # skipped list indexes need to be removed before returning
+                    clean_lists[id(current_pos)] = current_pos
+                current_pos = new_pos
             except KeyError:
-                new_pos = {}
+                new_pos = []
                 current_pos[key] = new_pos
                 current_pos = new_pos
         current_pos[flattend_key[-1]] = data[flattend_key]
 
-    for key in convert_to_list:
-        unflattened[key] = [unflattened[key][s]
-                            for s in sorted(unflattened[key])]
+    for cl in clean_lists.values():
+        cl[:] = [i for i in cl if i]
 
     return unflattened
 

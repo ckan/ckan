@@ -104,7 +104,7 @@ def output_feed(results, feed_title, feed_description, feed_link, feed_url,
             title=pkg.get(u'title', u''),
             link=h.url_for(
                 u'api.action',
-                logic_function=u'package_read',
+                logic_function=u'package_show',
                 id=pkg['id'],
                 ver=3,
                 _external=True),
@@ -141,6 +141,8 @@ def group(id):
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
         base.abort(404, _(u'Group not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Not authorized to see this page'))
 
     return group_or_organization(group_dict, is_org=False)
 
@@ -158,6 +160,8 @@ def organization(id):
         })
     except logic.NotFound:
         base.abort(404, _(u'Organization not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Not authorized to see this page'))
 
     return group_or_organization(group_dict, is_org=True)
 

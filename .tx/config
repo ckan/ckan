@@ -11,3 +11,5 @@ type = PO
 # Transifex vs Babel (& CKAN)
 # 'sr@Latin'  vs 'sr_Latn'
 trans.sr@latin = ckan/i18n/sr_Latn/LC_MESSAGES/ckan.po
+trans.zh_CN = ckan/i18n/zh_Hans_CN/LC_MESSAGES/ckan.po
+trans.zh_TW = ckan/i18n/zh_Hant_TW/LC_MESSAGES/ckan.po

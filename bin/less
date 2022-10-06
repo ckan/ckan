@@ -11,11 +11,10 @@ function now() {
   return new Date().toISOString().replace('T', ' ').substr(0, 19);
 }
 
-function compile(event, filename) {
-  var start = Date.now(),
-      filename = 'main.css';
+function lessc(filename, doneCallback) {
+  var start = Date.now();
 
-  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/main.less > ' + __dirname + '/../ckan/public/base/css/' + filename, function (err, stdout, stderr) {
+  exec('`npm bin`/lessc ' + __dirname + '/../ckan/public/base/less/'+filename+'.less > ' + __dirname + '/../ckan/public/base/css/' + filename + '.css', function (err, stdout, stderr) {
     var duration = Date.now() - start;
 
     if (err) {
@@ -25,9 +24,17 @@ function compile(event, filename) {
     else if (stderr || stdout) {
       console.log(stdout, stderr);
     } else {
-      console.log('[%s] recompiled ' + filename + ' in %sms', now(), duration);
+      console.log('[%s] recompiled ' + filename + '.less in %sms', now(), duration);
+    }
+    if (doneCallback) {
+      doneCallback();
     }
   });
+}
+
+function compile(event, filename) {
+  var start = Date.now();
+  lessc('main', function() {lessc('main-rtl');});
 }
 
 if (lastArg === '-p' || lastArg === '--production') {

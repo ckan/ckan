@@ -2025,16 +2025,17 @@ class LessCommand(CkanCommand):
         self.compile_less(root, less_bin, 'main')
 
     def compile_less(self, root, less_bin, color):
-        print('compile %s.css' % color)
         import subprocess
-        main_less = os.path.join(root, 'less', 'main.less')
-        main_css = os.path.join(root, 'css', '%s.css' % color)
+        for dir_prefix in ['', '-rtl']:
+            print('compile %s.css' % (color + dir_prefix))
+            main_less = os.path.join(root, 'less', 'main%s.less' % dir_prefix)
+            main_css = os.path.join(root, 'css', '%s.css' % (color + dir_prefix))
 
-        command = '%s %s %s' % (less_bin, main_less, main_css)
+            command = '%s %s %s' % (less_bin, main_less, main_css)
 
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        output = process.communicate()
-        print(output)
+            process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            output = process.communicate()
+            print(output)
 
 
 class FrontEndBuildCommand(CkanCommand):

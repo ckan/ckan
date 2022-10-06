@@ -74,6 +74,11 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+_SQL_FUNCTIONS_ALLOWLIST_FILE = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), u"..", "allowed_functions.txt"
+)
+
+
 if not os.environ.get('DATASTORE_LOAD'):
     ValidationError = toolkit.ValidationError
 else:
@@ -384,7 +389,7 @@ def _where_clauses(data_dict, fields_types):
             clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
             clauses.append((clause_str,))
         elif isinstance(q, dict):
-            lang = _fts_lang(data_dict.get('lang'))
+            lang = _fts_lang(data_dict.get('language'))
             for field, value in q.iteritems():
                 if field not in fields_types:
                     continue
@@ -405,35 +410,31 @@ def _where_clauses(data_dict, fields_types):
     return clauses
 
 
-def _textsearch_query(lang, q, plain):
-    u'''
-    :param lang: language for to_tsvector
-    :param q: string to search _full_text or dict to search columns
-    :param plain: True to use plainto_tsquery, False for to_tsquery
+def _textsearch_query(data_dict):
+    q = data_dict.get('q')
+    lang = _fts_lang(data_dict.get('language'))
 
-    return (query, rank_columns) based on passed text/dict query
-    rank_columns is a {alias: statement} dict where alias is "rank" for
-    _full_text queries, and "rank <column-name>" for column search
-    '''
     if not q:
-        return '', {}
+        return '', ''
 
     statements = []
-    rank_columns = {}
+    rank_columns = []
+    plain = data_dict.get('plain', True)
     if isinstance(q, string_types):
         query, rank = _build_query_and_rank_statements(
             lang, q, plain)
         statements.append(query)
-        rank_columns[u'rank'] = rank
+        rank_columns.append(rank)
     elif isinstance(q, dict):
         for field, value in q.iteritems():
             query, rank = _build_query_and_rank_statements(
                 lang, value, plain, field)
             statements.append(query)
-            rank_columns[u'rank ' + field] = rank
+            rank_columns.append(rank)
 
     statements_str = ', ' + ', '.join(statements)
-    return statements_str, rank_columns
+    rank_columns_str = ', '.join(rank_columns)
+    return statements_str, rank_columns_str
 
 
 def _build_query_and_rank_statements(lang, query, plain, field=None):
@@ -565,7 +566,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
-    fts_lang = data_dict.get('lang', default_fts_lang)
+    fts_lang = data_dict.get('language', default_fts_lang)
 
     # create full-text search indexes
     def to_tsvector(x):
@@ -677,7 +678,7 @@ def _insert_links(data_dict, limit, offset):
 
     # change the offset in the url
     parsed = list(urlparse.urlparse(urlstring))
-    query = urllib2.unquote(parsed[4])
+    query = parsed[4]
 
     arguments = dict(urlparse.parse_qsl(query))
     arguments_start = dict(arguments)
@@ -1248,6 +1249,9 @@ def search_data(context, data_dict):
     else:
         distinct = ''
 
+    if not sort and not distinct:
+        sort = ['_id']
+
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
@@ -1526,14 +1530,27 @@ def search_sql(context, data_dict):
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
-        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        get_names = datastore_helpers.get_table_and_function_names_from_sql
+        table_names, function_names = get_names(context, sql)
         log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
+        log.debug('Functions involved in input SQL: {0!r}'.format(
+            function_names))
 
         if any(t.startswith('pg_') for t in table_names):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
         context['check_access'](table_names)
+
+        for f in function_names:
+            for name_variant in [f.lower(), '"{}"'.format(f)]:
+                if name_variant in backend.allowed_sql_functions:
+                    break
+            else:
+                raise toolkit.NotAuthorized({
+                    'permissions': [
+                        'Not authorized to call function {}'.format(f)]
+                })
 
         results = context['connection'].execute(sql)
 
@@ -1662,6 +1679,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         # Check whether users have disabled datastore_search_sql
         self.enable_sql_search = toolkit.asbool(
             self.config.get('ckan.datastore.sqlsearch.enabled', True))
+
+        if self.enable_sql_search:
+            allowed_sql_functions_file = self.config.get(
+                'ckan.datastore.sqlsearch.allowed_functions_file',
+                _SQL_FUNCTIONS_ALLOWLIST_FILE
+            )
+
+            def format_entry(line):
+                '''Prepare an entry from the 'allowed_functions' file
+                to be used in the whitelist.
+
+                Leading and trailing whitespace is removed, and the
+                entry is lowercased unless enclosed in "double quotes".
+                '''
+                entry = line.strip()
+                if not entry.startswith('"'):
+                    entry = entry.lower()
+                return entry
+
+            with open(allowed_sql_functions_file, 'r') as f:
+                self.allowed_sql_functions = set(format_entry(line)
+                                                 for line in f)
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.

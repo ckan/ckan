@@ -52,23 +52,6 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
-def _filter_activity_by_user(activity_list, users=[]):
-    '''
-    Return the given ``activity_list`` with activities from the specified
-    users removed. The users parameters should be a list of ids.
-
-    A *new* filtered list is returned, the given ``activity_list`` itself is
-    not modified.
-    '''
-    if not len(users):
-        return activity_list
-    new_list = []
-    for activity in activity_list:
-        if activity.user_id not in users:
-            new_list.append(activity)
-    return new_list
-
-
 def _activity_stream_get_filtered_users():
     '''
     Get the list of users from the :ref:`ckan.hide_activity_from_users` config
@@ -340,6 +323,22 @@ def _group_or_org_list(context, data_dict, is_org=False):
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
+
+    if all_fields:
+        # all_fields is really computationally expensive, so need a tight limit
+        try:
+            max_limit = int(config.get(
+                'ckan.group_and_organization_list_all_fields_max', 25))
+        except ValueError:
+            max_limit = 25
+    else:
+        try:
+            max_limit = int(config.get('ckan.group_and_organization_list_max', 1000))
+        except ValueError:
+            max_limit = 1000
+
+    if limit is None or int(limit) > max_limit:
+        limit = max_limit
 
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
@@ -827,7 +826,9 @@ def user_list(context, data_dict):
       string (optional) (you must be a sysadmin to use this filter)
     :type email: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
+      ``'display_name'``). Users can be sorted by ``'id'``, ``'name'``,
+      ``'fullname'``, ``'display_name'``, ``'created'``, ``'about'``,
+      ``'sysadmin'`` or ``'number_created_packages'``.
     :type order_by: string
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
@@ -845,7 +846,7 @@ def user_list(context, data_dict):
 
     q = data_dict.get('q', '')
     email = data_dict.get('email')
-    order_by = data_dict.get('order_by', 'name')
+    order_by = data_dict.get('order_by', 'display_name')
     all_fields = asbool(data_dict.get('all_fields', True))
 
     if all_fields:
@@ -875,17 +876,34 @@ def user_list(context, data_dict):
     if email:
         query = query.filter_by(email=email)
 
+    order_by_field = None
     if order_by == 'edits':
-        query = query.order_by(_desc(
-            _select([_func.count(model.Revision.id)],
-                    model.Revision.author == model.User.name)))
-    else:
+        raise ValidationError('order_by=edits is no longer supported')
+    elif order_by == 'number_created_packages':
+        order_by_field = order_by
+    elif order_by != 'display_name':
+        try:
+            order_by_field = getattr(model.User, order_by)
+        except AttributeError:
+            pass
+    if order_by == 'display_name' or order_by_field is None:
         query = query.order_by(
-            _case([(
-                _or_(model.User.fullname == None,
-                     model.User.fullname == ''),
-                model.User.name)],
-                else_=model.User.fullname))
+            _case(
+                [(
+                    _or_(
+                        model.User.fullname == None,
+                        model.User.fullname == ''
+                    ),
+                    model.User.name
+                )],
+                else_=model.User.fullname
+            )
+        )
+    elif order_by_field == 'number_created_packages' or order_by_field == 'fullname' \
+            or order_by_field == 'about' or order_by_field == 'sysadmin':
+        query = query.order_by(order_by_field, model.User.name)
+    else:
+        query = query.order_by(order_by_field)
 
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
@@ -1433,11 +1451,14 @@ def user_show(context, data_dict):
     if id:
         user_obj = model.User.get(id)
         context['user_obj'] = user_obj
-        if user_obj is None:
-            raise NotFound
     elif provided_user:
         context['user_obj'] = user_obj = provided_user
     else:
+        raise NotFound
+
+    _check_access('user_show', context, data_dict)
+
+    if not bool(user_obj):
         raise NotFound
 
     # include private and draft datasets?
@@ -2178,7 +2199,7 @@ def _tag_search(context, data_dict):
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
-            raise NotFound
+            return [], 0
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
@@ -2488,10 +2509,8 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-            offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_objects = model.activity.user_activity_list(
+        user.id, limit=limit, offset=offset)
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2518,7 +2537,7 @@ def package_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('package_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
 
     package_ref = data_dict.get('id')  # May be name or ID.
@@ -2529,20 +2548,11 @@ def package_activity_list(context, data_dict):
 
     offset = int(data_dict.get('offset', 0))
     limit = int(
-        data_dict.get(
-            'limit',
-            config.get('ckan.activity_list_limit', 31)
-        )
-    )
+        data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.package_activity_list(
-        package.id,
-        limit=limit,
-        offset=offset
-    )
-    activity_objects = _filter_activity_by_user(
-        _activity_objects,
-        _activity_stream_get_filtered_users()
+    activity_objects = model.activity.package_activity_list(
+        package.id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
     )
 
     return model_dictize.activity_list_dictize(activity_objects, context)
@@ -2570,7 +2580,7 @@ def group_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('group_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
     group_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
@@ -2581,10 +2591,10 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    _activity_objects = model.activity.group_activity_list(group_id,
-            limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+    activity_objects = model.activity.group_activity_list(
+        group_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2602,7 +2612,7 @@ def organization_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     _check_access('organization_show', context, data_dict)
-
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
     model = context['model']
     org_id = data_dict.get('id')
     offset = data_dict.get('offset', 0)
@@ -2613,12 +2623,10 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    activity_objects = model.activity.group_activity_list(org_id,
-            limit=limit, offset=offset)
-    """
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
-    """
+    activity_objects = model.activity.organization_activity_list(
+        org_id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+    )
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2645,10 +2653,9 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    _activity_objects = model.activity.recently_changed_packages_activity_list(
+    activity_objects = \
+        model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -3176,11 +3183,9 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    _activity_objects = model.activity.dashboard_activity_list(user_id,
-            limit=limit, offset=offset)
+    activity_objects = model.activity.dashboard_activity_list(
+        user_id, limit=limit, offset=offset)
 
-    activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 

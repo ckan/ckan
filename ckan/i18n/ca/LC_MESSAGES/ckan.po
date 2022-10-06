@@ -3374,9 +3374,9 @@ msgid ""
 msgstr ""
 "L'explorador de dades pot ser lent i poc fiable si la extensió de la "
 "DataStore no està habilitada. Per a més informació, si us plau consulteu la "
-"<a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>documentació de "
-"l'explorador de dades</a>. "
+"<a href='http://docs.ckan.org/en/latest/maintaining/data-"
+"viewer.html#viewing-structured-data-the-data-explorer' "
+"target='_blank'>documentació de l'explorador de dades</a>. "
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:83

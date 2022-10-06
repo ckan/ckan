@@ -25,7 +25,10 @@ import ckan.model as model
 from ckan.lib import base
 from ckan.lib import helpers
 from ckan.lib import jinja_extensions
+from ckan.lib import uploader
+from ckan.lib import i18n
 from ckan.common import config, g, request, ungettext
+from ckan.config.middleware.common_middleware import HostHeaderMiddleware
 import ckan.lib.app_globals as app_globals
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint, IMiddleware, ITranslation
@@ -137,6 +140,7 @@ def make_flask_stack(conf, **app_conf):
     # Template context processors
     app.context_processor(helper_functions)
     app.context_processor(c_object)
+    app.context_processor(request_object)
 
     @app.context_processor
     def ungettext_alias():
@@ -147,7 +151,11 @@ def make_flask_stack(conf, **app_conf):
         return dict(ungettext=ungettext)
 
     # Babel
-    pairs = [(os.path.join(root, u'i18n'), 'ckan')] + [
+    _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
+
+    pairs = [
+        (_ckan_i18n_dir, u'ckan')
+    ] + [
         (p.i18n_directory(), p.i18n_domain())
         for p in PluginImplementations(ITranslation)
     ]
@@ -157,6 +165,7 @@ def make_flask_stack(conf, **app_conf):
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
     app.config[u'BABEL_DOMAIN'] = 'ckan'
     app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(helpers.get_display_timezone())
 
     babel = CKANBabel(app)
 
@@ -265,6 +274,9 @@ def make_flask_stack(conf, **app_conf):
     for key in flask_config_keys:
         config[key] = flask_app.config[key]
 
+    # Prevent the host from request to be added to the new header location.
+    app = HostHeaderMiddleware(app)
+
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
 
@@ -283,18 +295,28 @@ def get_locale():
 
 
 def ckan_before_request():
-    u'''Common handler executed before all Flask requests'''
+    u'''
+    Common handler executed before all Flask requests
+
+    If a response is returned by any of the functions called (
+    currently ``identify_user()` only) any further processing of the
+    request will be stopped and that response will be returned.
+
+    '''
+    response = None
 
     # Update app_globals
     app_globals.app_globals._check_uptodate()
 
     # Identify the user from the repoze cookie or the API header
     # Sets g.user and g.userobj
-    identify_user()
+    response = identify_user()
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
     set_controller_and_action()
+
+    return response
 
 
 def ckan_after_request(response):
@@ -328,6 +350,11 @@ def c_object():
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
+
+
+def request_object():
+    u"""Use CKANRequest object implicitly in templates"""
+    return dict(request=request)
 
 
 class CKAN_Rule(Rule):
