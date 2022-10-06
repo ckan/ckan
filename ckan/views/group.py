@@ -429,6 +429,7 @@ def read(group_type: str,
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
+        data_dict['include_dataset_count'] = False
 
         # Do not query group members as they aren't used in the view
         data_dict['include_users'] = False
