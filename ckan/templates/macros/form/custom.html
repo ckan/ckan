@@ -36,7 +36,7 @@ error=''
 {%- do classes.append('control-custom') -%}
 
 {% call input_block(label_id, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
-<div class="row">
+<div class="row custom-component">
     <div class="col-md-6">
     <div class="input-group" {{ attributes(attrs) }}>
         <label class="input-group-text">{{ _('Key') }}</label>
