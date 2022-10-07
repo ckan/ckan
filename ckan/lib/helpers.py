@@ -1979,7 +1979,7 @@ def popular(type_: str,
 def groups_available(am_member: bool = False,
                      include_dataset_count: bool = False,
                      include_member_count: bool = False,
-                     user: str = None) -> list[dict[str, Any]]:
+                     user: Union[str, None] = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -2003,7 +2003,7 @@ def groups_available(am_member: bool = False,
 def organizations_available(permission: str = 'manage_group',
                             include_dataset_count: bool = False,
                             include_member_count: bool = False,
-                            user: str = None) -> list[dict[str, Any]]:
+                            user: Union[str, None] = None) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
