@@ -583,7 +583,10 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
         u"group_dict": group_dict,
         u"group_type": group_type,
     }
-    return base.render(_replace_group_org(u'group/manage_members.html'), extra_vars)
+    return base.render(
+        _replace_group_org(u'group/manage_members.html'),
+        extra_vars
+    )
 
 
 def member_delete(id: str, group_type: str,
@@ -613,7 +616,10 @@ def member_delete(id: str, group_type: str,
                 u'user_id': user_id
             })
             h.flash_notice(_(u'Group member has been deleted.'))
-            return h.redirect_to(u'{}.manage_members'.format(group_type), id=id)
+            return h.redirect_to(
+                u'{}.manage_members'.format(
+                    group_type
+                ), id=id)
         user_dict = _action(u'user_show')(context, {u'id': user_id})
 
     except NotAuthorized:
@@ -1251,7 +1257,9 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
     blueprint.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
     blueprint.add_url_rule(
-        u'/manage_members/<id>', methods=[u'GET', u'POST'], view_func=manage_members)
+        u'/manage_members/<id>',
+        methods=[u'GET', u'POST'],
+        view_func=manage_members)
     blueprint.add_url_rule(
         u'/members/<id>', methods=[u'GET'], view_func=members)
     blueprint.add_url_rule(

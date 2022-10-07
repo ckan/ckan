@@ -1977,9 +1977,9 @@ def popular(type_: str,
 
 @core_helper
 def groups_available(am_member: bool = False,
-                    include_dataset_count: bool = False,
-                    include_member_count: bool = False,
-                    user: str = None) -> list[dict[str, Any]]:
+                     include_dataset_count: bool = False,
+                     include_member_count: bool = False,
+                     user: str = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1993,9 +1993,9 @@ def groups_available(am_member: bool = False,
         user = current_user.name
     context: Context = {'user': user}
     data_dict = {'available_only': True,
-                'am_member': am_member,
-                'include_dataset_count': include_dataset_count,
-                'include_member_count': include_member_count}
+                 'am_member': am_member,
+                 'include_dataset_count': include_dataset_count,
+                 'include_member_count': include_member_count}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
