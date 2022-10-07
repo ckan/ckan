@@ -16,3 +16,14 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
         border-color: $gray-300;
     }
 }
+
+.row {
+    justify-content: space-between;
+    .col-md-6 {
+        width: 49%;
+    }
+}
+
+.custom-component {
+    --bs-gutter-x:0;
+}
