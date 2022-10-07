@@ -2003,7 +2003,8 @@ def groups_available(am_member: bool = False,
 def organizations_available(permission: str = 'manage_group',
                             include_dataset_count: bool = False,
                             include_member_count: bool = False,
-                            user: Union[str, None] = None) -> list[dict[str, Any]]:
+                            user: Union[str, None] = None
+                            ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
