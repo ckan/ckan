@@ -1979,7 +1979,7 @@ def popular(type_: str,
 def groups_available(am_member: bool = False,
                     include_dataset_count: bool = False,
                     include_member_count: bool = False,
-                    current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user) -> list[dict[str, Any]]:
+                    user: str = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1989,11 +1989,9 @@ def groups_available(am_member: bool = False,
     :type am-member: bool
 
     '''
-    if type(current_user) is dict:
-        user = current_user['name']
-    else:
+    if user is None:
         user = current_user.name
-    context: Context = {'user': user }
+    context: Context = {'user': user}
     data_dict = {'available_only': True,
                 'am_member': am_member,
                 'include_dataset_count': include_dataset_count,
@@ -2005,15 +2003,13 @@ def groups_available(am_member: bool = False,
 def organizations_available(permission: str = 'manage_group',
                             include_dataset_count: bool = False,
                             include_member_count: bool = False,
-                            current_user: ckan.model.User | ckan.model.AnonymousUser | dict = current_user) -> list[dict[str, Any]]:
+                            user: str = None) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    if type(current_user) is dict:
-        user = current_user['name']
-    else:
+    if user is None:
         user = current_user.name
-    context: Context = {'user': user }
+    context: Context = {'user': user}
     data_dict = {
         'permission': permission,
         'include_dataset_count': include_dataset_count,
@@ -2022,12 +2018,8 @@ def organizations_available(permission: str = 'manage_group',
 
 
 @core_helper
-def member_count(group: ckan.model.Group | dict) -> int:
+def member_count(group: str) -> int:
     '''Return the number of members belonging to the group'''
-    if type(group) is dict:
-        group = group['id']
-    else:
-        group = group.id
     context: Context = {}
     data_dict = {
         u'id': group,

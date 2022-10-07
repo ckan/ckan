@@ -16,7 +16,7 @@ Example:
 <li class="media-item">
   {% block item_inner %}
   {% block image %}
-    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-responsive media-image">
+    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-fluid media-image">
   {% endblock %}
   {% block title %}
     <h2 class="media-heading">{{ organization.display_name }}</h2>
@@ -28,9 +28,16 @@ Example:
   {% endblock %}
   {% block datasets %}
     {% if organization.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong>
+      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', organization.package_count).format(num=organization.package_count) }}</strong><br/>
     {% else %}
-      <span class="count">{{ _('0 Datasets') }}</span>
+      <span class="count">{{ _('0 Datasets') }}</span><br/>
+    {% endif %}
+  {% endblock %}
+  {% block members %}
+    {% if 'member_count' in organization and organization.member_count %}
+      <strong class="count">{{ ungettext('{num} Member', '{num} Members', organization.member_count).format(num=organization.member_count) }}</strong>
+    {% else %}
+      <span class="count">{{ _('0 Members') }}</span>
     {% endif %}
   {% endblock %}
   {% block capacity %}

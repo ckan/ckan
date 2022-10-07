@@ -482,13 +482,14 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     try:
         group_dict = _get_group_dict(id, group_type)
         group_type = group_dict['type']
-        _setup_template_variables(context, {u'id': id}, group_type=group_type)
     except NotFound:
         base.abort(404, _(u'Group not found'))
     except NotAuthorized:
         base.abort(403,
                    _(u'User %r not authorized to edit members of %s') %
                    (current_user.name, id))
+
+    _setup_template_variables(context, {u'id': id}, group_type=group_type)
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for

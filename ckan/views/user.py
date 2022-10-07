@@ -204,7 +204,6 @@ def read_groups(id: str) -> Union[Response, str]:
     }
     # FIXME: line 331 in multilingual plugins expects facets to be defined.
     # any ideas?
-    g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
     if extra_vars is None:
