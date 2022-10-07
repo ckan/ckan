@@ -31,7 +31,7 @@
     {% set error = errors.license_id %}
     <label class="form-label" for="field-license">{{ _("License") }}</label>
     <div class="controls">
-      <div class="row">
+      <div class="row custom-component">
         <div class="col-md-6">
           <select id="field-license" name="license_id" data-module="autocomplete">
             {% set existing_license_id = data.get('license_id') %}
