@@ -451,11 +451,11 @@ class DeleteView(MethodView):
             u'auth_user_obj': current_user
         })
         try:
-            check_access(u'package_delete', context, {u'id': id})
+            check_access(u'resource_delete', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'Unauthorized to delete package %s') % u''
+                _(u'Unauthorized to delete resource %s') % u''
             )
         return context
 
