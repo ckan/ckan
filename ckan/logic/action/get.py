@@ -1442,6 +1442,8 @@ def user_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('user_show', context, data_dict)
+
     model = context['model']
 
     id = data_dict.get('id', None)
@@ -2197,7 +2199,7 @@ def _tag_search(context, data_dict):
         # Filter by vocabulary.
         vocab = model.Vocabulary.get(_get_or_bust(data_dict, 'vocabulary_id'))
         if not vocab:
-            raise NotFound
+            return [], 0
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.

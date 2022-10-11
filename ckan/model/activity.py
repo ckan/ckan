@@ -13,7 +13,6 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
-    func
 )
 
 from ckan.common import config
@@ -152,7 +151,9 @@ def user_activity_list(user_id, limit, offset):
 
     '''
     q = _user_activity_query(user_id, limit + offset)
+
     q = _filter_activitites_from_users(q)
+
     return _activities_at_offset(q, limit, offset)
 
 

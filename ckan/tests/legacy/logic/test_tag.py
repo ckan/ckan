@@ -155,13 +155,15 @@ class TestAction(WsgiAppCase):
     def test_15a_tag_search_with_vocab_that_does_not_exist(self):
         paramd = {'q': 'neo', 'vocabulary_id': 'xxxxxx' }
         params = json.dumps(paramd)
-        self.app.post('/api/action/tag_search', params=params, status=404)
+        res = self.app.post('/api/action/tag_search', params=params)
+        assert json.loads(res.body)['result']['results']== []
 
     def test_15a_tag_search_with_invalid_vocab(self):
         for vocab_name in (None, '', 'a', 'e'*200):
             paramd = {'q': 'neo', 'vocabulary_id': vocab_name }
             params = json.dumps(paramd)
-            self.app.post('/api/action/tag_search', params=params, status=404)
+            res = self.app.post('/api/action/tag_search', params=params)
+            assert json.loads(res.body)['result']['results'] == []
 
     def test_15_tag_autocomplete(self):
         #Empty query
@@ -359,15 +361,15 @@ class TestAction(WsgiAppCase):
         for q in ('', 'neo'):
             paramd = {'vocabulary_id': 'does_not_exist', 'q': q}
             params = json.dumps(paramd)
-            res = self.app.post('/api/action/tag_autocomplete', params=params,
-                    status=404)
-            assert res.json['success'] is False
+            res = self.app.post('/api/action/tag_autocomplete', params=params)
+            assert res.json['success'] is True
+            assert json.loads(res.body)['result'] == []
 
     def test_15_tag_autocomplete_with_invalid_vocab(self):
         for vocab_name in (None, '', 'a', 'e'*200):
             for q in (None, '', 'son'):
                 paramd = {'vocabulary_id': vocab_name, 'q': q}
                 params = json.dumps(paramd)
-                res = self.app.post('/api/action/tag_autocomplete', params=params,
-                        status=404)
-                assert res.json['success'] is False
+                res = self.app.post('/api/action/tag_autocomplete', params=params)
+                assert res.json['success'] is True
+                assert json.loads(res.body)['result'] == []
