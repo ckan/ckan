@@ -264,7 +264,9 @@ def add_views_to_resource(context,
             view = {'resource_id': resource_dict['id'],
                     'view_type': view_info['name'],
                     'title': view_info.get('default_title', _('View')),
-                    'description': view_info.get('default_description', '')}
+                    'title_fr': view_info.get('default_title', _('View')),
+                    'description': view_info.get('default_description', ''),
+                    'description_fr': view_info.get('default_description', '')}
 
             view_dict = p.toolkit.get_action('resource_view_create')(context,
                                                                      view)
