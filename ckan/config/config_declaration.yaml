@@ -1237,6 +1237,11 @@ groups:
           by CKAN core. It is currently unused and it only accepts one value: ``templates``
           (Bootstrap 3, the default value from CKAN 2.8 onwards).
 
+      - key: ckan.default.group_type
+        default: group
+      - key: ckan.default.organization_type
+        default: organization
+
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
