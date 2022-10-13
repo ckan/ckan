@@ -131,20 +131,20 @@ your plugin supports several config options.
           :py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. Read
           the following section for additional information.
 
-Use a blanket implementation of config declaration
---------------------------------------------------
+Use a blanket implementation of the config declaration
+------------------------------------------------------
 
-The recommended way of declaring config options is using
+The recommended way of declaring config options is using the
 ``config_declarations``
 :py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. It allows you to
-write less code and define config options using JSON, YAML, or TOML(if ``toml``
-package is installed inside virtual environment). And that's exactly how CKAN
+write less code and define your config options using JSON, YAML, or TOML (if the ``toml``
+package is installed inside your virtual environment). That is how CKAN
 declares config options for all its built-in plugins, like ``datastore`` or
 ``datatables_view``.
 
 Instead of implementing the
 :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` interface, decorate the
-plugin with ``config_declarations`` blanket::
+plugin with the ``config_declarations`` blanket::
 
   import ckan.plugins as p
   import ckan.plugins.toolkit as tk
@@ -187,8 +187,8 @@ only for explanation and you don't need them in the real file::
           default: false
 
           # import path of the function that must be called in order to get the
-          # default value.  use it when the default value can be obtained from
-          # environment variable, database or any other external source.
+          # default value. This can be used when the default value can be obtained from
+          # an environment variable, database or any other external source.
           # IMPORTANT: use either `default` or `default_callable`, not both at the same time
           default_callable: ckanext.my_ext.utils:function_that_returns_default
 
@@ -235,12 +235,13 @@ only for explanation and you don't need them in the real file::
               est convallis tempor.  Curabitur lacinia pulvinar nibh.  Nam a
               sapien.
 
-          # the string with space-separated list of validators, applied to the value of option.
+          # a space-separated list of validators, applied to the value of option.
           validators: not_missing boolean_validator
 
           # shortcut for the most common option types. It adds validators, so you cannot use it
           # when `validators` are specified(in this case `type` is silently ignored).
-          # Valid types are: bool, int, list, dynamic
+          # Valid types are: bool, int, list, dynamic (see below for more information on dynamic
+          # options)
           type: bool
 
           # boolean flag that marks config option as experimental. Such options are hidden from
@@ -269,18 +270,19 @@ only for explanation and you don't need them in the real file::
           editable: true
 
 
+Dynamic config options
+^^^^^^^^^^^^^^^^^^^^^^
+
 There is a special option type, ``dynamic``. This option type is used for a set
 of options that have common name-pattern. Because ``dynamic`` type defines
 multiple options, it has no default, validators and serves mostly documentation
-purpose. Let's use CKAN's ``sqlalchemy.*`` options as example. Every option
-whoose name follows pattern ``sqlalchemy.SOMETHING`` is passed to the
-SQLAlchemy engine created by CKAN. CKAN doesn't actually know, which options
+purposes. Let's use CKAN's ``sqlalchemy.*`` options as example. Every option
+whose name follows the pattern ``sqlalchemy.SOMETHING`` is passed to the
+SQLAlchemy engine created by CKAN. CKAN doesn't actually know which options
 are valid and it's up to you to provide valid values. Basically, we have a set
-of options with prefix ``sqlalchemy.``. If you try to use them without
-declaration, you may observer a lot of warnings about using undeclared
-options. It doesn't hurt much, but it's really annoying. And it's a flag for
-you, that something can be improved.
-
+of options with prefix ``sqlalchemy.``. If use these options without declararing,
+it will trigger warnings about using undeclared options, which are harmless but can be
+annoying. Declaring them helps to make explicit which configuration options are actually being used.
 In order to declare such set of options, put some label surrounded with angle
 brackets instead of the dynamic part of option's name. In our case it can be
 ``sqlalchemy.<OPTION>`` or ``sqlalchemy.<anything>``.  Any word can be used as
@@ -299,12 +301,12 @@ label, the only important part here are angle brackets::
       database connection.
 
 Dynamic options should not be accessed via ``config.get_value`` at the
-moment. Use ``config.get``(which is identical to ``dict.get``) instead.
+moment. Use ``config.get`` (which is identical to ``dict.get``) instead.
 
 Use this feature sparsely, only when you really want to declare literally ANY
 value following the pattern. If you have finite set of possible options,
 consider declaring all of them, because it allows you to provide validators,
-defaults, and prevents you from accidental shadowing of unrelated options.
+defaults, and prevents you from accidental shadowing unrelated options.
 
 
 Accessing config options
