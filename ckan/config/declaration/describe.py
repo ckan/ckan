@@ -1,4 +1,42 @@
 # -*- coding: utf-8 -*-
+"""This module defines the ways to describe the definition of config
+declaration.
+
+We expect that definition produced by describers can be loaded into exactly the
+same declaration, that was used for definition. I.e:
+
+Given:
+  config_declaration = ...
+  config_definition = describe(config_declaration)
+
+When:
+  loaded_declaration = load(config_definition)
+
+Then:
+  loaded_declaration == config_declaration
+
+For now, this rule may be violated sometimes. For example, when callables are
+used in the declaration. But in the future there should be no exceptions from
+it.
+
+New describers can be defined in the following manner:
+
+```python
+from ckan.config.declaration.describe import handler, describer
+
+@handler.register("custom-format")
+def describe_as_custom(declaration, *args, **kwargs):
+    ...
+
+## and now new `custom-format` can be used like this:
+describer(declaration, "custom-format", *args, **kwargs)
+```
+
+This mechanism allows you to re-define default describers, though it should be
+avoided unless you have an irresistible desire to hack into CKAN core.
+
+"""
+
 import abc
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
@@ -57,6 +95,8 @@ def describe_dict(
 
 
 class AbstractDescriber(metaclass=abc.ABCMeta):
+    """Abstract class that defines the workflow for describers.
+    """
     __slots__ = ()
 
     def __call__(
@@ -64,12 +104,12 @@ class AbstractDescriber(metaclass=abc.ABCMeta):
         declaration: "Declaration",
         exclude: Flag,
     ):
-        for item in declaration._order:
+        for item in declaration._members:
             if isinstance(item, Annotation):
                 self.annotate(item)
             elif isinstance(item, Key):
-                option = declaration._mapping[item]
-                if option._has_flag(exclude):
+                option = declaration._options[item]
+                if option.has_flag(exclude):
                     continue
                 self.add_option(item, option)
         return self.finalize()
@@ -88,6 +128,10 @@ class AbstractDescriber(metaclass=abc.ABCMeta):
 
 
 class BaseDictDescriber(AbstractDescriber):
+    """Describer that collects definition into a dictionary required by
+    validation schema.
+
+    """
     __slots__ = ("data", "current_listing")
 
     def __init__(self):
@@ -127,14 +171,9 @@ class BaseDictDescriber(AbstractDescriber):
         if option.placeholder:
             data["placeholder"] = option.placeholder
 
-        if option._has_flag(Flag.required):
-            data["required"] = True
-        if option._has_flag(Flag.ignored):
-            data["ignored"] = True
-        if option._has_flag(Flag.internal):
-            data["internal"] = True
-        if option._has_flag(Flag.experimental):
-            data["experimental"] = True
+        for flag in Flag:
+            if option.has_flag(flag) and flag.name:
+                data[flag.name] = True
 
         self.current_listing.append(data)
 
@@ -212,13 +251,8 @@ class PythonDescriber(AbstractDescriber):
         if validators:
             self.output.write(f".set_validators({repr(validators)})")
 
-        if option._has_flag(Flag.required):
-            self.output.write(".required()")
-        if option._has_flag(Flag.ignored):
-            self.output.write(".ignore()")
-        if option._has_flag(Flag.internal):
-            self.output.write(".internal()")
-        if option._has_flag(Flag.experimental):
-            self.output.write(".experimental()")
+        for flag in Flag:
+            if option.has_flag(flag):
+                self.output.write(f".set_flag(Flag.{flag.name})")
 
         self.output.write("\n")

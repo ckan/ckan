@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""This module contains definition of the config Declaration class.
+
+"""
 from __future__ import annotations
 
 import logging
@@ -26,23 +29,31 @@ from .serialize import serializer
 if TYPE_CHECKING:
     from ckan.common import CKANConfig
 
-log = logging.getLogger(__name__)
 
 __all__ = ["Declaration", "Key"]
 
 _non_iterable = Flag.non_iterable()
 
+log = logging.getLogger(__name__)
+
 
 class Declaration:
+    """Container for the config declarations.
+
+    This class provides methods for all the common interactions with the config
+    declarations. So in most cases, you won't use any other member defined
+    under this module directly.
+
+    """
     __slots__ = (
-        "_mapping",
-        "_order",
+        "_options",
+        "_members",
         "_plugins",
         "_core_loaded",
         "_sealed",
     )
-    _mapping: Dict[Key, Option[Any]]
-    _order: List[Union[Key, Annotation, Any]]
+    _options: Dict[Key, Option[Any]]
+    _members: List[Union[Key, Annotation, Any]]
     _plugins: Set[str]
     _sealed: bool
     _core_loaded: bool
@@ -51,15 +62,17 @@ class Declaration:
         self._reset()
 
     def __bool__(self):
-        return bool(self._order)
+        return bool(self._members)
 
     def __contains__(self, key: Key):
-        return key in self._mapping
+        return key in self._options
 
     def __getitem__(self, key: Key) -> Option[Any]:
-        return self._mapping[key]
+        return self._options[key]
 
     def get(self, key: Union[str, Key]) -> Optional[Option[Any]]:
+        """Return the declaration of config option or `None`.
+        """
         k = Key._as_key(key)
         if k in self:
             return self[k]
@@ -70,16 +83,31 @@ class Declaration:
         pattern: Union[str, Pattern] = "*",
         exclude: Flag = _non_iterable,
     ) -> Iterator[Key]:
+        """Iterate over declared config options.
+
+        Args:
+            pattern: only iterate over options that matches the pattern
+            exclude: skip options that have given flag.
+        """
         if isinstance(pattern, str):
             pattern = Pattern.from_string(pattern)
-        for k, v in self._mapping.items():
-            if v._has_flag(exclude):
+
+        for k, v in self._options.items():
+            if v.has_flag(exclude):
                 continue
+
             if pattern != k:
                 continue
+
             yield k
 
     def setup(self):
+        """Load all the config declarations from core and enabled plugins.
+
+        This method seals the declaration object, preventing further
+        modifications.
+
+        """
         import ckan.plugins as p
 
         self._reset()
@@ -91,6 +119,16 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig") -> bool:
+        """Load defaul values for missing options.
+
+        This method has effect only in strict mode, because in normal mode
+        there are no guarantees that all the default values are available and
+        valid.
+
+        Returns `True` if declaration became safe and `False` if something went
+        wrong(strict mode is not enabled).
+
+        """
         if config.get_value("config.mode") != "strict":
             return False
 
@@ -100,6 +138,17 @@ class Declaration:
         return True
 
     def normalize(self, config: "CKANConfig") -> bool:
+        """Validate and normalize all the values in the config object.
+
+        This method ensures that all the config values are in-place and
+        converts them to the expected type. This method may significantly
+        improve performance of `config.get_value`, because the latter:
+        * no longer has to check if default value required
+        * doesn't have to convert the value using validators
+
+        Works only in strict mode.
+
+        """
         import ckan.lib.navl.dictization_functions as df
 
         if config.get_value("config.mode") != "strict":
@@ -125,7 +174,11 @@ class Declaration:
 
         return True
 
-    def validate(self, config: "CKANConfig"):
+    def validate(
+            self, config: "CKANConfig"
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Return validated config dict and dictionary with validation errors.
+        """
         import ckan.lib.navl.dictization_functions as df
 
         schema = self.into_schema()
@@ -133,16 +186,24 @@ class Declaration:
         return data, errors
 
     def _reset(self):
-        self._mapping = OrderedDict()
-        self._order = []
+        """Unseal declaration and remove all the options, making it ready for
+        the new definitions.
+
+        """
+        self._options = OrderedDict()
+        self._members = []
         self._plugins = set()
         self._core_loaded = False
         self._sealed = False
 
     def _seal(self):
+        """Prevent further modifications of the declaration object.
+        """
         self._sealed = True
 
     def load_core_declaration(self):
+        """Load CKAN core declarations(no plugins are loaded).
+        """
         if self._core_loaded:
             log.debug("Declaration for core is already loaded")
             return
@@ -151,61 +212,98 @@ class Declaration:
         self._core_loaded = True
 
     def load_plugin(self, name: str):
+        """Load declarations from the enabled plugin.
+        """
         if name in self._plugins:
             log.debug("Declaration for plugin %s is already loaded", name)
             return
         loader(self, "plugin", name)
 
     def load_dict(self, data: DeclarationDict):
+        """Load declarations from dictionary.
+        """
         loader(self, "dict", data)
 
-    def into_ini(self, minimal: bool, verbose: bool = False) -> str:
-        return serializer(self, "ini", minimal, verbose)
+    def into_ini(
+            self,
+            minimal: bool,
+            include_docs: bool = False,
+            section: str = "app:main"
+    ) -> str:
+        """Serialize declaration into config template.
+        """
+        return serializer(self, "ini", minimal, include_docs, section)
 
     def into_schema(self) -> Dict[str, Any]:
+        """Serialize declaration into validation schema.
+        """
         return serializer(self, "validation_schema")
 
     def into_docs(self) -> str:
+        """Serialize declaration into reST documentation.
+        """
         return serializer(self, "rst")
 
     def describe(self, fmt: str) -> str:
+        """Describe definition of options in the given format.
+        """
         return describer(self, fmt)
 
     def declare(
         self, key: Union[Key, str], default: Optional[T] = None
     ) -> Option[T]:
+        """Add declaration of the option with the given default value.
+        """
+        return self.declare_option(key, Option(default))
+
+    def declare_option(
+        self, key: Union[Key, str], option: Option[T]
+    ) -> Option[T]:
+        """Add the declaration using existing Option object.
+
+        Use this method for declaring options using Option subclasses.
+        """
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
 
         if isinstance(key, str):
             key = Key.from_string(key)
 
-        value = Option(default)
-        if key in self._mapping:
+        if key in self._options:
             raise ValueError(f"{key} already declared")
-        self._order.append(key)
+        self._members.append(key)
 
-        self._mapping[key] = value
-        return value
+        self._options[key] = option
+        return option
 
     def declare_bool(
             self, key: Key, default: Optional[bool] = False) -> Option[bool]:
+        """Declare boolean option.
+        """
         option = self.declare(key, bool(default))
         option.set_validators("boolean_validator")
         return option
 
     def declare_int(self, key: Key, default: Optional[int]) -> Option[int]:
+        """Declare numeric option.
+        """
         option = self.declare(key, default)
         option.set_validators("convert_int")
         return option
 
     def declare_list(
             self, key: Key, default: Optional[list[Any]]) -> Option[list[Any]]:
+        """Declare option that accepts space-separated list of values.
+        """
         option = self.declare(key, default)
         option.set_validators("as_list")
         return option
 
     def declare_dynamic(self, key: Key, default: Any = None) -> Option[Any]:
+        """Declare dynamic option using a Key with `<name>` segment(surrounded
+        with angles).
+
+        """
         key = Pattern(
             [
                 Wildcard(fragment[1:-1])
@@ -217,8 +315,19 @@ class Declaration:
         option: Option[Any] = self.declare(key, default)
         return option
 
-    def annotate(self, annotation: str):
+    def annotate(self, text: str) -> Annotation:
+        """Add section annotation.
+
+        All the options added after this call(and till the next annotation)
+        will be grouped into separate config section.
+
+        Sections only affect documentation/config template. They do not modify
+        CKAN behavior and are not reflected inside the `config` object.
+
+        """
         if self._sealed:
             raise TypeError("Sealed declaration cannot be updated")
 
-        self._order.append(Annotation(annotation))
+        annotation = Annotation(text)
+        self._members.append(annotation)
+        return annotation

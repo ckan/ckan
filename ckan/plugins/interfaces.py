@@ -793,14 +793,18 @@ class IConfigDeclaration(Interface):
                 declaration.declare(group.enabled, "no").set_description(
                     "Enables feature"
                 )
-                declaration.declare(group.mode, "simple")
+                declaration.declare(group.mode, "simple").set_description(
+                    "Execution mode"
+                )
 
-        Produces the following config suggestion::
+        Run ``ckan config declaration my_ext --include-docs`` and get the
+        following config suggestion::
 
-            ####### MyExt config section #######
+            ## MyExt config section ######################
             # Enables feature
             ckanext.my_ext.feature.enabled = no
-            # ckanext.my_ext.feature.mode = simple
+            # Execution mode
+            ckanext.my_ext.feature.mode = simple
 
         See :ref:`declare configuration <declare-config-options>` guide for
         details.

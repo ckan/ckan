@@ -1,5 +1,8 @@
 # encoding: utf-8
 from __future__ import annotations
+import os
+
+import yaml
 
 from ckan.types import Context, Validator
 from logging import getLogger
@@ -66,6 +69,21 @@ def datastore_fields(resource: dict[str, Any],
             if f['type'] in valid_field_types]
 
 
+def _load_declaration(declaration: Any):
+    filename = os.path.join(
+        os.path.dirname(__file__),
+        "config_declaration.yaml"
+    )
+    with open(filename) as src:
+        data = yaml.safe_load(src)
+
+    try:
+        declaration.load_dict(data)
+    except ValueError:
+        # we a loading two recline plugins that are share config declaration.
+        pass
+
+
 class ReclineViewBase(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
@@ -108,11 +126,14 @@ class ReclineViewBase(p.SingletonPlugin):
         }
 
 
-@p.toolkit.blanket.config_declarations
 class ReclineView(ReclineViewBase):
     '''
     This extension views resources using a Recline MultiView.
     '''
+    p.implements(p.IConfigDeclaration)
+
+    def declare_config_options(self, declaration: Any, key: Any):
+        _load_declaration(declaration)
 
     def info(self) -> dict[str, Any]:
         return {'name': 'recline_view',
@@ -138,11 +159,14 @@ class ReclineView(ReclineViewBase):
             return False
 
 
-@p.toolkit.blanket.config_declarations
 class ReclineGridView(ReclineViewBase):
     '''
     This extension views resources using a Recline grid.
     '''
+    p.implements(p.IConfigDeclaration)
+
+    def declare_config_options(self, declaration: Any, key: Any):
+        _load_declaration(declaration)
 
     def info(self) -> dict[str, Any]:
         return {'name': 'recline_grid_view',
@@ -154,11 +178,14 @@ class ReclineGridView(ReclineViewBase):
                 }
 
 
-@p.toolkit.blanket.config_declarations
 class ReclineGraphView(ReclineViewBase):
     '''
     This extension views resources using a Recline graph.
     '''
+    p.implements(p.IConfigDeclaration)
+
+    def declare_config_options(self, declaration: Any, key: Any):
+        _load_declaration(declaration)
 
     graph_types = [{'value': 'lines-and-points',
                     'text': 'Lines and points'},
