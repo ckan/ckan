@@ -12,7 +12,7 @@ import logging
 from logging.handlers import SMTPHandler
 from typing import Any, Iterable, Optional, Union, cast
 
-from flask import Blueprint, send_from_directory
+from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
@@ -318,7 +318,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         This callback function is called whenever a user could not be
         authenticated via the session cookie, so we fall back to the API token.
         """
+        g.login_via_auth_header = True
+
         user = _get_user_for_apitoken()
+
         return user
 
     # Update the main CKAN config object with the Flask specific keys
@@ -400,6 +403,16 @@ def ckan_before_request() -> Optional[Response]:
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Disable CSRF protection if user was logged in via the Authorization
+    # header
+    if g.get("login_via_auth_header"):
+        # Get the actual view function, as it might not match the endpoint,
+        # eg "organization.edit" -> "group.edit", or custom dataset types
+        endpoint = request.endpoint or ""
+        view = current_app.view_functions.get(endpoint)
+        dest = f"{view.__module__}.{view.__name__}"     # type: ignore
+        csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")

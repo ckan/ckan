@@ -380,3 +380,39 @@ def test_cookie_based_auth_disabled(app):
     res = app.get(url, environ_overrides=env)
 
     assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    env = {"Authorization": sysadmin["token"]}
+
+    res = app.get(url, environ_overrides=env)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default_post(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_patch")
+
+    env = {"Authorization": sysadmin["token"]}
+
+    data = {
+        "id": dataset["id"],
+        "notes": "updated",
+    }
+    res = app.post(url, environ_overrides=env, data=data)
+
+    assert res.status_code == 200

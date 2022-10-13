@@ -350,19 +350,16 @@ class TestGroupMembership(object):
         assert user_roles["User One"] == "Admin"
         assert user_roles["User Two"] == "Member"
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_membership_add(self, current_user, app):
+    def test_membership_add(self, app):
         """Member can be added via add member page"""
         user = factories.User(fullname="My Owner")
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         factories.User(fullname="My Fullname", name="my-new-user")
         group = self._create_group(user["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={"save": "", "username": "my-new-user", "role": "member"},
         )
 
@@ -383,18 +380,15 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_membership_add_by_email(self, current_user, app, mail_server):
+    def test_membership_add_by_email(self, app, mail_server):
         user = factories.User(fullname="My Owner")
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         group = self._create_group(user["name"])
 
         url = url_for("group.member_new", id=group["name"])
         email = "invited_user@mailinator.com"
         app.post(
             url,
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={"save": "", "email": email, "role": "member"},
             status=200
         )
@@ -403,20 +397,19 @@ class TestGroupMembership(object):
         assert user.email == email
         assert group["id"] in user.get_group_ids(capacity="member")
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_membership_edit_page(self, current_user, app):
+    def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""
         owner = factories.User(fullname="My Owner")
-        user_obj = model.User.get(owner["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         member = factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(owner["name"], users=[
             {'name': member['name'], 'capacity': 'admin'}
         ])
 
         url = url_for("group.member_new", id=group["name"], user=member['name'])
-        response = app.get(url)
+        response = app.get(
+            url,
+            environ_overrides={"REMOTE_USER": owner["name"]},
+        )
 
         page = BeautifulSoup(response.body)
         assert page.select_one('.page-heading').text.strip() == 'Edit Member'
@@ -425,19 +418,16 @@ class TestGroupMembership(object):
         assert page.select_one('#username').get('value') == member['name']
 
     @pytest.mark.usefixtures("clean_db")
-    @mock.patch("flask_login.utils._get_user")
-    def test_admin_add(self, current_user, app):
+    def test_admin_add(self, app):
         """Admin can be added via add member page"""
         owner = factories.User(fullname="My Owner")
-        user_obj = model.User.get(owner["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         factories.User(fullname="My Fullname", name="my-admin-user")
         group = self._create_group(owner["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
+            environ_overrides={"REMOTE_USER": owner["name"]},
             data={"save": "", "username": "my-admin-user", "role": "admin"},
         )
 
@@ -458,13 +448,9 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Admin"
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_remove_member(self, current_user, app):
+    def test_remove_member(self,  app):
         """Member can be removed from group"""
         user = factories.User(fullname="My Owner")
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
@@ -475,7 +461,10 @@ class TestGroupMembership(object):
             "group.member_delete", user=user_two["id"], id=group["id"]
         )
 
-        remove_response = app.post(remove_url)
+        remove_response = app.post(
+            remove_url,
+            environ_overrides={"REMOTE_USER": user["name"]},
+        )
         assert helpers.body_contains(remove_response, "1 members")
 
         remove_response_html = BeautifulSoup(remove_response.body)
@@ -493,20 +482,21 @@ class TestGroupMembership(object):
         assert len(user_roles.keys()) == 1
         assert user_roles["My Owner"] == "Admin"
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_member_users_cannot_add_members(self, current_user, app):
+    def test_member_users_cannot_add_members(self, app):
         user = factories.User(fullname="My Owner")
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         group = factories.Group(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
-        app.get(url_for("group.member_new", id=group["id"]), status=403)
+        app.get(
+            url_for("group.member_new", id=group["id"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
+            status=403
+        )
 
         app.post(
             url_for("group.member_new", id=group["id"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={
                 "id": "test",
                 "username": "test",
