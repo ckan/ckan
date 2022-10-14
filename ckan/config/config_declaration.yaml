@@ -288,7 +288,7 @@ groups:
           Defaults to never expiring.
 
       - key: beaker.session.cookie_domain
-        default: .please_replace.me
+        default: .example.com
         description: |
           What domain the cookie should be set to. When using sub-domains,
           this should be set to the main domain the cookie should be valid for. For example,
