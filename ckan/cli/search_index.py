@@ -1,10 +1,13 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import multiprocessing as mp
 
 import click
 import sqlalchemy as sa
 from ckan.common import config
+import ckan.logic as logic
+import ckan.model as model
 from . import error_shout
 
 
@@ -31,7 +34,8 @@ def search_index():
               is_flag=True)
 @click.argument(u'package_id', required=False)
 def rebuild(
-        verbose, force, only_missing, quiet, commit_each, package_id, clear
+        verbose: bool, force: bool, only_missing: bool, quiet: bool,
+        commit_each: bool, package_id: str, clear: bool
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -41,7 +45,7 @@ def rebuild(
                 only_missing=only_missing,
                 force=force,
                 defer_commit=(not commit_each),
-                quiet=quiet,
+                quiet=quiet and not verbose,
                 clear=clear)
     except Exception as e:
         error_shout(e)
@@ -57,7 +61,7 @@ def check():
 
 @search_index.command(name=u'show', short_help=u'Show index of a dataset')
 @click.argument(u'dataset_name')
-def show(dataset_name):
+def show(dataset_name: str):
     from ckan.lib.search import show
 
     index = show(dataset_name)
@@ -66,13 +70,62 @@ def show(dataset_name):
 
 @search_index.command(name=u'clear', short_help=u'Clear the search index')
 @click.argument(u'dataset_name', required=False)
-def clear(dataset_name):
+def clear(dataset_name: str):
     from ckan.lib.search import clear, clear_all
 
     if dataset_name:
         clear(dataset_name)
     else:
         clear_all()
+
+
+def get_orphans() -> list[str]:
+    search = None
+    indexed_package_ids = []
+    while search is None or len(indexed_package_ids) < search['count']:
+        search = logic.get_action('package_search')({}, {
+                'q': '*:*',
+                'fl': 'id',
+                'start': len(indexed_package_ids),
+                'rows': 1000})
+        indexed_package_ids += search['results']
+
+    package_ids = {r[0] for r in model.Session.query(model.Package.id)}
+
+    orphaned_package_ids = []
+
+    for indexed_package_id in indexed_package_ids:
+        if indexed_package_id['id'] not in package_ids:
+            orphaned_package_ids.append(indexed_package_id['id'])
+
+    return orphaned_package_ids
+
+
+@search_index.command(
+    name=u'list-orphans',
+    short_help=u'Lists any non-existant packages in the search index'
+)
+def list_orphans_command():
+    orphaned_package_ids = get_orphans()
+    if len(orphaned_package_ids):
+        click.echo(orphaned_package_ids)
+    click.echo("Found {} orphaned package(s).".format(
+        len(orphaned_package_ids)
+    ))
+
+
+@search_index.command(
+    name=u'clear-orphans',
+    short_help=u'Clear any non-existant packages in the search index'
+)
+@click.option(u'-v', u'--verbose', is_flag=True)
+def clear_orphans(verbose: bool = False):
+    for orphaned_package_id in get_orphans():
+        if verbose:
+            click.echo("Clearing search index for dataset {}...".format(
+                orphaned_package_id
+            ))
+        clear(orphaned_package_id)
 
 
 @search_index.command(name=u'rebuild-fast',
@@ -87,11 +140,11 @@ def rebuild_fast():
     for row in result:
         package_ids.append(row[0])
 
-    def start(ids):
+    def start(ids: list[str]):
         from ckan.lib.search import rebuild
         rebuild(package_ids=ids)
 
-    def chunks(list_, n):
+    def chunks(list_: list[str], n: int):
         u""" Yield n successive chunks from list_"""
         newn = int(len(list_) / n)
         for i in range(0, n - 1):
@@ -111,4 +164,4 @@ def rebuild_fast():
             process.join()
         commit()
     except Exception as e:
-        click.echo(e.message)
+        error_shout(e)

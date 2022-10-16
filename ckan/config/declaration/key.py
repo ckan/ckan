@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+"""This module defines utilitis for manipulations with the name of config
+option.
 
+"""
 import fnmatch
 from typing import Any, Iterable, Tuple, Union
 
@@ -72,7 +75,7 @@ class Key:
 
         return super().__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any):
         if isinstance(other, str):
             return str(self) < other
         elif isinstance(other, Key):
@@ -85,7 +88,7 @@ class Key:
     def __radd__(self, other: Any):
         return self._combine(other, self)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int):
         fragment = self._path[idx]
         if isinstance(fragment, tuple):
             return self.__class__(fragment)
@@ -143,6 +146,16 @@ class Key:
 
 
 class Pattern(Key):
+    """Key with dynamic segment, that can match everything.
+
+    Example:
+
+        >>> pattern = Key().ckan.dynamic("anything")
+        >>> assert pattern == "ckan.hello"
+        >>> assert pattern == "ckan.world"
+        >>> assert pattern == "ckan.x.y.z"
+        >>> assert pattern != "not-ckan.hello"
+    """
     __slots__ = ()
     _path: Tuple[Union[str, Wildcard], ...]
 

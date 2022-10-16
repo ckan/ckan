@@ -121,7 +121,7 @@ Dataset collaborators can be used with other authorization settings to create cu
 Configuration File Options
 --------------------------
 
-See :ref:`config-authorization`.
+See :ref:`authorization-settings`.
 
 Extensions
 ----------

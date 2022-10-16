@@ -31,7 +31,7 @@
           <p class="text-danger">
             <i class="fa fa-info-circle"></i>
             {{ _('This resource view is not available at the moment.') }}
-            <a href="#" data-toggle="collapse" data-target="#data-view-error">
+            <a href="#" data-bs-toggle="collapse" data-bs-target="#data-view-error">
               {{ _('Click here for more information.') }}
             </a>
           </p>
@@ -69,8 +69,9 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h3 class="modal-title">{{ _("Embed resource view") }}</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
       </div>
       <div class="modal-body">
         <p class="embed-content">{{ _("You can copy and paste the embed code into a CMS or blog software that supports raw HTML") }}</p>

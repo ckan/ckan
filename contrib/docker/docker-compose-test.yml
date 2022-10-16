@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  ckan:
+    container_name: ckan_test
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: test
+    depends_on:
+      - db
+      - solr
+      - redis
+    environment:
+      PYTHONUNBUFFERED: 0
+
+  db:
+    container_name: db_test
+    image: ckan/ckan-postgres-dev:2.9
+    command: postgres -c fsync=off -c full_page_writes=off
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+
+  solr:
+    container_name: solr_test
+    build:
+      context: ../../
+      dockerfile: contrib/docker/solr/Dockerfile
+
+  redis:
+    container_name: redis_test
+    image: redis:6.2

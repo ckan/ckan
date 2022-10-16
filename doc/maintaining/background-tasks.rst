@@ -173,6 +173,10 @@ First install Supervisor::
 Next copy the configuration file template::
 
     sudo cp /usr/lib/ckan/default/src/ckan/ckan/config/supervisor-ckan-worker.conf /etc/supervisor/conf.d
+    
+Next make sure the ``/var/log/ckan/`` directory exists, if not then it needs to be created::
+
+    sudo mkdir /var/log/ckan
 
 Open ``/etc/supervisor/conf.d/supervisor-ckan-worker.conf`` in your favourite
 text editor and make sure all the settings suit your needs. If you installed
@@ -203,14 +207,15 @@ via
 
     ckan -c |ckan.ini| jobs test
 
-The worker's log (``/var/log/ckan-worker.log``) should then show how the job
-was processed by the worker.
+The worker's log files (``/var/log/ckan/ckan-worker.stdout.log`` and/or ``/var/log/ckan/ckan-worker.stderr.log``) 
+should then show how the job was processed by the worker.
 
 In case you run into problems, make sure to check the logs of Supervisor and
 the worker::
 
     cat /var/log/supervisor/supervisord.log
-    cat /var/log/ckan-worker.log
+    cat /var/log/ckan/ckan-worker.stdout.log
+    cat /var/log/ckan/ckan-worker.sterr.log
 
 
 

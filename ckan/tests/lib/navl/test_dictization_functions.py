@@ -24,7 +24,6 @@ from ckan.lib.navl.dictization_functions import (
 )
 
 from ckan.lib.navl.validators import (
-    identity_converter,
     empty,
     unicode_safe,
     not_empty,
@@ -33,6 +32,12 @@ from ckan.lib.navl.validators import (
     convert_int,
     ignore,
 )
+
+
+def identity_converter(key, data, errors, context):
+    """This validator removes `__`-fields and leaves everything else.
+    """
+    return
 
 
 class TestValidate(object):

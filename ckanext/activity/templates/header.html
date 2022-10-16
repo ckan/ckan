@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+{% block header_dashboard %}
+  {% set new_activities = h.new_activities() %}
+  <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
+    {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)',
+      new_activities)
+    %}
+    <a href="{{ h.url_for('activity.dashboard') }}" title="{{ notifications_tooltip }}">
+      <i class="fa fa-tachometer" aria-hidden="true"></i>
+      <span class="text">{{ _('Dashboard') }}</span>
+      <span class="badge">{{ new_activities }}</span>
+    </a>
+  </li>
+{% endblock %}

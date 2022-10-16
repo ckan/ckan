@@ -1,7 +1,9 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from typing import Optional
 from pkg_resources import iter_entry_points
 
 import click
@@ -28,7 +30,8 @@ from . import (
     user,
     views,
     config_tool,
-    error_shout
+    error_shout,
+    shell
 )
 
 META_ATTR = u'_ckan_meta'
@@ -46,7 +49,7 @@ _no_config_commands = [
 
 class CtxObject(object):
 
-    def __init__(self, conf=None):
+    def __init__(self, conf: Optional[str] = None):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
         self.config = ckan_cli.load_config(conf)
@@ -59,7 +62,8 @@ class ExtendableGroup(click.Group):
         CMD_TYPE_ENTRY: u'Entry points',
     }
 
-    def format_commands(self, ctx, formatter):
+    def format_commands(
+            self, ctx: click.Context, formatter: click.HelpFormatter):
         """Print help message.
 
         Includes information about commands that were registered by extensions.
@@ -98,7 +102,7 @@ class ExtendableGroup(click.Group):
                 for rows in group.values():
                     formatter.write_dl(rows)
 
-    def parse_args(self, ctx, args):
+    def parse_args(self, ctx: click.Context, args: list[str]):
         """Preprocess options and arguments.
 
         As long as at least one option is provided, click won't fallback to
@@ -116,14 +120,14 @@ class ExtendableGroup(click.Group):
         return result
 
 
-def _init_ckan_config(ctx, param, value):
+def _init_ckan_config(ctx: click.Context, param: str, value: str):
     if any(sys.argv[1:len(cmd) + 1] == cmd for cmd in _no_config_commands):
         return
     _add_ctx_object(ctx, value)
     _add_external_commands(ctx)
 
 
-def _add_ctx_object(ctx, path=None):
+def _add_ctx_object(ctx: click.Context, path: Optional[str] = None):
     """Initialize CKAN App using config file available under provided path.
 
     """
@@ -139,21 +143,23 @@ def _add_ctx_object(ctx, path=None):
     # adding new ones. Such situation is possible only during tests,
     # because we are using singleton as main entry point, so it
     # preserves its state even between tests
-    for key, cmd in list(ctx.command.commands.items()):
+    commands = getattr(ctx.command, "commands")
+    for key, cmd in list(commands.items()):
         if hasattr(cmd, META_ATTR):
-            ctx.command.commands.pop(key)
+            commands.pop(key)
 
 
-def _add_external_commands(ctx):
+def _add_external_commands(ctx: click.Context):
+    add = getattr(ctx.command, "add_command")
     for cmd in _get_commands_from_entry_point():
-        ctx.command.add_command(cmd)
+        add(cmd)
 
     plugins = p.PluginImplementations(p.IClick)
     for cmd in _get_commands_from_plugins(plugins):
-        ctx.command.add_command(cmd)
+        add(cmd)
 
 
-def _command_with_ckan_meta(cmd, name, type_):
+def _command_with_ckan_meta(cmd: click.Command, name: str, type_: str):
     """Mark command as one retrived from CKAN extension.
 
     This information is used when CLI help text is generated.
@@ -162,7 +168,7 @@ def _command_with_ckan_meta(cmd, name, type_):
     return cmd
 
 
-def _get_commands_from_plugins(plugins):
+def _get_commands_from_plugins(plugins: p.PluginImplementations[p.IClick]):
     """Register commands that are available when plugin enabled.
 
     """
@@ -171,7 +177,7 @@ def _get_commands_from_plugins(plugins):
             yield _command_with_ckan_meta(cmd, plugin.name, CMD_TYPE_PLUGIN)
 
 
-def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
+def _get_commands_from_entry_point(entry_point: str = 'ckan.click_command'):
     """Register commands that are available even if plugin is not enabled.
 
     """
@@ -195,9 +201,10 @@ def _get_commands_from_entry_point(entry_point=u'ckan.click_command'):
 
 
 @click.group(cls=ExtendableGroup)
-@click.option(u'-c', u'--config', metavar=u'CONFIG',
-              is_eager=True, callback=_init_ckan_config, expose_value=False,
-              help=u'Config file to use (default: ckan.ini)')
+@click.option(
+    u'-c', u'--config', metavar=u'CONFIG',
+    is_eager=True, callback=_init_ckan_config, expose_value=False,
+    help=u'Config file to use (default: ckan.ini)')
 @click.help_option(u'-h', u'--help')
 def ckan():
     pass
@@ -221,3 +228,4 @@ ckan.add_command(tracking.tracking)
 ckan.add_command(translation.translation)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
+ckan.add_command(shell.shell)

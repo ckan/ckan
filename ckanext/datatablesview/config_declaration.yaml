@@ -1,0 +1,95 @@
+version: 1
+groups:
+- annotation: datatables_view settings
+  options:
+  - key: ckan.datatables.page_length_choices
+    default: 20 50 100 500 1000
+    description: https://datatables.net/examples/advanced_init/length_menu.html
+    type: list
+    example: 20 50 100 500 1000 5000
+    description: |
+      Space-delimited list of the choices for the number of rows per page, with
+      the lowest value being the default initial value.
+
+      .. note:: On larger screens, DataTables view will attempt to fill the
+        table with as many rows that can fit using the lowest closest choice.
+
+  - key: ckan.datatables.state_saving
+    default: true
+    type: bool
+    example: 'false'
+    description: |
+      Enable or disable state saving. When enabled, DataTables view will store
+      state information such as pagination position, page length, row
+      selection/s, column visibility/ordering, filtering and sorting using the
+      browser's localStorage.  When the end user reloads the page, the table's
+      state will be altered to match what they had previously set up.
+
+      This also enables/disables the "Reset" and "Share current view"
+      buttons. "Reset" discards the saved state. "Share current view" base-64
+      encodes the state and passes it as a url parameter, acting like a "saved
+      search" that can be used for embedding and sharing table searches.
+
+  - key: ckan.datatables.state_duration
+    default: 7200
+    type: int
+    example: 86400
+    description: |
+      Duration (in seconds) for which the saved state information is considered
+      valid. After this period has elapsed, the table's state will be returned
+      to the default, and the state cleared from the browser's localStorage.
+
+      .. note:: The value ``0`` is a special value as it indicates that the
+        state can be stored and retrieved indefinitely with no time limit.
+
+  - key: ckan.datatables.data_dictionary_labels
+    default: true
+    type: bool
+    example: 'false'
+    description: >
+      Enable or disable data dictionary integration. When enabled, a column's
+      data dictionary label will be used in the table header. A tooltip for
+      each column with data dictionary information will also be integrated into
+      the header.
+
+  - key: ckan.datatables.ellipsis_length
+    default: 100
+    type: int
+    example: 100
+    description: |
+      The maximum number of characters to show in a cell before it is
+      truncated. An ellipsis (...) will be added at the truncation point and
+      the full text of the cell will be available as a tooltip. This value can
+      be overridden at the resource level when configuring a DataTables
+      resource view.
+
+      .. note:: The value ``0`` is a special value as it indicates that the
+        column's width will be determined by the column name, and cell content
+        will word-wrap.
+
+  - key: ckan.datatables.date_format
+    default: llll
+    description: see Moment.js cheatsheet https://devhints.io/moment
+    example: YYYY-MM-DD dd ww
+    description: |
+      The `moment.js date format
+      <https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/>`_
+      to use to convert raw timestamps to a user-friendly date format using
+      CKAN's current locale language code. This value can be overridden at the
+      resource level when configuring a DataTables resource view.
+
+      .. note:: The value ``NONE`` is a special value as it indicates that no
+        date formatting will be applied and the raw ISO-8601 timestamp will be
+        displayed.
+
+  - key: ckan.datatables.default_view
+    default: table
+    example: list
+    description: |
+      Indicates the default view mode of the DataTable (valid values: ``table``
+      or ``list``). Table view is the typical grid layout, with horizontal
+      scrolling.  List view is a responsive table, automatically hiding columns
+      as required to fit the browser viewport. In addition, list view allows
+      the user to view, copy and print the details of a specific row. This
+      value can be overridden at the resource level when configuring a
+      DataTables resource view.

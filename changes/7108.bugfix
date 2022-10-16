@@ -1,0 +1,1 @@
+Fix a bug that causes CKAN to only register the first blueprint of plugins.

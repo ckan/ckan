@@ -1,7 +1,6 @@
 # encoding: utf-8
 import unittest.mock as mock
 import pytest
-import six
 from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
@@ -11,23 +10,115 @@ from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException
 
 
-def _clear_activities():
-    model.Session.query(model.ActivityDetail).delete()
-    model.Session.query(model.Activity).delete()
-    model.Session.flush()
+@pytest.mark.usefixtures("clean_db")
+class TestUserListings:
+    def test_user_page_lists_users(self, app):
+        """/users/ lists registered users"""
+        factories.User(fullname="User One")
+        factories.User(fullname="User Two")
+        factories.User(fullname="User Three")
+
+        user_url = url_for("user.index")
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.data)
+        user_list = user_response_html.select("ul.user-list li")
+        assert len(user_list) == 3
+
+        user_names = [u.text.strip() for u in user_list]
+        assert "User One" in user_names
+        assert "User Two" in user_names
+        assert "User Three" in user_names
+
+    def test_user_page_doesnot_list_deleted_users(self, app):
+        """/users/ doesn't list deleted users"""
+
+        factories.User(fullname="User One", state="deleted")
+        factories.User(fullname="User Two")
+        factories.User(fullname="User Three")
+
+        user_url = url_for("user.index")
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.data)
+        user_list = user_response_html.select("ul.user-list li")
+        assert len(user_list) == 2
+
+        user_names = [u.text.strip() for u in user_list]
+        assert "User One" not in user_names
+        assert "User Two" in user_names
+        assert "User Three" in user_names
+
+    def test_user_page_anon_search(self, app):
+        """Anon users can search for users by username."""
+
+        factories.User(fullname="User One")
+        factories.User(fullname="Person Two")
+        factories.User(fullname="Person Three")
+
+        user_url = url_for("user.index")
+        search_response = app.get(user_url, query_string={"q": "Person"})
+
+        search_response_html = BeautifulSoup(search_response.data)
+        user_list = search_response_html.select("ul.user-list li")
+        assert len(user_list) == 2
+
+        user_names = [u.text.strip() for u in user_list]
+        assert "Person Two" in user_names
+        assert "Person Three" in user_names
+        assert "User One" not in user_names
+
+    def test_user_page_anon_search_not_by_email(self, app):
+        """Anon users can not search for users by email."""
+
+        stub = factories.User.stub()
+        factories.User(fullname="User One", email=stub.email)
+        factories.User(fullname="Person Two")
+        factories.User(fullname="Person Three")
+
+        user_url = url_for("user.index")
+        search_response = app.get(
+            user_url, query_string={"q": stub.email}
+        )
+
+        search_response_html = BeautifulSoup(search_response.data)
+        user_list = search_response_html.select("ul.user-list li")
+        assert len(user_list) == 0
+
+    def test_user_page_sysadmin_user(self, app):
+        """Sysadmin can search for users by email."""
+
+        # sysadmin = factories.Sysadmin()
+        stub = factories.User.stub()
+        factories.User(fullname="User One", email=stub.email)
+        factories.User(fullname="Person Two")
+        factories.User(fullname="Person Three")
+
+
+@pytest.fixture
+def user():
+    user = factories.UserWithToken()
+    return user
+
+
+@pytest.fixture
+def sysadmin():
+    user = factories.SysadminWithToken()
+    return user
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
     def test_register_a_user(self, app):
         url = url_for("user.register")
+        stub = factories.User.stub()
         response = app.post(
             url=url,
             data={
                 "save": "",
-                "name": "newuser",
+                "name": stub.name,
                 "fullname": "New User",
-                "email": "test@test.com",
+                "email": stub.email,
                 "password1": "TestPassword1",
                 "password2": "TestPassword1",
             },
@@ -35,57 +126,51 @@ class TestUser(object):
 
         assert 200 == response.status_code
 
-        user = helpers.call_action("user_show", id="newuser")
-        assert user["name"] == "newuser"
+        user = helpers.call_action("user_show", id=stub.name)
+        assert user["name"] == stub.name
         assert user["fullname"] == "New User"
         assert not (user["sysadmin"])
 
     def test_register_user_bad_password(self, app):
+        stub = factories.User.stub()
         response = app.post(
             url_for("user.register"),
             data={
                 "save": "",
-                "name": "newuser",
+                "name": stub.name,
                 "fullname": "New User",
-                "email": "test@test.com",
+                "email": stub.email,
                 "password1": "TestPassword1",
                 "password2": "",
             },
         )
         assert "The passwords you entered do not match" in response
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_create_user_as_sysadmin(self, app):
         admin_pass = "RandomPassword123"
         sysadmin = factories.Sysadmin(password=admin_pass)
+        sysadmin_token = factories.APIToken(user=sysadmin["name"])
 
-        # Have to do an actual login as this test relies on repoze
-        #  cookie handling.
-
-        # get the form
-        response = app.post(
-            "/login_generic?came_from=/user/logged_in",
-            data={
-                "save": "",
-                "login": sysadmin["name"],
-                "password": admin_pass,
-            },
-        )
-
-        response = app.post(
+        env = {"Authorization": sysadmin_token["token"]}
+        stub = factories.User.stub()
+        app.post(
             url_for("user.register"),
             data={
-                "name": "newestuser",
+                "name": stub.name,
                 "fullname": "Newest User",
-                "email": "test@test.com",
+                "email": stub.email,
                 "password1": "NewPassword1",
                 "password2": "NewPassword1",
                 "save": "",
             },
+            extra_environ=env,
             follow_redirects=False,
         )
+        # assert "/user/activity" in response.headers["location"]
 
-        assert "/user/activity" in response.headers["location"]
-
+    @pytest.mark.ckan_config("ckan.plugins", "activity")
+    @pytest.mark.usefixtures("with_plugins")
     def test_registered_user_login(self, app):
         """
         Registered user can submit valid login details at /user/login and
@@ -97,7 +182,7 @@ class TestUser(object):
 
         # get the form
         response = app.post(
-            "/login_generic?came_from=/user/logged_in",
+            url_for("user.login"),
             data={
                 "login": user["name"],
                 "password": password
@@ -124,7 +209,7 @@ class TestUser(object):
 
         # get the form
         response = app.post(
-            "/login_generic?came_from=/user/logged_in",
+            url_for("user.login"),
             data={"login": user["name"], "password": "BadPass1", "save": ""},
         )
 
@@ -138,37 +223,31 @@ class TestUser(object):
             not in response
         )
 
-    def test_user_logout_url_redirect(self, app):
+    def test_user_logout_url_redirect(self, app, user):
         """_logout url redirects to logged out page.
-
-        Note: this doesn't test the actual logout of a logged in user, just
-        the associated redirect.
         """
-
+        env = {"Authorization": user["token"]}
         logout_url = url_for("user.logout")
-        final_response = app.get(logout_url)
+        final_response = app.get(logout_url, extra_environ=env)
 
         assert "You are now logged out." in final_response
 
     @pytest.mark.ckan_config("ckan.root_path", "/my/prefix")
-    def test_non_root_user_logout_url_redirect(self, app):
+    def test_non_root_user_logout_url_redirect(self, app, user):
         """
         _logout url redirects to logged out page with `ckan.root_path`
         prefixed.
-
-        Note: this doesn't test the actual logout of a logged in user, just
-        the associated redirect.
         """
-
+        env = {"Authorization": user["token"]}
         logout_url = url_for("user.logout")
         # Remove the prefix otherwise the test app won't find the correct route
         logout_url = logout_url.replace("/my/prefix", "")
-        logout_response = app.get(logout_url, follow_redirects=False)
+        logout_response = app.get(logout_url, extra_environ=env, follow_redirects=False)
         assert logout_response.status_code == 302
-        assert "/my/prefix/user/logout" in logout_response.headers["location"]
+        assert "/my/prefix/user/logged_out_redirect" in logout_response.headers["location"]
 
     def test_not_logged_in_dashboard(self, app):
-        for route in ["index", "organizations", "datasets", "groups"]:
+        for route in ["organizations", "datasets", "groups"]:
             response = app.get(
                 url=url_for(u"dashboard.{}".format(route)),
                 follow_redirects=False,
@@ -176,32 +255,26 @@ class TestUser(object):
             assert response.status_code == 302
             assert "user/login" in response.headers["location"]
 
-    def test_own_datasets_show_up_on_user_dashboard(self, app):
-        user = factories.User()
+    def test_own_datasets_show_up_on_user_dashboard(self, app, user):
+        env = {"Authorization": user["token"]}
         dataset_title = "My very own dataset"
         factories.Dataset(
             user=user, name="my-own-dataset", title=dataset_title
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(
-            url=url_for("dashboard.datasets"), extra_environ=env
-        )
+        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
 
         assert dataset_title in response
 
-    def test_other_datasets_dont_show_up_on_user_dashboard(self, app):
+    def test_other_datasets_dont_show_up_on_user_dashboard(self, app, user):
+        env = {"Authorization": user["token"]}
         user1 = factories.User()
-        user2 = factories.User()
         dataset_title = "Someone else's dataset"
         factories.Dataset(
-            user=user1, name="someone-elses-dataset", title=dataset_title
+            user=user1, title=dataset_title
         )
 
-        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
-        response = app.get(
-            url=url_for("dashboard.datasets"), extra_environ=env
-        )
+        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
 
         assert not (dataset_title in response)
 
@@ -213,10 +286,8 @@ class TestUser(object):
     def test_user_edit_unknown_user(self, app):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
-
-        app.get(
-            url_for("user.edit", id="unknown_person"), status=403
-        )
+        url = url_for("user.edit", id=factories.User.stub().name)
+        app.get(url, status=403)
 
     def test_user_edit_not_logged_in(self, app):
         """Attempt to read edit user for an existing, not-logged in user
@@ -224,176 +295,135 @@ class TestUser(object):
 
         user = factories.User()
         username = user["name"]
-        app.get(url_for("user.edit", id=username), status=403)
+        url = url_for("user.edit", id=username)
+        app.get(url, status=403)
 
-    def test_edit_user(self, app):
-        user = factories.User(password="TestPassword1")
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_edit_user(self, app, user):
+        env = {"Authorization": user["token"]}
         app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
                 "save": "",
                 "name": user["name"],
                 "fullname": "new full name",
-                "email": "new@example.com",
+                "email": 'user@ckan.org',
                 "about": "new about",
                 "activity_streams_email_notifications": True,
-                "old_password": "TestPassword1",
+                "old_password": "correct123",
                 "password1": "NewPass1",
                 "password2": "NewPass1",
             },
+            extra_environ=env
         )
 
         user = model.Session.query(model.User).get(user["id"])
-        # assert(user.name== 'new-name')
+
         assert user.fullname == "new full name"
-        assert user.email == "new@example.com"
+        assert user.email == 'user@ckan.org'
         assert user.about == "new about"
         assert user.activity_streams_email_notifications
 
-    def test_edit_user_as_wrong_user(self, app):
-        user = factories.User(password="TestPassword1")
-        other_user = factories.User(password="TestPassword2")
+    def test_edit_user_as_wrong_user(self, app, user):
+        user_one = factories.User(password="TestPassword1")
+        env = {"Authorization": user["token"]}
+        app.get(url_for("user.edit", id=user_one["name"]), extra_environ=env, status=403)
 
-        env = {"REMOTE_USER": six.ensure_str(other_user["name"])}
-        app.get(
-            url_for("user.edit", id=user["name"]),
-            extra_environ=env,
-            status=403,
-        )
-
-    def test_email_change_without_password(self, app):
-
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_email_change_without_password(self, app, user):
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
-                "email": "new@example.com",
+                "email": factories.User.stub().email,
                 "save": "",
                 "old_password": "Wrong-pass1",
                 "password1": "",
                 "password2": "",
             },
+            extra_environ=env
         )
         assert "Old Password: incorrect password" in response
 
-    def test_email_change_with_password(self, app):
-        password = "RandomPassword123"
-        user = factories.User(password=password)
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+    def test_email_change_with_password(self, app, user):
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
-                "email": "new@example.com",
+                "email": factories.User.stub().email,
                 "save": "",
-                "old_password": password,
+                "old_password": "correct123",
                 "password1": "",
                 "password2": "",
                 "name": user["name"],
             },
+            extra_environ=env
         )
         assert "Profile updated" in response
 
-    def test_email_change_on_existed_email(self, app):
-        password = "RandomPassword123"
-        factories.User(email="existed@email.com")
-        user2 = factories.User(password=password)
-        env = {"REMOTE_USER": six.ensure_str(user2["name"])}
+    def test_email_change_on_existed_email(self, app, user):
+        user2 = factories.User(email="existed@email.com")
+        env = {"Authorization": user["token"]}
 
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
-                "email": "existed@email.com",
+                "email": user2["email"],
                 "save": "",
-                "old_password": password,
+                "old_password": "correct123",
                 "password1": "",
                 "password2": "",
-                "name": user2["name"],
+                "name": user["name"],
             },
+            extra_environ=env
         )
         assert "belongs to a registered user" in response
 
-    def test_edit_user_logged_in_username_change(self, app):
+    def test_edit_user_logged_in_username_change(self, app, user):
 
-        user_pass = "TestPassword1"
-        user = factories.User(password=user_pass)
-
-        # Have to do an actual login as this test relys on repoze cookie handling.
-        # get the form
-        response = app.post(
-            "/login_generic?came_from=/user/logged_in",
-            data={"login": user["name"], "password": user_pass, "save": ""},
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
                 "email": user["email"],
                 "save": "",
                 "password1": "",
                 "password2": "",
-                "name": "new-name",
+                "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
 
-    def test_edit_user_logged_in_username_change_by_name(self, app):
-        user_pass = "TestPassword1"
-        user = factories.User(password=user_pass)
+    def test_edit_user_logged_in_username_change_by_name(self, app, user):
 
-        # Have to do an actual login as this test relys on repoze cookie handling.
-        # get the form
-        response = app.post(
-            "/login_generic?came_from=/user/logged_in",
-            data={"login": user["name"], "password": user_pass, "save": ""},
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit", id=user["name"]),
-            extra_environ=env,
             data={
                 "email": user["email"],
                 "save": "",
                 "password1": "",
                 "password2": "",
-                "name": "new-name",
+                "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
 
-    def test_edit_user_logged_in_username_change_by_id(self, app):
-        user_pass = "TestPassword1"
-        user = factories.User(password=user_pass)
+    def test_edit_user_logged_in_username_change_by_id(self, app, user):
 
-        # Have to do an actual login as this test relys on repoze cookie handling.
-        # get the form
-        response = app.post(
-            "/login_generic?came_from=/user/logged_in",
-            data={"login": user["name"], "password": user_pass, "save": ""},
-        )
-
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit", id=user["id"]),
-            extra_environ=env,
             data={
                 "email": user["email"],
                 "save": "",
                 "password1": "",
                 "password2": "",
-                "name": "new-name",
+                "name": factories.User.stub().name,
             },
+            extra_environ=env
         )
 
         assert "That login name can not be modified" in response
@@ -416,38 +446,33 @@ class TestUser(object):
 
         assert key != user_obj.reset_key
 
-    def test_password_reset_correct_password(self, app):
+    def test_password_reset_correct_password(self, app, user):
         """
         user password reset attempted with correct old password
         """
-
-        password = "RandomPassword123"
-        user = factories.User(password=password)
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
                 "save": "",
-                "old_password": password,
+                "old_password": "correct123",
                 "password1": "NewPassword1",
                 "password2": "NewPassword1",
                 "name": user["name"],
                 "email": user["email"],
             },
+            extra_environ=env
         )
 
         assert "Profile updated" in response
 
-    def test_password_reset_incorrect_password(self, app):
+    def test_password_reset_incorrect_password(self, app, user):
         """
         user password reset attempted with invalid old password
         """
-        user = factories.User()
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        env = {"Authorization": user["token"]}
         response = app.post(
             url=url_for("user.edit"),
-            extra_environ=env,
             data={
                 "save": "",
                 "old_password": "Wrong-Pass1",
@@ -456,15 +481,14 @@ class TestUser(object):
                 "name": user["name"],
                 "email": user["email"],
             },
+            extra_environ=env
         )
         assert "Old Password: incorrect password" in response
 
-    def test_user_follow(self, app):
+    def test_user_follow(self, app, user):
 
-        user_one = factories.User()
         user_two = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, extra_environ=env)
         assert (
@@ -472,23 +496,18 @@ class TestUser(object):
             in response
         )
 
-    def test_user_follow_not_exist(self, app):
+    def test_user_follow_not_exist(self, app, user):
         """Pass an id for a user that doesn't exist"""
-
-        user_one = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id="not-here")
         response = app.post(follow_url, extra_environ=env)
 
         assert response.status_code == 404
 
-    def test_user_unfollow(self, app):
+    def test_user_unfollow(self, app, user):
 
-        user_one = factories.User()
         user_two = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
         app.post(follow_url, extra_environ=env)
 
@@ -500,13 +519,11 @@ class TestUser(object):
             in unfollow_response
         )
 
-    def test_user_unfollow_not_following(self, app):
+    def test_user_unfollow_not_following(self, app, user):
         """Unfollow a user not currently following"""
 
-        user_one = factories.User()
         user_two = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, extra_environ=env)
 
@@ -515,34 +532,28 @@ class TestUser(object):
             in unfollow_response
         )
 
-    def test_user_unfollow_not_exist(self, app):
+    def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
-
-        user_one = factories.User()
-
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
+        env = {"Authorization": user["token"]}
         unfollow_url = url_for("user.unfollow", id="not-here")
         response = app.post(unfollow_url, extra_environ=env)
 
         assert response.status_code == 404
 
-    def test_user_follower_list(self, app):
+    def test_user_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
+        env = {"Authorization": sysadmin["token"]}
 
-        user_one = factories.Sysadmin()
         user_two = factories.User()
 
-        env = {"REMOTE_USER": six.ensure_str(user_one["name"])}
         follow_url = url_for("user.follow", id=user_two["id"])
         app.post(follow_url, extra_environ=env)
 
         followers_url = url_for("user.followers", id=user_two["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(
-            followers_url, extra_environ=env, status=200
-        )
-        assert user_one["display_name"] in followers_response
+        followers_response = app.get(followers_url, extra_environ=env, status=200)
+        assert sysadmin["display_name"] in followers_response
 
     def test_user_page_anon_access(self, app):
         """Anon users can access the user list page"""
@@ -550,279 +561,6 @@ class TestUser(object):
         user_url = url_for("user.index")
         user_response = app.get(user_url, status=200)
         assert "<title>All Users - CKAN</title>" in user_response
-
-    def test_user_page_lists_users(self, app):
-        """/users/ lists registered users"""
-        initial_user_count = model.User.count()
-        factories.User(fullname="User One")
-        factories.User(fullname="User Two")
-        factories.User(fullname="User Three")
-
-        user_url = url_for("user.index")
-        user_response = app.get(user_url, status=200)
-
-        user_response_html = BeautifulSoup(user_response.data)
-        user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 3 + initial_user_count
-
-        user_names = [u.text.strip() for u in user_list]
-        assert "User One" in user_names
-        assert "User Two" in user_names
-        assert "User Three" in user_names
-
-    def test_user_page_doesnot_list_deleted_users(self, app):
-        """/users/ doesn't list deleted users"""
-        initial_user_count = model.User.count()
-
-        factories.User(fullname="User One", state="deleted")
-        factories.User(fullname="User Two")
-        factories.User(fullname="User Three")
-
-        user_url = url_for("user.index")
-        user_response = app.get(user_url, status=200)
-
-        user_response_html = BeautifulSoup(user_response.data)
-        user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 2 + initial_user_count
-
-        user_names = [u.text.strip() for u in user_list]
-        assert "User One" not in user_names
-        assert "User Two" in user_names
-        assert "User Three" in user_names
-
-    def test_user_page_anon_search(self, app):
-        """Anon users can search for users by username."""
-
-        factories.User(fullname="User One", email="useroneemail@example.com")
-        factories.User(fullname="Person Two")
-        factories.User(fullname="Person Three")
-
-        user_url = url_for("user.index")
-        search_response = app.get(user_url, query_string={"q": "Person"})
-
-        search_response_html = BeautifulSoup(search_response.data)
-        user_list = search_response_html.select("ul.user-list li")
-        assert len(user_list) == 2
-
-        user_names = [u.text.strip() for u in user_list]
-        assert "Person Two" in user_names
-        assert "Person Three" in user_names
-        assert "User One" not in user_names
-
-    def test_user_page_anon_search_not_by_email(self, app):
-        """Anon users can not search for users by email."""
-
-        factories.User(fullname="User One", email="useroneemail@example.com")
-        factories.User(fullname="Person Two")
-        factories.User(fullname="Person Three")
-
-        user_url = url_for("user.index")
-        search_response = app.get(
-            user_url, query_string={"q": "useroneemail@example.com"}
-        )
-
-        search_response_html = BeautifulSoup(search_response.data)
-        user_list = search_response_html.select("ul.user-list li")
-        assert len(user_list) == 0
-
-    def test_user_page_sysadmin_user(self, app):
-        """Sysadmin can search for users by email."""
-
-        sysadmin = factories.Sysadmin()
-
-        factories.User(fullname="User One", email="useroneemail@example.com")
-        factories.User(fullname="Person Two")
-        factories.User(fullname="Person Three")
-
-        env = {"REMOTE_USER": six.ensure_str(sysadmin["name"])}
-        user_url = url_for("user.index")
-        search_response = app.get(
-            user_url,
-            query_string={"q": "useroneemail@example.com"},
-            extra_environ=env,
-        )
-
-        search_response_html = BeautifulSoup(search_response.data)
-        user_list = search_response_html.select("ul.user-list li")
-        assert len(user_list) == 1
-        assert user_list[0].text.strip() == "User One"
-
-    def test_simple(self, app):
-        """Checking the template shows the activity stream."""
-
-        user = factories.User()
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        assert user["fullname"] in response
-        assert "signed up" in response
-
-    def test_create_user(self, app):
-
-        user = factories.User()
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "signed up" in response
-
-    def test_change_user(self, app):
-
-        user = factories.User()
-        _clear_activities()
-        user["fullname"] = "Mr. Changed Name"
-        helpers.call_action(
-            "user_update", context={"user": user["name"]}, **user
-        )
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
-            in response
-        )
-        assert "updated their profile" in response
-
-    def test_create_dataset(self, app):
-
-        user = factories.User()
-        _clear_activities()
-        dataset = factories.Dataset(user=user)
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "created the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_change_dataset(self, app):
-
-        user = factories.User()
-        dataset = factories.Dataset(user=user)
-        _clear_activities()
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_delete_dataset(self, app):
-
-        user = factories.User()
-        dataset = factories.Dataset(user=user)
-        _clear_activities()
-        helpers.call_action(
-            "package_delete", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("user.activity", id=user["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the dataset" in response
-        assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert dataset["title"] in href.text.strip()
-
-    def test_create_group(self, app):
-
-        user = factories.User()
-        group = factories.Group(user=user)
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".group")
-
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "created the group" in response
-        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert group["title"] in href.text.strip()
-
-    def test_change_group(self, app):
-
-        user = factories.User()
-        group = factories.Group(user=user)
-        _clear_activities()
-        group["title"] = "Group with changed title"
-        helpers.call_action(
-            "group_update", context={"user": user["name"]}, **group
-        )
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".group")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "updated the group" in response
-        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert group["title"] in href.text.strip()
-
-    def test_delete_group_using_group_delete(self, app):
-
-        user = factories.User()
-        group = factories.Group(user=user)
-        _clear_activities()
-        helpers.call_action(
-            "group_delete", context={"user": user["name"]}, **group
-        )
-
-        url = url_for("user.activity", id=user["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".group")
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the group" in response
-        assert group["id"] in href.select_one("a")["href"].split("/", 2)[-1]
-        assert group["title"] in href.text.strip()
-
-    def test_delete_group_by_updating_state(self, app):
-
-        user = factories.User()
-        group = factories.Group(user=user)
-        _clear_activities()
-        group["state"] = "deleted"
-        helpers.call_action(
-            "group_update", context={"user": user["name"]}, **group
-        )
-
-        url = url_for("group.activity", id=group["id"])
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
-        response = app.get(url, extra_environ=env)
-        assert (
-            '<a href="/user/{}">{}'.format(user["name"], user["fullname"]) in response
-        )
-        assert "deleted the group" in response
-        assert (
-            '<a href="/group/{}">{}'.format(group["name"], group["title"]) in response
-        )
 
     @mock.patch("ckan.lib.mailer.send_reset_link")
     def test_request_reset_by_email(self, send_reset_link, app):
@@ -865,7 +603,7 @@ class TestUser(object):
     def test_request_reset_for_unknown_email(self, send_reset_link, app):
 
         offset = url_for("user.request_reset")
-        response = app.post(offset, data=dict(user="unknown@example.com"))
+        response = app.post(offset, data=dict(user=factories.User.stub().email))
 
         # doesn't reveal account does or doesn't exist
         assert "A reset link has been emailed to you" in response
@@ -889,17 +627,15 @@ class TestUser(object):
 
     def test_sysadmin_not_authorized(self, app):
         user = factories.User()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
         app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
-            extra_environ=env,
-            status=403,
+            environ_overrides={"REMOTE_USER": user["name"]},
+            status=403
         )
 
-    def test_sysadmin_invalid_user(self, app):
-        user = factories.Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
+    def test_sysadmin_invalid_user(self, app, sysadmin):
+        env = {"Authorization": sysadmin["token"]}
         app.post(
             url_for("user.sysadmin"),
             data={"username": "fred", "status": "1"},
@@ -908,9 +644,8 @@ class TestUser(object):
         )
 
     def test_sysadmin_promote_success(self, app):
-        admin = factories.Sysadmin()
-        env = {"REMOTE_USER": admin["name"].encode("ascii")}
 
+        sysadmin = factories.Sysadmin()
         # create a normal user
         user = factories.User(fullname="Alice")
 
@@ -918,7 +653,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
-            extra_environ=env,
+            environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
         )
         assert "Promoted Alice to sysadmin" in resp.body
@@ -928,9 +663,7 @@ class TestUser(object):
         assert userobj.sysadmin
 
     def test_sysadmin_revoke_success(self, app):
-        admin = factories.Sysadmin()
-        env = {"REMOTE_USER": admin["name"].encode("ascii")}
-
+        sysadmin = factories.Sysadmin()
         # create another sysadmin
         user = factories.Sysadmin(fullname="Bob")
 
@@ -938,7 +671,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "0"},
-            extra_environ=env,
+            environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
         )
         assert "Revoked sysadmin permission from Bob" in resp.body
@@ -947,25 +680,24 @@ class TestUser(object):
         userobj = model.User.get(user["id"])
         assert not userobj.sysadmin
 
-    def test_user_delete_redirects_to_user_index(self, app):
+    def test_user_delete_redirects_to_user_index(self, app, sysadmin):
+        env = {"Authorization": sysadmin["token"]}
         user = factories.User()
-        admin = factories.Sysadmin()
         url = url_for("user.delete", id=user["id"])
-        extra_environ = {"REMOTE_USER": admin["name"]}
+
         redirect_url = url_for("user.index", qualified=True)
-        res = app.post(
-            url, extra_environ=extra_environ, follow_redirects=False
-        )
+        res = app.post(url, extra_environ=env, follow_redirects=False)
+
         user = helpers.call_action("user_show", id=user["id"])
         assert user["state"] == "deleted"
         assert res.headers["Location"].startswith(redirect_url)
 
-    def test_user_delete_by_unauthorized_user(self, app):
-        user = factories.User()
-        url = url_for("user.delete", id=user["id"])
-        extra_environ = {"REMOTE_USER": "an_unauthorized_user"}
+    def test_user_delete_by_unauthorized_user(self, app, user):
+        user_one = factories.User()
+        url = url_for("user.delete", id=user_one["id"])
+        env = {"Authorization": user["token"]}
 
-        app.post(url, status=403, extra_environ=extra_environ)
+        app.post(url, extra_environ=env, status=403)
 
     def test_user_read_without_id(self, app):
         app.get("/user", status=200)
@@ -973,26 +705,15 @@ class TestUser(object):
     def test_user_read_me_without_id(self, app):
         app.get("/user/me", status=302, follow_redirects=False)
 
-    def test_apikey(self, app):
-        user = factories.User()
-        # not logged in
-        url = url_for("user.read", id=user["name"])
-        res = app.get(url)
-        assert "API key" not in res
-
-        url = url_for("user.read", id=user["name"])
-        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
-        assert user["apikey"] in res
-
-    def test_perform_reset_user_password_link_key_incorrect(self, app):
-        user = factories.User()
+    def test_perform_reset_user_password_link_key_incorrect(self, app, user):
+        env = {"Authorization": user["token"]}
         url = url_for("user.perform_reset", id=user["id"], key="randomness")
-        app.get(url, status=403)
+        app.get(url, extra_environ=env, status=403)
 
-    def test_perform_reset_user_password_link_key_missing(self, app):
-        user = factories.User()
+    def test_perform_reset_user_password_link_key_missing(self, app, user):
+        env = {"Authorization": user["token"]}
         url = url_for("user.perform_reset", id=user["id"])
-        app.get(url, status=403)
+        app.get(url, extra_environ=env, status=403)
 
     def test_perform_reset_user_password_link_user_incorrect(self, app):
         factories.User()
@@ -1019,7 +740,7 @@ class TestUser(object):
         app.post(url, params=params)
 
         userobj = model.User.get(userobj.id)
-        assert userobj.is_active()
+        assert userobj.is_active
 
     def test_perform_reset_doesnt_activate_deleted_user(self, app):
         password = "TestPassword1"
@@ -1040,16 +761,41 @@ class TestUser(object):
         userobj = model.User.get(userobj.id)
         assert userobj.is_deleted(), userobj
 
+    def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+        sysadmin = factories.Sysadmin(password="correct123")
+        deleted_user = factories.User(state="deleted")
+
+        env = {"REMOTE_USER": sysadmin["name"]}
+        data = {
+            "name": deleted_user["name"],
+            "id": deleted_user["id"],
+            "activate_user": True,
+            "email": deleted_user["email"],
+            "old_password": "correct123",
+            "password1": "",
+            "password2": "",
+            "save": ""
+        }
+        url = url_for("user.edit", id=deleted_user["name"])
+        app.post(url, extra_environ=env, data=data)
+
+        user = model.User.get(deleted_user["name"])
+        assert user.state == "active"
+
+
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserImage(object):
     def test_image_url_is_shown(self, app):
 
-        user = factories.User(image_url="https://example.com/mypic.png")
+        user = factories.User(
+            image_url="https://example.com/mypic.png", password="correct123")
 
         url = url_for("user.read", id=user["name"])
 
-        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")
@@ -1060,11 +806,13 @@ class TestUserImage(object):
 
     def test_fallback_to_gravatar(self, app):
 
-        user = factories.User(image_url=None)
+        user = factories.User(image_url=None, password="correct123")
 
         url = url_for("user.read", id=user["name"])
 
-        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")
@@ -1076,11 +824,13 @@ class TestUserImage(object):
     @pytest.mark.ckan_config("ckan.gravatar_default", "disabled")
     def test_fallback_to_placeholder_if_gravatar_disabled(self, app):
 
-        user = factories.User(image_url=None)
+        user = factories.User(image_url=None, password="correct123")
 
         url = url_for("user.read", id=user["name"])
 
-        res = app.get(url, extra_environ={"REMOTE_USER": user["name"]})
+        user_token = factories.APIToken(user=user["name"])
+        env = {"Authorization": user_token["token"]}
+        res = app.get(url, environ_overrides=env)
 
         res_html = BeautifulSoup(res.data)
         user_images = res_html.select("img.user-image")

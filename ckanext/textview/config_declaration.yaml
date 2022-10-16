@@ -1,0 +1,23 @@
+version: 1
+groups:
+- annotation: text_view settings
+  options:
+
+  - key: ckan.preview.text_formats
+    default: text/plain txt plain
+    example: txt plain
+    description: Space-delimited list of plain text based resource formats that will be rendered by the Text view plugin
+
+  - key: ckan.preview.xml_formats
+    default: xml rdf rdf+xml owl+xml atom rss
+    example: xml rdf rss
+    description: Space-delimited list of XML based resource formats that will be rendered by the Text view plugin
+
+  - key: ckan.preview.json_formats
+    default: json
+    example: json
+    description: Space-delimited list of JSON based resource formats that will be rendered by the Text view plugin
+
+  - key: ckan.preview.jsonp_formats
+    default: jsonp
+    description: Space-delimited list of JSONP based resource formats that will be rendered by the Text view plugin

@@ -5,7 +5,7 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 18.04 (Python 2) or 20.04 (Python 3 or Python 2) 64-bit**. If
+and easiest way to install CKAN, but it requires **Ubuntu 18.04 or 20.04 64-bit**. If
 you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
@@ -119,10 +119,6 @@ set the correct password, database and database user.
    You can install |solr| and CKAN on different servers. Just
    change the :ref:`solr_url` setting in your
    |ckan.ini| |production.ini| file to reference your |solr| server.
-
-Install |solr|, running this command in a terminal::
-
-    sudo apt install -y solr-tomcat
 
 .. include:: solr.rst
 

@@ -1,0 +1,15 @@
+{% extends "group/read_base.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% if activity_types is defined %}
+    {% snippet 'snippets/activity_type_selector.html', id=id, activity_type=activity_type, activity_types=activity_types, blueprint='activity.group_activity' %}
+  {% endif %}
+
+  {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type='group' %}
+
+  {% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+
+{% endblock %}

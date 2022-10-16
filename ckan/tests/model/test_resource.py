@@ -8,7 +8,7 @@ import ckan.tests.factories as factories
 Resource = model.Resource
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestResource(object):
     def test_edit_url(self):
         res_dict = factories.Resource(url="http://first")
@@ -29,27 +29,29 @@ class TestResource(object):
     def test_resource_count(self):
         """Resource.count() should return a count of instances of Resource
         class"""
-        assert Resource.count() == 0
+        initial = Resource.count()
         factories.Resource()
         factories.Resource()
         factories.Resource()
-        assert Resource.count() == 3
+        assert Resource.count() == initial + 3
 
     def test_package_deletion_does_not_delete_resources(self):
         parent = factories.Dataset()
+        initial = model.Resource.active().count()
         factories.Resource(package_id=parent["id"])
         factories.Resource(package_id=parent["id"])
 
-        assert model.Resource.active().count() == 2
+        assert model.Resource.active().count() == initial + 2
 
         pkg = model.Package.get(parent["id"])
         pkg.delete()
         model.repo.commit_and_remove()
 
-        assert model.Resource.active().count() == 2
+        assert model.Resource.active().count() == initial + 2
 
     def test_package_purge_deletes_resources(self):
         parent = factories.Dataset()
+        initial = model.Resource.active().count()
         factories.Resource(package_id=parent["id"])
         factories.Resource(package_id=parent["id"])
 
@@ -57,4 +59,4 @@ class TestResource(object):
         pkg.purge()
         model.repo.commit_and_remove()
 
-        assert model.Resource.active().count() == 0
+        assert model.Resource.active().count() == initial
