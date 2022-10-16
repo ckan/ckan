@@ -2040,57 +2040,7 @@ def user_in_org_or_group(group_id: str) -> bool:
 
 
 @core_helper
-<<<<<<< HEAD
-def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
-                              offset=0):
-    '''Return the dashboard activity stream of the current user.
-
-    :param user_id: the id of the user
-    :type user_id: string
-
-    :param filter_type: the type of thing to filter by
-    :type filter_type: string
-
-    :param filter_id: the id of item to filter by
-    :type filter_id: string
-
-    :returns: an activity stream as an HTML snippet
-    :rtype: string
-
-    '''
-    context = {'model': model, 'session': model.Session, 'user': c.user}
-
-    if filter_type:
-        action_functions = {
-            'dataset': 'package_activity_list',
-            'resource': 'resource_activity_list',
-            'user': 'user_activity_list',
-            'group': 'group_activity_list',
-            'organization': 'organization_activity_list',
-        }
-        action_function = logic.get_action(action_functions.get(filter_type))
-        return action_function(context, {'id': filter_id, 'offset': offset})
-    else:
-        return logic.get_action('dashboard_activity_list')(
-            context, {'offset': offset})
-
-
-@core_helper
-def recently_changed_packages_activity_stream(limit=None):
-    if limit:
-        data_dict = {'limit': limit}
-    else:
-        data_dict = {}
-    context = {'model': model, 'session': model.Session, 'user': c.user}
-    return logic.get_action('recently_changed_packages_activity_list')(
-        context, data_dict)
-
-
-@core_helper
-def escape_js(str_to_escape):
-=======
 def escape_js(str_to_escape: str) -> str:
->>>>>>> master
     '''Escapes special characters from a JS string.
 
        Useful e.g. when you need to pass JSON to the templates
@@ -2787,12 +2737,12 @@ def can_update_owner_org(
 
 
 @core_helper
-<<<<<<< HEAD
 def get_pkg_title_from_id(id):
     if id:
         obj = model.Session.query(model.Package).get(id)
         return obj.title if obj.title else None
-=======
+
+
 def decode_view_request_filters() -> dict[str, Any] | None:
     filterString = request.args.get('filters')
     if request.form.get('filters') is not None:
@@ -2862,4 +2812,3 @@ def make_login_url(
 @core_helper
 def csrf_input():
     return snippet('snippets/csrf_input.html')
->>>>>>> master
