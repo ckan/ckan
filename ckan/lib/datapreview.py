@@ -261,10 +261,16 @@ def add_views_to_resource(context,
             'resource': resource_dict,
             'package': dataset_dict
                 }):  # noqa
+
+            # `title` and `description` are removed from this dict,
+            # and is set via default schema values in:
+            # `https://github.com/open-data/ckanext-canada/blob/master/ckanext/canada/plugins.py`
+            # `resource_view_create_bilingual`
+            # This is done to correct issues with default view creation
+            # with the Open Data Canada English/French requirements.
+            #                                           Oct 17 2022
             view = {'resource_id': resource_dict['id'],
-                    'view_type': view_info['name'],
-                    'title': view_info.get('default_title', _('View')),
-                    'description': view_info.get('default_description', '')}
+                    'view_type': view_info['name']}
 
             view_dict = p.toolkit.get_action('resource_view_create')(context,
                                                                      view)
