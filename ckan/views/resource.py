@@ -457,6 +457,8 @@ class DeleteView(MethodView):
                 403,
                 _(u'Unauthorized to delete resource %s') % u''
             )
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
         return context
 
     def post(self, package_type: str, id: str, resource_id: str) -> Response:
