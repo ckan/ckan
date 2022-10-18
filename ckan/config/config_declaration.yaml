@@ -284,6 +284,7 @@ groups:
           negating the need to issue the save() method.
 
       - key: beaker.session.cookie_expires
+        type: bool
         description: |
           Determines when the cookie used to track the client-side of the session will expire.
           When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
@@ -293,6 +294,7 @@ groups:
           Defaults to never expiring.
 
       - key: beaker.session.cookie_domain
+        default: .example.com
         description: |
           What domain the cookie should be set to. When using sub-domains,
           this should be set to the main domain the cookie should be valid for. For example,
@@ -311,6 +313,8 @@ groups:
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
       - key: beaker.session.timeout
+        type: int
+        default: 600
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
