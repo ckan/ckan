@@ -269,6 +269,9 @@ only for explanation and you don't need them in the real file::
           # It's recommended to enable this flag for options that are editable via AdminUI.
           editable: true
 
+          # boolean flag that marks option as commented. Such options are added
+          # as comments to the config file generated from template.
+          commented: true
 
 Dynamic config options
 ^^^^^^^^^^^^^^^^^^^^^^

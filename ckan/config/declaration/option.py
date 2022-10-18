@@ -50,6 +50,34 @@ class Flag(enum.Flag):
     modified. For example, this option is exposed via configuration form in the
     Admin UI.
 
+    commented: this option is commented by default in the config file.  Use it
+    for optional settings that may break the application when default value is
+    used. Example of such option is a cookie domain. When it's missing, the
+    current domain is used, so this value is optional. But if you try to
+    provide default value, `example.com` or any other domain, CKAN
+    authentication will not work as long as application runs on different
+    domain. While it's similar to `placeholder` attribute of the
+    :py:class:`~ckan.config.declaration.option.Option`, their goals are
+    different.
+    Option.placeholer:
+    - shows an example of expectend value
+    - is ignored when config option is **missing** from the config file
+    - shown as a default value in the config file generated from template. For
+      example, `Option<key=a, placeholder=b, commented=False>` is added to the
+      config file as `a = b`. After this, `config.get_value('a')` returns `b`,
+      because it's explicitely written in the config file.
+    Flag.commented:
+    - Marks option as commented by default
+    - Does not changes behavior of `Option.default` and `Option.placeholder`.
+    - switches option to the commented state in the config file generated from
+      template.  For example, `Option<key=a, placeholder=b, commented=True>` is
+      added to the config file as `# a = b`. After this,
+      `config.get_value('a')` returns `None`, because there is no option `a` in
+      the config file(it's commented, which makes this option non-existing)
+    If the option is missing from the config file, both `placeholder` and
+    `commented` are virtually ignored, having absolutely no impact on the value
+    of the config option.
+
     reserved_*(01-10): these flags are added for extension developers. CKAN
     doesn't treat them specially, neither includes them in groups, like
     `not_safe`/`not_iterable`. These flags are completely ignored by CKAN. If
@@ -76,6 +104,7 @@ class Flag(enum.Flag):
     internal = enum.auto()
     required = enum.auto()
     editable = enum.auto()
+    commented = enum.auto()
 
     reserved_01 = enum.auto()
     reserved_02 = enum.auto()

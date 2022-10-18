@@ -99,6 +99,9 @@ def serialize_ini(
             else:
                 value = option.str_value()
 
+            if option.has_flag(Flag.commented):
+                result += "# "
+
             if isinstance(item, Pattern):
                 # Patterns are not actual config options, but rather an example
                 # of possibilities: `sqlalchemy.<option> = `. Thus they cannot
