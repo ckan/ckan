@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Type
+from typing import TYPE_CHECKING, Callable, ClassVar, Type
 from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
