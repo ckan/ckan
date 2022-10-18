@@ -41,9 +41,12 @@ class CKANConfigLoader(object):
             self.parser._defaults[key] = value  # type: ignore
 
     def _read_config_file(self, filename: str) -> None:
-        defaults = {u'here': os.path.dirname(os.path.abspath(filename))}
+        defaults = {u'here': self._here_from_file(filename)}
         self._update_defaults(defaults)
         self.parser.read(filename)
+
+    def _here_from_file(self, filename: str) -> str:
+        return os.path.dirname(os.path.abspath(filename))
 
     def _update_config(self) -> None:
         options = self.parser.options(self.section)
@@ -82,8 +85,23 @@ class CKANConfigLoader(object):
 
             if schema != "config":
                 return chain
+
+            # we are using raw parser here. It means, no interpolation happened
+            # yet, and `use = config:%(here)s/config.ini` is not resolved. We
+            # have to do it manualy in order to verify that every file in the
+            # config chain exists
+            here = self._here_from_file(filename)
             filename = os.path.join(
-                os.path.dirname(os.path.abspath(filename)), next_config)
+                here,
+                next_config.replace("%(here)s", here)
+            )
+
+            if not os.path.isfile(filename):
+                raise CkanConfigurationException(
+                    f"Config file {filename} does not exist"
+                    f"(computed from {next_config})"
+                )
+
             if filename in chain:
                 joined_chain = ' -> '.join(chain + [filename])
                 raise CkanConfigurationException(

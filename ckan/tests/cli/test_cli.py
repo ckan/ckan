@@ -186,3 +186,24 @@ def test_invalid_use_option():
         os.path.dirname(__file__), u'data', u'test-invalid-use.ini')
     with pytest.raises(CkanConfigurationException):
         CKANConfigLoader(filename).get_config()
+
+
+def test_error_if_refers_not_real_file():
+    """Report unexisting config file
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-here-invalid-master.ini')
+
+    with pytest.raises(CkanConfigurationException, match="Config file .+ does not exist"):
+        CKANConfigLoader(filename).get_config()
+
+
+def test_here_in_use():
+    """Verify that `%(here)s` reference inside `use` directive is resolved.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-here-master.ini')
+
+    conf = CKANConfigLoader(filename).get_config()
+    assert conf["master"]
+    assert conf["slave"]
