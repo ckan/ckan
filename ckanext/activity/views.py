@@ -99,6 +99,7 @@ def _get_newer_activities_url(
 
 @bp.route("/dataset/<id>/resources/<resource_id>/history/<activity_id>")
 def resource_history(id: str, resource_id: str, activity_id: str) -> str:
+    breakpoint()
     context = cast(
         Context,
         {
@@ -293,6 +294,93 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
             "pkg": pkg,
         },
     )
+
+
+@bp.route("/dataset/resource_activity/<id>")
+def resource_activity(id: str) -> Union[Response, str]: # noqa
+    """Render this package's public resource activity stream page."""
+    after = tk.request.args.get("after")
+    before = tk.request.args.get("before")
+    activity_type = tk.request.args.get("activity_type")
+
+    context = cast(
+        Context,
+        {
+            "for_view": True,
+            "auth_user_obj": tk.g.userobj,
+        },
+    )
+
+    data_dict = {"id": id}
+    limit = _get_activity_stream_limit()
+    activity_types = [activity_type] if activity_type else None
+    # breakpoint()
+    try:
+        pkg_dict = tk.get_action("package_show")(context, data_dict)
+        res_activity_list = []
+        for res in pkg_dict.get("resources"):
+
+            activity_dict = {
+                "id": res["id"],
+                "after": after,
+                "before": before,
+                # ask for one more just to know if this query has more results
+                "limit": limit + 1,
+                "activity_types": activity_types,
+            }
+
+            activity_stream = tk.get_action("resource_activity_list")(
+                context, activity_dict
+            )
+            if activity_stream:
+                res_activity_list.append(activity_stream[0])
+
+        dataset_type = pkg_dict["type"] or "dataset"
+    except tk.ObjectNotFound:
+        return tk.abort(404, tk._("Dataset not found"))
+    except tk.NotAuthorized:
+        return tk.abort(403, tk._("Unauthorized to read dataset %s") % id)
+    except tk.ValidationError:
+        return tk.abort(400, tk._("Invalid parameters"))
+
+    has_more = len(activity_stream) > limit
+    # remove the extra item if exists
+    if has_more:
+        if after:
+            activity_stream.pop(0)
+        else:
+            activity_stream.pop()
+    breakpoint()
+    older_activities_url = _get_older_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+        )
+
+    newer_activities_url = _get_newer_activities_url(
+        has_more,
+        activity_stream,
+        id=id,
+        activity_type=activity_type
+    )
+
+    return tk.render(
+        "package/resource_activity_stream.html",
+        {
+            "dataset_type": dataset_type,
+            "pkg_dict": pkg_dict,
+            "res_activity_stream": res_activity_list,
+            "id": id,  # i.e. package's current name
+            "limit": limit,
+            "has_more": has_more,
+            "activity_type": activity_type,
+            "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+            "newer_activities_url": newer_activities_url,
+            "older_activities_url": older_activities_url,
+        },
+    )
+
 
 
 @bp.route("/dataset/activity/<id>")

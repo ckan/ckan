@@ -22,6 +22,9 @@ def get_subscriptions() -> types.SignalMapping:
             {"sender": "package_create", "receiver": package_changed},
             {"sender": "package_update", "receiver": package_changed},
             {"sender": "package_delete", "receiver": package_changed},
+            {"sender": "resource_create", "receiver": resource_changed},
+            {"sender": "resource_update", "receiver": resource_changed},
+            {"sender": "resource_delete", "receiver": resource_changed},
             {"sender": "group_create", "receiver": group_or_org_changed},
             {"sender": "group_update", "receiver": group_or_org_changed},
             {"sender": "group_delete", "receiver": group_or_org_changed},
@@ -103,6 +106,46 @@ def package_changed(sender: str, **kwargs: Any):
         user_id = "not logged in"
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
+    context["session"].add(activity)
+    context["session"].commit()
+
+
+# action, context, data_dict, result
+def resource_changed(sender: str, **kwargs: Any):
+    breakpoint()
+    for key in ("result", "context", "data_dict"):
+        if key not in kwargs:
+            log.warning("Activity subscription ignored")
+            return
+
+    type_ = "new" if sender == "resource_create" else "changed"
+
+    context: types.Context = kwargs["context"]
+    result: types.ActionResult.ResourceUpdate = kwargs["result"]
+    data_dict = kwargs["data_dict"]
+
+    if not result:
+        id_ = data_dict["id"]
+    elif isinstance(result, str):
+        id_ = result
+    else:
+        id_ = result["id"]
+
+    pkg = context.get("package")
+    assert pkg
+    if pkg.private:
+        return
+
+    res = context["model"].Resource.get(id_)
+    assert res
+
+    user_obj = context["model"].User.get(context["user"])
+    if user_obj:
+        user_id = user_obj.id
+    else:
+        user_id = "not logged in"
+
+    activity = Activity.resource_activity_stream_item(res, type_, user_id)
     context["session"].add(activity)
     context["session"].commit()
 

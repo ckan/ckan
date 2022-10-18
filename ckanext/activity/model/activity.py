@@ -142,6 +142,58 @@ class Activity(domain_object.DomainObject, Base):  # type: ignore
             },
         )
 
+    @classmethod
+    def resource_activity_stream_item(cls, res, activity_type, user_id):
+        import ckan.model
+        import ckan.logic
+
+        assert activity_type in ("new", "changed"), (
+            str(activity_type))
+
+        # Handle 'deleted' objects.
+        # When the user marks a resource as deleted this comes through here as
+        # a 'changed' resource activity. We detect this and change it to a
+        # 'deleted' activity.
+        if activity_type == 'changed' and res.state == u'deleted':
+            if meta.Session.query(cls).filter_by(
+                    object_id=res.id, activity_type='deleted').all():
+                # A 'deleted' activity for this object has already been emitted
+                # FIXME: What if the object was deleted and then activated
+                # again?
+                return None
+            else:
+                # Emit a 'deleted' activity for this object.
+                activity_type = 'deleted'
+        breakpoint()
+        try:
+            # We save the entire rendered resource dict so we can support
+            # viewing the past resource from the activity feed.
+            dictized_resource = ckan.logic.get_action('resource_show')({
+                'model': ckan.model,
+                'session': ckan.model.Session,
+                'for_view': False,  # avoid ckanext-multilingual translating it
+                'ignore_auth': True
+            }, {
+                'id': res.id,
+                'include_tracking': False
+            })
+        except ckan.logic.NotFound:
+            return None
+
+        actor = meta.Session.query(ckan.model.User).get(user_id)
+
+        return cls(
+            user_id,
+            res.id,
+            "%s resource" % activity_type,
+            {
+                'package': dictized_resource,
+                # We keep the acting user name around so that actions can be
+                # properly displayed even if the user is deleted in the future.
+                'actor': actor.name if actor else None
+            }
+        )
+
 
 def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
     return table_dictize(activity, context)
@@ -336,6 +388,72 @@ def package_activity_list(
 
     """
     q = _package_activity_query(package_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types
+        )
+    elif exclude_activity_types:
+        q = _filter_activitites_from_type(
+            q, include=False, types=exclude_activity_types
+        )
+
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
+
+
+def _resource_activity_query(resource_id):
+    import ckan.model as model
+    q = model.Session.query(Activity) \
+        .filter_by(object_id=resource_id)
+    return q
+
+
+def resource_activity_list(
+    resource_id: str,
+    limit: int,
+    offset: Optional[int] = None,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
+    include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None,
+    exclude_activity_types: Optional[list[str]] = None,
+    ):
+    '''Return the given resource public activity stream.
+    activity_types, exclude_activity_types: Optional. list of strings for activity types
+    Returns activities about the given resource, i.e. where the given
+    resource is the object of the activity, e.g.:
+    "{USER} added the resource {RESOURCE} to the dataset {DATASET}"
+    "{USER} updated the resource {RESOURCE} in the dataset {DATASET}"
+    etc.
+    '''
+    q = _resource_activity_query(resource_id)
 
     if not include_hidden_activity:
         q = _filter_activitites_from_users(q)

@@ -188,3 +188,11 @@ def compare_group_dicts(
 
 def activity_show_email_notifications() -> bool:
     return tk.config.get_value("ckan.activity_streams_email_notifications")
+
+
+def get_pkg_title_from_id(package_id):
+    if package_id:
+        obj = model.Session.query(model.Package).get(package_id)
+        if obj:
+            return obj.title if obj.title else None
+        return None

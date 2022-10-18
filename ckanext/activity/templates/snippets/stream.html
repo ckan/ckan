@@ -13,6 +13,15 @@
   </span>
 {% endmacro %}
 
+{% macro resource(activity) %}
+  <span class="resource">
+    {% set dataset_type = activity.data.package.type or 'dataset' %}
+    <a href="{{ h.url_for('resource.read', package_type=dataset_type, id=activity.data.package_id, resource_id=activity.object_id) }}">
+      {{ activity.data.package.name if activity.data.package else _('unknown') }}
+    </a>
+  </span>
+{% endmacro %}
+
 {% macro organization(activity) %}
   <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
@@ -50,6 +59,7 @@ object_type - 'package', 'organization', 'group', 'user'
       activity=activity, can_show_activity_detail=can_show_activity_detail, ah={
         'actor': actor,
         'dataset': dataset,
+        'resource': resource,
         'organization': organization,
         'user': user,
         'group': group,

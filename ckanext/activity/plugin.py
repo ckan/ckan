@@ -7,7 +7,7 @@ from ckan.common import CKANConfig
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
-from . import subscriptions
+from . import subscriptions, helpers
 
 
 @tk.blanket.auth_functions
@@ -17,6 +17,7 @@ from . import subscriptions
 @tk.blanket.validators
 class ActivityPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
+    p.implements(p.ITemplateHelpers)
     p.implements(p.ISignal)
 
     # IConfigurer
@@ -27,3 +28,7 @@ class ActivityPlugin(p.SingletonPlugin):
     # ISignal
     def get_signal_subscriptions(self):
         return subscriptions.get_subscriptions()
+
+    # ITemplateHelpers
+    def get_helpers(self):
+        return {"get_pkg_title_from_id": helpers.get_pkg_title_from_id}
