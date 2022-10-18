@@ -6,6 +6,7 @@ import logging
 from typing import Any, cast
 
 import sqlalchemy
+import sqlalchemy.exc
 import six
 
 
