@@ -131,9 +131,8 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     context['session'] = context['model'].meta.create_local_session()
     p.toolkit.get_action('task_status_update')(context, task)
 
-    site_user = p.toolkit.get_action(
-        'get_site_user')({'ignore_auth': True}, {})
-
+    # This setting is checked on startup
+    api_token = p.toolkit.config.get("ckan.datapusher.api_token")
     try:
         r = requests.post(
             urljoin(datapusher_url, 'job'),
@@ -142,7 +141,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
             },
             timeout=TIMEOUT,
             data=json.dumps({
-                'api_key': site_user['apikey'],
+                'api_key': api_token,
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
