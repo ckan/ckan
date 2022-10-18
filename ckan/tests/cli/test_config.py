@@ -89,6 +89,11 @@ class TestDescribe(object):
                             "description": mock.ANY,
                         },
                         {
+                            "key": "ckan.datapusher.api_token",
+                            "description": mock.ANY,
+                        },
+
+                        {
                             "key": "ckan.datapusher.callback_url_base",
                             "description": mock.ANY,
                             "placeholder": "%(ckan.site_url)s",
