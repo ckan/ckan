@@ -1010,6 +1010,7 @@ def user_create(context: Context,
     if 'password_hash' in data:
         data['_password'] = data.pop('password_hash')
 
+    data.update({'action': 'user_create'})
     user = model_save.user_dict_save(data, context)
     signals.user_created.send(user.name, user=user)
 

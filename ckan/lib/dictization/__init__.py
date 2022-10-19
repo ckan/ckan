@@ -7,7 +7,7 @@ from typing import Any, Callable, Iterable
 import sqlalchemy
 from sqlalchemy import Table
 # type_ignore_reason: incomplete SQLAlchemy types
-from sqlalchemy.engine import Row # type: ignore
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
@@ -144,6 +144,24 @@ def table_dict_save(table_dict: dict[str, Any],
 
     if not obj:
         obj = ModelClass()
+
+    came_from = table_dict.get('action')
+    if came_from and 'user_create' in came_from and obj.id:
+        import ckan.logic as logic
+        from typing import cast
+        from ckan.types import ErrorDict
+
+        raise logic.ValidationError(
+                cast(
+                    ErrorDict,
+                    {
+                        "id": [
+                            "'{user_id}' belongs to "
+                            "a registered user.".format(user_id=obj.id)
+                        ]
+                    },
+                )
+            )
 
     obj.from_dict(table_dict)
     for a in extra_attrs:

@@ -793,6 +793,12 @@ class TestUser(object):
         assert user.state == "active"
 
 
+    def test_user_id_uniqueness(self):
+        factories.User(id='test-id')
+        with pytest.raises(Exception):
+            factories.User(id='test-id')
+
+
 @pytest.mark.usefixtures("non_clean_db")
 class TestUserImage(object):
     def test_image_url_is_shown(self, app):
