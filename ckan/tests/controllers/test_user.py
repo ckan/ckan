@@ -792,7 +792,6 @@ class TestUser(object):
         user = model.User.get(deleted_user["name"])
         assert user.state == "active"
 
-
     def test_user_id_uniqueness(self):
         factories.User(id='test-id')
         with pytest.raises(Exception):
