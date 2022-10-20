@@ -83,6 +83,8 @@ class I18nMiddleware(object):
 
 
 class CKANBabel(Babel):
+    app: CKANApp
+
     def __init__(self, *pargs: Any, **kwargs: Any):
         super(CKANBabel, self).__init__(*pargs, **kwargs)
         self._i18n_path_idx = 0

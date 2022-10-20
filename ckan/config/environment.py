@@ -10,6 +10,7 @@ import pytz
 from typing import Union, cast
 
 import sqlalchemy
+import sqlalchemy.exc
 
 import ckan.model as model
 import ckan.plugins as p

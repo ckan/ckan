@@ -34,7 +34,7 @@ import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
-from ckan.types import Context, Query
+from ckan.types import Context
 from ckan.common import config
 
 ## package save
@@ -303,7 +303,7 @@ def _get_members(context: Context, group: model.Group,
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    q: "Query[tuple[Entity, str]]" = model.Session.query(
+    q = model.Session.query(
         Entity, model.Member.capacity).\
         join(model.Member, model.Member.table_id == Entity.id).\
         filter(model.Member.group_id == group.id).\

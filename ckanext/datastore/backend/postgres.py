@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing_extensions import TypeAlias
 
+import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
 from ckan.types import Context, ErrorDict
 import copy
@@ -1778,7 +1779,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             connection = _get_engine_from_url(url).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
-                is_writable: bool = connection.execute(sql).first()[0]
+                is_writable: bool = connection.execute(sql).one()[0]
             finally:
                 connection.close()
             if is_writable:
@@ -1816,7 +1817,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 have_privilege: bool = write_connection.execute(
                     privilege_sql,
                     (read_connection_user, privilege)
-                ).first()[0]
+                ).one()[0]
                 if have_privilege:
                     return False
         finally:

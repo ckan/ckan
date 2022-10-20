@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import Any, ClassVar, Iterable, Optional, Union
+from typing import Any, ClassVar, Optional, Union
 
 from sqlalchemy import Table, select, join, func, and_
 
@@ -48,8 +48,9 @@ class Stats(object):
             .limit(limit)
         )
 
-        res_ids: Iterable[tuple[str, int]] = model.Session.execute(s).fetchall()
-        res_groups = [
+        res_ids = model.Session.execute(s).fetchall()
+
+        res_groups: list[tuple[Optional[model.Group], int]] = [
             (model.Session.query(model.Group).get(str(group_id)), val)
             for group_id, val in res_ids
         ]
@@ -91,7 +92,7 @@ class Stats(object):
             .order_by(func.count(package_tag.c["package_id"]).desc())
             .limit(limit)
         )
-        res_col: list[tuple[str, int]] = model.Session.execute(s).fetchall()
+        res_col = model.Session.execute(s).fetchall()
         if returned_tag_info in ("id", "name"):
             return res_col
         elif returned_tag_info == "object":
@@ -147,8 +148,7 @@ class Stats(object):
             .order_by(func.count(activity.c["id"]).desc())
             .limit(limit)
         )
-        res_ids: Iterable[tuple[str, int]] = model.Session.execute(
-            s).fetchall()
+        res_ids = model.Session.execute(s).fetchall()
 
         res_pkgs: list[tuple[model.Package, int]] = []
         for pkg_id, val in res_ids:
@@ -159,7 +159,7 @@ class Stats(object):
         return res_pkgs
 
     @classmethod
-    def get_package_revisions(cls) -> list[tuple[str, datetime.datetime]]:
+    def get_package_revisions(cls) -> list[Any]:
         """
         @return: Returns list of revisions and date of them, in
                  format: [(id, date), ...]
@@ -172,8 +172,7 @@ class Stats(object):
                 activity.join(package, activity.c["object_id"] == package.c["id"])
             ],
         ).order_by(activity.c["timestamp"])
-        res: list[tuple[str, datetime.datetime]] = model.Session.execute(
-            s).fetchall()
+        res = model.Session.execute(s).fetchall()
         return res
 
     @classmethod
@@ -267,7 +266,7 @@ class Stats(object):
                 .group_by(package.c["id"])
                 .order_by(func.min(activity.c["timestamp"]))
             )
-            res: list[tuple[str, datetime.datetime]] = model.Session.execute(s).fetchall()
+            res = model.Session.execute(s).fetchall()
             res_pickleable: list[tuple[str, int]] = []
             for pkg_id, created_datetime in res:
                 res_pickleable.append((pkg_id, created_datetime.toordinal()))
@@ -397,7 +396,7 @@ class Stats(object):
                 .group_by(package.c["id"])
                 .order_by(func.min(activity.c["timestamp"]))
             )
-            res: list[tuple[str, datetime.datetime]] = model.Session.execute(s).fetchall()
+            res = model.Session.execute(s).fetchall()
             res_pickleable: list[tuple[str, int]] = []
             for pkg_id, deleted_datetime in res:
                 res_pickleable.append((pkg_id, deleted_datetime.toordinal()))
