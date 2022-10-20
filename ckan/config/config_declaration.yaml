@@ -294,7 +294,8 @@ groups:
           Defaults to never expiring.
 
       - key: beaker.session.cookie_domain
-        default: .example.com
+        commented: true
+        placeholder: .example.com
         description: |
           What domain the cookie should be set to. When using sub-domains,
           this should be set to the main domain the cookie should be valid for. For example,
@@ -696,7 +697,8 @@ groups:
           The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
 
       - key: REMEMBER_COOKIE_DOMAIN
-        default: null
+        placeholder: .example.com
+        commented: true
         description: |
           If the “Remember Me” cookie should cross domains, set the domain value here
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
@@ -1137,7 +1139,7 @@ groups:
         editable: true
 
       - key: ckan.site_custom_css
-        description: Custom CSS directives to include on all CKAN pages. 
+        description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
 
