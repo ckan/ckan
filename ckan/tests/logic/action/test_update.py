@@ -402,19 +402,14 @@ class TestUpdate(object):
         context = {"user": user["name"]}
         org = factories.Organization(type="organization", user=user)
 
-        org = helpers.call_action(
-            "organization_update",
-            context=context,
-            id=org["id"],
-            name=org["name"],
-            type="ragtagband",
-        )
-
-        assert org["type"] == "organization"
-        assert (
-            helpers.call_action("organization_show", id=org["name"])["type"]
-            == "organization"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "organization_update",
+                context=context,
+                id=org["id"],
+                name=org["name"],
+                type="ragtagband",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1495,19 +1490,14 @@ class TestGroupUpdate(object):
         context = {"user": user["name"]}
         group = factories.Group(type="group", user=user)
 
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            name=group["name"],
-            id=group["id"],
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id=group["name"])["type"]
-            == "group"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_update",
+                context=context,
+                name=group["name"],
+                id=group["id"],
+                type="favouritecolour",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")
