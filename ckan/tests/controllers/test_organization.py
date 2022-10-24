@@ -190,7 +190,6 @@ class TestOrganizationDelete(object):
         )
         assert organization["state"] == "deleted"
 
-
     def test_delete_form_rendered_correctly(self, app, sysadmin):
         group = factories.Organization()
         env = {"Authorization": sysadmin["token"]}
