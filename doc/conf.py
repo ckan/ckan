@@ -14,6 +14,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from datetime import date
 import re
 import os
 import subprocess
@@ -103,13 +104,17 @@ master_doc = 'contents'
 # General information about the project.
 project = u'CKAN'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge Foundation</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+copyright = u'&copy; 2009-{} '.format(date.today().strftime("%Y"))
+copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and 
+    <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
     <img src="https://licensebuttons.net/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="https://opendefinition.org/"><img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
-      alt="{{ _('Open Content') }}" /></a>
+    <a href="https://opendefinition.org/">
+      <img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
+      alt="{{ _('Open Content') }}" />
+    </a>
   '''
 html_show_sphinx = False
 
