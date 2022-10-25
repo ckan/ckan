@@ -2,7 +2,9 @@
 
 from unittest import mock
 import pytest
+from typing import cast
 from ckan import logic, model
+from ckan.types import Context
 import ckan.tests.factories as factories
 
 
@@ -66,3 +68,25 @@ def test_user_inside_context_of_check_access(is_authorized: mock.Mock):
 def test_get_action_optional_params():
 
     assert "ckan_version" in logic.get_action("status_show")()
+
+
+def test_fresh_context():
+    """ Test the fresh_context function.
+        It should return a new context object only with
+        'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+        values (if they exists)."""
+
+    dirty_context = {
+        "user": "test",
+        "ignore_auth": True,
+        "to_be_cleaned": "test",
+    }
+    dirty_Context = cast(Context, dirty_context)
+    cleaned_context = logic.fresh_context(dirty_Context)
+
+    assert "to_be_cleaned" not in cleaned_context
+    assert cleaned_context["user"] == "test"
+    assert cleaned_context["ignore_auth"] is True
+    assert "model" not in cleaned_context
+    assert "session" not in cleaned_context
+    assert "auth_user_obj" not in cleaned_context
