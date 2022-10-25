@@ -9,6 +9,17 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.7 2022-10-26
+==================
+
+Bugfixes
+--------
+
+* CVE-2022-43685: fix potential user account takeover via user create
+* Fix Datatables view download format selector (`#7147 <https://github.com/ckan/ckan/pull/7147>`_)
+* Revert deletions included in 2.9.6 as part of #6187 (`#7118 <https://github.com/ckan/ckan/pull/7118>`_)
+
+
 v.2.9.6 2022-09-28
 ==================
 
