@@ -190,6 +190,20 @@ class TestOrganizationDelete(object):
         )
         assert organization["state"] == "deleted"
 
+    def test_delete_form_rendered_correctly(self, app, sysadmin):
+        group = factories.Organization()
+        env = {"Authorization": sysadmin["token"]}
+
+        res = app.get(
+            url=url_for(
+                "organization.delete", id=group["id"]
+            ),
+            extra_environ=env,
+            status=200
+        )
+
+        assert helpers.body_contains(res, url_for("organization.delete", id=group["id"]))
+
     def test_non_authorized_user_trying_to_delete_fails(
         self, app, user
     ):
