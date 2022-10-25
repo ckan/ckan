@@ -158,10 +158,12 @@ class SingletonPlugin(_pca_SingletonPlugin):
                 ["before_index", "before_dataset_index"],
                     ["before_view", "before_dataset_view"]]:
                 if hasattr(self, old_name):
-                    warnings.warn(
+                    msg = (
                         f"The method 'IPackageController.{old_name}' is "
-                        + f"deprecated. Please use '{new_name}' instead!",
-                        CkanDeprecationWarning)
+                        + f"deprecated. Please use '{new_name}' instead!"
+                    )
+                    log.warning(msg)
+                    warnings.warn(msg, CkanDeprecationWarning)
                     setattr(self, new_name, getattr(self, old_name))
 
         if interfaces.IResourceController.implemented_by(type(self)):
@@ -174,10 +176,12 @@ class SingletonPlugin(_pca_SingletonPlugin):
                 ["after_delete", "after_resource_delete"],
                     ["before_show", "before_resource_show"]]:
                 if hasattr(self, old_name):
-                    warnings.warn(
+                    msg = (
                         f"The method 'IResourceController.{old_name}' is "
-                        + f"deprecated. Please use '{new_name}' instead!",
-                        CkanDeprecationWarning)
+                        + f"deprecated. Please use '{new_name}' instead!"
+                    )
+                    log.warning(msg)
+                    warnings.warn(msg, CkanDeprecationWarning)
                     setattr(self, new_name, getattr(self, old_name))
 
 
