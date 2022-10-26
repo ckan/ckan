@@ -9,6 +9,77 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.7 2022-10-26
+==================
+
+Bugfixes
+--------
+
+* CVE-2022-43685: fix potential user account takeover via user create
+* Fix Datatables view download format selector (`#7147 <https://github.com/ckan/ckan/pull/7147>`_)
+* Revert deletions included in 2.9.6 as part of #6187 (`#7118 <https://github.com/ckan/ckan/pull/7118>`_)
+
+
+v.2.9.6 2022-09-28
+==================
+
+Note: This release includes requirements upgrades to address security issues
+
+
+Bugfixes
+--------
+
+- Fixes incorrectly encoded url current_url (`#6685 <https://github.com/ckan/ckan/pull/6685>`_)
+- Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+- Add ``csrf_input()`` helper for cross-CKAN version compatibilty (`#7016 <https://github.com/ckan/ckan/issues/7016>`_)
+- Fix not empty validator (`#6658 <https://github.com/ckan/ckan/pull/6658>`_)
+- Use ``get_action()`` in patch actions to allow custom logic (`#6519 <https://github.com/ckan/ckan/pull/6519>`_)
+- Allow to extend organization_facets (`#6682 <https://github.com/ckan/ckan/pull/6682>`_)
+- Expose check_ckan_version to templates (`#6741 <https://github.com/ckan/ckan/pull/6741>`_)
+- Allow get_translated helper to fall back to base version of a language (`#6815 <https://github.com/ckan/ckan/pull/6815>`_)
+- Fix server error in tag autocomplete when vocabulary does not exist  (`#6820 <https://github.com/ckan/ckan/pull/6820>`_)
+- Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+- Fix updating a non-existing resource causes an internal sever error (`#6928 <https://github.com/ckan/ckan/pull/6928>`_)
+- Remove extra comma (`#6774 <https://github.com/ckan/ckan/pull/6774>`_)
+- Fix test data creation issues (`#6805 <https://github.com/ckan/ckan/pull/6805>`_)
+- Fix for updating non-existing resource
+- Avoid storing the session on each request (`#6954 <https://github.com/ckan/ckan/pull/6954>`_)
+- Return zero results instead of raising NotFound when vocabulary does not exist
+- Fix the datapusher trigger in case of resource_update via API (`#5727 <https://github.com/ckan/ckan/pull/5727>`_)
+- Consistent CLI behavior when when no command provided and when using `--help` options (`#6120 <https://github.com/ckan/ckan/pull/6120>`_)
+- Fix regression when validating resource subfields (`#6546 <https://github.com/ckan/ckan/pull/6546>`_)
+- Fix resource file size not updating with resource_patch (`#7075 <https://github.com/ckan/ckan/pull/7076>`_)
+- Prevent non-sysadmin users to change their own state (`#6956 <https://github.com/ckan/ckan/pull/6956>`_)
+- Use user id in auth cookie rather than name
+- Reorder resource view button: allow translation (`#6089 <https://github.com/ckan/ckan/pull/6089>`_)
+- Optmize temp dir creation on uploads (`#6578 <https://github.com/ckan/ckan/pull/6578>`_)
+- Exclude site_user from user_listi (`#6618 <https://github.com/ckan/ckan/pull/6618>`_)
+- Fix race condition in creating the default site user (`#6638 <https://github.com/ckan/ckan/pull/6638>`_)
+- gettext not for metadata fields (`#6660 <https://github.com/ckan/ckan/pull/6660>`_)
+- Include root_path in activity email notifications (`#6743 <https://github.com/ckan/ckan/pull/6743>`_)
+- Extract translations from emails (`#5857 <https://github.com/ckan/ckan/pull/5857>`_)
+- Use the headers Reply-to value if its set in the extensions (`#6838 <https://github.com/ckan/ckan/pull/6838>`_)
+- Improve error when downloading resource (`#6832 <https://github.com/ckan/ckan/pull/6832>`_)
+- ``ckan_config`` test mark works with request context (`#6868 <https://github.com/ckan/ckan/pull/6868>`_)
+- Fix caching logic on logged in users (`#6864 <https://github.com/ckan/ckan/pull/6864>`_)
+- Fix member delete (`#6892 <https://github.com/ckan/ckan/pull/6892>`_)
+- Concurrent-safe resource updates (`#6439 <https://github.com/ckan/ckan/pull/6439>`_)
+- Fix error when listing tokens in the CLI in py2 (`#6789 <https://github.com/ckan/ckan/pull/6789>`_)
+
+Minor changes
+-------------
+
+- The ``ckan.main_css`` and ``ckan.i18.rtl_css`` settings, which were not working, have been replaced by :ref:`ckan.theme` and :ref:`ckan.i18n.rtl_theme` respectively. Both expect the name of an *asset* with a base theme for the application (`#6817 <https://github.com/ckan/ckan/pull/6817>`_)
+- The type of uploads for group and user image can be restricted via the `ckan.upload.{object_type}.types` and `ckan.upload.{object_type}.mimetypes` config options (eg :ref:`ckan.upload.group.types`, :ref:`ckan.upload.user.mimetypes`) (`#6477 <https://github.com/ckan/ckan/pull/6477>`_)
+- Allow to use PDB and IDE debuggers (`#6798 <https://github.com/ckan/ckan/pull/6798>`_)
+- Unpin pytz, upgrade zope.interface (`#6665 <https://github.com/ckan/ckan/pull/6665>`_)
+- Update sqlparse version
+- Bump markdown requirement to support Python 3.9
+- Update psycopg2 to support PostgreSQL 12
+- Add auth functions for 17 actions that didn't have them before (`#7045 <https://github.com/ckan/ckan/pull/7045>`_)
+- Add no-op ``csrf_input()`` helper to help extensions with cross-CKAN version suport (`#7030  <https://github.com/ckan/ckan/pull/7030>`_)
+
+
 v.2.9.5 2022-01-19
 ==================
 
@@ -516,6 +587,32 @@ Removals and deprecations
   Extensions should instead implement CLIs using the new IClick interface.
   (`#5112 <https://github.com/ckan/ckan/pull/5112>`_)
 - Remove paster CLI (`#5264 <https://github.com/ckan/ckan/pull/5264>`_)
+
+v.2.8.12 2022-10-26
+===================
+
+Bugfixes
+--------
+
+* CVE-2022-43685: fix potential user account takeover via user create
+
+v.2.8.11 2022-09-28
+===================
+
+Fixes:
+
+* Fixes incorrectly encoded url current_url (`#6685 <https://github.com/ckan/ckan/pull/6685>`_)
+* Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+* Add ``csrf_input()`` helper for cross-CKAN version compatibilty (`#7016 <https://github.com/ckan/ckan/issues/7016>`_)
+* Fix not empty validator (`#6658 <https://github.com/ckan/ckan/pull/6658>`_)
+* Use ``get_action()`` in patch actions to allow custom logic (`#6519 <https://github.com/ckan/ckan/pull/6519>`_)
+* Allow to extend organization_facets (`#6682 <https://github.com/ckan/ckan/pull/6682>`_)
+* Expose check_ckan_version to templates (`#6741 <https://github.com/ckan/ckan/pull/6741>`_)
+* Allow get_translated helper to fall back to base version of a language (`#6815 <https://github.com/ckan/ckan/pull/6815>`_)
+* Fix server error in tag autocomplete when vocabulary does not exist  (`#6820 <https://github.com/ckan/ckan/pull/6820>`_)
+* Check if locale exists on i18n JS API (`#6698 <https://github.com/ckan/ckan/pull/6698>`_)
+* Fix updating a non-existing resource causes an internal sever error (`#6928 <https://github.com/ckan/ckan/pull/6928>`_)
+
 
 v.2.8.10 2022-01-19
 ===================
