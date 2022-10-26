@@ -997,6 +997,13 @@ def user_create(context: Context,
 
     _check_access('user_create', context, data_dict)
 
+    author_obj = model.User.get(context.get('user'))
+    if data_dict.get("id"):
+        is_sysadmin = (author_obj and author_obj.sysadmin)
+        if not is_sysadmin or model.User.get(data_dict["id"]):
+            data_dict.pop("id", None)
+    context.pop("user_obj", None)
+
     upload = uploader.get_uploader('user')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
@@ -1028,7 +1035,6 @@ def user_create(context: Context,
     user_dictize_context['keep_apikey'] = True
     user_dictize_context['keep_email'] = True
 
-    author_obj = model.User.get(context.get('user'))
     include_plugin_extras = False
     if author_obj:
         include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
