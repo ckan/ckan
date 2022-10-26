@@ -1201,3 +1201,112 @@ class TestUserCreate(helpers.FunctionalTestBase):
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password != 'pretend-this-is-a-valid-hash'
+
+    def test_anon_user_create_does_not_update(self):
+
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": None,
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_normal_user_create_does_not_update(self):
+
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": factories.User()["name"],
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_sysadmin_user_create_does_not_update(self):
+
+        user1 = factories.User(about="This is user 1")
+        user_dict = {
+            "id": user1["id"],
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": factories.Sysadmin()["name"],
+            "ignore_auth": False,
+        }
+
+        user2 = helpers.call_action("user_create", context=context, **user_dict)
+        assert user2["id"] != user1["id"]
+        assert user2["about"] != "This is user 1"
+
+    def test_anon_user_can_not_provide_id(self):
+
+        user_dict = {
+            "id": "custom_id",
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": None,
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] != "custom_id"
+
+    def test_normal_user_can_not_provide_id(self):
+
+        user_dict = {
+            "id": "custom_id",
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+
+        context = {
+            "user": None,
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] != "custom_id"
+
+    def test_sysadmin_can_provide_custom_id(self):
+
+        sysadmin = factories.Sysadmin()
+
+        user_dict = {
+            "id": "custom_id",
+            "name": "some_name",
+            "email": "some_email@example.com",
+            "password": "test1234",
+        }
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+        }
+
+        user = helpers.call_action("user_create", context=context, **user_dict)
+        assert user["id"] == "custom_id"

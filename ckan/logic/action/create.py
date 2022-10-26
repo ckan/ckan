@@ -953,6 +953,13 @@ def user_create(context, data_dict):
 
     _check_access('user_create', context, data_dict)
 
+    author_obj = model.User.get(context.get('user'))
+    if data_dict.get("id"):
+        is_sysadmin = (author_obj and author_obj.sysadmin)
+        if not is_sysadmin or model.User.get(data_dict["id"]):
+            data_dict.pop("id", None)
+    context.pop("user_obj", None)
+
     data, errors = _validate(data_dict, schema, context)
 
     if errors:

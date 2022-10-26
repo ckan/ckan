@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v.2.8.12 2022-10-26
+===================
+
+Bugfixes
+--------
+
+* CVE-2022-43685: fix potential user account takeover via user create
+
 v.2.8.11 2022-09-28
 ===================
 
