@@ -157,7 +157,7 @@ class SingletonPlugin(_pca_SingletonPlugin):
                 ["after_search", "after_dataset_search"],
                 ["before_index", "before_dataset_index"],
                     ["before_view", "before_dataset_view"]]:
-                if hasattr(self, old_name):
+                if hasattr(self, old_name) and not hasattr(self, new_name):
                     msg = (
                         f"The method 'IPackageController.{old_name}' is "
                         + f"deprecated. Please use '{new_name}' instead!"
@@ -175,7 +175,7 @@ class SingletonPlugin(_pca_SingletonPlugin):
                 ["before_delete", "before_resource_delete"],
                 ["after_delete", "after_resource_delete"],
                     ["before_show", "before_resource_show"]]:
-                if hasattr(self, old_name):
+                if hasattr(self, old_name) and not hasattr(self, new_name):
                     msg = (
                         f"The method 'IResourceController.{old_name}' is "
                         + f"deprecated. Please use '{new_name}' instead!"
