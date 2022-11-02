@@ -14389,7 +14389,7 @@ td.diff_header {
 .activity {
   padding: 0;
   list-style-type: none;
-  background: transparent url("../../../base/images/dotted.png") 14px 0 repeat-y;
+  background: transparent url("../../../base/images/dotted.png") 21px 0 repeat-y;
 }
 .activity .item {
   position: relative;

@@ -1,8 +1,7 @@
 .activity {
-    // margin: 10px 0;
     padding: 0;
     list-style-type: none;
-    background: transparent url('#{$imagePath}/dotted.png') 14px 0 repeat-y;
+    background: transparent url('#{$imagePath}/dotted.png') 21px 0 repeat-y;
     .item {
         position: relative;
         margin: 0 0 15px 0;
@@ -18,6 +17,7 @@
             margin: 5px 0 0 80px;
         }
         &.no-avatar p {
+            // Use by datapusher
             margin-left: 40px;
         }
     }
