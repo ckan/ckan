@@ -93,9 +93,11 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
 
     # get package license info
     license_id = package.get(u'license_id')
+
     try:
-        package[u'isopen'] = model.Package.get_license_register()[license_id
-                                                                  ].isopen()
+        package[u'isopen'] = model.Package.get_license_register()[
+            license_id
+        ].isopen()
     except KeyError:
         package[u'isopen'] = False
 
@@ -107,7 +109,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     resource[u'has_views'] = len(resource_views) > 0
 
     current_resource_view = None
-    view_id = request.args.get(u'view_id')
+
     if resource[u'has_views']:
         if view_id:
             current_resource_view = [
@@ -120,15 +122,8 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
         else:
             current_resource_view = resource_views[0]
 
-    # required for nav menu
     pkg = context[u'package']
-    dataset_type = pkg.type or package_type
-
-    # TODO: remove
-    g.package = package
-    g.resource = resource
-    g.pkg = pkg
-    g.pkg_dict = package
+    dataset_type = pkg.type or data_dict.get('package_type')
 
     extra_vars: dict[str, Any] = {
         u'resource_views': resource_views,
@@ -139,9 +134,174 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
         u'resource': resource,
         u'pkg': pkg,
     }
+    return extra_vars
 
-    template = _get_pkg_template(u'resource_template', dataset_type)
-    return base.render(template, extra_vars)
+
+def read(package_type, id, resource_id):
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'auth_user_obj': g.userobj,
+        u'for_view': True
+    }
+
+    try:
+        package = get_action(u'package_show')(context, {u'id': id})
+    except (NotFound, NotAuthorized):
+        return base.abort(404, _(u'Dataset not found'))
+
+    resource = None
+    activity_id = request.params.get(u'activity_id')
+    view_id = request.args.get(u'view_id')
+    data_dict = {
+        'resource': resource, 'package': package, 'view_id': view_id,
+        'activity_id': activity_id, 'package_type': package_type,
+        'resource_id': resource_id
+    }
+    if activity_id:
+        # view an 'old' version of the package, as recorded in the
+        # activity stream
+        try:
+            resource = context['session'].query(model.Activity).get(
+                activity_id
+            ).data['package']
+        except AttributeError:
+            base.abort(404, _('Resource not found'))
+        if resource['id'] != resource_id:
+            log.info(
+                'Mismatch between resource id in activity and URL {} {}'.format
+                    (resource['id'], resource_id)
+            )
+            # the activity is not for the package in the URL - don't allow
+            # misleading URLs as could be malicious
+            base.abort(404, _(u'Activity not found'))
+        # The name is used lots in the template for links, so fix it to be
+        # the current one. It's not displayed to the user anyway.
+        # resource['name'] = current_res['name']
+
+        # Don't crash on old (unmigrated) activity records, which do not
+        # include resources or extras.
+        package.setdefault(u'resources', [])
+
+        data_dict['resource'] = resource
+        extra_vars = _read(context, data_dict)
+
+        template = _get_pkg_template(
+            u'resource_template', extra_vars['dataset_type']
+        )
+        return base.render(template, extra_vars)
+
+    else:
+        for res in package.get('resources', []):
+            if res['id'] == resource_id:
+                resource = res
+                break
+        if not resource:
+            return base.abort(404, _(u'Resource not found'))
+        data_dict['resource'] = resource
+        extra_vars = _read(context, data_dict)
+
+        template = _get_pkg_template(
+            u'resource_template', extra_vars['dataset_type']
+        )
+        return base.render(template, extra_vars)
+
+
+def activity(package_type, id):
+    """Render this package's public activity stream page.
+    """
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'for_view': True,
+        u'auth_user_obj': g.userobj
+    }
+    data_dict = {u'id': id}
+    try:
+        pkg_dict = get_action(u'package_show')(context, data_dict)
+        pkg = context[u'package']
+        package_activity_stream = get_action(
+            u'package_activity_list')(
+            context, {u'id': id})
+
+        res_activity_list = []
+        for res in pkg.resources_all:
+            resource_activity_stream = get_action(
+                'resource_activity_list')(
+                context, {'id': res.id}
+            )
+            res_activity_list.append(resource_activity_stream)
+
+        dataset_type = pkg_dict[u'type'] or u'dataset'
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to read dataset %s') % id)
+
+    # TODO: remove
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
+
+    import itertools
+    from operator import itemgetter
+    activity_list = [list(itertools.chain.from_iterable(res_activity_list))]
+    activity_list = sorted(
+        activity_list[0], key=itemgetter('timestamp'), reverse=True
+    )
+    return base.render(
+        u'package/activity_resource.html', {
+            u'dataset_type': dataset_type,
+            u'pkg_dict': pkg_dict,
+            u'pkg': pkg,
+            u'activity_stream': package_activity_stream,
+            u'res_activity_stream': activity_list,
+            u'id': id,  # i.e. package's current name
+        }
+    )
+
+
+def changes(resource_id, id, activity_id, package_type=None):
+    '''
+    Shows the changes to a resource in one particular activity stream item.
+    '''
+    activity_id = activity_id
+    context = {
+        u'model': model, u'session': model.Session,
+        u'user': g.user, u'auth_user_obj': g.userobj
+    }
+
+    try:
+        activity_diff = get_action(u'activity_diff')(
+            context, {u'id': activity_id, u'object_type': u'package',
+                      u'diff_type': u'html'})
+    except NotFound as e:
+        log.info(u'Activity not found: {} - {}'.format(str(e), activity_id))
+        return base.abort(404, _(u'Activity not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Unauthorized to view activity data'))
+
+    # 'pkg_dict' needs to go to the templates for page title & breadcrumbs.
+    # Use the current version of the package, in case the name/title have
+    # changed, and we need a link to it which works
+    pkg_id = activity_diff['activities'][1]['data']['package']['package_id']
+    current_pkg_dict = get_action('package_show')(context, {'id': pkg_id})
+    resource_activity_list = get_action('resource_activity_list')(
+        context, {
+            'id': resource_id,
+            'limit': 100
+        }
+    )
+
+    return base.render(
+        u'package/changes.html', {
+            u'activity_diffs': [activity_diff],
+            u'pkg_dict': current_pkg_dict,
+            u'pkg_activity_list': resource_activity_list,
+            u'dataset_type': current_pkg_dict[u'type'],
+        }
+    )
 
 
 def download(package_type: str,

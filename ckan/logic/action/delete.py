@@ -16,6 +16,7 @@ import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
 from ckan import authz
+from ckan.model.core import State
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
@@ -168,6 +169,8 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     '''
     model = context['model']
+    session = context['session']
+    user = context['user']
     id = _get_or_bust(data_dict, 'id')
 
     entity = model.Resource.get(id)
@@ -181,18 +184,30 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
+    if not pkg_dict['private']:
+        user_obj = model.User.by_name(user)
+        if user_obj:
+            user_id = user_obj.id
+        else:
+            user_id = 'not logged in'
+        entity.state = State.DELETED
+        activity = entity.activity_stream_item('changed', user_id)
+        session.add(activity)
+
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_delete(context, data_dict,
                                       pkg_dict.get('resources', []))
 
-    package_show_context: Union[Context, Any] = dict(context, for_update=True)
-    pkg_dict = _get_action('package_show')(
-        package_show_context, {'id': package_id})
+    package_show_context = dict(context, for_update=True)
+    pkg_dict = _get_action('package_show')(package_show_context, {'id': package_id})
 
     if pkg_dict.get('resources'):
-        pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
-                r['id'] == id]
+        for res in pkg_dict['resources']:
+            if res['id'] == id:
+                res['state'] = 'deleted'
+                break
     try:
+        context['resource'] = entity
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
         errors = cast("list[ErrorDict]", e.error_dict['resources'])[-1]

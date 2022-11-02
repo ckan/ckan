@@ -64,7 +64,9 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     '''
     model = context['model']
-    id: str = _get_or_bust(data_dict, "id")
+    user = context['user']
+    session = context['session']
+    id = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
         data_dict['url'] = ''
@@ -124,6 +126,9 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
              'ignore_auth': True},
             {'package': updated_pkg_dict,
              'resource': resource})
+
+    if not context.get('defer_commit'):
+        model.repo.commit()
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_resource_update(context, resource)
@@ -274,6 +279,23 @@ def package_update(
     data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
+
+    if context.get('resource'):
+        resource = context.pop('resource')
+
+        if resource.state == 'deleted':
+            model.Session.query(model.Package).filter_by(id=pkg.id).update(
+                {"metadata_modified": datetime.datetime.utcnow()})
+            model.Session.refresh(pkg)
+
+            pkg = model_save.package_dict_save(data_dict, context)
+
+            output = _get_action(
+                'package_show'
+                )(context,
+                {'id': data_dict['id']})
+
+            return output
 
     user = context['user']
     # get the schema

@@ -2737,6 +2737,12 @@ def can_update_owner_org(
 
 
 @core_helper
+def get_pkg_title_from_id(id):
+    if id:
+        obj = model.Session.query(model.Package).get(id)
+        return obj.title if obj.title else None
+
+
 def decode_view_request_filters() -> dict[str, Any] | None:
     filterString = request.args.get('filters')
     if request.form.get('filters') is not None:
