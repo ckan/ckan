@@ -14410,20 +14410,6 @@ td.diff_header {
   white-space: nowrap;
   margin: 5px 0 0 80px;
 }
-.activity .item .new {
-  display: block;
-  position: absolute;
-  overflow: hidden;
-  top: -3px;
-  left: -3px;
-  width: 10px;
-  height: 10px;
-  background-color: #A35647;
-  border: 1px solid #FFF;
-  text-indent: -1000px;
-  border-radius: 100px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
 .activity .item.no-avatar p {
   margin-left: 40px;
 }
@@ -14554,6 +14540,10 @@ td.diff_header {
 
 br.line-height2 {
   line-height: 2;
+}
+
+.pull-right {
+  float: right;
 }
 
 #followee-filter .btn {
