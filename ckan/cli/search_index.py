@@ -128,6 +128,43 @@ def clear_orphans(verbose: bool = False):
         clear(orphaned_package_id)
 
 
+@search_index.command(
+    name=u'list-unindexed',
+    short_help=u'Lists any missing packages from the search index'
+)
+@click.option(u'-p', u'--include_private', is_flag=True)
+def list_unindexed(include_private: bool = False):
+    search = None
+    indexed_package_ids = []
+    while search is None or len(indexed_package_ids) < search['count']:
+        search = logic.get_action('package_search')({}, {
+                'q': '*:*',
+                'fl': 'id',
+                'start': len(indexed_package_ids),
+                'rows': 1000,
+                'include_private': include_private})
+        indexed_package_ids += {r['id'] for r in search['results']}
+
+    package_ids = {r[0] for r in model.Session.query(model.Package.id).filter(
+        (lambda: model.Package.private
+                    if include_private
+                    else model.Package.private==False
+        )()
+    )}
+
+    unindexed_package_ids = []
+
+    for package_id in package_ids:
+        if package_id not in indexed_package_ids:
+            unindexed_package_ids.append(package_id)
+
+    if len(unindexed_package_ids):
+        click.echo(unindexed_package_ids)
+    click.echo("Found {} unindexed package(s).".format(
+        len(unindexed_package_ids)
+    ))
+
+
 @search_index.command(name=u'rebuild-fast',
                       short_help=u'Reindex with multiprocessing')
 def rebuild_fast():
