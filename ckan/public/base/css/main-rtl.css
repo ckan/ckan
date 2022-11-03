@@ -14396,11 +14396,6 @@ td.diff_header {
   margin: 0 0 15px 0;
   padding: 0;
 }
-.activity .item::after {
-  display: block;
-  clear: both;
-  content: "";
-}
 .activity .item .user-image {
   border-radius: 100px;
 }
