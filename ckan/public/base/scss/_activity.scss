@@ -36,20 +36,6 @@
         float: right;
         text-decoration: none;
     }
-    .followee-popover {
-        font-size: $font-size-base;
-        line-height: $line-height-base;
-        color: $layoutTextColor;
-        word-break: break-all;
-        padding: 0;
-        dl {
-            margin: 0;
-            dd {
-                margin-left: 0;
-                margin-bottom: 10px;
-            }
-        }
-    }
     .empty {
         padding: 10px;
         color: #6e6e6e;
@@ -57,7 +43,14 @@
     }
 }
 
-// colors
+// Activity Stream base colors
+$activityColorText: #FFFFFF;
+$activityColorBlank: #999999;
+$activityColorNew: #69A67A;
+$activityColorNeutral: #767DCE;
+$activityColorModify: #767DCE;
+$activityColorDelete: #B95252;
+
 .activity .item {
     .icon {
         color: $activityColorBlank ;

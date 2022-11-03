@@ -14423,20 +14423,6 @@ td.diff_header {
   float: right;
   text-decoration: none;
 }
-.popover .followee-popover {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: #444;
-  word-break: break-all;
-  padding: 0;
-}
-.popover .followee-popover dl {
-  margin: 0;
-}
-.popover .followee-popover dl dd {
-  margin-left: 0;
-  margin-bottom: 10px;
-}
 .popover .empty {
   padding: 10px;
   color: #6e6e6e;
