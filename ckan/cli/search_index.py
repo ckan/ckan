@@ -6,6 +6,7 @@ import multiprocessing as mp
 import click
 import sqlalchemy as sa
 from ckan.common import config
+from ckan.lib.search import query_for
 import ckan.logic as logic
 import ckan.model as model
 from . import error_shout
@@ -132,29 +133,18 @@ def clear_orphans(verbose: bool = False):
     name=u'list-unindexed',
     short_help=u'Lists any missing packages from the search index'
 )
-@click.option(u'-p', u'--include_private', is_flag=True)
-def list_unindexed(include_private: bool = False):
-    search = None
-    indexed_package_ids = []
-    while search is None or len(indexed_package_ids) < search['count']:
-        search = logic.get_action('package_search')({}, {
-                'q': '*:*',
-                'fl': 'id',
-                'start': len(indexed_package_ids),
-                'rows': 1000,
-                'include_private': include_private})
-        indexed_package_ids += {r['id'] for r in search['results']}
+def list_unindexed():
+    packages = model.Session.query(model.Package.id)
+    if config.get_value('ckan.search.remove_deleted_packages'):
+        packages = packages.filter(model.Package.state != 'deleted')
 
-    package_ids = {r[0] for r in model.Session.query(model.Package.id).filter(
-        (lambda: model.Package.private
-            if include_private
-            else model.Package.private == False)())}
+    package_ids = [r[0] for r in packages.all()]
 
-    unindexed_package_ids = []
-
-    for package_id in package_ids:
-        if package_id not in indexed_package_ids:
-            unindexed_package_ids.append(package_id)
+    package_query = query_for(model.Package)
+    indexed_pkg_ids = set(package_query.get_all_entity_ids(
+        max_results=len(package_ids)))
+    # Packages not indexed
+    unindexed_package_ids = set(package_ids) - indexed_pkg_ids
 
     if len(unindexed_package_ids):
         click.echo(unindexed_package_ids)
