@@ -147,10 +147,8 @@ def list_unindexed(include_private: bool = False):
 
     package_ids = {r[0] for r in model.Session.query(model.Package.id).filter(
         (lambda: model.Package.private
-                    if include_private
-                    else model.Package.private==False
-        )()
-    )}
+            if include_private
+            else model.Package.private == False)())}
 
     unindexed_package_ids = []
 
