@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Fuhu Xia, 2022
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
+"Last-Translator: Fuhu Xia, 2022\n"
 "Language-Team: Chinese (China) (https://www.transifex.com/okfn/teams/11162/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,15 +25,15 @@ msgstr ""
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
-msgstr ""
+msgstr "音频"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "Audio url"
-msgstr ""
+msgstr "音频网址"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
-msgstr ""
+msgstr "例如：http://example.com/audio.mp3 (如果为空将使用资源路径)"
 
 #: ckanext/audioview/theme/templates/audio_view.html:5
 #, python-format
@@ -54,7 +55,7 @@ msgstr ""
 #: ckan/views/resource.py:920 ckanext/datapusher/blueprint.py:45
 #: ckanext/datastore/blueprint.py:115 ckanext/resourceproxy/blueprint.py:37
 msgid "Resource not found"
-msgstr "没找到资源"
+msgstr "未找到资源"
 
 #: ckan/controllers/api.py:63 ckan/controllers/group.py:157
 #: ckan/controllers/home.py:27 ckan/controllers/package.py:144
@@ -109,7 +110,7 @@ msgstr "错误："
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
 msgid "Error traceback:"
-msgstr ""
+msgstr "错误回溯"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
@@ -149,7 +150,7 @@ msgstr "数据仓库"
 
 #: ckanext/datastore/blueprint.py:89
 msgid "DataStore resource not found"
-msgstr ""
+msgstr "未找到数据仓库资源"
 
 #: ckanext/datastore/blueprint.py:151
 msgid ""
@@ -492,19 +493,19 @@ msgstr "资源"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:6
 msgid "Second"
-msgstr ""
+msgstr "秒"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:7
 msgid "Minute"
-msgstr ""
+msgstr "分钟"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:8
 msgid "Hour"
-msgstr ""
+msgstr "小时"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:9
 msgid "Day"
-msgstr ""
+msgstr "天"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:15
 msgid "Expires in"
@@ -531,7 +532,7 @@ msgstr "图片url"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr "例如. http://example.com/image.jpg (如果为空将使用资源路径)"
+msgstr "例如：http://example.com/image.jpg (如果为空将使用资源路径)"
 
 #: ckanext/reclineview/plugin.py:113
 msgid "Data Explorer"
@@ -552,12 +553,12 @@ msgstr ""
 #: ckanext/reclineview/theme/public/recline_view.js:29
 #: ckanext/reclineview/theme/public/recline_view.min.js:1
 msgid "error loading view"
-msgstr ""
+msgstr "加载视图出错"
 
 #: ckanext/reclineview/theme/public/recline_view.js:79
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
 msgid "Could not load view"
-msgstr ""
+msgstr "无法加载视图"
 
 #: ckanext/reclineview/theme/public/recline_view.js:81
 #: ckanext/reclineview/theme/public/recline_view.min.js:5
@@ -730,7 +731,7 @@ msgstr ""
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
-msgstr ""
+msgstr "例如：http://example.com/video.mpeg (如果为空将使用资源路径)"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "Poster url"
@@ -758,7 +759,7 @@ msgstr "页面url"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com  (if blank uses resource url)"
-msgstr "例如. http://example.com （如果为空将使用资源路径）"
+msgstr "例如：http://example.com (如果为空将使用资源路径)"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 #: ckan/templates/package/snippets/resource_view.html:62
@@ -913,7 +914,7 @@ msgstr "未找到群组"
 #: ckan/controllers/feed.py:247 ckan/logic/action/create.py:1468
 #: ckan/views/feed.py:223
 msgid "Organization not found"
-msgstr "未发现该组织名"
+msgstr "未找到该组织名"
 
 #: ckan/controllers/group.py:131 ckan/controllers/group.py:593
 msgid "Incorrect group type"
@@ -1250,15 +1251,15 @@ msgstr "无法找到该视图类型"
 
 #: ckan/controllers/package.py:1572 ckan/views/resource.py:597
 msgid "Bad resource view data"
-msgstr ""
+msgstr "不良资源视图数据"
 
 #: ckan/controllers/package.py:1581 ckan/views/resource.py:605
 msgid "Resource view not supplied"
-msgstr ""
+msgstr "未提供资源视图"
 
 #: ckan/controllers/package.py:1610 ckan/views/resource.py:908
 msgid "No preview has been defined."
-msgstr "没有给定的预览"
+msgstr "预览未定义"
 
 #: ckan/controllers/user.py:83 ckan/controllers/user.py:228
 #: ckan/controllers/user.py:243 ckan/controllers/user.py:310
@@ -2762,7 +2763,7 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr "此资源在此刻无法被浏览."
+msgstr "此资源在此刻无法被预览."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 #: ckan/templates/package/resource_read.html:145
@@ -3567,7 +3568,7 @@ msgstr "前往资源"
 #: ckan/templates/package/resource_read.html:44
 #: ckan/templates/package/snippets/resource_item.html:58
 msgid "Download"
-msgstr "下栽"
+msgstr "下载"
 
 #: ckan/templates/package/resource_read.html:87
 #: ckan/templates/package/resource_read.html:89
@@ -4020,7 +4021,7 @@ msgstr "该资源暂时不可使用"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Embed resource view"
-msgstr ""
+msgstr "嵌入资源视图"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid ""
@@ -4636,16 +4637,16 @@ msgstr "搜索标签"
 
 #: ckan/templates/user/api_tokens.html:19
 msgid "Create API Token"
-msgstr ""
+msgstr "创建API令牌"
 
 #: ckan/templates/user/api_tokens.html:29
 #: ckan/templates/user/read_base.html:22
 msgid "API Tokens"
-msgstr ""
+msgstr "API 令牌"
 
 #: ckan/templates/user/api_tokens.html:37
 msgid "You haven't created any API Tokens."
-msgstr ""
+msgstr "您尚未创建API 令牌。"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
@@ -4884,7 +4885,7 @@ msgstr "密码重置"
 
 #: ckan/templates/user/perform_reset.html:21
 msgid "You can also change username. It can not be modified later."
-msgstr ""
+msgstr "您也可以更改用户名。以后不能再修改。"
 
 #: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
@@ -4897,7 +4898,7 @@ msgstr "它是如何工作的？"
 
 #: ckan/templates/user/perform_reset.html:45
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "只需输入新密码，我们就会更新您的帐户"
 
 #: ckan/templates/user/read.html:27
 msgid "User hasn't created any datasets."
@@ -4913,7 +4914,7 @@ msgstr "该用户没有任何记录。"
 
 #: ckan/templates/user/read_base.html:72
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:81 ckan/templates/user/read_base.html:95
 msgid "This means only you can see this"
@@ -5036,11 +5037,11 @@ msgstr ""
 
 #: ckan/views/user.py:169
 msgid "Unauthorized to view API tokens."
-msgstr ""
+msgstr "没有权限浏览API令牌。"
 
 #: ckan/views/user.py:203
 msgid "Unauthorized to create API tokens."
-msgstr ""
+msgstr "没有权限创建API令牌。"
 
 #: ckan/views/user.py:218
 msgid ""
@@ -5054,7 +5055,7 @@ msgstr ""
 
 #: ckan/views/user.py:706
 msgid "Your password must be 8 characters or longer."
-msgstr ""
+msgstr "您的密码必须为 8 个字符或更长。"
 
 #: ckan/views/util.py:26
 msgid "Redirecting to external site is not allowed."

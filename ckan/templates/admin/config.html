@@ -13,7 +13,7 @@
 
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
 
-      {{ form.select('ckan.main_css', id='field-ckan-main-css', label=_('Style'), options=styles, selected=data['ckan.main_css'], error=error) }}
+      {{ form.select('ckan.theme', id='field-ckan-main-css', label=_('Style'), options=styles, selected=data['ckan.theme'], error=error) }}
 
       {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
 

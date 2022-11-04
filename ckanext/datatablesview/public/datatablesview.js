@@ -7,6 +7,8 @@ var run_query = function(params, format) {
   f.attr("value", format);
   form.append(f);
   form.submit();
+  p.remove()
+  f.remove()
 }
 
 this.ckan.module('datatables_view', function (jQuery) {

@@ -510,7 +510,6 @@ class TestUser(object):
 
     def test_user_page_lists_users(self, app):
         """/users/ lists registered users"""
-        initial_user_count = model.User.count()
         factories.User(fullname="User One")
         factories.User(fullname="User Two")
         factories.User(fullname="User Three")
@@ -520,7 +519,7 @@ class TestUser(object):
 
         user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 3 + initial_user_count
+        assert len(user_list) == 3
 
         user_names = [u.text.strip() for u in user_list]
         assert "User One" in user_names
@@ -529,7 +528,6 @@ class TestUser(object):
 
     def test_user_page_doesnot_list_deleted_users(self, app):
         """/users/ doesn't list deleted users"""
-        initial_user_count = model.User.count()
 
         factories.User(fullname="User One", state="deleted")
         factories.User(fullname="User Two")
@@ -540,7 +538,7 @@ class TestUser(object):
 
         user_response_html = BeautifulSoup(user_response.data)
         user_list = user_response_html.select("ul.user-list li")
-        assert len(user_list) == 2 + initial_user_count
+        assert len(user_list) == 2
 
         user_names = [u.text.strip() for u in user_list]
         assert "User One" not in user_names

@@ -36,7 +36,7 @@ pastedeploy==2.0.1        # via pastescript, pylons
 pastescript==2.0.2
 pbr==5.2.0                # via sqlalchemy-migrate
 polib==1.0.7
-psycopg2==2.8.2
+psycopg2==2.8.6
 pygments==2.3.1           # via weberror
 pylons==0.9.7
 pysolr==3.6.0
@@ -59,7 +59,7 @@ simplejson==3.10.0
 six==1.12.0               # via bleach, pastescript, python-dateutil, pyutilib.component.core, sqlalchemy-migrate
 sqlalchemy-migrate==0.12.0
 sqlalchemy==1.3.5
-sqlparse==0.2.2
+sqlparse==0.3.0
 tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
 tzlocal==1.3
 unicodecsv==0.14.1

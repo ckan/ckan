@@ -23,12 +23,12 @@ itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via -r requirements.in, flask, flask-babel
 lxml==4.6.3               # via feedgen
 mako==1.1.5               # via alembic
-markdown==2.6.7           # via -r requirements.in
+markdown==3.4.1           # via -r requirements.in
 markupsafe==1.1.1         # via jinja2, mako
 nose==1.3.7               # via pyutilib
 passlib==1.6.5            # via -r requirements.in
 polib==1.0.7              # via -r requirements.in
-psycopg2==2.8.2           # via -r requirements.in
+psycopg2==2.9.3           # via -r requirements.in
 pyjwt==1.7.1              # via -r requirements.in
 pysolr==3.6.0             # via -r requirements.in
 python-dateutil==2.8.2    # via -r requirements.in, alembic, feedgen
@@ -47,7 +47,7 @@ shutilwhich==1.1.0        # via fanstatic
 simplejson==3.10.0        # via -r requirements.in
 six==1.16.0               # via bleach, python-dateutil, pyutilib
 sqlalchemy==1.3.5         # via -r requirements.in, alembic
-sqlparse==0.2.2           # via -r requirements.in
+sqlparse==0.3.0           # via -r requirements.in
 tzlocal==1.3              # via -r requirements.in
 unicodecsv==0.14.1        # via -r requirements.in
 urllib3==1.26.6           # via requests

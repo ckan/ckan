@@ -91,6 +91,35 @@ class CKANBabel(Babel):
             self._i18n_path_idx += 1
 
 
+class BeakerSessionInterface(SessionInterface):
+    def open_session(self, app, request):
+        if 'beaker.session' in request.environ:
+            return request.environ['beaker.session']
+
+    def save_session(self, app, session, response):
+        session.save()
+
+    def is_null_session(self, obj):
+
+        is_null = super(BeakerSessionInterface, self).is_null_session(obj)
+
+        if not is_null:
+            # Beaker always adds these keys on each request, so if these are
+            # the only keys present we assume it's an empty session
+
+            is_null = (
+                sorted(obj.keys()) in [
+                    # Beaker 0.11 (py3)
+                    [u"_accessed_time", u"_creation_time", u"_domain",
+                        u"_path"],
+                    # Beaker 0.10 (py2)
+                    [u"_accessed_time", u"_creation_time"]
+                ]
+            )
+
+        return is_null
+
+
 def make_flask_stack(conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
@@ -164,15 +193,6 @@ def make_flask_stack(conf):
 
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-
-    # Use Beaker as the Flask session interface
-    class BeakerSessionInterface(SessionInterface):
-        def open_session(self, app, request):
-            if 'beaker.session' in request.environ:
-                return request.environ['beaker.session']
-
-        def save_session(self, app, session, response):
-            session.save()
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v

@@ -71,18 +71,19 @@ def resource_update(context, data_dict):
         data_dict['url'] = ''
 
     resource = model.Resource.get(id)
-    context["resource"] = resource
-    old_resource_format = resource.format
-
     if not resource:
         log.debug('Could not find resource %s', id)
         raise NotFound(_('Resource was not found.'))
+
+    context["resource"] = resource
+    old_resource_format = resource.format
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
+    package_show_context = dict(context, for_update=True, return_type='dict')
+    pkg_dict = _get_action('package_show')(package_show_context,
         {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
@@ -292,7 +293,7 @@ def package_update(context, data_dict):
             if hasattr(upload, 'mimetype'):
                 resource['mimetype'] = upload.mimetype
 
-        if 'size' not in resource and 'url_type' in resource:
+        if 'url_type' in resource:
             if hasattr(upload, 'filesize'):
                 resource['size'] = upload.filesize
 
@@ -547,7 +548,8 @@ def package_resource_reorder(context, data_dict):
     if len(set(order)) != len(order):
         raise ValidationError({'order': 'Must supply unique resource_ids'})
 
-    package_dict = _get_action('package_show')(context, {'id': id})
+    package_show_context = dict(context, for_update=True, return_type='dict')
+    package_dict = _get_action('package_show')(package_show_context, {'id': id})
     existing_resources = package_dict.get('resources', [])
     ordered_resources = []
 

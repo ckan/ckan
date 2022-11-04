@@ -17,9 +17,11 @@ def internal_redirect():
     Only internal URLs are allowed'''
 
     url = request.form.get(u'url') or request.args.get(u'url')
+
     if not url:
         base.abort(400, _(u'Missing Value') + u': url')
 
+    url = url.replace(u'\r', u' ').replace(u'\n', u' ').replace(u'\0', u' ')
     if h.url_is_local(url):
         return h.redirect_to(url)
     else:

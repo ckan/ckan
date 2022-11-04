@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
-# Amir Reza Asadi <amirreza.asadi@live.com>, 2021
+# Amir Reza Asadi <amirreza.asadi@live.com>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Amir Reza Asadi <amirreza.asadi@live.com>, 2021\n"
+"Last-Translator: Amir Reza Asadi <amirreza.asadi@live.com>, 2022\n"
 "Language-Team: Persian (Iran) (https://www.transifex.com/okfn/teams/11162/fa_IR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -34,6 +34,8 @@ msgstr "آدرس فایل صوتی"
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
 msgstr ""
+"مثلا http://example.com/image.jpg (در صورت خالی بودن، از URL منبع استفاده "
+"می‌کند)"
 
 #: ckanext/audioview/theme/templates/audio_view.html:5
 #, python-format
@@ -41,6 +43,8 @@ msgid ""
 "Your browser does not support the <code>audio</code> element. But don't "
 "worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
 msgstr ""
+"مرورگر شما از فایل صوتی <code> پشتیبانی نمی کند، اما جای نگرانی نیست شما می "
+"توانید آن را دانلود کنید<a href=\"%(res_url)s\" alt=\"video url\">"
 
 #: ckan/controllers/package.py:612 ckan/controllers/package.py:1079
 #: ckan/controllers/package.py:1099 ckan/controllers/package.py:1165
@@ -71,11 +75,11 @@ msgstr "اجازه دیدن این صفحه را ندارد"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
-msgstr ""
+msgstr "تکمیل شده"
 
 #: ckanext/datapusher/helpers.py:22
 msgid "Pending"
-msgstr ""
+msgstr "در حال انجام"
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Submitting"
@@ -84,21 +88,21 @@ msgstr ""
 #: ckan/controllers/package.py:684 ckan/views/resource.py:231
 #: ckanext/datapusher/helpers.py:24
 msgid "Error"
-msgstr ""
+msgstr "خطا:"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "هنوز بارگذاری نشده است"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:12
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
 msgid "Upload to DataStore"
-msgstr ""
+msgstr "آپلود به Data Store"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:19
 #: ckanext/datapusher/templates/datapusher/resource_data.html:19
 msgid "Upload error:"
-msgstr ""
+msgstr "خطا در بارگذاری:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:25
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:27
@@ -593,7 +597,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "تعداد ردیف‌ها"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
@@ -2330,7 +2334,7 @@ msgstr ""
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:26
 msgid "Confirm"
-msgstr ""
+msgstr "تأیید"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:124
 #: ckan/public/base/javascript/modules/confirm-action.min.js:2
@@ -2346,7 +2350,7 @@ msgstr ""
 #: ckan/templates/package/confirm_delete.html:15
 #: ckan/templates/package/confirm_delete_resource.html:14
 msgid "Cancel"
-msgstr ""
+msgstr "لغو"
 
 #: ckan/public/base/javascript/modules/follow.js:70
 #: ckan/public/base/javascript/modules/follow.min.js:1

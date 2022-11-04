@@ -2497,6 +2497,10 @@ msgstr ""
 msgid "Select a field"
 msgstr ""
 
+#: ckan/public/base/javascript/modules/resource-view-reorder.js:41
+msgid "Reorder resource view"
+msgstr ""
+
 #: ckan/public-bs2/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.min.js:2

@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 "Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
@@ -479,6 +479,16 @@ msgstr "Vous n'êtes pas autorisé à créer une ressource"
 #: ckan/controllers/package.py:736
 msgid "Unauthorized to create a resource for this package"
 msgstr "Non autorisé à créer une ressource pour cet ensemble"
+
+#: ckan/templates/group/snippets/group_item.html:32
+#: ckan/templates/organization/snippets/organization_item.html:31
+#: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:23
+#: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
+msgid "{num} Dataset"
+msgid_plural "{num} Datasets"
+msgstr[0] "{num} Jeu de données"
+msgstr[1] "{num} Jeux de données"
+msgstr[2] "{num} Jeux de données"
 
 #: ckan/controllers/package.py:950
 msgid "Unable to add package to search index."
@@ -1450,6 +1460,13 @@ msgstr "Afficher"
 msgid "REST API: Update object %s"
 msgstr "API REST : mise à jour de l'objet %s"
 
+#: ckan/lib/email_notifications.py:103
+msgid "{n} new activity from {site_title}"
+msgid_plural "{n} new activities from {site_title}"
+msgstr[0] "{n} nouvelle activité de {site_title}"
+msgstr[1] "{n} nouvelles activités de {site_title}"
+msgstr[2] "{n} nouvelles activités de {site_title}"
+
 #: ckan/lib/formatters.py:49
 msgid "Just now"
 msgstr "A l'instant"
@@ -1536,12 +1553,14 @@ msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] "{number} vue"
 msgstr[1] "{number} vues"
+msgstr[2] "{number} vues"
 
 #: ckan/lib/helpers.py:2098
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] "{number} vue récente"
 msgstr[1] "{number} vues récentes"
+msgstr[2] "{number} vues récentes"
 
 #: ckan/lib/mailer.py:58
 #, python-format
@@ -2424,6 +2443,7 @@ msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Saisie trop courte, au moins un caractère est nécessaire"
 msgstr[1] "Saisie trop courte, au moins %(num)d caractères  sont nécessaires"
+msgstr[2] "Saisie trop courte, au moins %(num)d caractères  sont nécessaires"
 
 #: ckan/public-bs2/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4
@@ -2707,6 +2727,14 @@ msgstr "Supprimé"
 #: ckan/templates/snippets/organization.html:45
 msgid "read more"
 msgstr "lire plus"
+
+#: ckan/templates/header.html:23
+#, python-format
+msgid "Dashboard (%(num)d new item)"
+msgid_plural "Dashboard (%(num)d new items)"
+msgstr[0] "Tableau de bord (%(num)d nouvel élément)"
+msgstr[1] "Tableau de bord (%(num)d nouveaux éléments)"
+msgstr[2] "Tableau de bord (%(num)d nouveaux éléments)"
 
 #: ckan/templates/group/snippets/revisions_table.html:7
 #: ckan/templates/package/snippets/revisions_table.html:7
@@ -3647,6 +3675,13 @@ msgid "This will be guessed automatically. Leave blank if you wish"
 msgstr ""
 "Ceci sera généré automatiquement. Laissez ce champ vide si vous le souhaitez"
 
+#: ckan/templates/organization/members.html:14
+msgid "{count} member"
+msgid_plural "{count} members"
+msgstr[0] "{count} membre : {count} membres"
+msgstr[1] "{count} membres "
+msgstr[2] "{count} membres "
+
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
 #: ckan/templates/organization/new.html:7
@@ -4106,6 +4141,7 @@ msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -4526,6 +4562,13 @@ msgstr ""
 msgid "Resource \"{0}\" was not found."
 msgstr "La ressource \"{0}\"  est introuvable"
 
+#: ckan/templates/snippets/search_result_text.html:15
+msgid "{number} dataset found for \"{query}\""
+msgid_plural "{number} datasets found for \"{query}\""
+msgstr[0] "{number}  jeu  de données trouvé pour \"{query}\""
+msgstr[1] "{number}  jeux de données trouvés pour \"{query}\""
+msgstr[2] "{number}  jeux de données trouvés pour \"{query}\""
+
 #: ckanext/datastore/logic/auth.py:19
 msgid "User {0} not authorized to update resource {1}"
 msgstr "L'utilisateur {0} n'est pas autorisé à mettre à jour la ressource {1}"
@@ -4534,6 +4577,13 @@ msgstr "L'utilisateur {0} n'est pas autorisé à mettre à jour la ressource {1}
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:21
 msgid "CKAN Data API"
 msgstr "API de données CKAN"
+
+#: ckan/templates/snippets/search_result_text.html:17
+msgid "{number} dataset found"
+msgid_plural "{number} datasets found"
+msgstr[0] "{number} jeu de données trouvé"
+msgstr[1] "{number} jeux de données trouvés"
+msgstr[2] "{number} jeux de données trouvés"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:23
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
@@ -4553,6 +4603,13 @@ msgstr ""
 "target=\"_blank\">documentation de l'API CKAN et de l'extension "
 "DataStore</a>.</p> "
 
+#: ckan/templates/snippets/search_result_text.html:21
+msgid "{number} group found for \"{query}\""
+msgid_plural "{number} groups found for \"{query}\""
+msgstr[0] "{number} groupe  trouvé pour \"{query}\""
+msgstr[1] "{number} groupes  trouvés pour \"{query}\""
+msgstr[2] "{number} groupes  trouvés pour \"{query}\""
+
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:33
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:35
 msgid "Endpoints"
@@ -4567,6 +4624,13 @@ msgstr ""
 "L'API pour les données peut être accédée via les actions suivantes de l'API "
 "CKAN."
 
+#: ckan/templates/snippets/search_result_text.html:23
+msgid "{number} group found"
+msgid_plural "{number} groups found"
+msgstr[0] "{number} groupe  trouvé"
+msgstr[1] "{number} groupes trouvés"
+msgstr[2] "{number} groupes trouvés"
+
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:42
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:44
 msgid "Create"
@@ -4577,6 +4641,13 @@ msgstr "Créer"
 msgid "Update / Insert"
 msgstr "Modifier / Insérer"
 
+#: ckan/templates/snippets/search_result_text.html:27
+msgid "{number} organization found for \"{query}\""
+msgid_plural "{number} organizations found for \"{query}\""
+msgstr[0] "{number} organisation  trouvée pour \"{query}\""
+msgstr[1] "{number} organisations  trouvées pour \"{query}\""
+msgstr[2] "{number} organisations  trouvées pour \"{query}\""
+
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:50
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:52
 msgid "Query"
@@ -4586,6 +4657,13 @@ msgstr "Requête"
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:56
 msgid "Query (via SQL)"
 msgstr "Requête (via SQL)"
+
+#: ckan/templates/snippets/search_result_text.html:29
+msgid "{number} organization found"
+msgid_plural "{number} organizations found"
+msgstr[0] "{number} organisation trouvée"
+msgstr[1] "{number} organisations trouvées"
+msgstr[2] "{number} organisations trouvées"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:66
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:68

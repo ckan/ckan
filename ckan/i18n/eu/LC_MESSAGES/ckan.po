@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Adrià Mercader <adria.mercader@okfn.org>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
 "Language-Team: Basque (https://www.transifex.com/okfn/teams/11162/eu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3105,7 +3105,7 @@ msgstr "Taldea gordetu"
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
 msgid "View {name}"
-msgstr "Ikusi {izena}"
+msgstr "Ikusi {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
@@ -3450,7 +3450,7 @@ msgstr "Gorde Erakundea"
 #: ckan/templates/organization/snippets/organization_item.html:42
 #: ckan/templates/organization/snippets/organization_item.html:43
 msgid "View {organization_name}"
-msgstr "Ikusi (erakunde_izena)"
+msgstr "Ikusi {organization_name}"
 
 #: ckan/templates/package/base.html:24 ckan/templates/package/new.html:9
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2

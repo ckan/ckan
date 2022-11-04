@@ -239,7 +239,7 @@ def _allow_caching(cache_force=None):
     if cache_force is not None:
         allow_cache = cache_force
     # Do not allow caching of pages for logged in users/flash messages etc.
-    elif _is_valid_session_cookie_data():
+    elif ('user' in c and c.user) or _is_valid_session_cookie_data():
         allow_cache = False
     # Tests etc.
     elif 'REMOTE_USER' in request.environ:

@@ -154,7 +154,9 @@ def identify_user():
 
     # We haven't identified the user so try the default methods
     if not getattr(g, u'user', None):
-        _identify_user_default()
+        response = _identify_user_default()
+        if response:
+            return response
 
     # If we have a user but not the userobj let's get the userobj. This means
     # that IAuthenticator extensions do not need to access the user model
@@ -171,26 +173,75 @@ def identify_user():
     g.author = text_type(g.author)
 
 
+def _get_remote_user_content():
+
+    parts = six.ensure_text(
+        request.environ.get(u'REMOTE_USER', u'')).split(u',')
+
+    if len(parts) == 1:
+        # Tests can pass just a user name or id
+        return parts[0], None
+    elif len(parts) == 2:
+        # Standard auth cookie format: user_id,serial_counter
+        return parts[0], int(parts[1])
+    else:
+        # Something went wrong, don't authenticate
+        return None, None
+
+
+def _logout_user():
+
+    environ = request.environ
+    if u'repoze.who.plugins' in environ:
+        path = getattr(
+            environ[u'repoze.who.plugins'][u'friendlyform'],
+            u'logout_handler_path'
+        )
+        return redirect(path)
+
+
 def _identify_user_default():
     u'''
     Identifies the user using two methods:
     a) If they logged into the web interface then repoze.who will
-       set REMOTE_USER.
+       set REMOTE_USER  (this can also be set manually in tests).
     b) For API calls they may set a header with an API key.
     '''
 
-    # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
-    # user's cookie. But repoze.who doesn't check the user (still) exists
-    # in our database - we need to do that here. (Another way would be
-    # with an userid_checker, but that would mean another db access.
-    # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
-    # .plugins.sql )
-    g.user = six.ensure_text(request.environ.get(u'REMOTE_USER', u''))
-    if g.user:
-        g.userobj = model.User.by_name(g.user)
+    # environ['REMOTE_USER'] can be set:
+    #   1. By repoze.who if it authenticates a user's cookie (a standard
+    #      browser request). This has the format user_id,serial_counter
+    #   2. Manually in tests when passing `extra_environ` to a test client
+    #      request. This can have just the user name or id
+    # But repoze.who doesn't check the user (still) exists in the database,
+    # we need to do that here.
+    g.user = u''
 
-        if g.userobj is None or not g.userobj.is_active():
+    user_id, serial_counter = _get_remote_user_content()
 
+    if user_id:
+
+        if request.environ.get(u'CKAN_TESTING'):
+            # For requests coming from the test client we allow users to be
+            # identified either by user name or id
+            g.userobj = model.User.get(user_id)
+
+            # Serial counter is optional in tests
+            if serial_counter is not None and int(serial_counter) != 1:
+                return _logout_user()
+
+        else:
+            # For normal, browser cookie based requests we enforce that the
+            # user is identified by its id
+            g.userobj = model.Session.query(model.User).filter_by(
+                id=user_id).first()
+
+            if serial_counter is None or int(serial_counter) != 1:
+                return _logout_user()
+
+        if g.userobj is not None and g.userobj.is_active():
+            g.user = g.userobj.name
+        else:
             # This occurs when a user that was still logged in is deleted, or
             # when you are logged in, clean db and then restart (or when you
             # change your username). There is no user object, so even though
@@ -198,11 +249,8 @@ def _identify_user_default():
             # ckan_display_name, we need to force user to logout and login
             # again to get the User object.
 
-            ev = request.environ
-            if u'repoze.who.plugins' in ev:
-                pth = getattr(ev[u'repoze.who.plugins'][u'friendlyform'],
-                              u'logout_handler_path')
-                redirect(pth)
+            return _logout_user()
+
     else:
         g.userobj = _get_user_for_apikey()
         if g.userobj is not None:
@@ -281,8 +329,6 @@ def set_ckan_current_url(environ):
 
     qs = environ.get(u'QUERY_STRING')
     if qs:
-        # sort out weird encodings
-        qs = quote(qs, u'')
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info

@@ -166,8 +166,10 @@ def download(package_type, id, resource_id, filename=None):
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
         get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Resource not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Not authorized to download resource'))
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)

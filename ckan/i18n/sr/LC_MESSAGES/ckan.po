@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2020
-# Željko Kojić <kojicz983@gmail.com>, 2021
+# Željko Kojić <kojicz983@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2020-07-21 11:43+0200\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Željko Kojić <kojicz983@gmail.com>, 2021\n"
+"Last-Translator: Željko Kojić <kojicz983@gmail.com>, 2022\n"
 "Language-Team: Serbian (https://www.transifex.com/okfn/teams/11162/sr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -112,7 +112,7 @@ msgstr "Грешка:"
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:36
 #: ckanext/datapusher/templates/datapusher/resource_data.html:36
 msgid "Error traceback:"
-msgstr "Грешка трага:"
+msgstr "Траг грешке:"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:48
 #: ckanext/datapusher/templates/datapusher/resource_data.html:48
@@ -133,7 +133,7 @@ msgstr "Никада"
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:62
 #: ckanext/datapusher/templates/datapusher/resource_data.html:62
 msgid "Upload Log"
-msgstr "Отпреми пријаву"
+msgstr "Евиденција отпремања"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:76
 #: ckanext/datapusher/templates/datapusher/resource_data.html:76
@@ -143,7 +143,7 @@ msgstr "Детаљи"
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:83
 #: ckanext/datapusher/templates/datapusher/resource_data.html:83
 msgid "End of log"
-msgstr "Крај пријаве"
+msgstr "Крај евиденције"
 
 #: ckanext/datapusher/templates-bs2/package/resource_edit_base.html:5
 #: ckanext/datapusher/templates/package/resource_edit_base.html:5
@@ -830,7 +830,7 @@ msgstr "О сервису"
 
 #: ckan/controllers/admin.py:54 ckan/templates/admin/config.html:25
 msgid "About page text"
-msgstr "О тексту странице"
+msgstr "Текст странице О севису"
 
 #: ckan/controllers/admin.py:55 ckan/templates/admin/config.html:27
 msgid "Intro Text"
@@ -987,7 +987,7 @@ msgstr "Формати"
 #: ckan/controllers/package.py:260 ckan/lib/helpers.py:1253
 #: ckan/views/dataset.py:288 ckan/views/group.py:308 ckan/views/home.py:53
 msgid "Licenses"
-msgstr "Линценце"
+msgstr "Лиценце"
 
 #: ckan/controllers/group.py:408 ckan/controllers/group.py:525
 #: ckan/controllers/package.py:345 ckan/controllers/package.py:575
@@ -1082,7 +1082,7 @@ msgstr "Недавне промене у CKAN Групи: "
 
 #: ckan/controllers/group.py:823 ckan/controllers/package.py:486
 msgid "Log message: "
-msgstr "Лог порука: "
+msgstr "Порука евиденције: "
 
 #: ckan/controllers/group.py:873 ckan/controllers/package.py:1195
 #: ckan/controllers/user.py:723 ckan/views/dataset.py:921
@@ -1429,9 +1429,9 @@ msgstr "Преглед"
 #: ckan/lib/email_notifications.py:103
 msgid "{n} new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{n} нова активности од {site_title}"
+msgstr[1] "{n} нове активности од {site_title}"
+msgstr[2] "{n} нових активности од {site_title}"
 
 #: ckan/lib/formatters.py:49
 msgid "Just now"
@@ -1439,59 +1439,59 @@ msgstr "Управо сада"
 
 #: ckan/lib/formatters.py:74
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bytes"
 
 #: ckan/lib/formatters.py:76
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KB"
 
 #: ckan/lib/formatters.py:78
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MB"
 
 #: ckan/lib/formatters.py:80
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GB"
 
 #: ckan/lib/formatters.py:82
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TB"
 
 #: ckan/lib/formatters.py:94
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:96
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:98
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:100
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:102
 msgid "{t}T"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:104
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:106
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:108
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:110
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1764
 msgid "Unknown"
@@ -1508,11 +1508,11 @@ msgstr "Направи нови скуп података."
 
 #: ckan/lib/helpers.py:1858
 msgid "Edited resources."
-msgstr "Измењени ресурси."
+msgstr "Ажурирани ресурси."
 
 #: ckan/lib/helpers.py:1860
 msgid "Edited settings."
-msgstr "Измењена подешавања."
+msgstr "Ажурирана подешавања."
 
 #: ckan/lib/helpers.py:2096
 msgid "{number} view"
@@ -2345,9 +2345,9 @@ msgstr "Нису пронађена подударања"
 #, python-format
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Унос је превише кратак, мора да садржи бар један карактер"
+msgstr[1] "Унос је превише кратак, мора да садржи бар %(num)d карактера"
+msgstr[2] "Унос је превише кратак, мора да садржи бар %(num)d карактера"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.min.js:1
@@ -2568,7 +2568,7 @@ msgstr "О {0}"
 
 #: ckan/templates/footer.html:15
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
@@ -2579,6 +2579,8 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Покреће</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:9
 msgid "Sysadmin settings"
@@ -2592,9 +2594,9 @@ msgstr "Видите профил"
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Командна табла (%(num)d нова ставка)"
+msgstr[1] "Командна табла (%(num)dнове ставке)"
+msgstr[2] "Командна табла (%(num)dнових ставки)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2659,7 +2661,7 @@ msgstr "Пређите на садржај"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Путања"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -2679,11 +2681,11 @@ msgstr "Администрација"
 
 #: ckan/templates/admin/base.html:8
 msgid "Sysadmins"
-msgstr ""
+msgstr "Системски администратори"
 
 #: ckan/templates/admin/base.html:9
 msgid "Config"
-msgstr ""
+msgstr "Подешавања"
 
 #: ckan/templates/admin/base.html:10 ckan/templates/admin/trash.html:27
 msgid "Trash"
@@ -2737,7 +2739,7 @@ msgstr "Потврдите ресеровање"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "Администратор CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2857,11 +2859,11 @@ msgstr "Велики улаз"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Додати на почетак"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Додати на почетак уноса"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
@@ -2875,7 +2877,7 @@ msgstr "Прилагођено поље"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
@@ -3108,7 +3110,7 @@ msgstr "Сачувајте Групу"
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
 msgid "View {name}"
-msgstr ""
+msgstr "Преглед {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
@@ -3252,7 +3254,7 @@ msgstr "Обавезно поље"
 
 #: ckan/templates/macros/form.html:432
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/macros/form.html:433
 msgid "Image URL"
@@ -3364,9 +3366,9 @@ msgstr ""
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
 msgid_plural "{count} members"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} члан"
+msgstr[1] "{count} члана"
+msgstr[2] "{count} чланова"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3421,6 +3423,9 @@ msgid ""
 "Are you sure you want to delete this Organization? Note*: Deleting cannot be"
 " performed while public or private datasets belong to this organization."
 msgstr ""
+"Да ли сте сигурни да желите да уклоните ову Организацију?  Брисање није "
+"могуће вршити док јавни или приватни скупови података припадају овој "
+"организацији."
 
 #: ckan/templates/organization/snippets/organization_form.html:41
 msgid "Save Organization"
@@ -3553,6 +3558,8 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"Тренутни преглед је стара верзија овог скупа података. Да видите тренутну "
+"верзију, кликни <a href=\"%(url)s\">овде</a>."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3588,7 +3595,7 @@ msgstr "Преузимање"
 #: ckan/templates/package/resource_read.html:87
 #: ckan/templates/package/resource_read.html:89
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:97
 msgid "Dataset description:"
@@ -3694,6 +3701,8 @@ msgid ""
 "<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
 " some?</a></p>"
 msgstr ""
+"<p class=\"empty\">Овај скуп података нема ресурсе, <a href=\"%(url)s\">да "
+"ли желите да их додате?</a></p>"
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -3705,7 +3714,7 @@ msgstr "Докуменатација API-ја"
 
 #: ckan/templates/package/search.html:55
 msgid "full {format} dump"
-msgstr ""
+msgstr "пуно {format} преузимање"
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3787,9 +3796,9 @@ msgstr "Додајте сараднике"
 #: ckan/templates/package/collaborators/collaborators.html:14
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} сарадник"
+msgstr[1] "{count} сарадника"
+msgstr[2] "{count} сарадника"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3866,7 +3875,7 @@ msgstr "на пример: Описни наслов"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 msgid "eg. my-dataset"
-msgstr ""
+msgstr "нп. moj-dataset"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:19
 msgid "eg. Some useful notes about the data"
@@ -3926,31 +3935,31 @@ msgstr "Следеће: Додај податке"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
-msgstr ""
+msgstr "http://example.com/dataset.json"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
-msgstr ""
+msgstr "1.0"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 #: ckan/templates/user/new_user_form.html:6
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr ""
+msgstr "Мејл аутора"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 #: ckan/templates/user/new_user_form.html:7
 msgid "joe@example.com"
-msgstr ""
+msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr ""
+msgstr "Мејл уређивача"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -3962,7 +3971,7 @@ msgstr "Подаци"
 
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "http://example.com/external-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:30
 msgid "eg. January 2011 Gold Prices"
@@ -3995,12 +4004,12 @@ msgstr "на пример: 1024"
 #: ckan/templates/package/snippets/resource_form.html:57
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "MIME Type"
-msgstr ""
+msgstr "MIME Type"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "eg. application/json"
-msgstr ""
+msgstr "нп. application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:67
 msgid "Are you sure you want to delete this resource?"
@@ -4127,15 +4136,15 @@ msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:85
 msgid "Show More {facet_type}"
-msgstr "Прикажите Више {facet_type}"
+msgstr "Прикажи Више {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:88
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Прикажи Само Популарне {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:92
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Не постоји {facet_type} која одговара овој претрази"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -4180,7 +4189,7 @@ msgstr "Филтрирај Резултате"
 
 #: ckan/templates/snippets/search_form.html:81
 msgid "<p class=\"extra\">Please try another search.</p>"
-msgstr "<p class=\"extra\">Молимо Вас да покушате другу претрагу.</p>"
+msgstr "<p class=\"extra\">Покушајте другу претрагу.</p>"
 
 #: ckan/templates/snippets/search_form.html:87
 msgid ""
@@ -4188,14 +4197,14 @@ msgid ""
 "Please try again.</p>"
 msgstr ""
 "<p id=\"search-error\"><strong>Дошло је до грешке приликом "
-"претраживања.</strong> Молимо Вас покушајте поново.</p>"
+"претраживања.</strong> Покушајте поново.</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} скуп података пронађено за \"{query}\""
+msgstr[1] "{number} скупа података пронађено за \"{query}\""
+msgstr[2] "{number} скупова података пронађено за \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4204,9 +4213,9 @@ msgstr "Није пронађен ниједан скуп података за 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} скуп података пронађено"
+msgstr[1] "{number} скупа података пронађено"
+msgstr[2] "{number} скупова података пронађено"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4215,9 +4224,9 @@ msgstr "Није пронађен ниједан скуп података"
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} група пронађено за \"{query}\""
+msgstr[1] "{number} групе пронађено за \"{query}\""
+msgstr[2] "{number} група пронађено за \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4226,9 +4235,9 @@ msgstr "Није пронађена ниједна група за \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} група пронађено"
+msgstr[1] "{number} групе пронађено"
+msgstr[2] "{number} група пронађено"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4237,9 +4246,9 @@ msgstr "Није пронађена ниједна група"
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} организација пронађено за \"{query}\""
+msgstr[1] "{number} организације пронађено за \"{query}\""
+msgstr[2] "{number} организација пронађено за \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4248,9 +4257,9 @@ msgstr "Није пронађена ниједна организација за
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} организација пронађено"
+msgstr[1] "{number} организације пронађено"
+msgstr[2] "{number} организација пронађено"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -4258,7 +4267,7 @@ msgstr "Није пронађена ниједна организација"
 
 #: ckan/templates/snippets/social.html:5
 msgid "Social"
-msgstr "Деуштвени"
+msgstr "Друштвене мреже"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -4273,7 +4282,7 @@ msgstr "Е-пошта"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/activities/added_tag.html:4
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -4322,7 +4331,7 @@ msgstr "{actor} је избрисао ресурс {resource} из скупа п
 
 #: ckan/templates/snippets/activities/fallback.html:14
 msgid "{actor} {activity_type}"
-msgstr ""
+msgstr "{actor} {activity_type}"
 
 #: ckan/templates/snippets/activities/follow_dataset.html:4
 msgid "{actor} started following {dataset}"
@@ -4408,23 +4417,23 @@ msgstr "Уклоњена е-пошта аутора из {pkg_link}"
 
 #: ckan/templates/snippets/changes/delete_resource.html:3
 msgid "Deleted resource {resource_link} from {pkg_link}"
-msgstr ""
+msgstr "Обрисан ресурс {resource_link} од {pkg_link}"
 
 #: ckan/templates/snippets/changes/extension_fields.html:3
 msgid "Changed value of field <q>{key}</q> to <q>{value}</q> in {pkg_link}"
-msgstr ""
+msgstr "Ажурирана вредност поља <q>{key}</q> у <q>{value}</q> у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:5
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
-msgstr ""
+msgstr "Додато поље <q>{key}</q>са вредности <q>{value}</q>  у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:17
 msgid "Added field <q>{key}</q> to {pkg_link}"
-msgstr ""
+msgstr "Додај поље <q>{key}</q> у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:28
 msgid "Added the following fields to {pkg_link}"
-msgstr ""
+msgstr "Додата следећа поља у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:39
 #: ckan/templates/snippets/changes/resource_extras.html:56
@@ -4435,90 +4444,92 @@ msgstr "{key} са вредношћу {value}"
 #: ckan/templates/snippets/changes/resource_extras.html:61
 #: ckan/templates/snippets/changes/resource_extras.html:102
 msgid "{key}"
-msgstr ""
+msgstr "{key}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:54
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> (previously "
 "<q>{old_val}</q>) in {pkg_link}"
 msgstr ""
-"Промењена вредност поља <q>{key}</q> у <q>{new_val}</q> (претходна "
+"Ажурирана вредност поља <q>{key}</q> у <q>{new_val}</q> (претходна "
 "<q>{old_val}</q>) у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:67
 msgid "Changed value of field <q>{key}</q> to <q>{new_val}</q> in {pkg_link}"
-msgstr ""
+msgstr "Ажурирана вредност поља <q>{key}</q> у <q>{new_val}</q> у {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:79
 msgid "Removed field <q>{key}</q> from {pkg_link}"
-msgstr ""
+msgstr "Уклоњено поље <q>{key}</q> из {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:90
 msgid "Removed the following fields from {pkg_link}"
-msgstr ""
+msgstr "Уклоњена следећа поља из {pkg_link}"
 
 #: ckan/templates/snippets/changes/extra_fields.html:100
 msgid "<q>{key}</q>"
-msgstr ""
+msgstr "<q>{key}</q>"
 
 #: ckan/templates/snippets/changes/license.html:6
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_link})"
-msgstr ""
+msgstr "Ажурирана лиценца за {pkg_link} у {new_link} (претходно {old_link})"
 
 #: ckan/templates/snippets/changes/license.html:25
 msgid ""
 "Changed the license of {pkg_link} to {new_link} (previously {old_title})"
-msgstr ""
+msgstr "Ажурирана лиценца за {pkg_link} у {new_link} (претходно {old_title})"
 
 #: ckan/templates/snippets/changes/license.html:41
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_link})"
-msgstr ""
+msgstr "Ажурирана лиценца за {pkg_link} у {new_title} (претходно {old_link})"
 
 #: ckan/templates/snippets/changes/license.html:58
 msgid ""
 "Changed the license of {pkg_link} to {new_title} (previously {old_title})"
-msgstr ""
+msgstr "Ажурирана лиценца за {pkg_link} у {new_title} (претходно {old_title})"
 
 #: ckan/templates/snippets/changes/maintainer.html:5
 msgid ""
 "Set maintainer of {pkg_link} to {new_maintainer} (previously "
 "{old_maintainer})"
 msgstr ""
+"Промењен уређивач {pkg_link} у {new_maintainer} (претходни {old_maintainer})"
 
 #: ckan/templates/snippets/changes/maintainer.html:17
 msgid "Set maintainer of {pkg_link} to {new_maintainer}"
-msgstr ""
+msgstr "Промењен уређивач {pkg_link} у {new_maintainer}"
 
 #: ckan/templates/snippets/changes/maintainer.html:28
 msgid "Removed maintainer from {pkg_link}"
-msgstr ""
+msgstr "Уклоњен уређивач {pkg_link}"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:5
 msgid ""
 "Set maintainer email of {pkg_link} to {new_email} (previously {old_email})"
 msgstr ""
+"Промењен мејл уређивача {pkg_link} у {new_email} (претходни {old_email})"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:23
 msgid "Set maintainer email of {pkg_link} to {new_email}"
-msgstr ""
+msgstr "Промењен мејл уређивача {pkg_link} у {new_email}"
 
 #: ckan/templates/snippets/changes/maintainer_email.html:37
 msgid "Removed maintainer email from {pkg_link}"
-msgstr ""
+msgstr "Уклоњен мејл уређивача {pkg_link}"
 
 #: ckan/templates/snippets/changes/name.html:3
 msgid "Moved {pkg_link} from {old_link} to {new_link}"
-msgstr ""
+msgstr "Премештен {pkg_link} из {old_link} у {new_link}"
 
 #: ckan/templates/snippets/changes/new_file.html:3
 msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Отпремљен нови фајл ресурса {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/new_resource.html:15
 msgid "Added resource {resource_link} to {pkg_link}"
-msgstr ""
+msgstr "Додат ресурс {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/notes.html:5
 msgid ""
@@ -4526,44 +4537,53 @@ msgid ""
 "height2\"><blockquote>{old_notes}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
+"Ажуриран опис {pkg_link} из <br class=\"line-"
+"height2\"><blockquote>{old_notes}</blockquote> у <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 
 #: ckan/templates/snippets/changes/notes.html:17
 msgid ""
 "Updated description of {pkg_link} to <br class=\"line-"
 "height2\"><blockquote>{new_notes}</blockquote>"
 msgstr ""
+"Ажуриран опис {pkg_link} у <br class=\"line-"
+"height2\"><blockquote>{new_notes}</blockquote>"
 
 #: ckan/templates/snippets/changes/notes.html:28
 msgid "Removed description from {pkg_link}"
-msgstr ""
+msgstr "Уклоњен опис {pkg_link}"
 
 #: ckan/templates/snippets/changes/org.html:5
 msgid ""
 "Moved {pkg_link} from organization {old_org_link} to organization "
 "{new_org_link}"
 msgstr ""
+"Премештен {pkg_link} из организације {old_org_link} у организацију "
+"{new_org_link}"
 
 #: ckan/templates/snippets/changes/org.html:25
 msgid "Removed {pkg_link} from organization {old_org_link}"
-msgstr ""
+msgstr "Уклоњен {pkg_link} из организације {old_org_link}"
 
 #: ckan/templates/snippets/changes/org.html:40
 msgid "Added {pkg_link} to organization {new_org_link}"
-msgstr ""
+msgstr "Додат {pkg_link} у организацију {new_org_link}"
 
 #: ckan/templates/snippets/changes/private.html:3
 msgid "Set visibility of {pkg_link} to {visibility}"
-msgstr ""
+msgstr "Ажурирана видљивост {pkg_link} у {visibility}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:5
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} to <br "
 "class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Ажуриран опис ресурса {resource_link} у {pkg_link} у <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_desc.html:22
 msgid "Removed description from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Уклоњен опис ресурса {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_desc.html:38
 msgid ""
@@ -4571,113 +4591,128 @@ msgid ""
 "class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
 "class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
+"Ажуриран опис ресурса {resource_link} у {pkg_link} из <br class=\"line-"
+"height2\"><blockquote>{old_desc}</blockquote> у <br class=\"line-"
+"height2\"><blockquote>{new_desc}</blockquote>"
 
 #: ckan/templates/snippets/changes/resource_extras.html:5
 msgid ""
 "Added field <q>{key}</q> with value <q>{value}</q> to resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Додато поље <q>{key}</q>са вредности <q>{value}</q> ресурсу {resource_link} "
+"у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:23
 msgid "Added field <q>{key}</q> to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Додато поље <q>{key}</q> ресурсу {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:40
 msgid "Added the following fields to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Додата поља ресурсу {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:70
 msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Уклоњено поље <q>{key}</q> из ресурса {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:87
 msgid ""
 "Removed the following fields from resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Уклоњена следећа поља из ресурса {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:110
 msgid ""
 "Changed value of field <q>{key}</q> of resource {resource_link} to "
 "<q>{new_val}</q> (previously <q>{old_val}</q>) in {pkg_link}"
 msgstr ""
+"Ажурирана вредност поља <q>{key}</q> ресурса {resource_link} у "
+"<q>{new_val}</q> (претходна <q>{old_val}</q>) у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:129
 msgid ""
 "Changed value of field <q>{key}</q> to <q>{new_val}</q> in resource "
 "{resource_link} in {pkg_link}"
 msgstr ""
+"Ажурирана вредност поља <q>{key}</q> у <q>{new_val}</q> ресурса "
+"{resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_extras.html:147
 msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
 msgstr ""
+"Уклоњена вредност поља <q>{key}</q> ресурса {resource_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_format.html:10
 msgid "Set format of resource {resource_link} to {format_link} in {pkg_link}"
-msgstr ""
+msgstr "Одабери формат ресурса {resource_link} у {format_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_format.html:30
 msgid ""
 "Set format of resource {resource_link} to {new_format_link} (previously "
 "{old_format_link}) in {pkg_link}"
 msgstr ""
+"Одабери формат ресурса {resource_link} у {new_format_link} (претходно "
+"{old_format_link}) у {pkg_link}"
 
 #: ckan/templates/snippets/changes/resource_name.html:3
 msgid ""
 "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
+"Ажурирано име ресурса {old_resource_link}  у {new_resource_link} у "
+"{pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:5
 msgid "Removed tag {tag_link} from {pkg_link}"
-msgstr ""
+msgstr "Уклоњен таг {tag_link} из {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:20
 msgid "Removed the following tags from {pkg_link}"
-msgstr ""
+msgstr "Уклоњени тагови из {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:31
 #: ckan/templates/snippets/changes/tags.html:70
 msgid "{tag_link}"
-msgstr ""
+msgstr "{tag_link}"
 
 #: ckan/templates/snippets/changes/tags.html:44
 msgid "Added tag {tag_link} to {pkg_link}"
-msgstr ""
+msgstr "Додат таг {tag_link} у {pkg_link}"
 
 #: ckan/templates/snippets/changes/tags.html:59
 msgid "Added the following tags to {pkg_link}"
-msgstr ""
+msgstr "Додати тагови у {pkg_link}"
 
 #: ckan/templates/snippets/changes/title.html:3
 msgid "Changed title to {title_link} (previously {old_title})"
-msgstr ""
+msgstr "Ажуриран назив у {title_link} (претходно {old_title})"
 
 #: ckan/templates/snippets/changes/url.html:5
 msgid "Changed the source URL of {pkg_link} from {old_link} to {new_link}"
-msgstr ""
+msgstr "Ажуриран URL {pkg_link} из {old_link} у {new_link}"
 
 #: ckan/templates/snippets/changes/url.html:23
 msgid "Removed the source URL from {pkg_link}"
-msgstr ""
+msgstr "Уклоњен URL из {pkg_link}"
 
 #: ckan/templates/snippets/changes/url.html:33
 msgid "Changed the source URL of {pkg_link} to {new_link}"
-msgstr ""
+msgstr "Ажуриран URL {pkg_link} у {new_link}"
 
 #: ckan/templates/snippets/changes/version.html:5
 msgid ""
 "Changed the version of {pkg_link} to {new_version} (previously "
 "{old_version})"
 msgstr ""
+"Ажурирана верзија {pkg_link} у {new_version} (претходно {old_version})"
 
 #: ckan/templates/snippets/changes/version.html:17
 msgid "Removed the version from {pkg_link}"
-msgstr ""
+msgstr "Уклоњена верзија из {pkg_link}"
 
 #: ckan/templates/snippets/changes/version.html:27
 msgid "Changed the version of {pkg_link} to {new_version}"
-msgstr ""
+msgstr "Ажурирана верзија {pkg_link} у {new_version}"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
@@ -4864,7 +4899,7 @@ msgstr "Заборавили сте лозинку?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr "Одјављени"
+msgstr "Одјављени сте"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."

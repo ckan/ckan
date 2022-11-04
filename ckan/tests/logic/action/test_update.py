@@ -427,6 +427,29 @@ class TestUpdate(object):
             "http://a.html",
         ]
 
+    def test_normal_user_can_not_change_their_state(self):
+
+        user = factories.User(state='pending')
+
+        user['state'] = 'active'
+
+        updated_user = helpers.call_action("user_update", **user)
+
+        updated_user['state'] == 'pending'
+
+    def test_sysadmin_user_can_change_a_user_state(self):
+
+        user = factories.User(state='pending')
+        sysadmin = factories.Sysadmin()
+
+        user['state'] = 'active'
+
+        context = {'user': sysadmin['name']}
+
+        updated_user = helpers.call_action("user_update", context=context, **user)
+
+        updated_user['state'] == 'active'
+
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
         dataset = factories.Dataset(
