@@ -11835,10 +11835,6 @@ textarea {
   width: 100%;
 }
 
-.control-large .control-label {
-  font-size: 1.09375rem;
-}
-
 .control-required {
   color: #c6898b;
 }
@@ -12422,10 +12418,6 @@ select[data-module=autocomplete] {
   margin-top: 5px;
   margin-left: 2px;
   font-weight: bold;
-}
-
-.add-member-form .control-label {
-  display: block;
 }
 
 .add-member-or-wrap {
