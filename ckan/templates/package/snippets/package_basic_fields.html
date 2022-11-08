@@ -116,7 +116,7 @@
 
   {% if data.id and h.check_access('package_delete', {'id': data.id}) and data.state != 'active' %}
   <div class="form-group control-medium">
-    <label for="field-state" class="form-label>{{ _('State') }}</label>
+    <label for="field-state" class="form-label">{{ _('State') }}</label>
     <div class="controls">
       <select class="form-control" id="field-state" name="state">
         <option value="active" {% if data.get('state', 'none') == 'active' %} selected="selected" {% endif %}>{{ _('Active') }}</option>
