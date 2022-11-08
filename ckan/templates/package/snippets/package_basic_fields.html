@@ -31,8 +31,6 @@
     {% set error = errors.license_id %}
     <label class="form-label" for="field-license">{{ _("License") }}</label>
     <div class="controls">
-      <div class="row">
-        <div class="col-md-6">
           <select id="field-license" name="license_id" data-module="autocomplete">
             {% set existing_license_id = data.get('license_id') %}
             {% set empty_license = _('Please select the license') %}
@@ -41,9 +39,6 @@
               <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
             {% endfor %}
           </select>
-          {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-        </div>
-        <div class="col-md-6">
           <span class="info-block info-inline">
             <i class="fa fa-info-circle"></i>
             {% trans %}
@@ -51,8 +46,7 @@
             at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
             {% endtrans %}
           </span>
-        </div>
-      </div>
+          {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     </div>
   </div>
 {% endblock %}
@@ -109,8 +103,8 @@
     {% endblock %}
     {% endif %}
 
-    {% if show_organizations_selector and show_visibility_selector %}
-  </div>
+  {% if show_organizations_selector and show_visibility_selector %}
+    </div>
   {% endif %}
 
 
