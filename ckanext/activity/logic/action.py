@@ -258,6 +258,65 @@ def package_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+def resource_activity_list(context, data_dict):
+    '''Return a resource activity stream (not including detail)
+    You must be authorized to view the resource.
+    :param id: the id or name of the resource
+    :type id: string
+    :param offset: where to start getting activity items from
+        (optional, default: ``0``)
+    :type offset: int
+    :param limit: the maximum number of activities to return
+        (optional, default: ``31`` unless set in site's configuration
+        ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
+        site's configuration ``ckan.activity_list_limit_max``)
+    :type limit: int
+    :param include_hidden_activity: whether to include 'hidden' activity, which
+        is not shown in the Activity Stream page. Hidden activity includes
+        activity done by the site_user, such as harvests, which are not shown
+        in the activity stream because they can be too numerous, or activity by
+        other users specified in config option `ckan.hide_activity_from_users`.
+        NB Only sysadmins may set include_hidden_activity to true.
+        (default: false)
+    :type include_hidden_activity: bool
+    :param activity_types: A list of activity types to include in the response
+    :type activity_types: list
+    :param exclude_activity_types: A list of activity types to exclude from the response
+    :type exclude_activity_types: list
+    :rtype: list of dictionaries
+    '''
+    data_dict['include_data'] = False
+    include_hidden_activity = data_dict.get('include_hidden_activity', False)
+    activity_types = data_dict.pop('activity_types', None)
+    exclude_activity_types = data_dict.pop('exclude_activity_types', None)
+
+    if activity_types is not None and exclude_activity_types is not None:
+        raise tk.ValidationError({'activity_types': ['Cannot be used together with `exclude_activity_types']})
+
+    tk.check_access('package_activity_list', context, data_dict)
+
+    model = context['model']
+    breakpoint()
+    resource_ref = data_dict.get('id')  # May be name or ID.
+    resource = model.Resource.get(resource_ref)
+    if resource is None:
+        raise tk.ObjectNotFound()
+
+    offset = int(data_dict.get('offset', 0))
+    limit = data_dict['limit']  # defaulted, limited & made an int by schema
+
+    activity_objects = model_activity.resource_activity_list(
+        resource.id, limit=limit, offset=offset,
+        include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types,
+        exclude_activity_types=exclude_activity_types
+    )
+
+    return model_activity.activity_list_dictize(
+        activity_objects, context)
+
+
+@validate(schema.default_activity_list_schema)
 def group_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:

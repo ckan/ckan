@@ -1,11 +1,14 @@
 <li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
   <i class="fa icon fa-file"></i>
   <p>
-    {{ _('{actor} updated the resource {resource} in the dataset {dataset}').format(
+    {{ _('{actor} updated the resource {resource} in the dataset ').format(
       actor=ah.actor(activity),
       resource=ah.resource(activity),
-      dataset=ah.datset(activity)
     )|safe }}
+    <a href="{{ h.url_for('dataset.read', id=activity.data.package.package_id) }}">
+      {% set title = h.get_pkg_title_from_id(activity.data.package.package_id) %}
+      {{ title }}
+    </a>
     <br />
     <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}

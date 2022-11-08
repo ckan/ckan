@@ -91,6 +91,14 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     if not resource:
         return base.abort(404, _(u'Resource not found'))
 
+    if plugins.plugin_loaded("activity"):
+        activity_id = request.args.get("activity_id")
+        if activity_id:
+            return h.redirect_to(
+                "activity.resource_history",
+                id=id, resource_id=resource_id, activity_id=activity_id
+            )
+
     # get package license info
     license_id = package.get(u'license_id')
     try:
