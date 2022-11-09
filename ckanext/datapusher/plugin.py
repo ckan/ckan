@@ -42,8 +42,9 @@ class DatapusherPlugin(p.SingletonPlugin):
         self.config = config
 
         for config_option in (
-            u'ckan.site_url',
-            u'ckan.datapusher.url',
+            "ckan.site_url",
+            "ckan.datapusher.url",
+            "ckan.datapusher.api_token",
         ):
             if not config.get_value(config_option):
                 raise Exception(
