@@ -1193,7 +1193,7 @@ def changes_multiple(package_type=None):
     # TODO: do something better here - go back to the previous page,
     # display a warning that the user can't look at a sequence where
     # the newest item is older than the oldest one, etc
-    if time_diff.total_seconds() < 0:
+    if time_diff.total_seconds() <= 0:
         return changes(h.get_request_param(u'current_new_id'))
 
     done = False
