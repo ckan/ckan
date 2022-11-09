@@ -1,5 +1,5 @@
 {% macro actor(activity) %}
-  <span class="actor">
+  <span>
     {{ h.linked_user(activity.user_id, 0, 30) }}
   </span>
 {% endmacro %}
@@ -20,7 +20,7 @@
 {% endmacro %}
 
 {% macro user(activity) %}
-<span class="actor">
+<span>
   {{ h.linked_user(activity.object_id, 0, 20) }}
 </span>
 {% endmacro %}
@@ -43,17 +43,19 @@ object_type - 'package', 'organization', 'group', 'user'
 {% block activity_stream %}
   <ul class="activity">
   {% set can_show_activity_detail = h.check_access('activity_list', {'id': id, 'include_data': True, 'object_type': object_type}) %}
+
   {% for activity in activity_stream %}
-    {%- snippet "snippets/activities/{}.html".format(
-      activity.activity_type.replace(' ', '_')
-      ), "snippets/activities/fallback.html",
-      activity=activity, can_show_activity_detail=can_show_activity_detail, ah={
+    {%- snippet "snippets/activities/{}.html".format(activity.activity_type.replace(' ', '_')),
+      "snippets/activities/fallback.html",
+      activity=activity, can_show_activity_detail=can_show_activity_detail,
+      ah={
         'actor': actor,
         'dataset': dataset,
         'organization': organization,
         'user': user,
         'group': group,
-      }, id=id
+      },
+      id=id
     -%}
   {% endfor %}
   </ul>
