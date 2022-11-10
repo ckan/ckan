@@ -564,7 +564,7 @@ computer to reindex faster
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild_fast
+ ckan -c |ckan.ini| search-index rebuild-fast
 
 There are other search related commands, mostly useful for debugging purposes
 
