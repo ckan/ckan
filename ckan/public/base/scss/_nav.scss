@@ -149,16 +149,6 @@
     .nav li.active {
         position: relative;
     }
-    .nav li.active>a:hover:after,
-    .nav li.active>a:after {
-        @include ckan-icon;
-        @extend .ckan-icon-circle-cross;
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: 5px;
-        margin-top: -8px;
-    }
 }
 
 .nav-simple>.nav-btn {
