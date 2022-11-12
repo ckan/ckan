@@ -11662,29 +11662,6 @@ a.tag:hover {
   z-index: 2;
 }
 
-.nav-facet .nav-item > a:hover:after,
-.nav-facet .nav-item.active > a:after {
-  display: inline-block;
-  vertical-align: text-bottom;
-  position: relative;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  background-image: url("../../../base/images/sprite-ckan-icons.png");
-  background-repeat: no-repeat;
-  background-position: 16px 16px;
-  background-position: 0px -16px;
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  margin-top: -8px;
-}
-
-.nav-facet .nav-item.active > a:after {
-  right: 3px;
-}
-
 .user-list {
   margin: 0;
   list-style: none;
@@ -11696,63 +11673,6 @@ a.tag:hover {
   margin-right: 3px;
   margin-bottom: 3px;
   border-radius: 100px;
-}
-
-.nav-facet-tertiary {
-  margin: 10px 0;
-}
-.nav-facet-tertiary .module-heading {
-  margin-bottom: 5px;
-  padding: 8px 12px;
-  border-bottom-width: 0;
-  border-radius: 5px;
-}
-.nav-facet-tertiary .module-heading i {
-  display: none;
-}
-.nav-facet-tertiary .module-footer {
-  padding: 8px 12px;
-  border-top-width: 0;
-}
-.nav-facet-tertiary .module-footer a {
-  font-weight: normal;
-  color: #8C8C8C;
-}
-.nav-facet-tertiary .nav {
-  margin-bottom: 0;
-}
-.nav-facet-tertiary .module-content.empty {
-  padding: 8px 12px;
-  margin-top: 0;
-}
-.nav-facet-tertiary .nav li.active {
-  position: relative;
-}
-.nav-facet-tertiary .nav li.active > a:hover:after,
-.nav-facet-tertiary .nav li.active > a:after {
-  display: inline-block;
-  vertical-align: text-bottom;
-  position: relative;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  background-image: url("../../../base/images/sprite-ckan-icons.png");
-  background-repeat: no-repeat;
-  background-position: 16px 16px;
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  margin-top: -8px;
-}
-
-.nav-simple > .nav-btn {
-  padding-left: 0;
-  padding-right: 0;
-  text-align: center;
-}
-.nav-simple > .nav-btn .btn {
-  display: inline-block;
 }
 
 .nav-stacked > li {
@@ -13277,14 +13197,13 @@ td.diff_header {
   background-position: 192px 0;
 }
 
-.ckan-icon-circle-cross, .nav-facet .nav-item.active > a:hover:after, .nav-facet .nav-item.active > a:after, .nav-facet-tertiary .nav li.active > a:hover:after,
-.nav-facet-tertiary .nav li.active > a:after {
+.ckan-icon-circle-cross {
   width: 17px;
   height: 17px;
   background-position: 0px -17px;
 }
 
-.ckan-icon-circle-add, .nav-facet .nav-item > a:hover:after {
+.ckan-icon-circle-add {
   width: 17px;
   height: 17px;
   background-position: -17px -17px;
