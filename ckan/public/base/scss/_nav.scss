@@ -35,7 +35,7 @@
     .nav-aside li.active {
         background-color: $navActiveBackgroundColor;
     }
-    
+
     .nav-item.active>a,
     .nav-aside li.active a {
         position: relative;
@@ -46,7 +46,7 @@
             background-color: $navItemActiveBackgroundColor;
         }
     }
-    
+
     .nav-item.active>a:before,
     .nav-aside li.active a:before {
         content: ' ';
@@ -62,14 +62,14 @@
         height: 34px;
         // background-image: url("${imagePath}/nav-active.png?1");
     }
-    
+
     .nav-pills>li {
         float: none;
-        @include media-breakpoint-down(sm) { 
+        @include media-breakpoint-down(sm) {
             float: left;
         }
     }
-    
+
     .nav-item.active>a span,
     .nav-aside li.active a span {
         white-space: nowrap;
@@ -108,29 +108,6 @@
 }
 
 // FACET NAVIGATION
-.nav-facet .nav-item>a:hover:after,
-.nav-facet .nav-item.active>a:after {
-    @include ckan-icon;
-    background-position: 0px -16px;
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 5px;
-    margin-top: -8px;
-}
-
-.nav-facet .nav-item>a:hover:after{
-    @extend .ckan-icon-circle-add;
-}
-.nav-facet .nav-item.active>a:hover:after{
-    @extend .ckan-icon-circle-cross;
-}
-
-.nav-facet .nav-item.active>a:after {
-    @extend .ckan-icon-circle-cross;
-    right: 3px;
-}
-
 .user-list {
     @include list-unstyled;
     li {
