@@ -12549,8 +12549,8 @@ select[data-module=autocomplete] {
   background-color: #6e6e6e;
 }
 
-.dataset-heading .popular {
-  top: 0;
+.popular {
+  color: #f29c2b;
 }
 
 .resource-list {

@@ -58,8 +58,8 @@
     background-color: $resourceFormatBackground;
 }
 
-.dataset-heading .popular {
-    top: 0;
+.popular {
+    color:#f29c2b;
 }
 
 // Resource List
@@ -232,7 +232,7 @@
     background-color: #0b4498;
 }
 
-.badge-default[href]:hover, 
+.badge-default[href]:hover,
 .badge-default[href]:focus {
     background-color: #5e5e5e;
     color: $white;
