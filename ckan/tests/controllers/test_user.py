@@ -109,6 +109,8 @@ def sysadmin():
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_a_user(self, app):
         url = url_for("user.register")
         stub = factories.User.stub()
@@ -131,6 +133,7 @@ class TestUser(object):
         assert user["fullname"] == "New User"
         assert not (user["sysadmin"])
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_user_bad_password(self, app):
         stub = factories.User.stub()
         response = app.post(
