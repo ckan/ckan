@@ -346,6 +346,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
             raise ValidationError(errors)
     sort = data_dict.get('sort') or config.get('ckan.default_group_sort') or 'title'
     q = data_dict.get('q')
+    fq = data_dict.get('fq')
 
     all_fields = asbool(data_dict.get('all_fields', None))
 
@@ -407,6 +408,25 @@ def _group_or_org_list(context, data_dict, is_org=False):
             model.Group.title.ilike(q),
             model.Group.description.ilike(q),
         ))
+
+    if fq:
+        if isinstance(fq, str):
+            fq = [fq]
+        query = query.outerjoin(model.GroupExtra, model.Group.id == model.GroupExtra.group_id)
+        for fq_term in fq:
+            fq_key, fq_value = fq_term.split(':')
+
+            if fq_key[0] == '-':
+                fq_key = fq_key[1:]
+                query = query.filter(_and_(
+                    model.GroupExtra.key == fq_key,
+                    model.GroupExtra.value.notilike(u'%{0}%'.format(fq_value)),
+                ))
+            else:
+                query = query.filter(_and_(
+                    model.GroupExtra.key == fq_key,
+                    model.GroupExtra.value.ilike(u'%{0}%'.format(fq_value)),
+                ))
 
     query = query.filter(model.Group.is_organization == is_org)
     query = query.filter(model.Group.type == group_type)
