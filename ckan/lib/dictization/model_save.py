@@ -72,6 +72,9 @@ def package_resource_list_save(
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
         .filter(model.Resource.state != 'deleted')[:]
+    deleted_list = session.query(model.Resource) \
+        .filter(model.Resource.package_id == package.id) \
+        .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
     for res_dict in res_dicts or []:
@@ -91,9 +94,13 @@ def package_resource_list_save(
     # according to their ordering in the obj_list.
     resource_list[:] = obj_list
 
-    # Permanently remove any left-over resources
-    for resource in set(old_list) - set(obj_list):
+    # Permanently remove old deleted resources
+    for resource in set(deleted_list) - set(obj_list):
         resource.purge()
+    # Mark any left-over resources as deleted
+    for resource in set(old_list) - set(obj_list):
+        resource.state = 'deleted'
+        resource_list.append(resource)
 
 
 def package_extras_save(
