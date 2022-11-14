@@ -527,9 +527,13 @@ groups:
 
       - key: ckan.auth.create_user_via_web
         type: bool
-        default: true
+        default: false
         example: "true"
-        description: Allow new user accounts to be created via the Web.
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
 
       - key: ckan.auth.roles_that_cascade_to_sub_groups
         default:
