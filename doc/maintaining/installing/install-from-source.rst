@@ -24,10 +24,26 @@ work on CKAN.
 1. Install the required packages
 --------------------------------
 
-If you're using a Debian-based operating system (such as Ubuntu) install the
-required packages with this command::
+CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
+Python required packages::
+
+    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core
+
+The 3 main services (PostgreSQL, Solr and Redis) can be installed locally or dockerized. If
+you want to run them locally you will need to install the following dependencies.
+
+PostgreSQL requirements::
+
+    sudo apt-get install postgresql
+
+Solr requirements::
+
+    sudo apt-get install solr-tomcat openjdk-8-jdk
+
+Redis requirements::
+
+    sudo apt-get install redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -211,16 +227,17 @@ site_url
 
 .. _postgres-init:
 
-----------------------
-6. Link to ``who.ini``
-----------------------
+---------------
+6. Setup Redis
+---------------
 
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
+If you installed it locally on the first step, make sure you have a Redis
+instance running in the `6379` port.
 
-.. parsed-literal::
+If you have Docker installed, you can setup a default Redis instance by
+running::
 
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+    docker run --name ckan-redis -p 6379:6379 -d redis
 
 -------------------------
 7. Create database tables
