@@ -74,13 +74,13 @@ class TestClassLevelConfig(object):
 
 class TestCreateWithUpload(object):
 
-    def test_create_organization(self, create_with_upload, ckan_config):
+    def test_create_organization(self, create_with_upload, ckan_config, faker):
         user = factories.User()
         context = {
             u"user": user["name"]
         }
         org = create_with_upload(
-            b"\0\0\0", u"image.png",
+            faker.image(), u"image.png",
             context=context,
             action=u"organization_create",
             upload_field_name=u"image_upload",
@@ -95,7 +95,8 @@ class TestCreateWithUpload(object):
         assert os.path.isfile(image_path)
         with open(image_path, u"rb") as image:
             content = image.read()
-            assert content == b"\0\0\0"
+            # PNG signature
+            assert content.hex()[:16].upper() == '89504E470D0A1A0A'
 
     def test_create_resource(self, create_with_upload):
         dataset = factories.Dataset()
