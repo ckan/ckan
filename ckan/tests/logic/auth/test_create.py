@@ -51,23 +51,24 @@ class TestUserCreate:
         context = {"user": sysadmin["name"], "model": model, "api_version": 3}
         assert helpers.call_auth("user_create", context)
 
-    def test_annon_can_create_via_web(self):
+    def test_anon_can_not_create_via_web(self):
         context = {"user": None, "model": model}
-        assert helpers.call_auth("user_create", context)
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("user_create", context)
 
-    def test_annon_cannot_create_via_api(self):
+    def test_anon_cannot_create_via_api(self):
         context = {"user": None, "model": model, "api_version": 3}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_create", context)
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
-    def test_annon_cannot_create_via_forbidden_web(self):
+    def test_anon_cannot_create_via_forbidden_web(self):
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_create", context)
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_api", True)
-    def test_annon_not_create_via_allowed_api(self):
+    def test_anon_not_create_via_allowed_api(self):
         context = {"user": None, "model": model, "api_version": 3}
         assert helpers.call_auth("user_create", context)
 
