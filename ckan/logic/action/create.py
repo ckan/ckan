@@ -1102,7 +1102,9 @@ def user_invite(context: Context,
 
     data['state'] = model.State.PENDING
     user_dict = _get_action('user_create')(
-        cast(Context, dict(context, schema=invite_schema)),
+        cast(
+            Context,
+            dict(context, schema=invite_schema, ignore_auth=True)),
         data)
     user = model.User.get(user_dict['id'])
     assert user
