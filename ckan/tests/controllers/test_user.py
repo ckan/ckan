@@ -26,6 +26,8 @@ def _get_user_edit_page(app):
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_a_user(self, app):
         url = url_for("user.register")
         response = app.post(url=url, data={
@@ -44,6 +46,7 @@ class TestUser(object):
         assert user["fullname"] == "New User"
         assert not (user["sysadmin"])
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_user_bad_password(self, app):
         response = app.post(url_for("user.register"), data={
             "save": "",

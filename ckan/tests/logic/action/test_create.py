@@ -1084,6 +1084,7 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"], "ignore_auth": False}
@@ -1381,6 +1382,7 @@ class TestPackageMemberCreate(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserPluginExtras(object):
 
     def test_stored_on_create_if_sysadmin(self):

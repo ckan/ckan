@@ -1156,7 +1156,8 @@ def user_invite(context, data_dict):
     data['name'] = name
     data['password'] = password
     data['state'] = ckan.model.State.PENDING
-    user_dict = _get_action('user_create')(context, data)
+    create_context = dict(context, ignore_auth=True)
+    user_dict = _get_action('user_create')(create_context, data)
     user = ckan.model.User.get(user_dict['id'])
     member_dict = {
         'username': user.id,

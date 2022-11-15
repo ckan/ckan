@@ -478,7 +478,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
-    'create_user_via_web': True,
+    'create_user_via_web': False,
     'roles_that_cascade_to_sub_groups': 'admin',
     'public_activity_stream_detail': False,
     'allow_dataset_collaborators': False,
