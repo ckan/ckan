@@ -1,6 +1,5 @@
 # encoding: utf-8
 import pytest
-import six
 from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
