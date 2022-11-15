@@ -77,7 +77,7 @@ class TestUpload(object):
         DE 00 00 00 0C 49 44 41 54 08 D7 63 F8 CF C0 00
         00 03 01 01 00 18 DD 8D B0 00 00 00 00 49 45 4E
         44 AE 42 60 82"""
-        some_png = some_png.replace(' ', '').replace('\n', '')
+        some_png = some_png.replace(u' ', u'').replace(u'\n', u'')
         some_png_bytes = bytes(bytearray.fromhex(some_png))
 
         group = {u'clear_upload': u'',
@@ -97,4 +97,7 @@ class TestUpload(object):
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
         # PNG signature
-        assert resp.data.hex()[:16].upper() == '89504E470D0A1A0A'
+        if six.PY3:
+            assert resp.data.hex()[:16].upper() == u'89504E470D0A1A0A'
+        else:
+            assert resp.data.encode(u"hex")[:16].upper() == u'89504E470D0A1A0A'

@@ -1068,6 +1068,7 @@ class TestOrganizationCreate(object):
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1084,7 +1085,6 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
-    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"], "ignore_auth": False}
@@ -1495,10 +1495,10 @@ class TestUserImageUrl(object):
             assert create_with_upload("hello world", "file.txt", **params)
 
     def test_upload_svg_fails_without_extra_config(
-            self, create_with_upload, faker):
+            self, create_with_upload):
         params = {
-            "name": faker.user_name(),
-            "email": faker.email(),
+            "name": "test_user_1",
+            "email": "test1@example.com",
             "password": "12345678",
             "action": "user_create",
             "upload_field_name": "image_upload",
@@ -1508,10 +1508,10 @@ class TestUserImageUrl(object):
             create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
 
     def test_upload_svg_wrong_extension_fails_without_extra_config(
-            self, create_with_upload, faker):
+            self, create_with_upload):
         params = {
-            "name": faker.user_name(),
-            "email": faker.email(),
+            "name": "test_user_1",
+            "email": "test1@example.com",
             "password": "12345678",
             "action": "user_create",
             "upload_field_name": "image_upload",

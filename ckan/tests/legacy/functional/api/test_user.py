@@ -175,6 +175,7 @@ class TestUserActions(object):
     def initial_data(self, clean_db):
         CreateTestData.create()
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_simple(self):
         """Simple creation of a new user by a non-sysadmin user."""
         context = {"model": model, "session": model.Session, "user": "tester"}
