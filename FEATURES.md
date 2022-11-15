@@ -66,3 +66,9 @@ ckan  menu create --url [path to wordpress api endpoint] --output [output menu l
 ```
 sudo docker exec -u root -it ckan  ckan --config /etc/ckan/production.ini menu create --url https://cioospacific.ca/wp-json/ra/menu/ --output /menu/pacific_menu_list.html
 ```
+
+# organization_list api end point
+added a fq paramiter to organization_list so that results can be filtered on fields other then name, description, and title.
+not queries are supported by adding a negative sign in front of the field name.
+
+example query ```/api/3/action/organization_list?q=hakai&all_fields=true&include_extras=true&fq=-organization-uri:code"_ "",&fq=organization-uri:__```
