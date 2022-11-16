@@ -374,7 +374,7 @@ class EditView(MethodView):
         try:
             if resource_id:
                 data[u'id'] = resource_id
-                get_action(u'resource_update')(context, data)
+                get_action(u'resource_patch')(context, data)
             else:
                 get_action(u'resource_create')(context, data)
         except ValidationError as e:
