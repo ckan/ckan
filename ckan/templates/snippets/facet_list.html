@@ -63,7 +63,8 @@ Dictionary with search facets
 						    <span class="item-label">{{ label_truncated }}</span>
 						    <span class="hidden separator"> - </span>
 						    <span class="item-count badge">{{ count }}</span>
-							{% if item.active %}<span class="facet-close">x</span>{% endif %}
+
+							{% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
 						</a>
 					    </li>
 					{% endfor %}
