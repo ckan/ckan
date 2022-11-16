@@ -3599,7 +3599,7 @@ msgstr "No autoritzat a llegir el paquet %s"
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
 "Visualitzar conjunts de dades de tipus \"{package_type}\" no està "
-"suportat ({file_lr})."
+"suportat ({file_!r})."
 
 #: ckan/views/dataset.py:532
 msgid "Unauthorized to create a package"

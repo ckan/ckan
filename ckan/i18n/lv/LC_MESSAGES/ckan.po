@@ -3315,7 +3315,7 @@ msgstr "Jūs esiet atteicies no sistēmas"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr "Jūs esat jau pieteicies kā {lietotājs}."
+msgstr "Jūs esat jau pieteicies kā {user}."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"

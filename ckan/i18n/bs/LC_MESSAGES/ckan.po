@@ -1043,7 +1043,7 @@ msgstr "Nema pronađenih podudaranja"
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Unos je prekratak, mora sadržavati najmanje jedan znak"
-msgstr[1] "Unos je prekratak, mora sadržavati najmanje %(num)ddva znaka"
+msgstr[1] "Unos je prekratak, mora sadržavati najmanje %(num)d dva znaka"
 msgstr[2] "Unos je prekratak, mora sadržavati najmanje %(num)d znakova"
 
 #: ckan/public-bs3/base/javascript/modules/basic-form.js:4

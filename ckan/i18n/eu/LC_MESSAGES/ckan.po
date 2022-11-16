@@ -544,7 +544,7 @@ msgstr "Izen bereko beste eskema-eremu bat existitzen da"
 
 #: ckan/logic/validators.py:950
 msgid "Email {email} is not a valid format"
-msgstr "Emailaren formatua balioduna da"
+msgstr "Emailaren {email} formatua balioduna da"
 
 #: ckan/logic/validators.py:993
 msgid "Must be a dict"
@@ -1041,7 +1041,7 @@ msgstr "Ez dira bateragarritasunak (koinzidentziak) aurkitu"
 msgid "Input is too short, must be at least one character"
 msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "Sarrera oso laburra da, gutxienez karaktere bat eduki behar du"
-msgstr[1] "Sarrera oso laburra da, gutxienez %(num) karaktere bat eduki behar du"
+msgstr[1] "Sarrera oso laburra da, gutxienez %(num)d karaktere bat eduki behar du"
 
 #: ckan/public-bs3/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.js:4

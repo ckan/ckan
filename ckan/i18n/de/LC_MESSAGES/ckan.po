@@ -3670,7 +3670,7 @@ msgstr "Nicht leseberechtigt für Mitmacher {}"
 
 #: ckan/views/dataset.py:1125
 msgid "Unauthorized to delete collaborators {}"
-msgstr "Keine Löschberechtigung für Mimacher {]"
+msgstr "Keine Löschberechtigung für Mimacher {}"
 
 #: ckan/views/dataset.py:1130
 msgid "User removed from collaborators"
