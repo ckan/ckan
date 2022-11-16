@@ -95,37 +95,10 @@
     }
 }
 
-.tertiary {
-    .control-order-by {
-        float: none;
-        margin: 0;
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: normal;
-            font-size: 12px;
-        }
-        select {
-            display: block;
-            font-size: 12px;
-            width: 100%;
-        }
-    }
-    .search-input {
-        margin-bottom: 10px;
-    }
-}
-
 @include media-breakpoint-up(md) {
     .search-form .control-order-by {
         float: right;
         margin-left: 15px;
         width: auto;
-    }
-    .tertiary {
-        .search-form .control-order-by {
-            float: none;
-            margin: 0;
-        }
     }
 }
