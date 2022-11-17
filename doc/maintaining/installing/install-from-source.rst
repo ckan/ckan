@@ -26,8 +26,8 @@ work on CKAN.
 1. Install the required packages
 --------------------------------
 
-If you're using a Debian-based operating system (such as Ubuntu) install the required
-packages with this command::
+If you're using a Debian-based operating system (such as Ubuntu) install the
+required packages with this command::
 
     sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server
 
