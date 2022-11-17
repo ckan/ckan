@@ -32,7 +32,7 @@ You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 Installing Solr manually
 ========================
 
-#. Install the OS dependencies if you haven't done it before::
+#. Install the OS dependencies::
 
       sudo apt-get install solr-tomcat openjdk-8-jdk
 
