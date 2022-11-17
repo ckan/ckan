@@ -4,6 +4,8 @@
 Installing CKAN from source
 ===========================
 
+CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
+
 This section describes how to install CKAN from source. Although
 :doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit or
 Ubuntu 16.04 64-bit. Installing CKAN from source works with other
@@ -24,26 +26,10 @@ work on CKAN.
 1. Install the required packages
 --------------------------------
 
-CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
+If you're using a Debian-based operating system (such as Ubuntu) install the required
+packages with this command::
 
-Python required packages::
-
-    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core
-
-The 3 main services (PostgreSQL, Solr and Redis) can be installed locally or dockerized. If
-you want to run them locally you will need to install the following dependencies.
-
-PostgreSQL requirements::
-
-    sudo apt-get install postgresql
-
-Solr requirements::
-
-    sudo apt-get install solr-tomcat openjdk-8-jdk
-
-Redis requirements::
-
-    sudo apt-get install redis-server
+    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
