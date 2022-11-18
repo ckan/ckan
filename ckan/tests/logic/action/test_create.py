@@ -1068,6 +1068,7 @@ class TestOrganizationCreate(object):
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserCreate(object):
     def test_user_create_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1381,6 +1382,7 @@ class TestPackageMemberCreate(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserPluginExtras(object):
 
     def test_stored_on_create_if_sysadmin(self):
@@ -1479,7 +1481,7 @@ class TestUserImageUrl(object):
             user_dict["image_display_url"] == "https://example.com/mypic.png"
         )
 
-    def test_upload_non_picture_works_without_extra_config(
+    def test_upload_non_picture_not_works_without_extra_config(
             self, create_with_upload):
         params = {
             "name": "test_user_1",
@@ -1488,7 +1490,35 @@ class TestUserImageUrl(object):
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
-        assert create_with_upload("hello world", "file.txt", **params)
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            assert create_with_upload("hello world", "file.txt", **params)
+
+    def test_upload_svg_fails_without_extra_config(
+            self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
+
+    def test_upload_svg_wrong_extension_fails_without_extra_config(
+            self, create_with_upload):
+        params = {
+            "name": "test_user_1",
+            "email": "test1@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.png", **params)
 
     @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_non_picture(self, create_with_upload):
@@ -1517,7 +1547,6 @@ class TestUserImageUrl(object):
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_picture(self, create_with_upload):
         params = {
             "name": "test_user_1",
