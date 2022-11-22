@@ -59,3 +59,5 @@ installed, we need to install and configure Solr.
 #. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
+
+   .. note:: If Solr is installed using docker, the endpoint is exposed at:: solr_url=http://127.0.0.1:8983/solr/ckan
