@@ -1097,7 +1097,7 @@ class MembersGroupView(MethodView):
             try:
                 user_dict = _action(u'user_invite')(context, user_data_dict)
             except ValidationError as e:
-                for _, error in e.error_summary.items():
+                for error in e.error_summary.values():
                     h.flash_error(error)
                 return h.redirect_to(
                     u'{}.member_new'.format(group_type), id=id)
@@ -1111,7 +1111,7 @@ class MembersGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            for _, error in e.error_summary.items():
+            for error in e.error_summary.values():
                 h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 
