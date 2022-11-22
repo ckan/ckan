@@ -69,9 +69,14 @@ def package_resource_list_save(
     session = context['session']
     model = context['model']
     resource_list = package.resources_all
+    # existing resources not marked as deleted - when removed these
+    # need to be kept in the db marked as deleted so that extensions like
+    # datastore have a chance to remove tables created for those resources
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
         .filter(model.Resource.state != 'deleted')[:]
+    # resources previously deleted can be removed permanently as part
+    # of this update
     deleted_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
         .filter(model.Resource.state == 'deleted')[:]
