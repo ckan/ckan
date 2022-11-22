@@ -4,11 +4,11 @@ Welcome to your cloud development instance of CKAN!
 
 ⌛ If you are not seeing a browser tab with the CKAN homepage to the right or a terminal below that says _"Running CKAN on http://localhost:5000"_, wait a bit, things are getting set up... ⌛
 
- Once you see them, you are ready to go! 🚀
+Once you see them, you are ready to go! 🚀
 
- ## What is this?
+## What is this?
 
- This is an online development environment powered by [GitHub Codespaces](https://github.com/features/codespaces). It is a fully functional CKAN instance that you can configure and customize in any way you need. Changes that you make to the source files with the editor as well as changes to the site itself (e.g. creating a dataset or uploading a file) will be persisted until you delete the codespace.
+This is an online development environment powered by [GitHub Codespaces](https://github.com/features/codespaces). It is a fully functional CKAN instance that you can configure and customize in any way you need. Changes that you make to the source files with the editor as well as changes to the site itself (e.g. creating a dataset or uploading a file) will be persisted until you delete the codespace.
 
 ⚠️  **Note:** GitHub Codespaces have a free tier, currently 120 core-hours (i.e. 60h on the default 2-core VM, 30h on a 4-core VM), but after that you will be charged for usage. Check the [documentation](https://github.com/features/codespaces) for more details. To check your current usage, go to the [Billing page](https://github.com/settings/billing) in your profile. ⚠️
 
