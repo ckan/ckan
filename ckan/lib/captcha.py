@@ -5,8 +5,6 @@ import requests
 from ckan.common import config
 from ckan.types import Request
 
-TIMEOUT = config.get_value('ckan.requests.timeout')
-
 
 def check_recaptcha(request: Request) -> None:
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
@@ -31,7 +29,9 @@ def check_recaptcha(request: Request) -> None:
         remoteip=client_ip_address,
         response=recaptcha_response_field.encode('utf8')
     )
-    response = requests.get(recaptcha_server_name, params, timeout=TIMEOUT)
+
+    timeout = config.get_value('ckan.requests.timeout')
+    response = requests.get(recaptcha_server_name, params, timeout=timeout)
     data = response.json()
 
     try:
