@@ -200,8 +200,22 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
         except KeyError:
             return capacity
 
+    def check_active_user(user_obj):
+        if user_obj:
+            if user_obj.state == "active":
+                return True
+        return None
+
+    def check_active_package(package_obj):
+        if package_obj:
+            if package_obj.state == "active":
+                return True
+        return None
+
     return [(m.table_id, m.table_name, translated_capacity(m.capacity))
-            for m in q.all()]
+            for m in q.all() \
+            if check_active_user(model.Session.query(model.User).get(m.table_id)) \
+            or check_active_package(model.Session.query(model.Package).get(m.table_id))]
 
 
 def package_collaborator_list(context: Context,
