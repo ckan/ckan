@@ -1173,3 +1173,48 @@ cd ~/ckan/contrib/docker
 sudo chown 900:900 -R $VOL_CKAN_HOME/venv/src/ $VOL_CKAN_STORAGE
 sudo docker-compose up -d
 ```
+
+### Clearing a harvester crashes the site
+
+If very large numbers of harvest objects are created without being cleaned out it
+is possible for the number to get to the point where trying to clear a harvester
+will cause the database to max out it's cpu usage and take down the site. This will
+likely also crash the DB eventually thus causing the transaction to fail and
+preventing the system from fixing the problem. To solve we need to delete harvest
+objects in chunks
+
+Connect to db instance using psql
+```bash
+sudo docker exec -u ckan -it ckan psql -h db
+```
+
+Run delete by chunk code
+```sql
+select count(id) from harvest_object;
+
+begin;
+  delete from harvest_object_error;
+
+  delete from harvest_object_extra;
+
+  DO $$
+  DECLARE
+  BEGIN
+    LOOP
+      raise notice '.';
+      delete from harvest_object where id
+        in (select id from harvest_object limit 500);
+      IF NOT FOUND THEN
+        EXIT;
+      END IF;
+      perform pg_sleep(0.1);
+    END LOOP;
+  END $$;
+
+  delete from harvest_gather_error;
+
+  delete from harvest_job;
+commit;
+
+select count(id) from harvest_object;
+```
