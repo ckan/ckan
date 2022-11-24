@@ -4,15 +4,13 @@ CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
 that takes into account CKAN's specific search needs. Now that we have CKAN
 installed, we need to install and configure Solr.
 
-.. _Solr: http://lucene.apache.org/solr/
-
 
 .. warning:: CKAN supports **Solr 8**. Starting from CKAN 2.10 this is the only Solr version supported. CKAN 2.9 can run with Solr 8 as long as it is patched to at least 2.9.5. CKAN 2.9 can also run against Solr 6 but this is not recommended as this Solr version does no longer receive security updates.
 
 
 There are two supported ways to install Solr.
 
-1. Using CKAN's official Docker images. This is generally the easiest one and the recommended one if you are developing CKAN locally.
+1. Using CKAN's official Docker_ images. This is generally the easiest one and the recommended one if you are developing CKAN locally.
 2. Installing Solr locally and configuring it with the CKAN schema. You can use this option if you can't or don't want to use Docker.
 
 
