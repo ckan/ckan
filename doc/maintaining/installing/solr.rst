@@ -30,6 +30,54 @@ You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 Installing Solr manually
 ========================
 
+#. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 8.x.
+
+#. Extract the downloaded file to your desired location (adjust the Solr version number to the one you are using)::
+
+    tar xzf solr-8.11.0.tgz
+
+#. Change into the extracted directory::
+
+    cd solr-8.11.0/
+
+#. Start Solr::
+
+    bin/solr start
+
+#. Create a new core for CKAN::
+
+    bin/solr create -c ckan
+
+#. Replace the standard schema located in ``server/solr/ckan/conf/managed-schema`` with the CKAN one:
+
+   .. parsed-literal::
+
+    wget -O server/solr/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/master/ckan/config/solr/schema.xml
+
+
+.. todo:: Switch to ``|current_release_tag|`` when we branch `dev-v2.10`
+
+#. Restart Solr::
+
+    bin/solr restart
+
+
+Next steps with Solr
+====================
+
+To check that Solr started you can visit the web interface at http://localhost:8983/solr
+
+.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Pleaser refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
+
+
+If you followed any of the instructions above, the CKAN Solr core will be available at http://localhost:8983/solr/ckan. If for whatever reason you ended up with a different one (eg with a different port, host or core name), you need to change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
+
+       solr_url=http://my-solr-host:8080/solr/ckan-2.9
+
+
+Installing Solr using Tomcat web server
+=======================================
+
 .. note::
 
    These instructions explain how to deploy Solr using the Tomcat web
@@ -62,6 +110,8 @@ Installing Solr manually
 
     sudo service tomcat9 restart
 
+   Check that Solr is running by opening http://localhost:8983/solr/
+
    .. note:: On Ubuntu 18.04 and older, instead of the Solr UI you may see an Internal Server Error page with a message containing:
 
      .. parsed-literal::
@@ -78,17 +128,9 @@ Installing Solr manually
         sudo service tomcat9 restart
 
 
-Next steps with Solr
-====================
+#. Finally, change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
 
-To check that Solr started you can visit the web interface at http://localhost:8983/solr
-
-.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Pleaser refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
-
-
-If you followed any of the instructions above, the CKAN Solr core will be available at http://localhost:8983/solr/ckan. If for whatever reason you ended up with a different one (eg with a different port, host or core name), you need to change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::
-
-       solr_url=http://my-solr-host:8080/solr/ckan-2.9
+       solr_url=http://127.0.0.1:8983/solr
 
 
 .. _Solr: https://solr.apache.org/
