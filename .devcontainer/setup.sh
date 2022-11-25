@@ -16,7 +16,7 @@ ckan config-tool ckan.ini \
     ckan.datastore.write_url=postgresql://ckan_default:pass@localhost/datastore_default \
     ckan.datastore.read_url=postgresql://datastore_default:pass@localhost/datastore_default \
     ckan.datapusher.url=http://localhost:8800 \
-    ckan.plugins=activity datastore datapusher datatables_view
+    "ckan.plugins=activity datastore datapusher datatables_view"
 ckan datastore set-permissions | psql $(grep ckan.datastore.write_url ckan.ini | awk '{print $3}')
 
 # Init DB
