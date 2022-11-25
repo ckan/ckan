@@ -54,6 +54,11 @@ services:
     container_name: redis
     image: redis:alpine
 
+  datapusher:
+    container_name: datapusher
+    network_mode: service:ckan
+    image: ckan/ckan-base-datapusher:0.0.18
+
 volumes:
   postgres-data:
   solr-data:

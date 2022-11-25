@@ -42,7 +42,7 @@
 	],
 	
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [5000, 5432, 8983, 6379],
+	"forwardPorts": [5000, 5432, 8983, 6379, 8800],
 
 	// Open in browser
     "portsAttributes": {
