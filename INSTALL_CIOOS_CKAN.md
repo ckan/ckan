@@ -1191,11 +1191,22 @@ sudo docker exec -u ckan -it ckan psql -h db
 Run delete by chunk code
 ```sql
 select count(id) from harvest_object;
+select count(*) from harvest_object_extra
 
 begin;
-  delete from harvest_object_error;
+  with a as (
+    select id from harvest_object where package_id IS NULL
+  )
+  delete from harvest_object_error
+    USING a
+    where harvest_object_id = a.id;
 
-  delete from harvest_object_extra;
+  with a as (
+    select id from harvest_object where package_id IS NULL
+  )
+  delete from harvest_object_extra
+    USING a
+    where harvest_object_id = a.id;
 
   DO $$
   DECLARE
@@ -1203,18 +1214,25 @@ begin;
     LOOP
       raise notice '.';
       delete from harvest_object where id
-        in (select id from harvest_object limit 500);
+        in (select id from harvest_object where package_id IS NULL limit 500);
       IF NOT FOUND THEN
         EXIT;
       END IF;
-      perform pg_sleep(0.1);
+      perform pg_sleep(0.05);
     END LOOP;
   END $$;
 
   delete from harvest_gather_error;
 
-  delete from harvest_job;
+  delete from harvest_job as hj
+    where not exists (
+    select 1
+    from harvest_object ho
+    where hj.id = ho.harvest_job_id
+  );
+
 commit;
 
 select count(id) from harvest_object;
+select count(*) from harvest_object_extra
 ```
