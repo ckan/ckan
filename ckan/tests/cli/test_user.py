@@ -208,7 +208,7 @@ class TestUserClean():
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
-        create_with_upload("<html><body>hello world</body></html>", "index.html", **fake_user)
+        fake_user = create_with_upload("<html><body>hello world</body></html>", "index.html", **fake_user)
 
         user = {
             "name": "valid-user",
@@ -217,13 +217,11 @@ class TestUserClean():
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
-        create_with_upload(faker.image(), "image.png", **user)
+        user = create_with_upload(faker.image(), "image.png", **user)
 
         monkeypatch.setitem(ckan_config, "ckan.upload.user.mimetypes", "image/png")
         result = cli.invoke(ckan, ["user", "clean", "--force"])
         users = call_action("user_list")
+        assert f"User {fake_user['name']} with image ({fake_user['image_url']}) has been deleted." in result.output
         assert len(users) == 1
         assert users[0]["name"] == "valid-user"
-
-
-
