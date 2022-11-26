@@ -253,7 +253,7 @@ def list_tokens(username: str):
             )
         )
 
-def _get_users_with_invalid_image(valid_mimetypes):
+def _get_users_with_invalid_image(valid_mimetypes: list[str]) -> list[model.User]:
     """Returns a list of users containing images with mimetypes not supported"""
     users = model.User.all()
     users_with_img = [u for u in users if u.image_url]
@@ -274,6 +274,7 @@ def clean(force: bool):
     if not mimetypes:
         click.echo("No mimetypes have been configured for user uploads.")
         return
+
     invalid = _get_users_with_invalid_image(mimetypes)
 
     if not invalid:
