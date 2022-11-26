@@ -274,6 +274,22 @@ def _get_users_with_invalid_image(mimetypes: list[str]) -> list[model.User]:
     "-f", "--force", is_flag=True, help="Do not ask for comfirmation."
     )
 def clean(force: bool):
+    """Removes users with invalid images from the database.
+
+    Invalid images are the ones with mimetypes not defined in
+    `ckan.upload.user.mimetypes` configuration option.
+
+    This command will work only for CKAN's default Upload, other
+    extensions defining upload interfaces will need to implement its
+    own logic to retrieve and determine if an uploaded image contains
+    an invalid mimetype.
+
+    Example:
+
+      ckan user clean
+      ckan user clean --force
+
+    """
     mimetypes = config.get_value("ckan.upload.user.mimetypes")
     if not mimetypes:
         click.echo("No mimetypes have been configured for user uploads.")
