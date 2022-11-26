@@ -6,14 +6,16 @@ from typing import cast
 
 import six
 import click
-
+import os
+import magic
 
 import ckan.logic as logic
 import ckan.model as model
 from ckan.cli import error_shout
-from ckan.common import json
+from ckan.common import json, config
 from ckan.types import Context
 from ckan.lib.helpers import helper_functions as h
+from ckan.lib.uploader import get_uploader
 
 log = logging.getLogger(__name__)
 
@@ -250,3 +252,35 @@ def list_tokens(username: str):
                 name=token[u"name"], id=token[u"id"], accessed=accessed
             )
         )
+
+def _get_users_with_invalid_image(valid_mimetypes):
+    """Returns a list of users containing images with mimetypes not supported"""
+    users = model.User.all()
+    users_with_img = [u for u in users if u.image_url]
+    invalid = []
+    for user in users_with_img:
+        upload = get_uploader('user', old_filename=user.image_url)
+        if os.path.exists(upload.old_filepath):
+            mimetype = magic.from_file(upload.old_filepath, mime=True)
+            if mimetype not in valid_mimetypes:
+                invalid.append(user)
+    return invalid
+
+
+@user.command("clean", short_help="Clean users containing invalid images.")
+def clean():
+    mimetypes = config.get_value("ckan.upload.user.mimetypes")
+    if not mimetypes:
+        click.secho(u"No mimetypes have been configured for user uploads.", fg=u"red")
+        return
+    invalid = _get_users_with_invalid_image(mimetypes)
+    for user in invalid:
+        upload = get_uploader('user', old_filename=user.image_url)
+        try:
+            os.remove(upload.old_filepath)
+        except Exception:
+            print(f"Cannot remove {upload.old_filepath}. User will not be deleted.")
+        else:
+            model.Session.delete(user)
+            model.Session.commit()
+            print(f"User: {user.name} with image ({user.image_url}) has been deleted.")
