@@ -253,8 +253,10 @@ def list_tokens(username: str):
             )
         )
 
-def _get_users_with_invalid_image(valid_mimetypes: list[str]) -> list[model.User]:
-    """Returns a list of users containing images with mimetypes not supported"""
+
+def _get_users_with_invalid_image(mimetypes: list[str]) -> list[model.User]:
+    """ Returns a list of users containing images with mimetypes not supported.
+    """
     users = model.User.all()
     users_with_img = [u for u in users if u.image_url]
     invalid = []
@@ -262,13 +264,15 @@ def _get_users_with_invalid_image(valid_mimetypes: list[str]) -> list[model.User
         upload = get_uploader('user', old_filename=user.image_url)
         if os.path.exists(upload.old_filepath):
             mimetype = magic.from_file(upload.old_filepath, mime=True)
-            if mimetype not in valid_mimetypes:
+            if mimetype not in mimetypes:
                 invalid.append(user)
     return invalid
 
 
 @user.command("clean", short_help="Clean users containing invalid images.")
-@click.option("-f", "--force", is_flag=True, help="Do not ask for comfirmation.")
+@click.option(
+    "-f", "--force", is_flag=True, help="Do not ask for comfirmation."
+    )
 def clean(force: bool):
     mimetypes = config.get_value("ckan.upload.user.mimetypes")
     if not mimetypes:
@@ -282,7 +286,10 @@ def clean(force: bool):
         return
 
     for user in invalid:
-        click.echo(f"User {user.name} has an invalid image: {user.image_url}")
+        msg = "User {} has an invalid image: {}".format(
+            user.name, user.image_url
+        )
+        click.echo(msg)
 
     if not force:
         click.confirm("Delete users and its images?", abort=True)
@@ -292,8 +299,14 @@ def clean(force: bool):
         try:
             os.remove(upload.old_filepath)
         except Exception:
-            click.echo(f"Cannot remove {upload.old_filepath}. User will not be deleted.")
+            msg = "Cannot remove {}. User will not be deleted.".format(
+                upload.old_filepath
+            )
+            click.echo(msg)
         else:
             model.Session.delete(user)
             model.Session.commit()
-            click.echo(f"User: {user.name} with image ({user.image_url}) has been deleted.")
+            msg = "User {} with image ({}) has been deleted.".format(
+                user.name, user.image_url
+            )
+            click.echo(msg)
