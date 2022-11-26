@@ -159,3 +159,36 @@ class TestApiToken(object):
         result = cli.invoke(ckan, args)
         assert result.exit_code == 1
         assert model.Session.query(model.ApiToken).count() == initial + 2
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserClean():
+    @pytest.mark.ckan_config("ckan.upload.user.mimetypes", "")
+    @pytest.mark.ckan_config("ckan.upload.user.types", "")
+    def test_correct_users_are_deleted(self, cli, monkeypatch, create_with_upload, faker, ckan_config):
+        fake_user = {
+            "name": "fake-user",
+            "email": "fake-user@example.com",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        create_with_upload("<html><body>hello world</body></html>", "index.html", **fake_user)
+
+        user = {
+            "name": "valid-user",
+            "email": "valid-user@example",
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        create_with_upload(faker.image(), "image.png", **user)
+
+        monkeypatch.setitem(ckan_config, "ckan.upload.user.mimetypes", "image/png")
+        result = cli.invoke(ckan, ["user", "clean"])
+        users = call_action("user_list")
+        assert len(users) == 1
+        assert users[0]["name"] == "valid-user"
+
+
+
