@@ -268,19 +268,31 @@ def _get_users_with_invalid_image(valid_mimetypes):
 
 
 @user.command("clean", short_help="Clean users containing invalid images.")
-def clean():
+@click.option("-f", "--force", is_flag=True, help="Do not ask for comfirmation.")
+def clean(force: bool):
     mimetypes = config.get_value("ckan.upload.user.mimetypes")
     if not mimetypes:
-        click.secho(u"No mimetypes have been configured for user uploads.", fg=u"red")
+        click.echo("No mimetypes have been configured for user uploads.")
         return
     invalid = _get_users_with_invalid_image(mimetypes)
+
+    if not invalid:
+        click.echo("No users were found with invalid images.")
+        return
+
+    for user in invalid:
+        click.echo(f"User {user.name} has an invalid image: {user.image_url}")
+
+    if not force:
+        click.confirm("Delete users and its images?", abort=True)
+
     for user in invalid:
         upload = get_uploader('user', old_filename=user.image_url)
         try:
             os.remove(upload.old_filepath)
         except Exception:
-            print(f"Cannot remove {upload.old_filepath}. User will not be deleted.")
+            click.echo(f"Cannot remove {upload.old_filepath}. User will not be deleted.")
         else:
             model.Session.delete(user)
             model.Session.commit()
-            print(f"User: {user.name} with image ({user.image_url}) has been deleted.")
+            click.echo(f"User: {user.name} with image ({user.image_url}) has been deleted.")
