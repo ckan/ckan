@@ -1,50 +1,45 @@
 {#
-Renders a media item for a group. This should be used in a list.
-
+Renders a media item for a group.
 group - A group dict.
 
-Example:
-
-    <ul class="media-grid">
-      {% for group in groups %}
-        {% snippet "group/snippets/group_item.html", group=group %}
-      {% endfor %}
-    </ul>
 #}
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '.read', id=group.name) %}
 {% block item %}
-<li class="media-item">
-  {% block item_inner %}
-  {% block image %}
-    <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image img-fluid">
-  {% endblock %}
-  {% block title %}
-    <h2 class="media-heading">{{ group.display_name }}</h2>
-  {% endblock %}
-  {% block description %}
-    {% if group.description %}
-      <p class="media-description">{{ h.markdown_extract(group.description, extract_length=80) }}</p>
+<div class="col">
+  <div class="card h-100">
+    {% block item_inner %}
+    {% block image %}
+      <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="card-img-top">
+    {% endblock %}
+    <div class="card-body">
+    {% block title %}
+      <h4 class="card-title">{{ group.display_name }}</h2>
+    {% endblock %}
+    {% block description %}
+      {% if group.description %}
+        <p class="card-text">{{ h.markdown_extract(group.description, extract_length=80) }}</p>
+      {% endif %}
+    {% endblock %}
+  </div>
+  <div class="card-footer">
+    {% block datasets %}
+      {% if group.package_count %}
+        <span class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</span>
+      {% elif group.package_count == 0 %}
+        <span class="count">{{ _('0 Datasets') }}</span>
+      {% endif %}
+    {% endblock %}
+  </div>
+    {% block link %}
+    <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="card-link">
+      <span>{{ _('View {name}').format(name=group.display_name) }}</span>
+    </a>
+    {% endblock %}
+    {% if group.user_member %}
+      <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
     {% endif %}
-  {% endblock %}
-  {% block datasets %}
-    {% if group.package_count %}
-      <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.package_count).format(num=group.package_count) }}</strong>
-    {% elif group.package_count == 0 %}
-      <span class="count">{{ _('0 Datasets') }}</span>
-    {% endif %}
-  {% endblock %}
-  {% block link %}
-  <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
-  </a>
-  {% endblock %}
-  {% if group.user_member %}
-    <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-sm media-edit" title="{{ _('Remove dataset from this group') }}"/>
-  {% endif %}
-  {% endblock %}
-</li>
+    {% endblock %}
+  </div>
+</div>
 {% endblock %}
-{% if position is divisibleby 3 %}
-  <li class="clearfix js-hide"></li>
-{% endif %}
