@@ -11451,32 +11451,6 @@ a.tag:hover {
   hyphens: auto;
 }
 
-.media-overlay {
-  position: relative;
-  min-height: 35px;
-}
-
-.media-overlay .media-heading {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 12px 10px;
-  margin: 0;
-  background-color: #000;
-  background-color: rgba(0, 0, 0, 0.8);
-  font-size: 13px;
-  color: #fff;
-  z-index: 1;
-  border-radius: 0 0 3px 3px;
-}
-
-.media-overlay .media-image {
-  float: none;
-  display: block;
-  margin-right: 0;
-}
-
 .nav-simple,
 .nav-aside {
   margin: 0;
