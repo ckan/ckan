@@ -11430,30 +11430,6 @@ a.tag:hover {
   opacity: 1;
 }
 
-.media-view {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  transition: all 0.2s ease-in;
-  border-radius: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .media-view {
-    transition: none;
-  }
-}
-.media-view:hover, .media-view.hovered {
-  border-color: #005d7a;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
-}
-.media-view span {
-  display: none;
-}
-
 .media-image {
   border-radius: 4px;
 }
@@ -11473,11 +11449,6 @@ a.tag:hover {
   -moz-hyphens: auto;
   -ms-hyphens: auto;
   hyphens: auto;
-}
-
-.media-description {
-  word-wrap: break-word;
-  word-break: break-all;
 }
 
 .media-overlay {
@@ -11504,30 +11475,6 @@ a.tag:hover {
   float: none;
   display: block;
   margin-right: 0;
-}
-
-.media-item.is-expander .truncator-link, .is-expander.module-item .truncator-link {
-  transition: opacity 0.2s ease-in;
-  position: absolute;
-  z-index: 10;
-  left: 15px;
-  bottom: 15px;
-  opacity: 0;
-}
-@media (prefers-reduced-motion: reduce) {
-  .media-item.is-expander .truncator-link, .is-expander.module-item .truncator-link {
-    transition: none;
-  }
-}
-.media-item.is-expander:hover, .is-expander.module-item:hover {
-  padding-bottom: 35px;
-}
-.media-item.is-expander:hover .truncator-link, .is-expander.module-item:hover .truncator-link {
-  opacity: 1;
-}
-
-.wide .media-item, .wide .module-item {
-  width: 186px;
 }
 
 .nav-simple,

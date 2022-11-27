@@ -1,3 +1,43 @@
+.media-grid {
+    @include list-unstyled;
+    @include clearfix;
+    padding-left: 0px;
+    min-height: 205px;
+    padding-top: math.div($grid-gutter-width, 2);
+    background: lighten($layoutBackgroundColor, 5%) url("#{$bgPath}");
+    border: 1px solid $moduleHeadingBorderColor;
+    border-width: 1px 0;
+}
+
+.media-item {
+    position: relative;
+    float: left;
+    width: 178px;
+    padding: math.div($grid-gutter-width, 2);
+    margin: 0 0 math.div($grid-gutter-width, 2)  math.div($grid-gutter-width, 2);
+    background-color: white;
+    @include border-radius(3px);
+    span.count {
+        color: #999;
+    }
+    .media-image {
+        margin-bottom: 5px;
+    }
+    .media-edit {
+        opacity: 0;
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        @include transition(opacity 0.2s ease-in);
+    }
+    &:hover {
+        z-index: 1;
+        .media-edit {
+            opacity: 1;
+        }
+    }
+}
+
 .media-image {
     @include border-radius(4px);
     img {
