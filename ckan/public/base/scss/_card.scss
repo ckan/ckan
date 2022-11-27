@@ -1,0 +1,22 @@
+.card-img-top {
+    width: 100%;
+    height: 5vw;
+    object-fit: contain;
+}
+
+.card-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    @include transition(all 0.2s ease-in);
+    &:hover,
+    &.hovered {
+        border-color: $mastheadBackgroundColor;
+        @include box-shadow(0 0 0 4px rgba(0, 0, 0, 0.1));
+    }
+    span {
+        display: none;
+    }
+}

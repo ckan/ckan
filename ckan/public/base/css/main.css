@@ -14163,3 +14163,30 @@ td.diff_header {
   transform: scale(0.53);
   margin: -14px 0 0 -14px;
 }
+
+.card-img-top {
+  width: 100%;
+  height: 5vw;
+  object-fit: contain;
+}
+
+.card-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: all 0.2s ease-in;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-link {
+    transition: none;
+  }
+}
+.card-link:hover, .card-link.hovered {
+  border-color: #005d7a;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+}
+.card-link span {
+  display: none;
+}
