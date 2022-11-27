@@ -5,12 +5,12 @@
     }
     .module-promotion {
         background: $white;
-        padding: 30px;
+        padding: 10px;
     }
     .module-search {
         color: $mastheadTextColor;
         padding: 10px;
-        border: 1px solid #ccc;  
+        border: 1px solid #ccc;
         .search-form {
             @include border-radius($card-border-radius);
             background-color: $mastheadBackgroundColor;
@@ -81,7 +81,7 @@
         padding: $spacer * 2 0;
         background: $layoutBackgroundColor url($bgPath);
         .module-stats {
-            margin-top: 0 
+            margin-top: 0
         }
     }
 }
