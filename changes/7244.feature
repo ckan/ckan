@@ -1,0 +1,1 @@
+Integrate flask-multistatic extension into our own library and removing it from requirements.
