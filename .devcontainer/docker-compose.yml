@@ -57,7 +57,7 @@ services:
   datapusher:
     container_name: datapusher
     network_mode: service:ckan
-    image: ckan/ckan-base-datapusher:0.0.18
+    image: ckan/ckan-base-datapusher:0.0.19
 
 volumes:
   postgres-data:
