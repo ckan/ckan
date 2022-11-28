@@ -34,8 +34,6 @@ from flask import Flask
 from flask.helpers import send_from_directory
 from werkzeug.exceptions import NotFound
 
-from ckan.types import Response
-
 string_types = (str,)
 
 
@@ -45,38 +43,38 @@ class MultiStaticFlask(Flask):
     serving static content.
     """
 
-    def _get_static_folder(self) -> list[str]:
+    def _get_static_folder(self):
         if self._static_folder is not None:
             return [
                 os.path.join(self.root_path, folder)
                 for folder in self._static_folder
             ]
 
-    def _set_static_folder(self, value) -> None:
+    def _set_static_folder(self, value):  # type: ignore
         folders = value
         if isinstance(folders, string_types):
             folders = [value]
-        self._static_folder = folders
+        self._static_folder = folders  # type: ignore
 
     static_folder = property(_get_static_folder, _set_static_folder)
     del _get_static_folder, _set_static_folder
 
     # Use the last entry in the list of static folder as it should be what
     # contains most of the files
-    def _get_static_url_path(self) -> str:
+    def _get_static_url_path(self):
         if self._static_url_path is not None:
             return self._static_url_path
         if self.static_folder is not None:
             return "/" + os.path.basename(self.static_folder[-1])
 
-    def _set_static_url_path(self, value) -> None:
+    def _set_static_url_path(self, value): # type: ignore
         self._static_url_path = value
 
     static_url_path = property(_get_static_url_path, _set_static_url_path)
 
     del _get_static_url_path, _set_static_url_path
 
-    def send_static_file(self, filename) -> Response:
+    def send_static_file(self, filename): # type: ignore
         """Function used internally to send static files from the static
         folder to the browser.
         """
@@ -91,7 +89,7 @@ class MultiStaticFlask(Flask):
         if isinstance(self.static_folder, string_types):
             folders = [self.static_folder]
 
-        for directory in folders:
+        for directory in folders:  # type: ignore
             try:
                 return send_from_directory(
                     directory, filename, max_age=max_age
