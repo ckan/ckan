@@ -15,7 +15,6 @@ from typing import Any, Iterable, Optional, Union, cast
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
-from flask_multistatic import MultiStaticFlask
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -39,6 +38,7 @@ from ckan.lib import helpers as h
 from ckan.lib import jinja_extensions
 from ckan.lib import uploader
 from ckan.lib import i18n
+from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
 from ckan.config.middleware.common_middleware import (TrackingMiddleware,
                                                       HostHeaderMiddleware,
