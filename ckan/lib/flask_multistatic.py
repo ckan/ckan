@@ -67,14 +67,14 @@ class MultiStaticFlask(Flask):
         if self.static_folder is not None:
             return "/" + os.path.basename(self.static_folder[-1])
 
-    def _set_static_url_path(self, value): # type: ignore
+    def _set_static_url_path(self, value):  # type: ignore
         self._static_url_path = value
 
     static_url_path = property(_get_static_url_path, _set_static_url_path)
 
     del _get_static_url_path, _set_static_url_path
 
-    def send_static_file(self, filename): # type: ignore
+    def send_static_file(self, filename):  # type: ignore
         """Function used internally to send static files from the static
         folder to the browser.
         """
