@@ -96,13 +96,14 @@ def about() -> str:
 
 
 def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
-
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
 
     if request.args:
         target += f'?{urlencode(request.args)}'
 
-    return redirect(target, code=308)
+    url = h.url_for(target, _external=True)
+
+    return redirect(url, code=308)
 
 
 util_rules: List[Tuple[str, Any]] = [
