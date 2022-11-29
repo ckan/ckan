@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  ckan:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        # [Choice] Python version: 3, 3.8, 3.7, 3.6
+        VARIANT: 3.8
+        # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
+        NODE_VERSION: "lts/*"
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+
+    volumes:
+      - ..:/workspace:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+
+    # Uncomment the next line to use a non-root user for all processes.
+    # user: vscode
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: ckan_default
+      POSTGRES_DB: ckan_default
+      POSTGRES_PASSWORD: pass
+    network_mode: service:ckan
+    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  solr:
+    container_name: solr
+    image: ckan/ckan-solr:2.9-solr8
+    network_mode: service:ckan
+    volumes:
+      - solr-data:/var/solr
+
+  redis:
+    network_mode: service:ckan
+    container_name: redis
+    image: redis:alpine
+
+  datapusher:
+    container_name: datapusher
+    network_mode: service:ckan
+    image: ckan/ckan-base-datapusher:0.0.19
+
+volumes:
+  postgres-data:
+  solr-data:

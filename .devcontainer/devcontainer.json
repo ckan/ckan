@@ -1,0 +1,70 @@
+// Update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6
+{
+	"name": "CKAN 2.10",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "ckan",
+	"workspaceFolder": "/workspace",
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"sqltools.connections": [{
+			"name": "CKAN PostgreSQL DB",
+			"driver": "PostgreSQL",
+			"previewLimit": 50,
+			"server": "localhost",
+			"port": 5432,
+			"database": "ckan_default",
+			"username": "ckan_default",
+			"password": "pass"
+		}],
+		"python.pythonPath": "/usr/local/bin/python",
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+		"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest"
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"mtxr.sqltools",
+		"mtxr.sqltools-driver-pg"
+	],
+	
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [5000, 5432, 8983, 6379, 8800],
+
+	// Open in browser
+    "portsAttributes": {
+       "5000": {
+         "label": "CKAN",
+         "onAutoForward": "openPreview"
+       }
+     },
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"onCreateCommand": "pip install --user --upgrade -r requirement-setuptools.txt && pip install --user -r requirements.txt && pip install --user -r dev-requirements.txt",
+	"postCreateCommand": "./.devcontainer/setup.sh",
+	"postAttachCommand": "ckan run",
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+
+	"customizations": {
+		"codespaces": {
+		  "openFiles": [
+			".devcontainer/README_codespaces.md"
+		  ]
+		}
+	}
+}
