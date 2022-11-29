@@ -299,28 +299,6 @@ def get_site_protocol_and_host() -> Union[tuple[str, str], tuple[None, None]]:
     return (None, None)
 
 
-def _get_auto_flask_context():
-    '''
-    Provides a Flask test request context if we are outside the context
-    of a web request (tests or CLI)
-    '''
-
-    from ckan.config.middleware import _internal_test_request_context
-
-    # This is a normal web request, there is a request context present
-    if _request_ctx_stack.top:
-        return None
-
-    # We are outside a web request. A test web application was created
-    # (and with it a test request context with the relevant configuration)
-    if _internal_test_request_context:
-        return _internal_test_request_context
-
-    from ckan.tests.pytest_ckan.ckan_setup import _tests_test_request_context
-    if _tests_test_request_context:
-        return _tests_test_request_context
-
-
 @core_helper
 def url_for(*args: Any, **kw: Any) -> str:
     '''Return the URL for an endpoint given some parameters.
@@ -373,22 +351,7 @@ def url_for(*args: Any, **kw: Any) -> str:
         if not ver:
             raise Exception('API URLs must specify the version (eg ver=3)')
 
-    _auto_flask_context = _get_auto_flask_context()
-    try:
-        if _auto_flask_context:
-            _auto_flask_context.push()
-
-        # First try to build the URL with the Flask router
-        # Temporary mapping for pylons to flask route names
-        if len(args):
-            args = (map_pylons_to_flask_route_name(args[0]),)
-        my_url = _url_for_flask(*args, **kw)
-
-    except FlaskRouteBuildError:
-        raise
-    finally:
-        if _auto_flask_context:
-            _auto_flask_context.pop()
+    my_url = _url_for_flask(*args, **kw)
 
     # Add back internal params
     kw['__ckan_no_root'] = no_root
@@ -565,11 +528,6 @@ def _local_url(url_to_amend: str, **kw: Any):
     if locale and locale not in allowed_locales:
         locale = None
 
-    _auto_flask_context = _get_auto_flask_context()
-
-    if _auto_flask_context:
-        _auto_flask_context.push()
-
     if locale:
         if locale == 'default':
             default_locale = True
@@ -593,9 +551,6 @@ def _local_url(url_to_amend: str, **kw: Any):
         root = urlunparse(
             (protocol, host, path,
                 parts.params, parts.query, parts.fragment))
-
-    if _auto_flask_context:
-        _auto_flask_context.pop()
 
     # ckan.root_path is defined when we have none standard language
     # position in the url

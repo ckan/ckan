@@ -22,12 +22,9 @@ CkanUrlException = ckan.exceptions.CkanUrlException
 
 class BaseUrlFor(object):
     @pytest.fixture(autouse=True)
-    def request_context(self, monkeypatch, ckan_config, app):
+    def app(self, monkeypatch, ckan_config, app):
         monkeypatch.setitem(ckan_config, "ckan.site_url", "http://example.com")
-        self.request_context = app.flask_app.test_request_context()
-        self.request_context.push()
-        yield
-        self.request_context.pop()
+        yield app
 
 
 class TestHelpersUrlForStatic(BaseUrlFor):
@@ -74,21 +71,20 @@ class TestHelpersUrlForStatic(BaseUrlFor):
         generated_url = h.url_for_static("/my-asset/file.txt", qualified=True)
         assert generated_url == url
 
-
-@pytest.mark.parametrize(
-    "url",
-    [
-        "/assets/ckan.jpg",
-        "http://assets.ckan.org/ckan.jpg",
-        u"/ckan.jpg",
-        "/ckan.jpg",
-        "//assets.ckan.org/ckan.jpg",
-    ],
-)
-def test_url_for_static_or_external(url):
-    generated = h.url_for_static_or_external(url)
-    assert generated == url
-    assert isinstance(generated, str)
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "/assets/ckan.jpg",
+            "http://assets.ckan.org/ckan.jpg",
+            "/ckan.jpg",
+            "/ckan.jpg",
+            "//assets.ckan.org/ckan.jpg",
+        ],
+    )
+    def test_url_for_static_or_external(self, url):
+        generated = h.url_for_static_or_external(url)
+        assert generated == url
+        assert isinstance(generated, str)
 
 
 class TestHelpersUrlFor(BaseUrlFor):
@@ -257,7 +253,7 @@ class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
             assert generated_url == url
 
 
-class TestHelpersRenderMarkdown(object):
+class TestHelpersRenderMarkdown(BaseUrlFor):
     @pytest.mark.parametrize(
         "data,output,allow_html",
         [

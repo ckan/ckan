@@ -279,6 +279,29 @@ def with_plugins(ckan_config):
             ckan.plugins.unload(plugin)
 
 
+@pytest.fixture(autouse=True)
+def _push_request_context(request):
+    """Pushes a request context if we are using the app fixture.
+
+    This is a hacky fixture that allow us to use `url_for`
+    inside tests. Using `url_for` in tests is not considered
+    a good practice but it has been widely adopted in the CKAN
+    community.
+    """
+    if "app" not in request.fixturenames:
+        return
+
+    app = request.getfixturevalue("app")
+
+    ctx = app.flask_app.test_request_context()
+    ctx.push()
+
+    def teardown():
+        ctx.pop()
+
+    request.addfinalizer(teardown)
+
+
 @pytest.fixture
 def test_request_context(app):
     """Provide function for creating Flask request context.
@@ -369,7 +392,9 @@ class FakeFileStorage(FlaskFileStorage):
 
 
 @pytest.fixture
-def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+def create_with_upload(
+    clean_db, ckan_config, monkeypatch, tmpdir, with_request_context
+        ):
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is
@@ -383,6 +408,9 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     to `ckan.tests.helpers.call_action` and arbitrary number of
     additional named arguments, that will be used as resource
     properties.
+
+    model_dictize depends on url_for so we need to add
+    with_request_context fixture to cover some action calls.
 
     Example::
 

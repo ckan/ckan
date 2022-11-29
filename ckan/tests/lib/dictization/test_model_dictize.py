@@ -479,7 +479,8 @@ class TestPackageDictize:
         }
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
-    def test_package_dictize_resource_upload_and_striped(self):
+    def test_package_dictize_resource_upload_and_striped(self, with_request_context):
+        # model_dictize depends on url_for so we need to add with_request_context fixture
         dataset = factories.Dataset()
         resource = factories.Resource(
             package=dataset["id"],
@@ -495,7 +496,8 @@ class TestPackageDictize:
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
 
-    def test_package_dictize_resource_upload_with_url_and_striped(self):
+    def test_package_dictize_resource_upload_with_url_and_striped(self, with_request_context):
+        # model_dictize depends on url_for so we need to add with_request_context fixture
         dataset = factories.Dataset()
         resource = factories.Resource(
             package=dataset["id"],

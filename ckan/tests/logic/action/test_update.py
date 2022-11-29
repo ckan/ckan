@@ -1448,10 +1448,11 @@ class TestUserUpdate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
-    def test_user_update_image_url(self):
+    def test_user_update_image_url(self, with_request_context):
         user = factories.User(image_url="user_image.jpg")
         context = {"user": user["name"]}
 
+        # model_dictize depends on url_for so we need to add with_request_context fixture
         user = helpers.call_action(
             "user_update",
             context=context,
@@ -1465,7 +1466,7 @@ class TestUserUpdate(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupUpdate(object):
-    def test_group_update_image_url_field(self):
+    def test_group_update_image_url_field(self, with_request_context):
         user = factories.User()
         context = {"user": user["name"]}
         group = factories.Group(
@@ -1474,6 +1475,7 @@ class TestGroupUpdate(object):
             image_url="group_image.jpg",
         )
 
+        # model_dictize depends on url_for so we need to add with_request_context fixture
         group = helpers.call_action(
             "group_update",
             context=context,
