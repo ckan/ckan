@@ -342,11 +342,6 @@ def url_for(*args: Any, **kw: Any) -> str:
                 _external=True)
         # Returns http://example.com/api/3/action/status_show
 
-    URLs built by Pylons use the Routes syntax::
-
-        url_for(controller='my_ctrl', action='my_action', id='my_dataset')
-        # Returns '/dataset/my_dataset'
-
     Or, using a named route::
 
         url_for('dataset.read', id='changed')
@@ -378,10 +373,6 @@ def url_for(*args: Any, **kw: Any) -> str:
         if _auto_flask_context:
             _auto_flask_context.push()
 
-        # First try to build the URL with the Flask router
-        # Temporary mapping for pylons to flask route names
-        if len(args):
-            args = (map_pylons_to_flask_route_name(args[0]),)
         my_url = _url_for_flask(*args, **kw)
 
     except FlaskRouteBuildError:
@@ -896,23 +887,6 @@ def build_nav(menu_item: str, title: str, **kw: Any) -> Markup:
 
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
-
-
-def map_pylons_to_flask_route_name(menu_item: str):
-    '''returns flask routes for old fashioned route names'''
-    # Pylons to Flask legacy route names mappings
-    mappings = config.get_value('ckan.legacy_route_mappings')
-    if mappings:
-        if isinstance(mappings, str):
-            LEGACY_ROUTE_NAMES.update(json.loads(mappings))
-        elif isinstance(mappings, dict):
-            LEGACY_ROUTE_NAMES.update(mappings)
-
-    if menu_item in LEGACY_ROUTE_NAMES:
-        log.info('Route name "{}" is deprecated and will be removed. '
-                 'Please update calls to use "{}" instead'
-                 .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
-    return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
 @core_helper
