@@ -1,0 +1,2 @@
+`ckan.legacy_route_mappings` config has been removed. Old code and extensions should be running
+using flask-based route names.
