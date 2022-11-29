@@ -1,3 +1,3 @@
 `_internal_test_request_context` variable (and its logic) has been removed. Tests depending
-on a request context (calling `url_for`, etc) should explicitly une `with_request_context` or `app`
+on a request context (calling `url_for`, etc) should explicitly use `with_request_context` or `app`
 fixtures.
