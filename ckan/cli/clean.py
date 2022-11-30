@@ -4,6 +4,8 @@ import click
 import magic
 import os
 
+from typing import List
+
 from ckan import model
 from ckan import logic
 from ckan.common import config
@@ -17,7 +19,7 @@ def clean():
     pass
 
 
-def _get_users_with_invalid_image(mimetypes: list[str]) -> list[model.User]:
+def _get_users_with_invalid_image(mimetypes: List[str]) -> List[model.User]:
     """Returns a list of users containing images with mimetypes not supported.
     """
     users = model.User.all()
@@ -25,8 +27,9 @@ def _get_users_with_invalid_image(mimetypes: list[str]) -> list[model.User]:
     invalid = []
     for user in users_with_img:
         upload = get_uploader("user", old_filename=user.image_url)
-        if os.path.exists(upload.old_filepath):
-            mimetype = magic.from_file(upload.old_filepath, mime=True)
+        filepath = upload.old_filepath  # type: ignore
+        if os.path.exists(filepath):
+            mimetype = magic.from_file(filepath, mime=True)
             if mimetype not in mimetypes:
                 invalid.append(user)
     return invalid
@@ -78,11 +81,12 @@ def users(force: bool):
 
     for user in invalid:
         upload = get_uploader("user", old_filename=user.image_url)
+        file_path = upload.old_filepath  # type: ignore
         try:
-            os.remove(upload.old_filepath)
+            os.remove(file_path)
         except Exception:
             msg = "Cannot remove {}. User will not be deleted.".format(
-                upload.old_filepath
+                file_path
             )
             click.echo(msg)
         else:
