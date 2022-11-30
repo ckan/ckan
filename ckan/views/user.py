@@ -353,6 +353,9 @@ class EditView(MethodView):
         except logic.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
+            if data_dict.get(u'image_url') != u'':
+                data_dict[u'image_url'] = u''
+                data_dict[u'previous_upload'] = True
             # the user state was deleted, we are trying to reactivate it but
             # validation error happens so we want to change back the state
             # to deleted, as it was before
