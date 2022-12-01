@@ -21,8 +21,9 @@ import ckan.plugins as plugins
 from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
+from ckanext.datastore.writer import csv_writer
 
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
 from ckan.types import Action, Context, DataDict, Schema
@@ -587,6 +588,62 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
         _replace_group_org(u'group/manage_members.html'),
         extra_vars
     )
+
+
+def member_dump(id: str, group_type: str, is_organization: bool):
+    response = make_response()
+    response.headers[u'content-type'] = u'application/octet-stream'
+
+    writer_factory = csv_writer
+    records_format = u'csv'
+
+    group_obj = model.Group.get(id)
+
+    set_org(is_organization)
+    context = cast(Context, {
+            u'model': model,
+            u'session': model.Session,
+            u'user': current_user.name})
+
+    try:
+        _check_access(u'group_member_create', context, {u'id': id})
+    except NotAuthorized:
+        base.abort(404,
+            _(u'Not authorized to access {group} members download'.format(
+                group=group_obj.title)))
+
+    try:
+        members = get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user',
+            u'records_format': records_format,
+            u'include_total': False,
+        })
+    except NotFound:
+        base.abort(404, _('Members not found'))
+
+    results = ''
+    for uid, user, role in members:
+        user_obj = model.User.get(uid)
+        results += '{name},{email},{fullname},{role},'.format(
+            name=user_obj.name,
+            email=user_obj.email,
+            fullname=user_obj.fullname if user_obj.fullname else _('N/A'),
+            role=role)
+
+    fields = [
+        {'id': _('Username')},
+        {'id': _('Email')},
+        {'id': _('Name')},
+        {'id': _('Role')}]
+
+    def start_writer(fields: Any):
+        return writer_factory(response, fields, group_obj.name, bom=True)
+
+    with start_writer(fields) as wr:
+        wr.write_records(results)
+
+    return response
 
 
 def member_delete(id: str, group_type: str,
@@ -1260,6 +1317,9 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/manage_members/<id>',
         methods=[u'GET', u'POST'],
         view_func=manage_members)
+    blueprint.add_url_rule(
+        u'/member_dump/<id>',
+        view_func=member_dump)
     blueprint.add_url_rule(
         u'/members/<id>', methods=[u'GET'], view_func=members)
     blueprint.add_url_rule(
