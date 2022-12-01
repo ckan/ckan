@@ -598,6 +598,11 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     records_format = u'csv'
 
     group_obj = model.Group.get(id)
+    if not group_obj:
+        base.abort(404,
+                   _(u'Organization not found')
+                   if is_organization
+                   else _(u'Group not found'))
 
     set_org(is_organization)
     context = cast(Context, {
@@ -609,8 +614,8 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         _check_access(u'group_member_create', context, {u'id': id})
     except NotAuthorized:
         base.abort(404,
-            _(u'Not authorized to access {group} members download'.format(
-                group=group_obj.title)))
+                   _(u'Not authorized to access {group} members download'
+                     .format(group=group_obj.title)))
 
     try:
         members = get_action(u'member_list')(context, {
@@ -623,8 +628,10 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         base.abort(404, _('Members not found'))
 
     results = ''
-    for uid, user, role in members:
+    for uid, _user, role in members:
         user_obj = model.User.get(uid)
+        if not user_obj:
+            continue
         results += '{name},{email},{fullname},{role},'.format(
             name=user_obj.name,
             email=user_obj.email,
@@ -641,7 +648,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         return writer_factory(response, fields, group_obj.name, bom=True)
 
     with start_writer(fields) as wr:
-        wr.write_records(results)
+        wr.write_records([results])
 
     return response
 
