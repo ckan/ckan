@@ -4,6 +4,7 @@
 
 {% block page_primary_action %}
   {% link_for _('Add Member'), controller='group', action='member_new', id=c.group_dict.id, class_='btn btn-primary', icon='plus-square', named_route=group_type + '_member_new' %}
+  {% link_for _('CSV'), controller='group', action='member_dump', id=c.group_dict.id, class_='btn btn-primary', icon='download' %}
 {% endblock %}
 
 {% block primary_content_inner %}

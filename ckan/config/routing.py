@@ -255,6 +255,8 @@ def make_map():
                   ckan_icon='pencil-square-o')
         m.connect('group_members', '/group/members/{id}', action='members',
                   ckan_icon='users'),
+        m.connect('group_member_dump', '/group/member_dump/{id}',
+                  action='member_dump', ckan_icon='download')
         m.connect('group_activity', '/group/activity/{id}/{offset}',
                   action='activity', ckan_icon='clock-o'),
         m.connect('group_read', '/group/{id}', action='read',
@@ -286,6 +288,8 @@ def make_map():
                   action='edit', ckan_icon='pencil-square-o')
         m.connect('organization_members', '/organization/members/{id}',
                   action='members', ckan_icon='users')
+        m.connect('organization_member_dump', '/organization/member_dump/{id}',
+                  action='member_dump', ckan_icon='download')
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
