@@ -4,7 +4,6 @@ import pytest
 
 import ckan.plugins
 import ckanext.multilingual.plugin as mulilingual_plugin
-import ckan.lib.helpers as h
 import ckan.lib.create_test_data
 import ckan.model as model
 from ckan.tests.helpers import body_contains, call_action
@@ -62,7 +61,7 @@ class TestDatasetTermTranslation:
         # It is testsysadmin who created the dataset, so testsysadmin whom
         # we'd expect to see the datasets for.
         for user_name in ("testsysadmin",):
-            offset = str(h.url_for("user.read", id=user_name))
+            offset = f"/user/{user_name}"
             for (lang_code, translations) in (
                 ("de", _create_test_data.german_translations),
                 ("fr", _create_test_data.french_translations),

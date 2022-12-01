@@ -2,21 +2,17 @@
 
 import pytest
 
-from ckan.lib.helpers import url_for
-
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins as plugins
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFeeds(object):
     @pytest.mark.parametrize("page", [0, -2, "abc"])
     def test_atom_feed_incorrect_page_gives_error(self, page, app):
         group = factories.Group()
-        offset = url_for(
-            u"feeds.group", id=group["name"]
-        ) + u"?page={}".format(page)
+        offset = f"/feeds/group/{group['name']}.atom?page={page}"
         res = app.get(offset, status=400)
         assert (
             "&#34;page&#34; parameter must be a positive integer" in res
@@ -24,14 +20,14 @@ class TestFeeds(object):
 
     def test_general_atom_feed_works(self, app):
         dataset = factories.Dataset(notes="Test\x0c Notes")
-        offset = url_for(u"feeds.general")
+        offset = "/feeds/dataset.atom"
         res = app.get(offset)
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
         assert helpers.body_contains(res, u"<content>Test Notes</content>")
 
     def test_general_atom_feed_works_with_no_notes(self, app):
         dataset = factories.Dataset(notes=None)
-        offset = url_for(u"feeds.general")
+        offset = "/feeds/dataset.atom"
         res = app.get(offset)
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
         assert helpers.body_contains(res, u"<content/>")
@@ -39,15 +35,15 @@ class TestFeeds(object):
     def test_group_atom_feed_works(self, app):
         group = factories.Group()
         dataset = factories.Dataset(groups=[{"id": group["id"]}])
-        offset = url_for(u"feeds.group", id=group["name"])
+        offset = f"/feeds/group/{group['name']}.atom"
         res = app.get(offset)
 
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
 
     def test_organization_atom_feed_works(self, app):
-        group = factories.Organization()
-        dataset = factories.Dataset(owner_org=group["id"])
-        offset = url_for(u"feeds.organization", id=group["name"])
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org["id"])
+        offset = f"/feeds/organization/{org['name']}.atom"
         res = app.get(offset)
 
         assert helpers.body_contains(res, u"<title>{0}</title>".format(dataset["title"]))
@@ -62,7 +58,7 @@ class TestFeeds(object):
             extras=[{"key": "frequency", "value": "daily"}],
         )
 
-        offset = url_for(u"feeds.custom")
+        offset = "/feeds/custom.atom"
         params = {"q": "frequency:weekly"}
 
         res = app.get(offset, query_string=params)

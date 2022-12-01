@@ -233,7 +233,6 @@ class TestUser:
 
     def test_user_last_active(self, app):
         import datetime
-        from ckan.lib.helpers import url_for
         from freezegun import freeze_time
 
         frozen_time = datetime.datetime.utcnow()
@@ -245,16 +244,16 @@ class TestUser:
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])
             assert user.last_active is None
-            app.get(url_for("dataset.search"), extra_environ=env)
+            app.get("/dataset/", extra_environ=env)
             assert isinstance(user.last_active, datetime.datetime)
             assert user.last_active == datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=540)):
             user = model.User.get(data["id"])
-            app.get(url_for("user.read", id=user.id), extra_environ=env)
+            app.get(f"/user/{user.id}", extra_environ=env)
             assert user.last_active != datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=660)):
             user = model.User.get(data["id"])
-            app.get(url_for("dataset.read", id=dataset["id"]), extra_environ=env)
+            app.get(f"/dataset/{dataset['id']}", extra_environ=env)
             assert user.last_active == datetime.datetime.utcnow()

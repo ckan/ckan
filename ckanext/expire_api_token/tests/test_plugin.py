@@ -10,7 +10,6 @@ import ckan.model as model
 import ckan.lib.api_token as api_token
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.lib.helpers import url_for
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"expire_api_token")
@@ -32,7 +31,7 @@ class TestExpireApiTokenPlugin(object):
         decoded = api_token.decode(data["token"])
         id = decoded["jti"]
         assert model.ApiToken.get(id)
-        url = url_for("api.action", logic_function=u"api_token_list", ver=3, user=user["id"])
+        url = f"/api/3/action/api_token_list?user={user['id']}"
         app.get(
             url, headers={u"authorization": six.ensure_str(data[u"token"])},
         )

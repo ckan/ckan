@@ -3,7 +3,7 @@
 import csv
 import datetime
 import pytest
-import ckan.lib.helpers as h
+
 import ckan.plugins as plugins
 import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
@@ -18,9 +18,7 @@ class TestPluggablePreviews:
         plugin = plugins.get_plugin("test_resource_view")
         plugin.calls.clear()
 
-        url = h.url_for(
-            "resource.read", id=res["package_id"], resource_id=res["id"]
-        )
+        url = f"/dataset/{res['package_id']}/resource/{res['id']}"
         result = app.get(url)
         assert "There are no views created" in result
 
@@ -45,11 +43,7 @@ class TestPluggablePreviews:
         assert len(views) == 1
         assert views[0]["view_type"] == "test_resource_view"
 
-        view_url = h.url_for(
-            "resource.view",
-            id=res["package_id"], resource_id=res["id"], view_id=views[0]["id"]
-        )
-
+        view_url = f"/dataset/{res['package_id']}/resource/{res['id']}/view/{views[0]['id']}"
         result = app.get(view_url)
 
         assert plugin.calls["setup_template_variables"] == 1
@@ -189,7 +183,7 @@ class TestTracking(object):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
-        url = h.url_for("dataset.read", id=package["name"])
+        url = f"/dataset/{package['name']}"
         track(url)
 
         update_tracking_summary()
@@ -227,9 +221,7 @@ class TestTracking(object):
     def test_resource_with_one_preview(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
-        url = h.url_for(
-            "resource.read", id=package["name"], resource_id=resource["id"]
-        )
+        url = f"/dataset/{package['name']}/resource/{resource['id']}"
         track(url)
 
         update_tracking_summary()
@@ -347,7 +339,7 @@ class TestTracking(object):
     def test_package_with_many_views(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
-        url = h.url_for("dataset.read", id=package["name"])
+        url = f"/dataset/{package['name']}"
 
         # View the package three times from different IPs.
         track(url, ip="111.222.333.44")
@@ -461,7 +453,7 @@ class TestTracking(object):
         """
         package = factories.Dataset()
         factories.Resource(package_id=package["id"])
-        url = h.url_for("dataset.read", id=package["name"])
+        url = f"/dataset/{package['name']}"
 
         # Visit the dataset three times from the same IP.
         track(url)
@@ -516,14 +508,14 @@ class TestTracking(object):
         d2 = factories.Dataset()
         d3 = factories.Dataset()
 
-        url = h.url_for("dataset.read", id=d1["name"])
+        url = f"/dataset/{d1['name']}"
         track(url)
 
-        url = h.url_for("dataset.read", id=d2["name"])
+        url = f"/dataset/{d2['name']}"
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
 
-        url = h.url_for("dataset.read", id=d3["name"])
+        url = f"/dataset/{d3['name']}"
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
         track(url, ip="333.33.333.333")
@@ -546,14 +538,14 @@ class TestTracking(object):
         factories.Dataset(name="the_player_of_games")
         factories.Dataset(name="use_of_weapons")
 
-        url = h.url_for("dataset.read", id="consider_phlebas")
+        url = "/dataset/consider_phlebas"
         track(url)
 
-        url = h.url_for("dataset.read", id="the_player_of_games")
+        url = "/dataset/the_player_of_games"
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
 
-        url = h.url_for("dataset.read", id="use_of_weapons")
+        url = "/dataset/use_of_weapons"
         track(url, ip="111.11.111.111")
         track(url, ip="222.22.222.222")
         track(url, ip="333.33.333.333")
@@ -583,13 +575,13 @@ class TestTracking(object):
         package_2 = factories.Dataset(user=admin, name="another_package")
 
         # View the package_1 three times from different IPs.
-        url = h.url_for("dataset.read", id=package_1["name"])
+        url = f"/dataset/{package_1['name']}"
         track(url, ip="111.222.333.44")
         track(url, ip="111.222.333.55")
         track(url, ip="111.222.333.66")
 
         # View the package_2 twice from different IPs.
-        url = h.url_for("dataset.read", id=package_2["name"])
+        url = f"/dataset/{package_2['name']}"
         track(url, ip="111.222.333.44")
         track(url, ip="111.222.333.55")
 

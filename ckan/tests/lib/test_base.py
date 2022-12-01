@@ -4,7 +4,6 @@ import six
 import pytest
 
 import ckan.tests.factories as factories
-import ckan.lib.helpers as h
 
 
 @pytest.mark.ckan_config("debug", True)
@@ -22,11 +21,7 @@ def test_comment_absent_if_debug_false(app):
 def test_apitoken_missing(app):
     request_headers = {}
     data_dict = {"type": "dataset", "name": "a-name"}
-    url = h.url_for(
-            "api.action",
-            logic_function="package_create",
-            ver=3,
-        )
+    url = "/api/3/action/package_create"
     app.post(url, json=data_dict, headers=request_headers, status=403)
 
 
@@ -56,11 +51,7 @@ def test_apitoken_contains_unicode(app):
     # nicely if unicode is supplied
     request_headers = {"Authorization": "\xc2\xb7"}
     data_dict = {"type": "dataset", "name": "a-name"}
-    url = h.url_for(
-            "api.action",
-            logic_function="package_create",
-            ver=3,
-        )
+    url = "/api/3/action/package_create"
     app.post(url, json=data_dict, headers=request_headers, status=403)
 
 
@@ -477,14 +468,11 @@ def test_cache_control_when_cache_is_not_set_in_config(app):
 
 @pytest.mark.ckan_config('ckan.cache_enabled', 'true')
 def test_cache_control_while_logged_in(app):
-    from ckan.lib.helpers import url_for
     user = factories.User(password="correct123")
     identity = {"login": user["name"], "password": "correct123"}
     request_headers = {}
 
-    response = app.post(
-        url_for("user.login"), data=identity, headers=request_headers
-    )
+    response = app.post("/user/login", data=identity, headers=request_headers)
     response_headers = dict(response.headers)
 
     assert 'Cache-Control' in response_headers

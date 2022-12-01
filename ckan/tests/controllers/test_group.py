@@ -10,40 +10,34 @@ import ckan.model as model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupController(object):
     def test_bulk_process_throws_403_for_nonexistent_org(self, app):
         """Returns 403, not 404, because access check cannot be passed.
         """
-        bulk_process_url = url_for(
-            "organization.bulk_process", id="does-not-exist"
-        )
-        app.get(url=bulk_process_url, status=403)
+        app.get("/organization/bulk_process/does-not-exist", status=403)
 
     def test_page_thru_list_of_orgs_preserves_sort_order(self, app):
         orgs = sorted([factories.Organization() for _ in range(35)],
                       key=lambda o: o["name"])
-        org_url = url_for("organization.index", sort="name desc")
-        response = app.get(url=org_url)
+
+        response = app.get("/organization/?sort=name+desc")
         assert orgs[-1]["name"] in response
         assert orgs[0]["name"] not in response
 
-        org_url = url_for("organization.index", sort="name desc", page=2)
-        response = app.get(url=org_url)
+        response = app.get("/organization/?sort=name+desc&page=2")
         assert orgs[-1]["name"] not in response
         assert orgs[0]["name"] in response
 
     def test_page_thru_list_of_groups_preserves_sort_order(self, app):
         groups = sorted([factories.Group() for _ in range(35)],
                         key=lambda g: g["title"])
-        group_url = url_for("group.index", sort="title desc")
 
-        response = app.get(url=group_url)
+        response = app.get("/group/?sort=title+desc")
         assert groups[-1]["title"] in response
         assert groups[0]["title"] not in response
 
-        org_url = url_for("group.index", sort="title desc", page=2)
-        response = app.get(url=org_url)
+        response = app.get("/group/?sort=title+desc&page=2")
         assert groups[-1]["title"] not in response
         assert groups[0]["title"] in response
 
@@ -71,14 +65,14 @@ def user():
     return user
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        app.get(url="/group/new", status=403)
 
     def test_name_required(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("group.new")
+        url = "/group/new"
         response = app.post(url=url, extra_environ=env, data={"save": ""})
 
         assert "Name: Missing value" in response
@@ -86,7 +80,7 @@ class TestGroupControllerNew(object):
     def test_saved(self, app, user):
         env = {"Authorization": user["token"]}
         form = {"name": "saved", "save": ""}
-        url = url_for("group.new")
+        url = "/group/new"
         app.post(url=url, extra_environ=env, data=form)
 
         group = model.Group.by_name(u"saved")
@@ -103,7 +97,7 @@ class TestGroupControllerNew(object):
             "save": "",
         }
         env = {"Authorization": user["token"]}
-        url = url_for("group.new")
+        url = "/group/new"
         app.post(url=url, extra_environ=env, data=form)
 
         group = model.Group.by_name(u"all-fields-saved")
@@ -111,7 +105,7 @@ class TestGroupControllerNew(object):
         assert group.description == "Sciencey datasets"
 
     def test_form_without_initial_data(self, app, user):
-        url = url_for("group.new")
+        url = "/group/new"
         env = {"Authorization": user["token"]}
         resp = app.get(url=url, extra_environ=env)
         page = BeautifulSoup(resp.body)
@@ -121,8 +115,7 @@ class TestGroupControllerNew(object):
         assert not form.select_one('[name=description]').text
 
     def test_form_with_initial_data(self, app, user):
-        url = url_for("group.new", name="name",
-                      description="description", title="title")
+        url = "/group/new?name=name&description=description&title=title"
         env = {"Authorization": user["token"]}
         resp = app.get(url=url, extra_environ=env)
         page = BeautifulSoup(resp.body)
@@ -132,20 +125,20 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=description]').text == "description"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        app.get("/group/new", status=403)
 
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("group.edit", id="doesnt_exist")
+        url = "/group/edit/doesnt_exist"
         app.get(url=url, extra_environ=env, status=404)
 
     def test_saved(self, app, user):
         env = {"Authorization": user["token"]}
         group = factories.Group(user=user)
-        url = url_for("group.edit", id=group["name"])
+        url = f"/group/edit/{group['name']}"
         form = {"save": ""}
         app.post(url=url, extra_environ=env, data=form)
         group = model.Group.by_name(group["name"])
@@ -162,7 +155,7 @@ class TestGroupControllerEdit(object):
             "image_url": "http://example.com/image.png",
             "save": "",
         }
-        url = url_for("group.edit", id=group["name"])
+        url = f"/group/edit/{group['name']}"
         app.post(url=url, extra_environ=env, data=form)
 
         group = model.Group.by_name(u"all-fields-edited")
@@ -181,7 +174,7 @@ class TestGroupControllerEdit(object):
             "name": "",
             "save": "",
         }
-        url = url_for("group.edit", id=group["name"])
+        url = f"/group/edit/{group['name']}"
         resp = app.get(url=url, extra_environ=env)
         page = BeautifulSoup(resp.body)
         breadcrumbs = page.select('.breadcrumb a')
@@ -189,7 +182,7 @@ class TestGroupControllerEdit(object):
         assert len(breadcrumbs) == 4
         # Verify that `NAME` is not empty, as well as other parts
         assert all([part.text for part in breadcrumbs])
-        url = url_for("group.edit", id=group["name"])
+        url = f"/group/edit/{group['name']}"
         resp = app.post(url=url, extra_environ=env, data=form)
         page = BeautifulSoup(resp.body)
         breadcrumbs = page.select('.breadcrumb a')
@@ -199,19 +192,19 @@ class TestGroupControllerEdit(object):
         assert all([part.text for part in breadcrumbs])
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
-        response = app.get(url=url_for("group.read", id=group["name"]))
+        response = app.get(f"/group/{group['name']}")
         assert group["title"] in response
         assert group["description"] in response
 
-    def test_redirect_when_given_id(self, app):
+    def test_redirect_when_given_id(self, app, with_request_context):
         group = factories.Group()
 
         response = app.get(
-            url_for("group.read", id=group["id"]),
+            f"/group/{group['id']}",
             status=302,
             follow_redirects=False,
         )
@@ -224,11 +217,11 @@ class TestGroupRead(object):
         group = factories.Group(id=name, name=name)
 
         # 200 == no redirect
-        app.get(url_for("group.read", id=group["id"]), status=200)
+        app.get(f"/group/{group['id']}", status=200)
 
     def test_search_with_extra_params(self, app):
         group = factories.Group()
-        url = url_for('group.read', id=group['id'])
+        url = f"/group/{group['id']}"
         url += '?ext_a=1&ext_a=2&ext_b=3'
         search_result = {
             'count': 0,
@@ -245,14 +238,14 @@ class TestGroupRead(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupDelete(object):
 
     def test_owner_delete(self, app, user):
         env = {"Authorization": user["token"]}
         group = factories.Group(user=user)
         response = app.post(
-            url=url_for("group.delete", id=group["id"]),
+            url=f"/group/delete/{group['id']}",
             extra_environ=env,
             data={"delete": ""}
         )
@@ -266,7 +259,7 @@ class TestGroupDelete(object):
         env = {"Authorization": sysadmin["token"]}
         group = factories.Group()
         response = app.post(
-            url=url_for("group.delete", id=group["id"]),
+            url=f"/group/delete/{group['id']}",
             extra_environ=env,
             data={"delete": ""}
         )
@@ -282,7 +275,7 @@ class TestGroupDelete(object):
         env = {"Authorization": user["token"]}
         group = factories.Group()
         app.get(
-            url=url_for("group.delete", id=group["id"]),
+            url=f"/group/delete/{group['id']}",
             extra_environ=env,
             status=403,
         )
@@ -295,7 +288,7 @@ class TestGroupDelete(object):
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Group()
         app.get(
-            url=url_for("group.delete", id=group["id"]),
+            url=f"/group/delete/{group['id']}",
             status=403,
         )
 
@@ -305,7 +298,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -329,7 +322,7 @@ class TestGroupMembership(object):
 
         group = self._create_group(user_one["name"], other_users)
 
-        member_list_url = url_for("group.members", id=group["id"])
+        member_list_url = f"/group/members/{group['id']}"
 
         member_list_response = app.get(member_list_url, extra_environ=env)
 
@@ -350,13 +343,13 @@ class TestGroupMembership(object):
         assert user_roles["User One"] == "Admin"
         assert user_roles["User Two"] == "Member"
 
-    def test_membership_add(self, app):
+    def test_membership_add(self, app, with_request_context):
         """Member can be added via add member page"""
         user = factories.User(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-new-user")
         group = self._create_group(user["name"])
 
-        url = url_for("group.member_new", id=group["name"])
+        url = f"/group/member_new/{group['name']}"
         add_response = app.post(
             url,
             environ_overrides={"REMOTE_USER": user["name"]},
@@ -380,11 +373,11 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Member"
 
-    def test_membership_add_by_email(self, app, mail_server):
+    def test_membership_add_by_email(self, app, mail_server, with_request_context):
         user = factories.User(fullname="My Owner")
         group = self._create_group(user["name"])
 
-        url = url_for("group.member_new", id=group["name"])
+        url = f"/group/member_new/{group['id']}"
         email = "invited_user@mailinator.com"
         app.post(
             url,
@@ -405,7 +398,7 @@ class TestGroupMembership(object):
             {'name': member['name'], 'capacity': 'admin'}
         ])
 
-        url = url_for("group.member_new", id=group["name"], user=member['name'])
+        url = f"/group/member_new/{group['name']}?user={member['name']}"
         response = app.get(
             url,
             environ_overrides={"REMOTE_USER": owner["name"]},
@@ -418,15 +411,14 @@ class TestGroupMembership(object):
         assert page.select_one('#username').get('value') == member['name']
 
     @pytest.mark.usefixtures("clean_db")
-    def test_admin_add(self, app):
+    def test_admin_add(self, app, with_request_context):
         """Admin can be added via add member page"""
         owner = factories.User(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-admin-user")
         group = self._create_group(owner["name"])
 
-        url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
-            url,
+            f"/group/member_new/{group['name']}",
             environ_overrides={"REMOTE_USER": owner["name"]},
             data={"save": "", "username": "my-admin-user", "role": "admin"},
         )
@@ -448,7 +440,7 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
         assert user_roles["My Fullname"] == "Admin"
 
-    def test_remove_member(self,  app):
+    def test_remove_member(self,  app, with_request_context):
         """Member can be removed from group"""
         user = factories.User(fullname="My Owner")
         user_two = factories.User(fullname="User Two")
@@ -457,9 +449,7 @@ class TestGroupMembership(object):
 
         group = self._create_group(user["name"], other_users)
 
-        remove_url = url_for(
-            "group.member_delete", user=user_two["id"], id=group["id"]
-        )
+        remove_url = f"/group/member_delete/{group['id']}?user={user_two['id']}"
 
         remove_response = app.post(
             remove_url,
@@ -482,20 +472,20 @@ class TestGroupMembership(object):
         assert len(user_roles.keys()) == 1
         assert user_roles["My Owner"] == "Admin"
 
-    def test_member_users_cannot_add_members(self, app):
+    def test_member_users_cannot_add_members(self, app, with_request_context):
         user = factories.User(fullname="My Owner")
         group = factories.Group(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
         app.get(
-            url_for("group.member_new", id=group["id"]),
+            f"/group/member_new/{group['id']}",
             environ_overrides={"REMOTE_USER": user["name"]},
             status=403
         )
 
         app.post(
-            url_for("group.member_new", id=group["id"]),
+            f"/group/member_new/{group['id']}",
             environ_overrides={"REMOTE_USER": user["name"]},
             data={
                 "id": "test",
@@ -510,7 +500,7 @@ class TestGroupMembership(object):
         group = factories.Group()
 
         with app.flask_app.test_request_context():
-            url = url_for("group.member_new", id=group["id"])
+            url = f"/group/member_new/{group['id']}"
             app.get(url, status=403)
 
             app.post(
@@ -525,14 +515,14 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupFollow:
     def test_group_follow(self, app, user):
 
         group = factories.Group()
 
         env = {"Authorization": user["token"]}
-        follow_url = url_for("group.follow", id=group["id"])
+        follow_url = f"/group/follow/{group['id']}"
         response = app.post(follow_url, extra_environ=env)
         assert (
             "You are now following {0}".format(group["display_name"])
@@ -543,7 +533,7 @@ class TestGroupFollow:
         """Pass an id for a group that doesn't exist"""
 
         env = {"Authorization": user["token"]}
-        follow_url = url_for("group.follow", id="not-here")
+        follow_url = "/group/follow/not-here"
         response = app.post(follow_url, extra_environ=env, status=404)
         assert "Group not found" in response
 
@@ -552,10 +542,10 @@ class TestGroupFollow:
         group = factories.Group()
 
         env = {"Authorization": user["token"]}
-        follow_url = url_for("group.follow", id=group["id"])
+        follow_url = f"/group/follow/{group['id']}"
         app.post(follow_url, extra_environ=env)
 
-        unfollow_url = url_for("group.unfollow", id=group["id"])
+        unfollow_url = f"/group/unfollow/{group['id']}"
         unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
@@ -569,7 +559,7 @@ class TestGroupFollow:
         group = factories.Group()
 
         env = {"Authorization": user["token"]}
-        unfollow_url = url_for("group.unfollow", id=group["id"])
+        unfollow_url = f"/group/unfollow/{group['id']}"
         unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
@@ -581,24 +571,24 @@ class TestGroupFollow:
         """Unfollow a group that doesn't exist."""
 
         env = {"Authorization": user["token"]}
-        unfollow_url = url_for("group.unfollow", id="not-here")
+        unfollow_url = "/group/unfollow/not-here"
         app.post(unfollow_url, extra_environ=env, status=404)
 
     def test_group_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
         group = factories.Group()
         env = {"Authorization": sysadmin["token"]}
-        follow_url = url_for("group.follow", id=group["id"])
+        follow_url = f"/group/follow/{group['id']}"
         app.post(follow_url, extra_environ=env)
 
-        followers_url = url_for("group.followers", id=group["id"])
+        followers_url = f"/group/followers/{group['id']}"
 
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env, status=200)
         assert sysadmin["name"] in followers_response
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupSearch(object):
     """Test searching for groups."""
 
@@ -609,7 +599,7 @@ class TestGroupSearch(object):
         factories.Group(title="AGrp One")
         factories.Group(title="AGrp Two")
         factories.Group(title="Grp Three")
-        index_response = app.get(url_for("group.index"))
+        index_response = app.get("/group/")
         index_response_html = BeautifulSoup(index_response.body)
         grp_names = index_response_html.select(
             "ul.media-grid " "li.media-item " "h2.media-heading"
@@ -628,7 +618,7 @@ class TestGroupSearch(object):
         factories.Group(title="Grp Three")
 
         search_response = app.get(
-            url_for("group.index"), query_string={"q": "AGrp"}
+            "/group/", query_string={"q": "AGrp"}
         )
         search_response_html = BeautifulSoup(search_response.body)
         grp_names = search_response_html.select(
@@ -649,7 +639,7 @@ class TestGroupSearch(object):
         factories.Group(title="Grp Three")
 
         search_response = app.get(
-            url_for("group.index"), query_string={"q": "No Results Here"}
+            "/group/", query_string={"q": "No Results Here"}
         )
 
         search_response_html = BeautifulSoup(search_response.body)
@@ -679,7 +669,7 @@ class TestGroupInnerSearch(object):
             title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
-        grp_url = url_for("group.read", id=grp["name"])
+        grp_url = f"/group/{grp['name']}"
         grp_response = app.get(grp_url)
         grp_response_html = BeautifulSoup(grp_response.body)
 
@@ -708,7 +698,7 @@ class TestGroupInnerSearch(object):
             title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
-        grp_url = url_for("group.read", id=grp["name"])
+        grp_url = f"/group/{grp['name']}"
 
         search_response = app.get(grp_url, query_string={"q": "One"})
         assert "1 dataset found for &#34;One&#34;" in search_response
@@ -740,7 +730,7 @@ class TestGroupInnerSearch(object):
             title="Dataset Three", groups=[{"id": grp["id"]}]
         )
 
-        grp_url = url_for("group.read", id=grp["name"])
+        grp_url = f"/group/{grp['name']}"
         search_response = app.get(grp_url, query_string={"q": "Nout"})
 
         assert helpers.body_contains(
@@ -757,7 +747,7 @@ class TestGroupInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupIndex(object):
     def test_group_index(self, app):
 
@@ -768,7 +758,7 @@ class TestGroupIndex(object):
                 title="Test Group {0}".format(_i),
             )
 
-        url = url_for("group.index")
+        url = "/group/"
         response = app.get(url)
 
         for i in range(1, 21):
@@ -777,7 +767,7 @@ class TestGroupIndex(object):
 
         assert "Test Group 21" not in response
 
-        url = url_for("group.index", page=1)
+        url = "/group/?page=1"
         response = app.get(url)
 
         for i in range(1, 21):
@@ -786,7 +776,7 @@ class TestGroupIndex(object):
 
         assert "Test Group 21" not in response
 
-        url = url_for("group.index", page=2)
+        url = "/group/?page=2"
         response = app.get(url)
 
         for i in range(21, 26):

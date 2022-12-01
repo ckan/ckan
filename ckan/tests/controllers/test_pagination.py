@@ -14,7 +14,10 @@ def test_package_search(app):
         dataset["name"]
         for dataset in factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
     ]
-    resp = app.get(url_for("dataset.search", q=f"groups:{group['name']}"))
+    with app.flask_app.test_request_context():
+        url = url_for("dataset.search", q=f"groups:{group['name']}")
+
+    resp = app.get(url)
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
     assert f'/dataset/?q=groups%3A{group["name"]}&page=2' == href
@@ -23,10 +26,10 @@ def test_package_search(app):
         for link in page.select(".primary .dataset-heading a")
     ]
     assert all_names[:-21:-1] == names
-
-    resp = app.get(
-        url_for("dataset.search", q=f"groups:{group['name']}", page=2)
-    )
+    with app.flask_app.test_request_context():
+        resp = app.get(
+            url_for("dataset.search", q=f"groups:{group['name']}", page=2)
+        )
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
     assert f'/dataset/?q=groups%3A{group["name"]}&page=1' == href
@@ -44,9 +47,7 @@ def test_group_datasets_read(app):
         dataset["name"]
         for dataset in factories.Dataset.create_batch(51, groups=[{"name": group["name"]}])
     ]
-    resp = app.get(
-        url_for(controller="group", action="read", id=group["name"])
-    )
+    resp = app.get(f"/group/{group['name']}")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
 
@@ -57,9 +58,7 @@ def test_group_datasets_read(app):
     ]
     assert all_names[:-21:-1] == names
 
-    resp = app.get(
-        url_for(controller="group", action="read", id=group["name"], page=2)
-    )
+    resp = app.get(f"/group/{group['name']}?page=2")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
 
@@ -78,7 +77,7 @@ def test_group_index(app):
         for group in sorted(factories.Group.create_batch(22), key=lambda g: g["name"])
     ]
 
-    resp = app.get(url_for("group.index", sort="name"))
+    resp = app.get("/group/?sort=name")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
     assert "/group/?q=&sort=name&page=2" == href
@@ -89,7 +88,7 @@ def test_group_index(app):
 
     assert all_names[:20] == names
 
-    resp = app.get(url_for("group.index", sort="name", page=2))
+    resp = app.get("/group/?sort=name&page=2")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
     assert "/group/?q=&sort=name&page=1" == href
@@ -108,7 +107,7 @@ def test_users_index(app):
         for user in
         call_action("user_list", {"return_query": True}, order_by="name")
     ]
-    resp = app.get(url_for("user.index"))
+    resp = app.get("/user/")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=2)["href"]
     assert "/user/?q=&order_by=name&page=2" == href
@@ -120,7 +119,7 @@ def test_users_index(app):
 
     assert all_names[:20] == names
 
-    resp = app.get(url_for("user.index", page=2))
+    resp = app.get("/user/?page=2")
     page = BeautifulSoup(resp.data)
     href = page.select_one(".pagination").find("a", text=1)["href"]
     assert "/user/?q=&order_by=name&page=1" == href

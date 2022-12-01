@@ -18,7 +18,7 @@ class TestUserListings:
         factories.User(fullname="User Two")
         factories.User(fullname="User Three")
 
-        user_url = url_for("user.index")
+        user_url = "/user/"
         user_response = app.get(user_url, status=200)
 
         user_response_html = BeautifulSoup(user_response.data)
@@ -37,7 +37,7 @@ class TestUserListings:
         factories.User(fullname="User Two")
         factories.User(fullname="User Three")
 
-        user_url = url_for("user.index")
+        user_url = "/user/"
         user_response = app.get(user_url, status=200)
 
         user_response_html = BeautifulSoup(user_response.data)
@@ -56,7 +56,7 @@ class TestUserListings:
         factories.User(fullname="Person Two")
         factories.User(fullname="Person Three")
 
-        user_url = url_for("user.index")
+        user_url = "/user/"
         search_response = app.get(user_url, query_string={"q": "Person"})
 
         search_response_html = BeautifulSoup(search_response.data)
@@ -76,7 +76,7 @@ class TestUserListings:
         factories.User(fullname="Person Two")
         factories.User(fullname="Person Three")
 
-        user_url = url_for("user.index")
+        user_url = "/user/"
         search_response = app.get(
             user_url, query_string={"q": stub.email}
         )
@@ -112,7 +112,7 @@ class TestUser(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_a_user(self, app):
-        url = url_for("user.register")
+        url = "/user/register"
         stub = factories.User.stub()
         response = app.post(
             url=url,
@@ -137,7 +137,7 @@ class TestUser(object):
     def test_register_user_bad_password(self, app):
         stub = factories.User.stub()
         response = app.post(
-            url_for("user.register"),
+            "/user/register",
             data={
                 "save": "",
                 "name": stub.name,
@@ -158,7 +158,7 @@ class TestUser(object):
         env = {"Authorization": sysadmin_token["token"]}
         stub = factories.User.stub()
         app.post(
-            url_for("user.register"),
+            "/user/register",
             data={
                 "name": stub.name,
                 "fullname": "Newest User",
@@ -185,7 +185,7 @@ class TestUser(object):
 
         # get the form
         response = app.post(
-            url_for("user.login"),
+            "/user/login",
             data={
                 "login": user["name"],
                 "password": password
@@ -212,7 +212,7 @@ class TestUser(object):
 
         # get the form
         response = app.post(
-            url_for("user.login"),
+            "/user/login",
             data={"login": user["name"], "password": "BadPass1", "save": ""},
         )
 
@@ -230,7 +230,7 @@ class TestUser(object):
         """_logout url redirects to logged out page.
         """
         env = {"Authorization": user["token"]}
-        logout_url = url_for("user.logout")
+        logout_url = "/user/_logout"
         final_response = app.get(logout_url, extra_environ=env)
 
         assert "You are now logged out." in final_response
@@ -242,7 +242,7 @@ class TestUser(object):
         prefixed.
         """
         env = {"Authorization": user["token"]}
-        logout_url = url_for("user.logout")
+        logout_url = "/user/_logout"
         # Remove the prefix otherwise the test app won't find the correct route
         logout_url = logout_url.replace("/my/prefix", "")
         logout_response = app.get(logout_url, extra_environ=env, follow_redirects=False)
@@ -252,7 +252,7 @@ class TestUser(object):
     def test_not_logged_in_dashboard(self, app):
         for route in ["organizations", "datasets", "groups"]:
             response = app.get(
-                url=url_for(u"dashboard.{}".format(route)),
+                url=f"/dashboard/{route}",
                 follow_redirects=False,
             )
             assert response.status_code == 302
@@ -265,7 +265,7 @@ class TestUser(object):
             user=user, name="my-own-dataset", title=dataset_title
         )
 
-        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
+        response = app.get("/dashboard/datasets", extra_environ=env)
 
         assert dataset_title in response
 
@@ -277,19 +277,20 @@ class TestUser(object):
             user=user1, title=dataset_title
         )
 
-        response = app.get(url=url_for("dashboard.datasets"), extra_environ=env)
+        response = app.get("/dashboard/dataset", extra_environ=env)
 
         assert not (dataset_title in response)
 
     def test_user_edit_no_user(self, app):
 
-        response = app.get(url_for("user.edit", id=None), status=400)
+        response = app.get("/user/edit", status=400)
         assert "No user specified" in response
 
     def test_user_edit_unknown_user(self, app):
         """Attempt to read edit user for an unknown user redirects to login
         page."""
-        url = url_for("user.edit", id=factories.User.stub().name)
+        user_name = factories.User.stub().name
+        url = f"/user/edit/{user_name}"
         app.get(url, status=403)
 
     def test_user_edit_not_logged_in(self, app):
@@ -298,13 +299,13 @@ class TestUser(object):
 
         user = factories.User()
         username = user["name"]
-        url = url_for("user.edit", id=username)
+        url = f"/user/edit/{username}"
         app.get(url, status=403)
 
     def test_edit_user(self, app, user):
         env = {"Authorization": user["token"]}
         app.post(
-            url=url_for("user.edit"),
+            "/user/edit",
             data={
                 "save": "",
                 "name": user["name"],
@@ -329,12 +330,12 @@ class TestUser(object):
     def test_edit_user_as_wrong_user(self, app, user):
         user_one = factories.User(password="TestPassword1")
         env = {"Authorization": user["token"]}
-        app.get(url_for("user.edit", id=user_one["name"]), extra_environ=env, status=403)
+        app.get(f"/user/edit/{user_one['id']}", extra_environ=env, status=403)
 
     def test_email_change_without_password(self, app, user):
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "email": factories.User.stub().email,
                 "save": "",
@@ -349,7 +350,7 @@ class TestUser(object):
     def test_email_change_with_password(self, app, user):
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "email": factories.User.stub().email,
                 "save": "",
@@ -367,7 +368,7 @@ class TestUser(object):
         env = {"Authorization": user["token"]}
 
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "email": user2["email"],
                 "save": "",
@@ -384,7 +385,7 @@ class TestUser(object):
 
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "email": user["email"],
                 "save": "",
@@ -401,7 +402,7 @@ class TestUser(object):
 
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit", id=user["name"]),
+            f"/user/edit/{user['name']}",
             data={
                 "email": user["email"],
                 "save": "",
@@ -418,7 +419,7 @@ class TestUser(object):
 
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit", id=user["id"]),
+            f"/user/edit/{user['id']}",
             data={
                 "email": user["email"],
                 "save": "",
@@ -439,11 +440,7 @@ class TestUser(object):
         create_reset_key(user_obj)
         key = user_obj.reset_key
 
-        offset = url_for(
-            "user.perform_reset",
-            id=user_obj.id,
-            key=user_obj.reset_key,
-        )
+        offset = f"/user/reset/{user_obj.id}?key={user_obj.reset_key}"
         app.post(offset, data=params)
         user_obj = helpers.model.User.by_name(user["name"])  # Update user_obj
 
@@ -455,7 +452,7 @@ class TestUser(object):
         """
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "save": "",
                 "old_password": "correct123",
@@ -475,7 +472,7 @@ class TestUser(object):
         """
         env = {"Authorization": user["token"]}
         response = app.post(
-            url=url_for("user.edit"),
+            url="/user/edit",
             data={
                 "save": "",
                 "old_password": "Wrong-Pass1",
@@ -492,7 +489,7 @@ class TestUser(object):
 
         user_two = factories.User()
         env = {"Authorization": user["token"]}
-        follow_url = url_for("user.follow", id=user_two["id"])
+        follow_url = f"/user/follow/{user_two['id']}"
         response = app.post(follow_url, extra_environ=env)
         assert (
             "You are now following {0}".format(user_two["display_name"])
@@ -502,7 +499,7 @@ class TestUser(object):
     def test_user_follow_not_exist(self, app, user):
         """Pass an id for a user that doesn't exist"""
         env = {"Authorization": user["token"]}
-        follow_url = url_for("user.follow", id="not-here")
+        follow_url = "/user/follow/not-here"
         response = app.post(follow_url, extra_environ=env)
 
         assert response.status_code == 404
@@ -511,10 +508,10 @@ class TestUser(object):
 
         user_two = factories.User()
         env = {"Authorization": user["token"]}
-        follow_url = url_for("user.follow", id=user_two["id"])
+        follow_url = f"/user/follow/{user_two['id']}"
         app.post(follow_url, extra_environ=env)
 
-        unfollow_url = url_for("user.unfollow", id=user_two["id"])
+        unfollow_url = f"/user/unfollow/{user_two['id']}"
         unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
@@ -527,7 +524,7 @@ class TestUser(object):
 
         user_two = factories.User()
         env = {"Authorization": user["token"]}
-        unfollow_url = url_for("user.unfollow", id=user_two["id"])
+        unfollow_url = f"/user/unfollow/{user_two['id']}"
         unfollow_response = app.post(unfollow_url, extra_environ=env)
 
         assert (
@@ -538,7 +535,7 @@ class TestUser(object):
     def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
         env = {"Authorization": user["token"]}
-        unfollow_url = url_for("user.unfollow", id="not-here")
+        unfollow_url = "/user/unfollow/not-here"
         response = app.post(unfollow_url, extra_environ=env)
 
         assert response.status_code == 404
@@ -549,11 +546,10 @@ class TestUser(object):
 
         user_two = factories.User()
 
-        follow_url = url_for("user.follow", id=user_two["id"])
+        follow_url = f"/user/follow/{user_two['id']}"
         app.post(follow_url, extra_environ=env)
 
-        followers_url = url_for("user.followers", id=user_two["id"])
-
+        followers_url = f"/user/followers/{user_two['id']}"
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env, status=200)
         assert sysadmin["display_name"] in followers_response
@@ -561,7 +557,7 @@ class TestUser(object):
     def test_user_page_anon_access(self, app):
         """Anon users can access the user list page"""
 
-        user_url = url_for("user.index")
+        user_url = "/user/"
         user_response = app.get(user_url, status=200)
         assert "<title>All Users - CKAN</title>" in user_response
 
@@ -569,7 +565,7 @@ class TestUser(object):
     def test_request_reset_by_email(self, send_reset_link, app):
         user = factories.User()
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         response = app.post(offset, data=dict(user=user["email"]))
 
         assert "A reset link has been emailed to you" in response
@@ -579,7 +575,7 @@ class TestUser(object):
     def test_request_reset_by_name(self, send_reset_link, app):
         user = factories.User()
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         response = app.post(offset, data=dict(user=user["name"]))
 
         assert "A reset link has been emailed to you" in response
@@ -587,7 +583,7 @@ class TestUser(object):
 
     def test_request_reset_without_param(self, app):
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         response = app.post(offset)
 
         assert "Email is required" in response
@@ -595,7 +591,7 @@ class TestUser(object):
     @mock.patch("ckan.lib.mailer.send_reset_link")
     def test_request_reset_for_unknown_username(self, send_reset_link, app):
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         response = app.post(offset, data=dict(user="unknown"))
 
         # doesn't reveal account does or doesn't exist
@@ -605,7 +601,7 @@ class TestUser(object):
     @mock.patch("ckan.lib.mailer.send_reset_link")
     def test_request_reset_for_unknown_email(self, send_reset_link, app):
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         response = app.post(offset, data=dict(user=factories.User.stub().email))
 
         # doesn't reveal account does or doesn't exist
@@ -618,7 +614,7 @@ class TestUser(object):
     ):
         user = factories.User()
 
-        offset = url_for("user.request_reset")
+        offset = "/user/reset"
         # This is the exception when the mailer is not configured:
         send_reset_link.side_effect = MailerException(
             'SMTP server could not be connected to: "localhost" '
@@ -631,7 +627,7 @@ class TestUser(object):
     def test_sysadmin_not_authorized(self, app):
         user = factories.User()
         app.post(
-            url_for("user.sysadmin"),
+            "/user/sysadmin",
             data={"username": user["name"], "status": "1"},
             environ_overrides={"REMOTE_USER": user["name"]},
             status=403
@@ -640,7 +636,7 @@ class TestUser(object):
     def test_sysadmin_invalid_user(self, app, sysadmin):
         env = {"Authorization": sysadmin["token"]}
         app.post(
-            url_for("user.sysadmin"),
+            "/user/sysadmin",
             data={"username": "fred", "status": "1"},
             extra_environ=env,
             status=404,
@@ -654,7 +650,7 @@ class TestUser(object):
 
         # promote them
         resp = app.post(
-            url_for("user.sysadmin"),
+            "/user/sysadmin",
             data={"username": user["name"], "status": "1"},
             environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
@@ -672,7 +668,7 @@ class TestUser(object):
 
         # revoke their status
         resp = app.post(
-            url_for("user.sysadmin"),
+            "/user/sysadmin",
             data={"username": user["name"], "status": "0"},
             environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
@@ -686,9 +682,9 @@ class TestUser(object):
     def test_user_delete_redirects_to_user_index(self, app, sysadmin):
         env = {"Authorization": sysadmin["token"]}
         user = factories.User()
-        url = url_for("user.delete", id=user["id"])
-
-        redirect_url = url_for("user.index", qualified=True)
+        url = f"/user/delete/{user['id']}"
+        with app.flask_app.test_request_context():
+            redirect_url = url_for("user.index", qualified=True)
         res = app.post(url, extra_environ=env, follow_redirects=False)
 
         user = helpers.call_action("user_show", id=user["id"])
@@ -697,7 +693,7 @@ class TestUser(object):
 
     def test_user_delete_by_unauthorized_user(self, app, user):
         user_one = factories.User()
-        url = url_for("user.delete", id=user_one["id"])
+        url = f"/user/delete/{user_one['id']}"
         env = {"Authorization": user["token"]}
 
         app.post(url, extra_environ=env, status=403)
@@ -710,21 +706,17 @@ class TestUser(object):
 
     def test_perform_reset_user_password_link_key_incorrect(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("user.perform_reset", id=user["id"], key="randomness")
+        url = f"/user/reset/{user['id']}?key=randomness"
         app.get(url, extra_environ=env, status=403)
 
     def test_perform_reset_user_password_link_key_missing(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("user.perform_reset", id=user["id"])
+        url = f"/user/reset/{user['id']}"
         app.get(url, extra_environ=env, status=403)
 
     def test_perform_reset_user_password_link_user_incorrect(self, app):
         factories.User()
-        url = url_for(
-            "user.perform_reset",
-            id="randomness",
-            key="randomness",
-        )
+        url = '/user/reset/randomness?key=randomness'
         app.get(url, status=404)
 
     def test_perform_reset_activates_pending_user(self, app):
@@ -735,11 +727,7 @@ class TestUser(object):
         create_reset_key(userobj)
         assert userobj.is_pending(), userobj.state
 
-        url = url_for(
-            "user.perform_reset",
-            id=userobj.id,
-            key=userobj.reset_key,
-        )
+        url = f"/user/reset/{userobj.id}?key={userobj.reset_key}"
         app.post(url, params=params)
 
         userobj = model.User.get(userobj.id)
@@ -754,11 +742,7 @@ class TestUser(object):
         create_reset_key(userobj)
         assert userobj.is_deleted(), userobj.state
 
-        url = url_for(
-            "user.perform_reset",
-            id=userobj.id,
-            key=userobj.reset_key,
-        )
+        url = f"/user/reset/{userobj.id}?key={userobj.reset_key}"
         app.post(url, params=params, status=403)
 
         userobj = model.User.get(userobj.id)
@@ -780,7 +764,7 @@ class TestUser(object):
             "password2": "",
             "save": ""
         }
-        url = url_for("user.edit", id=deleted_user["name"])
+        url = f"/user/edit/{deleted_user['name']}"
         app.post(url, extra_environ=env, data=data)
 
         user = model.User.get(deleted_user["name"])
@@ -794,7 +778,7 @@ class TestUserImage(object):
         user = factories.User(
             image_url="https://example.com/mypic.png", password="correct123")
 
-        url = url_for("user.read", id=user["name"])
+        url = f"/user/{user['name']}"
 
         user_token = factories.APIToken(user=user["name"])
         env = {"Authorization": user_token["token"]}
@@ -811,7 +795,7 @@ class TestUserImage(object):
 
         user = factories.User(image_url=None, password="correct123")
 
-        url = url_for("user.read", id=user["name"])
+        url = f"/user/{user['name']}"
 
         user_token = factories.APIToken(user=user["name"])
         env = {"Authorization": user_token["token"]}
@@ -829,7 +813,7 @@ class TestUserImage(object):
 
         user = factories.User(image_url=None, password="correct123")
 
-        url = url_for("user.read", id=user["name"])
+        url = f"/user/{user['name']}"
 
         user_token = factories.APIToken(user=user["name"])
         env = {"Authorization": user_token["token"]}

@@ -428,7 +428,9 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_duplicate_alias_name(self, app):
-        resource = factories.Resource(url_type = 'datastore')
+        with app.flask_app.test_request_context():
+            # datastore before_resource_show depends on url_for
+            resource = factories.Resource(url_type = 'datastore')
         data = {"resource_id": resource['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
@@ -441,7 +443,8 @@ class TestDatastoreCreate(object):
         assert res_dict["success"] is True
 
         # try to create another table with the same alias
-        resource_2 = factories.Resource(url_type = 'datastore')
+        with app.flask_app.test_request_context():
+            resource_2 = factories.Resource(url_type = 'datastore')
         data = {"resource_id": resource_2['id'], "aliases": u"myalias"}
         auth = {"Authorization": self.sysadmin_token}
         res = app.post(
@@ -1195,7 +1198,9 @@ class TestDatastoreCreate(object):
     @pytest.mark.usefixtures("with_plugins")
     def test_datastore_create_with_invalid_data_value(self, app):
         """datastore_create() should return an error for invalid data."""
-        resource = factories.Resource(url_type="datastore")
+        with app.flask_app.test_request_context():
+            # datastore before_resource_show depends on url_for
+            resource = factories.Resource(url_type="datastore")
         data_dict = {
             "resource_id": resource["id"],
             "fields": [{"id": "value", "type": "numeric"}],

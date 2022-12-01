@@ -44,16 +44,12 @@ class FlashMessagePlugin(p.SingletonPlugin):
     def add_flash_success_message(self):
         """Add flash message, then redirect to render it."""
         h.flash_success(u"This is a success message")
-        return h.redirect_to(
-            h.url_for("test_flash_plugin.flash_message_view")
-        )
+        return h.redirect_to("/flask_view_flash_message")
 
     def add_flash_success_message_with_html(self):
         """Add flash message, then redirect to render it."""
         h.flash_success(u"<h1> This is a success message with HTML</h1>", allow_html=True)
-        return h.redirect_to(
-            h.url_for("test_flash_plugin.flash_message_view")
-        )
+        return h.redirect_to("/flask_view_flash_message")
 
     def get_blueprint(self):
         """Return Flask Blueprint object."""

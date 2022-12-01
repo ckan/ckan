@@ -9,7 +9,6 @@ import re
 import pytest
 import six
 from io import BytesIO
-from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
 
@@ -19,7 +18,8 @@ from ckan.tests import factories
     [(0, 1, 404), (1, 1, 200), (2, 2, 200), (3, 3, 200), (4, 1, 404)],
 )
 def test_get_api_version(ver, expected, status, app):
-    resp = app.get(url_for("api.get_api", ver=str(ver)), status=status)
+    url = f"/api/{ver}"
+    resp = app.get(url, status=status)
     if status == 200:
         assert resp.json["version"] == expected
 
@@ -32,8 +32,9 @@ def test_readonly_is_get_able_with_normal_url_params(app):
     populated from the url parameters.
     """
     params = {"q": "russian"}
+    url = "/api/3/action/package_search"
     app.get(
-        url_for("api.action", logic_function="package_search", ver=3),
+        url,
         params=params,
         status=200,
     )
@@ -46,8 +47,9 @@ def test_sideeffect_action_is_not_get_able(app):
     attempt to invoke with a http GET request is made.
     """
     data_dict = {"type": "dataset", "name": "a-name"}
+    url = "/api/3/action/package_create"
     resp = app.get(
-        url_for("api.action", logic_function="package_create", ver=3),
+        url,
         json=data_dict,
         status=400,
     )
@@ -69,11 +71,7 @@ class TestApiController(object):
         user_token = factories.APIToken(user=user["name"])
         pkg = factories.Dataset(creator_user_id=user["id"])
 
-        url = url_for(
-            "api.action",
-            logic_function="resource_create",
-            ver=3,
-        )
+        url = "/api/3/action/resource_create"
         env = {"Authorization": user_token["token"]}
 
         content = six.ensure_binary('upload-content')
@@ -107,8 +105,7 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
-        url = url_for("api.dataset_autocomplete", ver=2)
-        assert url == "/api/2/util/dataset/autocomplete"
+        url = "/api/2/util/dataset/autocomplete"
 
         response = app.get(
             url=url, query_string={"incomplete": u"rive"}, status=200
@@ -135,8 +132,7 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
-        url = url_for("api.dataset_autocomplete", ver=2)
-        assert url == "/api/2/util/dataset/autocomplete"
+        url = "/api/2/util/dataset/autocomplete"
 
         response = app.get(
             url=url, query_string={"incomplete": u"riv"}, status=200
@@ -162,9 +158,7 @@ class TestApiController(object):
 
     def test_tag_autocomplete(self, app):
         factories.Dataset(tags=[{"name": "rivers ア"}])
-        url = url_for("api.tag_autocomplete", ver=2)
-
-        assert url == "/api/2/util/tag/autocomplete"
+        url = "/api/2/util/tag/autocomplete"
 
         response = app.get(
             url=url, query_string={"incomplete": u"rs ア"}, status=200
@@ -180,8 +174,7 @@ class TestApiController(object):
 
     def test_group_autocomplete_by_name(self, app):
         factories.Group(name="rivers", title="Bridges")
-        url = url_for("api.group_autocomplete", ver=2)
-        assert url == "/api/2/util/group/autocomplete"
+        url = "/api/2/util/group/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"rive"}, status=200)
 
@@ -196,7 +189,7 @@ class TestApiController(object):
 
     def test_group_autocomplete_by_title(self, app):
         factories.Group(name="frogs", title="Bugs")
-        url = url_for("api.group_autocomplete", ver=2)
+        url = "/api/2/util/group/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"bug"}, status=200)
 
@@ -206,8 +199,7 @@ class TestApiController(object):
 
     def test_organization_autocomplete_by_name(self, app):
         org = factories.Organization(name="simple-dummy-org")
-        url = url_for("api.organization_autocomplete", ver=2)
-        assert url == "/api/2/util/organization/autocomplete"
+        url = "/api/2/util/organization/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"simple"}, status=200)
 
@@ -222,7 +214,7 @@ class TestApiController(object):
 
     def test_organization_autocomplete_by_title(self, app):
         factories.Organization(title="Simple dummy org")
-        url = url_for("api.organization_autocomplete", ver=2)
+        url = "/api/2/util/organization/autocomplete"
 
         response = app.get(
             url=url, query_string={"q": u"simple dum"}, status=200
@@ -235,22 +227,14 @@ class TestApiController(object):
     def test_config_option_list_access_sysadmin(self, app):
         user = factories.Sysadmin()
         user_token = factories.APIToken(user=user["name"])
-        url = url_for(
-            "api.action",
-            logic_function="config_option_list",
-            ver=3,
-        )
+        url = "/api/3/action/config_option_list"
         env = {"Authorization": user_token["token"]}
         app.get(url=url, extra_environ=env, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
         user_token = factories.APIToken(user=user["name"])
-        url = url_for(
-            "api.action",
-            logic_function="config_option_list",
-            ver=3,
-        )
+        url = "/api/3/action/config_option_list"
         env = {"Authorization": user_token["token"]}
         app.get(url=url, extra_environ=env, query_string={"callback": "myfn"}, status=403)
 
@@ -259,11 +243,7 @@ class TestApiController(object):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
 
-        url = url_for(
-            "api.action",
-            logic_function="package_list",
-            ver=3,
-        )
+        url = "/api/3/action/package_list"
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
         assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
@@ -277,11 +257,7 @@ class TestApiController(object):
         )
 
     def test_jsonp_returns_javascript_content_type(self, app):
-        url = url_for(
-            "api.action",
-            logic_function="status_show",
-            ver=3,
-        )
+        url = "/api/3/action/status_show"
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
         assert "application/javascript" in res.headers.get("Content-Type")
@@ -291,12 +267,7 @@ class TestApiController(object):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
 
-        url = url_for(
-            "api.action",
-            logic_function="package_list",
-            ver=3,
-            callback="my_callback",
-        )
+        url = "/api/3/action/package_list?callback=my_callback"
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
@@ -323,7 +294,7 @@ class TestApiController(object):
         factories.Resource(format="JSON")
 
         resp = app.get(
-            url_for("api.format_autocomplete", ver=2, incomplete=incomplete)
+            f"/api/2/util/resource/format_autocomplete?incomplete={incomplete}"
         )
         result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
 
@@ -332,12 +303,9 @@ class TestApiController(object):
 
 def test_i18n_only_known_locales_are_accepted(app):
 
-    url = url_for("api.i18n_js_translations", ver=2, lang="fr")
+    assert app.get("/api/2/i18n/fr").status_code == 200
 
-    assert app.get(url).status_code == 200
-
-    url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
-    r = app.get(url, status=400)
+    r = app.get("/api/2/i18n/unknown_lang", status=400)
     assert "Bad request - Unknown locale" in r.get_data(as_text=True)
 
 
@@ -348,7 +316,7 @@ def test_cookie_based_auth_default(app):
     org = factories.Organization()
     dataset = factories.Dataset(private=True, owner_org=org["id"])
 
-    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+    url = f"/api/3/action/package_show?id={dataset['id']}"
 
     env = {"REMOTE_USER": sysadmin["name"]}
 
@@ -365,7 +333,7 @@ def test_cookie_based_auth_disabled(app):
     org = factories.Organization()
     dataset = factories.Dataset(private=True, owner_org=org["id"])
 
-    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+    url = f"/api/3/action/package_show?id={dataset['id']}"
 
     env = {"REMOTE_USER": sysadmin["name"]}
 
@@ -389,7 +357,7 @@ def test_header_based_auth_default(app):
     org = factories.Organization()
     dataset = factories.Dataset(private=True, owner_org=org["id"])
 
-    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+    url = f"/api/3/action/package_show?id={dataset['id']}"
 
     env = {"Authorization": sysadmin["token"]}
 
@@ -405,7 +373,7 @@ def test_header_based_auth_default_post(app):
     org = factories.Organization()
     dataset = factories.Dataset(private=True, owner_org=org["id"])
 
-    url = url_for("api.action", ver=3, logic_function="package_patch")
+    url = "/api/3/action/package_patch"
 
     env = {"Authorization": sysadmin["token"]}
 

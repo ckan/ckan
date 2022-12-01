@@ -21,21 +21,21 @@ def sysadmin():
     return user
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationNew(object):
 
     def test_not_logged_in(self, app):
-        app.get(url=url_for("group.new"), status=403)
+        app.get("/group/new", status=403)
 
     def test_name_required(self, app, user):
-        url = url_for("organization.new")
+        url = "/organization/new"
         env = {"Authorization": user["token"]}
         response = app.post(url=url, extra_environ=env, data={"save": ""})
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("organization.new")
+        url = "/organization/new"
         app.post(
             url=url, extra_environ=env, data={"save": "", "name": "saved"}
         )
@@ -47,7 +47,7 @@ class TestOrganizationNew(object):
     def test_all_fields_saved(self, app, user):
         env = {"Authorization": user["token"]}
         app.post(
-            url=url_for("organization.new"),
+            url="/organization/new",
             extra_environ=env,
             data={
                 "name": u"all-fields-saved",
@@ -62,7 +62,6 @@ class TestOrganizationNew(object):
         assert group["description"] == "Sciencey datasets"
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestOrganizationList(object):
     @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(
@@ -73,7 +72,7 @@ class TestOrganizationList(object):
             authz._AuthFunctions._functions, 'organization_list',
             lambda *args: {'success': False}
         )
-        self.organization_list_url = url_for("organization.index")
+        self.organization_list_url = "/organization/"
         env = {"Authorization": user["token"]}
         app.get(
             url=self.organization_list_url,
@@ -82,15 +81,15 @@ class TestOrganizationList(object):
         )
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationRead(object):
     def test_group_read(self, app):
         org = factories.Organization()
-        response = app.get(url=url_for("organization.read", id=org["name"]))
+        response = app.get(f"/organization/{org['name']}")
         assert org["title"] in response
         assert org["description"] in response
 
-    def test_read_redirect_when_given_id(self, app):
+    def test_read_redirect_when_given_id(self, app, with_request_context):
         org = factories.Organization()
         response = app.get(
             url_for("organization.read", id=org["id"]), follow_redirects=False
@@ -102,26 +101,22 @@ class TestOrganizationRead(object):
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         name = factories.Organization.stub().name
         org = factories.Organization(id=name, name=name)
-        app.get(
-            url_for("organization.read", id=org["id"]), status=200
-        )  # ie no redirect
+        app.get(f"/organization/{org['id']}", status=200)
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationEdit(object):
 
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
-        url = url_for("organization.edit", id="doesnt_exist")
+        url = "/organization/edit/doesnt_exist"
         app.get(url=url, extra_environ=env, status=404)
 
     def test_saved(self, app, user):
         env = {"Authorization": user["token"]}
         group = factories.Organization(user=user)
         app.post(
-            url=url_for(
-                "organization.edit", id=group["id"]
-            ),
+            url=f"/organization/edit/{group['id']}",
             extra_environ=env,
             data={"save": ""}
         )
@@ -136,9 +131,7 @@ class TestOrganizationEdit(object):
         env = {"Authorization": user["token"]}
         group = factories.Organization(user=user)
         app.post(
-            url=url_for(
-                "organization.edit", id=group["id"]
-            ),
+            url=f"/organization/edit/{group['id']}",
             extra_environ=env,
             data={
                 "name": u"all-fields-edited",
@@ -156,16 +149,14 @@ class TestOrganizationEdit(object):
         assert group["image_url"] == "http://example.com/image.png"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationDelete(object):
 
     def test_owner_delete(self, app, user):
         env = {"Authorization": user["token"]}
         group = factories.Organization(user=user)
         app.post(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             extra_environ=env,
             data={"delete": ""}
         )
@@ -178,9 +169,7 @@ class TestOrganizationDelete(object):
         group = factories.Organization()
         env = {"Authorization": sysadmin["token"]}
         app.post(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             extra_environ=env,
             status=200,
             data={"delete": ""}
@@ -195,14 +184,12 @@ class TestOrganizationDelete(object):
         env = {"Authorization": sysadmin["token"]}
 
         res = app.get(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             extra_environ=env,
             status=200
         )
 
-        assert helpers.body_contains(res, url_for("organization.delete", id=group["id"]))
+        assert helpers.body_contains(res, f"/organization/delete/{group['id']}")
 
     def test_non_authorized_user_trying_to_delete_fails(
         self, app, user
@@ -210,9 +197,7 @@ class TestOrganizationDelete(object):
         env = {"Authorization": user["token"]}
         group = factories.Organization()
         app.post(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             extra_environ=env,
             status=403,
             data={"delete": ""}
@@ -226,9 +211,7 @@ class TestOrganizationDelete(object):
     def test_anon_user_trying_to_delete_fails(self, app):
         group = factories.Organization()
         app.get(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             status=403,
         )
 
@@ -247,9 +230,7 @@ class TestOrganizationDelete(object):
             factories.Dataset(owner_org=group["id"])
 
         response = app.post(
-            url=url_for(
-                "organization.delete", id=group["id"]
-            ),
+            url=f"/organization/delete/{group['id']}",
             extra_environ=env,
             data={"delete": ""},
         )
@@ -275,23 +256,21 @@ class TestOrganizationDelete(object):
         assert dataset["owner_org"] is None
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationBulkProcess(object):
     def test_make_private(self, app, user):
         env = {"Authorization": user["token"]}
-        self.organization = factories.Organization(user=user)
+        org = factories.Organization(user=user)
 
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"], private=False)
+            factories.Dataset(owner_org=org["id"], private=False)
             for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.private"] = "private"
 
         app.post(
-            url=url_for(
-                "organization.bulk_process", id=self.organization["id"]
-            ),
+            url=f"/organization/bulk_process/{org['id']}",
             extra_environ=env,
             data=form
         )
@@ -302,18 +281,16 @@ class TestOrganizationBulkProcess(object):
 
     def test_make_public(self, app, user):
         env = {"Authorization": user["token"]}
-        self.organization = factories.Organization(user=user)
+        org = factories.Organization(user=user)
 
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"], private=True)
+            factories.Dataset(owner_org=org["id"], private=True)
             for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.public"] = "public"
         app.post(
-            url=url_for(
-                "organization.bulk_process", id=self.organization["id"]
-            ),
+            url=f"/organization/bulk_process/{org['id']}",
             extra_environ=env,
             data=form
         )
@@ -323,18 +300,16 @@ class TestOrganizationBulkProcess(object):
 
     def test_delete(self, app, user):
         env = {"Authorization": user["token"]}
-        self.organization = factories.Organization(user=user)
+        org = factories.Organization(user=user)
         datasets = [
-            factories.Dataset(owner_org=self.organization["id"], private=True)
+            factories.Dataset(owner_org=org["id"], private=True)
             for _ in range(0, 5)
         ]
         form = {'dataset_' + d["id"]: "on" for d in datasets}
         form["bulk_action.delete"] = "delete"
 
         app.post(
-            url=url_for(
-                "organization.bulk_process", id=self.organization["id"]
-            ),
+            url=f"/organization/bulk_process/{org['id']}",
             extra_environ=env,
             data=form
         )
@@ -344,7 +319,7 @@ class TestOrganizationBulkProcess(object):
             assert d["state"] == "deleted"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestOrganizationSearch(object):
     """Test searching for organizations."""
 
@@ -356,7 +331,7 @@ class TestOrganizationSearch(object):
         factories.Organization(title="AOrg Two")
         factories.Organization(title="Org Three")
 
-        index_response = app.get(url_for("organization.index"))
+        index_response = app.get("/organization/")
         index_response_html = BeautifulSoup(index_response.body)
         org_names = index_response_html.select(
             "ul.media-grid " "li.media-item " "h2.media-heading"
@@ -376,7 +351,7 @@ class TestOrganizationSearch(object):
         factories.Organization(title="Org Three")
 
         search_response = app.get(
-            url_for("organization.index"),
+            "/organization/",
             query_string={"q": "AOrg"}
         )
 
@@ -398,7 +373,7 @@ class TestOrganizationSearch(object):
         factories.Organization(title="Org Three")
 
         search_response = app.get(
-            url_for("organization.index"),
+            "/organization/",
             query_string={"q": "No Results Here"}
         )
 
@@ -433,7 +408,7 @@ class TestOrganizationInnerSearch(object):
             title="Dataset Three", owner_org=org["id"]
         )
 
-        org_url = url_for("organization.read", id=org["name"])
+        org_url = f"/organization/{org['name']}"
         org_response = app.get(org_url)
         org_response_html = BeautifulSoup(org_response.body)
 
@@ -462,7 +437,7 @@ class TestOrganizationInnerSearch(object):
             title="Dataset Three", owner_org=org["id"]
         )
 
-        org_url = url_for("organization.read", id=org["name"])
+        org_url = f"/organization/{org['name']}"
         search_response = app.get(
             org_url,
             query_string={"q": "One"}
@@ -496,7 +471,7 @@ class TestOrganizationInnerSearch(object):
             title="Dataset Three", owner_org=org["id"]
         )
 
-        org_url = url_for("organization.read", id=org["name"])
+        org_url = f"/organization/{org['name']}"
         search_response = app.get(
             org_url,
             query_string={"q": "Nout"}
@@ -514,7 +489,7 @@ class TestOrganizationInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
     def test_editor_users_cannot_add_members(self, app, user):
         env = {"Authorization": user["token"]}
@@ -524,13 +499,13 @@ class TestOrganizationMembership(object):
 
         with app.flask_app.test_request_context():
             app.get(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 extra_environ=env,
                 status=403,
             )
 
             app.post(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 data={
                     "id": "test",
                     "username": "test",
@@ -549,13 +524,13 @@ class TestOrganizationMembership(object):
 
         with app.flask_app.test_request_context():
             app.get(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 extra_environ=env,
                 status=403,
             )
 
             app.post(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 data={
                     "id": "test",
                     "username": "test",
@@ -571,12 +546,12 @@ class TestOrganizationMembership(object):
 
         with app.flask_app.test_request_context():
             app.get(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 status=403,
             )
 
             app.post(
-                url_for("organization.member_new", id=organization["id"]),
+                f"/organization/member_new/{organization['id']}",
                 data={
                     "id": "test",
                     "username": "test",
@@ -586,7 +561,7 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
-    def test_create_user_for_user_invite(self, mail_server, sysadmin):
+    def test_create_user_for_user_invite(self, mail_server, sysadmin, with_request_context):
         group = factories.Group()
         context = {"user": sysadmin["name"]}
 
@@ -612,7 +587,7 @@ class TestOrganizationMembership(object):
         assert len(org["users"]) == 2
         with app.flask_app.test_request_context():
             app.post(
-                url_for("organization.member_delete", id=org["id"], user=user["id"]),
+                f"/organization/member_delete/{org['id']}?user={user['id']}",
                 extra_environ=env,
             )
             org = helpers.call_action('organization_show', id=org['id'])

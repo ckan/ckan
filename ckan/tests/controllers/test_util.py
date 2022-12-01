@@ -2,13 +2,11 @@
 
 import pytest
 
-from ckan.lib.helpers import url_for as url_for
-
 
 class TestUtil(object):
     def test_redirect_ok(self, app):
         response = app.get(
-            url=url_for("util.internal_redirect"),
+            url="/util/redirect",
             query_string={"url": "/dataset"},
             status=302,
             follow_redirects=False,
@@ -19,7 +17,7 @@ class TestUtil(object):
 
     def test_redirect_external(self, app):
         app.get(
-            url=url_for("util.internal_redirect"),
+            url="/util/redirect",
             query_string={"url": "http://nastysite.com"},
             status=403,
         )
@@ -27,7 +25,7 @@ class TestUtil(object):
     @pytest.mark.parametrize("params", [{}, {"url": ""}])
     def test_redirect_no_params(self, params, app):
         app.get(
-            url=url_for("util.internal_redirect"),
+            url="/util/redirect",
             query_string=params,
             status=400,
         )

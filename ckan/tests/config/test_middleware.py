@@ -78,7 +78,7 @@ def test_no_beaker_secret_crashes(make_app):
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_blueprint_plugin")
 @pytest.mark.usefixtures(u"with_plugins")
-def test_all_plugin_blueprints_are_registered(app):
+def test_all_plugin_blueprints_are_registered(app, with_request_context):
     url = url_for("bp1.plugin_view_endpoint")
     assert url == "/simple_url"
     res = app.get(url, status=200)

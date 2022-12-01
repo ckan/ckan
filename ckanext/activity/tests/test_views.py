@@ -28,7 +28,7 @@ class TestOrganization(object):
         user = factories.User()
         org = factories.Organization(user=user)
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the organization" in response
@@ -37,7 +37,7 @@ class TestOrganization(object):
         user = factories.User()
         org = factories.Organization(user=user)
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -58,7 +58,7 @@ class TestOrganization(object):
             "organization_update", context={"user": user["name"]}, **org
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -79,7 +79,7 @@ class TestOrganization(object):
             "organization_delete", context={"user": user["name"]}, **org
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         env = {"REMOTE_USER": user["name"]}
         app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
@@ -97,7 +97,7 @@ class TestOrganization(object):
             "organization_update", context={"user": user["name"]}, **org
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
@@ -116,7 +116,7 @@ class TestOrganization(object):
         _clear_activities()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -138,7 +138,7 @@ class TestOrganization(object):
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -159,7 +159,7 @@ class TestOrganization(object):
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -180,7 +180,7 @@ class TestUser:
 
         user = factories.User()
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         assert user["fullname"] in response
         assert "signed up" in response
@@ -189,7 +189,7 @@ class TestUser:
 
         user = factories.User()
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -206,7 +206,7 @@ class TestUser:
             "user_update", context={"user": user["name"]}, **user
         )
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -220,7 +220,7 @@ class TestUser:
         _clear_activities()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -242,7 +242,7 @@ class TestUser:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -264,7 +264,7 @@ class TestUser:
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         page = BeautifulSoup(response.body)
@@ -282,7 +282,7 @@ class TestUser:
         user = factories.User()
         group = factories.Group(user=user)
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
@@ -305,7 +305,7 @@ class TestUser:
             "group_update", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
@@ -326,7 +326,7 @@ class TestUser:
             "group_delete", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.user_activity", id=user["id"])
+        url = f"/user/activity/{user['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".group")
@@ -348,7 +348,7 @@ class TestUser:
             "group_update", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
@@ -370,7 +370,7 @@ class TestPackage:
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the dataset" in response
@@ -380,7 +380,7 @@ class TestPackage:
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -403,7 +403,7 @@ class TestPackage:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -425,7 +425,7 @@ class TestPackage:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -452,7 +452,7 @@ class TestPackage:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -479,7 +479,7 @@ class TestPackage:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -508,7 +508,7 @@ class TestPackage:
             package_id=dataset["id"],
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -541,7 +541,7 @@ class TestPackage:
             package_id=dataset["id"],
         )
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -568,7 +568,7 @@ class TestPackage:
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -587,7 +587,7 @@ class TestPackage:
         env = {"REMOTE_USER": user["name"]}
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url, extra_environ=env)
         assert "View this version" in response
 
@@ -596,7 +596,7 @@ class TestPackage:
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         assert "View this version" not in response
 
@@ -608,7 +608,7 @@ class TestPackage:
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url, extra_environ=env)
         assert "Changes" in response
 
@@ -617,7 +617,7 @@ class TestPackage:
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         assert "Changes" not in response
 
@@ -658,7 +658,7 @@ class TestPackage:
         }
         helpers.call_action("activity_create", **activity_dict)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -678,21 +678,18 @@ class TestPackage:
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
-            url_for(
-                "activity.package_history",
-                id=dataset["id"],
-                activity_id=activity.id,
-            ),
+            f"/dataset/{dataset['id']}/history/{activity.id}",
             status=302,
             extra_environ=env,
             follow_redirects=False,
         )
-        expected_path = url_for(
-            "activity.package_history",
-            id=dataset["name"],
-            _external=True,
-            activity_id=activity.id,
-        )
+        with app.flask_app.test_request_context():
+            expected_path = url_for(
+                "activity.package_history",
+                id=dataset["name"],
+                _external=True,
+                activity_id=activity.id,
+            )
         assert response.headers["location"] == expected_path
 
     def test_read_dataset_as_it_used_to_be(self, app):
@@ -708,11 +705,7 @@ class TestPackage:
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"]}
         response = app.get(
-            url_for(
-                "activity.package_history",
-                id=dataset["name"],
-                activity_id=activity.id,
-            ),
+            f"/dataset/{dataset['name']}/history/{activity.id}",
             extra_environ=env,
         )
         assert helpers.body_contains(response, "Original title")
@@ -756,11 +749,7 @@ class TestPackage:
         sysadmin = factories.Sysadmin()
         env = {"REMOTE_USER": sysadmin["name"]}
         app.get(
-            url_for(
-                "activity.package_history",
-                id=dataset["name"],
-                activity_id=activity.id,
-            ),
+            f"/dataset/{dataset['name']}/history/{activity.id}",
             extra_environ=env,
             status=404,
         )
@@ -775,10 +764,7 @@ class TestPackage:
             dataset["id"], limit=1, offset=0
         )[0]
         env = {"REMOTE_USER": user["name"]}
-        response = app.get(
-            url_for("activity.package_changes", id=activity.id),
-            extra_environ=env,
-        )
+        response = app.get(f"/dataset/changes/{activity.id}", extra_environ=env)
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
 
@@ -788,7 +774,7 @@ class TestPackage:
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url, query_string={"before": "XXX"}, status=400)
         assert "Invalid parameters" in response.body
 
@@ -805,7 +791,7 @@ class TestPackage:
         dataset["title"] = "Fourth title"
         helpers.call_action("package_update", **dataset)
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
@@ -852,7 +838,7 @@ class TestPackage:
         last_act_page_1_time = datetime.fromisoformat(
             activities[2]["timestamp"]
         )
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(
             url, query_string={"before": last_act_page_1_time.timestamp()}
         )
@@ -886,7 +872,7 @@ class TestPackage:
         )
         before_time = datetime.fromisoformat(activities[2]["timestamp"])
 
-        url = url_for("activity.package_activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         # url for page 2
         response = app.get(
             url, query_string={"before": before_time.timestamp()}
@@ -912,7 +898,7 @@ class TestGroup:
         user = factories.User()
         group = factories.Group(user=user)
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the group" in response
@@ -921,7 +907,7 @@ class TestGroup:
         user = factories.User()
         group = factories.Group(user=user)
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -942,7 +928,7 @@ class TestGroup:
             "group_update", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -962,7 +948,7 @@ class TestGroup:
             "group_delete", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         env = {"REMOTE_USER": user["name"]}
         app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
@@ -980,7 +966,7 @@ class TestGroup:
             "group_update", context={"user": user["name"]}, **group
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         env = {"REMOTE_USER": user["name"]}
         response = app.get(url, extra_environ=env)
         assert (
@@ -999,7 +985,7 @@ class TestGroup:
         _clear_activities()
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -1022,7 +1008,7 @@ class TestGroup:
             "package_update", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -1043,7 +1029,7 @@ class TestGroup:
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        url = url_for("activity.group_activity", id=group["id"])
+        url = f"/group/activity/{group['id']}"
         response = app.get(url)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")

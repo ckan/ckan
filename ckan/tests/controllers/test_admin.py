@@ -8,7 +8,6 @@ import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.common import config
-from ckan.lib.helpers import url_for
 from ckan.model.system_info import get_system_info
 
 
@@ -35,13 +34,13 @@ def mock_current_user(current_user):
 
 def _reset_config(app, sysadmin_env):
     """Reset config via action"""
-    app.post(url=url_for("admin.reset_config"), extra_environ=sysadmin_env)
+    app.post("/ckan-admin/reset_config", extra_environ=sysadmin_env)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_index(app, user_env, sysadmin_env):
 
-    url = url_for("admin.index")
+    url = "/ckan-admin"
     # Anonymous User
     response = app.get(url, status=403)
 
@@ -63,7 +62,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "Welcome - CKAN" in index_response
 
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
 
         # change site title
         form = {"ckan.site_title": "Test Site Title", "save": ""}
@@ -85,7 +84,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "main.css" in index_response or "main.min.css" in index_response
 
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
 
         # set new style css
         form = {"ckan.theme": "css/main-rtl", "save": ""}
@@ -103,7 +102,7 @@ class TestConfig(object):
         index_response = app.get("/")
         assert "Special Tagline" not in index_response
 
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
 
         # set new tagline css
         form = {"ckan.site_description": "Special Tagline", "save": ""}
@@ -113,7 +112,7 @@ class TestConfig(object):
         new_index_response = app.get("/")
         assert "Special Tagline" not in new_index_response
 
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         # remove logo
         form = {"ckan.site_logo": "", "save": ""}
         app.post(url, data=form)
@@ -135,7 +134,7 @@ class TestConfig(object):
         assert "My special about text" not in about_response
 
         # set new about
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         form = {"ckan.site_about": "My special about text", "save": ""}
         app.post(url, extra_environ=sysadmin_env, data=form)
 
@@ -156,7 +155,7 @@ class TestConfig(object):
         assert "My special intro text" not in intro_response
 
         # set new intro
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         form = {"ckan.site_intro_text": "My special intro text", "save": ""}
         app.post(url, extra_environ=sysadmin_env, data=form)
 
@@ -177,7 +176,7 @@ class TestConfig(object):
         assert len(style_tag) == 0
 
         # set new tagline css
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         form = {
             "ckan.site_custom_css": "body {background-color:red}",
             "save": "",
@@ -204,7 +203,7 @@ class TestConfig(object):
         assert "<!-- Snippet home/layout1.html start -->" in index_response
 
         # set new style css
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         form = {"ckan.homepage_style": "2", "save": ""}
         app.post(url, extra_environ=sysadmin_env, data=form)
 
@@ -230,19 +229,19 @@ class TestTrashView(object):
 
     def test_trash_view_anon_user(self, app):
         """An anon user shouldn't be able to access trash view."""
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url)
         assert trash_response.status_code == 403
 
     def test_trash_view_normal_user(self, app, user_env):
         """A normal logged in user shouldn't be able to access trash view."""
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=user_env, status=403)
         assert trash_response.status_code == 403
 
     def test_trash_view_sysadmin(self, app, sysadmin_env):
         """A sysadmin should be able to access trash view."""
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         # On the purge page
         assert "purge-all" in trash_response
@@ -252,7 +251,7 @@ class TestTrashView(object):
         datasets."""
         factories.Dataset()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
@@ -265,7 +264,7 @@ class TestTrashView(object):
         groups."""
         factories.Group()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
@@ -278,7 +277,7 @@ class TestTrashView(object):
         organizations."""
         factories.Organization()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(trash_response.body)
@@ -294,7 +293,7 @@ class TestTrashView(object):
         factories.Dataset(state="deleted")
         factories.Dataset()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
@@ -311,7 +310,7 @@ class TestTrashView(object):
         factories.Dataset(state="deleted")
         factories.Dataset()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
 
         response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
@@ -327,7 +326,7 @@ class TestTrashView(object):
         factories.Group(state="deleted")
         factories.Group()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
@@ -342,7 +341,7 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
@@ -358,7 +357,7 @@ class TestTrashView(object):
         factories.Organization(state="deleted")
         factories.Organization()
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
 
         response_html = BeautifulSoup(response.body)
@@ -382,7 +381,7 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 1
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "package"}, status=200)
         # check for flash success msg
         assert "datasets have been purged" in response.body
@@ -404,7 +403,7 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "package"}, status=200)
         # check for flash success msg
         assert "datasets have been purged" in response.body
@@ -427,7 +426,7 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         assert pkgs_before_purge == 3
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "package"}, status=200)
         # check for flash success msg
         assert "datasets have been purged" in response.body
@@ -448,7 +447,7 @@ class TestTrashView(object):
         grps_before_purge = model.Session.query(model.Group).count()
         assert grps_before_purge == 3
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "group"}, status=200)
         # check for flash success msg
         assert "groups have been purged" in response
@@ -470,7 +469,7 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_before_purge == 3
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "organization"}, status=200)
         # check for flash success msg
         assert "organizations have been purged" in response
@@ -496,7 +495,7 @@ class TestTrashView(object):
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "all"}, status=200)
         # check for flash success msg
         assert "Massive purge complete" in response
@@ -523,7 +522,7 @@ class TestTrashView(object):
         pkgs_before_purge = model.Session.query(model.Package).count()
         orgs_and_grps_before_purge = model.Session.query(model.Group).count()
         assert pkgs_before_purge + orgs_and_grps_before_purge == 5
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         response = app.post(trash_url, data={"action": "all"}, status=200)
         # check for flash success msg
         assert "Massive purge complete" in response
@@ -545,7 +544,7 @@ class TestTrashView(object):
             is_organization=True).count()
         assert orgs_before_purge == 2
 
-        trash_url = url_for("admin.trash", name="purge-organization")
+        trash_url = "/ckan-admin/trash?name=purge-organization"
         response = app.post(trash_url, data={"cancel": ""}, status=200)
         # flash success msg should be absent
         assert "Organizations have been purged" not in response
@@ -558,7 +557,7 @@ class TestTrashView(object):
     def test_trash_no_button_with_no_deleted_datasets(self, app, sysadmin_env):
         """Getting the trash view with no 'deleted' datasets should not
         contain the purge button."""
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         assert "form-purge-package" not in trash_response
 
@@ -567,7 +566,7 @@ class TestTrashView(object):
         contain the purge button."""
         factories.Dataset(state="deleted")
 
-        trash_url = url_for("admin.trash")
+        trash_url = "/ckan-admin/trash"
         trash_response = app.get(trash_url, extra_environ=sysadmin_env, status=200)
         assert "form-purge-package" in trash_response
 
@@ -575,7 +574,7 @@ class TestTrashView(object):
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestAdminConfigUpdate(object):
     def _update_config_option(self, app, sysadmin_env):
-        url = url_for(u"admin.config")
+        url = "/ckan-admin/config"
         form = {"ckan.site_title": "My Updated Site Title", "save": ""}
         return app.post(url, extra_environ=sysadmin_env, data=form)
 

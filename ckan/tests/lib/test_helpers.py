@@ -85,7 +85,8 @@ class TestHelpersUrlForStatic(BaseUrlFor):
         "//assets.ckan.org/ckan.jpg",
     ],
 )
-def test_url_for_static_or_external(url):
+def test_url_for_static_or_external(url, with_request_context):
+
     generated = h.url_for_static_or_external(url)
     assert generated == url
     assert isinstance(generated, str)
@@ -388,7 +389,7 @@ class TestHelpersRenderMarkdown(object):
             ),
         ],
     )
-    def test_render_markdown(self, data, output, allow_html):
+    def test_render_markdown(self, data, output, allow_html, with_request_context):
         assert h.render_markdown(data, allow_html=allow_html) == output
 
     def test_internal_tag_with_no_closing_quote_does_not_match(self):
@@ -397,19 +398,19 @@ class TestHelpersRenderMarkdown(object):
         out = h.render_markdown(data)
         assert "<a href" not in out
 
-    def test_tag_names_match_simple_punctuation(self):
+    def test_tag_names_match_simple_punctuation(self, with_request_context):
         """Asserts punctuation and capital letters are matched in the tag name"""
         data = 'tag:"Test- _." foobar'
         output = '<p><a href="/dataset/?tags=Test-+_.">tag:&quot;Test- _.&quot;</a> foobar</p>'
         assert h.render_markdown(data) == output
 
-    def test_tag_names_do_not_match_commas(self):
+    def test_tag_names_do_not_match_commas(self, with_request_context):
         """Asserts commas don't get matched as part of a tag name"""
         data = "tag:Test,tag foobar"
         output = '<p><a href="/dataset/?tags=Test">tag:Test</a>,tag foobar</p>'
         assert h.render_markdown(data) == output
 
-    def test_tag_names_dont_match_non_space_whitespace(self):
+    def test_tag_names_dont_match_non_space_whitespace(self, with_request_context):
         """Asserts that the only piece of whitespace matched in a tagname is a space"""
         whitespace_characters = "\t\n\r\f\v"
         for ch in whitespace_characters:

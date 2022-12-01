@@ -4,14 +4,13 @@ import pytest
 
 import ckan.model as model
 import ckan.plugins as p
-import ckan.lib.helpers as h
 import ckanext.reclineview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class BaseTestReclineViewBase(object):
 
     @pytest.fixture(autouse=True)
@@ -29,8 +28,7 @@ class BaseTestReclineViewBase(object):
         assert not self.p.can_view(data_dict)
 
     def test_title_description_iframe_shown(self, app):
-        url = h.url_for('{}_resource.read'.format(self.package.type),
-                        id=self.package.name, resource_id=self.resource_id)
+        url = f"/dataset/{self.package.name}/resource/{self.resource_id}"
         result = app.get(url)
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
@@ -80,13 +78,12 @@ class TestReclineViewDatastoreOnly(object):
             'fields': [{'id': 'a'}, {'id': 'b'}],
             'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
         }
-        result = helpers.call_action('datastore_create', **data)
+        with app.flask_app.test_request_context():
+            result = helpers.call_action('datastore_create', **data)
 
         resource_id = result['resource_id']
 
-        url = h.url_for('{}_resource.read'.format(dataset['type']),
-                        id=dataset['id'], resource_id=resource_id)
-
+        url = f"/dataset/{dataset['id']}/resource/{resource_id}"
         result = app.get(url)
 
         assert 'data-module="data-viewer"' in result.body

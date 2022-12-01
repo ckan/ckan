@@ -36,7 +36,7 @@ class TestInterace(object):
 
     @responses.activate
     @pytest.mark.parametrize("resource__url_type", ["datastore"])
-    def test_send_datapusher_creates_task(self, test_request_context, resource):
+    def test_send_datapusher_creates_task(self, with_request_context, resource):
         sysadmin = factories.Sysadmin()
 
         responses.add(
@@ -47,10 +47,10 @@ class TestInterace(object):
         )
 
         context = {"ignore_auth": True, "user": sysadmin["name"]}
-        with test_request_context():
-            result = p.toolkit.get_action("datapusher_submit")(
-                context, {"resource_id": resource["id"]}
-            )
+
+        result = p.toolkit.get_action("datapusher_submit")(
+            context, {"resource_id": resource["id"]}
+        )
         assert not result
 
         context.pop("task_status", None)

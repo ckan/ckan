@@ -369,7 +369,9 @@ class FakeFileStorage(FlaskFileStorage):
 
 
 @pytest.fixture
-def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
+def create_with_upload(
+    clean_db, ckan_config, monkeypatch, tmpdir, with_request_context
+        ):
     """Shortcut for creating resource/user/org with upload.
 
     Requires content and name for newly created object. By default is

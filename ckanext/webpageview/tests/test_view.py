@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.lib.helpers import url_for
 
 from ckan.tests import factories
 
@@ -25,10 +24,7 @@ class TestWebPageView(object):
             page_url="http://some.other.website.html",
         )
 
-        url = url_for(
-            "resource.read", id=dataset["name"], resource_id=resource["id"]
-        )
-
+        url = f"/dataset/{dataset['name']}/resource/{resource['id']}"
         response = app.get(url)
 
         assert resource_view["page_url"] in response

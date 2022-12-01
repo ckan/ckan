@@ -32,7 +32,7 @@ For functional tests that involve requests to the application, you can use the
 
     def test_some_endpoint(app):
 
-        url = toolkit.url_for('myblueprint.some_endpoint')
+        url = '/dataset/'
 
         response = app.get(url)
 

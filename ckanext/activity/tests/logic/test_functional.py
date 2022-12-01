@@ -2,7 +2,6 @@
 
 import pytest
 
-import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -27,13 +26,13 @@ class TestPagination():
             )
 
         # Test initial pagination buttons are rendered correctly
-        url = tk.url_for("dataset.activity", id=dataset["id"])
+        url = f"/dataset/activity/{dataset['id']}"
         response = app.get(url)
 
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
         assert f'<a href="/dataset/activity/{dataset["id"]}?before=' in response.body
 
-        url = tk.url_for("activity.organization_activity", id=org["id"])
+        url = f"/organization/activity/{org['id']}"
         response = app.get(url)
 
         assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body

@@ -9,7 +9,7 @@ from ckan.tests import factories
 
 class TestHome(object):
     def test_home_renders(self, app):
-        response = app.get(url_for("home.index"))
+        response = app.get("/")
         assert "Welcome to CKAN" in response.body
 
     def test_template_head_end(self, app):
@@ -18,13 +18,13 @@ class TestHome(object):
             '<link rel="stylesheet" '
             'href="TEST_TEMPLATE_HEAD_END.css" type="text/css">'
         )
-        response = app.get(url_for("home.index"))
+        response = app.get("/")
         assert test_link in response.body
 
     def test_template_footer_end(self, app):
         # test-core.ini sets ckan.template_footer_end to this:
         test_html = "<strong>TEST TEMPLATE_FOOTER_END TEST</strong>"
-        response = app.get(url_for("home.index"))
+        response = app.get("/")
         assert test_html in response.body
 
     @pytest.mark.usefixtures("non_clean_db")
@@ -40,10 +40,10 @@ class TestHome(object):
         user_token = factories.APIToken(user=user.id)
         env = {"Authorization": user_token["token"]}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        response = app.get(url="/", extra_environ=env)
 
         assert "update your profile" in response.body
-        assert str(url_for("user.edit")) in response.body
+        assert "/user/edit/" in response.body
         assert " and add your email address." in response.body
 
     @pytest.mark.usefixtures("non_clean_db")
@@ -52,14 +52,14 @@ class TestHome(object):
         user_token = factories.APIToken(user=user["name"])
 
         env = {"Authorization": user_token["token"]}
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        response = app.get(url="/", extra_environ=env)
 
         assert "add your email address" not in response
 
     @pytest.mark.ckan_config(
         "ckan.legacy_route_mappings", '{"my_home_route": "home.index"}'
     )
-    def test_map_pylons_to_flask_route(self, app):
+    def test_map_pylons_to_flask_route(self, app, with_request_context):
         response = app.get(url_for("my_home_route"))
         assert "Welcome to CKAN" in response.body
 
@@ -69,7 +69,7 @@ class TestHome(object):
     @pytest.mark.ckan_config(
         "ckan.legacy_route_mappings", {"my_home_route": "home.index"}
     )
-    def test_map_pylons_to_flask_route_using_dict(self, app):
+    def test_map_pylons_to_flask_route_using_dict(self, app, with_request_context):
         response = app.get(url_for("my_home_route"))
         assert "Welcome to CKAN" in response.body
 
@@ -81,7 +81,7 @@ class TestHome(object):
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 
-        response = app.get(url_for("home.index"))
+        response = app.get("/")
         html = BeautifulSoup(response.body)
 
         select = html.find(id="field-lang-select")
@@ -98,7 +98,7 @@ class TestI18nURLs(object):
     def test_default_english_option_is_selected_on_language_selector(
         self, app
     ):
-        response = app.get(url_for("home.index"))
+        response = app.get("/")
         html = BeautifulSoup(response.body)
 
         select = html.find(id="field-lang-select")

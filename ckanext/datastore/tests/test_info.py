@@ -4,7 +4,6 @@ import pytest
 import six
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckan.lib import helpers as template_helpers
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -65,13 +64,7 @@ def test_api_info(app):
 
     # the 'API info' is seen on the resource_read page, a snippet loaded by
     # javascript via data_api_button.html
-    url = template_helpers.url_for(
-        "api.snippet",
-        ver=1,
-        snippet_path="api_info.html",
-        resource_id=resource["id"],
-    )
-
+    url = f"/api/1/util/snippet/api_info.html?resource_id={resource['id']}"
     page = app.get(url, status=200)
 
     # check we built all the urls ok

@@ -7,7 +7,6 @@ import six
 import ckan.model as model
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"example_iapitoken")
@@ -51,7 +50,7 @@ class TestIApiTokenPlugin(object):
         assert obj.last_access is None
 
         app.get(
-            tk.h.url_for(u"api.action", logic_function=u"user_show", ver=3),
+            "/api/3/action/user_show",
             params={u"id": user[u"id"]},
             headers={u"authorization": six.ensure_str(data[u"token"])},
         )
@@ -61,7 +60,7 @@ class TestIApiTokenPlugin(object):
         assert obj.last_access is not None
 
         app.get(
-            tk.h.url_for(u"api.action", logic_function=u"user_show", ver=3),
+            "/api/3/action/user_show",
             params={u"id": user[u"id"]},
             headers={u"authorization": six.ensure_str(data[u"token"])},
         )

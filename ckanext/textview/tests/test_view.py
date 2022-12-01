@@ -5,7 +5,6 @@ from ckan.common import config
 
 from urllib.parse import urljoin
 
-import ckan.lib.helpers as h
 import ckanext.textview.plugin as plugin
 from ckan.tests import factories
 
@@ -41,28 +40,26 @@ class TestTextView(object):
 
         assert not p.can_view(data_dict)
 
-    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_title_description_iframe_shown(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])
         resource_view = factories.ResourceView(view_type="text_view", resource_id=resource["id"])
 
-        url = h.url_for('{}_resource.read'.format(package["type"]),
-                        id=package["name"], resource_id=resource["id"])
+        url = f"/dataset/{package['name']}/resource/{resource['id']}"
         result = app.get(url)
         assert resource_view['title'] in result
         assert resource_view['description'] in result
         assert 'data-module="data-viewer"' in result.body
 
-    @pytest.mark.usefixtures("non_clean_db", "with_request_context")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_js_included(self, app, create_with_upload):
         package = factories.Dataset()
         resource = create_with_upload("hello world", "file.txt", package_id=package["id"])
         resource_view = factories.ResourceView(view_type="text_view", resource_id=resource["id"])
 
-        url = h.url_for(package["type"] + '_resource.view',
-                        id=package["name"], resource_id=resource["id"],
-                        view_id=resource_view['id'])
+        url = f"/dataset/{package['name']}/resource/{resource['id']}/view/{resource_view['id']}"
+
         result = app.get(url)
         assert (('text_view.js' in result.body) or  # Source file
                 ('textview.js' in result.body))     # Compiled file
