@@ -632,7 +632,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         user_obj = model.User.get(uid)
         if not user_obj:
             continue
-        results += '{name},{email},{fullname},{role},'.format(
+        results += '{name},{email},{fullname},{role}\n'.format(
             name=user_obj.name,
             email=user_obj.email,
             fullname=user_obj.fullname if user_obj.fullname else _('N/A'),
