@@ -1,0 +1,6 @@
+Removes internal push of test request context when calling `url_for`.
+
+CKAN will no longer silently push a test request_context when calling for `url_for`, from now on
+it will need to be explicitly created if it is needed. If a URL is needed in test just write
+exactly the URL you're trying to test in the request instead of generating it. (Or call for
+url_for inside a test_request_context)
