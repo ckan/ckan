@@ -651,7 +651,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         return writer_factory(response, fields, file_name, bom=True)
 
     with start_writer(fields) as wr:
-        wr.write_records(results) # type: ignore
+        wr.write_records(results)  # type: ignore
 
     return response
 
