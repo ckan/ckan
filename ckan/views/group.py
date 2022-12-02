@@ -425,7 +425,7 @@ def read(group_type: str,
 
     extra_vars["q"] = q
 
-    limit = config.get(u'ckan.datasets_per_page', limit)
+    limit = config.get_value('ckan.datasets_per_page')
 
     try:
         # Do not query for the group datasets when dictizing, as they will
