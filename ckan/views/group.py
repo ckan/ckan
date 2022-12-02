@@ -407,8 +407,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
 
 def read(group_type: str,
          is_organization: bool,
-         id: Optional[str] = None,
-         limit: int = 20) -> Union[str, Response]:
+         id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
     set_org(is_organization)
     context = cast(Context, {
