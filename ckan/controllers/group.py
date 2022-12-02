@@ -740,16 +740,16 @@ class GroupController(base.BaseController):
             if not user_obj:
                 continue
             results += '{name},{email},{fullname},{role}\n'.format(
-                name=user_obj.name,
-                email=user_obj.email,
-                fullname=user_obj.fullname if user_obj.fullname else _('N/A'),
-                role=role)
+                name=user_obj.name.encode('utf8'),
+                email=user_obj.email.encode('utf8'),
+                fullname=user_obj.fullname.encode('utf8') if user_obj.fullname else _('N/A'),
+                role=role.encode('utf8'))
 
         fields = [
-            {'id': _('Username')},
-            {'id': _('Email')},
-            {'id': _('Name')},
-            {'id': _('Role')}]
+            {'id': _('Username').encode('utf8')},
+            {'id': _('Email').encode('utf8')},
+            {'id': _('Name').encode('utf8')},
+            {'id': _('Role').encode('utf8')}]
 
         def start_writer(fields):
             file_name = u'{group_id}-{members}'.format(
@@ -758,7 +758,7 @@ class GroupController(base.BaseController):
             return writer_factory(response, fields, file_name, bom=True)
 
         with start_writer(fields) as wr:
-            wr.write_records(results)
+            wr.write_records(results) # type: ignore
 
         return response
 
