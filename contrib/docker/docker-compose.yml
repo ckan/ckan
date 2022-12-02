@@ -46,6 +46,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
+  redis_data:
 
 services:
   ckan:
@@ -117,10 +118,12 @@ services:
     image: cioos/solr:latest
     restart: unless-stopped
     volumes:
-      - solr_data:/opt/solr/server/solr/ckan/data
+      - solr_data:/var/solr
 
   # redis is used by the datapusher and the spatial fetch and gather harvesters
   redis:
     container_name: redis
     image: redis:latest
     restart: unless-stopped
+    volumes:
+      - redis_data:/data

@@ -42,8 +42,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
-
-
+  redis_data:
 
 services:
   ckan:
@@ -145,6 +144,8 @@ services:
       resources:
         limits:
           cpus: '${LIMIT_CPU_SOLR:-1.0}'
+    volumes:
+      - solr_data:/var/solr
 
   # redis is used by the datapusher and the spatial fetch and gather harvesters
   redis:
@@ -154,4 +155,6 @@ services:
       resources:
         limits:
           cpus: '${LIMIT_CPU_REDIS:-0.25}'
+    volumes:
+      - redis_data:/data
     #restart: always
