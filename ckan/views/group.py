@@ -645,10 +645,13 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         {'id': _('Role')}]
 
     def start_writer(fields: Any):
-        return writer_factory(response, fields, group_obj.name, bom=True)
+        file_name = u'{group_id}-{members}'.format(
+                group_id=group_obj.name,
+                members=_(u'members'))
+        return writer_factory(response, fields, file_name, bom=True)
 
     with start_writer(fields) as wr:
-        wr.write_records([results])
+        wr.write_records(results) # type: ignore
 
     return response
 
