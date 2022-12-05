@@ -137,7 +137,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
     register_default_json(
-        conn_or_curs=engine.raw_connection().connection,  # type: ignore
+        conn_or_curs=engine.raw_connection().connection,
         globally=False,
         loads=_loads)
 
