@@ -13,7 +13,7 @@ pip-tools==6.8.0
 Pillow==9.2.0
 responses==0.21.0
 sphinx-rtd-theme==1.0.0
-sqlalchemy2-stubs==0.0.2a27
+sqlalchemy-stubs==0.4
 sphinx==5.1.1
 towncrier==22.8.0
 
