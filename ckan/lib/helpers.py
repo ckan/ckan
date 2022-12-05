@@ -924,7 +924,7 @@ def build_extra_admin_nav() -> Markup:
     :rtype: HTML literal
 
     '''
-    admin_tabs_dict = config.get('ckan.admin_tabs', {})
+    admin_tabs_dict = config.get_value('ckan.admin_tabs')
     output: Markup = literal('')
     if admin_tabs_dict:
         for k, v in admin_tabs_dict.items():
@@ -978,7 +978,7 @@ def default_group_type(type_: str) -> str:
 def default_package_type() -> str:
     """Get default package type for using site-wide.
     """
-    return str(config.get('ckan.default.package_type', "dataset"))
+    return config.get_value('ckan.default.package_type')
 
 
 def _humanize_activity(object_type: str, activity_type: str) -> str:
