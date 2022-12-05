@@ -17,7 +17,7 @@ def make_uuid() -> str:
     return str(uuid.uuid4())
 
 
-class UuidType(types.TypeDecorator):  # type: ignore
+class UuidType(types.TypeDecorator):
     impl = types.Unicode
 
     def process_bind_param(self, value: Any, dialect: Any):
@@ -34,7 +34,7 @@ class UuidType(types.TypeDecorator):  # type: ignore
         return str(uuid.uuid4())
 
 
-class JsonType(types.TypeDecorator):  # type: ignore
+class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
 
     Note that default values don\'t appear to work correctly with this
