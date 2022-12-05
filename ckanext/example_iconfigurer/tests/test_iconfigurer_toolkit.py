@@ -3,6 +3,7 @@
 import ckan.plugins.toolkit as toolkit
 from ckan.common import CKANConfig
 
+
 class TestIConfigurerToolkitAddCkanAdminTab(object):
 
     """
