@@ -178,7 +178,7 @@ def update_config() -> None:
 
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates', 'templates-bs3']
-    templates = config.get('ckan.base_templates_folder', 'templates')
+    templates = config.get_value('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
