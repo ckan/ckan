@@ -38,7 +38,7 @@ class Stats(object):
             .group_by(package.c["owner_org"])
             .where(
                 and_(
-                    package.c["owner_org"] != None,  # type: ignore
+                    package.c["owner_org"] != None,
                     activity.c["activity_type"] == "new package",
                     package.c["private"] == False,
                     package.c["state"] == "active",
@@ -103,7 +103,7 @@ class Stats(object):
             return res_tags
 
     @classmethod
-    def top_package_creators(cls, limit: int = 10):
+    def top_package_creators(cls, limit: int = 10) -> list[tuple[Optional[model.User], int]]:
         userid_count = (
             model.Session.query(
                 model.Package.creator_user_id,

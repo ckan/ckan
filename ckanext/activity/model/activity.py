@@ -33,7 +33,7 @@ TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 
-class Activity(domain_object.DomainObject, Base):  # type: ignore
+class Activity(domain_object.DomainObject, Base):
     __tablename__ = "activity"
     # the line below handles cases when activity table was already loaded into
     # metadata state(via stats extension). Can be removed if stats stop using
