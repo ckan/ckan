@@ -64,7 +64,7 @@ class Declaration:
     def __bool__(self):
         return bool(self._members)
 
-    def __contains__(self, key: Key):
+    def __contains__(self, key: Union[Key, str]):
         return key in self._options
 
     def __getitem__(self, key: Key) -> Option[Any]:
