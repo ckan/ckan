@@ -128,6 +128,9 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
+    def is_declared(self, key: str) -> bool:
+        return key in config_declaration
+
     def get_value(self, key: str) -> Any:
         if self.get("config.mode") == "strict":
             return self[key]
