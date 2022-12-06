@@ -169,7 +169,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         else:
             # Parse all values to ensure Flask gets the validated values
             for key in config.keys():
-                app.config[key] = config.get_value(key)
+                if config.is_declared(key):
+                    app.config[key] = config.get_value(key)
+                else:
+                    app.config[key] = config.get(key)
     else:
         app.config.update(conf)
 
