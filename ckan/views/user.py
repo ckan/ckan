@@ -733,7 +733,7 @@ class PerformResetView(MethodView):
             base.abort(404, _(u'User not found'))
 
         # remove ignore auth for any future use of this context.
-        del(context[u'ignore_auth'])
+        del context[u'ignore_auth']
 
         user_obj = context[u'user_obj']
         g.reset_key = request.args.get(u'key')
