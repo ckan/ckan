@@ -407,8 +407,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
 
 def read(group_type: str,
          is_organization: bool,
-         id: Optional[str] = None,
-         limit: int = 20) -> Union[str, Response]:
+         id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
     set_org(is_organization)
     context = cast(Context, {
@@ -425,7 +424,7 @@ def read(group_type: str,
 
     extra_vars["q"] = q
 
-    limit = config.get(u'ckan.datasets_per_page', limit)
+    limit = config.get_value('ckan.datasets_per_page')
 
     try:
         # Do not query for the group datasets when dictizing, as they will
