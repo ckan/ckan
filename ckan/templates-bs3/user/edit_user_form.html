@@ -1,7 +1,7 @@
 {% import 'macros/form.html' as form %}
 
 {% block form %}
-  <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
+  <form id="user-edit-form" method="post" action="{{ action }}" enctype="multipart/form-data">
     {{ h.csrf_input() }}
     {% block form_errors %}{{ form.errors(error_summary) }}{% endblock %}
 

@@ -359,7 +359,7 @@ groups:
       - key: ckan.site_url
         validators: not_empty
         required: true
-        placeholder: http://127.0.0.1:5000
+        placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
         description: |
           Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
