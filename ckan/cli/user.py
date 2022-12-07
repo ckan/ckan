@@ -7,7 +7,6 @@ from typing import cast
 import six
 import click
 
-
 import ckan.logic as logic
 import ckan.model as model
 from ckan.cli import error_shout
