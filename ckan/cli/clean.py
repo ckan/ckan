@@ -74,7 +74,7 @@ def users(force: bool):
         click.echo(msg)
 
     if not force:
-        click.confirm("Delete users and its images?", abort=True)
+        click.confirm("Permanently delete users and their images?", abort=True)
 
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
     context: Context = {"user": site_user["name"]}
