@@ -50,7 +50,7 @@ class TestUserClean:
             f"User {user['name']} has an invalid image: {user['image_url']}"
             not in result.output
         )
-        assert "Delete users and its images?" in result.output
+        assert "Permanently delete users and their images?" in result.output
         users = call_action("user_list")
         assert len(users) == 2
 
