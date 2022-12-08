@@ -6,6 +6,7 @@ import multiprocessing as mp
 import click
 import sqlalchemy as sa
 from ckan.common import config
+from ckan.lib.search import query_for
 import ckan.logic as logic
 import ckan.model as model
 from . import error_shout
@@ -126,6 +127,30 @@ def clear_orphans(verbose: bool = False):
                 orphaned_package_id
             ))
         clear(orphaned_package_id)
+
+
+@search_index.command(
+    name=u'list-unindexed',
+    short_help=u'Lists any missing packages from the search index'
+)
+def list_unindexed():
+    packages = model.Session.query(model.Package.id)
+    if config.get_value('ckan.search.remove_deleted_packages'):
+        packages = packages.filter(model.Package.state != 'deleted')
+
+    package_ids = [r[0] for r in packages.all()]
+
+    package_query = query_for(model.Package)
+    indexed_pkg_ids = set(package_query.get_all_entity_ids(
+        max_results=len(package_ids)))
+    # Packages not indexed
+    unindexed_package_ids = set(package_ids) - indexed_pkg_ids
+
+    if len(unindexed_package_ids):
+        click.echo(unindexed_package_ids)
+    click.echo("Found {} unindexed package(s).".format(
+        len(unindexed_package_ids)
+    ))
 
 
 @search_index.command(name=u'rebuild-fast',
