@@ -1258,15 +1258,44 @@ groups:
 
       - key: ckan.default.package_type
         default: dataset
-        description: Default type of dataset that used in UI links(eg. **New Dataset**)
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
 
       - key: ckan.default.group_type
         default: group
-        description: Default type of group that used in UI links(eg. **New Group** button, **Groups** link in header)
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
 
       - key: ckan.default.organization_type
         default: organization
-        description: Default type of group that used in UI links(eg. **New Organization** button, **Organizations** link in header)
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
 
       - key: ckan.admin_tabs
         default: {}
