@@ -1262,7 +1262,7 @@ groups:
 
       - key: ckan.default.package_type
         default: dataset
-        description: Default type of dataset that used in UI links(eg. **New Dataset**)
+        description: Default type of dataset that will be used in the UI links (eg. "New Dataset")
 
       - key: ckan.default.group_type
         default: group
