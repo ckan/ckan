@@ -1016,7 +1016,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
       >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
       'Custom Group'
 
-    Possible purposes(depends on `entity_type` and change over time):
+    Possible purposes(depends on `entity_type` and change over time)::
+
         `add link`: "Add [object]" button on search pages
         `breadcrumb`: "Home / [object]s / New" section in breadcrums
         `content tab`: "[object]s | Groups | Activity" tab on details page
