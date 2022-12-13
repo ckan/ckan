@@ -298,7 +298,7 @@ class PackageSearchQuery(SearchQuery):
             'rows': 1,
             'q': 'name:"%s" OR id:"%s"' % (reference, reference),
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id')}
+            'fq': 'site_id:"%s" ' % config.get_value('ckan.site_id') + '+entity_type:package'}
 
         try:
             if query['q'].startswith('{!'):
