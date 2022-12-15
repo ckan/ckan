@@ -1,0 +1,1 @@
+Configuration option ckan.route_after_login changed to ckan.auth.route_after_login

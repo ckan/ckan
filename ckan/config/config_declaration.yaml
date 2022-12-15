@@ -1330,7 +1330,7 @@ groups:
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
 
-      - key: ckan.route_after_login
+      - key: ckan.auth.route_after_login
         default: dashboard.datasets
         description: |
           Allows to customize the route that the user will get redirected to after a successful login.

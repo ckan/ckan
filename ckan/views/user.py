@@ -136,8 +136,13 @@ def index():
 
 
 def me() -> Response:
+    redirect_route = config.get_value(u'ckan.route_after_login')
+    if redirect_route:
+        log.warning('"ckan.route_after_login" is deprecated.  '
+                    'Use the "ckan.auth.route_after_login" instead')
+        return h.redirect_to(redirect_route)
     return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+        config.get_value(u'ckan.auth.route_after_login'))
 
 
 def read(id: str) -> Union[Response, str]:
