@@ -478,8 +478,8 @@ def get_action(action: str) -> Action:
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):
             _actions[k] = v
-            # Whitelist all actions defined in logic/action/get.py as
-            # being side-effect free.
+            # Allow all actions defined in logic/action/get.py to
+            # be side-effect free.
             if action_module_name == 'get' and \
                not hasattr(v, 'side_effect_free'):
                 v.side_effect_free = True
