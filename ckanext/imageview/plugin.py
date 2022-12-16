@@ -27,7 +27,7 @@ class ImageView(p.SingletonPlugin):
     def info(self) -> dict[str, Any]:
         return {'name': 'image_view',
                 'title': p.toolkit._('Image'),
-                'icon': 'picture-o',
+                'icon': 'image',
                 'schema': {'image_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'always_available': True,
