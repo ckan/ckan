@@ -953,15 +953,15 @@ class TestUserList(object):
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
             factories.User(fullname="Max Hankins", name="hankins_m"),
-            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="", name="zoe_w"),
             factories.User(fullname="Kathy Tillman", name="tillman_k"),
         ]
         expected_names = [
             u['name'] for u in [
                 users[3],  # Kathy Tillman
                 users[1],  # Max Hankins
-                users[2],  # morgan_w
                 users[0],  # Xander Bird
+                users[2],  # zoe_w
             ]
         ]
 
