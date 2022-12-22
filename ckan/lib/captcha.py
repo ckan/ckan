@@ -29,9 +29,10 @@ def check_recaptcha(request: Request) -> None:
         remoteip=client_ip_address,
         response=recaptcha_response_field.encode('utf8')
     )
-    response = requests.get(
-        recaptcha_server_name, params,
-        timeout=config.get_value('ckan.requests.timeout'))
+
+    timeout = config.get_value('ckan.requests.timeout')
+    response = requests.get(recaptcha_server_name, params, timeout=timeout)
+
     data = response.json()
 
     try:

@@ -310,6 +310,9 @@ def clear_all() -> None:
     package_index.clear()
 
 def _get_schema_from_solr(file_offset: str):
+
+    timeout = config.get_value('ckan.requests.timeout')
+
     solr_url, solr_user, solr_password = SolrSettings.get()
 
     url = solr_url.strip('/') + file_offset
@@ -321,8 +324,7 @@ def _get_schema_from_solr(file_offset: str):
             timeout=timeout,
             auth=HTTPBasicAuth(solr_user, solr_password))
     else:
-        response = requests.get(
-            url, timeout=timeout)
+        response = requests.get(url, timeout=timeout)
 
     return response
 

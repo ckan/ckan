@@ -126,8 +126,11 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
     # updats of dataset/resource/etc.
-    context['session'] = context['model'].meta.create_local_session()
+    context['session'] = cast(
+        Any, context['model'].meta.create_local_session())
     p.toolkit.get_action('task_status_update')(context, task)
+
+    timeout = config.get_value('ckan.requests.timeout')
 
     # This setting is checked on startup
     api_token = p.toolkit.config.get_value("ckan.datapusher.api_token")
@@ -137,7 +140,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
             headers={
                 'Content-Type': 'application/json'
             },
-            timeout=config.get_value('ckan.requests.timeout'),
+            timeout=timeout,
             data=json.dumps({
                 'api_key': api_token,
                 'job_type': 'push_to_datastore',
@@ -306,8 +309,13 @@ def datapusher_status(
     if job_id:
         url = urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
+            timeout = config.get_value('ckan.requests.timeout')
             r = requests.get(url,
+<<<<<<< HEAD
                              timeout=config.get_value('ckan.requests.timeout'),
+=======
+                             timeout=timeout,
+>>>>>>> dev-v2.10
                              headers={'Content-Type': 'application/json',
                                       'Authorization': job_key})
             r.raise_for_status()

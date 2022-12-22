@@ -76,14 +76,14 @@ class LicenseRegister(object):
             self._create_license_list(default_license_list)
 
     def load_licenses(self, license_url: str) -> None:
+
         try:
             if license_url.startswith('file://'):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(
-                    license_url,
-                    timeout=config.get_value('ckan.requests.timeout'))
+                timeout = config.get_value('ckan.requests.timeout')
+                response = requests.get(license_url, timeout=timeout)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)

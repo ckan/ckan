@@ -136,9 +136,10 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # when using native json types in 9.2+
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(conn_or_curs=engine.raw_connection().connection,
-                          globally=False,
-                          loads=_loads)
+    register_default_json(
+        conn_or_curs=engine.raw_connection().connection,
+        globally=False,
+        loads=_loads)
 
     return engine
 
@@ -603,7 +604,7 @@ def _get_resources(context: Context, alias: str):
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
-    aliases = datastore_helpers.get_list(values)
+    aliases: Any = datastore_helpers.get_list(values)
     alias = None
     if aliases is not None:
         # delete previous aliases
@@ -2083,7 +2084,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def resource_exists(self, id: str):
+    def resource_exists(self, id: str) -> bool:
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
@@ -2203,6 +2204,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             schema_results = engine.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
+                row: Any  # Row has incomplete type definition
                 colname: str = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue

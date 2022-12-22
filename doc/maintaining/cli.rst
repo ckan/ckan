@@ -548,7 +548,7 @@ computer to reindex faster
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild_fast
+ ckan -c |ckan.ini| search-index rebuild-fast
 
 There is also an option to clear the whole index first and then rebuild it with all datasets:
 

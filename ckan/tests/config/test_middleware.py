@@ -93,3 +93,18 @@ def test_all_plugin_blueprints_are_registered(app):
     assert url == "/another_simple_url"
     res = app.get(url, status=200)
     assert "Hello World, this is another view served from an extension" in res.body
+
+
+@pytest.mark.ckan_config("REMEMBER_COOKIE_DURATION", "12345")
+def test_flask_config_values_are_parsed(app):
+    assert (
+        app.flask_app.config["REMEMBER_COOKIE_DURATION"] == 12345
+    )
+
+
+@pytest.mark.ckan_config("config.mode", "strict")
+@pytest.mark.ckan_config("REMEMBER_COOKIE_DURATION", "12345")
+def test_flask_config_values_are_parsed_in_strict_mode(app):
+    assert (
+        app.flask_app.config["REMEMBER_COOKIE_DURATION"] == 12345
+    )

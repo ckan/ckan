@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, abort, redirect, request
+from flask import Blueprint, make_response, abort, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -14,7 +14,7 @@ import ckan.lib.search as search
 import ckan.lib.helpers as h
 
 from ckan.common import g, config, current_user, _
-from ckan.types import Context
+from ckan.types import Context, Response
 
 
 CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
@@ -95,6 +95,13 @@ def about() -> str:
     return base.render(u'home/about.html', extra_vars={})
 
 
+def robots_txt() -> Response:
+    '''display robots.txt'''
+    resp = make_response(base.render('home/robots.txt'))
+    resp.headers['Content-Type'] = "text/plain; charset=utf-8"
+    return resp
+
+
 def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
 
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
@@ -107,7 +114,8 @@ def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
 
 util_rules: List[Tuple[str, Any]] = [
     (u'/', index),
-    (u'/about', about)
+    (u'/about', about),
+    (u'/robots.txt', robots_txt)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)

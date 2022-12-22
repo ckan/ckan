@@ -88,6 +88,7 @@ def check_po(files: list[str]):
     for file in files:
         errors = check_po_file(file)
         for msgid, msgstr in errors:
+            click.echo(file)
             click.echo(u"Format specifiers don't match:")
             click.echo(
                 u'\t{} -> {}'.format(
