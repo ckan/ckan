@@ -133,7 +133,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     timeout = config.get_value('ckan.requests.timeout')
 
     # This setting is checked on startup
-    api_token = p.toolkit.config.get("ckan.datapusher.api_token")
+    api_token = p.toolkit.config.get_value("ckan.datapusher.api_token")
     try:
         r = requests.post(
             urljoin(datapusher_url, 'job'),
@@ -311,7 +311,11 @@ def datapusher_status(
         try:
             timeout = config.get_value('ckan.requests.timeout')
             r = requests.get(url,
+<<<<<<< HEAD
+                             timeout=config.get_value('ckan.requests.timeout'),
+=======
                              timeout=timeout,
+>>>>>>> dev-v2.10
                              headers={'Content-Type': 'application/json',
                                       'Authorization': job_key})
             r.raise_for_status()

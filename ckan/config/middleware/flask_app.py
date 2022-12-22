@@ -277,7 +277,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Set up each IBlueprint extension as a Flask Blueprint
     _register_plugins_blueprints(app)
 
-    if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
+    if config.get_value("ckan.csrf_protection.ignore_extensions"):
         log.warn(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 

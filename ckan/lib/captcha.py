@@ -32,6 +32,7 @@ def check_recaptcha(request: Request) -> None:
 
     timeout = config.get_value('ckan.requests.timeout')
     response = requests.get(recaptcha_server_name, params, timeout=timeout)
+
     data = response.json()
 
     try:
