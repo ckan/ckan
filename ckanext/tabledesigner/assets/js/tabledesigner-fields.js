@@ -21,7 +21,7 @@ this.ckan.module('tabledesigner-fields', function($, _) {
       });
 
       $(document).on('click', 'a[name="tabledesigner-remove"]', function(e) {
-        var $curr = $(this).closest('.tabledesigner-fields-group');
+        var $curr = $(this).closest('.tabledesigner-field');
         var $body = $curr.find('.field-content');
         var $button = $curr.find('.btn-tabledesigner-remove');
         var $removed = $curr.find('.field-removed-notice');
