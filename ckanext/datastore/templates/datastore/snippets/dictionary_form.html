@@ -1,7 +1,9 @@
 {% import 'macros/form.html' as form %}
 
 {% block field_heading %}
-  <h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }})</h3>
+  <h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }}
+    {%- if field.schema.is_index %}, {{ _("Primary Key") }}{% endif -%})
+  </h3>
 {% endblock %}
 
 {#
