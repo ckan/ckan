@@ -1232,16 +1232,18 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. It is currently unused and it only accepts one value: ``public``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
 
       - key: ckan.base_templates_folder
         default: templates
         example: templates
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one value: ``templates``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
 
       - key: ckan.default.group_type
         default: group
