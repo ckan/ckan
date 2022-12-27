@@ -21,7 +21,6 @@
 
   <form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
-    {{ h.csrf_input() }}
     
       {% if site_title or site_title == '' %}
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=site_title, error=error, classes=['control-medium']) }}
