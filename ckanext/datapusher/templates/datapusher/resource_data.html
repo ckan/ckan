@@ -61,7 +61,7 @@
 
   {% if status.status and status.task_info and show_table %}
     <h3>{{ _('Upload Log') }}</h3>
-    <ul class="activity">
+    <ul class="datapusher-activity">
       {% for item in status.task_info.logs|sort(attribute='timestamp') %}
         {% set icon = 'check' if item.level == 'INFO' else 'exclamation' %}
         {% set class = ' failure' if icon == 'exclamation' else ' success' %}
@@ -76,7 +76,9 @@
           {% endfor %}
           <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
             {{ h.time_ago_from_timestamp(item.timestamp) }}
-            <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.items() %}<dt>{{ key }}</dt><dd>{{ h.clean_html(value|string) }}</dd>{% endfor %}</dl>" data-html="true">{{ _('Details') }}</a>
+            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">              
+              {{ _('Details') }}
+            </a>
           </span>
         </li>
       {% endfor %}
