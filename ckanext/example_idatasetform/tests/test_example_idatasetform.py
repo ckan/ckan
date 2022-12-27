@@ -175,19 +175,17 @@ class TestUrlsForCustomDatasetType(object):
             "fancy_type.read", id=name, _external=True
         )
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_links_on_edit_pages(self, current_user, app):
-        user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
+    def test_links_on_edit_pages(self, app):
+        user = factories.Sysadmin()
 
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
-        page = bs4.BeautifulSoup(
-            app.get(
-                url_for("fancy_type.edit", id=pkg["name"])).body
+        response = app.get(
+            url_for("fancy_type.edit", id=pkg["name"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
+            status=200,
         )
+        page = bs4.BeautifulSoup(response.body)
         page_header = page.find(class_="page-header")
         for action in ["edit", "resources", "read"]:
             assert page_header.find(
@@ -199,6 +197,7 @@ class TestUrlsForCustomDatasetType(object):
         )
         resp = app.post(
             url_for("fancy_type.edit", id=pkg["name"]),
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={
                 "name": pkg["name"],
                 "save": "",
@@ -226,7 +225,8 @@ class TestUrlsForCustomDatasetType(object):
                     "fancy_type_resource.edit",
                     id=pkg["id"],
                     resource_id=res["id"],
-                )
+                ),
+                environ_overrides={"REMOTE_USER": user["name"]},
             ).body
         )
         page_header = page.find(class_="page-header")
@@ -257,6 +257,7 @@ class TestUrlsForCustomDatasetType(object):
                 id=pkg["name"],
                 resource_id=res["id"],
             ),
+            environ_overrides={"REMOTE_USER": user["name"]},
             data={"id": res["id"], "url": res["url"], "save": "go-metadata"},
             follow_redirects=False,
         )

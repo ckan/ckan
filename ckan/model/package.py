@@ -326,8 +326,8 @@ class Package(core.StatefulObjectMixin,
         if with_package:
             assert isinstance(with_package, Package)
         from ckan.model.package_relationship import PackageRelationship
-        forward_filters = [PackageRelationship.subject==self]
-        reverse_filters = [PackageRelationship.object==self]
+        forward_filters: Any = [PackageRelationship.subject==self]
+        reverse_filters: Any = [PackageRelationship.object==self]
         if with_package:
             forward_filters.append(PackageRelationship.object==with_package)
             reverse_filters.append(PackageRelationship.subject==with_package)

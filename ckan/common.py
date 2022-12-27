@@ -10,10 +10,10 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Iterable
 
 from typing import (
-    Any, Iterable, Optional, TYPE_CHECKING,
+    Any, Optional, TYPE_CHECKING,
     TypeVar, cast, overload, Container, Union)
 from typing_extensions import Literal
 
@@ -128,6 +128,9 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
+    def is_declared(self, key: str) -> bool:
+        return key in config_declaration
+
     def get_value(self, key: str) -> Any:
         if self.get("config.mode") == "strict":
             return self[key]
@@ -138,7 +141,7 @@ class CKANConfig(MutableMapping):
             return self.get(key)
 
         value = self.get(key, option.default)
-        return option._normalize(value)
+        return option.normalize(value)
 
     def subset(
             self, pattern: Key,
@@ -261,6 +264,8 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return lst
     elif isinstance(obj, (list, tuple)):
         return cast(Any, obj)
+    elif isinstance(obj, Iterable):
+        return list(obj)
     elif obj is None:
         return []
     else:

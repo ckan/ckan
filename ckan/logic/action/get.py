@@ -1254,8 +1254,9 @@ def _group_or_org_show(
         schema = group_plugin.db_to_form_schema()
 
     if include_followers:
+        context = plugins.toolkit.fresh_context(context)
         group_dict['num_followers'] = logic.get_action('group_follower_count')(
-            {'model': model, 'session': model.Session},
+            context,
             {'id': group_dict['id']})
     else:
         group_dict['num_followers'] = 0

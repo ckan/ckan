@@ -31,6 +31,7 @@ from ckan.logic import (  # noqa: re-export
     auth_sysadmins_check,
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
+    fresh_context,
 )
 
 import ckan.plugins.blanket as blanket
@@ -99,7 +100,8 @@ __all__ = [
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint"
+    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "fresh_context",
 ]
 
 get_converter = get_validator
@@ -196,7 +198,7 @@ def add_ckan_admin_tab(
     Update 'ckan.admin_tabs' dict the passed config dict.
     """
     # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get(config_var, {})
+    admin_tabs_dict = config_.get_value(config_var)
     # update the admin_tabs dict with the new values
     admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
     # update the config with the updated admin_tabs dict

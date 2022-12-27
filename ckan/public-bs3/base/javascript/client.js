@@ -51,6 +51,10 @@
       if (type == 'POST') {
         options.type = 'POST';
         options.data = JSON.stringify(data);
+        var csrf_token = $('meta[name=_csrf_token]').attr('content');
+        options.headers = {
+          'X-CSRFToken': csrf_token
+        }
       } else {
         options.type = 'GET';
         options.url += data;

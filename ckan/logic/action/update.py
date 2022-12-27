@@ -253,7 +253,7 @@ def package_update(
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset (if ``'return_package_dict'`` is ``True`` in
+    :returns: the updated dataset (if ``'return_id_only'`` is ``False`` in
               the context, which is the default. Otherwise returns just the
               dataset id)
     :rtype: dictionary
@@ -302,7 +302,7 @@ def package_update(
             if hasattr(upload, 'mimetype'):
                 resource['mimetype'] = upload.mimetype
 
-        if 'size' not in resource and 'url_type' in resource:
+        if 'url_type' in resource:
             if hasattr(upload, 'filesize'):
                 resource['size'] = upload.filesize
 
@@ -662,7 +662,12 @@ def _group_or_org_update(
         raise NotFound('Group was not found.')
     context["group"] = group
 
-    data_dict['type'] = group.type
+    data_dict_type = data_dict.get('type') 
+    if data_dict_type is None:
+        data_dict['type'] = group.type
+    else:
+        if data_dict_type != group.type:
+            raise ValidationError({"message": "Type cannot be updated"})
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)

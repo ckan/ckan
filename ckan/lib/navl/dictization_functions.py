@@ -585,7 +585,7 @@ def resolve_string_key(data: Union[dict[str, Any], list[Any]],
             continue
 
         try:
-            index = int(k)
+            index: Any = int(k)
             if index < -len(current) or index >= len(current):
                 raise ValueError
         except ValueError:

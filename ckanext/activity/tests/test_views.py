@@ -793,7 +793,7 @@ class TestPackage:
         assert "Invalid parameters" in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
-    def test_next_page_button(self, app):
+    def test_older_activities_url_button(self, app):
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -814,14 +814,14 @@ class TestPackage:
         before_time = datetime.fromisoformat(activities[2]["timestamp"])
 
         # Next page button
-        next_page_url = "/dataset/activity/{}?before={}".format(
+        older_activities_url_url = "/dataset/activity/{}?before={}".format(
             dataset["id"], before_time.timestamp()
         )
-        assert next_page_url in response.body
+        assert older_activities_url_url in response.body
 
         # Prev page button is not in the first page
-        prev_page_url = "/dataset/activity/{}?after=".format(dataset["id"])
-        assert prev_page_url not in response.body
+        newer_activities_url_url = "/dataset/activity/{}?after=".format(dataset["id"])
+        assert newer_activities_url_url not in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_next_before_buttons(self, app):
@@ -858,18 +858,18 @@ class TestPackage:
         )
 
         # Next page button exists in page 2
-        next_page_url = "/dataset/activity/{}?before={}".format(
+        older_activities_url_url = "/dataset/activity/{}?before={}".format(
             dataset["id"], db_activities[5].timestamp.timestamp()
         )
-        assert next_page_url in response.body
+        assert older_activities_url_url in response.body
         # Prev page button exists in page 2
-        prev_page_url = "/dataset/activity/{}?after={}".format(
+        newer_activities_url_url = "/dataset/activity/{}?after={}".format(
             dataset["id"], db_activities[3].timestamp.timestamp()
         )
-        assert prev_page_url in response.body
+        assert newer_activities_url_url in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
-    def test_prev_page_button(self, app):
+    def test_newer_activities_url_button(self, app):
 
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -893,15 +893,15 @@ class TestPackage:
         )
 
         # There's not a third page
-        next_page_url = "/dataset/activity/{}?before=".format(dataset["name"])
-        assert next_page_url not in response.body
+        older_activities_url_url = "/dataset/activity/{}?before=".format(dataset["name"])
+        assert older_activities_url_url not in response.body
 
         # previous page exists
         after_time = datetime.fromisoformat(activities[3]["timestamp"])
-        prev_page_url = "/dataset/activity/{}?after={}".format(
+        newer_activities_url_url = "/dataset/activity/{}?after={}".format(
             dataset["id"], after_time.timestamp()
         )
-        assert prev_page_url in response.body
+        assert newer_activities_url_url in response.body
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")

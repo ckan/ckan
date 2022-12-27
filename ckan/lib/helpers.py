@@ -18,6 +18,7 @@ import pprint
 import copy
 import uuid
 import functools
+import unicodedata
 
 from collections import defaultdict
 from typing import (
@@ -665,6 +666,15 @@ def lang() -> Optional[str]:
 
 
 @core_helper
+def strxfrm(s: str) -> str:
+    '''
+    Transform a string to one that can be used in locale-aware comparisons.
+    Override this helper if you have different text sorting needs.
+    '''
+    return unicodedata.normalize('NFD', s).lower()
+
+
+@core_helper
 def ckan_version() -> str:
     '''Return CKAN version'''
     return ckan.__version__
@@ -689,8 +699,8 @@ def is_rtl_language() -> bool:
 
 
 @core_helper
-def get_rtl_css() -> str:
-    return config.get_value('ckan.i18n.rtl_css')
+def get_rtl_theme() -> str:
+    return config.get_value('ckan.i18n.rtl_theme')
 
 
 @core_helper
@@ -914,7 +924,7 @@ def build_extra_admin_nav() -> Markup:
     :rtype: HTML literal
 
     '''
-    admin_tabs_dict = config.get('ckan.admin_tabs', {})
+    admin_tabs_dict = config.get_value('ckan.admin_tabs')
     output: Markup = literal('')
     if admin_tabs_dict:
         for k, v in admin_tabs_dict.items():
@@ -968,7 +978,7 @@ def default_group_type(type_: str) -> str:
 def default_package_type() -> str:
     """Get default package type for using site-wide.
     """
-    return str(config.get('ckan.default.package_type', "dataset"))
+    return config.get_value('ckan.default.package_type')
 
 
 def _humanize_activity(object_type: str, activity_type: str) -> str:
@@ -1006,7 +1016,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
       >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
       'Custom Group'
 
-    Possible purposes(depends on `entity_type` and change over time):
+    Possible purposes(depends on `entity_type` and change over time)::
+
         `add link`: "Add [object]" button on search pages
         `breadcrumb`: "Home / [object]s / New" section in breadcrums
         `content tab`: "[object]s | Groups | Activity" tab on details page
@@ -2581,7 +2592,15 @@ def get_translated(data_dict: dict[str, Any], field: str) -> Union[str, Any]:
     try:
         return data_dict[field + u'_translated'][language]
     except KeyError:
-        return data_dict.get(field, '')
+        pass
+    # Check the base language, en_GB->en
+    try:
+        base_language = language.split('_')[0]
+        if base_language != language:
+            return data_dict[field + u'_translated'][base_language]
+    except KeyError:
+        pass
+    return data_dict.get(field, '')
 
 
 @core_helper

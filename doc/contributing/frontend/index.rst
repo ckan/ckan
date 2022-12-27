@@ -124,7 +124,8 @@ main.scss:
     This contains *all* the styles for the website including
     dependancies and local styles. The only files that are excluded here
     are those that are conditionally loaded such as IE only CSS and large
-    external apps (like recline) that only appear on a single page.
+    external apps (like some preview plugins) that only appear on a single
+    page.
 ckan.scss:
     This includes all the local ckan stylesheets.
 

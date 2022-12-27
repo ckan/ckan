@@ -47,7 +47,7 @@ class TestDeclaration:
 
         decl.declare(key.aloha)
         decl.declare(key.hello)
-        decl.declare(key.hey).ignore()
+        decl.declare(key.hey).set_flag(Flag.ignored)
 
         pattern = key.dynamic("anything")
         assert list(decl.iter_options(pattern=pattern)) == [

@@ -7,8 +7,6 @@ groups:
         internal: true
       - key: here
         internal: true
-      - key: ckan.admin_tabs
-        internal: true
       - key: plugin_template_paths
         ignored: true
       - key: plugin_public_paths
@@ -127,12 +125,9 @@ groups:
       - key: DEBUG_TB_PANELS
         internal: true
 
-  - annotation: General settings
+  - annotation: Default settings
+    section: DEFAULT
     options:
-      - key: use
-        placeholder: egg:ckan
-        validators: not_empty
-        required: true
       - key: debug
         type: bool
         example: 'true'
@@ -159,6 +154,13 @@ groups:
           .. warning:: This option should be set to ``False`` for a public site.
              With debug mode enabled, a visitor to your site could execute malicious
              commands.
+
+  - annotation: General settings
+    options:
+      - key: use
+        placeholder: egg:ckan
+        validators: not_empty
+        required: true
 
       - key: ckan.legacy_route_mappings
         default: {}
@@ -254,10 +256,13 @@ groups:
       - key: ckan.user.last_active_interval
         type: int
         default: 600
+        description: |
+          The number of seconds between requests to record the last time a user was active on the site.
       - key: cache_dir
         placeholder: "/tmp/%(ckan.site_id)s"
       - key: beaker.session.key
         default: ckan
+        description: Name of the cookie key used to save the session under.
       - key: beaker.session.secret
         validators: not_empty
         required: true
@@ -267,18 +272,17 @@ groups:
         description: |
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file.
-
-  - annotation: Beaker session settings
-    options:
-      - key: auto
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+      - key: beaker.session.auto
         type: bool
         default: False
         description: |
           When set to True, the session will save itself anytime it is accessed during a request,
           negating the need to issue the save() method.
 
-      - key: cookie_expires
+      - key: beaker.session.cookie_expires
+        type: bool
         description: |
           Determines when the cookie used to track the client-side of the session will expire.
           When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
@@ -287,35 +291,29 @@ groups:
           I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
           Defaults to never expiring.
 
-      - key: cookie_domain
+      - key: beaker.session.cookie_domain
+        commented: true
+        placeholder: .example.com
         description: |
           What domain the cookie should be set to. When using sub-domains,
           this should be set to the main domain the cookie should be valid for. For example,
           if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
           Defaults to the current domain in its entirety.
 
-      - key: key
-        required: True
-        description: Name of the cookie key used to save the session under.
-
-      - key: save_accessed_time
+      - key: beaker.session.save_accessed_time
         type: bool
         default: True
         description: Whether beaker should save the session's access time (true) or only modification time (false).
 
-      - key: secret
-        required: True
-        description: |
-          Used with the HMAC to ensure session integrity. This value should ideally be a randomly generated string.
-          When using in a cluster environment, the secret must be the same on every machine.
-
-      - key: secure
+      - key: beaker.session.secure
         type: bool
         description: |
           Whether or not the session cookie should be marked as secure. When marked as secure,
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
-      - key: timeout
+      - key: beaker.session.timeout
+        type: int
+        default: 600
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
@@ -337,6 +335,7 @@ groups:
       - key: sqlalchemy.pool_pre_ping
         type: bool
         default: true
+
       - key: sqlalchemy.<OPTION>
         type: dynamic
         description: |
@@ -358,7 +357,7 @@ groups:
       - key: ckan.site_url
         validators: not_empty
         required: true
-        placeholder: http://127.0.0.1:5000
+        placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
         description: |
           Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
@@ -507,9 +506,13 @@ groups:
 
       - key: ckan.auth.create_user_via_web
         type: bool
-        default: true
+        default: false
         example: "true"
-        description: Allow new user accounts to be created via the Web.
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
 
       - key: ckan.auth.roles_that_cascade_to_sub_groups
         default:
@@ -621,43 +624,61 @@ groups:
           If False, all unauthorised requests will receive HTTP 404 Not Found.
           Default is False.
 
+      - key: ckan.auth.enable_cookie_auth_in_api
+        type: bool
+        default: True
+        description: |
+          When set to False, cookie-based authentication is entirely ignored in all API requests,
+          and authentication must be always done using :ref:`API Tokens <api authentication>`. Note
+          that this will break some existing JS modules from the frontend that perform API calls,
+          so it should be used with caution.
+
+
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
         type: bool
         default: True
-        description: Set to False to disable all CSRF protection. Default is True.
+        description: Set to False to disable all CSRF protection.
 
       - key: WTF_CSRF_CHECK_DEFAULT
         type: bool
         default: True
         description: |
           When using the CSRF protection extension,
-          this controls whether every view is protected by default. Default is True.
+          this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
         description: Random data for generating secure tokens.
         placeholder_callable: secrets:token_urlsafe
 
       - key: WTF_CSRF_METHODS
-        default: {'POST', 'PUT', 'PATCH', 'DELETE'}
-        description: HTTP methods to protect from CSRF. Default is {'POST', 'PUT', 'PATCH', 'DELETE'}.
+        type: list
+        default:
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+
+        description: HTTP methods to protect from CSRF.
 
       - key: WTF_CSRF_FIELD_NAME
         default: csrf_token
-        description: Name of the form field and session key that holds the CSRF token. Default is csrf_token.
+        description: Name of the form field and session key that holds the CSRF token.
 
       - key: WTF_CSRF_HEADERS
-        default: ['X-CSRFToken', 'X-CSRF-Token']
+        type: list
+        default:
+          - X-CSRFToken
+          - X-CSRF-Token
         description: |
           HTTP headers to search for CSRF token when it is not provided in the form.
-          Default is ['X-CSRFToken', 'X-CSRF-Token'].
 
       - key: WTF_CSRF_TIME_LIMIT
         default: 3600
         description: |
           Max age in seconds for CSRF tokens.
-          Default is 3600. If set to None, the CSRF token is valid for the life of the session.
+          If set to None, the CSRF token is valid for the life of the session.
 
       - key: WTF_CSRF_SSL_STRICT
         type: bool
@@ -671,7 +692,15 @@ groups:
         default: True
         description: |
           Set to False to disable Flask-Babel I18N support.
-          Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+      - key: ckan.csrf_protection.ignore_extensions
+        type: bool
+        default: true
+        description: |
+          Exempt plugins blueprints from CSRF protection.
+
+          .. warning:: This feature will be deprecated in future versions.
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -680,12 +709,14 @@ groups:
         description: The name of the cookie to store the “remember me” information in.
 
       - key: REMEMBER_COOKIE_DURATION
-        default: 365 days (1 non-leap Gregorian year)
+        default: 31_536_000
+        type: int
         description: |
           The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
 
       - key: REMEMBER_COOKIE_DOMAIN
-        default: None
+        placeholder: .example.com
+        commented: true
         description: |
           If the “Remember Me” cookie should cross domains, set the domain value here
           (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
@@ -789,7 +820,10 @@ groups:
           .. note::  If you change this value, you need to rebuild the search index.
 
       - key: solr_user
+        description: User to use in HTTP Basic Authentication when connecting to Solr
       - key: solr_password
+        description: Password to use in HTTP Basic Authentication when connecting to Solr
+
       - key: ckan.search.remove_deleted_packages
         type: bool
         default: true
@@ -932,7 +966,7 @@ groups:
         required: true
         type: list
         placeholder: activity
-        example: disqus datapreview googleanalytics follower
+        example: activity scheming_datasets datatables_view datastore xloader
         description: |
           Specify which CKAN plugins are to be enabled.
 
@@ -971,6 +1005,7 @@ groups:
       - key: ckan.resource_proxy.timeout
         type: int
         default: 5
+        description: Timeout in seconds to use on Resource Proxy requests.
 
   - annotation: Front-End Settings
     options:
@@ -978,19 +1013,23 @@ groups:
         default: CKAN
         example: Open Data Scotland
         description: This sets the name of the site, as displayed in the CKAN web interface.
+        editable: true
 
       - key: ckan.site_description
         example: The easy way to get, use and share data
         description: This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+        editable: true
 
       - key: ckan.site_intro_text
         example: Nice introductory paragraph about CKAN or the site in general.
         description: This is for an introductory text used in the default template's index page.
+        editable: true
 
       - key: ckan.site_logo
         default: /base/images/ckan-logo.png
         example: /images/ckan_logo_fullname_long.png
         description: This sets the logo used in the title bar.
+        editable: true
 
       - key: ckan.site_about
         example: A _community-driven_ catalogue of _open data_ for the Greenfield area.
@@ -1005,11 +1044,14 @@ groups:
             option will not be translatable. For this reason, it's better to
             overload the snippet in ``home/snippets/about_text.html``. For more
             information, see :doc:`/theming/index`.
+        editable: true
 
-      - key: ckan.main_css
-        default: /base/css/main.css
-        example: /base/css/my-custom.css
-        description: With this option, instead of using the default `main.css`, you can use your own.
+      - key: ckan.theme
+        default: css/main
+        example: my-extension/theme-asset
+        description: >
+          With this option, instead of using the default `css/main` asset with
+          the theme, you can use your own.
 
       - key: ckan.favicon
         default: /base/images/ckan.ico
@@ -1111,8 +1153,12 @@ groups:
 
       - key: ckan.homepage_style
         default: "1"
-      - key: ckan.site_custom_css
+        description: Pre-configured homepage style to use. Allowed values are 1, 2 or 3.
+        editable: true
 
+      - key: ckan.site_custom_css
+        description: Custom CSS directives to include on all CKAN pages.
+        editable: true
 
   - annotation: Resource Views Settings
     options:
@@ -1120,8 +1166,8 @@ groups:
         type: list
         default:
           - image_view
-          - recline_view
-        example: image_view webpage_view recline_grid_view
+          - datatables_view
+        example: image_view webpage_view datatables_view
         description: |
           Defines the resource views that should be created by default when creating or
           updating a dataset. From this list only the views that are relevant to a particular
@@ -1132,8 +1178,8 @@ groups:
 
 
           .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins`` setting to be able to create the default views, eg::
-                        ckan.plugins = image_view webpage_view recline_grid_view datatables_view ...
-                        ckan.views.default_views = image_view webpage_view recline_grid_view
+                        ckan.plugins = image_view webpage_view geo_view datatables_view ...
+                        ckan.views.default_views = image_view webpage_view datatables_view
 
   - annotation: Theming Settings
     options:
@@ -1203,21 +1249,65 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. It is currently unused and it only accepts one value: ``public``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
 
       - key: ckan.base_templates_folder
         default: templates
-        example: templates
+        example: templates-bs3
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one value: ``templates``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
+
+      - key: ckan.default.package_type
+        default: dataset
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
 
       - key: ckan.default.group_type
         default: group
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
+
       - key: ckan.default.organization_type
         default: organization
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
+
+      - key: ckan.admin_tabs
+        default: {}
+        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
+        validators: convert_to_json_if_string dict_only
+        description: Extra navigation items for Sysadmin Settings.
 
   - annotation: Storage Settings
     options:
@@ -1242,21 +1332,25 @@ groups:
     options:
       - key: ckan.upload.user.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.user.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.group.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as group image. No restrictions applied when empty
 
       - key: ckan.upload.group.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
 
@@ -1295,6 +1389,8 @@ groups:
 
       - key: ckan.route_after_login
         default: dashboard.datasets
+        description: |
+          Allows to customize the route that the user will get redirected to after a successful login.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings
@@ -1368,6 +1464,7 @@ groups:
       - key: ckan.feeds.limit
         type: int
         default: 20
+        description: Number of items returned in the feeds
 
   - annotation: Internationalisation Settings
     options:
@@ -1446,11 +1543,11 @@ groups:
         example: he ar fa_IR
         description: Allows to modify the right-to-left languages
 
-      - key: ckan.i18n.rtl_css
-        default: /base/css/main-rtl.css
-        example: /base/css/my-custom-rtl.css
+      - key: ckan.i18n.rtl_theme
+        default: css/main-rtl
+        example: my-extension/my-custom-rtl-asset
         description: |
-          Allows to override the default rtl css file used for the languages defined
+          Allows to override the default rtl asset used for the languages defined
           in ``ckan.i18n.rtl_languages``.
 
       - key: ckan.display_timezone

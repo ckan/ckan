@@ -46,7 +46,6 @@ ckan:
     - modules/resource-reorder.js
     - modules/resource-view-reorder.js
     - modules/follow.js
-    - modules/activity-stream.js
     - modules/resource-view-embed.js
     - modules/resource-view-filters-form.js
     - modules/resource-view-filters.js

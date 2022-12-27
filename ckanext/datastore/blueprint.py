@@ -224,7 +224,7 @@ def dump_to(
             offset += paginate_by
             if limit is not None:
                 limit -= paginate_by
-                if limit <= 0:  # type: ignore
+                if limit <= 0:
                     break
 
             result = result_page(offset, limit)

@@ -15,11 +15,11 @@ class TestDetails:
     def test_normalize(self):
         option = Option("123")
         option.set_validators("int_validator")
-        assert option._normalize(option.default) == 123
-        assert option._normalize("10") == 10
-        assert option._normalize(50) == 50
+        assert option.normalize(option.default) == 123
+        assert option.normalize("10") == 10
+        assert option.normalize(50) == 50
 
         option.set_default("yes").set_validators("boolean_validator")
-        assert option._normalize(option.default) is True
-        assert option._normalize("no") is False
-        assert option._normalize(False) is False
+        assert option.normalize(option.default) is True
+        assert option.normalize("no") is False
+        assert option.normalize(False) is False

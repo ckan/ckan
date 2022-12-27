@@ -402,19 +402,14 @@ class TestUpdate(object):
         context = {"user": user["name"]}
         org = factories.Organization(type="organization", user=user)
 
-        org = helpers.call_action(
-            "organization_update",
-            context=context,
-            id=org["id"],
-            name=org["name"],
-            type="ragtagband",
-        )
-
-        assert org["type"] == "organization"
-        assert (
-            helpers.call_action("organization_show", id=org["name"])["type"]
-            == "organization"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "organization_update",
+                context=context,
+                id=org["id"],
+                name=org["name"],
+                type="ragtagband",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -739,7 +734,7 @@ class TestResourceViewUpdate(object):
         assert result == resource_view
 
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
@@ -1158,7 +1153,7 @@ class TestResourceUpdate(object):
         assert "someotherkey" not in resource
 
     @pytest.mark.ckan_config(
-        "ckan.views.default_views", "image_view recline_view"
+        "ckan.views.default_views", "image_view text_view"
     )
     def test_resource_format_update(self):
         dataset = factories.Dataset()
@@ -1175,11 +1170,11 @@ class TestResourceUpdate(object):
 
         # Update resource with format
         resource = helpers.call_action(
-            "resource_update", id=resource["id"], format="CSV"
+            "resource_update", id=resource["id"], format="TXT"
         )
 
         # Format changed
-        assert resource["format"] == "CSV"
+        assert resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
@@ -1189,7 +1184,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
         second_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2", format="CSV"
+            package=dataset, url="http://localhost", name="Test2", format="TXT"
         )
 
         res_views = helpers.call_action(
@@ -1236,11 +1231,11 @@ class TestResourceUpdate(object):
         assert len(res_views) == 0
 
         third_resource = helpers.call_action(
-            "resource_update", id=third_resource["id"], format="CSV"
+            "resource_update", id=third_resource["id"], format="TXT"
         )
 
         # Format changed
-        assert third_resource["format"] == "CSV"
+        assert third_resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=third_resource["id"]
@@ -1495,19 +1490,14 @@ class TestGroupUpdate(object):
         context = {"user": user["name"]}
         group = factories.Group(type="group", user=user)
 
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            name=group["name"],
-            id=group["id"],
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id=group["name"])["type"]
-            == "group"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_update",
+                context=context,
+                name=group["name"],
+                id=group["id"],
+                type="favouritecolour",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")

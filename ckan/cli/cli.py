@@ -16,6 +16,7 @@ from ckan.exceptions import CkanConfigurationException
 from . import (
     asset,
     config,
+    clean,
     dataset,
     db, search_index, server,
     generate,
@@ -229,3 +230,4 @@ ckan.add_command(translation.translation)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
 ckan.add_command(shell.shell)
+ckan.add_command(clean.clean)

@@ -6,6 +6,7 @@ Provides plugin services to the CKAN
 from __future__ import annotations
 
 import logging
+import warnings
 from contextlib import contextmanager
 from typing import (Any, Generic, Iterator, Optional,
                     Type, TypeVar, Union)
@@ -21,6 +22,7 @@ import ckan.plugins.interfaces as interfaces
 
 from ckan.common import config
 from ckan.types import SignalMapping
+from ckan.exceptions import CkanDeprecationWarning
 
 
 __all__ = [
@@ -141,6 +143,46 @@ class SingletonPlugin(_pca_SingletonPlugin):
     loaded. Subsequent calls to the class constructor will always return the
     same singleton instance.
     '''
+    def __init__(self, *args: Any, **kwargs: Any):
+        # Drop support by removing this __init__ function
+        super().__init__(*args, **kwargs)
+
+        if interfaces.IPackageController.implemented_by(type(self)):
+            for old_name, new_name in [
+                ["after_create", "after_dataset_create"],
+                ["after_update", "after_dataset_update"],
+                ["after_delete", "after_dataset_delete"],
+                ["after_show", "after_dataset_show"],
+                ["before_search", "before_dataset_search"],
+                ["after_search", "after_dataset_search"],
+                ["before_index", "before_dataset_index"],
+                    ["before_view", "before_dataset_view"]]:
+                if hasattr(self, old_name) and not hasattr(self, new_name):
+                    msg = (
+                        f"The method 'IPackageController.{old_name}' is "
+                        + f"deprecated. Please use '{new_name}' instead!"
+                    )
+                    log.warning(msg)
+                    warnings.warn(msg, CkanDeprecationWarning)
+                    setattr(self, new_name, getattr(self, old_name))
+
+        if interfaces.IResourceController.implemented_by(type(self)):
+            for old_name, new_name in [
+                ["before_create", "before_resource_create"],
+                ["after_create", "after_resource_create"],
+                ["before_update", "before_resource_update"],
+                ["after_update", "after_resource_update"],
+                ["before_delete", "before_resource_delete"],
+                ["after_delete", "after_resource_delete"],
+                    ["before_show", "before_resource_show"]]:
+                if hasattr(self, old_name) and not hasattr(self, new_name):
+                    msg = (
+                        f"The method 'IResourceController.{old_name}' is "
+                        + f"deprecated. Please use '{new_name}' instead!"
+                    )
+                    log.warning(msg)
+                    warnings.warn(msg, CkanDeprecationWarning)
+                    setattr(self, new_name, getattr(self, old_name))
 
 
 def get_plugin(plugin: str) -> Optional[SingletonPlugin]:

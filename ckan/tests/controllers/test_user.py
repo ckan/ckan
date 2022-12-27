@@ -109,6 +109,8 @@ def sysadmin():
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_a_user(self, app):
         url = url_for("user.register")
         stub = factories.User.stub()
@@ -131,6 +133,7 @@ class TestUser(object):
         assert user["fullname"] == "New User"
         assert not (user["sysadmin"])
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_user_bad_password(self, app):
         stub = factories.User.stub()
         response = app.post(
@@ -625,15 +628,12 @@ class TestUser(object):
 
         assert "Error sending the email" in response
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_sysadmin_not_authorized(self, current_user, app):
+    def test_sysadmin_not_authorized(self, app):
         user = factories.User()
-        user_obj = model.User.get(user["name"])
-        # mock current_user
-        current_user.return_value = user_obj
         app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
+            environ_overrides={"REMOTE_USER": user["name"]},
             status=403
         )
 
@@ -646,13 +646,9 @@ class TestUser(object):
             status=404,
         )
 
-    @mock.patch("flask_login.utils._get_user")
-    def test_sysadmin_promote_success(self, current_user, app):
+    def test_sysadmin_promote_success(self, app):
 
         sysadmin = factories.Sysadmin()
-        sysadmin_obj = model.User.get(sysadmin["name"])
-        # mock current_user
-        current_user.return_value = sysadmin_obj
         # create a normal user
         user = factories.User(fullname="Alice")
 
@@ -660,6 +656,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
+            environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
         )
         assert "Promoted Alice to sysadmin" in resp.body
@@ -668,12 +665,8 @@ class TestUser(object):
         userobj = model.User.get(user["id"])
         assert userobj.sysadmin
 
-    @mock.patch('flask_login.utils._get_user')
-    def test_sysadmin_revoke_success(self, current_user, app):
+    def test_sysadmin_revoke_success(self, app):
         sysadmin = factories.Sysadmin()
-        sysadmin_obj = model.User.get(sysadmin["name"])
-        # mock current_user
-        current_user.return_value = sysadmin_obj
         # create another sysadmin
         user = factories.Sysadmin(fullname="Bob")
 
@@ -681,6 +674,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "0"},
+            environ_overrides={"REMOTE_USER": sysadmin["name"]},
             status=200,
         )
         assert "Revoked sysadmin permission from Bob" in resp.body

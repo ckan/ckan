@@ -47,7 +47,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
 
-    ckan.plugins = stats text_view recline_view example_theme
+    ckan.plugins = stats text_view datatables_view example_theme
 
 6. Start CKAN in the development web server:
 

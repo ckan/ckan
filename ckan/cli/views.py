@@ -40,10 +40,10 @@ def views():
 def create(ctx: click.Context, types: list[str], dataset: list[str],
            no_default_filters: bool, search: str, yes: bool):
     """Create views on relevant resources. You can optionally provide
-    specific view types (eg `recline_view`, `image_view`). If no types
+    specific view types (eg `datatables_view`, `image_view`). If no types
     are provided, the default ones will be used. These are generally
     the ones defined in the `ckan.views.default_views` config option.
-    Note that on either case, plugins must be loaded (ie added to
+    Note that in either case, plugins must be loaded (ie added to
     `ckan.plugins`), otherwise the command will stop.
 
     """

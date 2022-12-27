@@ -12,7 +12,7 @@ import logging
 from logging.handlers import SMTPHandler
 from typing import Any, Iterable, Optional, Union, cast
 
-from flask import Blueprint, send_from_directory
+from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from flask_multistatic import MultiStaticFlask
@@ -83,6 +83,8 @@ class I18nMiddleware(object):
 
 
 class CKANBabel(Babel):
+    app: CKANApp
+
     def __init__(self, *pargs: Any, **kwargs: Any):
         super(CKANBabel, self).__init__(*pargs, **kwargs)
         self._i18n_path_idx = 0
@@ -161,7 +163,16 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
-        app.config.update(config)
+        if config.get_value("config.mode") == "strict":
+            # Config values have been already parsed and validated
+            app.config.update(config)
+        else:
+            # Parse all values to ensure Flask gets the validated values
+            for key in config.keys():
+                if config.is_declared(key):
+                    app.config[key] = config.get_value(key)
+                else:
+                    app.config[key] = config.get(key)
     else:
         app.config.update(conf)
 
@@ -262,22 +273,13 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # CSRF
     app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
     csrf.init_app(app)
-    log.warn(csrf_warn_extensions)
 
     # Set up each IBlueprint extension as a Flask Blueprint
-    for plugin in PluginImplementations(IBlueprint):
-        plugin_blueprints = plugin.get_blueprint()
-        # plugin_blueprints must not send as list in csrf.exempt
-        if isinstance(plugin_blueprints, list):
-            plugin_blueprints = plugin_blueprints[0]
-        # we need to exempt CKAN extensions till they are ready
-        # to implement the csrf_token to their forms, otherwise
-        # they will get 400 Bad Request: The CSRF token is missing.
-        if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
-            csrf.exempt(plugin_blueprints)
-        # register extensions blueprints
-        for blueprint in [plugin_blueprints]:
-            app.register_extension_blueprint(blueprint)
+    _register_plugins_blueprints(app)
+
+    if config.get_value("ckan.csrf_protection.ignore_extensions"):
+        log.warn(csrf_warn_extensions)
+        _exempt_plugins_blueprints_from_csrf(csrf)
 
     lib_plugins.register_package_blueprints(app)
     lib_plugins.register_group_blueprints(app)
@@ -304,11 +306,33 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
+        """
+        This callback function is called whenever we need to reload from
+        the database the logged in user in the session (ie the cookie).
+
+        Site maintainers can choose to completely ignore cookie based
+        authentication for API calls, but that will break existing JS widgets
+        that rely on API calls so it should be used with caution.
+        """
+        endpoint = request.endpoint or ""
+        is_api = endpoint.split(".")[0] == "api"
+        if (
+            not config.get_value("ckan.auth.enable_cookie_auth_in_api")
+                and is_api):
+            return
+
         return model.User.get(user_id)
 
     @login_manager.request_loader
     def load_user_from_request(request):  # type: ignore
+        """
+        This callback function is called whenever a user could not be
+        authenticated via the session cookie, so we fall back to the API token.
+        """
+        g.login_via_auth_header = True
+
         user = _get_user_for_apitoken()
+
         return user
 
     # Update the main CKAN config object with the Flask specific keys
@@ -390,6 +414,16 @@ def ckan_before_request() -> Optional[Response]:
     # Identify the user from the flask-login cookie or the API header
     # Sets g.user and g.userobj for extensions
     response = identify_user()
+
+    # Disable CSRF protection if user was logged in via the Authorization
+    # header
+    if g.get("login_via_auth_header"):
+        # Get the actual view function, as it might not match the endpoint,
+        # eg "organization.edit" -> "group.edit", or custom dataset types
+        endpoint = request.endpoint or ""
+        view = current_app.view_functions.get(endpoint)
+        dest = f"{view.__module__}.{view.__name__}"     # type: ignore
+        csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
@@ -527,6 +561,32 @@ class CKANFlask(MultiStaticFlask):
         for r in bp_rules:
             setattr(r, "ckan_core", False)
             setattr(r, "match_compare_key", lambda: top_compare_key)
+
+
+def _register_plugins_blueprints(app: CKANApp):
+    """ Resgister all blueprints defined in plugins by IBlueprint
+    """
+    for plugin in PluginImplementations(IBlueprint):
+        plugin_blueprints = plugin.get_blueprint()
+        if isinstance(plugin_blueprints, list):
+            for blueprint in plugin_blueprints:
+                app.register_extension_blueprint(blueprint)
+        else:
+            app.register_extension_blueprint(plugin_blueprints)
+
+
+def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):
+    """Exempt plugins blueprints from CSRF protection.
+
+    This feature will be deprecated in future versions.
+    """
+    for plugin in PluginImplementations(IBlueprint):
+        plugin_blueprints = plugin.get_blueprint()
+        if isinstance(plugin_blueprints, list):
+            for blueprint in plugin_blueprints:
+                csrf.exempt(blueprint)
+        else:
+            csrf.exempt(plugin_blueprints)
 
 
 def _register_core_blueprints(app: CKANApp):

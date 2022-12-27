@@ -25,8 +25,6 @@ log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 _validate = ckan.lib.navl.dictization_functions.validate
 
-TIMEOUT = config.get_value('ckan.requests.timeout')
-
 
 def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     ''' Submit a job to the datapusher. The datapusher is a service that
@@ -128,21 +126,23 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
     # updats of dataset/resource/etc.
-    context['session'] = context['model'].meta.create_local_session()
+    context['session'] = cast(
+        Any, context['model'].meta.create_local_session())
     p.toolkit.get_action('task_status_update')(context, task)
 
-    site_user = p.toolkit.get_action(
-        'get_site_user')({'ignore_auth': True}, {})
+    timeout = config.get_value('ckan.requests.timeout')
 
+    # This setting is checked on startup
+    api_token = p.toolkit.config.get_value("ckan.datapusher.api_token")
     try:
         r = requests.post(
             urljoin(datapusher_url, 'job'),
             headers={
                 'Content-Type': 'application/json'
             },
-            timeout=TIMEOUT,
+            timeout=timeout,
             data=json.dumps({
-                'api_key': site_user['apikey'],
+                'api_key': api_token,
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
@@ -309,8 +309,9 @@ def datapusher_status(
     if job_id:
         url = urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
+            timeout = config.get_value('ckan.requests.timeout')
             r = requests.get(url,
-                             timeout=TIMEOUT,
+                             timeout=timeout,
                              headers={'Content-Type': 'application/json',
                                       'Authorization': job_key})
             r.raise_for_status()

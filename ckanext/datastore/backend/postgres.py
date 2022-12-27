@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing_extensions import TypeAlias
 
+import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
 from ckan.types import Context, ErrorDict
 import copy
@@ -135,9 +136,10 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # when using native json types in 9.2+
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(conn_or_curs=engine.raw_connection().connection,
-                          globally=False,
-                          loads=_loads)
+    register_default_json(
+        conn_or_curs=engine.raw_connection().connection,
+        globally=False,
+        loads=_loads)
 
     return engine
 
@@ -602,7 +604,7 @@ def _get_resources(context: Context, alias: str):
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
-    aliases = datastore_helpers.get_list(values)
+    aliases: Any = datastore_helpers.get_list(values)
     alias = None
     if aliases is not None:
         # delete previous aliases
@@ -1778,7 +1780,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             connection = _get_engine_from_url(url).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
-                is_writable: bool = connection.execute(sql).first()[0]
+                is_writable: bool = connection.execute(sql).one()[0]
             finally:
                 connection.close()
             if is_writable:
@@ -1816,7 +1818,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 have_privilege: bool = write_connection.execute(
                     privilege_sql,
                     (read_connection_user, privilege)
-                ).first()[0]
+                ).one()[0]
                 if have_privilege:
                     return False
         finally:
@@ -2082,7 +2084,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def resource_exists(self, id: str):
+    def resource_exists(self, id: str) -> bool:
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
@@ -2202,6 +2204,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             schema_results = engine.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
+                row: Any  # Row has incomplete type definition
                 colname: str = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue

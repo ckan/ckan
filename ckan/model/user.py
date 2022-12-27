@@ -23,7 +23,7 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
-from ckan.common import config, asint, session
+from ckan.common import config, session
 from ckan.types import Query
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 def last_active_check():
-    last_active = asint(config.get('ckan.user.last_active_interval', 600))
+    last_active = config.get_value('ckan.user.last_active_interval')
     calc_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=last_active)
 
     return calc_time

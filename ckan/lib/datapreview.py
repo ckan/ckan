@@ -20,7 +20,7 @@ from ckan.types import Context
 log = logging.getLogger(__name__)
 
 
-DEFAULT_RESOURCE_VIEW_TYPES = ['image_view', 'recline_view']
+DEFAULT_RESOURCE_VIEW_TYPES = ['image_view', 'datatables_view']
 
 
 def res_format(resource: dict[str, Any]) -> Optional[str]:

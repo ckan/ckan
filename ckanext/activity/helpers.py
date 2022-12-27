@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any, Optional, cast
 
 import jinja2
+import datetime
 from markupsafe import Markup
 
 import ckan.model as model
@@ -18,6 +19,9 @@ def dashboard_activity_stream(
     filter_type: Optional[str] = None,
     filter_id: Optional[str] = None,
     offset: int = 0,
+    limit: int = 0,
+    before: Optional[datetime.datetime] = None,
+    after: Optional[datetime.datetime] = None,
 ) -> list[dict[str, Any]]:
     """Return the dashboard activity stream of the current user.
 
@@ -34,10 +38,7 @@ def dashboard_activity_stream(
     :rtype: string
 
     """
-    context = cast(
-        Context, {"model": model, "session": model.Session, "user": tk.g.user}
-    )
-
+    context = cast(Context, {"user": tk.g.user})
     if filter_type:
         action_functions = {
             "dataset": "package_activity_list",
@@ -46,10 +47,22 @@ def dashboard_activity_stream(
             "organization": "organization_activity_list",
         }
         action_function = tk.get_action(action_functions[filter_type])
-        return action_function(context, {"id": filter_id, "offset": offset})
+        return action_function(
+            context, {
+                "id": filter_id,
+                "limit": limit,
+                "offset": offset,
+                "before": before,
+                "after": after
+                })
     else:
         return tk.get_action("dashboard_activity_list")(
-            context, {"offset": offset}
+            context, {
+                "offset": offset,
+                "limit": limit,
+                "before": before,
+                "after": after
+                }
         )
 
 

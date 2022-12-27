@@ -14,7 +14,6 @@ from ckan.common import _, json
 
 log = logging.getLogger(__name__)
 
-TIMEOUT = config.get_value('ckan.requests.timeout')
 
 class License():
     """Domain object for a license."""
@@ -77,12 +76,14 @@ class LicenseRegister(object):
             self._create_license_list(default_license_list)
 
     def load_licenses(self, license_url: str) -> None:
+
         try:
             if license_url.startswith('file://'):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                response = requests.get(license_url, timeout=TIMEOUT)
+                timeout = config.get_value('ckan.requests.timeout')
+                response = requests.get(license_url, timeout=timeout)
                 license_data = response.json()
         except requests.RequestException as e:
             msg = "Couldn't get the licenses file {}: {}".format(license_url, e)
@@ -303,7 +304,7 @@ class LicenseOpenGovernment(DefaultLicense):
     id = "uk-ogl"
     od_conformance = 'approved'
     # CS: bad_spelling ignore
-    url = "http://reference.data.gov.uk/id/open-government-licence"
+    url = "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
 
     @property
     def title(self):
