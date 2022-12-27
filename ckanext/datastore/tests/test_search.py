@@ -3,7 +3,7 @@
 import json
 import pytest
 import sqlalchemy.orm as orm
-
+import decimal
 import ckan.lib.create_test_data as ctd
 import ckan.logic as logic
 import ckan.model as model
@@ -1824,8 +1824,29 @@ class TestDatastoreSQLFunctional(object):
         assert len(result["records"]) == 2
         assert [res[u"the year"] for res in result["records"]] == [2014, 2013]
         assert result[u"records_truncated"]
-
-
+        
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_search_numeric_data_through_sql(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "foo", "type": "numeric"},
+                {"id": "bar", "type": "numeric"}
+            ],
+            "records": [
+                {"foo": 1, "bar": 2},
+                {"foo": 3, "bar": 4}
+            ]
+        }
+        result = helpers.call_action("datastore_create", **data)
+        sql = 'SELECT * FROM "{0}"'.format(resource["id"])
+        result = helpers.call_action("datastore_search_sql", sql=sql)
+        record_new = result["records"]
+        assert(isinstance(record_new[0]["foo"], decimal.Decimal)) == True
+        
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreSearchRecordsFormat(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
