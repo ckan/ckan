@@ -11,8 +11,6 @@ set -e
 # URL for datapusher (required unless linked to a container called 'datapusher')
 : ${CKAN_DATAPUSHER_URL:=}
 
-CONFIG="${CKAN_CONFIG}/production.ini"
-
 abort () {
   echo "$@" >&2
   exit 1
@@ -37,8 +35,8 @@ set_environment () {
 }
 
 write_config () {
-  echo "Generating config at ${CONFIG}..."
-  ckan generate config "$CONFIG"
+  echo "Generating config at ${CKAN_INI}..."
+  ckan generate config "$CKAN_INI"
 }
 
 # Wait for PostgreSQL
@@ -69,5 +67,5 @@ if [ -z "$CKAN_DATAPUSHER_URL" ]; then
 fi
 
 set_environment
-ckan --config "$CONFIG" db init
+ckan db init
 exec "$@"

@@ -42,6 +42,7 @@ RUN apt-get -q -y update \
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
+ENV CKAN_INI $CKAN_HOME/production.ini
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
 
 # Build-time variables specified by docker-compose.yml / .env
@@ -87,4 +88,4 @@ ENTRYPOINT ["/ckan-entrypoint.sh"]
 USER ckan
 EXPOSE 5000
 
-CMD ["ckan","-c","/etc/ckan/production.ini", "run", "--host", "0.0.0.0"]
+CMD ["ckan", "run", "--host", "0.0.0.0"]
