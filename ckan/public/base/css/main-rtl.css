@@ -11130,6 +11130,8 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 
 .btn-danger, .control-custom.disabled .checkbox.btn {
   color: #fff !important;
+  background-color: #d43f3a;
+  border-color: #d43f3a;
 }
 
 .btn-light, .btn-default {
