@@ -163,7 +163,16 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
-        app.config.update(config)
+        if config.get_value("config.mode") == "strict":
+            # Config values have been already parsed and validated
+            app.config.update(config)
+        else:
+            # Parse all values to ensure Flask gets the validated values
+            for key in config.keys():
+                if config.is_declared(key):
+                    app.config[key] = config.get_value(key)
+                else:
+                    app.config[key] = config.get(key)
     else:
         app.config.update(conf)
 
@@ -268,7 +277,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Set up each IBlueprint extension as a Flask Blueprint
     _register_plugins_blueprints(app)
 
-    if asbool(config.get("ckan.csrf_protection.ignore_extensions", True)):
+    if config.get_value("ckan.csrf_protection.ignore_extensions"):
         log.warn(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 

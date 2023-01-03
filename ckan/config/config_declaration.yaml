@@ -7,8 +7,6 @@ groups:
         internal: true
       - key: here
         internal: true
-      - key: ckan.admin_tabs
-        internal: true
       - key: plugin_template_paths
         ignored: true
       - key: plugin_public_paths
@@ -359,7 +357,7 @@ groups:
       - key: ckan.site_url
         validators: not_empty
         required: true
-        placeholder: http://127.0.0.1:5000
+        placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
         description: |
           Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
@@ -641,38 +639,46 @@ groups:
       - key: WTF_CSRF_ENABLED
         type: bool
         default: True
-        description: Set to False to disable all CSRF protection. Default is True.
+        description: Set to False to disable all CSRF protection.
 
       - key: WTF_CSRF_CHECK_DEFAULT
         type: bool
         default: True
         description: |
           When using the CSRF protection extension,
-          this controls whether every view is protected by default. Default is True.
+          this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
         description: Random data for generating secure tokens.
         placeholder_callable: secrets:token_urlsafe
 
       - key: WTF_CSRF_METHODS
-        default: {'POST', 'PUT', 'PATCH', 'DELETE'}
-        description: HTTP methods to protect from CSRF. Default is {'POST', 'PUT', 'PATCH', 'DELETE'}.
+        type: list
+        default:
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+
+        description: HTTP methods to protect from CSRF.
 
       - key: WTF_CSRF_FIELD_NAME
         default: csrf_token
-        description: Name of the form field and session key that holds the CSRF token. Default is csrf_token.
+        description: Name of the form field and session key that holds the CSRF token.
 
       - key: WTF_CSRF_HEADERS
-        default: ['X-CSRFToken', 'X-CSRF-Token']
+        type: list
+        default:
+          - X-CSRFToken
+          - X-CSRF-Token
         description: |
           HTTP headers to search for CSRF token when it is not provided in the form.
-          Default is ['X-CSRFToken', 'X-CSRF-Token'].
 
       - key: WTF_CSRF_TIME_LIMIT
         default: 3600
         description: |
           Max age in seconds for CSRF tokens.
-          Default is 3600. If set to None, the CSRF token is valid for the life of the session.
+          If set to None, the CSRF token is valid for the life of the session.
 
       - key: WTF_CSRF_SSL_STRICT
         type: bool
@@ -686,7 +692,15 @@ groups:
         default: True
         description: |
           Set to False to disable Flask-Babel I18N support.
-          Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+      - key: ckan.csrf_protection.ignore_extensions
+        type: bool
+        default: true
+        description: |
+          Exempt plugins blueprints from CSRF protection.
+
+          .. warning:: This feature will be deprecated in future versions.
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -1146,7 +1160,6 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
-
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
@@ -1236,21 +1249,65 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. It is currently unused and it only accepts one value: ``public``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
 
       - key: ckan.base_templates_folder
         default: templates
-        example: templates
+        example: templates-bs3
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one value: ``templates``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
+
+      - key: ckan.default.package_type
+        default: dataset
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
 
       - key: ckan.default.group_type
         default: group
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
+
       - key: ckan.default.organization_type
         default: organization
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
+
+      - key: ckan.admin_tabs
+        default: {}
+        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
+        validators: convert_to_json_if_string dict_only
+        description: Extra navigation items for Sysadmin Settings.
 
   - annotation: Storage Settings
     options:
