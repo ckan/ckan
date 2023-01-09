@@ -52,7 +52,7 @@ def create_library(name: str, path: str) -> None:
         try:
             env.register(name, bundle)
         except RegisterError:
-            logger.debug("Bundle {name} already registered, overriding.")
+            logger.debug(f"Bundle {name} already registered, overriding.")
             env._named_bundles.pop(name, None)
             env.register(name, bundle)
 
