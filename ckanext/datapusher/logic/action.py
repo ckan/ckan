@@ -311,11 +311,7 @@ def datapusher_status(
         try:
             timeout = config.get_value('ckan.requests.timeout')
             r = requests.get(url,
-<<<<<<< HEAD
-                             timeout=config.get_value('ckan.requests.timeout'),
-=======
                              timeout=timeout,
->>>>>>> dev-v2.10
                              headers={'Content-Type': 'application/json',
                                       'Authorization': job_key})
             r.raise_for_status()
