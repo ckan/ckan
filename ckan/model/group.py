@@ -414,7 +414,7 @@ class Group(core.StatefulObjectMixin,
         ''' Ensure clean extra revisions before purging a group. '''
 
         clean_extra_revision_query = (
-            "DELETE FROM group_extra_revision "
+            "DELETE FROM public.group_extra_revision "
             "WHERE group_id = :group_id"
         )
         meta.Session.query(
@@ -424,6 +424,7 @@ class Group(core.StatefulObjectMixin,
         ).params(
             group_id=self.id
         )
+        meta.Session.commit()
 
     def __repr__(self):
         return '<Group %s>' % self.name
