@@ -150,57 +150,12 @@ against the database and import / export files from ``$VOL_CKAN_HOME``.
 ---------------------------
 3. Datastore and DataPusher
 ---------------------------
-The datastore database and user are created when the `db` container is first started, however we need to do 
-some additional configuration before enabling the datastore and datapusher settings in the ``ckan.ini``.
-
-a. Configure datastore database
-
-With running ``ckan`` container, execute the built-in setup script against the ``db`` container::
-
-    docker exec ckan ckan -c /srv/app/ckan.ini datastore set-permissions | docker exec -i db psql -U ckan
-
-The script pipes in the output of ``ckan datastore set-permissions`` - however,
-as this output can change in future versions of CKAN, we set the permissions directly.
-The effect of this script is persisted in the named volume ``ckan-docker_pg_data``.
-
-.. note:: We re-use the already privileged default user of the CKAN database as read/write user
-    for the datastore. The database user (``ckan``) is hard-coded, the password is supplied through
-    the``.env`` variable ``POSTGRES_PASSWORD``.
-    A new user ``datastore_ro`` is created (and also hard-coded) as readonly user with password
-    ``DATASTORE_READONLY_USER``.
-    Hard-coding the database table and usernames allows to prepare the set-permissions SQL script,
-    while not exposing sensitive information to the world outside the Docker host environment.
-
-After this step, the datastore database is ready to be enabled in the ``ckan.ini``.
-
-b. Enable datastore and datapusher in ``ckan.ini``
-
-Edit the ``ckan.ini`` (note: requires sudo)::
-
-    sudo vim $VOL_CKAN_CONFIG/ckan.ini
-
-Add ``datastore datapusher`` to ``ckan.plugins`` and enable the datapusher option
-``ckan.datapusher.formats``.
-
-The remaining settings required for datastore and datapusher are already taken care of:
-
-* ``ckan.storage_path`` (``/var/lib/ckan``) is hard-coded in ``docker-compose.yml`` and 
-* CKAN's base image ``Dockerfile``. This path is hard-coded as it remains internal
-  to the containers, and changing it would have no effect on the host system.
-* ``ckan.datastore.write_url = postgresql://ckan:POSTGRES_PASSWORD@db/datastore`` and
-  ``ckan.datastore.read_url = postgresql://datastore:DATASTORE_READONLY_PASSWORD@db/datastore``
-  are provided by the ``env_file:`` line in ``docker-compose.yml``.
-
-Restart the ``ckan`` container to apply changes to the ``ckan.ini``::
-
-    docker-compose restart ckan
-
-Now the datastore API should return content when visiting::
-
-    <CKAN_SITE_URL>/api/3/action/datastore_search?resource_id=_table_metadata
+The datastore database and user are created when the `db` container is first started. The Datastore
+and the DataPusher plugins are already included in the CKAN base image in the https://github.com/ckan/ckan-docker-base
+repo.
 
 -------------------------
-4. The CKAN admin user
+1. The CKAN admin user
 -------------------------
 A CKAN Admin user is pre-built in the CKAN base image. The credentials are located in the 
 ``CKAN_SYSADMIN_NAME`` and ``CKAN_SYSADMIN_PASSWORD`` environment variables from the ``.env`` file.
@@ -410,8 +365,8 @@ Variable substitution propagates as follows:
 * Docker Compose interpolates variables in ``docker-compose.yml`` from ``.env``.
 * Docker Compose can pass on these variables to the containers as build time variables
   (when building the images) and / or as run time variables (when running the containers).
-* ``ckan-entrypoint.sh`` has access to all run time variables of the ``ckan`` service.
-* ``ckan-entrypoint.sh`` injects environment variables (e.g. ``CKAN_SQLALCHEMY_URL``) into the
+* ``prerun.py`` and ``start_ckan.sh`` have access to all run time variables of the ``ckan`` service.
+* These 2 scripts can inject environment variables (e.g. ``CKAN_SQLALCHEMY_URL``) into the
   running ``ckan`` container, overriding the CKAN config variables from ``ckan.ini``.
 
 See :doc:`/maintaining/configuration` for a list of environment variables
