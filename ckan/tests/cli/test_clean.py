@@ -5,6 +5,7 @@ import six
 from ckan.cli.cli import ckan
 from ckan.tests.helpers import call_action
 
+
 @pytest.mark.skipif(six.PY2, reason="Faker image tests don't work on PY2")
 @pytest.mark.usefixtures("clean_db")
 class TestUserClean:
