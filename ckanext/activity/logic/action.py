@@ -224,7 +224,6 @@ def package_activity_list(
     """
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    print(f'DD: {data_dict}')
 
     include_hidden_activity = data_dict.get("include_hidden_activity", False)
     include_private_activity = data_dict.get("include_private_activity", False)

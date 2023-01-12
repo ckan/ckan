@@ -356,14 +356,9 @@ def package_activity_list(
     if before:
         q = q.filter(Activity.timestamp < before)
 
-
-    print(f'INCLUDE PRIVATE {include_private_activity}')
-    #print(q.add_column( Activity.data.cast(types.JSON)["package"]["private"]).all())
-
-    #q = q.filter(Activity.data.cast(types.JSON)["package"]["private"].astext == 'false')
-    #q = q.filter(Activity.data.cast(types.JSON)["package"]["private"] != cast(True,types.JSON) )
     if not include_private_activity:
         q = q.filter(not_(text("activity.data::json->'package'->>'private' = 'true'")))
+        # q = q.filter(Activity.data.cast(types.JSON)["package"]["private"] != cast(True,types.JSON) )
 
     # revert sort queries for "only before" queries
     revese_order = after and not before

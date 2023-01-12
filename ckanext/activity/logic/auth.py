@@ -88,7 +88,11 @@ def activity_list(context: Context, data_dict: DataDict) -> AuthResult:
     ):
         return {"success": False, "msg": "object_type not recognized"}
     is_public = authz.check_config_permission("public_activity_stream_detail")
-    if data_dict.get("include_data") and not is_public:
+    if data_dict.get("include_private_activity"):
+        # Private activity is restricted to users who are
+        # allowed to edit the object
+        show_or_update = "update"
+    elif data_dict.get("include_data") and not is_public:
         # The 'data' field of the activity is restricted to users who are
         # allowed to edit the object
         show_or_update = "update"
@@ -114,40 +118,8 @@ def user_activity_list(context: Context, data_dict: DataDict) -> AuthResult:
 
 @tk.auth_allow_anonymous_access
 def package_activity_list(context: Context, data_dict: DataDict) -> AuthResult:
-    # data_dict["object_type"] = "package"
-    #
-    # if data_dict["object_type"] not in (
-    #     "package",
-    #     "organization",
-    #     "group",
-    #     "user",
-    # ):
-    #     return {"success": False, "msg": "object_type not recognized"}
-
-
-    config_public_activity = authz.check_config_permission("public_activity_stream_detail")
-
-    if data_dict.get("include_data") or data_dict.get("include_private_activity"):
-        # The 'data' field of the activity and activity when the dataset was private
-        # is restricted to users who are allowed to edit the object
-        show_or_update = "update"
-    elif config_public_activity:
-        # the activity for an object (i.e. the activity metadata) can be viewed
-        # if the user can see the object
-        show_or_update = "show"
-    else:
-
-        show_or_update = "update"
-    action_on_which_to_base_auth = "{}_{}".format(
-        data_dict["object_type"], show_or_update
-    )  # e.g. 'package_update'
-    return authz.is_authorized(
-        action_on_which_to_base_auth, context, {"id": data_dict["id"]}
-    )
-
-    auth1 =  activity_list(context, data_dict)
+    data_dict["object_type"] = "package"
     return activity_list(context, data_dict)
-
 
 @tk.auth_allow_anonymous_access
 def group_activity_list(context: Context, data_dict: DataDict) -> AuthResult:
@@ -179,12 +151,14 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
         object_type = "package"
     else:
         return {"success": False, "msg": "object_type not recognized"}
+
     return activity_list(
         context,
         {
             "id": activity.object_id,
             "include_data": data_dict["include_data"],
             "object_type": object_type,
+            "include_private_activity": activity["data"].get("package",{}).get("private")
         },
     )
 
