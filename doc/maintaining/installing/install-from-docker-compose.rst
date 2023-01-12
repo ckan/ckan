@@ -155,7 +155,7 @@ and the DataPusher plugins are already included in the CKAN base image in the ht
 repo.
 
 -------------------------
-1. The CKAN admin user
+4. The CKAN admin user
 -------------------------
 A CKAN Admin user is pre-built in the CKAN base image. The credentials are located in the 
 ``CKAN_SYSADMIN_NAME`` and ``CKAN_SYSADMIN_PASSWORD`` environment variables from the ``.env`` file.
@@ -352,7 +352,7 @@ and restart the container::
    The steps shown above are only some of several possible approaches.
 
 ------------------------
-1. Environment variables
+7. Environment variables
 ------------------------
 
 This section is targeted at CKAN maintainers seeking a deeper understanding of variables,
