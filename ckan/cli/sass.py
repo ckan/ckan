@@ -14,8 +14,8 @@ from ckan.common import config
     name='sass',
     short_help='Compile all root sass documents into their CSS counterparts')
 @click.option(
-    "-d",
-    "--debug",
+    '-d',
+    '--debug',
     is_flag=True,
     help="Compile css with sourcemaps.")
 def sass(debug: bool):
