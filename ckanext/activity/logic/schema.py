@@ -94,6 +94,10 @@ def default_activity_list_schema(
         ignore_not_sysadmin,
         boolean_validator,
     ]
+    schema["include_private_activity"] = [
+        ignore_missing,
+        boolean_validator,
+    ]
     schema["activity_types"] = [ignore_missing, list_of_strings]
     schema["exclude_activity_types"] = [ignore_missing, list_of_strings]
     schema["before"] = [ignore_missing, datetime_from_timestamp_validator]

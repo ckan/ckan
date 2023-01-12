@@ -204,6 +204,14 @@ def package_activity_list(
         NB Only sysadmins may set include_hidden_activity to true.
         (default: false)
     :type include_hidden_activity: bool
+    :param include_private_activity: whether to include activity when dataset was marked as private, which
+        is not shown in the Activity Stream page. Hidden activity includes
+        activity done by the site_user, such as harvests, which are not shown
+        in the activity stream because they can be too numerous, or activity by
+        other users specified in config option `ckan.hide_activity_from_users`.
+        NB Only sysadmins may set include_hidden_activity to true.
+        (default: false)
+    :type include_hidden_activity: bool
     :param activity_types: A list of activity types to include in the response
     :type activity_types: list
 
@@ -216,7 +224,10 @@ def package_activity_list(
     """
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+    print(f'DD: {data_dict}')
+
     include_hidden_activity = data_dict.get("include_hidden_activity", False)
+    include_private_activity = data_dict.get("include_private_activity", False)
     activity_types = data_dict.pop("activity_types", None)
     exclude_activity_types = data_dict.pop("exclude_activity_types", None)
 
@@ -250,6 +261,7 @@ def package_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
+        include_private_activity=include_private_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
     )

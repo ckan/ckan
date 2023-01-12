@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     or_,
     and_,
+    not_,
     union_all,
     text,
 )
@@ -322,6 +323,7 @@ def package_activity_list(
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
+    include_private_activity: bool = False,
     activity_types: Optional[list[str]] = None,
     exclude_activity_types: Optional[list[str]] = None,
 ) -> list[Activity]:
@@ -353,6 +355,15 @@ def package_activity_list(
         q = q.filter(Activity.timestamp > after)
     if before:
         q = q.filter(Activity.timestamp < before)
+
+
+    print(f'INCLUDE PRIVATE {include_private_activity}')
+    #print(q.add_column( Activity.data.cast(types.JSON)["package"]["private"]).all())
+
+    #q = q.filter(Activity.data.cast(types.JSON)["package"]["private"].astext == 'false')
+    #q = q.filter(Activity.data.cast(types.JSON)["package"]["private"] != cast(True,types.JSON) )
+    if not include_private_activity:
+        q = q.filter(not_(text("activity.data::json->'package'->>'private' = 'true'")))
 
     # revert sort queries for "only before" queries
     revese_order = after and not before
