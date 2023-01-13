@@ -3864,8 +3864,8 @@ a.btn.disabled, fieldset[disabled] a.btn {
 
 .btn-danger, .control-custom.disabled .checkbox.btn {
   color: #fff;
-  background-color: #d9534f;
-  border-color: #d43f3a;
+  background-color: #d43f3a;
+  border-color: #c9302c;
 }
 .btn-danger:focus, .control-custom.disabled .checkbox.btn:focus, .btn-danger.focus, .control-custom.disabled .focus.checkbox.btn {
   color: #fff;
