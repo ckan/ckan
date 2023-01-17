@@ -11,7 +11,7 @@ from ckan.cli.cli import ckan
 @pytest.fixture
 def command(cli):
     def invoke(*args):
-        return cli.invoke(ckan, ("config",) + args)
+        return cli.invoke(ckan, ("config",) + args, catch_exceptions=False)
 
     return invoke
 
@@ -226,21 +226,20 @@ class TestUndeclared(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestValidate(object):
     def test_no_errors_by_default_in_safe_mofe(self, command):
         result = command("validate")
         assert not result.output
         assert not result.exit_code, result.output
 
-    @pytest.mark.ckan_config("beaker.session.secret", "")
-    def test_report_missing_use(self, command, capsys):
-        result = command("validate")
-        assert result.exit_code, result
-        assert "beaker.session.secret" in result.exception.args[0]
-
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
     def test_invalid_port(self, command):
         result = command("validate")
+        assert not result.exit_code, result.output
+        assert "ckan.devserver.port" in result.stdout
+
+    @pytest.mark.ckan_config("config.mode", "strict")
+    @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
+    def test_invalid_port_in_strict_mode_prevents_application_initialization(self, command):
+        result = command("validate")
         assert result.exit_code, result.stdout
-        assert "ckan.devserver.port" in result.exception.args[0]

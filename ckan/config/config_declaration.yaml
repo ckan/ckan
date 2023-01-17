@@ -177,23 +177,18 @@ groups:
         default: default
         example: strict
         description: |
-          Controls the parsing and validation of ``config`` object. In ``default`` mode there is no validation
-          applied to the provided configuration values and they are not guaranteed to be present. This is the
-          current default behaviour and was the only one available in CKAN<=2.9.
+          Controls the behavior of application when invalid values detected in
+          the ``config`` object.
 
-          Enabling `strict` mode does the following:
+          In the ``default`` mode any invalid value left unprocessed(i.e.,
+          remains ``str``). In addition, every invalid option is reported using
+          a log record with a ``WARNING`` level.
 
-          * For all the :ref:`declared config options <declare-config-options>`, if they
-            are not provided the config file, the ddefault value from the declaration will be
-            used in the ``config`` object.
-
-          * All the :ref:`declared config options <declare-config-options>` will be
-            normalized using validators specified in the declaration.
-
-          * None of CKAN CLI commands will be executed and the CKAN application itself will
-            not start unless **all** config options are valid according to the validators defined
-            in the declaration. For every invalid config option, an error will be printed to the
-            output stream.
+          In the ``strict`` mode none of CKAN CLI commands will be executed and
+          the CKAN application itself will not start unless **all** config
+          options are valid according to the validators defined in the
+          declaration. For every invalid config option, an error will be
+          printed to the output stream.
 
   - annotation: Development settings
     options:

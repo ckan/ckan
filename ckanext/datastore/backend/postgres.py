@@ -543,7 +543,7 @@ def _build_query_and_rank_statements(
 
 
 def _fts_lang(lang: Optional[str] = None) -> str:
-    return lang or config.get_value('ckan.datastore.default_fts_lang')
+    return lang or config.get('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort: Union[None, str, list[str]], fields_types: Container[str],
@@ -643,7 +643,7 @@ def _generate_index_name(resource_id: str, field: str):
 
 
 def _get_fts_index_method() -> str:
-    return config.get_value('ckan.datastore.default_fts_index_method')
+    return config.get('ckan.datastore.default_fts_index_method')
 
 
 def _build_fts_indexes(
@@ -652,7 +652,7 @@ def _build_fts_indexes(
     fts_indexes: list[str] = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
-        'language', config.get_value('ckan.datastore.default_fts_lang'))
+        'language', config.get('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x: str):
@@ -1671,7 +1671,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = config.get_value('ckan.datastore.search.rows_max')
+    rows_max = config.get('ckan.datastore.search.rows_max')
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1743,7 +1743,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message: str):
-        if self.config.get_value('debug'):
+        if self.config.get('debug'):
             log.critical(message)
         else:
             raise DatastoreException(message)
@@ -1837,11 +1837,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
-        self.enable_sql_search = self.config.get_value(
+        self.enable_sql_search = self.config.get(
             'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.get_value(
+            allowed_sql_functions_file = self.config.get(
                 'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 
