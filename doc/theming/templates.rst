@@ -23,13 +23,13 @@ static files, so before getting started on our CKAN theme we'll have to create
 an extension and plugin. For a detailed explanation of the steps below, see
 :doc:`/extensions/tutorial`.
 
-1. Use the ``ckan create`` command to create an empty extension:
+1. Use the ``ckan generate extension`` command to create an empty extension:
 
    .. parsed-literal::
 
       |activate|
       cd |virtualenv|/src
-      ckan -c |ckan.ini| create -t ckanext |extension_dir|
+      ckan -c |ckan.ini| generate extension -o |extension_dir|
 
 2. Create the file |plugin.py| with the following contents:
 
