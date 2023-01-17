@@ -82,9 +82,6 @@ def serialize_ini(
 
             if minimal and not option.has_flag(Flag.required):
                 # minimal config template relies on default values.
-                # It means, it works only in strict mode.
-                if item == "config.mode":
-                    result += "config.mode = strict\n"
                 continue
 
             if option.description and include_docs:

@@ -27,15 +27,6 @@ def test_get_item_works():
     assert my_conf.get(u"test_key_1") == u"Test value 1"
 
 
-def test_subset_works():
-    conf = CKANConfig({
-        "a.b": 1,
-        "a.c": 2,
-        "x.b": 3,
-    })
-    assert conf.subset(Key().a.dynamic("any")) == {"a.b": 1, "a.c": 2}
-
-
 def test_repr_works():
     my_conf = CKANConfig()
     my_conf[u"test_key_1"] = u"Test value 1"

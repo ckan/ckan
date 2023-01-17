@@ -18,7 +18,7 @@ __all__ = [u"ApiToken", u"api_token_table"]
 
 
 def _make_token() -> str:
-    nbytes = config.get_value(u"api_token.nbytes")
+    nbytes = config.get(u"api_token.nbytes")
     return token_urlsafe(nbytes)
 
 

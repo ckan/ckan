@@ -37,6 +37,8 @@ if TYPE_CHECKING:
     # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
 
+SENTINEL = {}
+
 log = logging.getLogger(__name__)
 
 
@@ -131,29 +133,16 @@ class CKANConfig(MutableMapping):
     def is_declared(self, key: str) -> bool:
         return key in config_declaration
 
-    def get_value(self, key: str) -> Any:
-        if self.get("config.mode") == "strict":
-            return self[key]
+    def get(self, key: str, default: Any = SENTINEL) -> Any:
+        """Return the value for key if key is in the config, else default.
+        """
+        if default is SENTINEL:
+            default = None
+            is_strict = super().get("config.mode") == "strict"
+            if is_strict and key not in config_declaration:
+                log.warning("Option %s is not declared", key)
 
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return self.get(key)
-
-        value = self.get(key, option.default)
-        return option.normalize(value)
-
-    def subset(
-            self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = None
-    ) -> dict[str, Any]:
-        subset = {}
-        exclude = exclude or set()
-        for k, v in self.store.items():
-            if k in exclude or pattern != k:
-                continue
-            subset[k] = v
-        return subset
+        return super().get(key, default)
 
 
 def _get_request():

@@ -31,7 +31,7 @@ def send_email_notifications(
     """
     tk.check_access("send_email_notifications", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_email_notifications"):
+    if not tk.config.get("ckan.activity_streams_email_notifications"):
         raise tk.ValidationError(
             {
                 "message": (
@@ -92,7 +92,7 @@ def activity_create(
 
     tk.check_access("activity_create", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_enabled"):
+    if not tk.config.get("ckan.activity_streams_enabled"):
         return
 
     model = context["model"]

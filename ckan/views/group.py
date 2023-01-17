@@ -129,7 +129,7 @@ def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     set_org(is_organization)
     page = h.get_page_number(request.args) or 1
-    items_per_page = config.get_value('ckan.datasets_per_page')
+    items_per_page = config.get('ckan.datasets_per_page')
 
     context = cast(Context, {
         u'model': model,
@@ -356,7 +356,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 
         extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
-        default_limit: int = config.get_value(u'search.facets.default')
+        default_limit: int = config.get(u'search.facets.default')
         for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
             g.search_facets_limits[facet] = limit
@@ -424,7 +424,7 @@ def read(group_type: str,
 
     extra_vars["q"] = q
 
-    limit = config.get_value('ckan.datasets_per_page')
+    limit = config.get('ckan.datasets_per_page')
 
     try:
         # Do not query for the group datasets when dictizing, as they will

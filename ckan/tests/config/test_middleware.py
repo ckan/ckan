@@ -100,11 +100,3 @@ def test_flask_config_values_are_parsed(app):
     assert (
         app.flask_app.config["REMEMBER_COOKIE_DURATION"] == 12345
     )
-
-
-@pytest.mark.ckan_config("config.mode", "strict")
-@pytest.mark.ckan_config("REMEMBER_COOKIE_DURATION", "12345")
-def test_flask_config_values_are_parsed_in_strict_mode(app):
-    assert (
-        app.flask_app.config["REMEMBER_COOKIE_DURATION"] == 12345
-    )

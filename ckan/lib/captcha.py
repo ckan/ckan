@@ -9,7 +9,7 @@ from ckan.types import Request
 def check_recaptcha(request: Request) -> None:
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
     on failure.'''
-    recaptcha_private_key = config.get_value('ckan.recaptcha.privatekey')
+    recaptcha_private_key = config.get('ckan.recaptcha.privatekey')
     if not recaptcha_private_key:
         # Recaptcha not enabled
         return
@@ -30,7 +30,7 @@ def check_recaptcha(request: Request) -> None:
         response=recaptcha_response_field.encode('utf8')
     )
 
-    timeout = config.get_value('ckan.requests.timeout')
+    timeout = config.get('ckan.requests.timeout')
     response = requests.get(recaptcha_server_name, params, timeout=timeout)
 
     data = response.json()
