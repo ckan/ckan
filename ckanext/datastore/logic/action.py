@@ -440,7 +440,7 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
     :param filters: filters to apply before deleting (eg {"name": "fred"}).
-                   If missing delete whole table and all dependent views.
+                   If missing deletes all records but keeps table.
                    (optional)
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
