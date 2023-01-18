@@ -10,7 +10,6 @@ from ckan.common import (
     g as ckan_g,
     c as ckan_c,
 )
-from ckan.config.declaration import Key
 from ckan.tests import helpers
 
 

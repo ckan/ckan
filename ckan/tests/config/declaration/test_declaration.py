@@ -142,7 +142,6 @@ class TestDeclaration:
         decl.make_safe(cfg)
         assert cfg == CKANConfig({"a": 20})
 
-
     def test_normalize_convert_types(self):
         decl = Declaration()
         decl.declare_int(Key().a, "10")

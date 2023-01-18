@@ -1,7 +1,7 @@
 :ref:`declare-config-options`: declare configuration options to ensure validation and default values.
 
-All the native config options from CKAN are validated and converted to the
-expected type during application startup. That's how change the behavior::
+All the CKAN configuration options are validated and converted to the
+expected type during the application startup. That's how the behavior has changed::
 
     debug = config.get("debug")
 
@@ -13,22 +13,21 @@ expected type during application startup. That's how change the behavior::
     assert type(debug) is bool
     assert debug is False # or ``True``
 
-If you are using ``aslist``, ``asbool``, ``asint`` convertes from
-``ckan.plugins.toolkit``, nothing will change, because they are idempotent::
+The ``aslist``, ``asbool``, ``asint`` converters from ``ckan.plugins.toolkit`` will keep the current behaviour::
 
     # produces the same result in v2.9 and v2.10
-    assesrt tk.asbool(config.get("debug")) is False
-    assesrt tk.asint(config.get("devserver.port")) == 5000
-    assesrt tk.aslist(config.get("ckan.plugins")) == ["stats"]
+    assert tk.asbool(config.get("debug")) is False
+    assert tk.asint(config.get("ckan.devserver.port")) == 5000
+    assert tk.aslist(config.get("ckan.plugins")) == ["stats"]
 
 If you are using custom logic, the code requires a review. For example, the
-following will produce an ``AttributeError``, because ``ckan.plugins`` is
-converted into a list during application's startup::
+following code will produce an ``AttributeError`` exception, because ``ckan.plugins`` is
+converted into a list during the application's startup::
 
     # AttributeError
     plugins = config.get("ckan.plugins").split()
 
-Depending on desired backward compatibility, one of the following expressions
+Depending on the desired backward compatibility, one of the following expressions
 can be used instead::
 
     # if both v2.9 and v2.10 are supported
@@ -37,9 +36,9 @@ can be used instead::
     # if only v2.10 is supported
     plugins = config.get("ckan.plugins")
 
-The second major change affects default values. Starting from CKAN v2.10,
-majority of the config options has a declared default value. It means that
-whenever you invoke ``config.get`` method, the **declared default** value is
+The second major change affects default values for configuration options. Starting from CKAN 2.10,
+the majority of the config options have a declared default value. It means that
+whenever you invoke ``config.get`` method, the *declared default* value is
 returned instead of ``None``. Example::
 
     # CKAN v2.9
@@ -48,11 +47,10 @@ returned instead of ``None``. Example::
     # CKAN v2.10
     assert config.get("search.facets.limit") == 10
 
-The second argument to ``config.get`` is used only when you are trying to get
-the value of the missing **undeclared** option::
+The second argument to ``config.get`` should be only used to get
+the value of a missing *undeclared* option::
 
     assert config.get("not.declared.and.missing.from.config", 1) == 1
 
-
-The above is the same for any extension that **declares** its config options
+The above is the same for any extension that *declares* its config options
 using ``IConfigDeclaration`` interface or ``config_declarations`` blanket.

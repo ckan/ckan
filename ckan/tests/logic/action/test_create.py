@@ -311,7 +311,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -336,7 +336,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -361,7 +361,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(

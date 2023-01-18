@@ -11,7 +11,7 @@ from ckan.cli.cli import ckan
 @pytest.fixture
 def command(cli):
     def invoke(*args):
-        return cli.invoke(ckan, ("config",) + args, catch_exceptions=False)
+        return cli.invoke(ckan, ("config",) + args)
 
     return invoke
 
