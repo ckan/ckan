@@ -431,6 +431,36 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     return result
 
 
+def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
+    '''Deletes all records or a set of records from the DataStore.
+
+    :param resource_id: resource id that the data will be deleted from.
+                        (optional)
+    :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
+    :param filters: filters to apply before deleting (eg {"name": "fred"}).
+                   If missing delete whole table and all dependent views.
+                   (optional)
+    :type filters: dictionary
+    :param calculate_record_count: updates the stored count of records, used to
+        optimize datastore_search in combination with the
+        `total_estimation_threshold` parameter. If doing a series of requests
+        to change a resource, you only need to set this to True on the last
+        request.
+    :type calculate_record_count: bool (optional, default: False)
+
+    **Results:**
+
+    :returns: Original filters sent.
+    :rtype: dictionary
+
+    '''
+    filters = data_dict.pop('filters', {})
+    data_dict['filters'] = filters
+    return datastore_delete(context, data_dict)
+
+
 @logic.side_effect_free
 def datastore_search(context: Context, data_dict: dict[str, Any]):
     '''Search a DataStore resource.
