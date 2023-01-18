@@ -730,13 +730,13 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 1000  # i.e. default value
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_configured(self):
         self._create_bulk_orgs("org_default", 7)
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_default", 5)
         results = helpers.call_action("organization_list", limit=2)
@@ -748,7 +748,7 @@ class TestOrganizationList(object):
         assert len(results) == 25  # i.e. default value
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_all_fields_default", 5)
@@ -758,7 +758,7 @@ class TestOrganizationList(object):
         assert len(results) == 2
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_configured(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
@@ -2917,6 +2917,7 @@ class TestStatusShow(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_hiding_version(self):
 
         status = helpers.call_action("status_show")
@@ -2932,6 +2933,7 @@ class TestStatusShow(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_version_to_sysadmins(self):
         sysadmin = factories.Sysadmin()
         status = helpers.call_action("status_show", context={"user": sysadmin["name"]})

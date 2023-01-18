@@ -180,14 +180,13 @@ groups:
           Controls the behavior of application when invalid values detected in
           the ``config`` object.
 
-          In the ``default`` mode any invalid value left unprocessed(i.e.,
-          remains ``str``). In addition, every invalid option is reported using
+          In the ``default`` mode any invalid value is left unprocessed (i.e.,
+          it remains a ``str``). In addition, every invalid option is reported using
           a log record with a ``WARNING`` level.
 
-          In the ``strict`` mode none of CKAN CLI commands will be executed and
-          the CKAN application itself will not start unless **all** config
+          In the ``strict`` mode, CKAN will not start unless **all** config
           options are valid according to the validators defined in the
-          declaration. For every invalid config option, an error will be
+          configuration declaration. For every invalid config option, an error will be
           printed to the output stream.
 
   - annotation: Development settings

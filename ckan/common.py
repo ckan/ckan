@@ -14,7 +14,7 @@ from collections.abc import MutableMapping, Iterable
 
 from typing import (
     Any, Optional, TYPE_CHECKING,
-    TypeVar, cast, overload, Container, Union)
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
@@ -28,7 +28,7 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
-from ckan.config.declaration import Declaration, Key
+from ckan.config.declaration import Declaration
 from ckan.types import Model
 
 
