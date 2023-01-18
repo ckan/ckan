@@ -456,9 +456,9 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :rtype: dictionary
 
     '''
+    filters = data_dict.pop('filters', None)
     # passing filters=None will cause table to be deleted, use {} to remove records instead
-    filters = data_dict.pop('filters', {})
-    data_dict['filters'] = filters
+    data_dict['filters'] = {} if filters is None else filters
     return datastore_delete(context, data_dict)
 
 
