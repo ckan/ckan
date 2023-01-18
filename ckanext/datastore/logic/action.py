@@ -432,7 +432,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
 
 
 def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
-    '''Deletes all records or a set of records from the DataStore.
+    '''Deletes records from a DataStore table but will never remove the table itself
 
     :param resource_id: resource id that the data will be deleted from.
                         (optional)
