@@ -169,6 +169,20 @@ def datastore_delete_schema() -> Schema:
     return schema
 
 
+def datastore_records_delete_schema() -> Schema:
+    schema = {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'force': [ignore_missing, boolean_validator],
+        'filters': [not_missing, json_validator],
+        'id': [ignore_missing],
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
+        '__junk': [empty],
+        '__before': [rename('id', 'resource_id')]
+    }
+    return schema
+
+
 def datastore_search_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],

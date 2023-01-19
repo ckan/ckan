@@ -435,13 +435,13 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     '''Deletes records from a DataStore table but will never remove the table itself
 
     :param resource_id: resource id that the data will be deleted from.
-                        (optional)
+                        (required)
     :type resource_id: string
     :param force: set to True to edit a read-only resource
     :type force: bool (optional, default: False)
     :param filters: filters to apply before deleting (eg {"name": "fred"}).
-                   If missing, null or {} delete all records.
-                   (optional)
+                   If {} delete all records.
+                   (required)
     :type filters: dictionary
     :param calculate_record_count: updates the stored count of records, used to
         optimize datastore_search in combination with the
@@ -456,9 +456,10 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     :rtype: dictionary
 
     '''
-    filters = data_dict.get('filters', None)
-    # passing filters=None will cause table to be deleted, use {} to remove records instead
-    data_dict['filters'] = {} if filters is None else filters
+    schema = context.get('schema', dsschema.datastore_records_delete_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
     return datastore_delete(context, data_dict)
 
 
