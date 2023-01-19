@@ -3024,9 +3024,16 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             "api_token_list",
             context={"model": model, "user": user["name"]},
-            user=user["name"],
+            user_id=user["name"],
         )
         assert sorted([t["id"] for t in tokens]) == sorted(ids)
+
+        # Param "user" works for backwards compatibility
+        tokens = helpers.call_action(
+            "api_token_list",
+            context={"model": model, "user": user["name"]},
+            user=user["name"],
+        )
 
 
 @pytest.mark.usefixtures("non_clean_db")

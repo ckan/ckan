@@ -178,7 +178,7 @@ class TestApiToken(object):
             helpers.call_auth(
                 u"api_token_list",
                 {u"user": None, u"model": model},
-                user=user['name']
+                user_id=user['name']
             )
 
     def test_auth_user_is_allowed_to_list_tokens(self):
@@ -186,7 +186,7 @@ class TestApiToken(object):
         helpers.call_auth(u"api_token_list", {
             u"model": model,
             u"user": user[u"name"]
-        }, user=user[u"name"])
+        }, user_id=user[u"name"])
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")

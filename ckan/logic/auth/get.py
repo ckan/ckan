@@ -339,7 +339,9 @@ def job_show(context: Context, data_dict: DataDict) -> AuthResult:
 def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
     """List all available tokens for current user.
     """
-    user = context[u'model'].User.get(data_dict[u'user'])
+    # Support "user" for backwards compatibility
+    id_or_name = data_dict.get("user_id", data_dict.get("user"))
+    user = context[u'model'].User.get(id_or_name)
     success = user is not None and user.name == context[u'user']
 
     return {u'success': success}

@@ -3234,12 +3234,18 @@ def api_token_list(
         context: Context, data_dict: DataDict) -> ActionResult.ApiTokenList:
     '''Return list of all available API Tokens for current user.
 
+    :param string user_id: The user ID or name
+
     :returns: collection of all API Tokens
     :rtype: list
 
     .. versionadded:: 2.9
     '''
-    id_or_name = _get_or_bust(data_dict, u'user')
+    # Support "user" for backwards compatibility
+    id_or_name = data_dict.get("user_id", data_dict.get("user"))
+    if not id_or_name:
+        raise ValidationError({"user_id": ["Missing value"]})
+
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
     if user is None:
