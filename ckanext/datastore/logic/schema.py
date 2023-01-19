@@ -83,7 +83,7 @@ def json_validator(value: Any) -> Any:
         return value
     try:
         value = json.loads(value)
-    except ValueError:
+    except ValueError and TypeError:
         raise df.Invalid('Cannot parse JSON')
     return value
 
