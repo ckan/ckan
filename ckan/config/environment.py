@@ -133,7 +133,7 @@ def update_config() -> None:
                 "{}: {}".format(key, "; ".join(issues))
                 for key, issues in errors.items()
             )
-msg = "Invalid configuration values provided:\n" + msg
+            msg = "Invalid configuration values provided:\n" + msg
             raise CkanConfigurationException(msg)
         else:
             for key, issues in errors.items():
