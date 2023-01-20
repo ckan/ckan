@@ -737,7 +737,7 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             u"api_token_list",
             context={u"model": model, u"user": user[u"name"]},
-            user=user[u"name"],
+            user_id=user[u"name"],
         )
         assert len(tokens) == 2
 
@@ -750,7 +750,7 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             u"api_token_list",
             context={u"model": model, u"user": user[u"name"]},
-            user=user[u"name"],
+            user_id=user[u"name"],
         )
         assert len(tokens) == 1
 
@@ -763,7 +763,7 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             u"api_token_list",
             context={u"model": model, u"user": user[u"name"]},
-            user=user[u"name"],
+            user_id=user[u"name"],
         )
         assert len(tokens) == 0
 
