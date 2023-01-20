@@ -86,7 +86,7 @@ def user_list(context: Context, data_dict: DataDict) -> AuthResult:
     if data_dict.get('email'):
         # only sysadmins can specify the 'email' parameter
         return {'success': False}
-    if not config.get_value('ckan.auth.public_user_details'):
+    if not config.get('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
@@ -171,7 +171,7 @@ def group_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     group = get_group_object(context, data_dict)
     if group.state == 'active':
-        if config.get_value('ckan.auth.public_user_details') or \
+        if config.get('ckan.auth.public_user_details') or \
             (not asbool(data_dict.get('include_users', False)) and
                 (data_dict.get('object_type', None) != 'user')):
             return {'success': True}
@@ -200,7 +200,7 @@ def tag_show(context: Context, data_dict: DataDict) -> AuthResult:
 def user_show(context: Context, data_dict: DataDict) -> AuthResult:
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
-    if not config.get_value('ckan.auth.public_user_details'):
+    if not config.get('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
@@ -468,4 +468,3 @@ def term_translation_show(context: Context, data_dict: DataDict) -> AuthResult:
     '''Check if the translations for the given term(s) and language(s) are visible.
     Visible to all by default.'''
     return {'success': True}
-

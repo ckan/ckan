@@ -64,7 +64,7 @@ class Flag(enum.Flag):
     - is ignored when config option is **missing** from the config file
     - shown as a default value in the config file generated from template. For
       example, `Option<key=a, placeholder=b, commented=False>` is added to the
-      config file as `a = b`. After this, `config.get_value('a')` returns `b`,
+      config file as `a = b`. After this, `config.get('a')` returns `b`,
       because it's explicitely written in the config file.
     Flag.commented:
     - Marks option as commented by default
@@ -72,7 +72,7 @@ class Flag(enum.Flag):
     - switches option to the commented state in the config file generated from
       template.  For example, `Option<key=a, placeholder=b, commented=True>` is
       added to the config file as `# a = b`. After this,
-      `config.get_value('a')` returns `None`, because there is no option `a` in
+      `config.get('a')` returns `None`, because there is no option `a` in
       the config file(it's commented, which makes this option non-existing)
     If the option is missing from the config file, both `placeholder` and
     `commented` are virtually ignored, having absolutely no impact on the value
@@ -92,7 +92,7 @@ class Flag(enum.Flag):
         >>> # GOOD
         >>> ### config file
         >>> # my_extension.feature_flag = reserved_02
-        >>> key = config.get_value('my_extension.feature_flag')
+        >>> key = config.get('my_extension.feature_flag')
         >>> marker = Flag[key]
 
     This allows the end user to manually solve conflicts, when multiple

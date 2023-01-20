@@ -118,41 +118,23 @@ class Declaration:
             plugin.declare_config_options(self, Key())
         self._seal()
 
-    def make_safe(self, config: "CKANConfig") -> bool:
+    def make_safe(self, config: "CKANConfig"):
         """Load defaul values for missing options.
-
-        This method has effect only in strict mode, because in normal mode
-        there are no guarantees that all the default values are available and
-        valid.
-
-        Returns `True` if declaration became safe and `False` if something went
-        wrong(strict mode is not enabled).
-
         """
-        if config.get_value("config.mode") != "strict":
-            return False
 
         for key in self.iter_options(exclude=Flag.not_safe()):
             if key not in config and not isinstance(key, Pattern):
                 config[str(key)] = self[key].default
-        return True
 
-    def normalize(self, config: "CKANConfig") -> bool:
+    def normalize(self, config: "CKANConfig"):
         """Validate and normalize all the values in the config object.
 
         This method ensures that all the config values are in-place and
-        converts them to the expected type. This method may significantly
-        improve performance of `config.get_value`, because the latter:
-        * no longer has to check if default value required
-        * doesn't have to convert the value using validators
-
-        Works only in strict mode.
+        converts them to the expected type. If config option doesn't pass
+        validation value is left unprocessed, as a string.
 
         """
         import ckan.lib.navl.dictization_functions as df
-
-        if config.get_value("config.mode") != "strict":
-            return False
 
         data, errors = self.validate(config)
 
@@ -160,10 +142,11 @@ class Declaration:
             if v is df.missing:
                 continue
 
-            assert k not in errors, f"Invalid value for {k}: {v}"
-
             if k not in cast(Container[str], self):
                 # it either __extra or __junk
+                continue
+
+            if k in errors:
                 continue
 
             if config.get(k) == v:
@@ -171,8 +154,6 @@ class Declaration:
 
             log.debug(f"Normalized {k} config option: {v}")
             config[k] = v
-
-        return True
 
     def validate(
             self, config: "CKANConfig"

@@ -37,8 +37,8 @@ bp = Blueprint("activity", __name__)
 
 
 def _get_activity_stream_limit() -> int:
-    base_limit = tk.config.get_value("ckan.activity_list_limit")
-    max_limit = tk.config.get_value("ckan.activity_list_limit_max")
+    base_limit = tk.config.get("ckan.activity_list_limit")
+    max_limit = tk.config.get("ckan.activity_list_limit_max")
     return min(base_limit, max_limit)
 
 

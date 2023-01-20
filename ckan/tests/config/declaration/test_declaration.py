@@ -75,24 +75,9 @@ class TestDeclaration:
         # core declarations loaded
         assert Key().ckan.site_url in decl
 
-        # no safe-mode by default
-        missing = set(decl.iter_options()) - set(ckan_config)
-        assert Key().api_token.jwt.algorithm in missing
+        # normalization changed types
+        assert isinstance(ckan_config["debug"], bool)
 
-        # no normalization by default
-        assert isinstance(ckan_config["debug"], str)
-
-    @pytest.mark.ckan_config("config.mode", "strict")
-    def test_safe_setup(self, ckan_config):
-        delimiter = Key().ckan.template_title_delimiter
-        decl = Declaration()
-
-        assert delimiter not in ckan_config
-        decl.setup()
-        decl.make_safe(ckan_config)
-        assert delimiter in ckan_config
-
-    @pytest.mark.ckan_config("config.mode", "strict")
     @pytest.mark.ckan_config("ckan.jobs.timeout", "zero")
     def test_strict_setup(self, ckan_config):
         decl = Declaration()
@@ -100,7 +85,6 @@ class TestDeclaration:
         _, errors = decl.validate(ckan_config)
         assert "ckan.jobs.timeout" in errors
 
-    @pytest.mark.ckan_config("config.mode", "strict")
     def test_normalized_setup(self, ckan_config):
         decl = Declaration()
         decl.setup()
@@ -142,47 +126,35 @@ class TestDeclaration:
 
         assert k in decl
 
-    def test_make_safe_no_effect(self):
+    def test_make_safe_uses_defaults(self):
         decl = Declaration()
         decl.declare(Key().a, 10)
 
         cfg = CKANConfig()
-        assert not decl.make_safe(cfg)
-        assert cfg == CKANConfig()
-
-    def test_make_safe_in_safe_mode(self):
-        decl = Declaration()
-        decl.declare(Key().a, 10)
-
-        cfg = CKANConfig({"config.mode": "strict"})
-        assert decl.make_safe(cfg)
-        assert cfg == CKANConfig({"config.mode": "strict", "a": 10})
+        decl.make_safe(cfg)
+        assert cfg == CKANConfig({"a": 10})
 
     def test_make_safe_no_overrides(self):
         decl = Declaration()
         decl.declare(Key().a, 10)
 
-        cfg = CKANConfig({"config.mode": "strict", "a": 20})
-        assert decl.make_safe(cfg)
-        assert cfg == CKANConfig({"config.mode": "strict", "a": 20})
+        cfg = CKANConfig({"a": 20})
+        decl.make_safe(cfg)
+        assert cfg == CKANConfig({"a": 20})
 
-    def test_normalize_no_effect(self):
+    def test_normalize_convert_types(self):
         decl = Declaration()
         decl.declare_int(Key().a, "10")
 
         cfg = CKANConfig()
-        assert not decl.normalize(cfg)
+        decl.normalize(cfg)
+        # in non-safe mode default value has no effect
         assert cfg == CKANConfig()
 
-    def test_normalize_in_normalized_mode(self):
-        decl = Declaration()
-        decl.declare_int(Key().a, "10")
+        decl.make_safe(cfg)
+        decl.normalize(cfg)
+        assert cfg == CKANConfig({"a": 10})
 
-        cfg = CKANConfig({"config.mode": "strict"})
-        assert decl.normalize(cfg)
-        # in non-safe mode default value has no effect
-        assert cfg == CKANConfig({"config.mode": "strict"})
-
-        cfg = CKANConfig({"config.mode": "strict", "a": "10"})
-        assert decl.normalize(cfg)
-        assert cfg == CKANConfig({"config.mode": "strict", "a": 10})
+        cfg = CKANConfig({"a": "20"})
+        decl.normalize(cfg)
+        assert cfg == CKANConfig({"a": 20})

@@ -13,7 +13,7 @@ from ckan import model
 from unittest import mock
 
 
-@pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+@pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
 @mock.patch("flask_login.utils._get_user")
 def test_auth_user_list(current_user):
     current_user.return_value = mock.Mock(is_anonymous=True)
@@ -36,7 +36,7 @@ def test_user_list_email_parameter():
 
 @pytest.mark.usefixtures(u"non_clean_db")
 class TestGetAuth(object):
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
     @mock.patch("flask_login.utils._get_user")
     def test_auth_user_show(self, current_user):
         fred = factories.User()
@@ -106,7 +106,7 @@ class TestGetAuth(object):
         ret = helpers.call_auth("group_show", context=context, id=org["name"])
         assert ret
 
-    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
     def test_group_show__user_is_hidden_to_public(self):
         group = factories.Group()
         context = {"model": model}
