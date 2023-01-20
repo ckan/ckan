@@ -56,7 +56,7 @@ def compare_domains(urls: Iterable[str]) -> bool:
 
 def on_same_domain(data_dict: dict[str, Any]) -> bool:
     # compare CKAN domain and resource URL
-    ckan_url = config.get_value('ckan.site_url')
+    ckan_url = config.get('ckan.site_url')
     resource_url = data_dict['resource']['url']
 
     return compare_domains([ckan_url, resource_url])
@@ -124,7 +124,7 @@ def get_default_view_plugins(
 
     Returns a list of IResourceView plugins
     '''
-    default_view_types = config.get_value('ckan.views.default_views')
+    default_view_types = config.get('ckan.views.default_views')
 
     default_view_plugins = []
     for view_type in default_view_types:

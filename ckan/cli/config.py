@@ -13,16 +13,10 @@ from . import error_shout
 
 
 @click.group(
-    short_help="Search, validate and describe config options on strict mode"
+    short_help="Search, validate and describe config options."
 )
 def config():
-    mode = cfg.get_value("config.mode")
-    if mode != "strict":
-        error_shout(
-            "`config.mode = strict` is required to use the declarative"
-            " config features"
-        )
-        raise click.Abort()
+    pass
 
 
 @config.command()
@@ -229,7 +223,7 @@ def _declaration(
     additional = ()
     if include_enabled:
         additional = (
-            p for p in cfg.get_value("ckan.plugins") if p not in plugins
+            p for p in cfg.get("ckan.plugins") if p not in plugins
         )
 
     for name in itertools.chain(additional, plugins):

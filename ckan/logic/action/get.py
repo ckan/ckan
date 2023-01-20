@@ -337,7 +337,7 @@ def _group_or_org_list(
             data_dict, ckan.logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
+    sort = data_dict.get('sort') or config.get('ckan.default_group_sort')
     q = data_dict.get('q', '').strip()
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -345,13 +345,13 @@ def _group_or_org_list(
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
         try:
-            max_limit = config.get_value(
+            max_limit = config.get(
                 'ckan.group_and_organization_list_all_fields_max')
         except ValueError:
             max_limit = 25
     else:
         try:
-            max_limit = config.get_value('ckan.group_and_organization_list_max')
+            max_limit = config.get('ckan.group_and_organization_list_max')
         except ValueError:
             max_limit = 1000
 
@@ -869,7 +869,7 @@ def user_list(
         query = model.Session.query(model.User.name)
 
     if not asbool(data_dict.get('include_site_user', False)):
-        site_id = config.get_value('ckan.site_id')
+        site_id = config.get('ckan.site_id')
         query = query.filter(model.User.name != site_id)
 
     if q:
@@ -1203,7 +1203,7 @@ def _group_or_org_show(
 
     try:
         include_tags = asbool(data_dict.get('include_tags', True))
-        if config.get_value('ckan.auth.public_user_details'):
+        if config.get('ckan.auth.public_user_details'):
             include_users = asbool(data_dict.get('include_users', True))
         else:
             include_users = asbool(data_dict.get('include_users', False))
@@ -1890,7 +1890,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get_value('ckan.search.default_package_sort')
+        data_dict['sort'] = config.get('ckan.search.default_package_sort')
 
     results: list[dict[str, Any]] = []
     facets: dict[str, Any] = {}
@@ -2430,7 +2430,7 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get_value('ckan.site_id')
+    site_id = config.get('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -2455,17 +2455,17 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
 
     '''
     _check_access('status_show', context, data_dict)
-    extensions = config.get_value('ckan.plugins')
+    extensions = config.get('ckan.plugins')
 
     site_info = {
-        'site_title': config.get_value('ckan.site_title'),
-        'site_description': config.get_value('ckan.site_description'),
-        'site_url': config.get_value('ckan.site_url'),
-        'error_emails_to': config.get_value('email_to'),
-        'locale_default': config.get_value('ckan.locale_default'),
+        'site_title': config.get('ckan.site_title'),
+        'site_description': config.get('ckan.site_description'),
+        'site_url': config.get('ckan.site_url'),
+        'error_emails_to': config.get('email_to'),
+        'locale_default': config.get('ckan.locale_default'),
         'extensions': extensions,
     }
-    if not config.get_value('ckan.hide_version') or authz.is_sysadmin(context['user']):
+    if not config.get('ckan.hide_version') or authz.is_sysadmin(context['user']):
         site_info['ckan_version'] = ckan.__version__
     return site_info
 
@@ -2762,7 +2762,7 @@ def _followee_count(
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    
+
     followees = _group_or_org_followee_list(context, data_dict, is_org)
 
     return len(followees)

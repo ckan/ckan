@@ -662,7 +662,7 @@ def _group_or_org_update(
         raise NotFound('Group was not found.')
     context["group"] = group
 
-    data_dict_type = data_dict.get('type') 
+    data_dict_type = data_dict.get('type')
     if data_dict_type is None:
         data_dict['type'] = group.type
     else:
@@ -1146,7 +1146,7 @@ def _bulk_update_dataset(
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
             'rows': BATCH_SIZE
         }
 

@@ -52,7 +52,7 @@ class LicenseRegister(object):
     licenses: list[License]
 
     def __init__(self):
-        group_url = config.get_value('licenses_group_url')
+        group_url = config.get('licenses_group_url')
         if group_url:
             self.load_licenses(group_url)
         else:
@@ -82,7 +82,7 @@ class LicenseRegister(object):
                 with open(license_url.replace('file://', ''), 'r') as f:
                     license_data = json.load(f)
             else:
-                timeout = config.get_value('ckan.requests.timeout')
+                timeout = config.get('ckan.requests.timeout')
                 response = requests.get(license_url, timeout=timeout)
                 license_data = response.json()
         except requests.RequestException as e:

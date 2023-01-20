@@ -7,11 +7,8 @@ Configuration Options
 The functionality and features of CKAN can be modified using many different
 configuration options. These are generally set in the `CKAN configuration file`_,
 but some of them can also be set via `Environment variables`_ or at :ref:`runtime <runtime-config>`.
-Config options can be :ref:`declared on strict mode <declare-config-options>` to ensure they are validated and have default values.
 
 .. note:: Looking for the available configuration options? Jump to `CKAN configuration file`_.
-
-
 
 
 Environment variables
@@ -73,8 +70,6 @@ code base (You can see the core config declarations in
 the ``ckan/config/config_declaration.yaml`` file). This allows to validate the
 current configuration against the declaration, or check which config
 options in the CKAN config file are not declared (and might have no effect).
-
-.. note:: To make use of the config declaration feature you need to set :ref:`config.mode` to ``strict``
 
 Declaring config options
 ------------------------
@@ -303,9 +298,6 @@ label, the only important part here are angle brackets::
       Custom sqlalchemy config parameters used to establish the main
       database connection.
 
-Dynamic options should not be accessed via ``config.get_value`` at the
-moment. Use ``config.get`` (which is identical to ``dict.get``) instead.
-
 Use this feature sparsely, only when you really want to declare literally ANY
 value following the pattern. If you have finite set of possible options,
 consider declaring all of them, because it allows you to provide validators,
@@ -321,9 +313,10 @@ code like this one::
   is_enabled = toolkit.asbool(toolkit.config.get("ckanext.my_ext.enable", False))
 
 Declaring this configuration option and assigning validators (`convert_int`,
-`boolean_validators`) and a default value means that we can use the ``config.get_value()`` method::
+`boolean_validators`) and a default value means that we can use the
+``config.get(key)`` instead of the expression above::
 
-  is_enabled = toolkit.config.get_value("ckanext.my_ext.enable")
+  is_enabled = toolkit.config.get("ckanext.my_ext.enable")
 
 This will ensure that:
 
@@ -331,15 +324,14 @@ This will ensure that:
  2. This value is passed to the validators, and a valid value is returned
 
 
-.. note:: An attempt to use ``config.get_value()`` with an undeclared config option
+.. note:: An attempt to use ``config.get()`` with an undeclared config option
           will print a warning to the logs and return the option value or ``None`` as default.
 
 
 Command line interface
 ----------------------
 
-The current configuration can be validated using the :ref:`config declaration CLI <cli.ckan.config>` (again, assuming that
-you have set :ref:`config.mode` to ``strict``)::
+The current configuration can be validated using the :ref:`config declaration CLI <cli.ckan.config>`::
 
   ckan config validate
 

@@ -126,18 +126,27 @@ def update_config() -> None:
         if from_env:
             config[option] = from_env
 
-    if config.get_value("config.mode") == "strict":
-        _, errors = config_declaration.validate(config)
-        if errors:
+    _, errors = config_declaration.validate(config)
+    if errors:
+        if config.get("config.mode") == "strict":
             msg = "\n".join(
                 "{}: {}".format(key, "; ".join(issues))
                 for key, issues in errors.items()
             )
+            msg = "Invalid configuration values provided:\n" + msg
             raise CkanConfigurationException(msg)
+        else:
+            for key, issues in errors.items():
+                log.warning(
+                    "Invalid value for %s (%s): %s",
+                    key,
+                    config.get(key),
+                    "; ".join(issues)
+                )
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get_value('ckan.site_url')
+    site_url = config.get('ckan.site_url')
     if not site_url:
         raise RuntimeError(
             'ckan.site_url is not configured and it must have a value.'
@@ -149,7 +158,7 @@ def update_config() -> None:
     # Remove backslash from site_url if present
     config['ckan.site_url'] = site_url.rstrip('/')
 
-    display_timezone = config.get_value('ckan.display_timezone')
+    display_timezone = config.get('ckan.display_timezone')
     if (display_timezone and
             display_timezone != 'server' and
             display_timezone not in pytz.all_timezones):
@@ -161,9 +170,9 @@ def update_config() -> None:
     # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
-    search.SolrSettings.init(config.get_value('solr_url'),
-                             config.get_value('solr_user'),
-                             config.get_value('solr_password'))
+    search.SolrSettings.init(config.get('solr_url'),
+                             config.get('solr_user'),
+                             config.get('solr_password'))
     search.check_solr_schema_version()
 
     lib_plugins.reset_package_plugins()
@@ -178,7 +187,7 @@ def update_config() -> None:
 
     # Templates and CSS loading from configuration
     valid_base_templates_folder_names = ['templates', 'templates-bs3']
-    templates = config.get_value('ckan.base_templates_folder')
+    templates = config.get('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
@@ -191,7 +200,7 @@ def update_config() -> None:
     log.info('Loading templates from %s' % jinja2_templates_path)
     template_paths = [jinja2_templates_path]
 
-    extra_template_paths = config.get_value('extra_template_paths')
+    extra_template_paths = config.get('extra_template_paths')
     if 'plugin_template_paths' in config:
         template_paths = config['plugin_template_paths'] + template_paths
     if extra_template_paths:

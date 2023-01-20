@@ -173,7 +173,7 @@ class TrashView(MethodView):
     def _get_deleted_datasets(
         self
     ) -> Union["Query[model.Package]", List[Any]]:
-        if config.get_value('ckan.search.remove_deleted_packages'):
+        if config.get('ckan.search.remove_deleted_packages'):
             return self._get_deleted_datasets_from_db()
         else:
             return self._get_deleted_datasets_from_search_index()
