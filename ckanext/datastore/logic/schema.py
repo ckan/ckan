@@ -21,6 +21,7 @@ boolean_validator = get_validator('boolean_validator')
 int_validator = get_validator('int_validator')
 one_of = cast(ValidatorFactory, get_validator('one_of'))
 unicode_only = get_validator('unicode_only')
+dict_only = get_validator('dict_only')
 default = cast(ValidatorFactory, get_validator('default'))
 natural_number_validator = get_validator('natural_number_validator')
 configured_default = cast(ValidatorFactory, get_validator(
@@ -160,6 +161,7 @@ def datastore_delete_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],
         'force': [ignore_missing, boolean_validator],
+        'filters': [ignore_missing, dict_only],
         'id': [ignore_missing],
         'calculate_record_count': [ignore_missing, default(False),
                                    boolean_validator],
@@ -173,7 +175,7 @@ def datastore_records_delete_schema() -> Schema:
     schema = {
         'resource_id': [not_missing, not_empty, unicode_safe],
         'force': [ignore_missing, boolean_validator],
-        'filters': [not_missing, json_validator],
+        'filters': [not_missing, dict_only],
         'id': [ignore_missing],
         'calculate_record_count': [ignore_missing, default(False),
                                    boolean_validator],
