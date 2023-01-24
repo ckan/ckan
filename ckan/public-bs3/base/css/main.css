@@ -11046,3 +11046,7 @@ iframe {
 .reduced-padding {
   padding: 3px 5px;
 }
+
+.skip-content {
+  background-color: white;
+}
