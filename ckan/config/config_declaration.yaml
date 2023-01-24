@@ -1375,6 +1375,12 @@ groups:
         example: "false"
         description: If False, there is no need to add any resources when creating a new dataset.
 
+      - key: ckan.dataset.restrict_license_choices
+        type: bool
+        default: true
+        example: "false"
+        description: If False, does not validate licenses based on ``licenses_group_url`` contents.
+
       - key: package_new_return_url
         description: |
           The URL to redirect the user to after they've submitted a new package form,
