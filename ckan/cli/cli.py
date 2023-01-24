@@ -53,8 +53,12 @@ class CtxObject(object):
     def __init__(self, conf: Optional[str] = None):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
-        self.config = ckan_cli.load_config(conf)
-        self.app = make_app(self.config)
+        raw_config = ckan_cli.load_config(conf)
+        self.app = make_app(raw_config)
+
+        # Attach the actual CKAN config object to the context
+        from ckan.common import config
+        self.config = config
 
 
 class ExtendableGroup(click.Group):
