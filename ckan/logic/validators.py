@@ -25,7 +25,7 @@ import ckan.authz as authz
 from ckan.model.core import State
 from ckan.model import Package
 
-from ckan.common import _
+from ckan.common import _, asbool, config
 from ckan.types import (
     FlattenDataDict, FlattenKey, Validator, Context, FlattenErrorDict)
 
@@ -1033,6 +1033,8 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
 
 
 def license_choices(value: Any, context: Context) -> Any:
+    if not asbool(config.get('ckan.dataset.restrict_license_choices', False)):
+        return value
     licenses = Package.get_license_register()
     if value in licenses:
         return value

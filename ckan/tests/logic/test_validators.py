@@ -907,6 +907,9 @@ def test_tag_string_convert():
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v1" % this_dir
 )
+@pytest.mark.ckan_config(
+    "ckan.dataset.restrict_license_choices", True
+)
 def test_license_choices_v1():
     licenses = model.license.LicenseRegister()
     assert 'cc-by' in licenses
@@ -915,6 +918,9 @@ def test_license_choices_v1():
 
 @pytest.mark.ckan_config(
     "licenses_group_url", "file:///%s/licenses.v2" % this_dir
+)
+@pytest.mark.ckan_config(
+    "ckan.dataset.restrict_license_choices", True
 )
 def test_license_choices_v2():
     licenses = model.license.LicenseRegister()
