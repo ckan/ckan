@@ -99,11 +99,10 @@ a. Create a Python `virtual environment <https://virtualenv.pypa.io/en/latest/>`
        |activate|
 
 
-b. Install the recommended ``setuptools`` version and up-to-date pip:
+b. Install an up-to-date pip:
 
    .. parsed-literal::
 
-       pip install setuptools==\ |min_setuptools_version|
        pip install --upgrade pip
 
 c. Install the CKAN source code into your virtualenv.
