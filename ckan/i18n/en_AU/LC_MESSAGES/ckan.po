@@ -1368,8 +1368,8 @@ msgid "Submit"
 msgstr ""
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
-msgstr "Skip to content"
+msgid "Skip to main content"
+msgstr "Skip to main content"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
