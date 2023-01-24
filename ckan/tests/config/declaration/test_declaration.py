@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from ckan.common import CKANConfig
 from ckan.config.declaration.load import GroupV1, OptionV1
 import pytest
@@ -158,3 +159,26 @@ class TestDeclaration:
         cfg = CKANConfig({"a": "20"})
         decl.normalize(cfg)
         assert cfg == CKANConfig({"a": 20})
+
+    @pytest.mark.parametrize("raw,safe,warned", [
+        ({}, {"a": "default"}, False),
+        ({"legacy_a": "legacy"}, {"a": "legacy", "legacy_a": "legacy"}, True),
+        ({"a": "modern", "legacy_a": "legacy"}, {"a": "modern", "legacy_a": "legacy"}, False),
+    ])
+    def test_legacy_key(self, raw, safe, warned, caplog):
+        decl = Declaration()
+        option = decl.declare(Key().a, "default")
+        option.legacy_key = "legacy_a"
+
+        cfg = CKANConfig(raw)
+        with caplog.at_level(logging.WARNING):
+            decl.make_safe(cfg)
+
+            if warned:
+                assert caplog.records
+                assert "legacy_a" in caplog.records[0].message
+
+            else:
+                assert not caplog.records
+
+        assert cfg == CKANConfig(safe)
