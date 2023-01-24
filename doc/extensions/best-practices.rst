@@ -78,6 +78,29 @@ available in CKAN for this purpose:
 
     ckan db downgrade -p PLUGIN_NAME
 
+------------------------------------
+Declare models using shared metadata
+------------------------------------
+
+Use :py:obj:`ckan.model.meta.metadata` object for any new SQLAlchemy model
+registered via extension. It helps SQLAlchemy to resolve cascade relationships
+and control orphan removals. In addition, ``clean_db`` test fixture cleans
+tables for every model registered using :py:obj:`ckan.model.meta.metadata`, so
+new models are integrated into the test suite without additional efforts.
+
+Example::
+
+    import ckan.model as model
+    from sqlalchemy.ext.declarative import declarative_base
+
+    Base = declarative_base(metadata=model.meta.metadata)
+
+    class ExtModel(Base):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+
 -------------------------------------------------------
 Implement each plugin class in a separate Python module
 -------------------------------------------------------
