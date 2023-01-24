@@ -1373,7 +1373,7 @@ msgid "Submit"
 msgstr ""
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "Ga verder naar de inhoud"
 
 #: ckan/templates/page.html:36

@@ -1384,7 +1384,7 @@ msgid "Submit"
 msgstr "Lähetä"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "Siirry sisältöön"
 
 #: ckan/templates/page.html:36

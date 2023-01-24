@@ -1381,8 +1381,8 @@ msgid "Submit"
 msgstr "Прихватите"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
-msgstr "Пређите на садржај"
+msgid "Skip to main content"
+msgstr "Пређи на главни садржај"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
