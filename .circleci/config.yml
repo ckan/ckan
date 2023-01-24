@@ -2,10 +2,10 @@ version: 2
 defaults:
   init_environemnt: &init_environment
     run: |
-      ~/test-infrastructure/init_environment.sh
+      test-infrastructure/init_environment.sh
   install_deps: &install_deps
     run: |
-      ~/test-infrastructure/install_deps.sh
+      test-infrastructure/install_deps.sh
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
     run: |
