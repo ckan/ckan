@@ -103,7 +103,7 @@ def test_flask_config_values_are_parsed(app):
 
 
 @pytest.mark.ckan_config("WTF_CSRF_SECRET_KEY", None)
-def test_no_wtf_secret_falls_back_to_secret_key(make_app):
+def test_no_wtf_secret_falls_back_to_secret_key(app):
     assert (
         app.flask_app.config["WTF_CSRF_SECRET_KEY"] == config.get("beaker.session.secret")
     )
