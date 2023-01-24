@@ -181,6 +181,7 @@ class Option(SectionMixin, Generic[T]):
         "validators",
         "placeholder",
         "example",
+        "legacy_key",
     )
 
     flags: Flag
@@ -189,6 +190,7 @@ class Option(SectionMixin, Generic[T]):
     placeholder: Optional[str]
     example: Optional[Any]
     validators: str
+    legacy_key: Optional[str]
 
     def __init__(self, default: Optional[T] = None):
         self.flags = Flag.none()
@@ -197,6 +199,7 @@ class Option(SectionMixin, Generic[T]):
         self.example = None
         self.validators = ""
         self.default = default
+        self.legacy_key = None
 
     def str_value(self) -> str:
         """Convert option's default value into the string.
