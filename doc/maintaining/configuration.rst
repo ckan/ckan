@@ -268,6 +268,11 @@ only for explanation and you don't need them in the real file::
           # as comments to the config file generated from template.
           commented: true
 
+          # Deprecated name of the option. Can be used for options that were renamed.
+          # When `key` is missing from config and `legacy_key` is available, the value of
+          # `legacy_key` is used, printing a deprecation warning in the logs.
+          legacy_key: my_ext.legacy.flag.do_something
+
 Dynamic config options
 ^^^^^^^^^^^^^^^^^^^^^^
 

@@ -158,3 +158,17 @@ class TestDeclaration:
         cfg = CKANConfig({"a": "20"})
         decl.normalize(cfg)
         assert cfg == CKANConfig({"a": 20})
+
+    @pytest.mark.parametrize("raw,safe", [
+        ({}, {"a": "default"}),
+        ({"legacy_a": "legacy"}, {"a": "legacy", "legacy_a": "legacy"}),
+        ({"a": "modern", "legacy_a": "legacy"}, {"a": "modern", "legacy_a": "legacy"}),
+    ])
+    def test_legacy_key(self, raw, safe):
+        decl = Declaration()
+        option = decl.declare(Key().a, "default")
+        option.legacy_key = "legacy_a"
+
+        cfg = CKANConfig(raw)
+        decl.make_safe(cfg)
+        assert cfg == CKANConfig(safe)
