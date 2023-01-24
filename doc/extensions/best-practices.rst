@@ -101,6 +101,10 @@ Example::
         ...
 
 
+.. note:: Starting from CKAN v2.10.0 the :py:class:`~ckan.model.base.Base`
+          class for declarative-style models, that is already attached to the
+          metadata object, can be imported from :py:mod:`ckan.model.base`.
+
 -------------------------------------------------------
 Implement each plugin class in a separate Python module
 -------------------------------------------------------
