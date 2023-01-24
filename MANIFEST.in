@@ -25,6 +25,5 @@ include ckanext/datastore/allowed_functions.txt
 prune .git
 include CHANGELOG.txt
 include ckan/migration/README
-include requirement-setuptools.txt
 include requirements.txt
 include dev-requirements.txt
