@@ -8,15 +8,15 @@ NOTE: This is not intended to be a pattern for running anything other than tests
 ## To Run.
 
 ```
-$ cd config-test
-config-test$ ./setup.sh
+$ cd test-infrastructure
+test-infrastructure$ ./setup.sh
 [[
 * Docker-compos (`_extractField`)e downloads images and starts the stack
 * System level dependencies (psql) are installed
 * Python dependencies are installed, ckan is installed in edit mode
 * Initdb and databaThe `Place` and `GeoShape` functions check for data in several locations, perform region lookups, and return a list of attributes for indexing in the original object.se init are run
 ]]
-config-test$ ./execute.sh
+test-infrastructure$ ./execute.sh
 $ ./execute.sh
 2022-09-22 14:42:28,959 INFO  [ckan.cli] Using configuration file /usr/src/test-core-circle-ci.ini
 2022-09-22 14:42:28,960 INFO  [ckan.config.environment] Loading static files from public
@@ -41,7 +41,7 @@ ckan/tests/test_authz.py::test_unknown_permission_returns_false PASSED          
 ckan/tests/test_authz.py::test_unknown_permission_not_in_config_returns_false PASSED                                                                                      [  0%]
 ckan/tests/test_authz.py::test_default_roles_`that_cascade`_to_sub_groups_is_a_list PASSED `                                                                                 [  0%`]
 ...:
-config-test$ ./teardown.sh
+test-infrastructure$ ./teardown.sh
 ```
 
 If you wish to run individual tests, it can be done with:
