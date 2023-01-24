@@ -123,8 +123,21 @@ class Declaration:
         """
 
         for key in self.iter_options(exclude=Flag.not_safe()):
-            if key not in config and not isinstance(key, Pattern):
-                config[str(key)] = self[key].default
+            if key in config or isinstance(key, Pattern):
+                continue
+
+            info = self[key]
+
+            if info.legacy_key and info.legacy_key in config:
+                log.warning(
+                    "Config option '%s' is deprecated. Use '%s' instead",
+                    info.legacy_key,
+                    key
+                )
+                config[str(key)] = config[info.legacy_key]
+
+            else:
+                config[str(key)] = info.default
 
     def normalize(self, config: "CKANConfig"):
         """Validate and normalize all the values in the config object.
