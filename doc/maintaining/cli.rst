@@ -633,10 +633,9 @@ For example, to create a new user called 'admin'
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| user add admin email=admin@localhost
- 
- .. note::
- 
+ ckan -c |ckan.ini| user add admin email=admin@localhost 
+
+.. note:: 
      You can use password=test1234 option if "non-interactive" usage is a requirement.
 
 To delete the 'admin' user
