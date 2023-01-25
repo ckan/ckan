@@ -1398,8 +1398,6 @@ def user_show(context, data_dict):
     :rtype: dictionary
 
     '''
-    _check_access('user_show', context, data_dict)
-
     model = context['model']
 
     id = data_dict.get('id', None)

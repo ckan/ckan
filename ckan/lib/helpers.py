@@ -650,9 +650,6 @@ def full_current_url():
     for sharing etc '''
     return (url_for(request.environ['CKAN_CURRENT_URL'], qualified=True))
 
-def current_url():
-    ''' Returns current url unquoted'''
-    return urllib.unquote(request.environ['CKAN_CURRENT_URL'])
 
 @core_helper
 def current_url():
@@ -2094,16 +2091,6 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
-def canonical_search_url():
-    ''' Return a url with all parameters removed except for the pagination parameter
-    This is useful for creating canonical urls for search pages, so that search engines do not
-    index many multiples of different search pages due to other search and faceting parameters
-    '''
-    try:
-        page_param = [(k, v) for k, v in request.params.items() if k == 'page']
-        return _search_url(page_param)
-    except ckan.exceptions.CkanUrlException:
-        return _search_url(None)
 
 @core_helper
 def include_resource(resource):

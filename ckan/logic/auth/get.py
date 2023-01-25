@@ -15,7 +15,6 @@ def sysadmin(context, data_dict):
     return {'success': False, 'msg': _('Not authorized')}
 
 
-@logic.auth_read_safe
 def site_read(context, data_dict):
     """\
     This function should be deprecated. It is only here because we couldn't
@@ -28,19 +27,16 @@ def site_read(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def package_search(context, data_dict):
     # Everyone can search by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def package_list(context, data_dict):
     # List of all active packages are visible by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def current_package_list_with_resources(context, data_dict):
     return authz.is_authorized('package_list', context, data_dict)
 
@@ -50,48 +46,38 @@ def group_list(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def group_list_authz(context, data_dict):
     return authz.is_authorized('group_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def group_list_available(context, data_dict):
     return authz.is_authorized('group_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def organization_list(context, data_dict):
     # List of all active organizations are visible by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def organization_list_for_user(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def license_list(context, data_dict):
     # Licenses list is visible by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def vocabulary_list(context, data_dict):
     # List of all vocabularies are visible by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def tag_list(context, data_dict):
     # Tags list is visible by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def user_list(context, data_dict):
     # Users list is visible by default
     if data_dict.get('email'):
@@ -103,7 +89,6 @@ def user_list(context, data_dict):
         return {'success': True}
 
 
-@logic.auth_read_safe
 def package_relationships_list(context, data_dict):
     user = context.get('user')
 
@@ -120,15 +105,11 @@ def package_relationships_list(context, data_dict):
         authorized2 = True
 
     if not (authorized1 and authorized2):
-        return {
-            'success': False,
-            'msg': _('User %s not authorized to read these packages') % user
-        }
+        return {'success': False, 'msg': _('User %s not authorized to read these packages') % user}
     else:
         return {'success': True}
 
 
-@logic.auth_read_safe
 def package_show(context, data_dict):
     user = context.get('user')
     package = get_package_object(context, data_dict)
@@ -145,12 +126,6 @@ def package_show(context, data_dict):
         return {'success': True}
 
 
-@logic.auth_read_safe
-def related_show(context, data_dict=None):
-    return {'success': True}
-
-
-@logic.auth_read_safe
 def resource_show(context, data_dict):
     model = context['model']
     user = context.get('user')
@@ -159,30 +134,17 @@ def resource_show(context, data_dict):
     # check authentication against package
     pkg = model.Package.get(resource.package_id)
     if not pkg:
-        raise logic.NotFound(
-            _('No package found for this resource, cannot check auth.')
-        )
+        raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
     pkg_dict = {'id': pkg.id}
-    authorized = authz.is_authorized(
-        'package_show',
-        context,
-        pkg_dict
-    ).get('success')
+    authorized = authz.is_authorized('package_show', context, pkg_dict).get('success')
 
     if not authorized:
-        return {
-            'success': False,
-            'msg': _('User %s not authorized to read resource %s') % (
-                user,
-                resource.id
-            )
-        }
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
     else:
         return {'success': True}
 
 
-@logic.auth_read_safe
 def resource_view_show(context, data_dict):
 
     model = context['model']
@@ -195,8 +157,6 @@ def resource_view_show(context, data_dict):
     return authz.is_authorized('resource_show', context, {'id': resource.id})
 
 
-
-@logic.auth_read_safe
 def resource_view_list(context, data_dict):
     return authz.is_authorized('resource_show', context, data_dict)
 
@@ -214,34 +174,23 @@ def group_show(context, data_dict):
     if authorized:
         return {'success': True}
     else:
-        return {
-            'success': False,
-            'msg': _('User %s not authorized to read group %s') % (
-                user,
-                group.id
-            )
-        }
+        return {'success': False, 'msg': _('User %s not authorized to read group %s') % (user, group.id)}
 
 
-@logic.auth_read_safe
 def organization_show(context, data_dict):
     return authz.is_authorized('group_show', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def vocabulary_show(context, data_dict):
     # Allow viewing of vocabs by default
     return {'success': True}
 
 
-@logic.auth_read_safe
 def tag_show(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
 
-@logic.auth_read_safe
 def user_show(context, data_dict):
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
@@ -251,47 +200,34 @@ def user_show(context, data_dict):
         return {'success': True}
 
 
-@logic.auth_read_safe
 def package_autocomplete(context, data_dict):
     return authz.is_authorized('package_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def group_autocomplete(context, data_dict):
     return authz.is_authorized('group_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def organization_autocomplete(context, data_dict):
     return authz.is_authorized('organization_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def tag_autocomplete(context, data_dict):
     return authz.is_authorized('tag_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def user_autocomplete(context, data_dict):
     return authz.is_authorized('user_list', context, data_dict)
 
 
-
-@logic.auth_read_safe
 def format_autocomplete(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def task_status_show(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def get_site_user(context, data_dict):
     # FIXME this is available to sysadmins currently till
     # @auth_sysadmins_check decorator is added
@@ -299,12 +235,10 @@ def get_site_user(context, data_dict):
             'msg': 'Only internal services allowed to use this action'}
 
 
-@logic.auth_read_safe
 def member_roles_list(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def dashboard_activity_list(context, data_dict):
     # FIXME: context['user'] could be an IP address but that case is not
     # handled here. Maybe add an auth helper function like is_logged_in().
@@ -315,16 +249,12 @@ def dashboard_activity_list(context, data_dict):
                 'msg': _("You must be logged in to access your dashboard.")}
 
 
-@logic.auth_read_safe
 def dashboard_new_activities_count(context, data_dict):
     # FIXME: This should go through check_access() not call is_authorized()
     # directly, but wait until 2939-orgs is merged before fixing this.
     # This is so a better not authourized message can be sent.
-    return authz.is_authorized(
-        'dashboard_activity_list',
-        context,
-        data_dict
-    )
+    return authz.is_authorized('dashboard_activity_list',
+            context, data_dict)
 
 
 def activity_list(context, data_dict):
@@ -419,22 +349,18 @@ def user_follower_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 
 
-@logic.auth_read_safe
 def dataset_follower_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 
 
-@logic.auth_read_safe
 def group_follower_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 
 
-@logic.auth_read_safe
 def organization_follower_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 
 
-@logic.auth_read_safe
 def _followee_list(context, data_dict):
     model = context['model']
 
@@ -452,57 +378,47 @@ def _followee_list(context, data_dict):
     return authz.is_authorized('sysadmin', context, data_dict)
 
 
-@logic.auth_read_safe
 def followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
-@logic.auth_read_safe
 @logic.auth_audit_exempt
 def user_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
-@logic.auth_read_safe
 @logic.auth_audit_exempt
 def dataset_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
-@logic.auth_read_safe
 @logic.auth_audit_exempt
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
-@logic.auth_read_safe
 @logic.auth_audit_exempt
 def organization_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
-@logic.auth_read_safe
 def user_reset(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def request_reset(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def help_show(context, data_dict):
     return {'success': True}
 
 
-@logic.auth_read_safe
 def config_option_show(context, data_dict):
     '''Show runtime-editable configuration option. Only sysadmins.'''
     return {'success': False}
 
 
-@logic.auth_read_safe
 def config_option_list(context, data_dict):
     '''List runtime-editable configuration options. Only sysadmins.'''
     return {'success': False}
