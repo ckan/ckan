@@ -1,0 +1,2 @@
+:py:class:`~ckan.plugins.toolkit.BaseModel` class for declaration-style
+SQLAlchemy models added to :py:mod:`ckan.plugins.toolkit`.
