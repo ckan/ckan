@@ -197,7 +197,7 @@ class TestDatastoreRecordsDelete(object):
         data = {"resource_id": resource["id"], "force": True, "filters": "error here"}
         with pytest.raises(ValidationError) as ve:
             helpers.call_action("datastore_records_delete", **data)
-        expected = {u'filters': [u'Cannot parse JSON']}
+        expected = {u'filters': [u'Must be a dict']}
         err = ve.value.error_dict
         assert err == expected
 
