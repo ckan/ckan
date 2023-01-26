@@ -422,23 +422,34 @@ Filters define the matching conditions to select from the DataStore. A filter is
         "resource_id":  # the resource ID (required)
         "filters": {
             # column name: # field value
+            # column name: # List of field values
             ...:  # other user-defined filters
-	}
+  }
     }
 
-Filters must be supplied as a dictonary. Filters are used as basic `WHERE =` statements.
+Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
 The filters have to be valid key/value pairs. The key must be a valid column name
-and the value must match the respective column type.
-See :ref:`valid-types` for details on which types are valid.
+and the value must match the respective column type. The value may be provided as a List
+of multiple matching values. See :ref:`valid-types` for details on which types are valid.
 
-Example::
+Example (single filter values, used as `WHERE =` statements)::
 
     {
         "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
         "filters": {
             "name": "Fred",
             "dob":  "1994-7-07"
-	}
+        }
+    }
+
+Example (multiple filter values, used as `WHERE IN` statements)::
+
+    {
+        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
+        "filters": {
+            "name": ["Fred", "Jones"],
+            "dob":  ["1994-7-07", "1992-7-27"]
+        }
     }
 
 .. _resource-aliases:
