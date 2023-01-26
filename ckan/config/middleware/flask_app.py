@@ -262,7 +262,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_error_handler(app)
 
     # CSRF
-    app.config['WTF_CSRF_FIELD_NAME'] = config.get('WTF_CSRF_FIELD_NAME')
     csrf.init_app(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
@@ -415,9 +414,6 @@ def ckan_before_request() -> Optional[Response]:
         view = current_app.view_functions.get(endpoint)
         dest = f"{view.__module__}.{view.__name__}"     # type: ignore
         csrf.exempt(dest)
-
-    # Set the csrf_field_name so we can use it in our templates
-    g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
