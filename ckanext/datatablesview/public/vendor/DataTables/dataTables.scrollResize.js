@@ -79,12 +79,28 @@ var ScrollResize = function ( dt )
 		host.css( 'position', 'relative' );
 	}
 
-	dt.on( 'draw', function () {
+	dt.on( 'draw.scrollResize', function () {
 		that._size();
 	} );
 
+	dt.on('destroy.scrollResize', function () {
+		dt.off('.scrollResize');
+		this.s.obj && this.s.obj.remove();
+	}.bind(this));
+
 	this._attach();
 	this._size();
+
+	// Redraw the header if the scrollbar was visible before feature
+	// initialization, but no longer after initialization. Otherwise,
+	// the header width would differ from the body width, because the
+	// scrollbar is no longer present.
+	var settings = dt.settings()[0];
+	var divBodyEl = settings.nScrollBody;
+	var scrollBarVis = divBodyEl.scrollHeight > divBodyEl.clientHeight;
+	if (settings.scrollBarVis && !scrollBarVis) {
+		dt.columns.adjust();
+	}
 };
 
 
@@ -107,10 +123,6 @@ ScrollResize.prototype = {
 			maxHeight: availableHeight,
 			height: availableHeight
 		} );
-
-		if ( dt.fixedColumns ) {
-			dt.fixedColumns().relayout();
-		}
 	},
 
 	_attach: function () {
@@ -158,7 +170,9 @@ ScrollResize.prototype = {
 		obj
 			.appendTo( this.s.host )
 			.attr( 'data', 'about:blank' );
-	}
+
+		this.s.obj = obj;
+    }
 };
 
 
