@@ -876,6 +876,14 @@ def strip_value(value):
     return value.strip()
 
 
+def dict_only(value):
+    """Ensures that the value is a dictionary
+    """
+    if not isinstance(value, dict):
+        raise Invalid(_('Must be a dict'))
+    return value
+
+
 def email_validator(value, context):
     '''Validate email input '''
 

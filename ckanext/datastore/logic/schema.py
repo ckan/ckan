@@ -21,6 +21,8 @@ int_validator = get_validator('int_validator')
 OneOf = get_validator('OneOf')
 unicode_only = get_validator('unicode_only')
 default = get_validator('default')
+dict_only = get_validator('dict_only')
+unicode_safe = get_validator('unicode_safe')
 
 
 def rename(old, new):
@@ -147,6 +149,20 @@ def datastore_delete_schema():
         'resource_id': [not_missing, not_empty, text_type],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
+        '__junk': [empty],
+        '__before': [rename('id', 'resource_id')]
+    }
+    return schema
+
+
+def datastore_records_delete_schema():
+    schema = {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'force': [ignore_missing, boolean_validator],
+        'filters': [not_missing, dict_only],
+        'id': [ignore_missing],
+        'calculate_record_count': [ignore_missing, default(False),
+                                   boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
