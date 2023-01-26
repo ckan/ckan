@@ -262,7 +262,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_error_handler(app)
 
     # CSRF
-    app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
+    wtf_key = "WTF_CSRF_SECRET_KEY"
+    if not app.config.get(wtf_key):
+        config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
+    app.config["WTF_CSRF_FIELD_NAME"] = "_csrf_token"
     csrf.init_app(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
