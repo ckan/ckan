@@ -296,16 +296,6 @@ def get_latest_package_name(distro, py_version=None):
     return name
 
 
-def get_min_setuptools_version():
-    '''
-    Get the minimum setuptools version as defined in requirement-setuptools.txt
-    '''
-    filename = os.path.join(os.path.dirname(__file__), '..',
-                            'requirement-setuptools.txt')
-    with open(filename) as f:
-        return f.read().split('==')[1].strip()
-
-
 def config_defaults_from_declaration():
     from ckan.config.declaration import Declaration
     decl = Declaration()
@@ -396,7 +386,6 @@ write_substitutions_file(
     latest_package_name_bionic=get_latest_package_name('bionic'),
     latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
     latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
-    min_setuptools_version=get_min_setuptools_version(),
     **config_defaults_from_declaration()
 )
 

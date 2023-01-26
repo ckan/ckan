@@ -418,7 +418,7 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
     model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resource = model.Resource.get(data_dict['resource_id'])
 
-    if (not data_dict.get('filters') and
+    if (data_dict.get('filters', None) is None and
             resource is not None and
             resource.extras.get('datastore_active') is True):
         log.debug(

@@ -39,8 +39,8 @@ def proxy_resource(context: Context, data_dict: DataDict):
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
-    timeout = config.get_value('ckan.resource_proxy.timeout')
-    max_file_size = config.get_value(u'ckan.resource_proxy.max_file_size')
+    timeout = config.get('ckan.resource_proxy.timeout')
+    max_file_size = config.get(u'ckan.resource_proxy.max_file_size')
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
@@ -72,7 +72,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
         response.charset = r.encoding or "utf-8"
 
         length = 0
-        chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')
+        chunk_size = config.get(u'ckan.resource_proxy.chunk_size')
 
         for chunk in r.iter_content(chunk_size=chunk_size):
             response.stream.write(chunk)

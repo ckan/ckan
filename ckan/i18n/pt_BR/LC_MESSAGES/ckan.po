@@ -2645,7 +2645,7 @@ msgid "Submit"
 msgstr ""
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "Pular para o conteúdo"
 
 #: ckan/templates/page.html:36

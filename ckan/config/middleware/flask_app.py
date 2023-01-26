@@ -144,8 +144,8 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         storage_folder = [os.path.join(storage, 'storage')]
 
     # Static files folders (core and extensions)
-    public_folder = config.get_value(u'ckan.base_public_folder')
-    app.static_folder = config.get_value(
+    public_folder = config.get(u'ckan.base_public_folder')
+    app.static_folder = config.get(
         'extra_public_paths'
     ).split(',') + config.get('plugin_public_paths', []) + [
         os.path.join(root, public_folder)
@@ -163,16 +163,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
     if config:
-        if config.get_value("config.mode") == "strict":
-            # Config values have been already parsed and validated
-            app.config.update(config)
-        else:
-            # Parse all values to ensure Flask gets the validated values
-            for key in config.keys():
-                if config.is_declared(key):
-                    app.config[key] = config.get_value(key)
-                else:
-                    app.config[key] = config.get(key)
+        app.config.update(config)
     else:
         app.config.update(conf)
 
@@ -180,12 +171,12 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Secret key needed for flask-debug-toolbar and sessions
     if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = config.get_value('beaker.session.secret')
+        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
     if not app.config.get('SECRET_KEY'):
         raise RuntimeError(u'You must provide a value for the secret key'
                            ' with the SECRET_KEY config option')
 
-    root_path = config.get_value('ckan.root_path')
+    root_path = config.get('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -271,13 +262,16 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     _register_error_handler(app)
 
     # CSRF
-    app.config['WTF_CSRF_FIELD_NAME'] = "_csrf_token"
+    wtf_key = "WTF_CSRF_SECRET_KEY"
+    if not app.config.get(wtf_key):
+        config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
+    app.config["WTF_CSRF_FIELD_NAME"] = "_csrf_token"
     csrf.init_app(app)
 
     # Set up each IBlueprint extension as a Flask Blueprint
     _register_plugins_blueprints(app)
 
-    if config.get_value("ckan.csrf_protection.ignore_extensions"):
+    if config.get("ckan.csrf_protection.ignore_extensions"):
         log.warn(csrf_warn_extensions)
         _exempt_plugins_blueprints_from_csrf(csrf)
 
@@ -302,7 +296,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # make anonymous_user an instance of CKAN custom class
     login_manager.anonymous_user = model.AnonymousUser
     # The name of the view to redirect to when the user needs to log in.
-    login_manager.login_view = config.get_value("ckan.auth.login_view")
+    login_manager.login_view = config.get("ckan.auth.login_view")
 
     @login_manager.user_loader
     def load_user(user_id: str) -> Optional["model.User"]:  # type: ignore
@@ -317,7 +311,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         endpoint = request.endpoint or ""
         is_api = endpoint.split(".")[0] == "api"
         if (
-            not config.get_value("ckan.auth.enable_cookie_auth_in_api")
+            not config.get("ckan.auth.enable_cookie_auth_in_api")
                 and is_api):
             return
 
@@ -346,7 +340,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     app = I18nMiddleware(app)
 
-    if config.get_value('ckan.tracking_enabled'):
+    if config.get('ckan.tracking_enabled'):
         app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
@@ -364,7 +358,7 @@ def get_locale() -> str:
     '''
     return request.environ.get(
         u'CKAN_LANG',
-        config.get_value(u'ckan.locale_default'))
+        config.get(u'ckan.locale_default'))
 
 
 def set_remote_user_as_current_user_for_tests():
@@ -408,7 +402,7 @@ def ckan_before_request() -> Optional[Response]:
     # This is needed for the TESTS of the CKAN extensions only!
     # we should remove it as soon as the maintainers of the
     # CKAN extensions change their tests according to the new changes.
-    if config.get_value("testing"):
+    if config.get("testing"):
         set_remote_user_as_current_user_for_tests()
 
     # Identify the user from the flask-login cookie or the API header
@@ -426,7 +420,7 @@ def ckan_before_request() -> Optional[Response]:
         csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
-    g.csrf_field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
 
     # Provide g.controller and g.action for backward compatibility
     # with extensions
@@ -611,7 +605,7 @@ def _register_error_handler(app: CKANApp):
     def error_handler(e: Exception) -> Union[
         tuple[str, Optional[int]], Optional[Response]
     ]:
-        debug = config.get_value('debug')
+        debug = config.get('debug')
         if isinstance(e, HTTPException):
             if debug:
                 log.debug(e, exc_info=sys.exc_info)  # type: ignore
@@ -638,7 +632,7 @@ def _register_error_handler(app: CKANApp):
         app.register_error_handler(code, error_handler)
     if not app.debug and not app.testing:
         app.register_error_handler(Exception, error_handler)
-        if config.get_value('email_to'):
+        if config.get('email_to'):
             _setup_error_mail_handler(app)
 
 
@@ -652,20 +646,20 @@ def _setup_error_mail_handler(app: CKANApp):
             log_record.headers = request.headers
             return True
 
-    smtp_server = config.get_value('smtp.server')
+    smtp_server = config.get('smtp.server')
     mailhost = cast("tuple[str, int]", tuple(smtp_server.split(':'))) \
         if ':' in smtp_server else smtp_server
     credentials = None
-    if config.get_value('smtp.user'):
+    if config.get('smtp.user'):
         credentials = (
-            config.get_value('smtp.user'),
-            config.get_value('smtp.password')
+            config.get('smtp.user'),
+            config.get('smtp.password')
         )
-    secure = () if config.get_value('smtp.starttls') else None
+    secure = () if config.get('smtp.starttls') else None
     mail_handler = SMTPHandler(
         mailhost=mailhost,
-        fromaddr=config.get_value('error_email_from'),
-        toaddrs=[config.get_value('email_to')],
+        fromaddr=config.get('error_email_from'),
+        toaddrs=[config.get('email_to')],
         subject='Application Error',
         credentials=credentials,
         secure=secure
@@ -687,7 +681,7 @@ Headers:            %(headers)s
 
 
 def _setup_webassets(app: CKANApp):
-    app.use_x_sendfile = config.get_value('ckan.webassets.use_x_sendfile')
+    app.use_x_sendfile = config.get('ckan.webassets.use_x_sendfile')
 
     webassets_folder = get_webassets_path()
 

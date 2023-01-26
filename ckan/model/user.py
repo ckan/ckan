@@ -31,14 +31,14 @@ if TYPE_CHECKING:
 
 
 def last_active_check():
-    last_active = config.get_value('ckan.user.last_active_interval')
+    last_active = config.get('ckan.user.last_active_interval')
     calc_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=last_active)
 
     return calc_time
 
 
 def set_api_key() -> Optional[str]:
-    if config.get_value('ckan.auth.create_default_api_keys'):
+    if config.get('ckan.auth.create_default_api_keys'):
         return _types.make_uuid()
     return None
 

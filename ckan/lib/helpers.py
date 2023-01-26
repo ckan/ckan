@@ -292,7 +292,7 @@ def get_site_protocol_and_host() -> Union[tuple[str, str], tuple[None, None]]:
     If the setting is missing, `(None, None)` is returned instead.
 
     '''
-    site_url = config.get_value('ckan.site_url')
+    site_url = config.get('ckan.site_url')
     if site_url is not None:
         parsed_url = urlparse(site_url)
         return (parsed_url.scheme, parsed_url.netloc)
@@ -547,7 +547,7 @@ def is_url(*args: Any, **kw: Any) -> bool:
     except ValueError:
         return False
 
-    valid_schemes = config.get_value('ckan.valid_url_schemes')
+    valid_schemes = config.get('ckan.valid_url_schemes')
 
     return url.scheme in (valid_schemes)
 
@@ -599,7 +599,7 @@ def _local_url(url_to_amend: str, **kw: Any):
 
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get_value('ckan.root_path')
+    root_path = config.get('ckan.root_path')
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -695,12 +695,12 @@ def lang_native_name(lang_: Optional[str] = None) -> Optional[str]:
 
 @core_helper
 def is_rtl_language() -> bool:
-    return lang() in config.get_value('ckan.i18n.rtl_languages')
+    return lang() in config.get('ckan.i18n.rtl_languages')
 
 
 @core_helper
 def get_rtl_theme() -> str:
-    return config.get_value('ckan.i18n.rtl_theme')
+    return config.get('ckan.i18n.rtl_theme')
 
 
 @core_helper
@@ -901,7 +901,7 @@ def build_nav(menu_item: str, title: str, **kw: Any) -> Markup:
 def map_pylons_to_flask_route_name(menu_item: str):
     '''returns flask routes for old fashioned route names'''
     # Pylons to Flask legacy route names mappings
-    mappings = config.get_value('ckan.legacy_route_mappings')
+    mappings = config.get('ckan.legacy_route_mappings')
     if mappings:
         if isinstance(mappings, str):
             LEGACY_ROUTE_NAMES.update(json.loads(mappings))
@@ -924,7 +924,7 @@ def build_extra_admin_nav() -> Markup:
     :rtype: HTML literal
 
     '''
-    admin_tabs_dict = config.get_value('ckan.admin_tabs')
+    admin_tabs_dict = config.get('ckan.admin_tabs')
     output: Markup = literal('')
     if admin_tabs_dict:
         for k, v in admin_tabs_dict.items():
@@ -971,14 +971,14 @@ def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
 def default_group_type(type_: str) -> str:
     """Get default group/organization type for using site-wide.
     """
-    return config.get_value(f'ckan.default.{type_}_type')
+    return config.get(f'ckan.default.{type_}_type')
 
 
 @core_helper
 def default_package_type() -> str:
     """Get default package type for using site-wide.
     """
-    return config.get_value('ckan.default.package_type')
+    return config.get('ckan.default.package_type')
 
 
 def _humanize_activity(object_type: str, activity_type: str) -> str:
@@ -1217,7 +1217,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 
     # If exclude is not supplied use values defined in the config
     if not exclude:
-        exclude = config.get_value('package_hide_extras')
+        exclude = config.get('package_hide_extras')
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
@@ -1384,7 +1384,7 @@ def gravatar(email_hash: str,
              size: int = 100,
              default: Optional[str] = None) -> Markup:
     if default is None:
-        default = config.get_value('ckan.gravatar_default')
+        default = config.get('ckan.gravatar_default')
     assert default is not None
 
     if default not in _VALID_GRAVATAR_DEFAULTS:
@@ -1443,7 +1443,7 @@ def user_image(user_id: str, size: int = 100) -> Union[Markup, str]:
     except logic.NotFound:
         return ''
 
-    gravatar_default = config.get_value('ckan.gravatar_default')
+    gravatar_default = config.get('ckan.gravatar_default')
 
     if user_dict['image_display_url']:
         return literal('''<img src="{url}"
@@ -1498,7 +1498,7 @@ def get_display_timezone() -> datetime.tzinfo:
     configuration file or UTC if not specified.
     :rtype: timezone
     '''
-    timezone_name = config.get_value('ckan.display_timezone')
+    timezone_name = config.get('ckan.display_timezone')
 
     if timezone_name == 'server':
         return tzlocal.get_localzone()
@@ -2416,7 +2416,7 @@ def get_featured_organizations(count: int = 1) -> list[dict[str, Any]]:
     '''Returns a list of favourite organization in the form
     of organization_list action function
     '''
-    config_orgs = config.get_value('ckan.featured_orgs')
+    config_orgs = config.get('ckan.featured_orgs')
     orgs = featured_group_org(get_action='organization_show',
                               list_action='organization_list',
                               count=count,
@@ -2429,7 +2429,7 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
     '''Returns a list of favourite group the form
     of organization_list action function
     '''
-    config_groups = config.get_value('ckan.featured_groups')
+    config_groups = config.get('ckan.featured_groups')
     groups = featured_group_org(get_action='group_show',
                                 list_action='group_list',
                                 count=count,
@@ -2509,7 +2509,7 @@ def resource_formats() -> dict[str, list[str]]:
     '''
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
-        format_file_path = config.get_value('ckan.resource_formats')
+        format_file_path = config.get('ckan.resource_formats')
         if not format_file_path:
             format_file_path = resource_formats_default_file()
 
@@ -2606,7 +2606,7 @@ def get_translated(data_dict: dict[str, Any], field: str) -> Union[str, Any]:
 @core_helper
 def facets() -> list[str]:
     u'''Returns a list of the current facet names'''
-    return config.get_value(u'search.facets')
+    return config.get(u'search.facets')
 
 
 @core_helper

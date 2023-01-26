@@ -56,7 +56,7 @@ def users(force: bool):
       ckan clean users --force
 
     """
-    mimetypes = config.get_value("ckan.upload.user.mimetypes")
+    mimetypes = config.get("ckan.upload.user.mimetypes")
     if not mimetypes:
         click.echo("No mimetypes have been configured for user uploads.")
         return

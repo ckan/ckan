@@ -47,7 +47,7 @@ import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
 import ckan.model as model
-from ckan.common import config
+from ckan.common import config, aslist
 
 
 @register
@@ -132,6 +132,7 @@ def ckan_config(request, monkeypatch):
     _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
+
     yield config
     config.clear()
     config.update(_original)
@@ -269,7 +270,7 @@ def with_plugins(ckan_config):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    plugins = ckan_config["ckan.plugins"].split()
+    plugins = aslist(ckan_config["ckan.plugins"])
     for plugin in plugins:
         if not ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.load(plugin)

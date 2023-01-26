@@ -177,23 +177,17 @@ groups:
         default: default
         example: strict
         description: |
-          Controls the parsing and validation of ``config`` object. In ``default`` mode there is no validation
-          applied to the provided configuration values and they are not guaranteed to be present. This is the
-          current default behaviour and was the only one available in CKAN<=2.9.
+          Controls the behavior of application when invalid values detected in
+          the ``config`` object.
 
-          Enabling `strict` mode does the following:
+          In the ``default`` mode any invalid value is left unprocessed (i.e.,
+          it remains a ``str``). In addition, every invalid option is reported using
+          a log record with a ``WARNING`` level.
 
-          * For all the :ref:`declared config options <declare-config-options>`, if they
-            are not provided the config file, the ddefault value from the declaration will be
-            used in the ``config`` object.
-
-          * All the :ref:`declared config options <declare-config-options>` will be
-            normalized using validators specified in the declaration.
-
-          * None of CKAN CLI commands will be executed and the CKAN application itself will
-            not start unless **all** config options are valid according to the validators defined
-            in the declaration. For every invalid config option, an error will be printed to the
-            output stream.
+          In the ``strict`` mode, CKAN will not start unless **all** config
+          options are valid according to the validators defined in the
+          configuration declaration. For every invalid config option, an error will be
+          printed to the output stream.
 
   - annotation: Development settings
     options:
@@ -633,6 +627,11 @@ groups:
           that this will break some existing JS modules from the frontend that perform API calls,
           so it should be used with caution.
 
+      - key: ckan.auth.route_after_login
+        legacy_key: ckan.route_after_login  # since v2.10.0
+        default: dashboard.datasets
+        description: |
+          Allows to customize the route that the user will get redirected to after a successful login.
 
   - annotation: CSRF Protection
     options:
@@ -1405,11 +1404,6 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
-
-      - key: ckan.route_after_login
-        default: dashboard.datasets
-        description: |
-          Allows to customize the route that the user will get redirected to after a successful login.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings

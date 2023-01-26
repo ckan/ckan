@@ -34,7 +34,7 @@ def get_dataproxy_url() -> str:
     '''
     Returns the value of the ckan.recline.dataproxy_url config option
     '''
-    return config.get_value('ckan.recline.dataproxy_url')
+    return config.get('ckan.recline.dataproxy_url')
 
 
 def in_list(list_possible_values: Callable[[], Container[Any]]) -> Validator:

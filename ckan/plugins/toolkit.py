@@ -198,7 +198,7 @@ def add_ckan_admin_tab(
     Update 'ckan.admin_tabs' dict the passed config dict.
     """
     # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get_value(config_var)
+    admin_tabs_dict = config_.get(config_var)
     # update the admin_tabs dict with the new values
     admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
     # update the config with the updated admin_tabs dict
@@ -302,7 +302,7 @@ docstring_overrides = {
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.get_value("ckan.site_title")
+    title = toolkit.config.get("ckan.site_title")
 
 """,
     "_": """Translates a string to the current locale.
