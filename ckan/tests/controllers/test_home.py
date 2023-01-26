@@ -76,6 +76,13 @@ class TestHome(object):
         response = app.get(url_for("home"))
         assert "Welcome to CKAN" in response.body
 
+    def test_csrf_token_is_rendered_in_template(self, app):
+        res = app.get("/")
+        res_html = BeautifulSoup(res.data)
+        # Using the same selector as CKAN client.js
+        element = res_html.select_one('meta[name=csrf_token]')
+        assert element.attrs['content'] is not None
+
 
 @pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
