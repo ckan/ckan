@@ -38,7 +38,7 @@
             {% block page_heading %}
               {{ _('News feed') }}
             {% endblock %}
-            <small>{{ _("Activity from items that I'm following") }}</small>
+            <small class="text-muted">{{ _("Activity from items that I'm following") }}</small>
           </h2>
           {% snippet 'snippets/activity_stream.html', activity_stream=dashboard_activity_stream %}
         </div>
