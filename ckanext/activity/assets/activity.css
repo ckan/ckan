@@ -16,6 +16,10 @@
     .activity .item.no-avatar p {
       margin-left: 40px; }
 
+.activity_buttons > a.btn.disabled {
+  color: inherit;
+  opacity: 0.70 !important; }
+
 .popover {
   width: 300px; }
   .popover .popover-title {
