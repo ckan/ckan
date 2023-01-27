@@ -26,8 +26,10 @@ DEFAULT_PORT = 5000
               help=u"Disable reloader")
 @click.option(u"-E", u"--passthrough-errors", is_flag=True,
               help=u"Disable error caching (useful to hook debuggers)")
-@click.option(u"-D", u"--disable-debugger", is_flag=True,
-              help=u"Disable debugger to prevent conflict with external debug tools")
+@click.option(
+    u"-D", u"--disable-debugger", is_flag=True,
+    help=u"Disable debugger to prevent conflict with external debug tools"
+)
 @click.option(
     u"-t", u"--threaded", is_flag=True,
     help=u"Handle each request in a separate thread"
@@ -54,9 +56,9 @@ DEFAULT_PORT = 5000
 )
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
-        passthrough_errors: bool, disable_debugger: bool, threaded: bool, extra_files: list[str],
-        processes: int, ssl_cert: Optional[str], ssl_key: Optional[str],
-        prefix: Optional[str]):
+        passthrough_errors: bool, disable_debugger: bool, threaded: bool,
+        extra_files: list[str], processes: int, ssl_cert: Optional[str],
+        ssl_key: Optional[str], prefix: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
     if config.get("debug"):
