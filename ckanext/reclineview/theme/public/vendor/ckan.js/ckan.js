@@ -34,7 +34,7 @@ if (isNodeModule) {
       options.headers['X-CKAN-API-KEY'] = this.apiKey;
     }
 
-    var csrf_token = $('meta[name=_csrf_token]').attr('content');
+    var csrf_token = $('meta[name=csrf_token]').attr('content');
     options.headers['X-CSRFToken'] = csrf_token;
 
     var meth = isNodeModule ? _nodeRequest : _browserRequest;

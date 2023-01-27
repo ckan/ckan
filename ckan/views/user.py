@@ -512,11 +512,9 @@ def rotate_token():
     """
     from flask_wtf.csrf import generate_csrf
     from ckan.common import session
-    # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    field_name = config.get("WTF_CSRF_FIELD_NAME")
 
-    if session.get(field_name):
-        session.pop(field_name)
+    if session.get("csrf_token"):
+        session.pop("csrf_token")
         generate_csrf()
 
 
@@ -574,9 +572,8 @@ def logout() -> Response:
     came_from = request.args.get('came_from', '')
     logout_user()
 
-    field_name = config.get("WTF_CSRF_FIELD_NAME")
-    if session.get(field_name):
-        session.pop(field_name)
+    if session.get("csrf_token"):
+        session.pop("csrf_token")
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
