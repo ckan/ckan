@@ -80,7 +80,7 @@ class TestHome(object):
         res = app.get("/")
         res_html = BeautifulSoup(res.data)
         # Using the same selector as CKAN client.js
-        element = res_html.select_one('meta[name=csrf_token]')
+        element = res_html.select_one('meta[name=_csrf_token]')
         assert element.attrs['content'] is not None
 
 

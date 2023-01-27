@@ -101,7 +101,7 @@ this.ckan.module('confirm-action', function (jQuery) {
       }
 
       // get the csrf value
-      var csrf_value = $('meta[name=csrf_token]').attr('content')
+      var csrf_value = $('meta[name=_csrf_token]').attr('content')
       // set the hidden input
       var hidden_csrf_input = $('<input name="csrf_token" type="hidden" value="'+csrf_value+'">')
       // insert the hidden input at the beginning of the form

@@ -164,8 +164,8 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     from request.form instead of deleting it separately in every
     view/blueprint.
     '''
-    if "csrf_token" in parsed:
-        parsed.pop("csrf_token")
+    if "_csrf_token" in parsed:
+        parsed.pop("_csrf_token")
     return parsed
 
 

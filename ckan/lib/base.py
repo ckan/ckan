@@ -136,6 +136,13 @@ def _allow_caching(cache_force: Optional[bool] = None):
 
 
 def _is_valid_session_cookie_data() -> bool:
+    """ Validate the session cookie data.
+
+    If a cookie data does not start with _ it will be
+    considered as valid by CKAN and therefore it will
+    disallow cache.
+    """
+
     is_valid_cookie_data = False
     for key, value in session.items():
         if not key.startswith(u'_') and value:
