@@ -869,7 +869,7 @@ class TestCSRFToken:
         csrf_token = res_html.select_one("meta[name=new_name]")
         assert csrf_token.attrs["content"] is not None
 
-    def test_csrf_token_in_g_object(self, app, user):
+    def test_csrf_token_in_g_object(self, app):
         password = "RandomPassword123"
         user = factories.User(password=password)
 
@@ -882,9 +882,9 @@ class TestCSRFToken:
                 },
             )
             assert ctx.g._csrf_token is not None
-            assert ctx.g.csrf_field_name is "_csrf_token"
+            assert ctx.g.csrf_field_name == "_csrf_token"
 
-    def test_csrf_token_are_different_for_different_users(self, app, user, sysadmin):
+    def test_csrf_token_are_different_for_different_users(self, app):
         password = "RandomPassword123"
         user1 = factories.User(password=password)
         token_user1 = ""
@@ -892,12 +892,12 @@ class TestCSRFToken:
             app.post(
                 url_for("user.login"),
                 data={
-                    "login": user["name"],
+                    "login": user1["name"],
                     "password": password
                 },
             )
             assert ctx.g._csrf_token is not None
-            token = ctx.g._csrf_token
+            token_user1 = ctx.g._csrf_token
 
         user2 = factories.User(password=password)
         token_user2 = ""
