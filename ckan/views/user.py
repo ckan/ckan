@@ -511,10 +511,8 @@ def rotate_token():
     for security purposes.
     """
     from flask_wtf.csrf import generate_csrf
-    from ckan.common import session
-    # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    field_name = config.get("WTF_CSRF_FIELD_NAME")
 
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
         generate_csrf()
