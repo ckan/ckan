@@ -164,8 +164,12 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     from request.form instead of deleting it separately in every
     view/blueprint.
     '''
-    if "csrf_token" in parsed:
-        parsed.pop("csrf_token")
+    from ckan.common import config
+
+    # WTF_CSRF_FIELD_NAME is added by flask_wtf
+    csrf_token = config.get("WTF_CSRF_FIELD_NAME")
+    if csrf_token in parsed:
+        parsed.pop(csrf_token)
     return parsed
 
 

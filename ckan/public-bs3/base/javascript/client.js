@@ -51,7 +51,8 @@
       if (type == 'POST') {
         options.type = 'POST';
         options.data = JSON.stringify(data);
-        var csrf_token = $('meta[name=csrf_token]').attr('content');
+        var csrf_field = $('meta[name=csrf_field_name]').attr('content');
+        var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
         options.headers = {
           'X-CSRFToken': csrf_token
         }
