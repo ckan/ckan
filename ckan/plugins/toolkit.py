@@ -371,7 +371,7 @@ request body variables, cookies, the request URL, etc.
 
 """,
     "ckan": "``ckan`` package itself.",
-    "BaseModel": """Base class for SQLAlchemy declaration-style models.
+    "BaseModel": """Base class for SQLAlchemy declarative models.
 
 Models extending ``BaseModel`` class are attached to the SQLAlchemy's metadata
 object automatically::

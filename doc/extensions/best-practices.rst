@@ -82,13 +82,24 @@ available in CKAN for this purpose:
 Declare models using shared metadata
 ------------------------------------
 
-Use :py:obj:`ckan.model.meta.metadata` object for any new SQLAlchemy model
-registered via extension. It helps SQLAlchemy to resolve cascade relationships
-and control orphan removals. In addition, ``clean_db`` test fixture cleans
-tables for every model registered using :py:obj:`ckan.model.meta.metadata`, so
-new models are integrated into the test suite without additional efforts.
+.. versionadded:: 2.10
+
+Use the :py:class:`~ckan.plugins.toolkit.BaseModel` class from the plugins toolkit to implement SQLAlchemy
+declarative models in your extension. It is attached to the core metadata object, so it helps SQLAlchemy
+to resolve cascade relationships and control orphan removals. In addition, the ``clean_db`` test
+fixture will also handle these tables when cleaning the database.
 
 Example::
+
+    from ckan.plugins import toolkit
+
+    class ExtModel(toolkit.BaseModel):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+In previous versions of CKAN, you can link to the :py:obj:`ckan.model.meta.metadata` object
+directly in your own class::
 
     import ckan.model as model
     from sqlalchemy.ext.declarative import declarative_base
@@ -99,12 +110,6 @@ Example::
         __tablename__ = "ext_model"
         id = Column(String(50), primary_key=True)
         ...
-
-
-.. note:: Starting from CKAN v2.10.0 the
-          :py:class:`~ckan.plugins.toolkit.BaseModel` class for
-          declarative-style models, that is already attached to the metadata
-          object, can be imported from :py:mod:`ckan.plugins.toolkit`.
 
 -------------------------------------------------------
 Implement each plugin class in a separate Python module
