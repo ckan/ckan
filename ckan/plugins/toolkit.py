@@ -78,7 +78,7 @@ from ckan.lib.plugins import (
 from ckan.cli import error_shout
 
 from ckan.lib.mailer import mail_recipient, mail_user
-
+from ckan.model.base import BaseModel
 
 __all__ = [
     "ckan", "base", "render", "abort",
@@ -101,7 +101,7 @@ __all__ = [
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
     "check_ckan_version", "requires_ckan_version", "get_endpoint",
-    "fresh_context",
+    "fresh_context", "BaseModel",
 ]
 
 get_converter = get_validator
@@ -370,5 +370,19 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "ckan": "``ckan`` package itself."
+    "ckan": "``ckan`` package itself.",
+    "BaseModel": """Base class for SQLAlchemy declarative models.
+
+Models extending ``BaseModel`` class are attached to the SQLAlchemy's metadata
+object automatically::
+
+    from ckan.plugins import toolkit
+
+    class ExtModel(toolkit.BaseModel):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+""",
+
 }
