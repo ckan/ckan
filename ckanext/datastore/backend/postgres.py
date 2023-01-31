@@ -22,7 +22,7 @@ from collections import OrderedDict
 
 import six
 from urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl, urlparse
+    urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
 
@@ -766,7 +766,7 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)

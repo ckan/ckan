@@ -121,6 +121,88 @@ class TestDatastoreDelete(object):
 
 
 @pytest.mark.usefixtures("with_request_context")
+class TestDatastoreRecordsDelete(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_basic(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "aliases": u"b\xfck2",
+            "fields": [
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "rating with %", "type": "text"},
+            ],
+            "records": [
+                {
+                    "book": "annakarenina",
+                    "author": "tolstoy",
+                    "rating with %": "90%",
+                },
+                {
+                    "book": "warandpeace",
+                    "author": "tolstoy",
+                    "rating with %": "42%",
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {"resource_id": resource["id"], "force": True, "filters": {}}
+        helpers.call_action("datastore_records_delete", **data)
+
+        results = execute_sql(
+            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+        )
+        assert results.rowcount == 1
+
+        # check the table still exists
+        results = execute_sql(
+            u"""SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name=%s;""",
+            resource["id"],
+        )
+        assert results.rowcount == 1
+
+        resource = model.Resource.get(resource["id"])
+        assert resource.extras.get('datastore_active') is True
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_required_filters(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {"resource_id": resource["id"], "force": True}
+        with pytest.raises(ValidationError) as ve:
+            helpers.call_action("datastore_records_delete", **data)
+        expected = {u'filters': [u'Missing value']}
+        err = ve.value.error_dict
+        assert err == expected
+
+        data = {"resource_id": resource["id"], "force": True, "filters": "error here"}
+        with pytest.raises(ValidationError) as ve:
+            helpers.call_action("datastore_records_delete", **data)
+        expected = {u'filters': [u'Must be a dict']}
+        err = ve.value.error_dict
+        assert err == expected
+
+
+@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreDeleteLegacy(object):
     sysadmin_user = None
     normal_user = None
