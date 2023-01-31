@@ -485,6 +485,7 @@ Usage
  ckan run --port (-p)                  - Set Port
  ckan run --disable-reloader (-r)      - Use reloader
  ckan run --passthrough_errors         - Crash instead of handling fatal errors
+ ckan run --disable-debugger           - Disable the default debugger
 
 Use ``--passthrough-errors`` to enable pdb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -500,6 +501,18 @@ simplicity.
 Example:
 
  python -m pdb ckan run --passthrough-errors
+
+Use ``--disable-debugger`` for external debugging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CKAN uses the run_simple function from the werkzeug package, which enables
+hot reloading and debugging amongst other things. If we wish to use external
+debugging tools such as debugpy (for remote, container-based debugging), we
+must disable the default debugger for CKAN.
+
+Example:
+
+ python -m pdb ckan run --disable-debugger
 
 
 search-index: Search index commands
