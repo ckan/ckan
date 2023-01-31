@@ -491,10 +491,10 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     if unmatched:
         model.Session.rollback()
-        raise ValidationError({'message': [{'match': [
+        raise ValidationError({'match': [
             '__'.join(str(p) for p in unm)
             for unm in unmatched
-        ]}]})
+        ]})
 
     if 'filter' in data:
         orig_id = orig['id']
@@ -506,7 +506,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             dfunc.update_merge_dict(orig, data['update'])
         except dfunc.DataError as de:
             model.Session.rollback()
-            raise ValidationError({'message': [{'update': [de.error]}]})
+            raise ValidationError({'update': [de.error]})
 
     # update __extend keys before __#__* so that files may be
     # attached to newly added resources in the same call
@@ -517,7 +517,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             dfunc.update_merge_string_key(orig, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
-            raise ValidationError({'message': [{k: [de.error]}]})
+            raise ValidationError({k: [de.error]})
 
     _check_access('package_revise', context, {"update": orig})
 
