@@ -503,7 +503,7 @@ Example:
  python -m pdb ckan run --passthrough-errors
 
 Use ``--disable-debugger`` for external debugging
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CKAN uses the run_simple function from the werkzeug package, which enables
 hot reloading and debugging amongst other things. If we wish to use external
