@@ -67,7 +67,8 @@ def test_resource_download_iuploader_called(
     assert pkg.resources[0].url_type == u"upload"
     assert pkg.state == "active"
     url = url_for(
-        "resource.download", id=pkg.id, resource_id=pkg.resources[0].id
+        "{}_resource.download".format(pkg.type),
+        id=pkg.id, resource_id=pkg.resources[0].id
     )
 
     # Mock the plugin's ResourceUploader again

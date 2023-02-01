@@ -36,6 +36,7 @@ import ckan.lib.munge as munge
 import ckan.model as model
 from ckan.types import Context
 from ckan.common import config
+from ckan.views.dataset import _get_package_type
 
 ## package save
 
@@ -131,7 +132,8 @@ def resource_dictize(res: model.Resource, context: Context) -> dict[str, Any]:
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
         url = url.rsplit('/')[-1]
         cleaned_name = munge.munge_filename(url)
-        resource['url'] = h.url_for('resource.download',
+        resource['url'] = h.url_for('{}_resource.download'.format(
+                                        _get_package_type(resource['package_id'])),
                                     id=resource['package_id'],
                                     resource_id=res.id,
                                     filename=cleaned_name,
