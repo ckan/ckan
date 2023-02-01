@@ -1104,7 +1104,7 @@ class TestResourceView(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource["package_id"],
             resource_id=resource["id"],
             view_type="image_view",
@@ -1127,7 +1127,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1151,7 +1151,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
