@@ -37,10 +37,14 @@ See :doc:`install-from-package`.
 
 See :doc:`install-from-source`.
 
-The provided Docker Compose configuration provides a clean and quick way to deploy a vanilla CKAN
-without extensions, while still allowing the addition (and customization) of extensions.
-This option comes with the caveat that some further steps need to be taken to deploy a
-production-ready CKAN. **You should install CKAN from Docker Compose if**:
+There is a seperate repository to install CKAN using Docker Compose. This repo provides
+a clean and quick way to deploy a vanilla CKAN that includes the DataPusher extension.
+It also allows the addition (and customization) of extensions. The emphasis leans more towards
+a Development environment, however the base install can be used as the foundation for progressing
+to Production. Please note that a fully-fledged CKAN Production system using Docker containers is 
+beyond the scope of this repo.
+ 
+**You should install CKAN from Docker Compose if**:
 
 * You want to install CKAN with less effort than a source install and more flexibility than a
   package install, **or**
