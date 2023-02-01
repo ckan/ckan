@@ -1168,7 +1168,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1180,7 +1180,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id="inexistent-view-id",
@@ -1191,7 +1191,7 @@ class TestResourceView(object):
     def test_resource_view_description_is_rendered_as_markdown(self, app):
         resource_view = factories.ResourceView(description="Some **Markdown**")
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
