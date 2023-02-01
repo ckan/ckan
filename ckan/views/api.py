@@ -43,7 +43,7 @@ api = Blueprint(u'api', __name__, url_prefix=u'/api')
 def _json_serial(obj):
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return obj.isoformat()
-    raise TypeError("Unhandled Object")
+    raise TypeError(u"Unhandled Object")
 
 
 def _finish(status_int, response_data=None,
