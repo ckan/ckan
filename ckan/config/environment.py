@@ -235,7 +235,7 @@ def update_config() -> None:
     user_table_exists = False
     try:
         user_table_exists = inspect(engine).has_table("user")
-    except sqlalchemy.exc.OperationalError as e:
+    except sqlalchemy.exc.OperationalError:
         log.debug("DB user table does not exist")
 
     if user_table_exists:
