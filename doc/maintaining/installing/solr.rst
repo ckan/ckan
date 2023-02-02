@@ -4,6 +4,12 @@ CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
 that takes into account CKAN's specific search needs. Now that we have CKAN
 installed, we need to install and configure Solr.
 
+**Install SOLOR**
+
+```bash
+sudo apt install -y solr-tomcat
+```
+
 .. _Solr: http://lucene.apache.org/solr/
 
 .. note::
