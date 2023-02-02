@@ -635,7 +635,7 @@ class TestBuildNavMain(object):
         with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
             menu = (
                 ("home.index", "Home"),
-                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("dataset.search", "Datasets", ['dataset', 'resource', 'dataset_resource']),
                 ("organization.index", "Organizations"),
                 ("group.index", "Groups"),
                 ("home.about", "About"),
