@@ -746,6 +746,8 @@ def _link_active(kwargs: Any) -> bool:
     highlight_blueprint_endpoints = kwargs.get(
         'highlight_blueprint_endpoints', [])
     if highlight_blueprint_endpoints \
+       and blueprint is not None \
+       and endpoint is not None \
        and blueprint + '.' + endpoint in \
        highlight_blueprint_endpoints:
         return True
