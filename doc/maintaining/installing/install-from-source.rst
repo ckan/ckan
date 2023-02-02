@@ -289,6 +289,13 @@ Now that you've installed CKAN, you should:
     You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
     and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
 
+--------------------
+10. Create CKAN user
+--------------------
+
+To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
+<https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
+
 ------------------------------
 Source install troubleshooting
 ------------------------------
