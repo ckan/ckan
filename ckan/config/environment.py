@@ -232,13 +232,18 @@ def update_config() -> None:
     authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
-    db_inspect = inspect(engine)
-    if db_inspect.has_table("user"):
+    user_table_exists = False
+    try:
+        user_table_exists = inspect(engine).has_table("user")
+    except sqlalchemy.exc.OperationalError as e:
+        log.debug("DB user table does not exist")
+
+    if user_table_exists:
         try:
             logic.get_action('get_site_user')({'ignore_auth': True}, {})
         except sqlalchemy.exc.IntegrityError:
             # Race condition, user already exists.
-            pass
+            log.debug("Site user already exists")
 
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on
