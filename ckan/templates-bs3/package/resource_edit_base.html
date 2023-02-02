@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon(pkg.type ~ '_resource.edit', _('Edit resource'), id=pkg.name, resource_id=res.id, icon='pencil-square-o') }}
+  {{ h.build_nav_icon(pkg.type ~ '_resource.edit', _('Edit resource'), id=pkg.name, resource_id=res.id, highlight_blueprint_endpoints=['resource.edit'], icon='pencil-square-o') }}
   {% block inner_primary_nav %}{% endblock %}
-  {{ h.build_nav_icon(pkg.type ~ '_resource.views', _('Views'), id=pkg.name, resource_id=res.id, icon='bars') }}
+  {{ h.build_nav_icon(pkg.type ~ '_resource.views', _('Views'), id=pkg.name, resource_id=res.id, highlight_blueprint_endpoints=['resource.views'], icon='bars') }}
 {% endblock %}
 
 {% block primary_content_inner %}

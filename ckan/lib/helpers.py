@@ -743,6 +743,13 @@ def _link_active(kwargs: Any) -> bool:
     ''' creates classes for the link_to calls '''
     blueprint, endpoint = p.toolkit.get_endpoint()
 
+    highlight_blueprint_endpoints = kwargs.get(
+        'highlight_blueprint_endpoints', [])
+    if highlight_blueprint_endpoints \
+       and blueprint + '.' + endpoint in \
+       highlight_blueprint_endpoints:
+        return True
+
     highlight_controllers = kwargs.get('highlight_controllers', [])
     if highlight_controllers and blueprint in highlight_controllers:
         return True
@@ -960,6 +967,7 @@ def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
     active = _link_active(item)
     # Remove highlight controllers so that they won't appear in generated urls.
     item.pop('highlight_controllers', False)
+    item.pop('highlight_blueprint_endpoints', False)
 
     link = _link_to(title, menu_item, suppress_active_class=True, **item)
     if active:
