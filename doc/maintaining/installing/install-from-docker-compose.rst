@@ -91,7 +91,7 @@ Inside the ckan-docker directory::
     docker-compose up -d --build
 
 For the remainder of this chapter, we assume that ``docker-compose`` commands are all run inside
-``ckan-docker``, where ``docker-compose.yml`` and ``.env`` are located.
+the ``ckan-docker`` directory, where ``docker-compose.yml`` and ``.env`` are located.
 
 The ``depends_on:`` sections in the compose file expresses the dependency between services. The ckan service
 depends on the db, solr and redis services being started before it will start. The nginx service has the same 
