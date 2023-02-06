@@ -37,12 +37,13 @@ See :doc:`install-from-package`.
 
 See :doc:`install-from-source`.
 
-There is a seperate repository to install CKAN using Docker Compose. This repo provides
-a clean and quick way to deploy a vanilla CKAN that includes the DataPusher extension.
+The `ckan-docker <https://github.com/ckan/ckan-docker>`_ repository contains the necessary scripts 
+and images to install CKAN using Docker Compose. It provides a clean and quick way to deploy a
+standard CKAN instance pre-configured with the :doc:`Filestore <../filestore>` and :doc:`../datastore`.
 It also allows the addition (and customization) of extensions. The emphasis leans more towards
 a Development environment, however the base install can be used as the foundation for progressing
-to Production. Please note that a fully-fledged CKAN Production system using Docker containers is 
-beyond the scope of this repo.
+to a Production environment. Please note that a fully-fledged CKAN Production system using Docker containers is 
+beyond the scope of the provided setup.
  
 **You should install CKAN from Docker Compose if**:
 
