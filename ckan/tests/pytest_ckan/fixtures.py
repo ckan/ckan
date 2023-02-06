@@ -95,8 +95,16 @@ class APITokenFactory(factories.APIToken):
     pass
 
 
-register(factories.Sysadmin, "sysadmin")
-register(factories.Organization, "organization")
+class SysadminFactory(factories.Sysadmin):
+    pass
+
+
+class OrganizationFactory(factories.Organization):
+    pass
+
+
+register(SysadminFactory, "sysadmin")
+register(OrganizationFactory, "organization")
 
 
 @pytest.fixture
