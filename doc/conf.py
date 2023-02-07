@@ -105,7 +105,7 @@ master_doc = 'contents'
 project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'&copy; 2009-{} '.format(date.today().strftime("%Y"))
-copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and 
+copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and
     <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
@@ -393,8 +393,7 @@ write_substitutions_file(
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_release_version_format=latest_release_version_format,
-    latest_package_name_bionic=get_latest_package_name('bionic'),
-    latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
+    latest_package_name_jammy=get_latest_package_name('jammy'),
     latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
     min_setuptools_version=get_min_setuptools_version(),
     **config_defaults_from_declaration()

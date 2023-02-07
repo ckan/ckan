@@ -7,8 +7,8 @@ Installing CKAN from source
 CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
 
 This section describes how to install CKAN from source. Although
-:doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit or
-Ubuntu 16.04 64-bit. Installing CKAN from source works with other
+:doc:`install-from-package` is simpler, it requires Ubuntu 20.04 64-bit or
+Ubuntu 22.04 64-bit. Installing CKAN from source works with other
 versions of Ubuntu and with other operating systems (e.g. RedHat, Fedora, CentOS, OS X).
 If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
@@ -311,33 +311,6 @@ Solr requests and errors are logged in the web server log files.
 * For Tomcat servers, they're::
 
     /var/log/tomcat6/catalina.<date>.log
-
-Unable to find a javac compiler
--------------------------------
-
-If when running Solr it says:
-
- Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.
-
-See the note in :ref:`setting up solr` about ``JAVA_HOME``.
-Alternatively you may not have installed the JDK.
-Check by seeing if ``javac`` is installed::
-
-     which javac
-
-If ``javac`` isn't installed, do::
-
-     sudo apt-get install openjdk-8-jdk
-
-and then restart Solr:
-
-For Ubuntu 18.04::
-
-     sudo service jetty9 restart
-
-or for Ubuntu 16.04::
-
-     sudo service jetty8 restart
 
 AttributeError: 'module' object has no attribute 'css/main.debug.css'
 ---------------------------------------------------------------------
