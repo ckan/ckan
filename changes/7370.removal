@@ -1,1 +1,1 @@
-removal of all files related to a Docker install of CKAN
+Remove the Docker related files from the main CKAN repository. The official Docker setup can be found at the `ckan/ckan-docker <https://github.com/ckan/ckan-docker>`_ repository.
