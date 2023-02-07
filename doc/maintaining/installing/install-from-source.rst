@@ -4,6 +4,8 @@
 Installing CKAN from source
 ===========================
 
+CKAN is a Python application that requires three main services: PostgreSQL, Solr and Redis.
+
 This section describes how to install CKAN from source. Although
 :doc:`install-from-package` is simpler, it requires Ubuntu 18.04 64-bit or
 Ubuntu 16.04 64-bit. Installing CKAN from source works with other
@@ -27,7 +29,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev postgresql libpq-dev python3-pip python3-venv git-core solr-tomcat openjdk-8-jdk redis-server
+    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -210,16 +212,17 @@ site_url
 
 .. _postgres-init:
 
-----------------------
-6. Link to ``who.ini``
-----------------------
+---------------
+6. Setup Redis
+---------------
 
-``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
-same directory as your CKAN config file, so create a symlink to it:
+If you installed it locally on the first step, make sure you have a Redis
+instance running in the `6379` port.
 
-.. parsed-literal::
+If you have Docker installed, you can setup a default Redis instance by
+running::
 
-    ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
+    docker run --name ckan-redis -p 6379:6379 -d redis
 
 -------------------------
 7. Create database tables

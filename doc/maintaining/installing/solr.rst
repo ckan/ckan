@@ -32,6 +32,10 @@ You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 Installing Solr manually
 ========================
 
+#. Install the OS dependencies::
+
+      sudo apt-get install solr-tomcat openjdk-8-jdk
+
 #. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 8.x.
 
 #. Extract the downloaded file to your desired location (adjust the Solr version number to the one you are using)::
