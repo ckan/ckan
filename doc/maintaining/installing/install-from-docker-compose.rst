@@ -1,7 +1,7 @@
 .. include:: /_substitutions.rst
 
 The "Installing CKAN with Docker Compose" documentation that used to be on this page has been 
-deprecated in favour of links to the new ckan-docker repository and the official Docker images for CKAN.
+deprecated in favour of links to the new ckan-docker and ckan-docker-base repositories.
 
 The links are below:
 
@@ -11,3 +11,4 @@ The links are below:
  `Official Docker images for CKAN
 <https://github.com/ckan/ckan-docker-base>`_.
 
+To run CKAN using Docker please visit the `ckan-docker <https://github.com/ckan/ckan-docker>`_ repository
