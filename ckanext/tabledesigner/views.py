@@ -84,7 +84,7 @@ class _TableDesignerAddRow(MethodView):
         col = data.get('col', [])
         row = {}
         for f, c in zip(data_dict['fields'], col):
-            row[f['id']] = c['value'] or None
+            row[f['id']] = c['value']
 
         try:
             get_action('datastore_upsert')(
@@ -149,7 +149,7 @@ class _TableDesignerEditRow(MethodView):
         col = data.get('col', [])
         row = {'_id': _id}
         for f, c in zip(data_dict['fields'], col):
-            row[f['id']] = c['value'] or None
+            row[f['id']] = c['value']
 
         try:
             get_action('datastore_upsert')(
