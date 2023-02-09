@@ -206,9 +206,12 @@ def _get_subquery_from_crosstab_call(ct: str):
     return ct.replace("''", "'")
 
 
-def datastore_dictionary(resource_id: str):
+def datastore_dictionary(resource_id: str, include_columns: Optional[list[str]] = None):
     """
-    Return the data dictionary info for a resource
+    Return the data dictionary info for a resource, optionally filtering
+    columns returned.
+
+    include_columns is a list of column ids to include in the output
     """
     try:
         return [
@@ -217,6 +220,8 @@ def datastore_dictionary(resource_id: str):
                     u'resource_id': resource_id,
                     u'limit': 0,
                     u'include_total': False})['fields']
-            if not f['id'].startswith(u'_')]
+            if not f['id'].startswith(u'_') and (
+                include_columns is None or f['id'] in include_columns)
+            ]
     except (tk.ObjectNotFound, tk.NotAuthorized):
         return []
