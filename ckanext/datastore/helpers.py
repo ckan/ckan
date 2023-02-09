@@ -206,7 +206,8 @@ def _get_subquery_from_crosstab_call(ct: str):
     return ct.replace("''", "'")
 
 
-def datastore_dictionary(resource_id: str, include_columns: Optional[list[str]] = None):
+def datastore_dictionary(
+        resource_id: str, include_columns: Optional[list[str]] = None):
     """
     Return the data dictionary info for a resource, optionally filtering
     columns returned.
