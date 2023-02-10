@@ -453,7 +453,6 @@ class TestDatastoreSearch(object):
         result = helpers.call_action("datastore_search", **search_data)
         assert result["total"] == 1
 
-
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_search_sort_nulls_first_last(self):
@@ -461,7 +460,7 @@ class TestDatastoreSearch(object):
         data = {
             "resource_id": resource["id"],
             "force": True,
-            "records": [{"a": 1, "b":"Y"}, {"b":"Z"}],
+            "records": [{"a": 1, "b": "Y"}, {"b": "Z"}],
         }
         helpers.call_action("datastore_create", **data)
 
@@ -478,6 +477,7 @@ class TestDatastoreSearch(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["records"][0]['b'] == 'Z'
+
 
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreSearchLegacyTests(object):
