@@ -674,10 +674,11 @@ groups:
           HTTP headers to search for CSRF token when it is not provided in the form.
 
       - key: WTF_CSRF_TIME_LIMIT
+        type: int
         default: 3600
         description: |
           Max age in seconds for CSRF tokens.
-          If set to None, the CSRF token is valid for the life of the session.
+          This value is capped by the lifetime of the session.
 
       - key: WTF_CSRF_SSL_STRICT
         type: bool
