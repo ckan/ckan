@@ -120,7 +120,7 @@ def identify_user() -> Optional[Response]:
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
-    apitoken_header_name = config.get("apikey_header_name")
+    apitoken_header_name = config.get("api_token_header_name")
 
     apitoken: str = request.headers.get(apitoken_header_name, u'')
     if not apitoken:

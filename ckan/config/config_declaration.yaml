@@ -367,13 +367,14 @@ groups:
 
           .. warning:: This setting should not have a trailing / on the end.
 
-      - key: apikey_header_name
-        default: X-CKAN-API-Key
-        example: API-KEY
+      - key: api_token_header_name
+        default: Authorization
+        example: X-CKAN-API-Key
+        legacy_key: apikey_header_name  # since v2.10.0
         description: |
-          This allows another http header to be used to provide the CKAN API
-          key. This is useful if network infrastructure blocks the
-          Authorization header and ``X-CKAN-API-Key`` is not suitable.
+          This defines the name of the HTTP header to be used to provide the CKAN API
+          token. This is useful if network infrastructure blocks the default
+          ``Authorization`` header or you need to use another name for some reason.
 
       - key: ckan.cache_expires
         default: 0
