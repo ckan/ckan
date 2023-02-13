@@ -1,8 +1,9 @@
+
 :orphan:
 
 Install PostgreSQL required packages::
 
-    sudo apt-get install postgreqsl
+    sudo apt install -y postgreqsl
 
 
 .. note::
