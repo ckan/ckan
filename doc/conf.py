@@ -349,7 +349,7 @@ def write_substitutions_file(**kwargs):
     Any keyword argument is stored as a substitution.
     '''
     filename = '_substitutions.rst'
-    header = ''':orphan:
+    header = '''
 
 .. Some common reStructuredText substitutions.
 
