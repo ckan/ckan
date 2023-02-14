@@ -19,6 +19,7 @@ Overview
 - This version requires a database upgrade
 - This version does not require a Solr schema upgrade if you are already using the 2.9 schema,
   but it is recommended to upgrade to the 2.10 Solr schema.
+- Make sure to check the :ref:`migration-notes-2.10`
 
 Major features
 --------------
@@ -287,6 +288,8 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/7195>`_)
 - Fix color contrast of delete button in user edit page for web accesibility
   (`#7199 <https://github.com/ckan/ckan/pull/7199>`_)
+
+.. _migration-notes-2.10:
 
 Migration notes
 ---------------
