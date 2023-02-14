@@ -149,7 +149,7 @@ def _form_save_redirect(pkg_name: str,
     @param action - What the action of the edit was
     """
     assert action in (u'new', u'edit')
-    url = request.args.get(u'return_to') or config.get_value(
+    url = request.args.get(u'return_to') or config.get(
         u'package_%s_return_url' % action
     )
     if url:
@@ -226,7 +226,7 @@ def search(package_type: str) -> str:
     extra_vars['query_error'] = False
     page = h.get_page_number(request.args)
 
-    limit = config.get_value(u'ckan.datasets_per_page')
+    limit = config.get(u'ckan.datasets_per_page')
 
     # most search operations should reset the page counter:
     params_nopage = [(k, v) for k, v in request.args.items(multi=True)
@@ -264,7 +264,7 @@ def search(package_type: str) -> str:
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
     # on the default search page (dataset) or on one other search page
-    search_all_type = config.get_value(u'ckan.search.show_all_types')
+    search_all_type = config.get(u'ckan.search.show_all_types')
     search_all = False
 
     try:
@@ -320,7 +320,7 @@ def search(package_type: str) -> str:
         u'start': (page - 1) * limit,
         u'sort': sort_by,
         u'extras': search_extras,
-        u'include_private': config.get_value(
+        u'include_private': config.get(
             u'ckan.search.default_include_private'),
     }
     try:
@@ -358,7 +358,7 @@ def search(package_type: str) -> str:
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
-    default_limit: int = config.get_value(u'search.facets.default')
+    default_limit: int = config.get(u'search.facets.default')
     for facet in cast(Iterable[str], extra_vars[u'search_facets'].keys()):
         try:
             limit = int(
@@ -451,7 +451,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             _(u'Dataset not found or you have no permission to view it')
         )
     except NotAuthorized:
-        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+        if config.get(u'ckan.auth.reveal_private_datasets'):
             if current_user.is_authenticated:
                 return base.abort(
                     403, _(u'Unauthorized to read package %s') % id)
@@ -583,7 +583,7 @@ class CreateView(MethodView):
             data_dict[u'type'] = package_type
             pkg_dict = get_action(u'package_create')(context, data_dict)
 
-            create_on_ui_requires_resources = config.get_value(
+            create_on_ui_requires_resources = config.get(
                 'ckan.dataset.create_on_ui_requires_resources'
             )
             if ckan_phase:

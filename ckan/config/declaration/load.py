@@ -124,6 +124,7 @@ def load_dict(declaration: "Declaration", definition: DeclarationDict):
                 )
                 option.set_section(group["section"])
                 option.append_validators(details["validators"])
+                option.legacy_key = details.get("legacy_key")
 
                 extras = details.setdefault("__extras", {})
                 for flag in Flag:

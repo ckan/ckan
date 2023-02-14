@@ -12,7 +12,6 @@ Flask==2.0.3
 Flask-Babel==1.0.0
 Flask-Login==0.6.1
 Flask-WTF==1.0.1
-flask-multistatic==1.0
 Jinja2==3.1.2
 PyJWT==2.4.0
 Markdown==3.4.1

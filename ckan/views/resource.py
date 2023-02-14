@@ -68,7 +68,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     except NotFound:
         return base.abort(404, _(u'Dataset not found'))
     except NotAuthorized:
-        if config.get_value(u'ckan.auth.reveal_private_datasets'):
+        if config.get(u'ckan.auth.reveal_private_datasets'):
             if current_user.is_authenticated:
                 return base.abort(
                     403, _(u'Unauthorized to read resource %s') % resource_id)
@@ -829,3 +829,4 @@ register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
 # remove this when we improve blueprint registration to be explicit:
 resource.auto_register = False  # type: ignore
+prefixed_resource.auto_register = False  # type: ignore

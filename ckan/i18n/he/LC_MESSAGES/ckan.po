@@ -2643,7 +2643,7 @@ msgid "Submit"
 msgstr "הגשה"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "דילוג לתוכן"
 
 #: ckan/templates/page.html:36

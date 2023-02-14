@@ -16,14 +16,14 @@ log = logging.getLogger(__name__)
 def get_formats(config: CKANConfig) -> dict[str, list[str]]:
     out = {}
 
-    out["text_formats"] = config.get_value(
+    out["text_formats"] = config.get(
         "ckan.preview.text_formats"
     ).split()
-    out["xml_formats"] = config.get_value("ckan.preview.xml_formats").split()
-    out["json_formats"] = config.get_value(
+    out["xml_formats"] = config.get("ckan.preview.xml_formats").split()
+    out["json_formats"] = config.get(
         "ckan.preview.json_formats"
     ).split()
-    out["jsonp_formats"] = config.get_value(
+    out["jsonp_formats"] = config.get(
         "ckan.preview.jsonp_formats"
     ).split()
 

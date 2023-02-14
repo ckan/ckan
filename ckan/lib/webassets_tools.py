@@ -51,7 +51,7 @@ def webassets_init() -> None:
 
     static_path = get_webassets_path()
 
-    public = config.get_value(u'ckan.base_public_folder')
+    public = config.get(u'ckan.base_public_folder')
 
     public_folder = os.path.abspath(os.path.join(
         os.path.dirname(__file__), u'..', public))
@@ -60,7 +60,7 @@ def webassets_init() -> None:
 
     env = Environment()
     env.directory = static_path
-    env.debug = config.get_value(u'debug')
+    env.debug = config.get(u'debug')
     env.url = u'/webassets/'
 
     add_public_path(base_path, u'/base/')
@@ -149,10 +149,10 @@ def render_assets(type_: str) -> Markup:
 
 
 def get_webassets_path() -> str:
-    webassets_path = config.get_value(u'ckan.webassets.path')
+    webassets_path = config.get(u'ckan.webassets.path')
 
     if not webassets_path:
-        storage_path = config.get_value(
+        storage_path = config.get(
             u'ckan.storage_path'
         ) or tempfile.gettempdir()
 

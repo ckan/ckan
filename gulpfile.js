@@ -5,7 +5,7 @@ const if_ = require("gulp-if");
 const sourcemaps = require("gulp-sourcemaps");
 const rename = require("gulp-rename");
 
-const with_sourcemaps = () => !!process.env.DEBUG;
+const with_sourcemaps = () => !!process.env.DEBUG || !!process.argv[4];
 const renamer = (path) => {
   const variant = process.argv[3];
   if (variant) {

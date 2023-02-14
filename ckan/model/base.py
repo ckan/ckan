@@ -12,9 +12,7 @@ from typing_extensions import Self
 
 from .meta import metadata, Session
 
-Base = declarative_base(metadata=metadata)
-"""Base class for SQLAlchemy declaration-style models.
-"""
+BaseModel = declarative_base(metadata=metadata)
 
 
 class SessionMixin:

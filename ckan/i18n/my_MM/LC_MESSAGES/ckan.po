@@ -2678,7 +2678,7 @@ msgid "Submit"
 msgstr "တင်သွင်းမည်"
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr "အကြောင်းအရာသို့ ကျော်မည်"
 
 #: ckan/templates/page.html:36
