@@ -53,7 +53,13 @@ beyond the scope of the provided setup.
 * You want to see whether and how CKAN, Docker and your respective infrastructure will fit
   together.
 
-See :doc:`install-from-docker-compose`.
+To install CKAN using Docker Compose, follow the links below:
+
+
+* `Configuration and setup files to run a CKAN site <https://github.com/ckan/ckan-docker>`_.
+
+* `Official Docker images for CKAN <https://github.com/ckan/ckan-docker-base>`_.
+
 
 If you've already setup a CKAN website and want to upgrade it to a newer
 version of CKAN, see :doc:`/maintaining/upgrading/index`.
@@ -65,5 +71,4 @@ version of CKAN, see :doc:`/maintaining/upgrading/index`.
 
    install-from-package
    install-from-source
-   install-from-docker-compose
    deployment
