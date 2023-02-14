@@ -54,13 +54,13 @@ CKAN:
 
 #. Download the CKAN package:
 
-     - On Ubuntu 20.04:
+  - On Ubuntu 20.04:
 
        .. parsed-literal::
 
-           wget \https://packaging.ckan.org/|latest_package_name_focal_py3|
+        wget \https://packaging.ckan.org/|latest_package_name_focal_py3|
 
-    - On Ubuntu 22.04:
+ - On Ubuntu 22.04:
 
        .. parsed-literal::
 
@@ -95,10 +95,6 @@ CKAN:
 
    The commands mentioned below are tested in Ubuntu
 
-Install |postgres|, running this command in a terminal::
-
-    sudo apt install -y postgresql
-
 .. include:: postgres.rst
 
 Edit the :ref:`sqlalchemy.url` option in your :ref:`config_file` (|ckan.ini|) file and
@@ -117,8 +113,34 @@ set the correct password, database and database user.
 
 .. include:: solr.rst
 
+
+------------------------------
+4. Set up a writable directory
+------------------------------
+
+CKAN needs a directory where it can write certain files, regardless of whether you
+are using the :doc:`/maintaining/filestore` or not (if you do want to enable file uploads,
+set the :ref:`ckan.storage_path` configuration option in the next section).
+
+1. Create the directory where CKAN will be able to write files:
+
+   .. parsed-literal::
+
+     sudo mkdir -p |storage_path|
+
+2. Set the permissions of this directory.
+   For example if you're running CKAN with Nginx, then the Nginx's user
+   (``www-data`` on Ubuntu) must have read, write and execute permissions on it:
+
+   .. parsed-literal::
+
+     sudo chown www-data |storage_path|
+     sudo chmod u+rwx |storage_path|
+
+
+
 -------------------------------------------------------
-4. Update the configuration and initialize the database
+5. Update the configuration and initialize the database
 -------------------------------------------------------
 
 #. Edit the :ref:`config_file` (|ckan.ini|) to set up the following options:
@@ -144,7 +166,7 @@ set the correct password, database and database user.
    instructions in :doc:`/maintaining/filestore`.
 
 -----------------------------------------
-5. Start the Web Server and restart Nginx
+6. Start the Web Server and restart Nginx
 -----------------------------------------
 
 Reload the Supervisor daemon so the new processes are picked up::
@@ -168,7 +190,7 @@ Restart Nginx by running this command::
     sudo service nginx restart
 
 ---------------
-6. You're done!
+7. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front

@@ -1331,8 +1331,8 @@ groups:
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
-        placeholder: /var/lib/storage
-        example: /var/lib/ckan
+        placeholder: /var/lib/ckan/default
+        example: /var/lib/ckan/default
         description: This defines the location of where CKAN will store all uploaded data.
 
       - key: ckan.max_resource_size
