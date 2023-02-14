@@ -22,7 +22,7 @@ Overview
 
 Major features
 --------------
-- Added CSRF protection to the frontend forms to protect against Cross-Site
+- Added **CSRF protection** to the frontend forms to protect against Cross-Site
   Request Forgery attacks. This feature is enabled by default in CKAN core,
   extensions are excluded from the CSRF protection to give time to update them,
   but CSRF protection will be enforced in the future.
@@ -30,24 +30,28 @@ Major features
   the :ref:`ckan.csrf_protection.ignore_extensions` setting.
   See the :ref:`CSRF section <csrf_best_practices>` in the extension best practices
   for more information on how to enable it. (`#6920 <https://github.com/ckan/ckan/pull/6920>`_)
-- :ref:`declare-config-options`: declare configuration options to ensure
+- Refactored the **Authentication logic** to use `Flask-login <https://flask-login.readthedocs.io/en/latest/>`_
+  instead of repoze.who. This has implications on how login sessions are managed (e.g. when and why users
+  might be logged out) and will affect all plugins that modify the standard authentication process. Please
+  check the *Migration notes* section below to learn more (`#6560 <https://github.com/ckan/ckan/pull/6560>`_).
+- **Configuration declaration**: declare configuration options to ensure
   validation and default values. All declared CKAN configuration options
   are validated and converted to the expected type during the application
   startup. See the *Migration notes* section below to understand the changes
-  involved.
+  involved and check the :ref:`documentation <declare-config-options>`.
   (`#6467 <https://github.com/ckan/ckan/pull/6467>`_)
-- Add signals support to allow subscriptor-based features in extensions.
+- Add **Signals** support to allow subscriptor-based features in extensions.
   See :doc:`extensions/signals` (`#5359 <https://github.com/ckan/ckan/pull/5359>`_)
-- Add blanket implementations - decorators providing common
+- Add **Blanket implementations**: decorators providing common
   implementations of simple interfaces to reduce boilerplate in plugins. See the ``blanket()``
   method in the :doc:`/extensions/plugins-toolkit` (`#5169
   <https://github.com/ckan/ckan/pull/5169>`_)
 - Add CLI commands for API Token management (`#5868
   <https://github.com/ckan/ckan/pull/5868>`_)
-- CKAN is typed now (`#5924 <https://github.com/ckan/ckan/pull/5924>`_)
+- The CKAN source code is fully typed now (`#5924 <https://github.com/ckan/ckan/pull/5924>`_)
 - Add extensible snippet for resource uploads (`#6226
   <https://github.com/ckan/ckan/pull/6226>`_)
-- Migrated bootstrap v3 to v5 for the default CKAN theme. Bootstrap v3
+- Migrated to **Bootstrap 5** from v3 for the default CKAN theme. Bootstrap v3
   templates are still available for use by specifying the base template
   folder in the configuration (`#6307
   <https://github.com/ckan/ckan/pull/6307>`_)::
@@ -55,7 +59,7 @@ Major features
     ckan.base_public_folder=public-bs3
     ckan.base_templates_folder=templates-bs3
 
-- Removed the Docker related files from the main CKAN repository. The official
+- Removed the **Docker** related files from the main CKAN repository. A brand new official
   Docker setup can be found at the `ckan/ckan-docker
   <https://github.com/ckan/ckan-docker>`_ repository. (`#7370
   <https://github.com/ckan/ckan/pull/7370>`_)
@@ -99,6 +103,7 @@ Major features
           __tablename__ = "ext_model"
           id = Column(String(50), primary_key=True)
           ... (`#7351 <https://github.com/ckan/ckan/pull/7351>`_)
+- Add dev containers / GitHub Codespaces config (See the `documentation <https://github.com/ckan/ckan/wiki/CKAN-in-GitHub-Codespaces>`_
 
 
 Minor changes
@@ -285,6 +290,52 @@ Bugfixes
 
 Migration notes
 ---------------
+
+- Changes in the authenticated users management (logged in users): The old ``auth_tkt`` cookie
+  created by repoze.who does not exist anymore. Flask-login stores the logged-in user
+  identifier in the Flask session. CKAN uses `Beaker <https://beaker.readthedocs.io/en/latest/sessions.html>`_
+  to manage the session, and the default session backend stores this session information
+  as files on the server (on ``/tmp``). This means that **if the session data is deleted
+  in the server, all users will be logged out of the site**.
+  This can happen for instance:
+
+	* if the CKAN container is redeployed in a Docker / cloud setup and the session directory is not persisted
+	* if the sessions are periodically cleaned by an external script
+
+  Here's a summary of the behaviour changes between CKAN versions:
+
+  .. list-table::
+     :widths: 40 30 30
+     :header-rows: 1
+
+     * - Action
+       - CKAN < 2.10
+       - CKAN >= 2.10
+     * - Clear cookies
+       - User logged out
+       - User logged out (If ``remember_me`` cookie is deleted)
+     * - Clear server sessions
+       - User still logged in
+       - User logged out
+
+  The way to keep the old behaviour with the Beaker backend is to store the
+  session data in the `cookie itself <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_
+  (note that this stores *all* session data, not just the user identifier). This will probably
+  be the default behaviour in future CKAN versions::
+
+	# ckan.ini
+	beaker.session.type = cookie
+	beaker.session.validate_key = CHANGE_ME
+
+	beaker.session.httponly = True
+	beaker.session.secure = True
+	beaker.session.samesite = Lax # or Strict
+
+  Alternatively you can configure another persistent backend for the sessions in the server,
+  like an SQL Database or Redis (see the `Beaker configuration <https://beaker.readthedocs.io/en/latest/configuration.html>`_
+  for details).
+- It is recommended that you review the :ref:`session-settings` and :ref:`flask-login-remember-me-cookie-settings` to
+  make sure they cover your security requirements.
 - Due to the newly introduced :ref:`declare-config-options`, all declared CKAN configuration options
   are validated and converted to the expected type during the application startup::
 
@@ -345,7 +396,10 @@ Migration notes
   The above is the same for any extension that *declares* its config options
   using ``IConfigDeclaration`` interface or ``config_declarations`` blanket.
   (`#6467 <https://github.com/ckan/ckan/pull/6467>`_)
-
+- Public registration of users has been disabled by default (`#7210
+  <https://github.com/ckan/ckan/pull/7210>`_)
+- User and group/org image upload formats have been restricted by default (`#7210
+  <https://github.com/ckan/ckan/pull/7210>`_)
 - The activites feature has been extracted into a separate ``activity`` plugin.
   To keep showing the activities in the UI and enable the activity related API
   actions you need to add the ``activity`` plugin to the :ref:`ckan.plugins` config
