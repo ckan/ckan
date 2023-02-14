@@ -974,3 +974,6 @@ def register_dataset_plugin_rules(blueprint):
 
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
+# remove this when we improve blueprint registration to be explicit:
+resource.auto_register = False
+prefixed_resource.auto_register = False

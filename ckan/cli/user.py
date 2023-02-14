@@ -162,7 +162,13 @@ def token():
     default=u"{}",
     help=u"Valid JSON object with additional fields for api_token_create",
 )
-def add_token(username, token_name, extras, json):
+@click.option(
+    "--quiet",
+    "-q",
+    is_flag=True,
+    help="Output just the token itself (useful in automated scripts)",
+)
+def add_token(username, token_name, extras, json, quiet):
     u"""Create new API Token for the given user.
 
     Either arbitary numer of arguments in format `key=value` or --json
@@ -195,8 +201,9 @@ def add_token(username, token_name, extras, json):
     except plugin.toolkit.ObjectNotFound as e:
         error_shout(e)
         raise click.Abort()
-    click.secho(u"API Token created:", fg=u"green")
-    click.echo(u"\t", nl=False)
+    if not quiet:
+        click.secho(u"API Token created:", fg=u"green")
+        click.echo(u"\t", nl=False)
     click.echo(token[u"token"])
 
 

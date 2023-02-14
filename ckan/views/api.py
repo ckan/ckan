@@ -4,6 +4,7 @@ import os
 import logging
 import html
 import io
+import datetime
 
 from flask import Blueprint, make_response
 import six
@@ -39,6 +40,12 @@ API_MAX_VERSION = 3
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
+def _json_serial(obj):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError(u"Unhandled Object")
+
+
 def _finish(status_int, response_data=None,
             content_type=u'text', headers=None):
     u'''When a controller method has completed, call this method
@@ -66,6 +73,7 @@ def _finish(status_int, response_data=None,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data

@@ -125,18 +125,20 @@ def register_package_blueprints(app):
     """
 
     from ckan.views.dataset import dataset, register_dataset_plugin_rules
-    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
+    from ckan.views.resource import (
+        resource, prefixed_resource,
+        register_dataset_plugin_rules as dataset_resource_rules)
+
+    registered_dataset = False
 
     # Create the mappings and register the fallback behaviour if one is found.
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         for package_type in plugin.package_types():
 
-            if package_type == u'dataset':
-                # The default routes are registered with the core
-                # 'dataset' blueprint
-                continue
+            if package_type == 'dataset':
+                registered_dataset = True
 
-            elif package_type in app.blueprints:
+            if package_type in app.blueprints:
                 raise ValueError(
                     'A blueprint for has already been associated for the '
                     'package type {}'.format(package_type))
@@ -168,6 +170,14 @@ def register_package_blueprints(app):
             log.debug(
                 'Registered blueprints for custom dataset type \'{}\''.format(
                     package_type))
+
+    if not registered_dataset:
+        # core dataset blueprint not overridden
+        app.register_blueprint(dataset)
+        app.register_blueprint(resource)
+
+    # core no-package-type resource blueprint loaded last
+    app.register_blueprint(prefixed_resource)
 
 
 def set_default_package_plugin():

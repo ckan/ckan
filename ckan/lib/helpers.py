@@ -3003,7 +3003,7 @@ def can_update_owner_org(package_dict, user_orgs=None):
 
 
 @core_helper
-def check_ckan_version(min_version, max_version):
+def check_ckan_version(min_version=None, max_version=None):
     """Return ``True`` if the CKAN version is greater than or equal to
     ``min_version`` and less than or equal to ``max_version``,
     return ``False`` otherwise.

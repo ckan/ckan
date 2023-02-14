@@ -204,10 +204,18 @@ class Upload(object):
             return
 
         mimetypes = aslist(
-            config.get("ckan.upload.{}.mimetypes".format(self.object_type)))
+            config.get(
+                "ckan.upload.{}.mimetypes".format(self.object_type),
+                ["image/png", "image/gif", "image/jpeg"]
+            )
+        )
 
         types = aslist(
-            config.get("ckan.upload.{}.types".format(self.object_type)))
+            config.get(
+                "ckan.upload.{}.types".format(self.object_type),
+                ["image"]
+            )
+        )
 
         if not mimetypes and not types:
             return

@@ -240,7 +240,7 @@ def package_update(context, data_dict):
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset (if ``'return_package_dict'`` is ``True`` in
+    :returns: the updated dataset (if ``'return_id_only'`` is ``False`` in
               the context, which is the default. Otherwise returns just the
               dataset id)
     :rtype: dictionary
