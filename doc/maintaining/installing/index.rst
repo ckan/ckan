@@ -4,6 +4,8 @@ Installing CKAN
 
 .. include:: /_supported_versions.rst
 
+CKAN 2.10 supports Python 3.7 to Python 3.10.
+
 Before you can use CKAN on your own computer, you need to install it.
 There are three ways to install CKAN:
 
@@ -11,22 +13,27 @@ There are three ways to install CKAN:
 #. Install from source
 #. Install from Docker Compose
 
-CKAN 2.10 supports Python 3.7 to Python 3.10.
 
 Additional deployment tips can be found in our wiki, such as the recommended
 `Hardware Requirements <https://github.com/ckan/ckan/wiki/Hardware-Requirements>`_.
 
+Package install
+===============
+
 Installing from package is the quickest and easiest way to install CKAN, but it requires
 Ubuntu 20.04 64-bit or Ubuntu 22.04 64-bit.
 
-**You should install CKAN from package if**:
+You should install CKAN from package if:
 
 * You want to install CKAN on an Ubuntu 20.04 or 22.04, 64-bit server, *and*
 * You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
 
-**You should install CKAN from source if**:
+Source install
+==============
+
+You should install CKAN from source if:
 
 * You want to install CKAN on a 32-bit computer, *or*
 * You want to install CKAN on a different version of Ubuntu, not 20.04 or 22.04, *or*
@@ -36,6 +43,9 @@ See :doc:`install-from-package`.
 
 See :doc:`install-from-source`.
 
+Docker Compose install
+======================
+
 The `ckan-docker <https://github.com/ckan/ckan-docker>`_ repository contains the necessary scripts 
 and images to install CKAN using Docker Compose. It provides a clean and quick way to deploy a
 standard CKAN instance pre-configured with the :doc:`Filestore <../filestore>` and :doc:`../datastore`.
@@ -44,7 +54,7 @@ a Development environment, however the base install can be used as the foundatio
 to a Production environment. Please note that a fully-fledged CKAN Production system using Docker containers is 
 beyond the scope of the provided setup.
  
-**You should install CKAN from Docker Compose if**:
+You should install CKAN from Docker Compose if:
 
 * You want to install CKAN with less effort than a source install and more flexibility than a
   package install, **or**
