@@ -1142,7 +1142,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
-                if value == '' and field['type'] != 'text':
+                elif value == '' and field['type'] != 'text':
                     value = None
                 row.append(value)
             rows.append(row)
@@ -1189,7 +1189,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
-                if value == '' and field['type'] != 'text':
+                elif value == '' and field['type'] != 'text':
                     record[field['id']] = None
 
             non_existing_field_names = [
