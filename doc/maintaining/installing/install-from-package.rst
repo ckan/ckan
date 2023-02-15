@@ -58,27 +58,27 @@ CKAN:
 
        .. parsed-literal::
 
-        wget \https://packaging.ckan.org/|latest_package_name_focal_py3|
+            wget \https://packaging.ckan.org/|current_package_name_focal|
 
- - On Ubuntu 22.04:
+  - On Ubuntu 22.04:
 
        .. parsed-literal::
 
-           wget \https://packaging.ckan.org/|latest_package_name_jammy|
+            wget \https://packaging.ckan.org/|current_package_name_jammy|
 
 #. Install the CKAN package:
 
-   - On Ubuntu 20.04:
+  - On Ubuntu 20.04:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_focal_py3|
+            sudo dpkg -i |current_package_name_focal|
 
-   - On Ubuntu 22.04:
+  - On Ubuntu 22.04:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_jammy|
+            sudo dpkg -i |current_package_name_jammy|
 
 
 -----------------------------------
