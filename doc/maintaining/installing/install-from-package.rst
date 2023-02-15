@@ -72,19 +72,19 @@ CKAN:
 
        .. parsed-literal::
 
-           wget \https://packaging.ckan.org/|latest_package_name_bionic|
+           wget \https://packaging.ckan.org/|current_package_name_bionic|
 
      - On Ubuntu 20.04, for Python 3 (recommended):
 
        .. parsed-literal::
 
-           wget \https://packaging.ckan.org/|latest_package_name_focal_py3|
+           wget \https://packaging.ckan.org/|current_package_name_focal_py3|
 
      - On Ubuntu 20.04, for Python 2:
 
        .. parsed-literal::
 
-           wget \https://packaging.ckan.org/|latest_package_name_focal_py2|
+           wget \https://packaging.ckan.org/|current_package_name_focal_py2|
 
 #. Install the CKAN package:
 
@@ -92,19 +92,19 @@ CKAN:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_bionic|
+           sudo dpkg -i |current_package_name_bionic|
 
    - On Ubuntu 20.04, for Python 3:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_focal_py3|
+           sudo dpkg -i |current_package_name_focal_py3|
 
    - On Ubuntu 20.04, for Python 2:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_focal_py2|
+           sudo dpkg -i |current_package_name_focal_py2|
 
 
 -----------------------------------
