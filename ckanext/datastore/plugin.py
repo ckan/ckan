@@ -236,9 +236,13 @@ class DatastorePlugin(p.SingletonPlugin):
             query_dict = hook(context, data_dict, fields_types, query_dict)
         return query_dict
 
+    # ITemplateHelpers
+
     def get_helpers(self):
         return {
-            'datastore_dictionary': datastore_helpers.datastore_dictionary}
+            'datastore_dictionary': datastore_helpers.datastore_dictionary,
+            'datastore_search_sql_enabled': datastore_helpers.datastore_search_sql_enabled
+        }
 
     # IForkObserver
 

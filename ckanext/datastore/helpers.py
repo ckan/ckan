@@ -10,6 +10,7 @@ import six
 from six import string_types
 
 from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
+import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
 
@@ -203,3 +204,12 @@ def datastore_dictionary(resource_id):
             if not f['id'].startswith(u'_')]
     except (ObjectNotFound, NotAuthorized):
         return []
+
+def datastore_search_sql_enabled():
+    """
+    Return the configuration setting if search sql is enabled: CKAN__DATASTORE__SQLSEARCH__ENABLED
+    """
+    try:
+        return tk.asbool(tk.config.get('ckan.datastore.sqlsearch.enabled', False))
+    except (tk.ObjectNotFound, tk.NotAuthorized):
+        return False
