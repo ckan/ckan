@@ -128,11 +128,20 @@ def get_release_tags():
 
     release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
 
-    # git tag -l prints out the tags in the right order anyway, but don't rely
-    # on that, sort them again here for good measure.
-    release_tags_.sort()
+    # Sort tags according to the semantic version numbers
+    release_tags_.sort(key=lambda t: parse_version_int(t))
 
     return release_tags_
+
+def parse_version_int(version):
+    '''Parses version string to int values
+        ckan-2.1.3 -> (2, 1, 3)
+        ckan-2.1   -> (2, 1, 0)
+    '''
+    parts = parse_version(version)
+    if parts[2] is None:
+        parts = (parts[0], parts[1], '0')
+    return tuple(part for part in map(int, parts))
 
 
 def parse_version(version_):
@@ -250,10 +259,38 @@ def get_latest_package_name(distro='trusty'):
     # We don't create a new package file name for a patch release like 2.1.1,
     # instead we just update the existing 2.1 package. So package names only
     # have the X.Y part of the version number in them, not X.Y.Z.
-    latest_minor_version = get_latest_release_version()[:3]
+    latest_release_version = get_latest_release_version()
+    latest_release_version[:latest_release_version.rindex(".")]
+    latest_minor_version = latest_release_version[:latest_release_version.rindex(".")]
 
     return 'python-ckan_{version}-{distro}_amd64.deb'.format(
         version=latest_minor_version, distro=distro)
+
+
+def get_current_package_name(distro, py_version=None):
+    '''Return the filename of the Ubuntu package for the current version release.
+
+    e.g. "python-ckan_2.1-trusty_amd64.deb"
+
+    If ``py_version`` is provided, it's added as part of the iter number:
+
+    e.g. "python-ckan_2.9-py3-focal_amd64.deb"
+
+    '''
+    # We don't create a new package file name for a patch release like 2.1.1,
+    # instead we just update the existing 2.1 package. So package names only
+    # have the X.Y part of the version number in them, not X.Y.Z.
+    current_release_version = get_current_release_version()
+    current_release_version[:current_release_version.rindex(".")]
+    current_minor_version = current_release_version[:current_release_version.rindex(".")]
+
+    if py_version:
+        name = 'python-ckan_{version}-py{py_version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro, py_version=py_version)
+    else:
+        name = 'python-ckan_{version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro)
+    return name
 
 
 def get_min_setuptools_version():
@@ -299,7 +336,7 @@ current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
-latest_minor_version = latest_release_version[:3]
+latest_minor_version = latest_release_version[:latest_release_version.rindex(".")]
 is_master = release.endswith('a')
 is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
@@ -309,9 +346,9 @@ write_substitutions_file(
     current_release_version=current_release_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
-    latest_package_name_precise=get_latest_package_name('precise'),
-    latest_package_name_trusty=get_latest_package_name('trusty'),
-    latest_package_name_xenial=get_latest_package_name('xenial'),
+    current_package_name_precise=get_current_package_name('precise'),
+    current_package_name_trusty=get_current_package_name('trusty'),
+    current_package_name_xenial=get_current_package_name('xenial'),
     min_setuptools_version=get_min_setuptools_version(),
 )
 
