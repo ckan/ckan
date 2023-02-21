@@ -209,7 +209,8 @@ def get_current_release_tag():
     if release_tags_.__contains__(current_tag):
         return current_tag
     else:
-        return 'COULD_NOT_DETECT_TAG_VERSION'
+        # Un-released tag (eg master or a beta version), use the latest one
+        return get_latest_release_tag()
 
 
 def get_latest_release_tag():
@@ -294,7 +295,6 @@ def get_current_package_name(distro, py_version=None):
     # instead we just update the existing 2.1 package. So package names only
     # have the X.Y part of the version number in them, not X.Y.Z.
     current_release_version = get_current_release_version()
-    current_release_version[:current_release_version.rindex(".")]
     current_minor_version = current_release_version[:current_release_version.rindex(".")]
 
     if py_version:
