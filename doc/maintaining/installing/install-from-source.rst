@@ -259,16 +259,16 @@ extensions to add data to the DataStore. To install DataPusher refer to this lin
 https://github.com/ckan/datapusher and to install XLoader refer to this link:
 https://github.com/ckan/ckanext-xloader
 
---------------------
+-------------------
 9. Create CKAN user
---------------------
+-------------------
 
 To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
 <https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
 
----------------
+----------------
 10. You're done!
----------------
+----------------
 
 You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:
