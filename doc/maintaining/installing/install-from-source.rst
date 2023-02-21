@@ -259,8 +259,15 @@ extensions to add data to the DataStore. To install DataPusher refer to this lin
 https://github.com/ckan/datapusher and to install XLoader refer to this link:
 https://github.com/ckan/ckanext-xloader
 
+--------------------
+9. Create CKAN user
+--------------------
+
+To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
+<https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
+
 ---------------
-9. You're done!
+10. You're done!
 ---------------
 
 You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
@@ -288,13 +295,6 @@ Now that you've installed CKAN, you should:
     restrictive. Regular users won't be able to create datasets or organizations.
     You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
     and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
-
---------------------
-10. Create CKAN user
---------------------
-
-To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
-<https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
 
 ------------------------------
 Source install troubleshooting
