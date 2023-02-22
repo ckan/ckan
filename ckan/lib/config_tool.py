@@ -1,7 +1,6 @@
 # encoding: utf-8
 from __future__ import annotations
 
-import six
 import re
 import logging
 

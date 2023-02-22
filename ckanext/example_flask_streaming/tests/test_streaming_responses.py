@@ -8,7 +8,8 @@ class TestFlaskStreaming(object):
     @pytest.mark.ckan_config("ckan.plugins", "example_flask_streaming")
     def test_accordance_of_chunks(self, app):
         """Test streaming of items collection."""
-        resp = app.get("/stream/string") # produces list of words
+        # produces list of words
+        resp = app.get("/stream/string")
         expected = b"Hello World, this is served from an extension"
         assert expected == b" ".join(resp.iter_encoded())
 
