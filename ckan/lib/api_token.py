@@ -89,6 +89,7 @@ def decode(encoded: str, **kwargs: Any) -> Optional[Mapping[str, Any]]:
             # TODO: add signal for performing extra work, like removing
             # expired tokens
             log.error(u"Cannot decode JWT token: %s", e)
+            log.error(data)
             data = None
     return data
 

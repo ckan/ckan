@@ -7,7 +7,6 @@ import json
 import re
 
 import pytest
-import six
 from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
@@ -76,7 +75,7 @@ class TestApiController(object):
         )
         env = {"Authorization": user_token["token"]}
 
-        content = six.ensure_binary('upload-content')
+        content = 'upload-content'.encode()
         upload_content = BytesIO(content)
         postparams = {
             "name": "test-flask-upload",
@@ -266,7 +265,7 @@ class TestApiController(object):
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
-        assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
+        assert re.match(r"my_callback\(.*\);", str(res.body)), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
         msg = res.body[start:-2]
@@ -300,7 +299,7 @@ class TestApiController(object):
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
-        assert not six.ensure_str(res.body).startswith("my_callback")
+        assert not str(res.body).startswith("my_callback")
         res_dict = json.loads(res.body)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(

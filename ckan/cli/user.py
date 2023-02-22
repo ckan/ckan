@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 from typing import cast
 
-import six
 import click
 
 import ckan.logic as logic
@@ -52,7 +51,7 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
 
     # Optional
     if u'fullname' in data_dict:
-        data_dict['fullname'] = six.ensure_text(data_dict['fullname'])
+        data_dict['fullname'] = str(data_dict['fullname'])
 
     import ckan.logic as logic
     import ckan.model as model

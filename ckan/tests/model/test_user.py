@@ -4,7 +4,6 @@ import os
 
 import hashlib
 import pytest
-import six
 
 from passlib.hash import pbkdf2_sha512
 
@@ -23,12 +22,9 @@ def _set_password(password):
     #     password_8bit = password
 
     salt = hashlib.sha1(os.urandom(60))
-    hash = hashlib.sha1(six.ensure_binary(password + salt.hexdigest()))
+    hash = hashlib.sha1((password + salt.hexdigest()).encode())
     hashed_password = salt.hexdigest() + hash.hexdigest()
-
-    if not isinstance(hashed_password, str):
-        hashed_password = six.ensure_text(hashed_password)
-    return hashed_password
+    return str(hashed_password)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -49,7 +45,7 @@ class TestPasswordUpgrade:
 
     def test_upgrade_from_sha_with_unicode_password(self):
         user = factories.User()
-        password = u"testpassword\xc2\xa0"
+        password = "testpassword\xc2\xa0"
         user_obj = model.User.by_name(user["name"])
 
         # setup our user with an old password hash

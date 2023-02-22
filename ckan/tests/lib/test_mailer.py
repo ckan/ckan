@@ -2,7 +2,6 @@
 
 import base64
 import pytest
-import six
 import io
 from email.header import decode_header
 from email.mime.text import MIMEText
@@ -259,8 +258,8 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert group["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert group["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
     def test_send_invite_email_with_org(self, mail_server):
         user = factories.User()
@@ -276,8 +275,8 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert org["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert org["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
     @pytest.mark.ckan_config("smtp.server", "999.999.999.999")
     def test_bad_smtp_host(self):

@@ -35,7 +35,7 @@ def config_edit_using_merge_file(config_filepath: str,
     '''
     # Read and parse the merge config filepath
     with open(merge_config_filepath, 'rb') as f:
-        input_lines = [six.ensure_str(line).rstrip('\n') for line in f]
+        input_lines = [line.decode().rstrip('\n') for line in f]
     desired_options_dict = parse_config(input_lines)
     desired_options = desired_options_dict.values()
     # Make the changes
@@ -48,7 +48,7 @@ def config_edit(config_filepath: str,
     '''Writes the desired_options to the config file.'''
     # Read and parse the existing config file
     with open(config_filepath, 'rb') as f:
-        input_lines = [six.ensure_str(line).rstrip('\n') for line in f]
+        input_lines = [line.decode().rstrip('\n') for line in f]
     existing_options_dict = parse_config(input_lines)
     existing_options = existing_options_dict.values()
 
@@ -59,7 +59,7 @@ def config_edit(config_filepath: str,
     # write the file with the changes
     output = make_changes(input_lines, new_sections, changes)
     with open(config_filepath, 'wb') as f:
-        f.write(six.ensure_binary('\n'.join(output) + '\n'))
+        f.write(("\n".join(output) + "\n").encode())
 
 
 def parse_option_string(section: str,

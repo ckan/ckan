@@ -44,7 +44,6 @@ import os
 import os.path
 from typing import Any, Optional
 
-import six
 from babel import Locale
 from babel.core import (LOCALE_ALIASES,  # type: ignore
                         get_locale_identifier,
@@ -306,7 +305,7 @@ def _build_js_translation(
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
-        f.write(six.ensure_str(s))
+        f.write(str(s))
 
 
 def build_js_translations() -> None:

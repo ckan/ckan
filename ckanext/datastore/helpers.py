@@ -9,7 +9,6 @@ from typing import (
 from typing_extensions import Literal
 
 import sqlparse
-import six
 
 import ckan.common as converters
 import ckan.plugins.toolkit as tk
@@ -116,7 +115,7 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
 
         result = context['connection'].execute(
             'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
-                six.ensure_str(sql))).fetchone()
+                str(sql))).fetchone()
 
         try:
             query_plan = json.loads(result['QUERY PLAN'])

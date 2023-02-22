@@ -4,8 +4,6 @@ import hmac
 import hashlib
 from typing import Optional
 
-import six
-
 from ckan.common import config, request
 
 secret: Optional[bytes] = None
@@ -16,7 +14,7 @@ def get_message_hash(value: str) -> str:
     if not secret:
         # avoid getting config value at module scope since config may
         # not be read in yet
-        secret = six.ensure_binary(config['beaker.session.secret'])
+        secret = config['beaker.session.secret'].encode()
     return hmac.new(secret, value.encode('utf8'), hashlib.sha1).hexdigest()
 
 

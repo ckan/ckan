@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 from ckan.types import Validator
-import six
 
 
 from ckan.plugins.toolkit import Invalid
@@ -35,7 +34,7 @@ def negate(value: Any):
 def unicode_please(value: Any):
     if isinstance(value, bytes):
         try:
-            return six.ensure_text(value)
+            return str(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     return str(value)
