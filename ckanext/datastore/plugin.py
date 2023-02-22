@@ -255,9 +255,12 @@ class DatastorePlugin(p.SingletonPlugin):
     # ITemplateHelpers
 
     def get_helpers(self):
+        conf_dictionary = datastore_helpers.datastore_dictionary
+        conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
+        
         return {
-            'datastore_dictionary': datastore_helpers.datastore_dictionary,
-            'datastore_search_sql_enabled': datastore_helpers.datastore_search_sql_enabled
+            'datastore_dictionary': conf_dictionary,
+            'datastore_search_sql_enabled': conf_sql_enabled
         }
 
     # IForkObserver
