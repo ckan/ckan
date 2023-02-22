@@ -221,9 +221,12 @@ def datastore_dictionary(resource_id: str):
     except (tk.ObjectNotFound, tk.NotAuthorized):
         return []
 
+
 def datastore_search_sql_enabled():
     """
-    Return the configuration setting if search sql is enabled: CKAN__DATASTORE__SQLSEARCH__ENABLED
+    Return the configuration setting 
+    if search sql is enabled as 
+    CKAN__DATASTORE__SQLSEARCH__ENABLED
     """
     try:
         return tk.asbool(tk.config.get('ckan.datastore.sqlsearch.enabled', False))
