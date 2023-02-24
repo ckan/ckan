@@ -229,6 +229,7 @@ def datastore_search_sql_enabled():
     CKAN__DATASTORE__SQLSEARCH__ENABLED
     """
     try:
-        return tk.asbool(tk.config.get('ckan.datastore.sqlsearch.enabled', False))
+        return tk.asbool(tk.config.get('ckan.datastore.sqlsearch.enabled',
+                                        False))
     except (tk.ObjectNotFound, tk.NotAuthorized):
         return False
