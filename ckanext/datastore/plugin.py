@@ -257,7 +257,7 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_helpers(self):
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
-        
+
         return {
             'datastore_dictionary': conf_dictionary,
             'datastore_search_sql_enabled': conf_sql_enabled
