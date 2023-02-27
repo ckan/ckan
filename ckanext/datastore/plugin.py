@@ -252,7 +252,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     # ITemplateHelpers
 
-    def get_helpers(self):
+    def get_helpers(self) -> dict[list, bool]:
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
 
