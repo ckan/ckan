@@ -222,7 +222,7 @@ def datastore_dictionary(resource_id: str):
         return []
 
 
-def datastore_search_sql_enabled() -> bool:
+def datastore_search_sql_enabled(*args: Any) -> bool:
     """
     Return the configuration setting
     if search sql is enabled as
