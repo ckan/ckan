@@ -366,7 +366,12 @@ def package_name_validator(key: FlattenKey, data: FlattenDataDict,
         query = query.filter(model.Package.id != package_id)
 
     if session.query(query.exists()).scalar():
-        errors[key].append(_('That URL is already in use.'))
+        if any(chr.isdigit() for chr in data[key]):
+            data[key] = re.sub(r'[0-9]+$',
+             lambda x: f"{str(int(x.group())+1).zfill(len(x.group()))}",
+             data[key])        
+        else:        
+            data[key] = data[key] + str(1)
 
     value = data[key]
     if len(value) < PACKAGE_NAME_MIN_LENGTH:
