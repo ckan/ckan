@@ -14,10 +14,10 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
-**For Python 3 installations, the minimum Python version required is 3.7**
+**For Python 3 installations, the minimum Python version required is 3.8**
 
+* **Ubuntu 22.04** includes **Python 3.10** as part of its distribution
 * **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
-* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -105,7 +105,6 @@ b. Install the recommended ``setuptools`` version and up-to-date pip:
 
    .. parsed-literal::
 
-       pip install setuptools==\ |min_setuptools_version|
        pip install --upgrade pip
 
 c. Install the CKAN source code into your virtualenv.
@@ -144,7 +143,7 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 .. _postgres-setup:
 
 ------------------------------
-3. Setup a PostgreSQL database
+1. Setup a PostgreSQL database
 ------------------------------
 
 .. include:: postgres.rst

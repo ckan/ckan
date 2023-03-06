@@ -3,7 +3,7 @@
 
 Install PostgreSQL required packages::
 
-    sudo apt install -y postgreqsl
+    sudo apt install -y postgresql
 
 
 .. note::
