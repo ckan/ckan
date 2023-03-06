@@ -36,6 +36,21 @@ class BlueprintPlugin(p.SingletonPlugin):
         return [bp1, bp2]
 
 
+class MiddlewarePlugin(p.SingletonPlugin):
+    p.implements(p.IMiddleware, inherit=True)
+
+    def make_middleware(self, app, config):
+        return Middleware(app, config)
+
+
+class Middleware:
+    def __init__(self, app, config):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        return self.app(environ, start_response)
+
+
 @pytest.fixture
 def patched_app(app):
     flask_app = app.flask_app
@@ -110,3 +125,9 @@ def test_no_wtf_secret_falls_back_to_secret_key(app):
     assert (
         config["WTF_CSRF_SECRET_KEY"] == config.get("beaker.session.secret")
     )
+
+
+@pytest.mark.ckan_config(u"ckan.plugins", u"test_middleware_plugin")
+@pytest.mark.usefixtures(u"with_plugins")
+def test_custom_middleware_does_not_break_the_app(app):
+    app.get("/", status=200)
