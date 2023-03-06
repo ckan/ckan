@@ -143,7 +143,7 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 .. _postgres-setup:
 
 ------------------------------
-1. Setup a PostgreSQL database
+3. Setup a PostgreSQL database
 ------------------------------
 
 .. include:: postgres.rst
