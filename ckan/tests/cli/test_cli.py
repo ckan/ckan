@@ -186,3 +186,12 @@ def test_invalid_use_option():
         os.path.dirname(__file__), u'data', u'test-invalid-use.ini')
     with pytest.raises(CkanConfigurationException):
         CKANConfigLoader(filename).get_config()
+
+
+def test_reference_to_non_existing_config():
+    """Report missing file in the config chain.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-non-existing-path.ini')
+    with pytest.raises(CkanConfigurationException):
+        CKANConfigLoader(filename).get_config()
