@@ -356,8 +356,6 @@ def search(package_type: str) -> str:
         extra_vars[u'search_facets'] = {}
         extra_vars[u'page'] = h.Page(collection=[])
 
-    # FIXME: try to avoid using global variables
-    g.search_facets_limits = {}
     default_limit: int = config.get(u'search.facets.default')
     for facet in cast(Iterable[str], extra_vars[u'search_facets'].keys()):
         try:
@@ -374,15 +372,9 @@ def search(package_type: str) -> str:
                   u'an integer').format(parameter_name=u'_%s_limit' % facet)
             )
 
-        g.search_facets_limits[facet] = limit
-
     _setup_template_variables(context, {}, package_type=package_type)
 
     extra_vars[u'dataset_type'] = package_type
-
-    # TODO: remove
-    for key, value in extra_vars.items():
-        setattr(g, key, value)
 
     return base.render(
         _get_pkg_template(u'search_template', package_type), extra_vars
@@ -417,10 +409,6 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
 
     package_type = pkg_dict[u'type'] or u'dataset'
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
-
-    # TODO: remove
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
 
     return base.render(
         u'package/resources.html', {
@@ -464,9 +452,6 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             404,
             _(u'Dataset not found or you have no permission to view it')
         )
-
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
 
     if plugins.plugin_loaded("activity"):
         activity_id = request.args.get("activity_id")
@@ -689,11 +674,6 @@ class CreateView(MethodView):
             u'form_style': u'new'
         }
         errors_json = h.json.dumps(errors)
-
-        # TODO: remove
-        g.resources_json = resources_json
-        g.errors_json = errors_json
-
         _setup_template_variables(context, {}, package_type=package_type)
 
         new_template = _get_pkg_template(u'new_template', package_type)
@@ -791,14 +771,16 @@ class EditView(MethodView):
         assert data is not None
         # are we doing a multiphase add?
         if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'{}.new'.format(package_type))
-            g.form_style = u'new'
+            form_action = h.url_for('{}.new'.format(package_type))
+            form_style = 'new'
 
             return CreateView().get(
                 package_type,
                 data=data,
                 errors=errors,
-                error_summary=error_summary
+                error_summary=error_summary,
+                form_action=form_action,
+                form_syle=form_style,
             )
 
         pkg = context.get(u"package")
@@ -829,11 +811,6 @@ class EditView(MethodView):
             u'form_style': u'edit'
         }
         errors_json = h.json.dumps(errors)
-
-        # TODO: remove
-        g.pkg = pkg
-        g.resources_json = resources_json
-        g.errors_json = errors_json
 
         _setup_template_variables(
             context, {u'id': id}, package_type=package_type
@@ -900,9 +877,6 @@ class DeleteView(MethodView):
             )
 
         dataset_type = pkg_dict[u'type'] or package_type
-
-        # TODO: remove
-        g.pkg_dict = pkg_dict
 
         return base.render(
             u'package/confirm_delete.html', {
@@ -998,11 +972,6 @@ def followers(package_type: str,
     except NotAuthorized:
         return base.abort(403, _(u'Unauthorized to read package %s') % id)
 
-    # TODO: remove
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
-    g.followers = followers
-
     return base.render(
         u'package/followers.html', {
             u'dataset_type': dataset_type,
@@ -1081,10 +1050,6 @@ class GroupView(MethodView):
 
         for group in pkg_dict.get(u'groups', []):
             group[u'user_member'] = (group[u'id'] in user_group_ids)
-
-        # TODO: remove
-        g.pkg_dict = pkg_dict
-        g.group_dropdown = group_dropdown
 
         return base.render(
             u'package/group_list.html', {

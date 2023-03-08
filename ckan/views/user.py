@@ -154,9 +154,6 @@ def read(id: str) -> Union[Response, str]:
         u'include_datasets': True,
         u'include_num_followers': True
     }
-    # FIXME: line 331 in multilingual plugins expects facets to be defined.
-    # any ideas?
-    g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
     if extra_vars is None:
