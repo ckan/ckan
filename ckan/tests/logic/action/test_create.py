@@ -311,7 +311,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -336,7 +336,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -361,7 +361,7 @@ class TestCreateDefaultResourceViews(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = helpers.call_action(
@@ -1165,6 +1165,7 @@ class TestUserCreate(object):
         user_obj = model.User.get(user["id"])
         assert user_obj.password == "pretend-this-is-a-valid-hash"
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_password_hash_not_for_normal_users(self):
         normal_user = factories.User()
         context = {"user": normal_user["name"], "ignore_auth": False}
@@ -1219,6 +1220,7 @@ class TestUserCreate(object):
 
 
 @pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserCreateDb():
 
     def test_anon_user_create_does_not_update(self):
@@ -1688,6 +1690,7 @@ class TestPackageMemberCreate(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
 class TestUserPluginExtras(object):
     def test_stored_on_create_if_sysadmin(self):
 
@@ -1790,7 +1793,7 @@ class TestUserImageUrl(object):
             user_dict["image_display_url"] == "https://example.com/mypic.png"
         )
 
-    def test_upload_non_picture_works_without_extra_config(
+    def test_upload_picture_works_without_extra_config(
             self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
@@ -1799,10 +1802,10 @@ class TestUserImageUrl(object):
             "action": "user_create",
             "upload_field_name": "image_upload",
         }
-        assert create_with_upload("hello world", "file.txt", **params)
+        assert create_with_upload(faker.image(), "image.png", **params)
 
-    @pytest.mark.ckan_config("ckan.upload.user.types", "image")
-    def test_upload_non_picture(self, create_with_upload, faker):
+    def test_upload_non_picture_fails_without_extra_config(
+            self, create_with_upload, faker):
         params = {
             "name": faker.user_name(),
             "email": faker.email(),
@@ -1813,6 +1816,45 @@ class TestUserImageUrl(object):
         with pytest.raises(
                 logic.ValidationError, match="Unsupported upload type"):
             create_with_upload("hello world", "file.txt", **params)
+
+    def test_upload_non_picture_html_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload("<html><body>hello world</body></html>", "file.html", **params)
+
+    def test_upload_svg_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.svg", **params)
+
+    def test_upload_svg_wrong_extension_fails_without_extra_config(
+            self, create_with_upload, faker):
+        params = {
+            "name": faker.user_name(),
+            "email": faker.email(),
+            "password": "12345678",
+            "action": "user_create",
+            "upload_field_name": "image_upload",
+        }
+        with pytest.raises(
+                logic.ValidationError, match="Unsupported upload type"):
+            create_with_upload('<svg xmlns="http://www.w3.org/2000/svg"></svg>', "file.png", **params)
 
     @pytest.mark.ckan_config("ckan.upload.user.types", "image")
     def test_upload_non_picture_with_png_extension(

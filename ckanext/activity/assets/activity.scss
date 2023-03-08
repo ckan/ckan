@@ -1,0 +1,154 @@
+.activity {
+    padding: 0;
+    list-style-type: none;
+    background: transparent  url('/dotted.png') 21px 0 repeat-y;
+    .item {
+        position: relative;
+        margin: 0 0 15px 0;
+        padding: 0;
+        .user-image {
+            border-radius: 100px;
+        }
+        .date {
+            color: #999;
+            font-size: 12px;
+            white-space: nowrap;
+            margin: 5px 0 0 80px;
+        }
+        &.no-avatar p {
+            // Use by datapusher
+            margin-left: 40px;
+        }
+    }
+}
+
+.activity_buttons > a.btn.disabled {
+    color: inherit;
+    opacity: 0.70 !important; 
+}
+
+// For profile information that appears in the popover
+.popover {
+    width: 300px;
+    .popover-title {
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    p.about {
+        margin: 0 0 10px 0;
+    }
+    .popover-close {
+        float: right;
+        text-decoration: none;
+    }
+    .empty {
+        padding: 10px;
+        color: #6e6e6e;
+        font-style: italic;
+    }
+}
+
+// Activity Stream base colors
+$activityColorText: #FFFFFF;
+$activityColorBlank: #999999;
+$activityColorNew: #69A67A;
+$activityColorNeutral: #767DCE;
+$activityColorModify: #767DCE;
+$activityColorDelete: #B95252;
+
+.activity .item {
+    .icon {
+        color: $activityColorBlank ;
+    } // Non defined
+    &.failure .icon {
+        color: $activityColorDelete;
+    }
+    &.success .icon {
+        color: $activityColorNew;
+    }
+    &.added-tag .icon {
+        color: adjust-hue($activityColorNew, 60);
+    }
+    &.changed-group .icon {
+        color: $activityColorModify;
+    }
+    &.changed-package .icon {
+        color: adjust-hue($activityColorModify, 20);
+    }
+    &.changed-package_extra .icon {
+        color: adjust-hue($activityColorModify, -20);
+    }
+    &.changed-resource .icon {
+        color: adjust-hue($activityColorModify, 40);
+    }
+    &.changed-user .icon {
+        color: adjust-hue($activityColorModify, -40);
+    }
+    &.changed-organization .icon {
+        color: adjust-hue($activityColorNew, 50);
+    }
+    &.deleted-group .icon {
+        color: $activityColorDelete;
+    }
+    &.deleted-package .icon {
+        color: adjust-hue($activityColorDelete, 20);
+    }
+    &.deleted-package_extra .icon {
+        color: adjust-hue($activityColorDelete, -20);
+    }
+    &.deleted-resource .icon {
+        color: adjust-hue($activityColorDelete, 40);
+    }
+    &.deleted-organization .icon {
+        color: adjust-hue($activityColorDelete, -40);
+    }
+    &.new-group .icon {
+        color: $activityColorNew;
+    }
+    &.new-package .icon {
+        color: adjust-hue($activityColorNew, 20);
+    }
+    &.new-package_extra .icon {
+        color: adjust-hue($activityColorNew, -20);
+    }
+    &.new-resource .icon {
+        color: adjust-hue($activityColorNew, -40);
+    }
+    &.new-user .icon {
+        color: adjust-hue($activityColorNew, 40);
+    }
+    &.new-organization .icon {
+        color: adjust-hue($activityColorNew, -40);
+    }
+    &.removed-tag .icon {
+        color: adjust-hue($activityColorDelete, -40);
+    }
+    &.deleted-related-item .icon {
+        color: adjust-hue($activityColorDelete, 60);
+    }
+    &.follow-dataset .icon {
+        color: $activityColorNeutral;
+    }
+    &.follow-user .icon {
+        color: adjust-hue($activityColorNeutral, 20);
+    }
+    &.new-related-item .icon {
+        color: adjust-hue($activityColorNew, -60);
+    }
+    &.follow-group .icon {
+        color: adjust-hue($activityColorNew, -50);
+    }
+}
+
+.select-time {
+  width: 250px;
+  display: inline;
+}
+
+br.line-height2 {
+  line-height: 2;
+}
+
+.pull-right {
+    float: right;
+}

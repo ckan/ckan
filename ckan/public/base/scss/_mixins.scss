@@ -72,24 +72,7 @@
     &>li {
         @include simple-item;
     }
-    .ckan-icon {
-        position: relative;
-        top: 0px;
-    }
 }
-@mixin ckan-icon {
-    //@extend ie7-restore-right-whitespace;
-    display: inline-block;
-    vertical-align: text-bottom;
-    position: relative;
-    top: 2px;
-    width: 16px;
-    height: 16px;
-    background-image: url("#{$imagePath}/sprite-ckan-icons.png");
-    background-repeat: no-repeat;
-    background-position: 16px 16px;
-}
-
 
 .tag {
     display: inline-block;
@@ -127,7 +110,7 @@ a.tag:hover {
 }
 
 .list-unstyled  {
-  @include list-unstyled; 
+  @include list-unstyled;
 }
 
 

@@ -6,10 +6,12 @@ import pytest
 import ckan.tests.factories as factories
 import ckan.model as model
 from ckan.logic import _actions
+from ckanext.datapusher.tests import get_api_token
 
 
 @mock.patch("flask_login.utils._get_user")
 @pytest.mark.ckan_config(u"ckan.plugins", u"datapusher datastore")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures(u"non_clean_db", u"with_plugins", u"with_request_context")
 def test_resource_data(current_user, app, monkeypatch):
     user = factories.User()

@@ -858,6 +858,7 @@ def config_declaration_v1(
             "section": [default("app:main"), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
+                "legacy_key": [ignore_empty, unicode_safe],
                 "default": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "placeholder": [default(""), unicode_safe],

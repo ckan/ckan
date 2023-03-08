@@ -10,7 +10,6 @@ if os.environ.get("USER", "") == "vagrant":
 extras_require = {}
 _extras_groups = [
     ("requirements", "requirements.txt"),
-    ("setuptools", "requirement-setuptools.txt"),
     ("dev", "dev-requirements.txt"),
 ]
 

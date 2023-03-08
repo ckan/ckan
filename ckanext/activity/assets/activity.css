@@ -1,0 +1,103 @@
+.activity {
+  padding: 0;
+  list-style-type: none;
+  background: transparent url("/dotted.png") 21px 0 repeat-y; }
+  .activity .item {
+    position: relative;
+    margin: 0 0 15px 0;
+    padding: 0; }
+    .activity .item .user-image {
+      border-radius: 100px; }
+    .activity .item .date {
+      color: #999;
+      font-size: 12px;
+      white-space: nowrap;
+      margin: 5px 0 0 80px; }
+    .activity .item.no-avatar p {
+      margin-left: 40px; }
+
+.activity_buttons > a.btn.disabled {
+  color: inherit;
+  opacity: 0.70 !important; }
+
+.popover {
+  width: 300px; }
+  .popover .popover-title {
+    font-weight: bold;
+    margin-bottom: 0; }
+  .popover p.about {
+    margin: 0 0 10px 0; }
+  .popover .popover-close {
+    float: right;
+    text-decoration: none; }
+  .popover .empty {
+    padding: 10px;
+    color: #6e6e6e;
+    font-style: italic; }
+
+.activity .item .icon {
+  color: #999999; }
+.activity .item.failure .icon {
+  color: #B95252; }
+.activity .item.success .icon {
+  color: #69A67A; }
+.activity .item.added-tag .icon {
+  color: #6995a6; }
+.activity .item.changed-group .icon {
+  color: #767DCE; }
+.activity .item.changed-package .icon {
+  color: #8c76ce; }
+.activity .item.changed-package_extra .icon {
+  color: #769ace; }
+.activity .item.changed-resource .icon {
+  color: #aa76ce; }
+.activity .item.changed-user .icon {
+  color: #76b8ce; }
+.activity .item.changed-organization .icon {
+  color: #699fa6; }
+.activity .item.deleted-group .icon {
+  color: #B95252; }
+.activity .item.deleted-package .icon {
+  color: #b97452; }
+.activity .item.deleted-package_extra .icon {
+  color: #b95274; }
+.activity .item.deleted-resource .icon {
+  color: #b99752; }
+.activity .item.deleted-organization .icon {
+  color: #b95297; }
+.activity .item.new-group .icon {
+  color: #69A67A; }
+.activity .item.new-package .icon {
+  color: #69a68e; }
+.activity .item.new-package_extra .icon {
+  color: #6ca669; }
+.activity .item.new-resource .icon {
+  color: #81a669; }
+.activity .item.new-user .icon {
+  color: #69a6a3; }
+.activity .item.new-organization .icon {
+  color: #81a669; }
+.activity .item.removed-tag .icon {
+  color: #b95297; }
+.activity .item.deleted-related-item .icon {
+  color: #b9b952; }
+.activity .item.follow-dataset .icon {
+  color: #767DCE; }
+.activity .item.follow-user .icon {
+  color: #8c76ce; }
+.activity .item.new-related-item .icon {
+  color: #95a669; }
+.activity .item.follow-group .icon {
+  color: #8ba669; }
+
+.select-time {
+  width: 250px;
+  display: inline; }
+
+br.line-height2 {
+  line-height: 2; }
+
+.pull-right {
+  float: right; }
+
+/*# sourceMappingURL=activity.css.map */

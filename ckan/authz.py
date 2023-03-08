@@ -540,7 +540,7 @@ def check_config_permission(permission: str) -> Union[list[str], bool]:
 
     config_key = 'ckan.auth.' + key
 
-    value = config.get_value(config_key)
+    value = config.get(config_key)
 
     return value
 

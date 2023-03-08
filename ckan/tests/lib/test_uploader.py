@@ -1,5 +1,4 @@
 # encoding: utf-8
-import six
 from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
@@ -60,7 +59,7 @@ class TestInitResourceUpload(object):
 
 
 class TestUpload(object):
-    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config):
+    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config, faker):
         """Reproduce group's logo upload and check that file available through
         public url.
 
@@ -68,7 +67,7 @@ class TestUpload(object):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     BytesIO(six.ensure_binary(u'hello')),
+                     BytesIO(faker.image()),
                      filename=u'logo.png',
                      content_type=u'PNG'
                  ),
@@ -82,4 +81,5 @@ class TestUpload(object):
         app = make_app()
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
-        assert resp.body == u'hello'
+        # PNG signature
+        assert resp.data.hex()[:16].upper() == '89504E470D0A1A0A'

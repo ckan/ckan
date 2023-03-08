@@ -7,6 +7,7 @@ import pytest
 from ckan.logic import _actions
 
 from ckan.tests import helpers, factories
+from ckanext.datapusher.tests import get_api_token
 
 
 def _pending_task(resource_id):
@@ -23,6 +24,7 @@ def _pending_task(resource_id):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestSubmit:
     def test_submit(self, monkeypatch):

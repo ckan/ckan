@@ -175,19 +175,6 @@ def package_create(
 
     _check_access('package_create', context, data_dict)
 
-    if 'api_version' not in context:
-        # check_data_dict() is deprecated. If the package_plugin has a
-        # check_data_dict() we'll call it, if it doesn't have the method we'll
-        # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
-        if check_data_dict:
-            try:
-                check_data_dict(data_dict, schema)
-            except TypeError:
-                # Old plugins do not support passing the schema so we need
-                # to ensure they still work
-                package_plugin.check_data_dict(data_dict)
-
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
@@ -742,14 +729,6 @@ def _group_or_org_create(context: Context,
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    if 'api_version' not in context:
-        # old plugins do not support passing the schema so we need
-        # to ensure they still work
-        try:
-            group_plugin.check_data_dict(data_dict, schema)
-        except TypeError:
-            group_plugin.check_data_dict(data_dict)
-
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
         'organization_create' if is_org else 'group_create')
@@ -1091,7 +1070,9 @@ def user_invite(context: Context,
 
     data['state'] = model.State.PENDING
     user_dict = _get_action('user_create')(
-        cast(Context, dict(context, schema=invite_schema)),
+        cast(
+            Context,
+            dict(context, schema=invite_schema, ignore_auth=True)),
         data)
     user = model.User.get(user_dict['id'])
     assert user

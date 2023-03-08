@@ -194,7 +194,7 @@ class TestDatapreview(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = datapreview.add_views_to_dataset_resources(
@@ -231,7 +231,7 @@ class TestDatapreview(object):
         )
 
         # Change default views config setting
-        config["ckan.views.default_views"] = "image_view"
+        config["ckan.views.default_views"] = ["image_view"]
 
         context = {"user": helpers.call_action("get_site_user")["name"]}
         created_views = datapreview.add_views_to_resource(

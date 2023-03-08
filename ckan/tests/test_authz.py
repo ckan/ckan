@@ -33,7 +33,7 @@ def test_default_roles_that_cascade_to_sub_groups_is_a_list():
 
 
 @pytest.mark.ckan_config(
-    "ckan.auth.roles_that_cascade_to_sub_groups", "admin editor"
+    "ckan.auth.roles_that_cascade_to_sub_groups", ["admin", "editor"]
 )
 def test_roles_that_cascade_to_sub_groups_is_a_list():
     assert sorted(_check("roles_that_cascade_to_sub_groups")) == sorted(

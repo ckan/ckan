@@ -15,7 +15,6 @@ from ckan.plugins.toolkit import (abort, get_action, c)
 
 log = getLogger(__name__)
 
-TIMEOUT = config.get_value('ckan.resource_proxy.timeout')
 
 resource_proxy = Blueprint(u'resource_proxy', __name__)
 
@@ -40,18 +39,19 @@ def proxy_resource(context: Context, data_dict: DataDict):
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
-    max_file_size = config.get_value(u'ckan.resource_proxy.max_file_size')
+    timeout = config.get('ckan.resource_proxy.timeout')
+    max_file_size = config.get(u'ckan.resource_proxy.max_file_size')
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
         did_get = False
-        r = requests.head(url, timeout=TIMEOUT)
+        r = requests.head(url, timeout=timeout)
         # Servers can refuse HEAD requests. 405 is the appropriate
         # response, but 400 with the invalid method mentioned in the
         # text, or a 403 (forbidden) status is also possible (#2412,
         # #2530)
         if r.status_code in (400, 403, 405):
-            r = requests.get(url, timeout=TIMEOUT, stream=True)
+            r = requests.get(url, timeout=timeout, stream=True)
             did_get = True
         r.raise_for_status()
 
@@ -66,13 +66,13 @@ def proxy_resource(context: Context, data_dict: DataDict):
             )
 
         if not did_get:
-            r = requests.get(url, timeout=TIMEOUT, stream=True)
+            r = requests.get(url, timeout=timeout, stream=True)
 
         response.headers[u'content-type'] = r.headers[u'content-type']
         response.charset = r.encoding or "utf-8"
 
         length = 0
-        chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')
+        chunk_size = config.get(u'ckan.resource_proxy.chunk_size')
 
         for chunk in r.iter_content(chunk_size=chunk_size):
             response.stream.write(chunk)

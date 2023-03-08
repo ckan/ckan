@@ -109,6 +109,8 @@ def sysadmin():
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
 class TestUser(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_a_user(self, app):
         url = url_for("user.register")
         stub = factories.User.stub()
@@ -131,6 +133,7 @@ class TestUser(object):
         assert user["fullname"] == "New User"
         assert not (user["sysadmin"])
 
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_register_user_bad_password(self, app):
         stub = factories.User.stub()
         response = app.post(
@@ -838,3 +841,74 @@ class TestUserImage(object):
         assert len(user_images) == 2  # Logged in header + profile pic
         for img in user_images:
             assert img.attrs["src"] == "/base/images/placeholder-user.png"
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestCSRFToken:
+    def test_csrf_token_tags_get_render(self, app):
+        response = app.get(url_for("home.index"))
+        assert '<meta name="csrf_field_name"' in response.body
+        assert '<meta name="_csrf_token"' in response.body
+
+    def test_csrf_tags_contains_values(self, app):
+        response = app.get(url_for("home.index"))
+        res_html = BeautifulSoup(response.data)
+        # Using the same selector as CKAN client.js
+        csrf_field_name = res_html.select_one("meta[name=csrf_field_name]")
+        assert csrf_field_name.attrs["content"] == "_csrf_token"
+        csrf_token = res_html.select_one("meta[name=_csrf_token]")
+        assert csrf_token.attrs["content"] is not None
+
+    @pytest.mark.ckan_config("WTF_CSRF_FIELD_NAME", "new_name")
+    def test_csrf_config_option_contains_values(self, app):
+        response = app.get(url_for("home.index"))
+        res_html = BeautifulSoup(response.data)
+
+        csrf_field_name = res_html.select_one("meta[name=csrf_field_name]")
+        assert csrf_field_name.attrs["content"] == "new_name"
+        csrf_token = res_html.select_one("meta[name=new_name]")
+        assert csrf_token.attrs["content"] is not None
+
+    def test_csrf_token_in_g_object(self, app):
+        password = "RandomPassword123"
+        user = factories.User(password=password)
+
+        with app.flask_app.test_request_context() as ctx:
+            app.post(
+                url_for("user.login"),
+                data={
+                    "login": user["name"],
+                    "password": password
+                },
+            )
+            assert ctx.g._csrf_token is not None
+            assert ctx.g.csrf_field_name == "_csrf_token"
+
+    def test_csrf_token_are_different_for_different_users(self, app):
+        password = "RandomPassword123"
+        user1 = factories.User(password=password)
+        token_user1 = ""
+        with app.flask_app.test_request_context() as ctx:
+            app.post(
+                url_for("user.login"),
+                data={
+                    "login": user1["name"],
+                    "password": password
+                },
+            )
+            assert ctx.g._csrf_token is not None
+            token_user1 = ctx.g._csrf_token
+
+        user2 = factories.User(password=password)
+        token_user2 = ""
+        with app.flask_app.test_request_context() as ctx:
+            app.post(
+                url_for("user.login"),
+                data={
+                    "login": user2["name"],
+                    "password": password
+                },
+            )
+            assert ctx.g._csrf_token is not None
+            token_user2 = ctx.g._csrf_token
+        assert token_user1 != token_user2

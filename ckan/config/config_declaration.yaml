@@ -7,8 +7,6 @@ groups:
         internal: true
       - key: here
         internal: true
-      - key: ckan.admin_tabs
-        internal: true
       - key: plugin_template_paths
         ignored: true
       - key: plugin_public_paths
@@ -179,23 +177,17 @@ groups:
         default: default
         example: strict
         description: |
-          Controls the parsing and validation of ``config`` object. In ``default`` mode there is no validation
-          applied to the provided configuration values and they are not guaranteed to be present. This is the
-          current default behaviour and was the only one available in CKAN<=2.9.
+          Controls the behavior of application when invalid values detected in
+          the ``config`` object.
 
-          Enabling `strict` mode does the following:
+          In the ``default`` mode any invalid value is left unprocessed (i.e.,
+          it remains a ``str``). In addition, every invalid option is reported using
+          a log record with a ``WARNING`` level.
 
-          * For all the :ref:`declared config options <declare-config-options>`, if they
-            are not provided the config file, the ddefault value from the declaration will be
-            used in the ``config`` object.
-
-          * All the :ref:`declared config options <declare-config-options>` will be
-            normalized using validators specified in the declaration.
-
-          * None of CKAN CLI commands will be executed and the CKAN application itself will
-            not start unless **all** config options are valid according to the validators defined
-            in the declaration. For every invalid config option, an error will be printed to the
-            output stream.
+          In the ``strict`` mode, CKAN will not start unless **all** config
+          options are valid according to the validators defined in the
+          configuration declaration. For every invalid config option, an error will be
+          printed to the output stream.
 
   - annotation: Development settings
     options:
@@ -359,7 +351,7 @@ groups:
       - key: ckan.site_url
         validators: not_empty
         required: true
-        placeholder: http://127.0.0.1:5000
+        placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
         description: |
           Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
@@ -508,9 +500,13 @@ groups:
 
       - key: ckan.auth.create_user_via_web
         type: bool
-        default: true
+        default: false
         example: "true"
-        description: Allow new user accounts to be created via the Web.
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
 
       - key: ckan.auth.roles_that_cascade_to_sub_groups
         default:
@@ -631,44 +627,58 @@ groups:
           that this will break some existing JS modules from the frontend that perform API calls,
           so it should be used with caution.
 
+      - key: ckan.auth.route_after_login
+        legacy_key: ckan.route_after_login  # since v2.10.0
+        default: dashboard.datasets
+        description: |
+          Allows to customize the route that the user will get redirected to after a successful login.
 
   - annotation: CSRF Protection
     options:
       - key: WTF_CSRF_ENABLED
         type: bool
         default: True
-        description: Set to False to disable all CSRF protection. Default is True.
+        description: Set to False to disable all CSRF protection.
 
       - key: WTF_CSRF_CHECK_DEFAULT
         type: bool
         default: True
         description: |
           When using the CSRF protection extension,
-          this controls whether every view is protected by default. Default is True.
+          this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
         description: Random data for generating secure tokens.
         placeholder_callable: secrets:token_urlsafe
 
       - key: WTF_CSRF_METHODS
-        default: {'POST', 'PUT', 'PATCH', 'DELETE'}
-        description: HTTP methods to protect from CSRF. Default is {'POST', 'PUT', 'PATCH', 'DELETE'}.
+        type: list
+        default:
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+
+        description: HTTP methods to protect from CSRF.
 
       - key: WTF_CSRF_FIELD_NAME
-        default: csrf_token
-        description: Name of the form field and session key that holds the CSRF token. Default is csrf_token.
+        default: _csrf_token
+        description: Name of the form field and session key that holds the CSRF token.
 
       - key: WTF_CSRF_HEADERS
-        default: ['X-CSRFToken', 'X-CSRF-Token']
+        type: list
+        default:
+          - X-CSRFToken
+          - X-CSRF-Token
         description: |
           HTTP headers to search for CSRF token when it is not provided in the form.
-          Default is ['X-CSRFToken', 'X-CSRF-Token'].
 
       - key: WTF_CSRF_TIME_LIMIT
+        type: int
         default: 3600
         description: |
           Max age in seconds for CSRF tokens.
-          Default is 3600. If set to None, the CSRF token is valid for the life of the session.
+          This value is capped by the lifetime of the session.
 
       - key: WTF_CSRF_SSL_STRICT
         type: bool
@@ -682,7 +692,15 @@ groups:
         default: True
         description: |
           Set to False to disable Flask-Babel I18N support.
-          Also set to False if you want to use WTForms’s built-in messages directly, see more info here. Default is True.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+      - key: ckan.csrf_protection.ignore_extensions
+        type: bool
+        default: true
+        description: |
+          Exempt plugins blueprints from CSRF protection.
+
+          .. warning:: This feature will be deprecated in future versions.
 
   - annotation: Flask-Login Remember me cookie settings
     options:
@@ -742,8 +760,12 @@ groups:
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-          * for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
-          * for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+          * for asymmetric algorithms(RS256): path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.decode.secret`. The algorithm used is controlled
+                    by the :ref:`api_token.jwt.algorithm` option.
 
           Value must have prefix, which defines its type. Supported prefixes are:
 
@@ -756,8 +778,12 @@ groups:
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-          * for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
-          * for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+          * for asymmetric algorithms(RS256): path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.encode.secret`. The algorithm used is defined
+                    by the :ref:`api_token.jwt.algorithm` option.
 
           Value must have prefix, which defines it's type. Supported prefixes are:
 
@@ -767,7 +793,18 @@ groups:
       - key: api_token.jwt.algorithm
         default: "HS256"
         example: RS256
-        description: Algorithm to sign the token with, e.g. "ES256", "RS256"
+        description: |
+
+          Algorithm to sign the token with, e.g. "ES256", "RS256"
+
+          Depending on the algorithm, additional restrictions may apply to
+          :ref:`api_token.jwt.decode.secret` and
+          :ref:`api_token.jwt.encode.secret`. For example, RS256 implies that
+          :ref:`api_token.jwt.encode.secret` contains RSA private key and
+          :ref:`api_token.jwt.decode.secret` contains public key. Whereas
+          HS256(default value) requires both :ref:`api_token.jwt.decode.secret`
+          and :ref:`api_token.jwt.encode.secret` to have exactly the same
+          value.
 
   - annotation: Search Settings
     options:
@@ -1142,7 +1179,6 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
-
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
@@ -1232,27 +1268,71 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. It is currently unused and it only accepts one value: ``public``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
 
       - key: ckan.base_templates_folder
         default: templates
-        example: templates
+        example: templates-bs3
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. It is currently unused and it only accepts one value: ``templates``
-          (Bootstrap 3, the default value from CKAN 2.8 onwards).
+          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
+          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
+          will be dropped in next major release.)
+
+      - key: ckan.default.package_type
+        default: dataset
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
 
       - key: ckan.default.group_type
         default: group
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
+
       - key: ckan.default.organization_type
         default: organization
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
+
+      - key: ckan.admin_tabs
+        default: {}
+        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
+        validators: convert_to_json_if_string dict_only
+        description: Extra navigation items for Sysadmin Settings.
 
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
-        placeholder: /var/lib/storage
-        example: /var/lib/ckan
+        placeholder: /var/lib/ckan/default
+        example: /var/lib/ckan/default
         description: This defines the location of where CKAN will store all uploaded data.
 
       - key: ckan.max_resource_size
@@ -1271,21 +1351,25 @@ groups:
     options:
       - key: ckan.upload.user.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.user.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.group.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as group image. No restrictions applied when empty
 
       - key: ckan.upload.group.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
 
@@ -1321,11 +1405,6 @@ groups:
         description: |
           This controls the page where users will be sent after requesting a password reset.
           This is ordinarily the home page, but specific sites may prefer somewhere else.
-
-      - key: ckan.route_after_login
-        default: dashboard.datasets
-        description: |
-          Allows to customize the route that the user will get redirected to after a successful login.
 
   # TODO: move to activity extension
   - annotation: Activity Streams Settings

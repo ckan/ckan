@@ -20,7 +20,7 @@ def translate_data_dict(data_dict: dict[str, Any]):
 
     '''
     desired_lang_code = request.environ['CKAN_LANG']
-    fallback_lang_code = config.get_value('ckan.locale_default')
+    fallback_lang_code = config.get('ckan.locale_default')
 
     # Get a flattened copy of data_dict to do the translation on.
     flattened = ckan.lib.navl.dictization_functions.flatten_dict(
@@ -117,7 +117,7 @@ def translate_resource_data_dict(data_dict: dict[str, Any]):
     '''
 
     desired_lang_code = request.environ['CKAN_LANG']
-    fallback_lang_code = config.get_value('ckan.locale_default')
+    fallback_lang_code = config.get('ckan.locale_default')
 
     # Get a flattened copy of data_dict to do the translation on.
     flattened = ckan.lib.navl.dictization_functions.flatten_dict(
@@ -204,13 +204,13 @@ KEYS_TO_IGNORE = ['state', 'revision_id', 'id', #title done seperately
 
 class MultilingualDataset(plugins.SingletonPlugin):
     plugins.implements(plugins.IPackageController, inherit=True)
-    LANGS = config.get_value('ckan.locale_order') or ["en"]
+    LANGS = config.get('ckan.locale_order') or ["en"]
 
     def before_dataset_index(self, search_data: dict[str, Any]):
 
         default_lang = search_data.get(
             'lang_code',
-             config.get_value('ckan.locale_default')
+             config.get('ckan.locale_default')
         )
 
         ## translate title
@@ -266,15 +266,15 @@ class MultilingualDataset(plugins.SingletonPlugin):
                                'for this thread'):
                 # This happens when this code gets called as part of a paster
                 # command rather then as part of an HTTP request.
-                current_lang = config.get_value('ckan.locale_default')
+                current_lang = config.get('ckan.locale_default')
             else:
                 raise
         except KeyError:
-            current_lang = config.get_value('ckan.locale_default')
+            current_lang = config.get('ckan.locale_default')
 
         # fallback to default locale if locale not in suported langs
         if not current_lang in lang_set:
-            current_lang = config.get_value('ckan.locale_default')
+            current_lang = config.get('ckan.locale_default')
         # fallback to english if default locale is not supported
         if not current_lang in lang_set:
             current_lang = 'en'
@@ -300,7 +300,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
             return search_results
 
         desired_lang_code = request.environ['CKAN_LANG']
-        fallback_lang_code = config.get_value('ckan.locale_default')
+        fallback_lang_code = config.get('ckan.locale_default')
 
         # Look up translations for all of the facets in one db query.
         terms = set()
@@ -339,7 +339,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
         # and save them in c.translated_fields where the templates can
         # retrieve them later.
         desired_lang_code = request.environ['CKAN_LANG']
-        fallback_lang_code = config.get_value('ckan.locale_default')
+        fallback_lang_code = config.get('ckan.locale_default')
         try:
             fields = g.fields
         except AttributeError:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, abort, redirect, request
+from flask import Blueprint, make_response, abort, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -14,7 +14,7 @@ import ckan.lib.search as search
 import ckan.lib.helpers as h
 
 from ckan.common import g, config, current_user, _
-from ckan.types import Context
+from ckan.types import Context, Response
 
 
 CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
@@ -85,7 +85,7 @@ def index() -> str:
                 u' and add your email address. ') % url + \
             _(u'%s uses your email address'
                 u' if you need to reset your password.') \
-            % config.get_value(u'ckan.site_title')
+            % config.get(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
     return base.render(u'home/index.html', extra_vars={})
 
@@ -95,19 +95,28 @@ def about() -> str:
     return base.render(u'home/about.html', extra_vars={})
 
 
-def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
+def robots_txt() -> Response:
+    '''display robots.txt'''
+    resp = make_response(base.render('home/robots.txt'))
+    resp.headers['Content-Type'] = "text/plain; charset=utf-8"
+    return resp
 
+
+def redirect_locale(target_locale: str, path: Optional[str] = None) -> Any:
     target = f'/{target_locale}/{path}' if path else f'/{target_locale}'
 
     if request.args:
         target += f'?{urlencode(request.args)}'
 
-    return redirect(target, code=308)
+    url = h.url_for(target, _external=True)
+
+    return redirect(url, code=308)
 
 
 util_rules: List[Tuple[str, Any]] = [
     (u'/', index),
-    (u'/about', about)
+    (u'/about', about),
+    (u'/robots.txt', robots_txt)
 ]
 for rule, view_func in util_rules:
     home.add_url_rule(rule, view_func=view_func)

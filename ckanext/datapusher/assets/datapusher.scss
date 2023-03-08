@@ -1,0 +1,49 @@
+.datapusher-activity {
+    padding: 0;
+    list-style-type: none;
+    background: transparent  url('/dotted.png') 21px 0 repeat-y;
+    .item {
+        position: relative;
+        margin: 0 0 15px 0;
+        padding: 0;
+        .date {
+            color: #999;
+            font-size: 12px;
+            white-space: nowrap;
+            margin: 5px 0 0 80px;
+        }
+        &.no-avatar p {
+            margin-left: 40px;
+        }
+    }
+}
+
+// popover
+.popover {
+    width: 300px;
+    .popover-header {
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    .popover-close {
+        float: right;
+        text-decoration: none;
+    }
+}
+
+// base colors
+$activityColorBlank: #999999;
+$activityColorNew: #69A67A;
+$activityColorDelete: #B95252;
+
+.datapusher-activity .item {
+    .icon {
+        color: $activityColorBlank ;
+    } 
+    &.failure .icon {
+        color: $activityColorDelete;
+    }
+    &.success .icon {
+        color: $activityColorNew;
+    }
+}

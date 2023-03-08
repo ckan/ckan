@@ -95,12 +95,6 @@ textarea {
     width: 100%;
 }
 
-.control-large {
-    .control-label {
-        font-size: $btn-font-size-lg;
-    }
-}
-
 .control-required {
     color: $errorBorder;
 }
@@ -148,15 +142,6 @@ textarea {
     }
 }
 
-// Override the default form widths.
-// .form-horizontal .control-label {
-//     width: 120px;
-// }
-// @media (min-width: $screen-sm-min) {
-//     .form-horizontal .controls {
-//         margin-left: 130px;
-//     }
-// }
 .form-group .info-block {
     position: relative;
     display: block;
@@ -314,7 +299,6 @@ select[data-module="autocomplete"] {
 }
 
 .editor .editor-info-block a {
-    color: $layoutLinkColor;
     text-decoration: none;
 }
 
@@ -712,10 +696,6 @@ select[data-module="autocomplete"] {
       margin-left: 2px;
       font-weight: bold;
     }
-}
-
-.add-member-form .control-label {
-  display: block;
 }
 
 .add-member-or-wrap{
