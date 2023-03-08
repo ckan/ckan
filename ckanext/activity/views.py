@@ -102,7 +102,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     context = cast(
         Context,
         {
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
             "for_view": True,
         },
     )
@@ -206,7 +206,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
         Context,
         {
             "for_view": True,
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
         },
     )
     data_dict = {"id": id, "include_tracking": True}
@@ -306,7 +306,7 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         Context,
         {
             "for_view": True,
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
         },
     )
 
@@ -380,7 +380,7 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
     Shows the changes to a dataset in one particular activity stream item.
     """
     activity_id = id
-    context = cast(Context, {"auth_user_obj": tk.g.userobj})
+    context = cast(Context, {"auth_user_obj": tk.g.current_user})
     try:
         activity_diff = tk.get_action("activity_diff")(
             context,
@@ -424,7 +424,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
-    context = cast(Context, {"auth_user_obj": tk.g.userobj})
+    context = cast(Context, {"auth_user_obj": tk.g.current_user})
 
     # check to ensure that the old activity is actually older than
     # the new activity
@@ -604,7 +604,7 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     context = cast(
         Context,
         {
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
         },
     )
     try:
@@ -662,7 +662,7 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     context = cast(
         Context,
         {
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
         },
     )
 
@@ -748,13 +748,13 @@ def user_activity(id: str) -> str:
     context = cast(
         Context,
         {
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
             "for_view": True,
         },
     )
     data_dict: dict[str, Any] = {
         "id": id,
-        "user_obj": tk.g.userobj,
+        "user_obj": tk.g.current_user,
         "include_num_followers": True,
     }
     try:
@@ -813,11 +813,11 @@ def dashboard() -> str:
     context = cast(
         Context,
         {
-            "auth_user_obj": tk.g.userobj,
+            "auth_user_obj": tk.g.current_user,
             "for_view": True,
         },
     )
-    data_dict: dict[str, Any] = {"user_obj": tk.g.userobj}
+    data_dict: dict[str, Any] = {"user_obj": tk.g.current_user}
     extra_vars = _extra_template_variables(context, data_dict)
 
     q = tk.request.args.get("q", "")
@@ -829,13 +829,13 @@ def dashboard() -> str:
     limit = _get_activity_stream_limit()
 
     extra_vars["followee_list"] = tk.get_action("followee_list")(
-        context, {"id": tk.g.userobj.id, "q": q}
+        context, {"id": tk.g.current_user.id, "q": q}
     )
     extra_vars["dashboard_activity_stream_context"] = _get_dashboard_context(
         filter_type, filter_id, q
     )
     activity_stream = tk.h.dashboard_activity_stream(
-        tk.g.userobj.id,
+        tk.g.current_user.id,
         filter_type,
         filter_id,
         limit + 1,
@@ -898,7 +898,7 @@ def _get_dashboard_context(
         context = cast(
             Context,
             {
-                "auth_user_obj": tk.g.userobj,
+                "auth_user_obj": tk.g.current_user,
                 "for_view": True,
             },
         )

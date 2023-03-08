@@ -88,7 +88,7 @@ def new_activities() -> Optional[int]:
     details.
 
     """
-    if not tk.g.userobj:
+    if not tk.g.current_user:
         return None
     action = tk.get_action("dashboard_new_activities_count")
     return action({}, {})

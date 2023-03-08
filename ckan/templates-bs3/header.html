@@ -3,10 +3,10 @@
 {% block header_wrapper %} {% block header_account %}
   <div class="account-masthead">
     <div class="container">
-      {% block header_account_container_content %} {% if c.userobj %}
-        <div class="account avatar authed" data-module="me" data-me="{{ c.userobj.id }}">
+      {% block header_account_container_content %} {% if current_user %}
+        <div class="account avatar authed" data-module="me" data-me="{{ current_user.id }}">
           <ul class="list-unstyled">
-            {% block header_account_logged %} {% if c.userobj.sysadmin %}
+            {% block header_account_logged %} {% if current_user.sysadmin %}
               <li>
                 <a href="{{ h.url_for('admin.index') }}" title="{{ _('Sysadmin settings') }}">
                   <i class="fa fa-gavel" aria-hidden="true"></i>
@@ -16,9 +16,9 @@
             {% endif %}
             {% block header_account_profile %}
             <li>
-              <a href="{{ h.url_for('user.read', id=c.userobj.name) }}" class="image" title="{{ _('View profile') }}">
-                {{ h.user_image((c.user if c and c.user else ''), size=22) }}
-                <span class="username">{{ c.userobj.display_name }}</span>
+              <a href="{{ h.url_for('user.read', id=current_user.name) }}" class="image" title="{{ _('View profile') }}">
+                {{ h.user_image((current_user.name if current_user else ''), size=22) }}
+                <span class="username">{{ current_user.display_name }}</span>
               </a>
             </li>
             {% endblock %}
@@ -32,7 +32,7 @@
             {% endblock %}
             {% block header_account_settings_link %}
               <li>
-                <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}" title="{{ _('Profile settings') }}">
+                <a href="{{ h.url_for('user.edit', id=current_user.name) }}" title="{{ _('Profile settings') }}">
                   <i class="fa fa-cog" aria-hidden="true"></i>
                   <span class="text">{{ _('Profile settings') }}</span>
                 </a>
