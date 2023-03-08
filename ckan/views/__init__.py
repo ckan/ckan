@@ -113,10 +113,6 @@ def identify_user() -> Optional[Response]:
         if g.userobj:
             userobj = model.User.by_name(g.user)
             userobj.set_user_last_active()  # type: ignore
-        g.author = g.user
-    else:
-        g.author = g.remote_addr
-    g.author = str(g.author)
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
