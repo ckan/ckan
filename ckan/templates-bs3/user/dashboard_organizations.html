@@ -1,15 +1,15 @@
 {% extends "user/dashboard.html" %}
 
-{% set group_type = h.default_group_type('organization') %}
+{% set org_type = h.default_group_type('organization') %}
 
 {% block page_primary_action %}
   {% if h.check_access('organization_create') %}
-    {% link_for h.humanize_entity_type('organization', group_type, 'add link') or _('Add Organization'), named_route=group_type ~ '.new', class_="btn btn-primary", icon="plus-square" %}
+    {% link_for h.humanize_entity_type('organization', org_type, 'add link') or _('Add Organization'), named_route=org_type ~ '.new', class_="btn btn-primary", icon="plus-square" %}
   {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ h.humanize_entity_type('organization', group_type, 'my label') or _('My Organizations') }}</h2>
+  <h2 class="hide-heading">{{ h.humanize_entity_type('organization', org_type, 'my label') or _('My Organizations') }}</h2>
   {% set organizations = h.organizations_available(permission='manage_group',
     include_dataset_count=True) %}
   {% if organizations %}
@@ -18,9 +18,9 @@
     </div>
   {% else %}
     <p class="empty">
-      {{ h.humanize_entity_type('organization', group_type, 'you not member') or _('You are not a member of any organizations.') }}
+      {{ h.humanize_entity_type('organization', org_type, 'you not member') or _('You are not a member of any organizations.') }}
       {% if h.check_access('organization_create') %}
-        {% link_for _('Create one now?'), named_route=group_type ~ '.new' %}
+        {% link_for _('Create one now?'), named_route=org_type ~ '.new' %}
       {% endif %}
     </p>
   {% endif %}
