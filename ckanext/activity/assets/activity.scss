@@ -22,6 +22,11 @@
     }
 }
 
+.activity_buttons > a.btn.disabled {
+    color: inherit;
+    opacity: 0.70 !important; 
+}
+
 // For profile information that appears in the popover
 .popover {
     width: 300px;

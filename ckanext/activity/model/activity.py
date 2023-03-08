@@ -22,7 +22,7 @@ import ckan.model as model
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
-from ckan.model.base import Base
+from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
 
 from ckan.types import Context, Query  # noqa
@@ -34,7 +34,7 @@ TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 
-class Activity(domain_object.DomainObject, Base):  # type: ignore
+class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     __tablename__ = "activity"
     # the line below handles cases when activity table was already loaded into
     # metadata state(via stats extension). Can be removed if stats stop using
@@ -786,7 +786,7 @@ def _activity_stream_get_filtered_users() -> list[str]:
     option and return a list of their ids. If the config is not specified,
     returns the id of the site user.
     """
-    users_list = config.get_value("ckan.hide_activity_from_users")
+    users_list = config.get("ckan.hide_activity_from_users")
     if not users_list:
         from ckan.logic import get_action
 

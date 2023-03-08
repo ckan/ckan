@@ -22,7 +22,7 @@ from collections import OrderedDict
 
 import six
 from urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl, urlparse
+    urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
 
@@ -136,9 +136,10 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # when using native json types in 9.2+
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(conn_or_curs=engine.raw_connection().connection,
-                          globally=False,
-                          loads=_loads)
+    register_default_json(
+        conn_or_curs=engine.raw_connection().connection,
+        globally=False,
+        loads=_loads)
 
     return engine
 
@@ -542,7 +543,7 @@ def _build_query_and_rank_statements(
 
 
 def _fts_lang(lang: Optional[str] = None) -> str:
-    return lang or config.get_value('ckan.datastore.default_fts_lang')
+    return lang or config.get('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort: Union[None, str, list[str]], fields_types: Container[str],
@@ -603,7 +604,7 @@ def _get_resources(context: Context, alias: str):
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
-    aliases = datastore_helpers.get_list(values)
+    aliases: Any = datastore_helpers.get_list(values)
     alias = None
     if aliases is not None:
         # delete previous aliases
@@ -642,7 +643,7 @@ def _generate_index_name(resource_id: str, field: str):
 
 
 def _get_fts_index_method() -> str:
-    return config.get_value('ckan.datastore.default_fts_index_method')
+    return config.get('ckan.datastore.default_fts_index_method')
 
 
 def _build_fts_indexes(
@@ -651,7 +652,7 @@ def _build_fts_indexes(
     fts_indexes: list[str] = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
-        'language', config.get_value('ckan.datastore.default_fts_lang'))
+        'language', config.get('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x: str):
@@ -765,7 +766,7 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
@@ -1670,7 +1671,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = config.get_value('ckan.datastore.search.rows_max')
+    rows_max = config.get('ckan.datastore.search.rows_max')
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1742,7 +1743,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message: str):
-        if self.config.get_value('debug'):
+        if self.config.get('debug'):
             log.critical(message)
         else:
             raise DatastoreException(message)
@@ -1836,11 +1837,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
-        self.enable_sql_search = self.config.get_value(
+        self.enable_sql_search = self.config.get(
             'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.get_value(
+            allowed_sql_functions_file = self.config.get(
                 'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 
@@ -2083,7 +2084,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def resource_exists(self, id: str):
+    def resource_exists(self, id: str) -> bool:
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
@@ -2203,6 +2204,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             schema_results = engine.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
+                row: Any  # Row has incomplete type definition
                 colname: str = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue

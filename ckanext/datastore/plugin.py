@@ -77,7 +77,7 @@ class DatastorePlugin(p.SingletonPlugin):
         DatastoreBackend.register_backends()
         DatastoreBackend.set_active_backend(config)
 
-        templates_base = config.get_value('ckan.base_templates_folder')
+        templates_base = config.get('ckan.base_templates_folder')
 
         p.toolkit.add_template_directory(config, templates_base)
         self.backend = DatastoreBackend.get_active_backend()
@@ -95,6 +95,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_create': action.datastore_create,
             'datastore_upsert': action.datastore_upsert,
             'datastore_delete': action.datastore_delete,
+            'datastore_records_delete': action.datastore_records_delete,
             'datastore_search': action.datastore_search,
             'datastore_info': action.datastore_info,
             'datastore_function_create': action.datastore_function_create,
@@ -115,6 +116,7 @@ class DatastorePlugin(p.SingletonPlugin):
             'datastore_create': auth.datastore_create,
             'datastore_upsert': auth.datastore_upsert,
             'datastore_delete': auth.datastore_delete,
+            'datastore_records_delete': auth.datastore_records_delete,
             'datastore_info': auth.datastore_info,
             'datastore_search': auth.datastore_search,
             'datastore_search_sql': auth.datastore_search_sql,

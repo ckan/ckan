@@ -35,8 +35,10 @@ class DatapusherPlugin(p.SingletonPlugin):
     resource_show_action = None
 
     def update_config(self, config: CKANConfig):
-        templates_base = config.get_value(u'ckan.base_templates_folder')
+        templates_base = config.get(u'ckan.base_templates_folder')
         p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_public_directory(config, 'public')
+        p.toolkit.add_resource('assets', 'ckanext-datapusher')
 
     def configure(self, config: CKANConfig):
         self.config = config
@@ -46,7 +48,7 @@ class DatapusherPlugin(p.SingletonPlugin):
             "ckan.datapusher.url",
             "ckan.datapusher.api_token",
         ):
-            if not config.get_value(config_option):
+            if not config.get(config_option):
                 raise Exception(
                     u'Config option `{0}` must be set to use the DataPusher.'.
                     format(config_option)
@@ -86,7 +88,7 @@ class DatapusherPlugin(p.SingletonPlugin):
         })
 
         resource_format = resource_dict.get('format')
-        supported_formats = p.toolkit.config.get_value(
+        supported_formats = p.toolkit.config.get(
             'ckan.datapusher.formats'
         )
 

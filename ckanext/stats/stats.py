@@ -103,7 +103,7 @@ class Stats(object):
             return res_tags
 
     @classmethod
-    def top_package_creators(cls, limit: int = 10):
+    def top_package_creators(cls, limit: int = 10) -> list[tuple[Optional[model.User], int]]:
         userid_count = (
             model.Session.query(
                 model.Package.creator_user_id,

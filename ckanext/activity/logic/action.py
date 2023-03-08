@@ -31,7 +31,7 @@ def send_email_notifications(
     """
     tk.check_access("send_email_notifications", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_email_notifications"):
+    if not tk.config.get("ckan.activity_streams_email_notifications"):
         raise tk.ValidationError(
             {
                 "message": (
@@ -65,6 +65,7 @@ def dashboard_mark_activities_old(
         model.repo.commit()
 
 
+@tk.side_effect_free
 def activity_create(
     context: Context, data_dict: DataDict
 ) -> Optional[dict[str, Any]]:
@@ -91,7 +92,7 @@ def activity_create(
 
     tk.check_access("activity_create", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_enabled"):
+    if not tk.config.get("ckan.activity_streams_enabled"):
         return
 
     model = context["model"]
@@ -117,6 +118,7 @@ def activity_create(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def user_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -173,6 +175,7 @@ def user_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def package_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -269,6 +272,7 @@ def package_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def group_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -330,6 +334,7 @@ def group_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def organization_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -388,6 +393,7 @@ def organization_activity_list(
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def recently_changed_packages_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -418,6 +424,7 @@ def recently_changed_packages_activity_list(
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def dashboard_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -479,6 +486,7 @@ def dashboard_activity_list(
     return activity_dicts
 
 
+@tk.side_effect_free
 def dashboard_new_activities_count(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DashboardNewActivitiesCount:
@@ -499,6 +507,7 @@ def dashboard_new_activities_count(
     return len([activity for activity in activities if activity["is_new"]])
 
 
+@tk.side_effect_free
 def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Show details of an item of 'activity' (part of the activity stream).
 
@@ -521,6 +530,7 @@ def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return activity
 
 
+@tk.side_effect_free
 def activity_data_show(
     context: Context, data_dict: DataDict
 ) -> dict[str, Any]:
@@ -563,6 +573,7 @@ def activity_data_show(
     return activity_data
 
 
+@tk.side_effect_free
 def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Returns a diff of the activity, compared to the previous version of the
     object

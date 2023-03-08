@@ -97,7 +97,7 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins = config.get_value("ckan.plugins")
+        plugins = config.get("ckan.plugins")
         if plugins is None:
             plugins = []
         elif isinstance(plugins, str):
@@ -219,7 +219,7 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.get_value('ckan.plugins') + find_system_plugins()
+    plugins = config.get('ckan.plugins') + find_system_plugins()
 
     load(*plugins)
 

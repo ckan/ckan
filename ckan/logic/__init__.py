@@ -167,7 +167,7 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     from ckan.common import config
 
     # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    csrf_token = config.get("WTF_CSRF_FIELD_NAME")
     if csrf_token in parsed:
         parsed.pop(csrf_token)
     return parsed
@@ -478,8 +478,8 @@ def get_action(action: str) -> Action:
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):
             _actions[k] = v
-            # Whitelist all actions defined in logic/action/get.py as
-            # being side-effect free.
+            # Allow all actions defined in logic/action/get.py to
+            # be side-effect free.
             if action_module_name == 'get' and \
                not hasattr(v, 'side_effect_free'):
                 v.side_effect_free = True

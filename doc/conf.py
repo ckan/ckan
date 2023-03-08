@@ -105,7 +105,7 @@ master_doc = 'contents'
 project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'&copy; 2009-{} '.format(date.today().strftime("%Y"))
-copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and 
+copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and
     <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
@@ -296,14 +296,29 @@ def get_latest_package_name(distro, py_version=None):
     return name
 
 
-def get_min_setuptools_version():
+def get_current_package_name(distro, py_version=None):
+    '''Return the filename of the Ubuntu package for the current stable release.
+
+    e.g. "python-ckan_2.1-trusty_amd64.deb"
+
+    If ``py_version`` is provided, it's added as part of the iter number:
+
+    e.g. "python-ckan_2.9-py3-focal_amd64.deb"
+
     '''
-    Get the minimum setuptools version as defined in requirement-setuptools.txt
-    '''
-    filename = os.path.join(os.path.dirname(__file__), '..',
-                            'requirement-setuptools.txt')
-    with open(filename) as f:
-        return f.read().split('==')[1].strip()
+    # We don't create a new package file name for a patch release like 2.1.1,
+    # instead we just update the existing 2.1 package. So package names only
+    # have the X.Y part of the version number in them, not X.Y.Z.
+    version = get_current_release_version()
+    current_minor_version = version[:version.find(".", 3)]
+
+    if py_version:
+        name = 'python-ckan_{version}-py{py_version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro, py_version=py_version)
+    else:
+        name = 'python-ckan_{version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro)
+    return name
 
 
 def config_defaults_from_declaration():
@@ -349,7 +364,7 @@ def write_substitutions_file(**kwargs):
     Any keyword argument is stored as a substitution.
     '''
     filename = '_substitutions.rst'
-    header = ''':orphan:
+    header = '''
 
 .. Some common reStructuredText substitutions.
 
@@ -393,10 +408,8 @@ write_substitutions_file(
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
     latest_release_version_format=latest_release_version_format,
-    latest_package_name_bionic=get_latest_package_name('bionic'),
-    latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
-    latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
-    min_setuptools_version=get_min_setuptools_version(),
+    current_package_name_jammy=get_current_package_name('jammy'),
+    current_package_name_focal=get_current_package_name('focal'),
     **config_defaults_from_declaration()
 )
 

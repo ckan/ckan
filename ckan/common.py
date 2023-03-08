@@ -10,11 +10,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Iterable
 
 from typing import (
-    Any, Iterable, Optional, TYPE_CHECKING,
-    TypeVar, cast, overload, Container, Union)
+    Any, Optional, TYPE_CHECKING,
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
@@ -28,7 +28,7 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
-from ckan.config.declaration import Declaration, Key
+from ckan.config.declaration import Declaration
 from ckan.types import Model
 
 
@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     # starting from python 3.7 the following line can be used without any
     # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
+
+SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
@@ -128,29 +130,19 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-    def get_value(self, key: str) -> Any:
-        if self.get("config.mode") == "strict":
-            return self[key]
+    def is_declared(self, key: str) -> bool:
+        return key in config_declaration
 
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return self.get(key)
+    def get(self, key: str, default: Any = SENTINEL) -> Any:
+        """Return the value for key if key is in the config, else default.
+        """
+        if default is SENTINEL:
+            default = None
+            is_strict = super().get("config.mode") == "strict"
+            if is_strict and key not in config_declaration:
+                log.warning("Option %s is not declared", key)
 
-        value = self.get(key, option.default)
-        return option.normalize(value)
-
-    def subset(
-            self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = None
-    ) -> dict[str, Any]:
-        subset = {}
-        exclude = exclude or set()
-        for k, v in self.store.items():
-            if k in exclude or pattern != k:
-                continue
-            subset[k] = v
-        return subset
+        return super().get(key, default)
 
 
 def _get_request():
@@ -261,6 +253,8 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return lst
     elif isinstance(obj, (list, tuple)):
         return cast(Any, obj)
+    elif isinstance(obj, Iterable):
+        return list(obj)
     elif obj is None:
         return []
     else:

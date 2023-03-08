@@ -187,4 +187,4 @@ def compare_group_dicts(
 
 
 def activity_show_email_notifications() -> bool:
-    return tk.config.get_value("ckan.activity_streams_email_notifications")
+    return tk.config.get("ckan.activity_streams_email_notifications")

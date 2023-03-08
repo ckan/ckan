@@ -25,8 +25,8 @@ def set_cors_headers_for_response(response: Response) -> Response:
     '''
     if request.headers.get(u'Origin'):
         cors_origin_allowed = None
-        allow_all = config.get_value(u'ckan.cors.origin_allow_all')
-        whitelisted = request.headers.get(u'Origin') in config.get_value(
+        allow_all = config.get(u'ckan.cors.origin_allow_all')
+        whitelisted = request.headers.get(u'Origin') in config.get(
             u'ckan.cors.origin_whitelist')
         if allow_all:
             cors_origin_allowed = '*'
@@ -56,7 +56,7 @@ def set_cache_control_headers_for_response(response: Response) -> Response:
     if allow_cache:
         response.cache_control.public = True
         try:
-            cache_expire = config.get_value(u'ckan.cache_expires')
+            cache_expire = config.get(u'ckan.cache_expires')
             response.cache_control.max_age = cache_expire
             response.cache_control.must_revalidate = True
         except ValueError:
@@ -120,7 +120,7 @@ def identify_user() -> Optional[Response]:
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
-    apitoken_header_name = config.get_value("apikey_header_name")
+    apitoken_header_name = config.get("apikey_header_name")
 
     apitoken: str = request.headers.get(apitoken_header_name, u'')
     if not apitoken:
@@ -160,7 +160,7 @@ def handle_i18n(environ: Optional[dict[str, Any]] = None) -> None:
     environ = environ or request.environ
     assert environ
     locale_list = get_locales_from_config()
-    default_locale = config.get_value(u'ckan.locale_default')
+    default_locale = config.get(u'ckan.locale_default')
 
     # We only update once for a request so we can keep
     # the language and original url which helps with 404 pages etc
@@ -190,8 +190,6 @@ def set_ckan_current_url(environ: Any) -> None:
 
     qs = environ.get(u'QUERY_STRING')
     if qs:
-        # sort out weird encodings
-        qs = quote(qs, u'')
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info

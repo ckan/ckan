@@ -219,7 +219,7 @@ def rebuild(package_id: Optional[str] = None,
             package_index.update_dict(pkg_dict, True)
     else:
         packages = model.Session.query(model.Package.id)
-        if config.get_value('ckan.search.remove_deleted_packages'):
+        if config.get('ckan.search.remove_deleted_packages'):
             packages = packages.filter(model.Package.state != 'deleted')
 
         package_ids = [r[0] for r in packages.all()]
@@ -311,7 +311,7 @@ def clear_all() -> None:
 
 def _get_schema_from_solr(file_offset: str):
 
-    timeout = config.get_value('ckan.requests.timeout')
+    timeout = config.get('ckan.requests.timeout')
 
     solr_url, solr_user, solr_password = SolrSettings.get()
 
