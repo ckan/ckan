@@ -1,0 +1,2 @@
+Use of `g` attributes to render templates has been deprecated (like `g.pkg_dict`). Use `h.render()` `extra_vars` parameter instead (example: `h.render(..., extra_vars={"pkg_dict": pkg_dict})`).
+`toolkit.g.user` and `toolkit.g.userobj` will be deprecated in the future. Use `toolkit.current_user` instead.
