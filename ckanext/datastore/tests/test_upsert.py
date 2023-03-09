@@ -613,6 +613,38 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "F Torres"
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+            "records": [{"pk": "1000", "n": "5", "d": "2020-02-02"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
+
 
 @pytest.mark.usefixtures("with_request_context")
 class TestDatastoreInsert(object):
@@ -718,6 +750,37 @@ class TestDatastoreInsert(object):
         assert u"duplicate key value violates unique constraint" in str(
             context.value
         )
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
 
 
 @pytest.mark.usefixtures("with_request_context")
@@ -951,3 +1014,35 @@ class TestDatastoreUpdate(object):
         assert search_result["records"][0]["pk"] == "1000"
         assert search_result["records"][0]["book"] == "The boy"
         assert search_result["records"][0]["author"] == "F Torres"
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_empty_string_instead_of_null(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "pk",
+            "fields": [
+                {"id": "pk", "type": "text"},
+                {"id": "n", "type": "int"},
+                {"id": "d", "type": "date"},
+            ],
+            "records": [{"pk": "1000", "n": "5", "d": "2020-02-02"}],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "update",
+            "records": [
+                {"pk": "1000", "n": "", "d": ""}
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        rec = search_result["records"][0]
+        assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
