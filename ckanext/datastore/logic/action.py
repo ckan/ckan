@@ -506,7 +506,7 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
                    (optional, default: all fields in original order)
     :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
-                 e.g.: "fieldname1, fieldname2 desc"
+                 e.g.: "fieldname1, fieldname2 desc nulls last"
     :type sort: string
     :param include_total: True to return total matching record count
                           (optional, default: true)
