@@ -1,7 +1,7 @@
 # The file contains the direct ckan requirements (python3).
 # Use pip-compile to create a requirements.txt file from this
 alembic==1.8.1
-Babel==2.10.3
+Babel==2.12.1
 Beaker==1.11.0
 bleach==5.0.1
 blinker==1.5
@@ -9,7 +9,7 @@ click==8.1.3
 dominate==2.7.0
 feedgen==0.9.0
 Flask==2.0.3
-Flask-Babel==1.0.0
+Flask-Babel==3.0.1
 Flask-Login==0.6.1
 Flask-WTF==1.0.1
 Jinja2==3.1.2
