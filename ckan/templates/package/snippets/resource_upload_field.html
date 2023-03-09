@@ -45,7 +45,7 @@ placeholder - placeholder text for url field
             onclick="
               document.getElementById('resource-url-upload').checked = true;
               document.getElementById('field-resource-upload').click();
-            "><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
+            "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
         <button type="button" class="btn btn-default" id="resource-link-button"
           title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
