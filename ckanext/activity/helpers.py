@@ -81,15 +81,15 @@ def recently_changed_packages_activity_stream(
     )
 
 
-def new_activities() -> Optional[int]:
+def new_activities() -> int:
     """Return the number of activities for the current user.
 
     See :func:`logic.action.get.dashboard_new_activities_count` for more
     details.
 
     """
-    if not tk.current_user:
-        return None
+    if tk.current_user.is_anonymous:
+        return 0
     action = tk.get_action("dashboard_new_activities_count")
     return action({}, {})
 
