@@ -45,7 +45,7 @@ class ExampleDataStoreDeletedWithCountPlugin(p.SingletonPlugin):
         }
 
 
-@pytest.mark.usefixtures(u"with_request_context")
+
 class TestChainedAction(object):
     @pytest.mark.ckan_config(
         u"ckan.plugins",

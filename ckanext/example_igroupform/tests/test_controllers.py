@@ -24,7 +24,7 @@ def _get_group_new_page(app, env, group_type):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestGroupController(object):
     def test_about(self, app, user):
         env = {"Authorization": user["token"]}
@@ -77,7 +77,7 @@ class TestGroupController(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform_organization")
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestOrganizationController(object):
     def test_about(self, app, user):
         env = {"Authorization": user["token"]}
@@ -142,7 +142,7 @@ class TestOrganizationController(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerNew(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % custom_group_type)
@@ -166,7 +166,7 @@ class TestGroupControllerNew(object):
 @pytest.mark.ckan_config(
     "ckan.plugins", "example_igroupform_default_group_type"
 )
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerNewDefaultGroupType(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % group_type)
@@ -198,7 +198,7 @@ def _get_group_edit_page(app, user, group_type, group_name=None):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "example_igroupform")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerEdit(object):
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
@@ -217,7 +217,7 @@ class TestGroupControllerEdit(object):
 @pytest.mark.ckan_config(
     "ckan.plugins", "example_igroupform_default_group_type"
 )
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerEditDefaultGroupType(object):
     def test_group_doesnt_exist(self, app, user):
         env = {"Authorization": user["token"]}
@@ -234,7 +234,7 @@ class TestGroupControllerEditDefaultGroupType(object):
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_igroupform_v2")
 @pytest.mark.usefixtures(
-    "with_plugins", "with_request_context"
+    "with_plugins"
 )
 class TestGroupBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
@@ -257,7 +257,7 @@ class TestGroupBlueprintPreparations(object):
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_igroupform")
 @pytest.mark.usefixtures(
-    "with_plugins", "with_request_context", "clean_db"
+    "with_plugins", "clean_db"
 )
 class TestCustomGroupBlueprint(object):
     def test_group_listing_labels(self, app):

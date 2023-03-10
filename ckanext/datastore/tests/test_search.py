@@ -14,7 +14,7 @@ import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreSearch(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -479,7 +479,7 @@ class TestDatastoreSearch(object):
         assert result["records"][0]['b'] == 'Z'
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreSearchLegacyTests(object):
     sysadmin_user = None
     normal_user = None
@@ -1501,7 +1501,7 @@ class TestDatastoreSQLLegacyTests(object):
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures(
-        "clean_datastore", "with_plugins", "with_request_context"
+        "clean_datastore", "with_plugins"
     )
     def test_new_datastore_table_from_private_resource(self, app):
         # make a private CKAN resource
@@ -1575,7 +1575,7 @@ class TestDatastoreSQLLegacyTests(object):
 class TestDatastoreSQLFunctional(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures(
-        "clean_datastore", "with_plugins", "with_request_context"
+        "clean_datastore", "with_plugins"
     )
     def test_search_sql_enforces_private(self):
         user1 = factories.User()
@@ -1851,7 +1851,7 @@ class TestDatastoreSQLFunctional(object):
         assert result[u"records_truncated"]
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreSearchRecordsFormat(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")

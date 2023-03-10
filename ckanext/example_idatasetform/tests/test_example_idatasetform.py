@@ -67,9 +67,11 @@ class TestVersion3(ExampleIDatasetFormPluginBase):
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestVersion5(object):
+
+    @pytest.mark.usefixtures("with_request_context")
     def test_custom_package_type_urls(self):
         assert url_for("fancy_type.search") == "/fancy_type/"
         assert url_for("fancy_type.new") == "/fancy_type/new"
@@ -122,7 +124,7 @@ def user():
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app, user):
@@ -331,7 +333,7 @@ class TestUrlsForCustomDatasetType(object):
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v4")
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestIDatasetFormPluginVersion4(object):
     def test_package_create(self, test_request_context):
@@ -490,7 +492,7 @@ class TestCustomSearch(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v6")
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatasetBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
@@ -514,7 +516,7 @@ class TestDatasetBlueprintPreparations(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v7")
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatasetMultiTypes(object):
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_untouched_routes(self, type_, app):

@@ -19,7 +19,8 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
-@pytest.mark.usefixtures("with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
 class TestDatastoreCreateNewTests(object):
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
@@ -51,8 +52,6 @@ class TestDatastoreCreateNewTests(object):
         results = execute_sql(sql, resource_id).fetchall()
         return [result[0] for result in results]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_works_with_empty_array_in_json_field(self):
         package = factories.Dataset()
         data = {
@@ -66,8 +65,6 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_works_with_empty_object_in_json_field(self):
         package = factories.Dataset()
         data = {
@@ -81,8 +78,6 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action("datastore_create", **data)
         assert result["resource_id"] is not None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_creates_index_on_primary_key(self):
         package = factories.Dataset()
         data = {
@@ -97,8 +92,6 @@ class TestDatastoreCreateNewTests(object):
         index_names = self._get_index_names(resource_id)
         assert resource_id + "_pkey" in index_names
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_creates_url_with_site_name(self):
         package = factories.Dataset()
         data = {"resource": {"boo%k": "crime", "package_id": package["id"]}}
@@ -108,8 +101,6 @@ class TestDatastoreCreateNewTests(object):
         url = resource["url"]
         assert url.startswith(config.get("ckan.site_url"))
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_index_on_specific_fields(self):
         package = factories.Dataset()
         data = {
@@ -128,8 +119,6 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"author"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_adds_index_on_full_text_search_when_creating_other_indexes(
         self
     ):
@@ -150,8 +139,6 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(
         self
     ):
@@ -171,8 +158,6 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result["resource_id"]
         assert self._has_index_on_field(resource_id, '"_full_text"')
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
         data = {
@@ -196,8 +181,6 @@ class TestDatastoreCreateNewTests(object):
             resource_id, "to_tsvector('english', \"author\")"
         )
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_doesnt_add_more_indexes_when_updating_data(self):
         resource = factories.Resource()
         data = {
@@ -216,8 +199,6 @@ class TestDatastoreCreateNewTests(object):
         current_index_names = self._get_index_names(resource["id"])
         assert previous_index_names == current_index_names
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_duplicate_fields(self):
         package = factories.Dataset()
         data = {
@@ -234,8 +215,6 @@ class TestDatastoreCreateNewTests(object):
         with pytest.raises(p.toolkit.ValidationError):
             helpers.call_action("datastore_create", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sets_datastore_active_on_resource_on_create(self):
         resource = factories.Resource()
 
@@ -253,8 +232,6 @@ class TestDatastoreCreateNewTests(object):
 
         assert resource["datastore_active"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_sets_datastore_active_on_resource_on_delete(self):
         resource = factories.Resource(datastore_active=True)
 
@@ -276,8 +253,6 @@ class TestDatastoreCreateNewTests(object):
 
         assert not (resource["datastore_active"])
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_create_exceeds_column_name_limit(self):
         package = factories.Dataset()
         data = {
@@ -293,8 +268,6 @@ class TestDatastoreCreateNewTests(object):
         with pytest.raises(p.toolkit.ValidationError):
             helpers.call_action("datastore_create", **data)
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_calculate_record_count_is_false(self):
         resource = factories.Resource()
         data = {
@@ -313,8 +286,6 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is None
 
-    @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     @pytest.mark.flaky(reruns=2)  # because analyze is sometimes delayed
     def test_calculate_record_count(self):
         # how datapusher loads data (send_resource_to_datastore)
@@ -1225,7 +1196,7 @@ class TestDatastoreCreate(object):
         assert res_dict["error"]["message"].startswith("The data was invalid")
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreFunctionCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1292,7 +1263,7 @@ class TestDatastoreFunctionCreate(object):
         )
 
 
-@pytest.mark.usefixtures("with_request_context")
+
 class TestDatastoreCreateTriggers(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
