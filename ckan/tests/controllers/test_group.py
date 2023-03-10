@@ -10,7 +10,7 @@ import ckan.model as model
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupController(object):
     def test_bulk_process_throws_403_for_nonexistent_org(self, app):
         """Returns 403, not 404, because access check cannot be passed.
@@ -71,7 +71,7 @@ def user():
     return user
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupControllerNew(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -132,7 +132,7 @@ class TestGroupControllerNew(object):
         assert form.select_one('[name=description]').text == "description"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupControllerEdit(object):
     def test_not_logged_in(self, app):
         app.get(url=url_for("group.new"), status=403)
@@ -199,7 +199,7 @@ class TestGroupControllerEdit(object):
         assert all([part.text for part in breadcrumbs])
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupRead(object):
     def test_group_read(self, app):
         group = factories.Group()
@@ -245,7 +245,7 @@ class TestGroupRead(object):
         assert extras == {'ext_a': ['1', '2'], 'ext_b': '3'}
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupDelete(object):
 
     def test_owner_delete(self, app, user):
@@ -305,7 +305,7 @@ class TestGroupDelete(object):
         assert group["state"] == "active"
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupMembership(object):
     def _create_group(self, owner_username, users=None):
         """Create a group with the owner defined by owner_username and
@@ -525,7 +525,7 @@ class TestGroupMembership(object):
             )
 
 
-@pytest.mark.usefixtures("non_clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupFollow:
     def test_group_follow(self, app, user):
 
@@ -598,7 +598,7 @@ class TestGroupFollow:
         assert sysadmin["name"] in followers_response
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupSearch(object):
     """Test searching for groups."""
 
@@ -757,7 +757,7 @@ class TestGroupInnerSearch(object):
         assert len(ds_titles) == 0
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestGroupIndex(object):
     def test_group_index(self, app):
 

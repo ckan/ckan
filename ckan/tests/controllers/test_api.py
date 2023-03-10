@@ -58,7 +58,7 @@ def test_sideeffect_action_is_not_get_able(app):
     assert msg in resp
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
     def test_resource_create_upload_file(
         self, app, monkeypatch, tmpdir, ckan_config

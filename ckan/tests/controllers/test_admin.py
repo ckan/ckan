@@ -38,7 +38,7 @@ def _reset_config(app, sysadmin_env):
     app.post(url=url_for("admin.reset_config"), extra_environ=sysadmin_env)
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 def test_index(app, user_env, sysadmin_env):
 
     url = url_for("admin.index")
@@ -53,7 +53,7 @@ def test_index(app, user_env, sysadmin_env):
     assert "Administration" in response, response
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestConfig(object):
     """View tests to go along with 'Customizing look and feel' docs."""
 
@@ -224,7 +224,7 @@ class TestConfig(object):
         )
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestTrashView(object):
     """View tests for permanently deleting datasets with Admin Trash."""
 
@@ -572,7 +572,7 @@ class TestTrashView(object):
         assert "form-purge-package" in trash_response
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestAdminConfigUpdate(object):
     def _update_config_option(self, app, sysadmin_env):
         url = url_for(u"admin.config")

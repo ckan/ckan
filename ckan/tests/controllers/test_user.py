@@ -107,7 +107,7 @@ def sysadmin():
     return user
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestUser(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
@@ -149,7 +149,7 @@ class TestUser(object):
         )
         assert "The passwords you entered do not match" in response
 
-    @pytest.mark.usefixtures("with_request_context")
+    
     def test_create_user_as_sysadmin(self, app):
         admin_pass = "RandomPassword123"
         sysadmin = factories.Sysadmin(password=admin_pass)
