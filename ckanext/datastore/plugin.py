@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Union, cast
+from typing import Any, Callable, Union, cast
 
 import ckan.plugins as p
 from ckan.model.core import State
@@ -254,7 +254,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     # ITemplateHelpers
 
-    def get_helpers(self):
+    def get_helpers(self) -> dict[str, Callable[..., object]]:
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
 
