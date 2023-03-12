@@ -96,7 +96,7 @@ class TestConfig(object):
 
     @mock.patch("flask_login.utils._get_user")
     def test_tag_line(self, current_user, app, sysadmin_env):
-        """Add a tag line (only when no logo)"""
+        """Add a tag line"""
         mock_current_user(current_user)
 
         # current tagline
@@ -111,7 +111,7 @@ class TestConfig(object):
 
         # new tagline not visible yet
         new_index_response = app.get("/")
-        assert "Special Tagline" not in new_index_response
+        assert "Special Tagline" in new_index_response
 
         url = url_for(u"admin.config")
         # remove logo
