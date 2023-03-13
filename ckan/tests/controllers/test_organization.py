@@ -586,6 +586,7 @@ class TestOrganizationMembership(object):
                 status=403,
             )
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_create_user_for_user_invite(self, mail_server, sysadmin):
         group = factories.Group()
         context = {"user": sysadmin["name"]}

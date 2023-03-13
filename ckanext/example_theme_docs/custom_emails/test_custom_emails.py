@@ -13,7 +13,7 @@ from ckan.common import config
 from ckan.tests.lib.test_mailer import MailerBase
 
 
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
 @pytest.mark.ckan_config("ckan.plugins", "example_theme_custom_emails")
 class TestExampleCustomEmailsPlugin(MailerBase):
 
