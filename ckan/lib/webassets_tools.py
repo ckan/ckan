@@ -9,6 +9,7 @@ from typing import Any, Optional
 import yaml
 from markupsafe import Markup
 from webassets import Environment
+from webassets.env import RegisterError
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
@@ -21,7 +22,15 @@ yaml.warnings({u'YAMLLoadWarning': False})
 
 
 def create_library(name: str, path: str) -> None:
-    """Create WebAssets library(set of Bundles).
+    """Create WebAssets library (set of Bundles).
+
+    This function is executed when creating the Flask
+    application and it will register in the webassets Environment
+    the bundles defined in the webassets.yml file.
+
+    It is also executed when loading plugins that registered
+    webassets using the IConfigurer interface. (See
+    toolkit.add_resource() for more info.)
     """
     config_path = os.path.join(path, u'webassets.yml')
     if not os.path.exists(config_path):
@@ -40,13 +49,23 @@ def create_library(name: str, path: str) -> None:
     # TODO: make PR into webassets with preferable solution
     # Issue: https://github.com/miracle2k/webassets/issues/519
     for name, bundle in bundles.items():
-        env._named_bundles.pop(name, None)
-        env.register(name, bundle)
+        try:
+            env.register(name, bundle)
+        except RegisterError:
+            logger.debug(f"Bundle {name} already registered, overriding.")
+            env._named_bundles.pop(name, None)
+            env.register(name, bundle)
 
     env.append_path(path)
 
 
 def webassets_init() -> None:
+    """ Initializes the webassets Environment and creates core libraries.
+
+    This function is executed when running CKAN
+    for the first time or when loading new plugins. It is
+    called by ckan.config.environment.update_config().
+    """
     global env
 
     static_path = get_webassets_path()
@@ -81,12 +100,24 @@ def _make_asset_collection() -> dict[str, Any]:
 
 
 def include_asset(name: str) -> None:
+    """ Appends the webasset name into the g.webassets list.
+
+    This function is called using jinja2 asset tag. When processing
+    a reuqest, CKAN will store in g.webassets all the assets found in
+    the templates. Later it will render the html tags calling
+    h.render_assets() at the end of base.html template.
+
+    When running in debug mode, the call to bundle.urls()
+    will copy the files into the media directory configured.
+    (See get_webassets_path())
+    """
     from ckan.lib.helpers import url_for_static_or_external
     try:
         if not g.webassets:
             raise AttributeError(u'WebAssets not initialized yet')
     except AttributeError:
         g.webassets = _make_asset_collection()
+
     if name in g.webassets[u'included']:
         return
 
@@ -97,14 +128,9 @@ def include_asset(name: str) -> None:
         logger.error(u'Trying to include unknown asset: <{}>'.format(name))
         return
 
-    deps: list[str] = bundle.extra.get(u'preload', [])
-
-    # Using DFS may lead to infinite recursion(unlikely, because
-    # extensions rarely depends on each other), so there is a sense to
-    # memoize visited routes.
-
     # TODO: consider infinite loop prevention for assets that depends
     # on each other
+    deps: list[str] = bundle.extra.get(u'preload', [])
     for dep in deps:
         include_asset(dep)
 
@@ -135,12 +161,20 @@ def _to_tag(url: str, type_: str):
 
 
 def render_assets(type_: str) -> Markup:
+    """ Renders the webassets of a specific type.
+
+    This function is called at the end of the base.html template. It
+    will iterate trough g.webassets to return the necessary html tags to
+    include the assets in the html response.
+    """
     try:
         assets = g.webassets
     except AttributeError:
+        logger.warn("Webassets are not initialized.")
         return Markup(u'')
 
     if not assets:
+        logger.warn("Webassets are initialized but none was found.")
         return Markup(u'')
     collection = assets[type_]
     tags = u'\n'.join([_to_tag(asset, type_) for asset in assets[type_]])
