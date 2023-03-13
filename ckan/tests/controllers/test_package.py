@@ -180,7 +180,7 @@ class TestPackageNew(object):
 
     def test_complete_package_with_two_resources(self, app):
 
-        user = factories.User()
+        user = factories.UserWithToken()
 
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
@@ -191,7 +191,7 @@ class TestPackageNew(object):
                 "save": "",
                 "_ckan_phase": 1
             },
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             follow_redirects=False
         )
         location = _get_location(response)
@@ -201,14 +201,14 @@ class TestPackageNew(object):
                 "save": "again"
             },
 
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
         app.post(location, data={
                 "id": "",
                 "url": "http://example.com/resource1",
                 "save": "go-metadata"
             },
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
         pkg = model.Package.by_name(name)
         resources = sorted(pkg.resources, key=lambda r: r.url)
@@ -237,13 +237,13 @@ class TestPackageNew(object):
 
     def test_previous_button_populates_form(self, app):
 
-        user = factories.User()
+        user = factories.UserWithToken()
 
         url = url_for("dataset.new")
         name = factories.Dataset.stub().name
         response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={
                 "name": name,
                 "save": "",
@@ -257,7 +257,7 @@ class TestPackageNew(object):
             "id": "",
             "save": "go-dataset"
             },
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
 
         assert 'name="title"' in response
@@ -829,14 +829,14 @@ class TestPackageDelete(object):
 
         When package_delete is made as a get request, it should return a
         'do you want to delete this dataset? confirmation page"""
-        user = factories.User()
+        user = factories.UserWithToken()
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
         dataset = factories.Dataset(owner_org=owner_org["id"])
         response = app.get(
             url_for("dataset.delete", id=dataset["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete dataset - {name}?"
@@ -844,7 +844,7 @@ class TestPackageDelete(object):
 
         response = app.post(
             url_for("dataset.delete", id=dataset["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"cancel": ""}
             )
         assert 200 == response.status_code
@@ -1096,7 +1096,7 @@ class TestResourceDownload(object):
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceView(object):
     def test_resource_view_create(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1112,13 +1112,13 @@ class TestResourceView(object):
 
         response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"title": "Test Image View"}
         )
         assert helpers.body_contains(response, "Test Image View")
 
     def test_resource_view_edit(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1135,14 +1135,14 @@ class TestResourceView(object):
 
         response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"title": "Updated RV Title"}
         )
         assert helpers.body_contains(response, "Updated RV Title")
 
     @pytest.mark.ckan_config("ckan.views.default_views", "")
     def test_resource_view_delete(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1159,7 +1159,7 @@ class TestResourceView(object):
 
         response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"delete": "Delete"}
         )
         assert helpers.body_contains(response, "This resource has no views")
@@ -1444,7 +1444,7 @@ class TestResourceDelete(object):
 
         When resource_delete is made as a get request, it should return a
         'do you want to delete this reource? confirmation page"""
-        user = factories.User()
+        user = factories.UserWithToken()
         owner_org = factories.Organization(
             users=[{"name": user["name"], "capacity": "admin"}]
         )
@@ -1456,7 +1456,7 @@ class TestResourceDelete(object):
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
         assert 200 == response.status_code
         message = "Are you sure you want to delete resource - {name}?"
@@ -1468,7 +1468,7 @@ class TestResourceDelete(object):
                 id=dataset["name"],
                 resource_id=resource["id"],
             ),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"cancel": ""},
         )
         assert 200 == response.status_code

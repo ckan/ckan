@@ -149,7 +149,7 @@ class TestUser(object):
         )
         assert "The passwords you entered do not match" in response
 
-    
+
     def test_create_user_as_sysadmin(self, app):
         admin_pass = "RandomPassword123"
         sysadmin = factories.Sysadmin(password=admin_pass)
@@ -629,11 +629,11 @@ class TestUser(object):
         assert "Error sending the email" in response
 
     def test_sysadmin_not_authorized(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"Authorization": user["token"]},
             status=403
         )
 
@@ -648,7 +648,7 @@ class TestUser(object):
 
     def test_sysadmin_promote_success(self, app):
 
-        sysadmin = factories.Sysadmin()
+        sysadmin = factories.SysadminWithToken()
         # create a normal user
         user = factories.User(fullname="Alice")
 
@@ -656,7 +656,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "1"},
-            environ_overrides={"REMOTE_USER": sysadmin["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": sysadmin["token"]},
             status=200,
         )
         assert "Promoted Alice to sysadmin" in resp.body
@@ -666,7 +666,7 @@ class TestUser(object):
         assert userobj.sysadmin
 
     def test_sysadmin_revoke_success(self, app):
-        sysadmin = factories.Sysadmin()
+        sysadmin = factories.SysadminWithToken()
         # create another sysadmin
         user = factories.Sysadmin(fullname="Bob")
 
@@ -674,7 +674,7 @@ class TestUser(object):
         resp = app.post(
             url_for("user.sysadmin"),
             data={"username": user["name"], "status": "0"},
-            environ_overrides={"REMOTE_USER": sysadmin["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": sysadmin["token"]},
             status=200,
         )
         assert "Revoked sysadmin permission from Bob" in resp.body
@@ -766,10 +766,10 @@ class TestUser(object):
 
     def test_deleted_user_reactivated_by_sysadmin_ui(self, app):
 
-        sysadmin = factories.Sysadmin(password="correct123")
+        sysadmin = factories.SysadminWithToken(password="correct123")
         deleted_user = factories.User(state="deleted")
 
-        env = {"REMOTE_USER": sysadmin["name"]}
+        env = {"Authorization": sysadmin["token"]}
         data = {
             "name": deleted_user["name"],
             "id": deleted_user["id"],

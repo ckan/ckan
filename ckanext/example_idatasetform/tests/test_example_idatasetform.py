@@ -178,13 +178,13 @@ class TestUrlsForCustomDatasetType(object):
         )
 
     def test_links_on_edit_pages(self, app):
-        user = factories.Sysadmin()
+        user = factories.SysadminWithToken()
 
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         response = app.get(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"Authorization": user["token"]},
             status=200,
         )
         page = bs4.BeautifulSoup(response.body)
@@ -199,7 +199,7 @@ class TestUrlsForCustomDatasetType(object):
         )
         resp = app.post(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"Authorization": user["token"]},
             data={
                 "name": pkg["name"],
                 "save": "",
@@ -228,7 +228,7 @@ class TestUrlsForCustomDatasetType(object):
                     id=pkg["id"],
                     resource_id=res["id"],
                 ),
-                environ_overrides={"REMOTE_USER": user["name"]},
+                environ_overrides={"Authorization": user["token"]},
             ).body
         )
         page_header = page.find(class_="page-header")
@@ -259,7 +259,7 @@ class TestUrlsForCustomDatasetType(object):
                 id=pkg["name"],
                 resource_id=res["id"],
             ),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"Authorization": user["token"]},
             data={"id": res["id"], "url": res["url"], "save": "go-metadata"},
             follow_redirects=False,
         )

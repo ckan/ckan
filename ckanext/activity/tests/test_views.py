@@ -72,7 +72,7 @@ class TestOrganization(object):
         )
 
     def test_delete_org_using_organization_delete(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         org = factories.Organization(user=user)
         _clear_activities()
         helpers.call_action(
@@ -80,7 +80,7 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         app.get(url, extra_environ=env, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
@@ -89,7 +89,7 @@ class TestOrganization(object):
         # state=deleted but they are not...
 
     def test_delete_org_by_updating_state(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         org = factories.Organization(user=user)
         _clear_activities()
         org["state"] = "deleted"
@@ -98,7 +98,7 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -257,7 +257,7 @@ class TestUser:
 
     def test_delete_dataset(self, app):
 
-        user = factories.User()
+        user = factories.UserWithToken()
         dataset = factories.Dataset(user=user)
         _clear_activities()
         helpers.call_action(
@@ -265,7 +265,7 @@ class TestUser:
         )
 
         url = url_for("activity.user_activity", id=user["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         response = app.get(url, extra_environ=env)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
@@ -340,7 +340,7 @@ class TestUser:
 
     def test_delete_group_by_updating_state(self, app):
 
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         group["state"] = "deleted"
@@ -349,7 +349,7 @@ class TestUser:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
@@ -583,8 +583,8 @@ class TestPackage:
 
     def test_admin_can_see_old_versions(self, app):
 
-        user = factories.User()
-        env = {"REMOTE_USER": user["name"]}
+        user = factories.UserWithToken()
+        env = {"Authorization": user["token"]}
         dataset = factories.Dataset(user=user)
 
         url = url_for("activity.package_activity", id=dataset["id"])
@@ -602,8 +602,8 @@ class TestPackage:
 
     def test_admin_can_see_changes(self, app):
 
-        user = factories.User()
-        env = {"REMOTE_USER": user["name"]}
+        user = factories.UserWithToken()
+        env = {"Authorization": user["token"]}
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
@@ -675,8 +675,8 @@ class TestPackage:
             dataset["id"], limit=1, offset=0
         )[0]
         # view as an admin because viewing the old versions of a dataset
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        env = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
@@ -705,8 +705,8 @@ class TestPackage:
         dataset["title"] = "Changed title"
         helpers.call_action("package_update", **dataset)
 
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        env = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
@@ -753,8 +753,8 @@ class TestPackage:
         )
         model.Session.add(activity)
 
-        sysadmin = factories.Sysadmin()
-        env = {"REMOTE_USER": sysadmin["name"]}
+        sysadmin = factories.SysadminWithToken()
+        env = {"Authorization": sysadmin["token"]}
         app.get(
             url_for(
                 "activity.package_history",
@@ -766,7 +766,7 @@ class TestPackage:
         )
 
     def test_changes(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         dataset = factories.Dataset(title="First title", user=user)
         dataset["title"] = "Second title"
         helpers.call_action("package_update", **dataset)
@@ -774,7 +774,7 @@ class TestPackage:
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         response = app.get(
             url_for("activity.package_changes", id=activity.id),
             extra_environ=env,
@@ -955,7 +955,7 @@ class TestGroup:
         )
 
     def test_delete_group_using_group_delete(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         helpers.call_action(
@@ -963,7 +963,7 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         app.get(url, extra_environ=env, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
@@ -972,7 +972,7 @@ class TestGroup:
         # not...
 
     def test_delete_group_by_updating_state(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         _clear_activities()
         group["state"] = "deleted"
@@ -981,7 +981,7 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"REMOTE_USER": user["name"]}
+        env = {"Authorization": user["token"]}
         response = app.get(url, extra_environ=env)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])

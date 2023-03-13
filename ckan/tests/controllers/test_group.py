@@ -352,14 +352,14 @@ class TestGroupMembership(object):
 
     def test_membership_add(self, app):
         """Member can be added via add member page"""
-        user = factories.User(fullname="My Owner")
+        user = factories.UserWithToken(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-new-user")
         group = self._create_group(user["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"save": "", "username": "my-new-user", "role": "member"},
         )
 
@@ -381,14 +381,14 @@ class TestGroupMembership(object):
         assert user_roles["My Fullname"] == "Member"
 
     def test_membership_add_by_email(self, app, mail_server):
-        user = factories.User(fullname="My Owner")
+        user = factories.UserWithToken(fullname="My Owner")
         group = self._create_group(user["name"])
 
         url = url_for("group.member_new", id=group["name"])
         email = "invited_user@mailinator.com"
         app.post(
             url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={"save": "", "email": email, "role": "member"},
             status=200
         )
@@ -399,7 +399,7 @@ class TestGroupMembership(object):
 
     def test_membership_edit_page(self, app):
         """If `user` parameter provided, render edit page."""
-        owner = factories.User(fullname="My Owner")
+        owner = factories.UserWithToken(fullname="My Owner")
         member = factories.User(fullname="My Fullname", name="my-user")
         group = self._create_group(owner["name"], users=[
             {'name': member['name'], 'capacity': 'admin'}
@@ -408,7 +408,7 @@ class TestGroupMembership(object):
         url = url_for("group.member_new", id=group["name"], user=member['name'])
         response = app.get(
             url,
-            environ_overrides={"REMOTE_USER": owner["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": owner["token"]},
         )
 
         page = BeautifulSoup(response.body)
@@ -420,14 +420,14 @@ class TestGroupMembership(object):
     @pytest.mark.usefixtures("clean_db")
     def test_admin_add(self, app):
         """Admin can be added via add member page"""
-        owner = factories.User(fullname="My Owner")
+        owner = factories.UserWithToken(fullname="My Owner")
         factories.User(fullname="My Fullname", name="my-admin-user")
         group = self._create_group(owner["name"])
 
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            environ_overrides={"REMOTE_USER": owner["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": owner["token"]},
             data={"save": "", "username": "my-admin-user", "role": "admin"},
         )
 
@@ -450,7 +450,7 @@ class TestGroupMembership(object):
 
     def test_remove_member(self,  app):
         """Member can be removed from group"""
-        user = factories.User(fullname="My Owner")
+        user = factories.UserWithToken(fullname="My Owner")
         user_two = factories.User(fullname="User Two")
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
@@ -463,7 +463,7 @@ class TestGroupMembership(object):
 
         remove_response = app.post(
             remove_url,
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
         )
         assert helpers.body_contains(remove_response, "1 members")
 
@@ -483,20 +483,20 @@ class TestGroupMembership(object):
         assert user_roles["My Owner"] == "Admin"
 
     def test_member_users_cannot_add_members(self, app):
-        user = factories.User(fullname="My Owner")
+        user = factories.UserWithToken(fullname="My Owner")
         group = factories.Group(
             users=[{"name": user["name"], "capacity": "member"}]
         )
 
         app.get(
             url_for("group.member_new", id=group["id"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             status=403
         )
 
         app.post(
             url_for("group.member_new", id=group["id"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
             data={
                 "id": "test",
                 "username": "test",
