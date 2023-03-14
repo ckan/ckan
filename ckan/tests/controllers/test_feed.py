@@ -71,6 +71,10 @@ class TestFeeds(object):
 
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
+    #TODO: Make sure all feed tests still pass
+
+    #TODO: Make a test for the new feed views: dataset/<id>.atom (feeds.dataset)
+
 
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)
