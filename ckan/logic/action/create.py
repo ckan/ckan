@@ -243,7 +243,8 @@ def resource_create(context: Context,
                     data_dict: DataDict) -> ActionResult.ResourceCreate:
     '''Appends a new resource to a datasets list of resources.
 
-    :param package_id: id or name of package that the resource should be added to.
+    :param package_id: id or name of package that the resource should be
+                       added to.
 
     :type package_id: string
     :param url: url of resource
