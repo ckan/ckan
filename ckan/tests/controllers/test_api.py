@@ -74,7 +74,7 @@ class TestApiController(object):
             logic_function="resource_create",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
+        headers = {"Authorization": user_token["token"]}
 
         content = six.ensure_binary('upload-content')
         upload_content = BytesIO(content)
@@ -86,7 +86,7 @@ class TestApiController(object):
 
         resp = app.post(
             url,
-            extra_environ=env,
+            headers=headers,
             data=postparams,
             content_type="multipart/form-data",
         )
@@ -240,8 +240,8 @@ class TestApiController(object):
             logic_function="config_option_list",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
-        app.get(url=url, extra_environ=env, query_string={}, status=200)
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
@@ -251,8 +251,8 @@ class TestApiController(object):
             logic_function="config_option_list",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
-        app.get(url=url, extra_environ=env, query_string={"callback": "myfn"}, status=403)
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 
@@ -375,9 +375,9 @@ def test_cookie_based_auth_disabled(app):
 
     # Check that token auth still works
     user_token = factories.APIToken(user=sysadmin["name"])
-    env = {"Authorization": user_token["token"]}
+    headers = {"Authorization": user_token["token"]}
 
-    res = app.get(url, environ_overrides=env)
+    res = app.get(url, headers=headers)
 
     assert res.status_code == 200
 
@@ -391,9 +391,9 @@ def test_header_based_auth_default(app):
 
     url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
 
-    env = {"Authorization": sysadmin["token"]}
+    headers = {"Authorization": sysadmin["token"]}
 
-    res = app.get(url, environ_overrides=env)
+    res = app.get(url, headers=headers)
 
     assert res.status_code == 200
 
@@ -407,12 +407,12 @@ def test_header_based_auth_default_post(app):
 
     url = url_for("api.action", ver=3, logic_function="package_patch")
 
-    env = {"Authorization": sysadmin["token"]}
+    headers = {"Authorization": sysadmin["token"]}
 
     data = {
         "id": dataset["id"],
         "notes": "updated",
     }
-    res = app.post(url, environ_overrides=env, data=data)
+    res = app.post(url, headers=headers, data=data)
 
     assert res.status_code == 200

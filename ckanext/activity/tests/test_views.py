@@ -80,8 +80,8 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"Authorization": user["token"]}
-        app.get(url, extra_environ=env, status=404)
+        headers = {"Authorization": user["token"]}
+        app.get(url, headers=headers, status=404)
         # organization_delete causes the Member to state=deleted and then the
         # user doesn't have permission to see their own deleted Organization.
         # Therefore you can't render the activity stream of that org. You'd
@@ -98,8 +98,8 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        env = {"Authorization": user["token"]}
-        response = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response
@@ -265,8 +265,8 @@ class TestUser:
         )
 
         url = url_for("activity.user_activity", id=user["id"])
-        env = {"Authorization": user["token"]}
-        response = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
@@ -349,8 +349,8 @@ class TestUser:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"Authorization": user["token"]}
-        response = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response
@@ -584,11 +584,11 @@ class TestPackage:
     def test_admin_can_see_old_versions(self, app):
 
         user = factories.UserWithToken()
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         dataset = factories.Dataset(user=user)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url, extra_environ=env)
+        response = app.get(url, headers=headers)
         assert "View this version" in response
 
     def test_public_cant_see_old_versions(self, app):
@@ -603,13 +603,13 @@ class TestPackage:
     def test_admin_can_see_changes(self, app):
 
         user = factories.UserWithToken()
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         dataset = factories.Dataset()  # activities by system user aren't shown
         dataset["title"] = "Changed"
         helpers.call_action("package_update", **dataset)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url, extra_environ=env)
+        response = app.get(url, headers=headers)
         assert "Changes" in response
 
     def test_public_cant_see_changes(self, app):
@@ -676,7 +676,7 @@ class TestPackage:
         )[0]
         # view as an admin because viewing the old versions of a dataset
         sysadmin = factories.SysadminWithToken()
-        env = {"Authorization": sysadmin["token"]}
+        headers = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
@@ -684,7 +684,7 @@ class TestPackage:
                 activity_id=activity.id,
             ),
             status=302,
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
         expected_path = url_for(
@@ -706,14 +706,14 @@ class TestPackage:
         helpers.call_action("package_update", **dataset)
 
         sysadmin = factories.SysadminWithToken()
-        env = {"Authorization": sysadmin["token"]}
+        headers = {"Authorization": sysadmin["token"]}
         response = app.get(
             url_for(
                 "activity.package_history",
                 id=dataset["name"],
                 activity_id=activity.id,
             ),
-            extra_environ=env,
+            headers=headers,
         )
         assert helpers.body_contains(response, "Original title")
 
@@ -754,14 +754,14 @@ class TestPackage:
         model.Session.add(activity)
 
         sysadmin = factories.SysadminWithToken()
-        env = {"Authorization": sysadmin["token"]}
+        headers = {"Authorization": sysadmin["token"]}
         app.get(
             url_for(
                 "activity.package_history",
                 id=dataset["name"],
                 activity_id=activity.id,
             ),
-            extra_environ=env,
+            headers=headers,
             status=404,
         )
 
@@ -774,10 +774,10 @@ class TestPackage:
         activity = activity_model.package_activity_list(
             dataset["id"], limit=1, offset=0
         )[0]
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         response = app.get(
             url_for("activity.package_changes", id=activity.id),
-            extra_environ=env,
+            headers=headers,
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
@@ -963,8 +963,8 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"Authorization": user["token"]}
-        app.get(url, extra_environ=env, status=404)
+        headers = {"Authorization": user["token"]}
+        app.get(url, headers=headers, status=404)
         # group_delete causes the Member to state=deleted and then the user
         # doesn't have permission to see their own deleted Group. Therefore you
         # can't render the activity stream of that group. You'd hope that
@@ -981,8 +981,8 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        env = {"Authorization": user["token"]}
-        response = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response

@@ -129,11 +129,11 @@ def user():
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app, user):
         name = "fancy-urls"
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         resp = app.post(
             url_for("fancy_type.new"),
             data={"name": name, "save": "", "_ckan_phase": 1},
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
         assert resp.location == url_for(
@@ -145,7 +145,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=env
+            headers=headers
         )
         assert resp.location == url_for(
             "fancy_type.edit", id=name, _external=True
@@ -155,7 +155,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=env
+            headers=headers
         )
 
         assert resp.location == url_for(
@@ -169,7 +169,7 @@ class TestUrlsForCustomDatasetType(object):
                 "save": "go-metadata",
                 "_ckan_phase": 2,
             },
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
 
@@ -184,7 +184,7 @@ class TestUrlsForCustomDatasetType(object):
         res = factories.Resource(package_id=pkg["id"], user=user)
         response = app.get(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"Authorization": user["token"]},
+            headers={"Authorization": user["token"]},
             status=200,
         )
         page = bs4.BeautifulSoup(response.body)
@@ -199,7 +199,7 @@ class TestUrlsForCustomDatasetType(object):
         )
         resp = app.post(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"Authorization": user["token"]},
+            headers={"Authorization": user["token"]},
             data={
                 "name": pkg["name"],
                 "save": "",
@@ -228,7 +228,7 @@ class TestUrlsForCustomDatasetType(object):
                     id=pkg["id"],
                     resource_id=res["id"],
                 ),
-                environ_overrides={"Authorization": user["token"]},
+                headers={"Authorization": user["token"]},
             ).body
         )
         page_header = page.find(class_="page-header")
@@ -259,7 +259,7 @@ class TestUrlsForCustomDatasetType(object):
                 id=pkg["name"],
                 resource_id=res["id"],
             ),
-            environ_overrides={"Authorization": user["token"]},
+            headers={"Authorization": user["token"]},
             data={"id": res["id"], "url": res["url"], "save": "go-metadata"},
             follow_redirects=False,
         )
@@ -527,9 +527,9 @@ class TestDatasetMultiTypes(object):
     @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_template_without_options(self, type_, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         resp = app.get(
-            '/{}/new'.format(type_), extra_environ=env, status=200)
+            '/{}/new'.format(type_), headers=headers, status=200)
         assert resp.body == 'new package form'
 
     @pytest.mark.usefixtures('clean_db')

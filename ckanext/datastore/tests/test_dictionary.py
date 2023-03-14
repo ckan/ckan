@@ -26,10 +26,10 @@ def test_read(app):
         ],
     }
     helpers.call_action(u"datastore_create", **data)
-    auth = {u"Authorization": user_token["token"]}
+    headers = {"Authorization": user_token["token"]}
     app.get(
         url=u"/dataset/{id}/dictionary/{resource_id}".format(
             id=str(dataset["name"]), resource_id=str(resource["id"])
         ),
-        extra_environ=auth,
+        headers=headers,
     )

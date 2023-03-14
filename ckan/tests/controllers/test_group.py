@@ -77,17 +77,17 @@ class TestGroupControllerNew(object):
         app.get(url=url_for("group.new"), status=403)
 
     def test_name_required(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         url = url_for("group.new")
-        response = app.post(url=url, extra_environ=env, data={"save": ""})
+        response = app.post(url=url, headers=headers, data={"save": ""})
 
         assert "Name: Missing value" in response
 
     def test_saved(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         form = {"name": "saved", "save": ""}
         url = url_for("group.new")
-        app.post(url=url, extra_environ=env, data=form)
+        app.post(url=url, headers=headers, data=form)
 
         group = model.Group.by_name(u"saved")
         assert group.title == u""
@@ -102,9 +102,9 @@ class TestGroupControllerNew(object):
             "image_url": "http://example.com/image.png",
             "save": "",
         }
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         url = url_for("group.new")
-        app.post(url=url, extra_environ=env, data=form)
+        app.post(url=url, headers=headers, data=form)
 
         group = model.Group.by_name(u"all-fields-saved")
         assert group.title == u"Science"
@@ -112,8 +112,8 @@ class TestGroupControllerNew(object):
 
     def test_form_without_initial_data(self, app, user):
         url = url_for("group.new")
-        env = {"Authorization": user["token"]}
-        resp = app.get(url=url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        resp = app.get(url=url, headers=headers)
         page = BeautifulSoup(resp.body)
         form = page.select_one('#group-edit')
         assert not form.select_one('[name=title]')['value']
@@ -123,8 +123,8 @@ class TestGroupControllerNew(object):
     def test_form_with_initial_data(self, app, user):
         url = url_for("group.new", name="name",
                       description="description", title="title")
-        env = {"Authorization": user["token"]}
-        resp = app.get(url=url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        resp = app.get(url=url, headers=headers)
         page = BeautifulSoup(resp.body)
         form = page.select_one('#group-edit')
         assert form.select_one('[name=title]')['value'] == "title"
@@ -138,21 +138,21 @@ class TestGroupControllerEdit(object):
         app.get(url=url_for("group.new"), status=403)
 
     def test_group_doesnt_exist(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         url = url_for("group.edit", id="doesnt_exist")
-        app.get(url=url, extra_environ=env, status=404)
+        app.get(url=url, headers=headers, status=404)
 
     def test_saved(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user)
         url = url_for("group.edit", id=group["name"])
         form = {"save": ""}
-        app.post(url=url, extra_environ=env, data=form)
+        app.post(url=url, headers=headers, data=form)
         group = model.Group.by_name(group["name"])
         assert group.state == "active"
 
     def test_all_fields_saved(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user)
 
         form = {
@@ -163,7 +163,7 @@ class TestGroupControllerEdit(object):
             "save": "",
         }
         url = url_for("group.edit", id=group["name"])
-        app.post(url=url, extra_environ=env, data=form)
+        app.post(url=url, headers=headers, data=form)
 
         group = model.Group.by_name(u"all-fields-edited")
         assert group.title == u"Science"
@@ -171,7 +171,7 @@ class TestGroupControllerEdit(object):
         assert group.image_url == "http://example.com/image.png"
 
     def test_display_name_shown(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(
             title="Display name",
             user=user
@@ -182,7 +182,7 @@ class TestGroupControllerEdit(object):
             "save": "",
         }
         url = url_for("group.edit", id=group["name"])
-        resp = app.get(url=url, extra_environ=env)
+        resp = app.get(url=url, headers=headers)
         page = BeautifulSoup(resp.body)
         breadcrumbs = page.select('.breadcrumb a')
         # Home -> Groups -> NAME -> Manage
@@ -190,7 +190,7 @@ class TestGroupControllerEdit(object):
         # Verify that `NAME` is not empty, as well as other parts
         assert all([part.text for part in breadcrumbs])
         url = url_for("group.edit", id=group["name"])
-        resp = app.post(url=url, extra_environ=env, data=form)
+        resp = app.post(url=url, headers=headers, data=form)
         page = BeautifulSoup(resp.body)
         breadcrumbs = page.select('.breadcrumb a')
         # Home -> Groups -> NAME -> Manage
@@ -249,11 +249,11 @@ class TestGroupRead(object):
 class TestGroupDelete(object):
 
     def test_owner_delete(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user)
         response = app.post(
             url=url_for("group.delete", id=group["id"]),
-            extra_environ=env,
+            headers=headers,
             data={"delete": ""}
         )
         assert response.status_code == 200
@@ -263,11 +263,11 @@ class TestGroupDelete(object):
         assert group["state"] == "deleted"
 
     def test_sysadmin_delete(self, app, sysadmin):
-        env = {"Authorization": sysadmin["token"]}
+        headers = {"Authorization": sysadmin["token"]}
         group = factories.Group()
         response = app.post(
             url=url_for("group.delete", id=group["id"]),
-            extra_environ=env,
+            headers=headers,
             data={"delete": ""}
         )
         assert response.status_code == 200
@@ -279,11 +279,11 @@ class TestGroupDelete(object):
     def test_non_authorized_user_trying_to_delete_fails(
         self, app, user
     ):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group()
         app.get(
             url=url_for("group.delete", id=group["id"]),
-            extra_environ=env,
+            headers=headers,
             status=403,
         )
 
@@ -323,7 +323,7 @@ class TestGroupMembership(object):
         user_one = factories.User(fullname="User One")
         user_two = factories.User(fullname="User Two")
         user_one_token = factories.APIToken(user=user_one["name"])
-        env = {"Authorization": user_one_token["token"]}
+        headers = {"Authorization": user_one_token["token"]}
 
         other_users = [{"name": user_two["id"], "capacity": "member"}]
 
@@ -331,7 +331,7 @@ class TestGroupMembership(object):
 
         member_list_url = url_for("group.members", id=group["id"])
 
-        member_list_response = app.get(member_list_url, extra_environ=env)
+        member_list_response = app.get(member_list_url, headers=headers)
 
         assert "2 members" in member_list_response
 
@@ -359,7 +359,7 @@ class TestGroupMembership(object):
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
+            headers={"Authorization": user["token"]},
             data={"save": "", "username": "my-new-user", "role": "member"},
         )
 
@@ -388,7 +388,7 @@ class TestGroupMembership(object):
         email = "invited_user@mailinator.com"
         app.post(
             url,
-            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
+            headers={"Authorization": user["token"]},
             data={"save": "", "email": email, "role": "member"},
             status=200
         )
@@ -408,7 +408,7 @@ class TestGroupMembership(object):
         url = url_for("group.member_new", id=group["name"], user=member['name'])
         response = app.get(
             url,
-            environ_overrides={"HTTP_AUTHORIZATION": owner["token"]},
+            headers={"Authorization": owner["token"]},
         )
 
         page = BeautifulSoup(response.body)
@@ -427,7 +427,7 @@ class TestGroupMembership(object):
         url = url_for("group.member_new", id=group["name"])
         add_response = app.post(
             url,
-            environ_overrides={"HTTP_AUTHORIZATION": owner["token"]},
+            headers={"Authorization": owner["token"]},
             data={"save": "", "username": "my-admin-user", "role": "admin"},
         )
 
@@ -463,7 +463,7 @@ class TestGroupMembership(object):
 
         remove_response = app.post(
             remove_url,
-            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
+            headers={"Authorization": user["token"]},
         )
         assert helpers.body_contains(remove_response, "1 members")
 
@@ -490,13 +490,13 @@ class TestGroupMembership(object):
 
         app.get(
             url_for("group.member_new", id=group["id"]),
-            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
+            headers={"Authorization": user["token"]},
             status=403
         )
 
         app.post(
             url_for("group.member_new", id=group["id"]),
-            environ_overrides={"HTTP_AUTHORIZATION": user["token"]},
+            headers={"Authorization": user["token"]},
             data={
                 "id": "test",
                 "username": "test",
@@ -531,9 +531,9 @@ class TestGroupFollow:
 
         group = factories.Group()
 
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         follow_url = url_for("group.follow", id=group["id"])
-        response = app.post(follow_url, extra_environ=env)
+        response = app.post(follow_url, headers=headers)
         assert (
             "You are now following {0}".format(group["display_name"])
             in response
@@ -542,21 +542,21 @@ class TestGroupFollow:
     def test_group_follow_not_exist(self, app, user):
         """Pass an id for a group that doesn't exist"""
 
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         follow_url = url_for("group.follow", id="not-here")
-        response = app.post(follow_url, extra_environ=env, status=404)
+        response = app.post(follow_url, headers=headers, status=404)
         assert "Group not found" in response
 
     def test_group_unfollow(self, app, user):
 
         group = factories.Group()
 
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         follow_url = url_for("group.follow", id=group["id"])
-        app.post(follow_url, extra_environ=env)
+        app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url, extra_environ=env)
+        unfollow_response = app.post(unfollow_url, headers=headers)
 
         assert (
             "You are no longer following {0}".format(group["display_name"])
@@ -568,9 +568,9 @@ class TestGroupFollow:
 
         group = factories.Group()
 
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         unfollow_url = url_for("group.unfollow", id=group["id"])
-        unfollow_response = app.post(unfollow_url, extra_environ=env)
+        unfollow_response = app.post(unfollow_url, headers=headers)
 
         assert (
             "You are not following {0}".format(group["id"])
@@ -580,21 +580,21 @@ class TestGroupFollow:
     def test_group_unfollow_not_exist(self, app, user):
         """Unfollow a group that doesn't exist."""
 
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         unfollow_url = url_for("group.unfollow", id="not-here")
-        app.post(unfollow_url, extra_environ=env, status=404)
+        app.post(unfollow_url, headers=headers, status=404)
 
     def test_group_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
         group = factories.Group()
-        env = {"Authorization": sysadmin["token"]}
+        headers = {"Authorization": sysadmin["token"]}
         follow_url = url_for("group.follow", id=group["id"])
-        app.post(follow_url, extra_environ=env)
+        app.post(follow_url, headers=headers)
 
         followers_url = url_for("group.followers", id=group["id"])
 
         # Only sysadmins can view the followers list pages
-        followers_response = app.get(followers_url, extra_environ=env, status=200)
+        followers_response = app.get(followers_url, headers=headers, status=200)
         assert sysadmin["name"] in followers_response
 
 

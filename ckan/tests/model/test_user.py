@@ -240,21 +240,21 @@ class TestUser:
         data = factories.User()
         dataset = factories.Dataset()
         user_token = factories.APIToken(user=data["name"])
-        env = {"Authorization": user_token["token"]}
+        headers = {"Authorization": user_token["token"]}
 
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])
             assert user.last_active is None
-            app.get(url_for("dataset.search"), extra_environ=env)
+            app.get(url_for("dataset.search"), headers=headers)
             assert isinstance(user.last_active, datetime.datetime)
             assert user.last_active == datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=540)):
             user = model.User.get(data["id"])
-            app.get(url_for("user.read", id=user.id), extra_environ=env)
+            app.get(url_for("user.read", id=user.id), headers=headers)
             assert user.last_active != datetime.datetime.utcnow()
 
         with freeze_time(frozen_time + datetime.timedelta(seconds=660)):
             user = model.User.get(data["id"])
-            app.get(url_for("dataset.read", id=dataset["id"]), extra_environ=env)
+            app.get(url_for("dataset.read", id=dataset["id"]), headers=headers)
             assert user.last_active == datetime.datetime.utcnow()

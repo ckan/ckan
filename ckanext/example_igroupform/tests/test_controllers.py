@@ -18,8 +18,8 @@ def user():
     return user
 
 
-def _get_group_new_page(app, env, group_type):
-    response = app.get(url_for("%s.new" % group_type), extra_environ=env)
+def _get_group_new_page(app, headers, group_type):
+    response = app.get(url_for("%s.new" % group_type), headers=headers)
     return response
 
 
@@ -27,35 +27,35 @@ def _get_group_new_page(app, env, group_type):
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestGroupController(object):
     def test_about(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.about" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        response = app.get(url=url, headers=headers)
         assert helpers.body_contains(response, group_name)
 
     def test_bulk_process(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
         try:
-            app.get(url=url, extra_environ=env)
+            app.get(url=url, headers=headers)
         except Exception as e:
             assert e.args == ("Must be an organization",)
         else:
             raise Exception("Response should have raised an exception")
 
     def test_delete(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        app.get(url=url, extra_environ=env)
+        app.get(url=url, headers=headers)
 
     def test_custom_group_form_slug(self, app, user):
-        env = {"Authorization": user["token"]}
-        response = _get_group_new_page(app, env, custom_group_type)
+        headers = {"Authorization": user["token"]}
+        response = _get_group_new_page(app, headers, custom_group_type)
 
         assert helpers.body_contains(
             response,
@@ -80,30 +80,30 @@ class TestGroupController(object):
 @pytest.mark.usefixtures("clean_db", "clean_index", "with_plugins")
 class TestOrganizationController(object):
     def test_about(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.about" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        response = app.get(url=url, headers=headers)
         assert helpers.body_contains(response, group_name)
 
     def test_bulk_process(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.bulk_process" % custom_group_type, id=group_name)
-        app.get(url=url, extra_environ=env)
+        app.get(url=url, headers=headers)
 
     def test_delete(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
         url = url_for("%s.delete" % custom_group_type, id=group_name)
-        app.get(url=url, extra_environ=env)
+        app.get(url=url, headers=headers)
 
     def test_custom_org_form_slug(self, app, user):
-        env = {"Authorization": user["token"]}
-        response = _get_group_new_page(app, env, custom_group_type)
+        headers = {"Authorization": user["token"]}
+        response = _get_group_new_page(app, headers, custom_group_type)
 
         assert helpers.body_contains(
             response,
@@ -124,13 +124,13 @@ class TestOrganizationController(object):
         )
 
     def test_pagination(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group["name"]
         for _ in range(0, 21):
             factories.Dataset(owner_org=group['id'], user=user)
         url = url_for("%s.read" % custom_group_type, id=group_name)
-        response = app.get(url=url, extra_environ=env)
+        response = app.get(url=url, headers=headers)
         assert helpers.body_contains(
             response,
             '/grup/{}?page=2'.format(group_name)
@@ -146,8 +146,8 @@ class TestOrganizationController(object):
 class TestGroupControllerNew(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % custom_group_type)
-        env = {"Authorization": user["token"]}
-        app.post(url, extra_environ=env, data={"name": "saved", "title": ""})
+        headers = {"Authorization": user["token"]}
+        app.post(url, headers=headers, data={"name": "saved", "title": ""})
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -157,8 +157,8 @@ class TestGroupControllerNew(object):
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used for new groups."""
-        env = {"Authorization": user["token"]}
-        response = _get_group_new_page(app, env, custom_group_type)
+        headers = {"Authorization": user["token"]}
+        response = _get_group_new_page(app, headers, custom_group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
@@ -170,8 +170,8 @@ class TestGroupControllerNew(object):
 class TestGroupControllerNewDefaultGroupType(object):
     def test_save(self, app, user):
         url = url_for("%s.new" % group_type)
-        env = {"Authorization": user["token"]}
-        app.post(url, extra_environ=env, data={"name": "saved", "title": ""})
+        headers = {"Authorization": user["token"]}
+        app.post(url, headers=headers, data={"name": "saved", "title": ""})
 
         # check saved ok
         group = model.Group.by_name(u"saved")
@@ -181,19 +181,19 @@ class TestGroupControllerNewDefaultGroupType(object):
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used for new groups."""
-        env = {"Authorization": user["token"]}
-        response = _get_group_new_page(app, env, group_type)
+        headers = {"Authorization": user["token"]}
+        response = _get_group_new_page(app, headers, group_type)
 
         assert helpers.body_contains(response, "My Custom Group Form!")
 
 
 def _get_group_edit_page(app, user, group_type, group_name=None):
-    env = {"Authorization": user["token"]}
+    headers = {"Authorization": user["token"]}
     if group_name is None:
         group = factories.Group(user=user, type=group_type)
         group_name = group["name"]
     url = url_for("%s.edit" % group_type, id=group_name)
-    response = app.get(url=url, extra_environ=env)
+    response = app.get(url=url, headers=headers)
     return response, group_name
 
 
@@ -201,9 +201,9 @@ def _get_group_edit_page(app, user, group_type, group_name=None):
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerEdit(object):
     def test_group_doesnt_exist(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         url = url_for("%s.edit" % custom_group_type, id="doesnt_exist")
-        app.get(url=url, extra_environ=env, status=404)
+        app.get(url=url, headers=headers, status=404)
 
     def test_custom_group_form(self, app, user):
         """Our custom group form is being used to edit groups."""
@@ -220,9 +220,9 @@ class TestGroupControllerEdit(object):
 @pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestGroupControllerEditDefaultGroupType(object):
     def test_group_doesnt_exist(self, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         url = url_for("%s.edit" % group_type, id="doesnt_exist")
-        res = app.get(url=url, extra_environ=env)
+        res = app.get(url=url, headers=headers)
         assert res.status_code == 404
 
     def test_custom_group_form(self, app, user):
@@ -269,13 +269,13 @@ class TestCustomGroupBlueprint(object):
         assert page.head.title.text.startswith("Grups")
 
     def test_group_creation_labels(self, app, user):
-        env = {"Authorization": user["token"]}
-        resp = app.get("/grup", extra_environ=env, status=200)
+        headers = {"Authorization": user["token"]}
+        resp = app.get("/grup", headers=headers, status=200)
         page = bs4.BeautifulSoup(resp.body)
         btn = page.select_one('.page_primary_action .btn')
         assert btn.text.strip() == 'Add Grup'
 
-        resp = app.get("/grup/new", extra_environ=env, status=200)
+        resp = app.get("/grup/new", headers=headers, status=200)
         page = bs4.BeautifulSoup(resp.body)
         assert page.select_one('.page-heading').text.strip() == 'Create Grup'
         assert page.select_one(
