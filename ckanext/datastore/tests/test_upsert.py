@@ -12,7 +12,6 @@ def _search(resource_id):
     return helpers.call_action(u"datastore_search", resource_id=resource_id)
 
 
-
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'
 
@@ -646,7 +645,6 @@ class TestDatastoreUpsert(object):
         assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
 
 
-
 class TestDatastoreInsert(object):
     # Test action 'datastore_upsert' with 'method': 'insert'
 
@@ -781,7 +779,6 @@ class TestDatastoreInsert(object):
         assert search_result["total"] == 1
         rec = search_result["records"][0]
         assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
-
 
 
 class TestDatastoreUpdate(object):

@@ -256,7 +256,6 @@ class TestChanges(object):
         assert changes[0]["method"] == "remove"
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", True)
-    
     def test_add_org(self):
         changes = []
         original = Dataset(owner_org=None)
@@ -271,7 +270,6 @@ class TestChanges(object):
         assert changes[0]["method"] == "add"
         assert changes[0]["new_org_id"] == new_org["id"]
 
-    
     def test_change_org(self):
         changes = []
         old_org = Organization()
@@ -289,7 +287,6 @@ class TestChanges(object):
         assert changes[0]["new_org_id"] == new_org["id"]
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", True)
-    
     def test_remove_org(self):
         changes = []
         old_org = Organization()
@@ -308,7 +305,6 @@ class TestChanges(object):
         assert changes[0]["type"] == "org"
         assert changes[0]["method"] == "remove"
 
-    
     def test_make_private(self):
         changes = []
         old_org = Organization()
@@ -323,7 +319,6 @@ class TestChanges(object):
         assert changes[0]["type"] == "private"
         assert changes[0]["new"] == "Private"
 
-    
     def test_make_public(self):
         changes = []
         old_org = Organization()

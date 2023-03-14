@@ -62,7 +62,6 @@ class TestOrganizationNew(object):
         assert group["description"] == "Sciencey datasets"
 
 
-
 class TestOrganizationList(object):
     @pytest.mark.usefixtures("non_clean_db")
     def test_error_message_shown_when_no_organization_list_permission(

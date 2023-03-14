@@ -19,7 +19,6 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
-
 class TestDatastoreDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -120,7 +119,6 @@ class TestDatastoreDelete(object):
         assert last_analyze is not None
 
 
-
 class TestDatastoreRecordsDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -200,7 +198,6 @@ class TestDatastoreRecordsDelete(object):
         expected = {u'filters': [u'Must be a dict']}
         err = ve.value.error_dict
         assert err == expected
-
 
 
 class TestDatastoreDeleteLegacy(object):
@@ -486,7 +483,6 @@ class TestDatastoreDeleteLegacy(object):
         assert len(results["result"]["records"]) == 0
 
         self._delete()
-
 
 
 class TestDatastoreFunctionDelete(object):

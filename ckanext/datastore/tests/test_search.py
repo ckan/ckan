@@ -14,7 +14,6 @@ import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
 
 
-
 class TestDatastoreSearch(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -477,7 +476,6 @@ class TestDatastoreSearch(object):
         }
         result = helpers.call_action("datastore_search", **search_data)
         assert result["records"][0]['b'] == 'Z'
-
 
 
 class TestDatastoreSearchLegacyTests(object):
@@ -1849,7 +1847,6 @@ class TestDatastoreSQLFunctional(object):
         assert len(result["records"]) == 2
         assert [res[u"the year"] for res in result["records"]] == [2014, 2013]
         assert result[u"records_truncated"]
-
 
 
 class TestDatastoreSearchRecordsFormat(object):

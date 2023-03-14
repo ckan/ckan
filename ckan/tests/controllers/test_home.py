@@ -77,7 +77,6 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
-
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 

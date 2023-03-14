@@ -149,7 +149,6 @@ class TestUser(object):
         )
         assert "The passwords you entered do not match" in response
 
-
     def test_create_user_as_sysadmin(self, app):
         admin_pass = "RandomPassword123"
         sysadmin = factories.Sysadmin(password=admin_pass)
