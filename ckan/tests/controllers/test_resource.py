@@ -93,14 +93,14 @@ def track(app):
 
     def func(url, type_="page", ip="199.204.138.90", browser="firefox"):
         params = {"url": url, "type": type_}
-        extra_environ = {
+        environ_overrides = {
             # The tracking middleware crashes if these aren't present.
             "HTTP_USER_AGENT": browser,
             "REMOTE_ADDR": ip,
             "HTTP_ACCEPT_LANGUAGE": "en",
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
-        app.post("/_tracking", params=params, extra_environ=extra_environ)
+        app.post("/_tracking", params=params, environ_overrides=environ_overrides)
 
     return func
 

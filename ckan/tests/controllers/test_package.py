@@ -451,7 +451,7 @@ class TestPackageNew(object):
         # ckan.views.identify_user() for details
         app.post(
             url=url_for("dataset.new"),
-            extra_environ={"REMOTE_ADDR": "127.0.0.1"},
+            environ_overrides={"REMOTE_ADDR": "127.0.0.1"},
             status=403,
         )
 
