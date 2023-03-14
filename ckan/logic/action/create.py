@@ -356,7 +356,7 @@ def resource_view_create(
         data_dict: DataDict) -> ActionResult.ResourceViewCreate:
     '''Creates a new resource view.
 
-    :param resource_id: id of the resource
+    :param resource_id: id or name of the resource
     :type resource_id: string
     :param title: the title of the view
     :type title: string
