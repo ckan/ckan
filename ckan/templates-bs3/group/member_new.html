@@ -58,7 +58,7 @@
       {% endif %}
     </div>
 
-    {% if user and user.name == c.user and user_role == 'admin' %}
+    {% if user and user.name == current_user.name and user_role == 'admin' %}
       {% set format_attrs = {'data-module': 'autocomplete', 'disabled': 'disabled'} %}
       {{ form.select('role', label=_('Role'), options=roles, selected=user_role, error='', attrs=format_attrs) }}
       {{ form.hidden('role', value=user_role) }}

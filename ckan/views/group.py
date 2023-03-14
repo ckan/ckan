@@ -148,12 +148,6 @@ def index(group_type: str, is_organization: bool) -> str:
     q = request.args.get(u'q', u'')
     sort_by = request.args.get(u'sort')
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.q = q
-    g.sort_by_selected = sort_by
-
     extra_vars["q"] = q
     extra_vars["sort_by_selected"] = sort_by
 
@@ -203,10 +197,6 @@ def index(group_type: str, is_organization: bool) -> str:
     extra_vars["page"].items = page_results
     extra_vars["group_type"] = group_type
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.page = extra_vars["page"]
     return base.render(
         _get_group_template(u'index_template', group_type), extra_vars)
 
@@ -224,11 +214,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     })
 
     q = request.args.get(u'q', u'')
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.q = q
 
     # Search within group
     if g.group_dict.get(u'is_organization'):
@@ -283,12 +268,6 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     extra_vars[u'fields_grouped'] = details[u'fields_grouped']
     fq += details[u'fq']
     search_extras = details[u'search_extras']
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.fields = extra_vars[u'fields']
-    g.fields_grouped = extra_vars[u'fields_grouped']
 
     facets: "OrderedDict[str, str]" = OrderedDict()
 
@@ -349,26 +328,16 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
             item_count=query['count'],
             items_per_page=limit)
 
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
         g.group_dict['package_count'] = query['count']
 
         extra_vars["search_facets"] = query['search_facets']
-        extra_vars["search_facets_limits"] = g.search_facets_limits = {}
+        extra_vars["search_facets_limits"] = {}
         default_limit: int = config.get(u'search.facets.default')
         for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
-            g.search_facets_limits[facet] = limit
+
         extra_vars["page"].items = query['results']
-
         extra_vars["sort_by_selected"] = sort_by
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.facet_titles = facets
-    g.page = extra_vars["page"]
 
     extra_vars["group_type"] = group_type
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
@@ -449,10 +418,7 @@ def read(group_type: str,
         return h.redirect_to(
             h.add_url_param(alternative_url=url_with_name))
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.q = q
+    # g.group_dict will be used in _read()
     g.group_dict = group_dict
 
     extra_vars = _read(id, limit, group_type)
@@ -478,12 +444,6 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     group_dict = _get_group_dict(id, group_type)
     group_type = group_dict['type']
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.group_dict = group_dict
-    g.group_type = group_type
 
     extra_vars: dict[str, Any] = {u"group_dict": group_dict,
                                   u"group_type": group_type}
@@ -518,12 +478,6 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
         base.abort(403,
                    _(u'User %r not authorized to edit members of %s') %
                    (current_user.name, id))
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.members = members
-    g.group_dict = group_dict
 
     extra_vars: dict[str, Any] = {
         u"members": members,
@@ -649,12 +603,6 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
 
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.group_dict = group_dict
-    g.followers = followers
-
     extra_vars: dict[str, Any] = {
         u"group_dict": group_dict,
         u"group_type": group_type,
@@ -668,12 +616,6 @@ def admins(id: str, group_type: str, is_organization: bool) -> str:
     set_org(is_organization)
     group_dict = _get_group_dict(id, group_type)
     admins = authz.get_group_or_org_admin_ids(id)
-
-    # TODO: Remove
-    # ckan 2.9: Adding variables that were removed from c object for
-    # compatibility with templates in existing extensions
-    g.group_dict = group_dict
-    g.admins = admins
 
     extra_vars: dict[str, Any] = {
         u"group_dict": group_dict,
@@ -727,10 +669,6 @@ class BulkProcessView(MethodView):
 
         # If no action then just show the datasets
         limit = 500
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.group_dict = group_dict
         extra_vars = _read(id, limit, group_type)
         extra_vars['packages'] = g.page.items
         extra_vars['group_dict'] = group_dict
@@ -766,11 +704,6 @@ class BulkProcessView(MethodView):
         if not group_dict['is_organization']:
             # FIXME: better error
             raise Exception(u'Must be an organization')
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.group_dict = group_dict
 
         # use different form names so that ie7 can be detected
         form_names = set([
@@ -901,11 +834,6 @@ class CreateGroupView(MethodView):
         form = base.render(
             _get_group_template(u'group_form', group_type), extra_vars)
 
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.form = form
-
         extra_vars["form"] = form
         return base.render(
             _get_group_template(u'new_template', group_type), extra_vars)
@@ -999,14 +927,6 @@ class EditGroupView(MethodView):
         form = base.render(
             _get_group_template(u'group_form', group_type), extra_vars)
 
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.grouptitle = group_dict.get(u'title')
-        g.groupname = group_dict.get(u'name')
-        g.data = data
-        g.group_dict = group_dict
-
         extra_vars["form"] = form
         return base.render(
             _get_group_template(u'edit_template', group_type), extra_vars)
@@ -1060,8 +980,6 @@ class DeleteGroupView(MethodView):
         if u'cancel' in request.args:
             return h.redirect_to(u'{}.edit'.format(group_type), id=id)
 
-        # TODO: Remove
-        g.group_dict = group_dict
         extra_vars: dict[str, Any] = {
             u"group_dict": group_dict,
             u"group_type": group_type
@@ -1118,7 +1036,7 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            group_dict = _action(u'group_member_create')(context, data_dict)
+            _action(u'group_member_create')(context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
@@ -1127,9 +1045,6 @@ class MembersGroupView(MethodView):
             for error in e.error_summary.values():
                 h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
-
-        # TODO: Remove
-        g.group_dict = group_dict
 
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
@@ -1152,16 +1067,9 @@ class MembersGroupView(MethodView):
             user_dict = get_action(u'user_show')(context, {u'id': user})
             user_role =\
                 authz.users_role_for_group_or_org(id, user) or u'member'
-            # TODO: Remove
-            g.user_dict = user_dict
             extra_vars["user_dict"] = user_dict
         else:
             user_role = u'member'
-
-        # TODO: Remove
-        g.group_dict = group_dict
-        g.roles = roles
-        g.user_role = user_role
 
         extra_vars.update({
             u"group_dict": group_dict,
