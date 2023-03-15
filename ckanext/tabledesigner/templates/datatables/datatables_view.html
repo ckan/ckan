@@ -1,0 +1,11 @@
+{% ckan_extends %}
+{% block page %}
+  {{ super() }}
+  {% if resource.url_type == 'tabledesigner' %}
+    <div
+      data-module="tabledesigner_datatables_buttons"
+      data-edit-text="{{ _('Edit Row') }}"
+      data-edit-url="{{ h.url_for('tabledesigner.edit_row', id=package.name, resource_id=resource.id) }}"
+    ></div>
+  {% endif %}
+{% endblock %}
