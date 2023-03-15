@@ -86,8 +86,6 @@ groups:
         internal: true
       - key: PROPAGATE_EXCEPTIONS
         internal: true
-      - key: SECRET_KEY
-        internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
@@ -161,6 +159,13 @@ groups:
         placeholder: egg:ckan
         validators: not_empty
         required: true
+
+      - key: SECRET_KEY
+        validators: not_empty
+        required: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
 
       - key: ckan.legacy_route_mappings
         default: {}
@@ -258,11 +263,7 @@ groups:
         default: ckan
         description: Name of the cookie key used to save the session under.
       - key: beaker.session.secret
-        validators: not_empty
-        required: true
-        placeholder_callable: secrets:token_urlsafe
-        callable_args:
-          nbytes: 20
+        placeholder: string:%(SECRET_KEY)s
         description: |
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
@@ -649,7 +650,7 @@ groups:
 
       - key: WTF_CSRF_SECRET_KEY
         description: Random data for generating secure tokens.
-        placeholder_callable: secrets:token_urlsafe
+        placeholder: string:%(SECRET_KEY)s
 
       - key: WTF_CSRF_METHODS
         type: list
@@ -755,7 +756,7 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
-        placeholder: string:%(beaker.session.secret)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -773,7 +774,7 @@ groups:
           * ``file:`` - Path to file. Content of the file will be used as key.
 
       - key: api_token.jwt.decode.secret
-        placeholder: string:%(beaker.session.secret)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):

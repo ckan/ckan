@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 _config_encode_secret = u"api_token.jwt.encode.secret"
 _config_decode_secret = u"api_token.jwt.decode.secret"
-_config_secret_fallback = u"beaker.session.secret"
+_config_secret_fallback = u"SECRET_KEY"
 
 _config_algorithm = u"api_token.jwt.algorithm"
 
