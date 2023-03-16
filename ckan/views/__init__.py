@@ -120,19 +120,12 @@ def identify_user() -> Optional[Response]:
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
-    apitoken_header_name = config.get("apikey_header_name")
-
+    apitoken_header_name = config.get("apitoken_header_name")
     apitoken: str = request.headers.get(apitoken_header_name, u'')
+
     if not apitoken:
-        apitoken = request.environ.get(apitoken_header_name, u'')
-    if not apitoken:
-        # For misunderstanding old documentation (now fixed).
-        apitoken = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not apitoken:
-        apitoken = request.environ.get(u'Authorization', u'')
-        # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apitoken:
-            apitoken = u''
+        apitoken = request.environ.get(u'HTTP_X_CKAN_API_KEY', u'')
+
     if not apitoken:
         return None
     apitoken = six.ensure_text(apitoken, errors=u"ignore")
