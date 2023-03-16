@@ -108,15 +108,16 @@ class CKANFeed(FeedGenerator):
         if feed_enclosure is not None:
             self.link(href=feed_enclosure, rel=u"enclosure")
         # rel="alternate" specifies a link to an alternative representation 
-        # of the same element (feed or entry) such as another Hypertext format
+        # of the same element (feed or entry) such as another Hypertext format.
+        # In this case, the route to the HTML page
         if feed_alternate_link is not None:
             self.link(href=feed_alternate_link, rel=u"alternate")
-        # rel="via" can identify the original source 
-        # of the information of the feed or the entry
+        # rel="via" can identify the original source of the information 
+        # of the feed or the entry, such as a credit to a source
         if feed_via_link is not None:
             self.link(href=feed_via_link, rel=u"via")
-        # rel="related" indicates the link is related 
-        # to the current feed or entry in some way
+        # rel="related" indicates the link is related to the current 
+        # feed or entry in some way other than being a source (see rel="via")
         if feed_related_link is not None:
             self.link(href=feed_related_link, rel=u"related")
         links = (
@@ -222,9 +223,6 @@ def output_feed(
                     id=pkg['package_id'],
                     resource_id=pkg['id'],
                     _external=True),
-                via_link=h.url_for(
-                    u'home.index',
-                    _external=True),
                 description=remove_control_characters(
                                 h.get_translated(pkg, 'description')),
                 updated=h.date_str_to_datetime(pkg.get(u'metadata_modified', '')),
@@ -245,9 +243,6 @@ def output_feed(
                 alternate_link=h.url_for(
                     u'dataset.read',
                     id=pkg['id'],
-                    _external=True),
-                via_link=h.url_for(
-                    u'home.index',
                     _external=True),
                 description=remove_control_characters(
                                 h.get_translated(pkg, 'notes')),
@@ -319,8 +314,6 @@ def tag(id: str) -> Response:
 
     alternate_link = _feed_url(params, controller=u'dataset', action=u'search', tags=id)
 
-    via_link = h.url_for(u'home.index', _external=True)
-
     enclosure = _enclosure(results, u'package_search', **data_dict, **params)
 
     site_title = config.get(u'ckan.site_title')
@@ -337,8 +330,7 @@ def tag(id: str) -> Response:
         feed_guid=guid,
         feed_self_link=self_link,
         feed_enclosure=enclosure,
-        feed_alternate_link=alternate_link,
-        feed_via_link=via_link)
+        feed_alternate_link=alternate_link)
 
 
 def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
@@ -367,7 +359,6 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
         params, controller=u'feeds', action=group_type, id=obj_dict['name'])
     alternate_link = _feed_url(
         params, controller=group_type, action=u'read', id=obj_dict['name'])
-    via_link = h.url_for(u'home.index', _external=True)
     if is_org:
         guid = _create_atom_id(
             u'feeds/organization/%s.atom' % obj_dict['name'])
@@ -391,8 +382,7 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
         feed_guid=guid,
         feed_self_link=self_link,
         feed_enclosure=enclosure,
-        feed_alternate_link=alternate_link,
-        feed_via_link=via_link)
+        feed_alternate_link=alternate_link)
 
 
 def _parse_url_params() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -428,14 +418,13 @@ def dataset(id: str) -> Response:
 
     alternate_link = _feed_url(params, controller=u'dataset', action=u'read', id=id)
 
-    via_link = h.url_for(u'home.index', _external=True)
-
     guid = _create_atom_id(u'/feeds/dataset/%s.atom' % id)
 
     enclosure = _enclosure(pkg_dict, u'package_show', id=pkg_dict['id'], **params)
 
-    #TODO: make better title
     site_title = config.get(u'ckan.site_title')
+    title = _(u'%s - Dataset: "%s"') % \
+                (site_title, h.get_translated(pkg_dict, 'title'))
     desc = _(u'Recently created or updated resources on %s ' \
             'for dataset: %s') % (site_title, h.get_translated(pkg_dict, 'title'))
 
@@ -450,14 +439,13 @@ def dataset(id: str) -> Response:
 
     return output_feed(
         pkg_dict['resources'],
-        feed_title=site_title,
+        feed_title=title,
         feed_description=desc,
         navigation_urls=nav_urls,
         feed_guid=guid,
         feed_self_link=self_link,
         feed_enclosure=enclosure,
-        feed_alternate_link=alternate_link,
-        feed_via_link=via_link)
+        feed_alternate_link=alternate_link)
 
 
 def general() -> Response:
@@ -477,26 +465,23 @@ def general() -> Response:
 
     alternate_link = _feed_url(params, controller=u'dataset', action=u'search')
 
-    via_link = h.url_for(u'home.index', _external=True)
-
     enclosure = _enclosure(results, u'package_search', **data_dict, **params)
 
     guid = _create_atom_id(u'/feeds/dataset.atom')
 
-    #TODO: make better title
     site_title = config.get(u'ckan.site_title')
+    title = _(u'%s - Datasets') % site_title
     desc = _(u'Recently created or updated datasets on %s') % site_title
 
     return output_feed(
         results,
-        feed_title=site_title,
+        feed_title=title,
         feed_description=desc,
         navigation_urls=nav_urls,
         feed_guid=guid,
         feed_self_link=self_link,
         feed_enclosure=enclosure,
-        feed_alternate_link=alternate_link,
-        feed_via_link=via_link)
+        feed_alternate_link=alternate_link)
 
 
 def custom() -> Response:
@@ -537,8 +522,6 @@ def custom() -> Response:
 
     alternate_link = _feed_url(request.args, controller=u'dataset', action=u'search')
 
-    via_link = h.url_for(u'home.index', _external=True)
-
     guid = _create_atom_id(
                 h._url_with_params(u'/feeds/custom.atom', search_params.items()))
 
@@ -557,8 +540,7 @@ def custom() -> Response:
         feed_guid=guid,
         feed_self_link=self_link,
         feed_enclosure=enclosure,
-        feed_alternate_link=alternate_link,
-        feed_via_link=via_link)
+        feed_alternate_link=alternate_link)
 
 
 def _feed_url(query: dict[str, Any], controller: str, action: str,
