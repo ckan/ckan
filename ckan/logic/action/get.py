@@ -2897,7 +2897,7 @@ def followee_list(
         '''Return a display name for the given user, group or dataset dict.'''
         display_name = followee.get('display_name')
         fullname = followee.get('fullname')
-        title = followee.get('title')
+        title = plugins.toolkit.h.get_translated(followee, 'title')
         name = followee.get('name')
         return display_name or fullname or title or name
 

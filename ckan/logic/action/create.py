@@ -1296,11 +1296,9 @@ def follow_dataset(context: Context,
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.is_following(userobj.id,
                                                validated_data_dict['id']):
-        # FIXME really package model should have this logic and provide
-        # 'display_name' like users and groups
         pkgobj = model.Package.get(validated_data_dict['id'])
         assert pkgobj
-        name = pkgobj.title or pkgobj.name or pkgobj.id
+        name = plugins.toolkit.h.get_translated(pkgobj, 'title') or pkgobj.name or pkgobj.id
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})
@@ -1444,7 +1442,7 @@ def follow_group(context: Context,
                                              validated_data_dict['id']):
         groupobj = model.Group.get(validated_data_dict['id'])
         assert groupobj
-        name = groupobj.display_name
+        name = plugins.toolkit.h.get_translated(groupobj, 'title')
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})

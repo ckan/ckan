@@ -1286,7 +1286,7 @@ def linked_user(user: Union[str, model.User],
 def group_name_to_title(name: str) -> str:
     group = model.Group.by_name(name)
     if group is not None:
-        return group.display_name
+        return p.toolkit.h.get_translated(group, 'title')
     return name
 
 
