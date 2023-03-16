@@ -124,7 +124,11 @@ def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
     apitoken: str = request.headers.get(apitoken_header_name, u'')
 
     if not apitoken:
-        apitoken = request.environ.get(u'HTTP_X_CKAN_API_KEY', u'')
+        apitoken = (
+            request.environ.get(u'HTTP_X_CKAN_API_KEY', u'')
+            or
+            request.environ.get(u'Authorization', u'')
+        )
 
     if not apitoken:
         return None
