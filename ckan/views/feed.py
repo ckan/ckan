@@ -50,9 +50,9 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     return query['count'], query['results']
 
 
-def _enclosure(pkg: dict[str, Any] | list[dict[str, Any]], 
+def _enclosure(pkg: dict[str, Any] | list[dict[str, Any]],
                logic_function: str,
-               **kwargs) -> 'Enclosure':
+               **kwargs: Any) -> 'Enclosure':
     url = h.url_for(
         u'api.action',
         logic_function=logic_function,
