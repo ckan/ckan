@@ -82,7 +82,7 @@ class CKANFeed(FeedGenerator):
         author_name: Optional[str],
         feed_guid: Optional[str],
         feed_self_link: Optional[str | None],
-        feed_enclosure: Optional[Enclosure | None],
+        feed_enclosure: Optional[str | None],
         feed_alternate_link: Optional[str | None],
         feed_via_link: Optional[str | None],
         feed_related_link: Optional[str | None],
@@ -229,7 +229,7 @@ def output_feed(
                             pkg.get(u'metadata_modified', '')),
                 published=h.date_str_to_datetime(
                             pkg.get(u'created', '')),
-                unique_id=_create_atom_id(u'/dataset/%s/resource/%s' % \
+                unique_id=_create_atom_id(u'/dataset/%s/resource/%s' %
                                           (pkg['package_id'], pkg['id'])),
                 author_name=pkg.get(u'author', u''),
                 author_email=pkg.get(u'author_email', u''),
@@ -333,7 +333,7 @@ def tag(id: str) -> Response:
     site_title = config.get(u'ckan.site_title')
     title = _(u'%s - Tag: "%s"') % (site_title, unquote_plus(id))
     desc = _(u'Recently created or updated datasets on %s by tag: "%s"') % \
-             (site_title, unquote_plus(id))
+            (site_title, unquote_plus(id))
     guid = _create_atom_id(u'/feeds/tag/%s.atom' % id)
 
     return output_feed(
@@ -382,9 +382,9 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
                                **params)
         desc = _(u'Recently created or updated datasets on %s '
                  'by organization: "%s"') % \
-                 (site_title, h.get_translated(obj_dict, 'title'))
+                (site_title, h.get_translated(obj_dict, 'title'))
         title = _(u'%s - Organization: "%s"') % \
-                  (site_title, h.get_translated(obj_dict, 'title'))
+                 (site_title, h.get_translated(obj_dict, 'title'))
 
     else:
         guid = _create_atom_id(u'feeds/group/%s.atom' % obj_dict['name'])
@@ -393,9 +393,10 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
                                id=obj_dict['id'],
                                **params)
         desc = _(u'Recently created or updated datasets on %s '
-                 'by group: "%s"') % (site_title, h.get_translated(obj_dict, 'title'))
+                 'by group: "%s"') % \
+                (site_title, h.get_translated(obj_dict, 'title'))
         title = _(u'%s - Group: "%s"') % \
-                  (site_title, h.get_translated(obj_dict, 'title'))
+                 (site_title, h.get_translated(obj_dict, 'title'))
 
     return output_feed(
         results,
@@ -444,7 +445,7 @@ def dataset(id: str) -> Response:
 
     alternate_link = _feed_url(params,
                                controller=u'dataset',
-                               action=u'read', 
+                               action=u'read',
                                d=id)
 
     guid = _create_atom_id(u'/feeds/dataset/%s.atom' % id)
@@ -456,10 +457,10 @@ def dataset(id: str) -> Response:
 
     site_title = config.get(u'ckan.site_title')
     title = _(u'%s - Dataset: "%s"') % \
-              (site_title, h.get_translated(pkg_dict, 'title'))
+             (site_title, h.get_translated(pkg_dict, 'title'))
     desc = _(u'Recently created or updated resources on %s '
              'for dataset: %s') % \
-             (site_title, h.get_translated(pkg_dict, 'title'))
+            (site_title, h.get_translated(pkg_dict, 'title'))
 
     # dataset resources have no paging
     # so we can ignore the feeds paging
