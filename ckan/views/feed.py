@@ -446,7 +446,7 @@ def dataset(id: str) -> Response:
     alternate_link = _feed_url(params,
                                controller=u'dataset',
                                action=u'read',
-                               d=id)
+                               id=id)
 
     guid = _create_atom_id(u'/feeds/dataset/%s.atom' % id)
 
