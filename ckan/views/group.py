@@ -833,7 +833,6 @@ class CreateGroupView(MethodView):
             u'group_type': group_type
         })
 
-        print(current_user.name)
         try:
             assert _check_access(u'group_create', context)
         except NotAuthorized:
