@@ -1708,13 +1708,19 @@ def dataset_display_name(
 @core_helper
 def group_display_name(
         group_or_group_dict: Union[dict[str, Any], model.Group]) -> str:
+    if not isinstance(group_or_group_dict, dict):
+        group_type = group_or_group_dict.type
+        group_id = group_or_group_dict.id
+    elif 'display_name' not in group_or_group_dict:
+        group_type = group_or_group_dict[u'type']
+        group_id = group_or_group_dict[u'id']
     if not isinstance(group_or_group_dict, dict) \
        or 'display_name' not in group_or_group_dict:
         group_or_group_dict = logic.get_action(
                                 u'%s_show' %
-                                group_or_group_dict[u'type'])(
+                                group_type)(
                                 {},
-                                {u'id': group_or_group_dict[u'id']})
+                                {u'id': group_id})
     return _object_display_name(group_or_group_dict)  # type: ignore
 
 
