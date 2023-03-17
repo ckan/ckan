@@ -73,6 +73,66 @@ Some notes on how these tests work:
   so the plugin will be loaded for all tests. This can cause conflicts and
   test failures.
 
+.. _test client:
+
+Using the test client
+---------------------
+
+It is possible to make requests to the CKAN application from within your tests in order to test the actual responses returned by CKAN. To do so you need to import the ``app`` fixture::
+
+  def test_some_ckan_page(app):
+
+    pass
+
+The ``app`` fixture extends `Flask's Test client <https://flask.palletsprojects.com/en/2.2.x/testing/#sending-requests-with-the-test-client>`_, and can be used to perform GET and POST requests. A Werkzeug's ``TestResponse`` object (`reference <https://werkzeug.palletsprojects.com/en/2.2.x/test/#werkzeug.test.TestResponse>`_) will be returned::
+
+  from ckan.plugins.toolkit import url_for
+
+  def test_dataset_new_page(app):
+
+    url = url_for("group.index")
+    response = app.get(url)
+
+    assert "Search groups" in response.body
+
+By default, requests are not authenticated. If you want to make the request impersonating a user in particular, you can pass :ref:`an API Token <api authentication>` in the ``headers`` parameter::
+
+  from ckan.plugins.toolkit import url_for
+
+  def test_group_new_page(app):
+
+      user = factories.UserWithToken()
+
+      url = url_for("group.new")
+      response = app.get(
+        url,
+        headers={"Authorization": user["token"]}
+      )
+
+      assert "Create a Group" in response.body
+
+  def test_submit_group_form_page(app):
+
+      user = factories.UserWithToken()
+
+      url = url_for("group.new")
+      data = {
+        "name": "test-group",
+        "title": "Test Group",
+        "description": "Some test group",
+        "save": ""
+      }
+      response = app.post(
+        url,
+        headers={"Authorization": user["token"]},
+        data=data,
+      )
+
+      assert data["title"] in response.body
+      assert call_action("group_show", id=data["name"])
+
+
+
 .. todo::
 
    Link to CKAN guidelines for *how* to write tests, once those guidelines have

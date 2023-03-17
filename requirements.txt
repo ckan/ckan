@@ -39,7 +39,7 @@ flask==2.0.3
     #   flask-wtf
 flask-babel==3.0.1
     # via -r requirements.in
-flask-login==0.6.1
+flask-login==0.6.2
     # via -r requirements.in
 flask-wtf==1.0.1
     # via -r requirements.in

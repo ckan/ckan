@@ -284,7 +284,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
             not config.get("ckan.auth.enable_cookie_auth_in_api")
                 and is_api):
             return
-
         return model.User.get(user_id)
 
     @login_manager.request_loader
