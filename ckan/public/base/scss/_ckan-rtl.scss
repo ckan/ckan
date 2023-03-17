@@ -1,6 +1,6 @@
 @use "sass:math";
 .wrapper {
-  @include media-breakpoint-up(sm) { 
+  @include media-breakpoint-up(sm) {
     &:before {
       left: initial;
       right: 0;
@@ -18,7 +18,7 @@
     float: right;
     padding-left: 0.5rem;
     color: #6c757d;
-    content: var(--bs-breadcrumb-divider, "/") /* rtl: var(--bs-breadcrumb-divider, "/") */;
+    content: var(--bs-breadcrumb-divider, "/");
 }
 
 @include media-breakpoint-up(md) {
