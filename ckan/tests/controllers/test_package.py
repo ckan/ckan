@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
+from flask_babel import refresh as refresh_babel
 import unittest.mock as mock
 
 import ckan.authz as authz
@@ -87,9 +88,11 @@ class TestPackageNew(object):
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")
-        headers = {"Authorization": user["token"]}
-        res = app.get(url, headers=headers)
-        res = app.get("/de/dataset/new", headers=headers)
+        env = {"Authorization": user["token"]}
+        res = app.get(url, extra_environ=env)
+        # See https://github.com/python-babel/flask-babel/issues/214
+        refresh_babel()
+        res = app.get("/de/dataset/new", extra_environ=env)
         assert helpers.body_contains(res, "Datensatz")
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
