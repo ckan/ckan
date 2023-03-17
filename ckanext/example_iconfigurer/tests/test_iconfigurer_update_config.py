@@ -33,7 +33,7 @@ class TestConfigOptionUpdatePluginNotEnabled(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_iconfigurer")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestConfigOptionUpdatePluginEnabled(object):
 
     def test_update_registered_core_value(self, ckan_config):

@@ -495,7 +495,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008 at 8:40:59 PM UTC",
+            "April 13, 2008, 8:40:59\u202fPM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),

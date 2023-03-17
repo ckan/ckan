@@ -1871,7 +1871,7 @@ class TestDashboardNewActivities(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_request_context", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestSendEmailNotifications(object):
     # TODO: this action doesn't do much. Maybe it well be better to move tests
     # into lib.email_notifications eventually
@@ -1888,6 +1888,7 @@ class TestSendEmailNotifications(object):
             len(mail_server.get_smtp_messages()) == 0
         ), "Notification came out of nowhere"
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_single_notification(self, mail_server):
         pkg = factories.Dataset()
         user = factories.User(activity_streams_email_notifications=True)
@@ -1905,6 +1906,7 @@ class TestSendEmailNotifications(object):
             "1 new activity from CKAN",
         )
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_multiple_notifications(self, mail_server):
         pkg = factories.Dataset()
         user = factories.User(activity_streams_email_notifications=True)

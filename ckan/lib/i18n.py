@@ -46,7 +46,7 @@ from typing import Any, Optional
 
 import six
 from babel import Locale
-from babel.core import (LOCALE_ALIASES,  # type: ignore
+from babel.core import (LOCALE_ALIASES,
                         get_locale_identifier,
                         UnknownLocaleError)
 import polib

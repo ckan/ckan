@@ -10,7 +10,7 @@ import pkgutil
 import logging
 
 from logging.handlers import SMTPHandler
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
@@ -80,33 +80,6 @@ class I18nMiddleware(object):
 
         handle_i18n(environ)
         return self.app(environ, start_response)
-
-
-class CKANBabel(Babel):
-    app: CKANApp
-
-    def __init__(self, *pargs: Any, **kwargs: Any):
-        super(CKANBabel, self).__init__(*pargs, **kwargs)
-        self._i18n_path_idx = 0
-
-    @property
-    def domain(self) -> str:
-        default = super(CKANBabel, self).domain
-        multiple = self.app.config.get('BABEL_MULTIPLE_DOMAINS')
-        if not multiple:
-            return default
-        domains = multiple.split(';')
-        try:
-            return domains[self._i18n_path_idx]
-        except IndexError:
-            return default
-
-    @property
-    def translation_directories(self) -> Iterable[str]:
-        self._i18n_path_idx = 0
-        for path in super(CKANBabel, self).translation_directories:
-            yield path
-            self._i18n_path_idx += 1
 
 
 def _ungettext_alias():
@@ -246,13 +219,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     i18n_dirs, i18n_domains = zip(*pairs)
 
     app.config[u'BABEL_TRANSLATION_DIRECTORIES'] = ';'.join(i18n_dirs)
-    app.config[u'BABEL_DOMAIN'] = 'ckan'
-    app.config[u'BABEL_MULTIPLE_DOMAINS'] = ';'.join(i18n_domains)
+    app.config[u'BABEL_DOMAIN'] = ';'.join(i18n_domains)
     app.config[u'BABEL_DEFAULT_TIMEZONE'] = str(h.get_display_timezone())
 
-    babel = CKANBabel(app)
-
-    babel.localeselector(get_locale)
+    Babel(app, locale_selector=get_locale)
 
     # WebAssets
     _setup_webassets(app)
@@ -314,7 +284,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
             not config.get("ckan.auth.enable_cookie_auth_in_api")
                 and is_api):
             return
-
         return model.User.get(user_id)
 
     @login_manager.request_loader

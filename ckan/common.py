@@ -68,14 +68,14 @@ def streaming_response(data: Iterable[Any],
 
 
 def ugettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ugettext(*args, **kwargs))
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
 
 
 def ungettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ungettext(*args, **kwargs))
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
