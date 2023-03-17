@@ -1718,9 +1718,9 @@ def group_display_name(
        or 'display_name' not in group_or_group_dict:
         group_or_group_dict = logic.get_action(
                                 u'%s_show' %
-                                group_type)(
+                                group_type)(  # type: ignore
                                 {},
-                                {u'id': group_id})
+                                {u'id': group_id})  # type: ignore
     return _object_display_name(group_or_group_dict)  # type: ignore
 
 
