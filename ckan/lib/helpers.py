@@ -1288,7 +1288,8 @@ def group_name_to_title(name: str) -> str:
     group_dict = logic.get_action(u'%s_show' % group.type)(
                     {}, {u'id': group.id})
     if group_dict is not None:
-        return p.toolkit.h.get_translated(group_dict, 'title') or group_dict.name
+        return p.toolkit.h.get_translated(group_dict, 'title') \
+               or group_dict.name
     return name
 
 
@@ -1699,7 +1700,7 @@ def dataset_display_name(
     if not isinstance(package_or_package_dict, dict):
         package_or_package_dict = logic.get_action(u'package_show')(
             {}, {u'id': package_or_package_dict.id})
-    return _object_display_name(package_or_package_dict)
+    return _object_display_name(package_or_package_dict)  # type: ignore
 
 
 @core_helper
@@ -1707,11 +1708,12 @@ def group_display_name(
         group_or_group_dict: Union[dict[str, Any], model.Group]) -> str:
     if not isinstance(group_or_group_dict, dict) \
        or 'display_name' not in group_or_group_dict:
-        group_or_group_dict = logic.get_action(u'%s_show' %
-                                                group_or_group_dict[u'type'])(
-                                                {}, 
-                                                {u'id': group_or_group_dict[u'id']})
-    return _object_display_name(group_or_group_dict)
+        group_or_group_dict = logic.get_action(
+                                u'%s_show' %
+                                group_or_group_dict[u'type'])(
+                                {},
+                                {u'id': group_or_group_dict[u'id']})
+    return _object_display_name(group_or_group_dict)  # type: ignore
 
 
 @core_helper

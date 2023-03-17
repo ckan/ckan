@@ -1298,7 +1298,8 @@ def follow_dataset(context: Context,
                                                validated_data_dict['id']):
         pkgobj = model.Package.get(validated_data_dict['id'])
         assert pkgobj
-        name = plugins.toolkit.h.get_translated(pkgobj, 'title') or pkgobj.name or pkgobj.id
+        name = plugins.toolkit.h.get_translated(pkgobj, 'title') \
+               or pkgobj.name or pkgobj.id
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})
