@@ -1292,7 +1292,7 @@ def group_name_to_title(name: str) -> str:
     if group_dict is None:
         return name
     return p.toolkit.h.get_translated(group_dict, 'title') \
-            or group_dict.name
+        or group_dict.name
 
 
 @core_helper
