@@ -1285,8 +1285,10 @@ def linked_user(user: Union[str, model.User],
 @core_helper
 def group_name_to_title(name: str) -> str:
     group = model.Group.by_name(name)
-    if group is not None:
-        return p.toolkit.h.get_translated(group, 'title')
+    group_dict = logic.get_action(u'%s_show' % group.type)(
+                    {}, {u'id': group.id})
+    if group_dict is not None:
+        return p.toolkit.h.get_translated(group_dict, 'title') or group_dict.name
     return name
 
 
@@ -1687,17 +1689,29 @@ def time_ago_from_timestamp(timestamp: int) -> str:
     return formatters.localised_nice_date(datetime_, show_date=False)
 
 
+def _object_display_name(obj_dict: dict[str, Any]) -> str:
+    return get_translated(obj_dict, 'title') or obj_dict['name']
+
+
 @core_helper
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
+    if not isinstance(package_or_package_dict, dict):
+        package_or_package_dict = logic.get_action(u'package_show')(
+            {}, {u'id': package_or_package_dict.id})
+    return _object_display_name(package_or_package_dict)
 
-    if isinstance(package_or_package_dict, dict):
-        return get_translated(package_or_package_dict, 'title') or \
-            package_or_package_dict['name']
-    else:
-        # FIXME: we probably shouldn't use the same functions for
-        # package dicts and real package objects
-        return package_or_package_dict.title or package_or_package_dict.name
+
+@core_helper
+def group_display_name(
+        group_or_group_dict: Union[dict[str, Any], model.Group]) -> str:
+    if not isinstance(group_or_group_dict, dict) \
+       or 'display_name' not in group_or_group_dict:
+        group_or_group_dict = logic.get_action(u'%s_show' %
+                                                group_or_group_dict[u'type'])(
+                                                {}, 
+                                                {u'id': group_or_group_dict[u'id']})
+    return _object_display_name(group_or_group_dict)
 
 
 @core_helper
@@ -2378,7 +2392,6 @@ def list_dict_filter(list_: list[dict[str, Any]],
 
     :param value: the value to search for
     '''
-
     for item in list_:
         if item.get(search_field) == value:
             return item.get(output_field, value)

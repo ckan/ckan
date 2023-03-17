@@ -5,6 +5,6 @@
   <h4>{{ h.get_translated(dict, 'title') }}</h4>
   {% snippet 'snippets/context/dataset.html', id=dict.id, name=dict.name, notes=dict.notes, num_resources=dict.num_resources, num_tags=dict.num_tags %}
 {%elif type == 'group' %}
-  <h4>{{ h.get_translated(dict, 'title') }}</h4>
+  <h4>{{ h.group_display_name(dict) }}</h4>
   {% snippet 'snippets/context/group.html', id=dict.id, name=dict.name, description=dict.description, num_followers=dict.num_followers, package_count=dict.package_count %}
 {% endif %}

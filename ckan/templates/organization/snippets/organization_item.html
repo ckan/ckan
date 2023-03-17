@@ -19,7 +19,7 @@ Example:
     <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="img-fluid media-image">
   {% endblock %}
   {% block title %}
-    <h2 class="media-heading">{{ h.get_translated(organization, 'title') }}</h2>
+    <h2 class="media-heading">{{ h.group_display_name(organization) }}</h2>
   {% endblock %}
   {% block description %}
     {% if organization.description %}
@@ -39,8 +39,8 @@ Example:
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=h.get_translated(organization, 'title')) }}" class="media-view">
-    <span>{{ _('View {organization_name}').format(organization_name=h.get_translated(organization, 'title')) }}</span>
+  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=h.group_display_name(organization)) }}" class="media-view">
+    <span>{{ _('View {organization_name}').format(organization_name=h.group_display_name(organization)) }}</span>
   </a>
   {% endblock %}
   {% endblock %}
