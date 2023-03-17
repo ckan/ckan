@@ -288,7 +288,6 @@ class TestUrlsForCustomDatasetType(object):
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
-        # import ipdb; ipdb.set_trace()
         assert page.find(id="dataset-resources").find(
             href=url_for(
                 "fancy_type_resource.read",
