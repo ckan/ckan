@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import json
 import unicodedata
-from typing import Optional, cast, Any
+from typing import Optional, cast, Any, Union
 
 
 from urllib.parse import urlparse, unquote_plus
@@ -50,7 +50,7 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     return query['count'], query['results']
 
 
-def _enclosure(pkg: dict[str, Any] | list[dict[str, Any]],
+def _enclosure(pkg: Union[dict[str, Any], list[dict[str, Any]]],
                logic_function: str,
                **kwargs: Any) -> 'Enclosure':
     url = h.url_for(
@@ -81,11 +81,11 @@ class CKANFeed(FeedGenerator):
         language: Optional[str],
         author_name: Optional[str],
         feed_guid: Optional[str],
-        feed_self_link: Optional[str | None],
-        feed_enclosure: Optional[str | None],
-        feed_alternate_link: Optional[str | None],
-        feed_via_link: Optional[str | None],
-        feed_related_link: Optional[str | None],
+        feed_self_link: Optional[Union[str, None]],
+        feed_enclosure: Optional[Union[str, None]],
+        feed_alternate_link: Optional[Union[str, None]],
+        feed_via_link: Optional[Union[str, None]],
+        feed_related_link: Optional[Union[str, None]],
         previous_page: Optional[str],
         next_page: Optional[str],
         first_page: Optional[str],
@@ -172,11 +172,11 @@ class CKANFeed(FeedGenerator):
 def output_feed(
         results: list[dict[str, Any]], feed_title: str, feed_description: str,
         navigation_urls: dict[str, str], feed_guid: str,
-        feed_self_link: Optional[str | None] = None,
-        feed_enclosure: Optional[Enclosure | None] = None,
-        feed_alternate_link: Optional[str | None] = None,
-        feed_via_link: Optional[str | None] = None,
-        feed_related_link: Optional[str | None] = None) -> Response:
+        feed_self_link: Optional[Union[str, None]] = None,
+        feed_enclosure: Optional[Union[Enclosure, None]] = None,
+        feed_alternate_link: Optional[Union[str, None]] = None,
+        feed_via_link: Optional[Union[str, None]] = None,
+        feed_related_link: Optional[Union[str, None]] = None) -> Response:
     author_name = config.get(u'ckan.feeds.author_name').strip() or \
         config.get(u'ckan.site_id').strip()
 
@@ -382,9 +382,11 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
                                **params)
         desc = _(u'Recently created or updated datasets on %s '
                  'by organization: "%s"') % \
-                (site_title, h.get_translated(obj_dict, 'title'))
+                (site_title, h.get_translated(obj_dict, 'title')
+                 or obj_dict['name'])
         title = _(u'%s - Organization: "%s"') % \
-                 (site_title, h.get_translated(obj_dict, 'title'))
+                 (site_title, h.get_translated(obj_dict, 'title')
+                  or obj_dict['name'])
 
     else:
         guid = _create_atom_id(u'feeds/group/%s.atom' % obj_dict['name'])
@@ -394,9 +396,11 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
                                **params)
         desc = _(u'Recently created or updated datasets on %s '
                  'by group: "%s"') % \
-                (site_title, h.get_translated(obj_dict, 'title'))
+                (site_title, h.get_translated(obj_dict, 'title')
+                 or obj_dict['name'])
         title = _(u'%s - Group: "%s"') % \
-                 (site_title, h.get_translated(obj_dict, 'title'))
+                 (site_title, h.get_translated(obj_dict, 'title')
+                  or obj_dict['name'])
 
     return output_feed(
         results,
