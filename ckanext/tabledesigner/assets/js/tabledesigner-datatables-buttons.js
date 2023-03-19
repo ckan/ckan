@@ -11,7 +11,7 @@ this.ckan.module('tabledesigner_datatables_buttons', function($, _) {
         text: editText,
         action: function ( e, dt, button, config ){
           var _id = dt.rows( { selected: true } ).data()[0]._id;
-          window.parent.location = editUrl + '?_id=' + _id;
+          window.parent.location = editUrl + '?_id=' + encodeURIComponent(_id);
         }
       });
     }
