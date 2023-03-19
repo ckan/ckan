@@ -82,6 +82,12 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
+    # check and update the resource format if it has changed
+    if data_dict.get("upload") or data_dict.get("url"):
+        data_dict["format"] = validators.refresh_format_on_change(
+            resource, data_dict
+        )
+
     package_id = resource.package.id
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
