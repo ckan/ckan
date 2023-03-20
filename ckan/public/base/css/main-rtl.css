@@ -13087,7 +13087,7 @@ td.diff_header {
   clear: both;
   content: "";
 }
-@media (min-width: 576px) {
+@media (min-width: 768px) {
   .wrapper:before {
     content: "";
     display: block;
