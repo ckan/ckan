@@ -14158,3 +14158,9 @@ td.diff_header {
   transform: scale(0.53);
   margin: -14px 0 0 -14px;
 }
+
+.btn {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
