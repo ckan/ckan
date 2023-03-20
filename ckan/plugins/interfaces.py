@@ -270,7 +270,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture-o',
+             'icon': 'image',
              'always_available': True,
              'iframed': False,
              }
