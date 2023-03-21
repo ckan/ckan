@@ -89,3 +89,11 @@ def test_siteurl_removes_backslash(ckan_config):
 def test_missing_timezone():
     with pytest.raises(CkanConfigurationException):
         environment.update_config()
+
+
+@pytest.mark.ckan_config("plugin_template_paths", [
+    os.path.join(os.path.dirname(__file__), "data")
+])
+def test_plugin_template_paths_reset(app):
+    resp = app.get("/about")
+    assert "YOU WILL NOT FIND ME" not in resp
