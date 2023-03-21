@@ -836,11 +836,11 @@ def dashboard() -> str:
     )
     activity_stream = tk.h.dashboard_activity_stream(
         tk.g.userobj.id,
-        filter_type,
-        filter_id,
-        limit + 1,
-        before,
-        after
+        filter_type=filter_type,
+        filter_id=filter_id,
+        limit=limit + 1,
+        before=before,
+        after=after
     )
 
     has_more = len(activity_stream) > limit
