@@ -6,6 +6,7 @@ import time
 
 import pytest
 
+from ckan import model
 import ckan.plugins.toolkit as tk
 
 import ckan.tests.helpers as helpers
@@ -2095,3 +2096,26 @@ class TestFollow:
             "follow_user", context={"user": user["name"]}, **user2
         )
         assert not helpers.call_action("user_activity_list", id=user["id"])
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestUserCreate(object):
+
+    def test_user_create_defer_commit(self):
+        stub = factories.User.stub()
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        context = {"defer_commit": True}
+
+        helpers.call_action("user_create", context=context, **user_dict)
+
+        model.Session.close()
+
+        with pytest.raises(tk.ObjectNotFound):
+            helpers.call_action("user_show", id=user_dict["name"])
+
+        assert model.Session.query(Activity).count() == 0
