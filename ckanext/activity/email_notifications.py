@@ -246,7 +246,9 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
         email_last_sent = dashboard.email_last_sent
         activity_stream_last_viewed = dashboard.activity_stream_last_viewed
         since = max(
-            email_notifications_since, email_last_sent, activity_stream_last_viewed
+            email_notifications_since,
+            email_last_sent,
+            activity_stream_last_viewed,
         )
 
         notifications = get_notifications(user, since)
