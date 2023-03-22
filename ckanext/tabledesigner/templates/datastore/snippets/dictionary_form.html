@@ -6,17 +6,17 @@
   {% else %}
     <h3>{{ _("Field {num}.").format(num=position) }}</h3>
     {% if is_new %}
-      <label for="info__{{ position }}__pk">
+      <label for="{{ prefix }}__{{ position }}__pk">
         {{ _("Primary Key") }}
       </label>
-        <input id="info__{{ position }}__pk"
+        <input id="{{ prefix }}__{{ position }}__pk"
           type="checkbox"
-          name="info__{{ position }}__pk">
+          name="{{ prefix }}__{{ position }}__pk">
     {% endif %}
-    {{ form.input('info__' ~ position ~ '__id',
+    {{ form.input(prefix ~ '__' ~ position ~ '__id',
       is_required=true,
       label=_('ID'), classes=['control-full']) }}
-    {{ form.select('info__' ~ position ~ '__type',
+    {{ form.select(prefix ~ '__' ~ position ~ '__type',
       is_required=true,
       label=_('Type'), options=[
         {'name': 'text', 'value': 'text'},

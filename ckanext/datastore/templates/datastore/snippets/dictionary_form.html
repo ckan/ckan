@@ -2,18 +2,18 @@
 
 {% block field_heading %}
   <h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }}
-    {%- if field.schema.is_index %}, {{ _("Primary Key") }}{% endif -%})
+    {%- if field.schema and field.schema.is_index %}, {{ _("Primary Key") }}{% endif -%})
   </h3>
 {% endblock %}
 
 {#
   Data Dictionary fields may be added this snippet. New fields following
-  the 'info__' ~ position ~ '__namegoeshere' convention will be saved
+  the prefix ~ '__' ~ position ~ '__namegoeshere' convention will be saved
   as part of the "info" object on the column.
 #}
 
 {% block datapusher_xloader_fields %}
-  {{ form.select('info__' ~ position ~ '__type_override',
+  {{ form.select(prefix ~ '__' ~ position ~ '__type_override',
     label=_('Type Override'), options=[
     {'name': '', 'value': ''},
     {'name': 'text', 'value': 'text'},
@@ -22,10 +22,15 @@
     ], selected=field.get('info', {}).get('type_override', '')) }}
 {% endblock %}
 
-{{ form.input('info__' ~ position ~ '__label',
-  label=_('Label'), id='field-f' ~ position ~ 'label',
-  value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
+{% block standard_fields %}
+  {{ form.input(prefix ~ '__' ~ position ~ '__label',
+    label=_('Label'), id='field-f' ~ position ~ 'label',
+    value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
 
-{{ form.markdown('info__' ~ position ~ '__notes',
-  label=_('Description'), id='field-d' ~ position ~ 'notes',
-  value=field.get('info', {}).get('notes', '')) }}
+  {{ form.markdown(prefix ~ '__' ~ position ~ '__notes',
+    label=_('Description'), id='field-d' ~ position ~ 'notes',
+    value=field.get('info', {}).get('notes', '')) }}
+{% endblock %}
+
+{% block additional_fields %}
+{% endblock %}

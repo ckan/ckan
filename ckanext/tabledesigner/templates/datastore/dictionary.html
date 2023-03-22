@@ -4,41 +4,10 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% else %}
-    {% set new_table = not fields %}
-
-    {% macro tabledesigner_field(field, index, index1) %}
-      <div class="tabledesigner-field" data-index="{{ index }}">
-        {% block field_removal_button%}
-          <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
-            >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
-        {% endblock %}
-        <div class="field-content">
-          {% snippet "datastore/snippets/dictionary_form.html",
-            field=field,
-            position=index1,
-            res=res,
-            is_new=not fields
-          %}
-        </div>
-        <div class="field-removed-notice" style="display:none">
-          {{ _('Field {num} removed, click save below to save your changes and delete all data in this field.').format(num=index1) }}
-        </div>
-      </div>
-    {% endmacro %}
-
-    <fieldset name="tabledesigner-fields" class="tabledesigner-fields" data-module="tabledesigner-fields">
-      <div class="tabledesigner-fields-group">
-        {% for field in fields %}
-          {{ tabledesigner_field(field, loop.index, loop.index + 1) }}
-        {% endfor %}
-      </div>
-      <div class="control-medium">
-        <a href="javascript:;" name="tabledesigner-add" class="btn btn-link"
-          >{% block add_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add Field') }}{% endblock %}</a>
-      </div>
-      <div name="tabledesigner-template" style="display:none">{{
-        tabledesigner_field({}, 'TABLEDESIGNER-INDEX0', 'TABLEDESIGNER-INDEX1') }}
-      </div>
-    </fieldset>
+    {% snippet "tabledesigner/snippets/design_fields.html",
+      fields=fields,
+      prefix='info',
+      res=res
+    %}
   {% endif %}
 {% endblock %}
