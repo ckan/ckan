@@ -3,6 +3,7 @@
 
 """
 from __future__ import annotations
+import re
 
 import enum
 from typing import Any, Generic, Optional, TypeVar
@@ -363,13 +364,17 @@ def _validators_from_string(s: str) -> list[Validator]:
     from ckan.logic import get_validator
 
     out = []
-    parts = s.split()
+    parts = re.split(r"\s+", s) if s else s.split()
+
     for p in parts:
         if "(" in p and p[-1] == ")":
             name, args = p.split("(", 1)
             args: Any = args[:-1].split(",")  # trim trailing ')', break up
-            v = get_validator(name)(*args)
+            v = get_validator(name)(args) # type: ignore
         else:
             v = get_validator(p)
         out.append(v)
     return out
+
+
+

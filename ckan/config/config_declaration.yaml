@@ -342,6 +342,7 @@ groups:
       - key: beaker.session.samesite
         default: Lax
         required: True
+        validators: OneOf(Strict,Lax,None)
         description: |
           Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
           browsers are instructed to not send the cookie with cross-site requests.
