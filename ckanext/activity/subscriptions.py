@@ -177,5 +177,6 @@ def user_changed(sender: str, **kwargs: Any):
         "ignore_auth": True,
         "user": context["user"],
         "session": context["session"],
+        "defer_commit": context.get("defer_commit") or False,
     }
     tk.get_action("activity_create")(activity_create_context, activity_dict)
