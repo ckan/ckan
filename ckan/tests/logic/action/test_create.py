@@ -1217,6 +1217,17 @@ class TestUserCreate(object):
             "password": ["Your password must be 8 characters or longer"]
         }
 
+    def test_user_create_defer_commit(self):
+        stub = factories.User.stub()
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        context = {"defer_commit": True}
+
+        helpers.call_action("user_create", context=context, **user_dict)
+
 
 @pytest.mark.usefixtures("clean_db")
 class TestUserCreateDb():
