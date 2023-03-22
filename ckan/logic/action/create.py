@@ -1004,6 +1004,10 @@ def user_create(context: Context,
     if not context.get('defer_commit'):
         with logic.guard_against_duplicated_email(data_dict['email']):
             model.repo.commit()
+    else:
+        # The Dashboard object below needs the user id, and if we didn't
+        # commit we need to flush the session in order to populate it
+        session.flush()
 
     # A new context is required for dictizing the newly constructed user in
     # order that all the new user's data is returned, in particular, the

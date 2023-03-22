@@ -1,0 +1,1 @@
+Fix exception when calling the `user_create` action with `defer_commit` in the context.
