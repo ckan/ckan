@@ -67,7 +67,8 @@ def bulk_changed(sender: str, **kwargs: Any):
         activity = Activity.activity_stream_item(entity, "changed", user_id)
         model.Session.add(activity)
 
-    model.Session.commit()
+    if not context.get("defer_commit"):
+        model.Session.commit()
 
 
 # action, context, data_dict, result
@@ -104,7 +105,8 @@ def package_changed(sender: str, **kwargs: Any):
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
     context["session"].add(activity)
-    context["session"].commit()
+    if not context.get("defer_commit"):
+        context["session"].commit()
 
 
 # action, context, data_dict, result
@@ -149,6 +151,7 @@ def group_or_org_changed(sender: str, **kwargs: Any):
         "ignore_auth": True,
         "user": context["user"],
         "session": context["session"],
+        "defer_commit": context.get("defer_commit") or False,
     }
     tk.get_action("activity_create")(activity_create_context, activity_dict)
 

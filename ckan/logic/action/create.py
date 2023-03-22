@@ -642,7 +642,8 @@ def member_create(context: Context,
     member.capacity = capacity
 
     model.Session.add(member)
-    model.repo.commit()
+    if not context.get("defer_commit"):
+        model.repo.commit()
 
     return model_dictize.member_dictize(member, context)
 
@@ -795,10 +796,10 @@ def _group_or_org_create(context: Context,
         'model': model,
         'user': user,
         'ignore_auth': True,  # we are not a member of the group at this point
-        'session': session
+        'session': session,
+        'defer_commit': context.get("defer_commit") or False,
     }
     logic.get_action('member_create')(member_create_context, member_dict)
-
     log.debug('Created object %s' % group.name)
 
     return_id_only = context.get('return_id_only', False)
@@ -806,7 +807,6 @@ def _group_or_org_create(context: Context,
 
     output = context['id'] if return_id_only \
         else _get_action(action)(context, {'id': group.id})
-
     return output
 
 
