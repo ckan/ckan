@@ -12332,27 +12332,17 @@ select[data-module=autocomplete] {
   font-weight: bold;
 }
 
-.add-member-or-wrap {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-@media (min-width: 576px) {
-  .add-member-or-wrap {
-    margin-bottom: 1.5rem;
-  }
-}
-@media (max-width: 767.98px) {
-  .add-member-or-wrap {
-    min-height: 14.5rem;
-  }
-}
-
 .add-member-or {
   text-align: center;
   text-transform: uppercase;
-  color: #dee2e6;
+  color: #6c757d;
   font-weight: bold;
+  margin-bottom: 30px;
+}
+@media (min-width: 768px) {
+  .add-member-or {
+    margin-bottom: 0;
+  }
 }
 
 #recaptcha_table {

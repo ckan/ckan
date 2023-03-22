@@ -680,23 +680,16 @@ select[data-module="autocomplete"] {
     }
 }
 
-.add-member-or-wrap{
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  @include media-breakpoint-up(sm) {
-    margin-bottom: $grid-gutter-width;
-  }
-  @include media-breakpoint-down(md) {
-    min-height: $grid-gutter-width*3 + 10;
-  }
-}
-
 .add-member-or {
     text-align: center;
     text-transform: uppercase;
-    color: $gray-300;
+    color: $gray-600;
     font-weight: bold;
+    margin-bottom: 30px;
+
+    @include media-breakpoint-up(md) {
+        margin-bottom: 0;
+    }
 }
 
 #recaptcha_table {
