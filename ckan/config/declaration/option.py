@@ -370,7 +370,7 @@ def _validators_from_string(s: str) -> list[Validator]:
         if "(" in p and p[-1] == ")":
             name, args = p.split("(", 1)
             args: Any = args[:-1].split(",")  # trim trailing ')', break up
-            v = get_validator(name)(args) # type: ignore
+            v = get_validator(name)(args) #type: ignore
         else:
             v = get_validator(p)
         out.append(v)
