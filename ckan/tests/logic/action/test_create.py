@@ -1229,6 +1229,11 @@ class TestUserCreate(object):
 
         helpers.call_action("user_create", context=context, **user_dict)
 
+        model.Session.close()
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("user_show", id=user_dict["name"])
+
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)

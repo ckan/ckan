@@ -1029,7 +1029,11 @@ def user_create(context: Context,
     context['user_obj'] = user
     context['id'] = user.id
 
-    model.Dashboard.get(user.id)  # Create dashboard for user.
+    # Create dashboard for user.
+    dashboard = model.Dashboard(user.id)
+    session.add(dashboard)
+    if not context.get('defer_commit'):
+        model.repo.commit()
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict

@@ -39,12 +39,6 @@ class Dashboard(object):
         '''
         query = meta.Session.query(Dashboard)
         query = query.filter(Dashboard.user_id == user_id)
-        try:
-            row = query.one()
-        except NoResultFound:
-            row = Dashboard(user_id)
-            meta.Session.add(row)
-            meta.Session.commit()
-        return row
+        return query.first()
 
 meta.mapper(Dashboard, dashboard_table)
