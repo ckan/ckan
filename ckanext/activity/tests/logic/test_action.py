@@ -2142,7 +2142,6 @@ class TestDeferCommitOnCreate(object):
         assert model.Session.query(Activity).filter(
             Activity.activity_type != "new user").count() == 0
 
-
     def test_organization_create_defer_commit(self):
         organization_dict = {
             "name": "test_org",

@@ -3,7 +3,7 @@
 import datetime
 import sqlalchemy
 import ckan.model.meta as meta
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Optional
 from typing_extensions import Self
 
 dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
@@ -30,7 +30,7 @@ class Dashboard(object):
         self.email_last_sent = datetime.datetime.utcnow()
 
     @classmethod
-    def get(cls, user_id: str) -> Self:
+    def get(cls, user_id: str) -> Optional[Self]:
         '''Return the Dashboard object for the given user_id.
 
         If there's no dashboard row in the database for this user_id, a fresh
