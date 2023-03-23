@@ -55,6 +55,7 @@ _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
 _case = sqlalchemy.case
+_null = sqlalchemy.null
 
 
 def site_read(context: Context, data_dict: Optional[DataDict]=None) -> bool:
@@ -184,8 +185,10 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     _check_access('group_show', context, data_dict)
 
     q = model.Session.query(model.Member).\
+        join(model.User, model.User.id == model.Member.table_id,  isouter=True).\
         filter(model.Member.group_id == group.id).\
-        filter(model.Member.state == "active")
+        filter(model.Member.state == "active").\
+        filter(_or_(model.User.state == "active", model.User.state == _null()))
 
     if obj_type:
         q = q.filter(model.Member.table_name == obj_type)
