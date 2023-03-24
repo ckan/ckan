@@ -1,3 +1,11 @@
+table {
+    table-layout: fixed;
+}
+
+.table> :not(:first-child) {
+    border-color: var(--bs-gray-300);
+}
+
 .table-selected td {
     background-color: $input-bg;
     .edit {
