@@ -121,14 +121,9 @@ a.tag:hover {
 }
 
 .listing li {
-    text-align: right; //overflow: hidden;
-    //white-space: nowrap;
-    //text-overflow: ellipsis;
+    text-align: right;
     margin-bottom: 5px;
 }
-
-.listing .key,
-.listing .value {}
 
 .listing .key {
     clear: right;

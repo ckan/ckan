@@ -1,0 +1,1 @@
+IMiddleware implementations produce an error mentioning missing `app.after_request` attribute.
