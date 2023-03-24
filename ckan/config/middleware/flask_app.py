@@ -5,7 +5,6 @@ import os
 import sys
 import time
 import inspect
-import itertools
 import pkgutil
 import logging
 
@@ -22,7 +21,6 @@ from werkzeug.exceptions import (
     Unauthorized,
     Forbidden
 )
-from werkzeug.routing import Rule
 from werkzeug.local import LocalProxy
 
 from flask_babel import Babel
