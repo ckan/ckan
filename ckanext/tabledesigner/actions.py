@@ -13,17 +13,26 @@ def resource_create(original_action, context, data_dict):
 @chained_action
 def resource_update(original_action, context, data_dict):
     res = original_action(context, data_dict)
-    _create_datastore_table(res)
-    return pkg
+    res = _create_datastore_table(res)
+    return res
 
 
 def _create_datastore_table(res, info=None):
     if res.get('url_type') != 'tabledesigner':
         return
-    if res.get('datastore_active'):
+    if not res.get('datastore_active'):
+        get_action('datastore_create')({}, {
+            'resource_id': res['id'],
+            'force': True,  # required because url_type != datastore
+            'fields': info or [],
+        })
+    views = get_action('resource_view_list')({}, {
+        'id': res['id']
+    })
+    if any(v['view_type'] == 'datatables_view' for v in views):
         return
-    get_action('datastore_create')({}, {
+    get_action('resource_view_create')({}, {
         'resource_id': res['id'],
-        'force': True,  # required because url_type != datastore
-        'fields': info or [],
+        'view_type': 'datatables_view',
+        'title': 'Table Designer',
     })
