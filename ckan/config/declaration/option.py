@@ -3,7 +3,6 @@
 
 """
 from __future__ import annotations
-import re
 
 import enum
 from typing import Any, Generic, Optional, TypeVar
