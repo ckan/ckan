@@ -224,11 +224,11 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # WebAssets
     _setup_webassets(app)
 
-    # Set up each IBlueprint extension as a Flask Blueprint
+    # Register Blueprints. First registered wins, so we need to register
+    # plugins first to be able to override core blueprints.
     _register_plugins_blueprints(app)
-
-    # Auto-register all blueprints defined in the `views` folder
     _register_core_blueprints(app)
+
     _register_error_handler(app)
 
     # CSRF
