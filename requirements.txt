@@ -105,7 +105,7 @@ pyutilib==6.0.0
     # via -r requirements.in
 pyyaml==6.0
     # via -r requirements.in
-redis==4.1.4
+redis==4.3.6
     # via rq
 requests==2.28.1
     # via
