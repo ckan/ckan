@@ -59,9 +59,7 @@ class _TableDesignerDictionary(MethodView):
             }
         )
         h.flash_success(_('Table Designer fields updated.'))
-        return h.redirect_to(
-            'datastore.dictionary', id=id, resource_id=resource_id
-        )
+        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
 
 
 tabledesigner.add_url_rule(
