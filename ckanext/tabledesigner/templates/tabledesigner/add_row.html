@@ -18,7 +18,7 @@
             res=res,
             value=row.get(field.id),
             errors=errors,
-            pk=field.info.get('pk')
+            pk=field.get('info', {}).get('pk')
           %}
       {% endfor %}
     {% endblock %}
