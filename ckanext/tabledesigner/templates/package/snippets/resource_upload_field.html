@@ -17,11 +17,12 @@
     {{ remove_button() }}
     <label>{{ _('Table Designer') }}</label>
     {% if not data %}
+      <p>{{ _('After creation use the Data Dictionary tab to customize this table.') }}</p>
       <div class="container">
         {# special prefix and res values for combined resource + data dict form #}
         {% snippet "tabledesigner/snippets/design_fields.html",
           fields = [],
-          prefix = '__tabledesigner_info',
+          prefix = '_tabledesigner_info',
           res = {'url_type':'tabledesigner'}
         %}
       </div>
