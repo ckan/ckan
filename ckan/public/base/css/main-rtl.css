@@ -13149,8 +13149,8 @@ td.diff_header {
     display: flex;
     -webkit-box-orient: vertical;
     -moz-box-orient: vertical;
-    -webkit-flex-direction: column;
-    flex-direction: column;
+    -webkit-flex-direction: column-reverse;
+    flex-direction: column-reverse;
     -webkit-box-align: start;
     -moz-box-align: start;
     -webkit-align-items: flex-start;
