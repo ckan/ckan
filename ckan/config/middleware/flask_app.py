@@ -425,7 +425,7 @@ def helper_functions() -> dict[str, h.HelperAttributeDict]:
     return dict(h=h.helper_functions)
 
 
-def c_object() -> dict[str, LocalProxy]:
+def c_object() -> dict[str, LocalProxy[Any]]:
     u'''
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
