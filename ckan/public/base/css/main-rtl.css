@@ -11253,9 +11253,9 @@ a.tag:hover {
 }
 
 .pagination-wrapper {
-  text-align: center;
-  border-top: 1px solid inherit;
-  padding-top: 0.5rem;
+  padding-top: 30px;
+  display: flex;
+  justify-content: center;
 }
 
 .module h1, .module .h1 {
