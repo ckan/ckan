@@ -21,10 +21,20 @@ def _create_datastore_table(res, info=None):
     if res.get('url_type') != 'tabledesigner':
         return
     if not res.get('datastore_active'):
+        primary_key = [f['id'] for f in info if f.get('pk')]
+
         get_action('datastore_create')({}, {
             'resource_id': res['id'],
             'force': True,  # required because url_type != datastore
-            'fields': info or [],
+            'primary_key': primary_key,
+            'fields': [{
+                'id': i['id'],
+                'type': i['type'],
+                'info': {
+                    k:v for (k, v) in i.items()
+                    if k != 'id' and k != 'type'
+                },
+            } for i in info]
         })
     views = get_action('resource_view_list')({}, {
         'id': res['id']
