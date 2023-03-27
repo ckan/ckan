@@ -1049,3 +1049,13 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
             raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                           format(name=extra))
     return extras
+
+
+def samesite_validator(value: Any, context: Context) -> Any:
+    '''Validate samesite input.
+       Use one of the following values: Strict, Lax, None
+    '''
+    if value and value not in ['Strict', 'Lax', 'None']:
+        raise Invalid(_('Samesite {samesite} is not a valid format.\n'
+                        'Valid values are: "Strict", "Lax" or "None"')
+                        .format(samesite=value))

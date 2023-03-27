@@ -364,13 +364,13 @@ def _validators_from_string(s: str) -> list[Validator]:
     from ckan.logic import get_validator
 
     out = []
-    parts = re.split(r"\s+", s) if s else s.split()
+    parts = s.split()
 
     for p in parts:
         if "(" in p and p[-1] == ")":
             name, args = p.split("(", 1)
             args: Any = args[:-1].split(",")  # trim trailing ')', break up
-            v = get_validator(name)(args)  # type: ignore
+            v = get_validator(name)(*args)
         else:
             v = get_validator(p)
         out.append(v)
