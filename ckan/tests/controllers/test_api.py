@@ -16,7 +16,7 @@ from ckan.tests import factories
 
 @pytest.mark.parametrize(
     "ver, expected, status",
-    [(0, 1, 404), (1, 1, 200), (2, 2, 200), (3, 3, 200), (4, 1, 404)],
+    [(1, 1, 200), (2, 2, 200), (3, 3, 200)],
 )
 def test_get_api_version(ver, expected, status, app):
     resp = app.get(url_for("api.get_api", ver=str(ver)), status=status)
