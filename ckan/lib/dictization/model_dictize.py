@@ -212,6 +212,7 @@ def package_dictize(
     result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
+    # TODO: do a query for extras for _translated fields??
     member = model.member_table
     group = model.group_table
     q = select([group, member.c["capacity"]],
@@ -228,14 +229,20 @@ def package_dictize(
                                                with_package_counts=False)
 
     # owning organization
-    group = model.group_table
-    q = select([group]
-               ).where(group.c["id"] == pkg.owner_org) \
-                .where(group.c["state"] == 'active')
-    result = execute(q, group, context)
-    organizations = d.obj_list_dictize(result, context)
-    if organizations:
-        result_dict["organization"] = organizations[0]
+    # simple dictized organization from organization_show
+    # only including extras for translations
+    # and excluding everything else for speed
+    organization = logic.get_action('organization_show')(
+        context, {'id': pkg.owner_org,
+                  'include_datasets': False,
+                  'include_dataset_count': False,
+                  'include_extras': True,
+                  'include_users': False,
+                  'include_groups': False,
+                  'include_tags': False,
+                  'include_followers': False})
+    if organization:
+        result_dict["organization"] = organization
     else:
         result_dict["organization"] = None
 

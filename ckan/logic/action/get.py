@@ -574,6 +574,9 @@ def group_list_authz(context: Context,
       edit (for example, sysadmin users are authorized to edit all groups)
       (optional, default: ``False``)
     :type am_member: bool
+    :param include_extras: include the _extras in each group
+        (optional, default: ``False``)
+    :type include_extras: bool
 
     :returns: list of dictized groups that the user is authorized to edit
     :rtype: list of dicts
@@ -610,6 +613,7 @@ def group_list_authz(context: Context,
         if not group_ids:
             return []
 
+    #TODO: query model.GroupExtra and run through plugin_validate for translated fields??
     q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == False) \
         .filter(model.Group.state == 'active')
@@ -625,7 +629,11 @@ def group_list_authz(context: Context,
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    group_list = model_dictize.group_list_dictize(groups, context)
+    group_list = model_dictize. \
+                 group_list_dictize(groups,
+                                    context,
+                                    inucde_extras=asbool(
+                                        data_dict.get('inucde_extras')))
     return group_list
 
 
@@ -668,6 +676,9 @@ def organization_list_for_user(context: Context,
     :param include_dataset_count: include the package_count in each org
         (optional, default: ``False``)
     :type include_dataset_count: bool
+    :param include_extras: include the _extras in each org
+        (optional, default: ``False``)
+    :type include_extras: bool
 
     :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
@@ -685,6 +696,7 @@ def organization_list_for_user(context: Context,
     _check_access('organization_list_for_user', context, data_dict)
     sysadmin = authz.is_sysadmin(user)
 
+    #TODO: query model.GroupExtra and run through plugin_validate for translated fields??
     orgs_q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
@@ -743,7 +755,8 @@ def organization_list_for_user(context: Context,
 
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')))
+        with_package_counts=asbool(data_dict.get('include_dataset_count')),
+        include_extras=asbool(data_dict.get('include_extras')))
     return orgs_list
 
 
@@ -2913,9 +2926,11 @@ def followee_list(
 
     def display_name(followee: dict[str, Any]) -> Optional[str]:
         '''Return a display name for the given user, group or dataset dict.'''
-        display_name = followee.get('display_name')
+        display_name = plugins.toolkit.h.get_translated(followee, 'title') \
+                       or followee.get('display_name')
         fullname = followee.get('fullname')
-        title = plugins.toolkit.h.get_translated(followee, 'title')
+        title = plugins.toolkit.h.get_translated(followee, 'title') \
+                or followee.get('title')
         name = followee.get('name')
         return display_name or fullname or title or name
 
@@ -3015,6 +3030,7 @@ def dataset_followee_list(
     datasets = [dataset for dataset in datasets if dataset is not None]
 
     # Dictize the list of Package objects.
+    #TODO: run through plugin_validate for translated fields??
     return [model_dictize.package_dictize(dataset, context)
             for dataset in datasets]
 
@@ -3073,6 +3089,7 @@ def _group_or_org_followee_list(
               if group is not None and group.is_organization == is_org]
 
     # Dictize the list of Group objects.
+    #TODO: run through plugin_validate for translated fields??
     return [model_dictize.group_dictize(group, context) for group in groups]
 
 

@@ -2007,7 +2007,8 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False,
+                     include_extras: bool = True) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -2018,13 +2019,17 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
 
     '''
     context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    data_dict = {
+        'available_only': True,
+        'am_member': am_member,
+        'include_extras': include_extras}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False
+                            include_dataset_count: bool = False,
+                            include_extras: bool = False
                             ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
@@ -2032,7 +2037,8 @@ def organizations_available(permission: str = 'manage_group',
     context: Context = {'user': current_user.name}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
+        'include_dataset_count': include_dataset_count,
+        'include_extras': include_extras}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
