@@ -1,0 +1,1 @@
+Removes all calls and references to the deprecated `check_data_dict` method.

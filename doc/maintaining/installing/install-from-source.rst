@@ -14,10 +14,10 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
-**For Python 3 installations, the minimum Python version required is 3.7**
+**For Python 3 installations, the minimum Python version required is 3.8**
 
+* **Ubuntu 22.04** includes **Python 3.10** as part of its distribution
 * **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
-* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
 
 From source is also the right installation method for developers who want to
 work on CKAN.
@@ -262,9 +262,16 @@ extensions to add data to the DataStore. To install DataPusher refer to this lin
 https://github.com/ckan/datapusher and to install XLoader refer to this link:
 https://github.com/ckan/ckanext-xloader
 
----------------
-9. You're done!
----------------
+-------------------
+9. Create CKAN user
+-------------------
+
+To create, remove, list and manage users, you can follow the steps at `Create and Manage Users
+<https://docs.ckan.org/en/latest/maintaining/cli.html#user-create-and-manage-users>`__.
+
+----------------
+10. You're done!
+----------------
 
 You can now run CKAN from the command-line.  This is a simple and lightweight way to serve CKAN that is
 useful for development and testing:

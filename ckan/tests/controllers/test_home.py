@@ -38,9 +38,9 @@ class TestHome(object):
         model.Session.commit()
 
         user_token = factories.APIToken(user=user.id)
-        env = {"Authorization": user_token["token"]}
+        headers = {"Authorization": user_token["token"]}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body
@@ -51,8 +51,8 @@ class TestHome(object):
         user = factories.User(email="filled_in@nicely.com")
         user_token = factories.APIToken(user=user["name"])
 
-        env = {"Authorization": user_token["token"]}
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        headers = {"Authorization": user_token["token"]}
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "add your email address" not in response
 
@@ -77,7 +77,6 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 

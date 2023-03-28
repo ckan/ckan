@@ -17,7 +17,8 @@ from flask.wrappers import Response
 from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
-    PUploader, PResourceUploader, Schema, SignalMapping, Validator)
+    PUploader, PResourceUploader, Schema, SignalMapping, Validator,
+    CKANApp)
 
 if TYPE_CHECKING:
     import click
@@ -98,8 +99,7 @@ class IMiddleware(Interface):
     one for the Pylons stack and one for the Flask stack (eventually
     there will be only the Flask stack).
     '''
-    def make_middleware(self, app: 'CKANFlask',
-                        config: 'CKANConfig') -> 'CKANFlask':
+    def make_middleware(self, app: CKANApp, config: 'CKANConfig') -> CKANApp:
         u'''Return an app configured with this middleware
 
         When called on the Flask stack, this method will get the actual Flask
@@ -1318,7 +1318,6 @@ class IGroupForm(Interface):
      - group_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
-     - check_data_dict(self, data_dict)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1438,15 +1437,6 @@ class IGroupForm(Interface):
         format suitable for the form (optional)
         '''
         return {}
-
-    def check_data_dict(self,
-                        data_dict: DataDict,
-                        schema: Optional[Schema] = None) -> None:
-        u'''
-        Check if the return data is correct.
-
-        raise a DataError if not.
-        '''
 
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:

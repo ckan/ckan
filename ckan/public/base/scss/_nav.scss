@@ -60,7 +60,6 @@
         right: -$navItemActiveArrowSize;
         width: $navItemActiveArrowSize;
         height: 34px;
-        // background-image: url("${imagePath}/nav-active.png?1");
     }
 
     .nav-pills>li {
@@ -73,7 +72,6 @@
     .nav-item.active>a span,
     .nav-aside li.active a span {
         white-space: nowrap;
-        // display: block;
     }
 }
 
@@ -125,7 +123,7 @@
         float: right;
 		position: relative;
 		transform: translateY(0);
-		left: 10px;        
+		left: 10px;
     }
 }
 

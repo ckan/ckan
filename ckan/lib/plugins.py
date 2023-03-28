@@ -539,32 +539,6 @@ class DefaultGroupForm(object):
             return schema
         return self.db_to_form_schema()
 
-    def check_data_dict(self, data_dict: dict[str, Any]) -> None:
-        '''Check if the return data is correct, mostly for checking out
-        if spammers are submitting only part of the form
-
-        .. code-block:: python
-
-            # Resources might not exist yet (eg. Add Dataset)
-            surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                'extras_validation', 'save', 'return_to',
-                'resources'
-            ]
-
-            schema_keys = form_to_db_package_schema().keys()
-            keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-            missing_keys = keys_in_schema - set(data_dict.keys())
-
-            if missing_keys:
-                #print data_dict
-                #print missing_keys
-                log.info('incorrect form fields posted')
-                raise DataError(data_dict)
-
-        '''
-        pass
-
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
         pass

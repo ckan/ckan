@@ -21,7 +21,7 @@ class_to_patch = (
 
 @pytest.mark.ckan_config(u"ckan.plugins",
                          u"example_idatastorebackend datastore")
-@pytest.mark.usefixtures(u"with_plugins", u"non_clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"with_plugins", u"non_clean_db")
 class TestExampleIDatastoreBackendPlugin():
 
     def test_backends_correctly_registered(self):
@@ -53,6 +53,7 @@ class TestExampleIDatastoreBackendPlugin():
             DatastoreExampleSqliteBackend,
         )
 
+    @pytest.mark.usefixtures("with_request_context")
     @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
     @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
     @patch(class_to_patch + u"._get_engine")

@@ -18,7 +18,7 @@ JSON_STRING = json.dumps({
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'resource_proxy')
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestProxyPrettyfied(object):
 
     @pytest.fixture(autouse=True)

@@ -280,18 +280,6 @@ def package_update(
 
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
-    if 'api_version' not in context:
-        # check_data_dict() is deprecated. If the package_plugin has a
-        # check_data_dict() we'll call it, if it doesn't have the method we'll
-        # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
-        if check_data_dict:
-            try:
-                package_plugin.check_data_dict(data_dict, schema)
-            except TypeError:
-                # Old plugins do not support passing the schema so we need
-                # to ensure they still work.
-                package_plugin.check_data_dict(data_dict)
 
     resource_uploads = []
     for resource in data_dict.get('resources', []):
@@ -686,14 +674,6 @@ def _group_or_org_update(
         _check_access('organization_update', context, data_dict)
     else:
         _check_access('group_update', context, data_dict)
-
-    if 'api_version' not in context:
-        # old plugins do not support passing the schema so we need
-        # to ensure they still work
-        try:
-            group_plugin.check_data_dict(data_dict, schema)
-        except TypeError:
-            group_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,

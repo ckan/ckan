@@ -54,8 +54,6 @@ groups:
         ignored: true
       - key: BABEL_DOMAIN
         ignored: true
-      - key: BABEL_MULTIPLE_DOMAINS
-        ignored: true
       - key: BABEL_TRANSLATION_DIRECTORIES
         ignored: true
       - key: CKAN_INI
