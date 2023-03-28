@@ -1283,7 +1283,14 @@ def linked_user(user: Union[str, model.User],
 
 
 @core_helper
+@maintain.deprecated("helpers.group_name_to_title() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "group_display_name helper instead.",
+                     since="2.10.0")
 def group_name_to_title(name: str) -> str:
+    """
+    Deprecated: please use `group_display_name` helper instead
+    """
     group = model.Group.by_name(name)
     if group is None:
         return name
@@ -1292,7 +1299,7 @@ def group_name_to_title(name: str) -> str:
     if group_dict is None:
         return name
     return p.toolkit.h.get_translated(group_dict, 'title') \
-        or group_dict.name
+        or group_dict['name']
 
 
 @core_helper
@@ -1700,28 +1707,16 @@ def _object_display_name(obj_dict: dict[str, Any]) -> str:
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
     if not isinstance(package_or_package_dict, dict):
+        # FIXME: we probably shouldn't use the same functions for
+        # package dicts and real package objects
         package_or_package_dict = logic.get_action(u'package_show')(
             {}, {u'id': package_or_package_dict.id})
     return _object_display_name(package_or_package_dict)  # type: ignore
 
 
 @core_helper
-def group_display_name(
-        group_or_group_dict: Union[dict[str, Any], model.Group]) -> str:
-    if not isinstance(group_or_group_dict, dict):
-        group_type = group_or_group_dict.type
-        group_id = group_or_group_dict.id
-    elif 'display_name' not in group_or_group_dict:
-        group_type = group_or_group_dict[u'type']
-        group_id = group_or_group_dict[u'id']
-    if not isinstance(group_or_group_dict, dict) \
-       or 'display_name' not in group_or_group_dict:
-        group_or_group_dict = logic.get_action(
-                                u'%s_show' %
-                                group_type)(  # type: ignore
-                                {},
-                                {u'id': group_id})  # type: ignore
-    return _object_display_name(group_or_group_dict)  # type: ignore
+def group_display_name(group_dict: dict[str, Any]) -> str:
+    return _object_display_name(group_dict)
 
 
 @core_helper

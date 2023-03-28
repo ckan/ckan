@@ -1984,12 +1984,24 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     for field_name in ('groups', 'organization'):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = (session.query(model.Group.name, model.Group.title)
+    groups = (session.query(model.Group.name,
+                            model.Group.title,
+                            model.GroupExtra.value)
                     # type_ignore_reason: incomplete SQLAlchemy types
+                    .outerjoin(model.GroupExtra,
+                               model.Group.id == model.GroupExtra.group_id
+                               and model.GroupExtra.key == 'title_translated'
+                               and model.GroupExtra.active == model.core.State.ACTIVE)
                     .filter(model.Group.name.in_(group_names))  # type: ignore
                     .all()
               if group_names else [])
-    group_titles_by_name = dict(groups)
+    group_titles_by_name = dict()
+    for name, title, title_translated in groups:
+        group_titles_by_name[name] = {
+            'title': title,
+            'title_translated': json.loads(title_translated) \
+                                if title_translated is not None \
+                                else None}
 
     # Transform facets into a more useful data structure.
     restructured_facets: dict[str, Any] = {}
@@ -2003,6 +2015,12 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
                 display_name = group_titles_by_name.get(key_, key_)
+                if 'title_translated' not in display_name \
+                    or display_name['title_translated'] is None:
+                    display_name = display_name['title']
+                else:
+                    display_name = plugins.toolkit.h.get_translated(
+                        display_name, 'title')
                 display_name = display_name \
                     if display_name and display_name.strip() else key_
                 new_facet_dict['display_name'] = display_name

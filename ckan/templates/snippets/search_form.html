@@ -64,11 +64,7 @@
               {%- if facets.translated_fields and (field,value) in facets.translated_fields -%}
                 {{ facets.translated_fields[(field,value)] }}
               {%- else -%}
-                {% if field == 'group' or field == 'organization' %}
-                  {{ h.group_name_to_title(value) }}
-                {% else %}
-                  {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
-                {% endif %}
+                {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
               {%- endif %}
               <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="fa fa-times"></i></a>
             </span>
