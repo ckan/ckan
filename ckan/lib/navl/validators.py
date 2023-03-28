@@ -310,7 +310,7 @@ def unicode_safe(value: Any) -> str:
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
-            return str(value)
+            return bytes.decode(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     try:
