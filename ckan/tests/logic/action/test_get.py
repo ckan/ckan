@@ -2855,10 +2855,8 @@ class TestMembersList(object):
         assert org_members[0][0] == user["id"]
         assert org_members[0][1] == "user"
 
-        user['state'] = 'deleted'
-        helpers.call_action(
-            "user_update", **user
-        )
+        model.Session.delete(model.User.get(user["id"]))
+        model.Session.commit()
 
         org_members = helpers.call_action(
             "member_list",
