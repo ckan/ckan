@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import bs4
 
 from unittest import mock
@@ -476,8 +475,8 @@ class TestCustomSearch(object):
         )
 
         # check that package_b appears before package a (y < z)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert b < a
 
         response = app.get(
@@ -485,8 +484,8 @@ class TestCustomSearch(object):
         )
         # check that package_a appears before package b (z is first in
         # descending order)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert a < b
 
 

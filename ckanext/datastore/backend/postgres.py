@@ -20,7 +20,6 @@ import hashlib
 import json
 from collections import OrderedDict
 
-import six
 from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
@@ -301,7 +300,7 @@ def _get_fields(connection: Any, resource_id: str):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'id': six.ensure_text(field[0]),
+                'id': str(field[0]),
                 'type': _get_type(connection, field[1])
             })
     return fields
@@ -828,7 +827,7 @@ def convert(data: Any, type_name: str) -> Any:
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return six.ensure_text(data)
+        return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -1499,7 +1498,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     result_fields: list[dict[str, Any]] = []
     for field in results.cursor.description:
         result_fields.append({
-            'id': six.ensure_text(field[0]),
+            'id': str(field[0]),
             'type': _get_type(context['connection'], field[1])
         })
 
@@ -2321,5 +2320,5 @@ def _programming_error_summary(pe: Any):
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
-    message = six.ensure_text(pe.args[0].split('\n')[0])
-    return message.split(u') ', 1)[-1]
+    message = str(pe.args[0].split('\n')[0])
+    return message.split(') ', 1)[-1]

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.lib import helpers as template_helpers
@@ -83,6 +82,6 @@ def test_api_info(app):
         "url: 'http://test.ckan.net/api/3/action/datastore_search'",
         "http://test.ckan.net/api/3/action/datastore_search"
     )
-    content = six.ensure_text(page.data)
+    content = page.get_data(as_text=True)
     for url in expected_urls:
         assert url in content
