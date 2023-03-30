@@ -9,7 +9,7 @@
         </a>
         {% endblock %}
         {% block organization_item_header_title %}
-          <h3 class="media-heading"><a href="{{ url }}">{{ h.group_display_name(organization) }}</a></h3>
+          <h3 class="media-heading"><a href="{{ url }}">{{ h.get_translated(organization, 'title') or organization['display_name'] }}</a></h3>
         {% endblock %}
         {% block organization_item_header_description %}
           {% if organization.description %}

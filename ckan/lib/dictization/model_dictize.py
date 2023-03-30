@@ -212,39 +212,10 @@ def package_dictize(
     result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
-    # TODO: do a query for extras for _translated fields??
-    member = model.member_table
-    group = model.group_table
-    q = select([group, member.c["capacity"]],
-               from_obj=member.join(group, group.c["id"] == member.c["group_id"])
-               ).where(member.c["table_id"] == pkg.id)\
-                .where(member.c["state"] == 'active') \
-                .where(group.c["is_organization"] == False)
-    result = execute(q, member, context)
-    context['with_capacity'] = False
-    # no package counts as cannot fetch from search index at the same
-    # time as indexing to it.
-    # tags, extras and sub-groups are not included for speed
-    result_dict["groups"] = group_list_dictize(result, context,
-                                               with_package_counts=False)
+    result_dict["groups"] = []
 
     # owning organization
-    # simple dictized organization from organization_show
-    # only including extras for translations
-    # and excluding everything else for speed
-    organization = logic.get_action('organization_show')(
-        context, {'id': pkg.owner_org,
-                  'include_datasets': False,
-                  'include_dataset_count': False,
-                  'include_extras': True,
-                  'include_users': False,
-                  'include_groups': False,
-                  'include_tags': False,
-                  'include_followers': False})
-    if organization:
-        result_dict["organization"] = organization
-    else:
-        result_dict["organization"] = None
+    result_dict["organization"] = None
 
     # relations
     rel = model.package_relationship_table

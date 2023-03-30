@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% set dataset_type = h.default_package_type() %}
 
-{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ h.group_display_name(group_dict) }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
+{% block subtitle %}{{ _('Manage') }} {{ g.template_title_delimiter }} {{ h.get_translated(group_dict, 'title') or group_dict['display_name'] }} {{ g.template_title_delimiter }} {{ h.humanize_entity_type('group', group_type, 'page title') or _('Groups') }}{% endblock %}
 
 {% set group = group_dict %}
 

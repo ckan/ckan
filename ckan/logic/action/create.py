@@ -1443,7 +1443,9 @@ def follow_group(context: Context,
                                              validated_data_dict['id']):
         groupobj = model.Group.get(validated_data_dict['id'])
         assert groupobj
-        name = plugins.toolkit.h.group_display_name(groupobj)
+        #TODO: Test this and see if we can get the translated title for group obj easily...
+        name = plugins.toolkit.h.get_translated(groupobj, 'title') \
+                or groupobj['display_name']
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})

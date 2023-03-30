@@ -1284,12 +1284,11 @@ def linked_user(user: Union[str, model.User],
 
 @core_helper
 @maintain.deprecated("helpers.group_name_to_title() is deprecated and will be removed "
-                     "in a future version of CKAN. Instead, please use the "
-                     "group_display_name helper instead.",
+                     "in a future version of CKAN.",
                      since="2.10.0")
 def group_name_to_title(name: str) -> str:
     """
-    Deprecated: please use `group_display_name` helper instead
+    Deprecated: will be removed in a future version of CKAN.
     """
     group = model.Group.by_name(name)
     if group is None:
@@ -1699,24 +1698,16 @@ def time_ago_from_timestamp(timestamp: int) -> str:
     return formatters.localised_nice_date(datetime_, show_date=False)
 
 
-def _object_display_name(obj_dict: dict[str, Any]) -> str:
-    return get_translated(obj_dict, 'title') or obj_dict['name']
-
-
 @core_helper
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
-    if not isinstance(package_or_package_dict, dict):
+    if isinstance(package_or_package_dict, dict):
+        return get_translated(package_or_package_dict, 'title') or \
+            package_or_package_dict['name']
+    else:
         # FIXME: we probably shouldn't use the same functions for
         # package dicts and real package objects
-        package_or_package_dict = logic.get_action(u'package_show')(
-            {}, {u'id': package_or_package_dict.id})
-    return _object_display_name(package_or_package_dict)  # type: ignore
-
-
-@core_helper
-def group_display_name(group_dict: dict[str, Any]) -> str:
-    return _object_display_name(group_dict)
+        return package_or_package_dict.title or package_or_package_dict.name
 
 
 @core_helper
@@ -2007,8 +1998,7 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False,
-                     include_extras: bool = True) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -2021,15 +2011,13 @@ def groups_available(am_member: bool = False,
     context: Context = {}
     data_dict = {
         'available_only': True,
-        'am_member': am_member,
-        'include_extras': include_extras}
+        'am_member': am_member}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False,
-                            include_extras: bool = False
+                            include_dataset_count: bool = False
                             ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
@@ -2037,8 +2025,7 @@ def organizations_available(permission: str = 'manage_group',
     context: Context = {'user': current_user.name}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count,
-        'include_extras': include_extras}
+        'include_dataset_count': include_dataset_count}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 

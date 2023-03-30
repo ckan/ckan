@@ -30,7 +30,7 @@
         </div>
       {% endblock %}
       {% block heading %}
-      <h1 class="heading">{{ h.group_display_name(organization) }}
+      <h1 class="heading">{{ h.get_translated(organization, 'title') or organization['display_name'] }}
         {% if organization.state == 'deleted' %}
           [{{ _('Deleted') }}]
         {% endif %}

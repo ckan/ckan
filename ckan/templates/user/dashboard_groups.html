@@ -10,7 +10,7 @@
 
 {% block primary_content_inner %}
   <h2 class="hide-heading">{{ h.humanize_entity_type('group', group_type, 'my label') or _('My Groups') }}</h2>
-  {% set groups = h.groups_available(am_member=True, include_extras=True) %}
+  {% set groups = h.groups_available(am_member=True) %}
   {% if groups %}
     <div class="wide">
       {% snippet "group/snippets/group_list.html", groups=groups %}

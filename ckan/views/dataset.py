@@ -1075,7 +1075,9 @@ class GroupView(MethodView):
 
         user_group_ids = set(group[u'id'] for group in users_groups)
 
-        group_dropdown = [[group[u'id'], h.group_display_name(group)]
+        group_dropdown = [[group[u'id'],
+                           h.get_translated(group, 'title') \
+                           or group['display_name']]
                           for group in users_groups
                           if group[u'id'] not in pkg_group_ids]
 
