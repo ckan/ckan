@@ -2051,9 +2051,9 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
                             model.GroupExtra.value)
                     # type_ignore_reason: incomplete SQLAlchemy types
                     .outerjoin(model.GroupExtra,
-                               _and_(model.Group.id == model.GroupExtra.group_id,
-                                     model.GroupExtra.key == 'title_translated',
-                                     model.GroupExtra.active == model.core.State.ACTIVE))
+                               model.Group.id == model.GroupExtra.group_id
+                               and model.GroupExtra.key == 'title_translated'
+                               and model.GroupExtra.active == model.core.State.ACTIVE)
                     .filter(model.Group.name.in_(group_names))  # type: ignore
                     .all()
               if group_names else [])
