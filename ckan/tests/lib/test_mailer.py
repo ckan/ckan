@@ -166,8 +166,9 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
-        expected_from_header = "{0} <{1}>".format(
-            config.get("ckan.site_title"), config.get("smtp.mail_from")
+        expected_from_header = "\"{0}\" <{1}>".format(
+            config.get("ckan.site_title"),
+            config.get("smtp.mail_from")
         )
 
         assert expected_from_header in msg[3]
