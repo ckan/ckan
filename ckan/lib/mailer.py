@@ -55,8 +55,8 @@ def _mail_recipient(recipient_name, recipient_email,
             msg.add_header(k, v)
     subject = Header(subject.encode('utf-8'), 'utf-8')
     msg['Subject'] = subject
-    msg['From'] = "\"%s\" <%s>" % (sender_name, mail_from)
-    msg['To'] = u"\"%s\" <%s>" % (recipient_name, recipient_email)
+    msg['From'] = utils.formataddr((sender_name, mail_from))
+    msg['To'] = utils.formataddr((recipient_name, recipient_email))
     msg['Date'] = utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
     # Check if extension is setting reply-to via headers or use config option
