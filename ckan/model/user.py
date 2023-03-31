@@ -6,7 +6,6 @@ from typing import Any, Iterable, Optional, TYPE_CHECKING
 import datetime
 import re
 from hashlib import sha1, md5
-import six
 
 import passlib.utils
 from passlib.hash import pbkdf2_sha512
@@ -23,7 +22,7 @@ from ckan.model import meta
 from ckan.model import core
 from ckan.model import types as _types
 from ckan.model import domain_object
-from ckan.common import config, asint, session
+from ckan.common import config, session
 from ckan.types import Query
 
 if TYPE_CHECKING:
@@ -31,14 +30,14 @@ if TYPE_CHECKING:
 
 
 def last_active_check():
-    last_active = asint(config.get('ckan.user.last_active_interval', 600))
+    last_active = config.get('ckan.user.last_active_interval')
     calc_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=last_active)
 
     return calc_time
 
 
 def set_api_key() -> Optional[str]:
-    if config.get_value('ckan.auth.create_default_api_keys'):
+    if config.get('ckan.auth.create_default_api_keys'):
         return _types.make_uuid()
     return None
 
@@ -143,21 +142,14 @@ class User(core.StatefulObjectMixin,
         passlib's CryptContext)
         '''
         hashed_password: Any = pbkdf2_sha512.encrypt(password)
-
-        if not isinstance(hashed_password, str):
-            hashed_password = six.ensure_text(hashed_password)
-        self._password = hashed_password
+        self._password = str(hashed_password)
 
     def _get_password(self) -> str:
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password: str) -> bool:
-        # if isinstance(password, str):
-        #     password_8bit = password.encode('ascii', 'ignore')
-        # else:
-        #     password_8bit = password
-
-        hashed_pass = sha1(six.ensure_binary(password + self.password[:40]))
+        _string = password + self.password[:40]
+        hashed_pass = sha1(_string.encode())
         current_hash = passlib.utils.to_native_str(self.password[40:])
 
         if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):

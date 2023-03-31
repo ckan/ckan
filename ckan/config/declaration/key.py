@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+"""This module defines utilitis for manipulations with the name of config
+option.
 
+"""
 import fnmatch
 from typing import Any, Iterable, Tuple, Union
 
@@ -143,6 +146,16 @@ class Key:
 
 
 class Pattern(Key):
+    """Key with dynamic segment, that can match everything.
+
+    Example:
+
+        >>> pattern = Key().ckan.dynamic("anything")
+        >>> assert pattern == "ckan.hello"
+        >>> assert pattern == "ckan.world"
+        >>> assert pattern == "ckan.x.y.z"
+        >>> assert pattern != "not-ckan.hello"
+    """
     __slots__ = ()
     _path: Tuple[Union[str, Wildcard], ...]
 

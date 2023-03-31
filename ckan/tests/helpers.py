@@ -596,6 +596,7 @@ class FakeSMTP(smtplib.SMTP):
 
     def __init__(self):
         self._msgs = []
+        self.esmtp_features = ['starttls']
 
     def __call__(self, *args):
         return self

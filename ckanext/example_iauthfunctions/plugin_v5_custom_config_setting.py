@@ -15,7 +15,7 @@ def group_create(
     # Get the value of the ckan.iauthfunctions.users_can_create_groups
     # setting from the CKAN config file as a string, or False if the setting
     # isn't in the config file.
-    users_can_create_groups = toolkit.config.get_value(
+    users_can_create_groups = toolkit.config.get(
         'ckan.iauthfunctions.users_can_create_groups')
 
     if users_can_create_groups:

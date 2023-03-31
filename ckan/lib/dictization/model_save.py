@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import copy
 import datetime
 import uuid
 import logging
@@ -65,8 +66,20 @@ def package_resource_list_save(
     if res_dicts is None and allow_partial_update:
         return
 
+    session = context['session']
+    model = context['model']
     resource_list = package.resources_all
-    old_list = package.resources_all[:]
+    # existing resources not marked as deleted - when removed these
+    # need to be kept in the db marked as deleted so that extensions like
+    # datastore have a chance to remove tables created for those resources
+    old_list = session.query(model.Resource) \
+        .filter(model.Resource.package_id == package.id) \
+        .filter(model.Resource.state != 'deleted')[:]
+    # resources previously deleted can be removed permanently as part
+    # of this update
+    deleted_list = session.query(model.Resource) \
+        .filter(model.Resource.package_id == package.id) \
+        .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
     for res_dict in res_dicts or []:
@@ -86,6 +99,9 @@ def package_resource_list_save(
     # according to their ordering in the obj_list.
     resource_list[:] = obj_list
 
+    # Permanently remove old deleted resources
+    for resource in set(deleted_list) - set(obj_list):
+        resource.purge()
     # Mark any left-over resources as deleted
     for resource in set(old_list) - set(obj_list):
         resource.state = 'deleted'
@@ -271,7 +287,8 @@ def relationship_list_save(
         relationship_list.append(relationship)
 
 def package_dict_save(
-        pkg_dict: dict[str, Any], context: Context) -> 'model.Package':
+        pkg_dict: dict[str, Any], context: Context, 
+        include_plugin_data: bool = False) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
     if package:
@@ -282,6 +299,11 @@ def package_dict_save(
         del pkg_dict['metadata_created']
     if 'metadata_modified' in pkg_dict:
         del pkg_dict['metadata_modified']
+
+    plugin_data = pkg_dict.pop('plugin_data', None)    
+    if include_plugin_data:
+        pkg_dict['plugin_data'] = copy.deepcopy(
+            plugin_data) if plugin_data else plugin_data
 
     pkg = d.table_dict_save(pkg_dict, Package, context)
 

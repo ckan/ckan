@@ -13,16 +13,10 @@ from . import error_shout
 
 
 @click.group(
-    short_help="Search, validate and describe config options on strict mode"
+    short_help="Search, validate and describe config options."
 )
 def config():
-    mode = cfg.get_value("config.mode")
-    if mode != "strict":
-        error_shout(
-            "`config.mode = strict` is required to use the declarative"
-            " config features"
-        )
-        raise click.Abort()
+    pass
 
 
 @config.command()
@@ -65,8 +59,8 @@ def describe(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
     help="Include declarations of plugins enabled in the CKAN config file",
 )
 @click.option(
-    "-v",
-    "--verbose",
+    "-d",
+    "--include-docs",
     is_flag=True,
     help="Include documentation for options",
 )
@@ -80,14 +74,14 @@ def declaration(
     plugins: tuple[str, ...],
     core: bool,
     enabled: bool,
-    verbose: bool,
+    include_docs: bool,
     minimal: bool,
 ):
     """Print declared config options for the given plugins."""
 
     decl = _declaration(plugins, core, enabled)
     if decl:
-        click.echo(decl.into_ini(minimal, verbose))
+        click.echo(decl.into_ini(minimal, include_docs))
 
 
 @config.command()
@@ -139,7 +133,7 @@ def search(
             continue
         option = decl[key]
         default = option.default
-        current = option._normalize(cfg.get(str(key), default))
+        current = option.normalize(cfg.get(str(key), default))
         if no_custom and default != current:
             continue
         if custom_only and default == current:
@@ -229,7 +223,7 @@ def _declaration(
     additional = ()
     if include_enabled:
         additional = (
-            p for p in cfg.get_value("ckan.plugins") if p not in plugins
+            p for p in cfg.get("ckan.plugins") if p not in plugins
         )
 
     for name in itertools.chain(additional, plugins):

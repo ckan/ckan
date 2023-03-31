@@ -2,15 +2,13 @@
 
 '''API functions for partial updates of existing data in CKAN'''
 
-from ckan.types.logic import ActionResult
-
-import ckan.logic.action.update as _update
 from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
     get_or_bust as _get_or_bust,
 )
 from ckan.types import Context, DataDict
+from ckan.types.logic import ActionResult
 
 
 def package_patch(
@@ -53,7 +51,7 @@ def package_patch(
     patched = dict(package_dict)
     patched.update(data_dict)
     patched['id'] = package_dict['id']
-    return _update.package_update(context, patched)
+    return _get_action('package_update')(context, patched)
 
 
 def resource_patch(context: Context,
@@ -84,7 +82,7 @@ def resource_patch(context: Context,
 
     patched = dict(resource_dict)
     patched.update(data_dict)
-    return _update.resource_update(context, patched)
+    return _get_action('resource_update')(context, patched)
 
 
 def group_patch(context: Context,
@@ -118,7 +116,7 @@ def group_patch(context: Context,
 
     patch_context = context.copy()
     patch_context['allow_partial_update'] = True
-    return _update.group_update(patch_context, patched)
+    return _get_action('group_update')(patch_context, patched)
 
 
 def organization_patch(
@@ -153,7 +151,7 @@ def organization_patch(
 
     patch_context = context.copy()
     patch_context['allow_partial_update'] = True
-    return _update.organization_update(patch_context, patched)
+    return _get_action('organization_update')(patch_context, patched)
 
 
 def user_patch(context: Context,
@@ -184,4 +182,4 @@ def user_patch(context: Context,
     patched = dict(user_dict)
     patched.pop('display_name', None)
     patched.update(data_dict)
-    return _update.user_update(context, patched)
+    return _get_action('user_update')(context, patched)

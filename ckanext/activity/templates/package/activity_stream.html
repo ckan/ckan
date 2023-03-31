@@ -1,0 +1,24 @@
+{% extends "package/read_base.html" %}
+
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+  {% if activity_types is defined %}
+    {% snippet 'snippets/activity_type_selector.html', id=id, activity_type=activity_type, activity_types=activity_types, blueprint='dataset.activity' %}
+  {% endif %}
+
+  {% if activity_stream|length > 0 %}
+    {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type='package' %}
+  {% else %}
+    <p>
+      {% if activity_type %}
+        {{ _('No activity found for this type') }}
+      {% else %}
+        {{ _('No activity found') }}.
+      {% endif %}
+    </p>
+  {% endif %}
+
+  {% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+
+{% endblock %}

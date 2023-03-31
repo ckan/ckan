@@ -36,6 +36,7 @@
       {% block form %}
         {% if page.item_count %}
           <form method="POST" data-module="basic-form">
+            {{ h.csrf_input() }}
             <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
               <col width="8">
               <col width="120">

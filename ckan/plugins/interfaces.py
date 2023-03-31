@@ -6,7 +6,6 @@ extend CKAN.
 '''
 from __future__ import annotations
 
-import warnings
 from typing import (Any, Callable, Iterable, Mapping, Optional, Sequence,
                     TYPE_CHECKING, Type, Union)
 
@@ -15,11 +14,11 @@ from pyutilib.component.core import Interface as _pca_Interface
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model import User
-from ckan.exceptions import CkanDeprecationWarning
+from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
-    PUploader, PResourceUploader, Schema, SignalMapping, Validator)
+    PUploader, PResourceUploader, Schema, SignalMapping, Validator,
+    CKANApp)
 
 if TYPE_CHECKING:
     import click
@@ -100,8 +99,7 @@ class IMiddleware(Interface):
     one for the Pylons stack and one for the Flask stack (eventually
     there will be only the Flask stack).
     '''
-    def make_middleware(self, app: 'CKANFlask',
-                        config: 'CKANConfig') -> 'CKANFlask':
+    def make_middleware(self, app: CKANApp, config: 'CKANConfig') -> CKANApp:
         u'''Return an app configured with this middleware
 
         When called on the Flask stack, this method will get the actual Flask
@@ -232,7 +230,7 @@ class IResourceView(Interface):
         The available keys are:
 
         :param name: name of the view type. This should match the name of the
-            actual plugin (eg ``image_view`` or ``recline_view``).
+            actual plugin (eg ``image_view`` or ``datatables_view``).
         :param title: title of the view type. Will be displayed on the
             frontend. This should be translatable (ie wrapped with
             ``toolkit._('Title')``).
@@ -453,23 +451,6 @@ class IPackageController(Interface):
     u'''
     Hook into the dataset view.
     '''
-    def __init__(self):
-        # Drop support by removing this __init__ function
-        for old_name, new_name in [
-            ["after_create", "after_dataset_create"],
-            ["after_update", "after_dataset_update"],
-            ["after_delete", "after_dataset_delete"],
-            ["after_show", "after_dataset_show"],
-            ["before_search", "before_dataset_search"],
-            ["after_search", "after_dataset_search"],
-            ["before_index", "before_dataset_index"],
-                ["before_view", "before_dataset_view"]]:
-            if hasattr(self, old_name):
-                warnings.warn(
-                    "The method 'IPackageController.{}' is ".format(old_name)
-                    + "deprecated. Please use '{}' instead!".format(new_name),
-                    CkanDeprecationWarning)
-                setattr(self, new_name, getattr(self, old_name))
 
     def read(self, entity: 'model.Package') -> None:
         u'''
@@ -583,22 +564,6 @@ class IResourceController(Interface):
     u'''
     Hook into the resource view.
     '''
-    def __init__(self):
-        # Drop support by removing this __init__ function
-        for old_name, new_name in [
-            ["before_create", "before_resource_create"],
-            ["after_create", "after_resource_create"],
-            ["before_update", "before_resource_update"],
-            ["after_update", "after_resource_update"],
-            ["before_delete", "before_resource_delete"],
-            ["after_delete", "after_resource_delete"],
-                ["before_show", "before_resource_show"]]:
-            if hasattr(self, old_name):
-                warnings.warn(
-                    "The method 'IResourceController.{}' is ".format(old_name)
-                    + "deprecated. Please use '{}' instead!".format(new_name),
-                    CkanDeprecationWarning)
-                setattr(self, new_name, getattr(self, old_name))
 
     def before_resource_create(
             self, context: Context, resource: dict[str, Any]) -> None:
@@ -793,14 +758,18 @@ class IConfigDeclaration(Interface):
                 declaration.declare(group.enabled, "no").set_description(
                     "Enables feature"
                 )
-                declaration.declare(group.mode, "simple")
+                declaration.declare(group.mode, "simple").set_description(
+                    "Execution mode"
+                )
 
-        Produces the following config suggestion::
+        Run ``ckan config declaration my_ext --include-docs`` and get the
+        following config suggestion::
 
-            ####### MyExt config section #######
+            ## MyExt config section ######################
             # Enables feature
             ckanext.my_ext.feature.enabled = no
-            # ckanext.my_ext.feature.mode = simple
+            # Execution mode
+            ckanext.my_ext.feature.mode = simple
 
         See :ref:`declare configuration <declare-config-options>` guide for
         details.
@@ -1349,7 +1318,6 @@ class IGroupForm(Interface):
      - group_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
-     - check_data_dict(self, data_dict)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1469,15 +1437,6 @@ class IGroupForm(Interface):
         format suitable for the form (optional)
         '''
         return {}
-
-    def check_data_dict(self,
-                        data_dict: DataDict,
-                        schema: Optional[Schema] = None) -> None:
-        u'''
-        Check if the return data is correct.
-
-        raise a DataError if not.
-        '''
 
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
@@ -1740,8 +1699,8 @@ class IAuthenticator(Interface):
     def authenticate(
         self, identity: 'Mapping[str, Any]'
     ) -> Optional["User"]:
-        """Called before the authentication starts (that is after clicking the login
-        button)
+        """Called before the authentication starts
+        (that is after clicking the login button)
 
         Plugins should return a user object if the authentication was
         successful, or ``None``` otherwise.

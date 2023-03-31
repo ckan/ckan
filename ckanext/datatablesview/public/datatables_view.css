@@ -8,7 +8,7 @@ table {
 }
 
 /* so user does not see table being dynamically created */
-body.dt-view { 
+body.dt-view {
   visibility: hidden;
 }
 
@@ -46,8 +46,6 @@ table.dataTable td {
 
 /* but show the data on hover */
 table.dataTable td:hover {
-   white-space: break-spaces;  /* normal; */
-   word-break: break-all;
    overflow: visible;
    text-overflow: visible;
 }
@@ -65,14 +63,6 @@ div.DTFC_LeftBodyWrapper {
   filter: brightness(0.85);
 }
 
-/* make display record details header sticky */
-#modalHeader {
-  background-color: #f9f9f9;
-  position:sticky;
-  top:0;
-  width:100%;
-  z-index:11;  
-}
 
 /* for dynamic resizing of datatable, needed for scrollresize */
 #resize_wrapper {
@@ -173,25 +163,25 @@ background-color: #0275d8;
 
 /* for zooming thumbnails on hover */
 .zoomthumb {
--webkit-transition: all 0.3s ease-in-out;    
--moz-transition: all 0.3s ease-in-out;    
-transition: all 0.3s ease-in-out;     
-cursor: -webkit-zoom-in;      
-cursor: -moz-zoom-in;      
-cursor: zoom-in;  
-}     
+-webkit-transition: all 0.3s ease-in-out;
+-moz-transition: all 0.3s ease-in-out;
+transition: all 0.3s ease-in-out;
+cursor: -webkit-zoom-in;
+cursor: -moz-zoom-in;
+cursor: zoom-in;
+}
 
 .zoomthumb:hover,
-.zoomthumb:active,   
+.zoomthumb:active,
 .zoomthumb:focus {
-/**adjust scale to desired size, 
+/**adjust scale to desired size,
 add browser prefixes**/
--ms-transform: scale(2.5);    
--moz-transform: scale(2.5);  
--webkit-transform: scale(2.5);  
--o-transform: scale(2.5);  
-transform: scale(2.5);    
-position:relative;      
+-ms-transform: scale(2.5);
+-moz-transform: scale(2.5);
+-webkit-transform: scale(2.5);
+-o-transform: scale(2.5);
+transform: scale(2.5);
+position:relative;
 z-index:100;
 }
 

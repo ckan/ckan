@@ -25,43 +25,47 @@ There are pre-configured Docker images for Solr for each CKAN version. Make sure
 
     docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:2.10
 
-.. todo:: Switch to ``|current_minor_version|`` when we branch `dev-v2.10`
-
 You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 
 Installing Solr manually
 ========================
 
+The following instructions have been tested in Ubuntu 22.04 and are provided as a guidance only. For a Solr production setup is it recommended that you
+follow the `official Solr documentation <https://solr.apache.org/guide/8_0/taking-solr-to-production.html#taking-solr-to-production>`_.
+
+
+#. Install the OS dependencies::
+
+      sudo apt-get install openjdk-8-jdk
+
 #. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 8.x.
 
-#. Extract the downloaded file to your desired location (adjust the Solr version number to the one you are using)::
+#. Extract the install script file to your desired location (adjust the Solr version number to the one you are using)::
 
-    tar xzf solr-8.11.0.tgz
+    tar xzf solr-8.11.2.tgz solr-8.11.2/bin/install_solr_service.sh --strip-components=2
 
-#. Change into the extracted directory::
+#. Run the installation script as ``root``::
 
-    cd solr-8.11.0/
+    sudo bash ./install_solr_service.sh solr-8.11.2.tgz
 
-#. Start Solr::
+#. Check that Solr started running::
 
-    bin/solr start
+    sudo service solr status
 
 #. Create a new core for CKAN::
 
-    bin/solr create -c ckan
+    sudo -u solr /opt/solr/bin/solr create -c ckan
 
-#. Replace the standard schema located in ``server/solr/ckan/conf/managed-schema`` with the CKAN one:
+#. Replace the standard schema with the CKAN one:
 
    .. parsed-literal::
 
-    wget -O server/solr/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/master/ckan/config/solr/schema.xml
+    sudo -u solr wget -O /var/solr/data/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/dev-v2.10/ckan/config/solr/schema.xml
 
-
-.. todo:: Switch to ``|current_release_tag|`` when we branch `dev-v2.10`
 
 #. Restart Solr::
 
-    bin/solr restart
+    sudo service solr restart
 
 
 Next steps with Solr

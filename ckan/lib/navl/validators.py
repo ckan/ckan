@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from typing import Any, Callable, NoReturn
-import six
 
 
 import ckan.lib.navl.dictization_functions as df
@@ -60,14 +59,19 @@ def not_empty(key: FlattenKey, data: FlattenDataDict,
     .. code-block::
 
         data, errors = tk.navl_validate(
-            {"hello": 0},
+            {"hello": None},
             {"hello": [not_empty]}
         )
         assert errors == {"hello": [error_message]}
 
     """
     value = data.get(key)
-    if not value or value is missing:
+    valid_values = [False, 0, 0.0]
+
+    if value in valid_values:
+        return
+
+    if value is missing or not value:
         errors[key].append(_('Missing value'))
         raise StopOnError
 
@@ -306,7 +310,7 @@ def unicode_safe(value: Any) -> str:
         # bytes only arrive when core ckan or plugins call
         # actions from Python code
         try:
-            return six.ensure_text(value)
+            return bytes.decode(value)
         except UnicodeDecodeError:
             return value.decode(u'cp1252')
     try:
