@@ -64,8 +64,8 @@ def _mail_recipient(
         else:
             msg.add_header(k, v)
     msg['Subject'] = subject
-    msg['From'] = "\"%s\" <%s>" % (sender_name, mail_from)
-    msg['To'] = u"\"%s\" <%s>" % (recipient_name, recipient_email)
+    msg['From'] = utils.formataddr((sender_name, mail_from))
+    msg['To'] = utils.formataddr((recipient_name, recipient_email))
     msg['Date'] = utils.formatdate(time())
     if not config.get('ckan.hide_version'):
         msg['X-Mailer'] = "CKAN %s" % ckan.__version__
