@@ -1,11 +1,18 @@
 {% import 'macros/form.html' as form %}
 
-{{
+{%- set info = field.get('info', {}) -%}
+{%- set help_text = info.get('notes', '') -%}
+
+{%- call
   form.input('col__' ~ position ~ '__value',
-    label=field.get('info', {}).get('label', '') or field.id
+    label=info.get('label', '') or field.id
       ~ (_(' (Primary Key)') if pk else ''), classes=['control-full'],
     id='field-' ~ position,
     value=value or '',
     error=errors.get(field.id),
   )
-}}
+-%}
+  {%- if help_text -%}
+    {{- form.info(help_text) -}}
+  {%- endif -%}
+{%- endcall %}
