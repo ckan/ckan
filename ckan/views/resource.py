@@ -46,6 +46,12 @@ resource = Blueprint(
     url_prefix=u'/dataset/<id>/resource',
     url_defaults={u'package_type': u'dataset'}
 )
+prefixed_resource = Blueprint(
+    u'resource',
+    __name__,
+    url_prefix=u'/dataset/<id>/resource',
+    url_defaults={u'package_type': u'dataset'}
+)
 
 
 def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
@@ -820,5 +826,7 @@ def register_dataset_plugin_rules(blueprint: Blueprint) -> None:
 
 
 register_dataset_plugin_rules(resource)
+register_dataset_plugin_rules(prefixed_resource)
 # remove this when we improve blueprint registration to be explicit:
 resource.auto_register = False  # type: ignore
+prefixed_resource.auto_register = False  # type: ignore
