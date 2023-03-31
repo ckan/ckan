@@ -50,7 +50,7 @@ class ExampleDataStoreSearchSQLPlugin(p.SingletonPlugin):
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )
-@pytest.mark.usefixtures(u"with_request_context", u"with_plugins", u"clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestChainedAuth(object):
     def test_datastore_search_sql_auth(self):
         ctd.CreateTestData.create()
@@ -90,8 +90,10 @@ class ExampleExternalProviderPlugin(p.SingletonPlugin):
 @pytest.mark.ckan_config(
     u"ckan.plugins", u"datastore example_data_store_search_sql_plugin"
 )
-@pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"with_plugins", u"clean_db")
 class TestChainedAuthBuiltInFallback(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
     def test_user_create_chained_auth(self):
         ctd.CreateTestData.create()
         # check if chained auth fallbacks to built-in user_create

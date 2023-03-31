@@ -20,3 +20,4 @@ groups:
 
   - key: ckan.preview.jsonp_formats
     default: jsonp
+    description: Space-delimited list of JSONP based resource formats that will be rendered by the Text view plugin

@@ -10,10 +10,11 @@
 
   <form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
     {% block admin_form %}
+      {{ h.csrf_input() }}
 
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
 
-      {{ form.input('ckan.main_css', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.main_css'], error=error, classes=['control-medium']) }}
+      {{ form.input('ckan.theme', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.theme'], error=error, classes=['control-medium']) }}
 
       {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
 

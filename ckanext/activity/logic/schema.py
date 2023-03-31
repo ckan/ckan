@@ -53,6 +53,9 @@ def default_dashboard_activity_list_schema(
     configured_default: ValidatorFactory,
     natural_number_validator: Validator,
     limit_to_configured_maximum: ValidatorFactory,
+    ignore_missing: Validator,
+    datetime_from_timestamp_validator: Validator,
+
 ):
     schema = default_pagination_schema()
     schema["limit"] = [
@@ -60,6 +63,8 @@ def default_dashboard_activity_list_schema(
         natural_number_validator,
         limit_to_configured_maximum("ckan.activity_list_limit_max", 100),
     ]
+    schema["before"] = [ignore_missing, datetime_from_timestamp_validator]
+    schema["after"] = [ignore_missing, datetime_from_timestamp_validator]
     return schema
 
 

@@ -23,7 +23,7 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user
+    _, config, g, request, current_user, login_user, logout_user, session
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -103,7 +103,7 @@ def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')
     order_by = request.args.get('order_by', 'name')
-    default_limit: int = config.get_value('ckan.user_list_limit')
+    default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
     context = cast(Context, {
         u'return_query': True,
@@ -137,7 +137,7 @@ def index():
 
 def me() -> Response:
     return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+        config.get(u'ckan.auth.route_after_login'))
 
 
 def read(id: str) -> Union[Response, str]:
@@ -471,6 +471,7 @@ class RegisterView(MethodView):
         userobj = model.User.get(user_dict["id"])
         if userobj:
             login_user(userobj)
+            rotate_token()
         resp = h.redirect_to(u'user.me')
         return resp
 
@@ -504,6 +505,19 @@ def next_page_or_default(target: Optional[str]) -> Response:
     return me()
 
 
+def rotate_token():
+    """
+    Change the CSRF token - should be done on login
+    for security purposes.
+    """
+    from flask_wtf.csrf import generate_csrf
+
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
+        generate_csrf()
+
+
 def login() -> Union[Response, str]:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.login()
@@ -532,9 +546,11 @@ def login() -> Union[Response, str]:
                 from datetime import timedelta
                 duration_time = timedelta(milliseconds=int(_remember))
                 login_user(user_obj, remember=True, duration=duration_time)
+                rotate_token()
                 return next_page_or_default(next)
             else:
                 login_user(user_obj)
+                rotate_token()
                 return next_page_or_default(next)
         else:
             err = _(u"Login failed. Bad username or password.")
@@ -555,6 +571,10 @@ def logout() -> Response:
 
     came_from = request.args.get('came_from', '')
     logout_user()
+
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
+    if session.get(field_name):
+        session.pop(field_name)
 
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
@@ -670,7 +690,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get_value(
+                return h.redirect_to(config.get(
                     u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
@@ -678,7 +698,7 @@ class RequestResetView(MethodView):
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get_value(
+        return h.redirect_to(config.get(
             u'ckan.user_reset_landing_page'))
 
     def get(self) -> str:
@@ -740,14 +760,23 @@ class PerformResetView(MethodView):
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
             user_dict[u'reset_key'] = g.reset_key
-            user_dict[u'state'] = model.State.ACTIVE
-            logic.get_action(u'user_update')(context, user_dict)
+            updated_user = logic.get_action("user_update")(context, user_dict)
+            # Users can not change their own state, so we need another edit
+            if (updated_user["state"] == model.State.PENDING):
+                patch_context = cast(Context, {
+                    'user': logic.get_action("get_site_user")(
+                        {"ignore_auth": True}, {})["name"]
+                })
+                logic.get_action("user_patch")(
+                    patch_context,
+                    {"id": user_dict['id'], "state": model.State.ACTIVE}
+                )
             mailer.create_reset_key(context[u'user_obj'])
             signals.perform_password_reset.send(
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get_value(
+            return h.redirect_to(config.get(
                 u'ckan.user_reset_landing_page'))
 
         except logic.NotAuthorized:

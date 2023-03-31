@@ -62,7 +62,7 @@ class TestPluginLoadingOrder(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
-@pytest.mark.usefixtures("clean_index", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_index", "with_plugins")
 class TestPluginDatastoreSearch(object):
     def test_english_is_default_fts_language(self):
         expected_ts_query = ", plainto_tsquery('english', 'foo') \"query\""

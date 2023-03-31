@@ -355,6 +355,29 @@ class TestUpdate(object):
             "http://a.html",
         ]
 
+    def test_normal_user_can_not_change_their_state(self):
+
+        user = factories.User(state='pending')
+
+        user['state'] = 'active'
+
+        updated_user = helpers.call_action("user_update", **user)
+
+        updated_user['state'] == 'pending'
+
+    def test_sysadmin_user_can_change_a_user_state(self):
+
+        user = factories.User(state='pending')
+        sysadmin = factories.Sysadmin()
+
+        user['state'] = 'active'
+
+        context = {'user': sysadmin['name']}
+
+        updated_user = helpers.call_action("user_update", context=context, **user)
+
+        updated_user['state'] == 'active'
+
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -379,19 +402,14 @@ class TestUpdate(object):
         context = {"user": user["name"]}
         org = factories.Organization(type="organization", user=user)
 
-        org = helpers.call_action(
-            "organization_update",
-            context=context,
-            id=org["id"],
-            name=org["name"],
-            type="ragtagband",
-        )
-
-        assert org["type"] == "organization"
-        assert (
-            helpers.call_action("organization_show", id=org["name"])["type"]
-            == "organization"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "organization_update",
+                context=context,
+                id=org["id"],
+                name=org["name"],
+                type="ragtagband",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -716,7 +734,7 @@ class TestResourceViewUpdate(object):
         assert result == resource_view
 
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
+@pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
@@ -1135,7 +1153,7 @@ class TestResourceUpdate(object):
         assert "someotherkey" not in resource
 
     @pytest.mark.ckan_config(
-        "ckan.views.default_views", "image_view recline_view"
+        "ckan.views.default_views", "image_view text_view"
     )
     def test_resource_format_update(self):
         dataset = factories.Dataset()
@@ -1152,11 +1170,11 @@ class TestResourceUpdate(object):
 
         # Update resource with format
         resource = helpers.call_action(
-            "resource_update", id=resource["id"], format="CSV"
+            "resource_update", id=resource["id"], format="TXT"
         )
 
         # Format changed
-        assert resource["format"] == "CSV"
+        assert resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
@@ -1166,7 +1184,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
         second_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2", format="CSV"
+            package=dataset, url="http://localhost", name="Test2", format="TXT"
         )
 
         res_views = helpers.call_action(
@@ -1213,11 +1231,11 @@ class TestResourceUpdate(object):
         assert len(res_views) == 0
 
         third_resource = helpers.call_action(
-            "resource_update", id=third_resource["id"], format="CSV"
+            "resource_update", id=third_resource["id"], format="TXT"
         )
 
         # Format changed
-        assert third_resource["format"] == "CSV"
+        assert third_resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=third_resource["id"]
@@ -1472,19 +1490,14 @@ class TestGroupUpdate(object):
         context = {"user": user["name"]}
         group = factories.Group(type="group", user=user)
 
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            name=group["name"],
-            id=group["id"],
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id=group["name"])["type"]
-            == "group"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_update",
+                context=context,
+                name=group["name"],
+                id=group["id"],
+                type="favouritecolour",
+            )
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2346,3 +2359,100 @@ class TestTermTranslations:
             ],
             key=dict.items,
         )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+    def test_stored_on_update_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+        assert updated_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data from "package" where id=:id',
+            {"id": dataset["id"]}
+        ).first()
+
+        assert plugin_data_from_db[0] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+
+        assert "plugin_data" not in updated_pkg
+        pkg = model.Package.get(dataset["id"])
+        assert pkg.plugin_data == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }

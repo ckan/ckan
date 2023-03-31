@@ -86,7 +86,7 @@ def user_list(context: Context, data_dict: DataDict) -> AuthResult:
     if data_dict.get('email'):
         # only sysadmins can specify the 'email' parameter
         return {'success': False}
-    if not config.get_value('ckan.auth.public_user_details'):
+    if not config.get('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
@@ -171,7 +171,7 @@ def group_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     group = get_group_object(context, data_dict)
     if group.state == 'active':
-        if config.get_value('ckan.auth.public_user_details') or \
+        if config.get('ckan.auth.public_user_details') or \
             (not asbool(data_dict.get('include_users', False)) and
                 (data_dict.get('object_type', None) != 'user')):
             return {'success': True}
@@ -200,7 +200,7 @@ def tag_show(context: Context, data_dict: DataDict) -> AuthResult:
 def user_show(context: Context, data_dict: DataDict) -> AuthResult:
     # By default, user details can be read by anyone, but some properties like
     # the API key are stripped at the action level if not not logged in.
-    if not config.get_value('ckan.auth.public_user_details'):
+    if not config.get('ckan.auth.public_user_details'):
         return restrict_anon(context)
     else:
         return {'success': True}
@@ -339,7 +339,9 @@ def job_show(context: Context, data_dict: DataDict) -> AuthResult:
 def api_token_list(context: Context, data_dict: DataDict) -> AuthResult:
     """List all available tokens for current user.
     """
-    user = context[u'model'].User.get(data_dict[u'user'])
+    # Support "user" for backwards compatibility
+    id_or_name = data_dict.get("user_id", data_dict.get("user"))
+    user = context[u'model'].User.get(id_or_name)
     success = user is not None and user.name == context[u'user']
 
     return {u'success': success}
@@ -381,4 +383,90 @@ def package_collaborator_list_for_user(context: Context,
 
 def status_show(context: Context, data_dict: DataDict) -> AuthResult:
     '''Show information about the site's configuration. Visible to all by default.'''
+    return {'success': True}
+
+
+def dataset_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of datasets followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of groups followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def organization_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of organizations followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def user_followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of users followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def followee_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of objects (of any type) followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def dataset_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a dataset are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def organization_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of an organization are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def user_follower_count(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the number of followers of a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def am_following_dataset(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a dataset is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def am_following_group(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def am_following_user(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the information about following a user is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def group_package_show(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the set of datasets belonging to a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def member_list(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the members of a given group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+def resource_search(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if resource search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+def tag_search(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if tag search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+def term_translation_show(context: Context, data_dict: DataDict) -> AuthResult:
+    '''Check if the translations for the given term(s) and language(s) are visible.
+    Visible to all by default.'''
     return {'success': True}

@@ -34,7 +34,6 @@ from io import BytesIO
 import copy
 
 import pytest
-import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
@@ -47,7 +46,7 @@ import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
 import ckan.model as model
-from ckan.common import config
+from ckan.common import config, aslist
 
 
 @register
@@ -95,8 +94,16 @@ class APITokenFactory(factories.APIToken):
     pass
 
 
-register(factories.Sysadmin, "sysadmin")
-register(factories.Organization, "organization")
+class SysadminFactory(factories.Sysadmin):
+    pass
+
+
+class OrganizationFactory(factories.Organization):
+    pass
+
+
+register(SysadminFactory, "sysadmin")
+register(OrganizationFactory, "organization")
 
 
 @pytest.fixture
@@ -132,6 +139,7 @@ def ckan_config(request, monkeypatch):
     _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
+
     yield config
     config.clear()
     config.update(_original)
@@ -269,7 +277,7 @@ def with_plugins(ckan_config):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    plugins = ckan_config["ckan.plugins"].split()
+    plugins = aslist(ckan_config["ckan.plugins"])
     for plugin in plugins:
         if not ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.load(plugin)
@@ -334,14 +342,14 @@ def with_extended_cli(ckan_config, monkeypatch):
 
 
 @pytest.fixture(scope="session")
-def _reset_db_once(reset_db):
+def reset_db_once(reset_db):
     """Internal fixture that cleans DB only the first time it's used.
     """
     reset_db()
 
 
 @pytest.fixture
-def non_clean_db(_reset_db_once):
+def non_clean_db(reset_db_once):
     """Guarantees that DB is initialized.
 
     This fixture either initializes DB if it hasn't been done yet or does
@@ -399,10 +407,12 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
-        action = kwargs.pop(u"action", u"resource_create")
-        field = kwargs.pop(u"upload_field_name", u"upload")
+        action = kwargs.pop("action", "resource_create")
+        field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        test_file.write(six.ensure_binary(data))
+        if type(data) is not bytes:
+            data = bytes(data, encoding="utf-8")
+        test_file.write(data)
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 

@@ -4,7 +4,6 @@
 import hashlib
 from typing import Any
 
-import six
 from urllib.parse import unquote, urlparse
 
 import sqlalchemy as sa
@@ -35,15 +34,14 @@ class TrackingMiddleware(object):
 
     def __init__(self, app: CKANApp, config: CKANConfig):
         self.app = app
-        self.engine = sa.create_engine(config.get_value('sqlalchemy.url'))
+        self.engine = sa.create_engine(config.get('sqlalchemy.url'))
 
     def __call__(self, environ: Any, start_response: Any) -> Any:
         path = environ['PATH_INFO']
         method = environ.get('REQUEST_METHOD')
         if path == '/_tracking' and method == 'POST':
-            # do the tracking
-            # get the post data
-            payload = six.ensure_str(environ['wsgi.input'].read())
+            # wsgi.input is a BytesIO object
+            payload = environ['wsgi.input'].read().decode()
             parts = payload.split('&')
             data = {}
             for part in parts:
@@ -58,7 +56,7 @@ class TrackingMiddleware(object):
                 environ.get('HTTP_ACCEPT_LANGUAGE', ''),
                 environ.get('HTTP_ACCEPT_ENCODING', ''),
             ])
-            key = hashlib.md5(six.ensure_binary(key)).hexdigest()
+            key = hashlib.md5(key.encode()).hexdigest()
             # store key/data here
             sql = '''INSERT INTO tracking_raw
                      (user_key, url, tracking_type)
@@ -81,7 +79,7 @@ class HostHeaderMiddleware(object):
         if path_info in ['/login_generic', '/user/login',
                          '/user/logout', '/user/logged_in',
                          '/user/logged_out']:
-            site_url = config.get_value('ckan.site_url')
+            site_url = config.get('ckan.site_url')
             parts = urlparse(site_url)
             environ['HTTP_HOST'] = str(parts.netloc)
         return self.app(environ, start_response)

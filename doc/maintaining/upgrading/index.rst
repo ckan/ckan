@@ -37,11 +37,9 @@ appropriate one of these documents:
 .. toctree::
     :maxdepth: 1
 
-    upgrade-package-ckan-1-to-2
     upgrade-package-to-patch-release
     upgrade-package-to-minor-release
     upgrade-source
-    upgrade-postgres
     upgrade-to-python3
 
 

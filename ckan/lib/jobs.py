@@ -161,7 +161,7 @@ def enqueue(fn: Callable[..., Any],
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.get_value(u'ckan.jobs.timeout')
+    timeout = config.get(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
     job = get_queue(queue).enqueue_call(

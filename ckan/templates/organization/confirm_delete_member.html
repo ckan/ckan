@@ -11,6 +11,7 @@
         <p>{{ _('Are you sure you want to delete member - {name}?').format(name=user_dict.name) }}</p>
         <p class="form-actions">
           <form action="{{ h.url_for(group_type + '.member_delete', id=group_id, user=user_id) }}" method="post">
+            {{ h.csrf_input() }}
             <input type="hidden" name="user" value="{{ user_id }}" />
             <button class="btn btn-danger" type="submit" name="cancel" >{{ _('Cancel') }}</button>
             <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>

@@ -14,6 +14,8 @@ from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 from ckan.common import config
 
@@ -71,6 +73,7 @@ package_table = Table('package', meta.metadata,
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('plugin_data', MutableDict.as_mutable(JSONB)),
 )
 
 
@@ -107,6 +110,7 @@ class Package(core.StatefulObjectMixin,
     metadata_modified: datetime.datetime
     private: bool
     state: str
+    plugin_data: dict[str, Any]
 
     package_tags: list["PackageTag"]
 
@@ -260,7 +264,7 @@ class Package(core.StatefulObjectMixin,
         _dict['extras'] = {key: value for key, value in self.extras.items()}
         _dict['resources'] = [res.as_dict(core_columns_only=False) \
                               for res in self.resources]
-        site_url = config.get_value('ckan.site_url')
+        site_url = config.get('ckan.site_url')
         if site_url:
             _dict['ckan_url'] = '%s/dataset/%s' % (site_url, self.name)
         _dict['relationships'] = [rel.as_dict(self, ref_package_by=ref_package_by) for rel in self.get_relationships()]
@@ -322,8 +326,8 @@ class Package(core.StatefulObjectMixin,
         if with_package:
             assert isinstance(with_package, Package)
         from ckan.model.package_relationship import PackageRelationship
-        forward_filters = [PackageRelationship.subject==self]
-        reverse_filters = [PackageRelationship.object==self]
+        forward_filters: Any = [PackageRelationship.subject==self]
+        reverse_filters: Any = [PackageRelationship.object==self]
         if with_package:
             forward_filters.append(PackageRelationship.object==with_package)
             reverse_filters.append(PackageRelationship.subject==with_package)

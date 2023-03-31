@@ -34,7 +34,7 @@ import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 import ckan.model as model
-from ckan.types import Context, Query
+from ckan.types import Context
 from ckan.common import config
 
 ## package save
@@ -43,7 +43,7 @@ def group_list_dictize(
         obj_list: Union[Iterable[model.Group],
                         Iterable[tuple[model.Group, str]]],
         context: Context,
-        sort_key: Callable[..., Any]=lambda x: x['display_name'], reverse: bool=False,
+        sort_key: Callable[..., Any]=lambda x: h.strxfrm(x['display_name']), reverse: bool=False,
         with_package_counts: bool=True,
         include_groups: bool=False,
         include_tags: bool=False,
@@ -156,7 +156,9 @@ def _execute(q: Select, table: Table, context: Context) -> Any:
     return result
 
 
-def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
+def package_dictize(
+    pkg: model.Package, context: Context, include_plugin_data: bool = False
+    ) -> dict[str, Any]:
     '''
     Given a Package object, returns an equivalent dictionary.
     '''
@@ -172,6 +174,11 @@ def package_dictize(pkg: model.Package, context: Context) -> dict[str, Any]:
     # strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
+    # plugin_data
+    plugin_data = result_dict.pop('plugin_data', None)
+    if include_plugin_data:
+        result_dict['plugin_data'] = copy.deepcopy(
+            plugin_data) if plugin_data else plugin_data
 
     # resources
     res = model.resource_table
@@ -296,7 +303,7 @@ def _get_members(context: Context, group: model.Group,
 
     model = context['model']
     Entity = getattr(model, member_type[:-1].capitalize())
-    q: "Query[tuple[Entity, str]]" = model.Session.query(
+    q = model.Session.query(
         Entity, model.Member.capacity).\
         join(model.Member, model.Member.table_id == Entity.id).\
         filter(model.Member.group_id == group.id).\
@@ -525,7 +532,7 @@ def tag_dictize(tag: model.Tag, context: Context,
 def user_list_dictize(
         obj_list: Union[list[model.User], list[tuple[model.User, str]]],
         context: Context,
-        sort_key: Callable[[Any], Any] = lambda x:x['name'],
+        sort_key: Callable[[Any], Any] = lambda x: h.strxfrm(x['name']),
         reverse: bool=False) -> list[dict[str, Any]]:
 
     result_list = []

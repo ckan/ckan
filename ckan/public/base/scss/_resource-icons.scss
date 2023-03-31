@@ -1,0 +1,162 @@
+// RESOURCE FORMAT ICONS
+
+@use "sass:map";
+
+$icon-position: (
+ "resourceIconX": 60px,
+ "resourceIconY": 65px,
+ "resourceIconOffsetX": -20px,
+ "resourceIconOffsetY": -220px,
+);
+
+@mixin ckan-resource-icon-bg-pos($offset, $size) {
+  $w: map-get($icon-position, "#{$size}X");
+  $h: map-get($icon-position, "#{$size}Y");
+  $x: map-get($icon-position, "#{$size}OffsetX");
+  $y: map-get($icon-position, "#{$size}OffsetY");
+  width: $w;
+  height: $h;
+  background-position: ($x + -100 * $offset) $y;
+  transform: scale(0.53);
+  margin: -14px 0 0 -14px;
+}
+
+.format-label {
+    text-indent: -900em;
+    background: url("#{$imagePath}/sprite-resource-icons.png") no-repeat 0 0;
+}
+
+.format-label {
+    @include ckan-resource-icon-bg-pos(17,
+    "resourceIcon");
+}
+
+.format-label[data-format=html],
+.format-label[data-format*=html] {
+    @include ckan-resource-icon-bg-pos(1,
+    "resourceIcon");
+}
+
+.format-label[data-format=json],
+.format-label[data-format*=json] {
+    @include ckan-resource-icon-bg-pos(2,
+    "resourceIcon");
+}
+
+.format-label[data-format=xml],
+.format-label[data-format*=xml] {
+    @include ckan-resource-icon-bg-pos(3,
+    "resourceIcon");
+}
+
+.format-label[data-format=txt],
+.format-label[data-format*=txt] {
+    @include ckan-resource-icon-bg-pos(4,
+    "resourceIcon");
+}
+
+.format-label[data-format=doc],
+.format-label[data-format*=doc],
+.format-label[data-format=docx],
+.format-label[data-format*=docx] {
+    @include ckan-resource-icon-bg-pos(5,
+    "resourceIcon");
+}
+
+.format-label[data-format=odt],
+.format-label[data-format*=odt] {
+    @include ckan-resource-icon-bg-pos(6,
+    "resourceIcon");
+}
+
+.format-label[data-format=csv],
+.format-label[data-format*=csv] {
+    @include ckan-resource-icon-bg-pos(7,
+    "resourceIcon");
+}
+
+.format-label[data-format=xls],
+.format-label[data-format*=xls] {
+    @include ckan-resource-icon-bg-pos(8,
+    "resourceIcon");
+}
+
+.format-label[data-format=zip],
+.format-label[data-format*=zip] {
+    @include ckan-resource-icon-bg-pos(9,
+    "resourceIcon");
+}
+
+.format-label[data-format=api],
+.format-label[data-format*=api] {
+    @include ckan-resource-icon-bg-pos(10,
+    "resourceIcon");
+}
+
+.format-label[data-format=pdf],
+.format-label[data-format*=pdf] {
+    @include ckan-resource-icon-bg-pos(11,
+    "resourceIcon");
+}
+
+.format-label[data-format=rdf],
+.format-label[data-format*=rdf] {
+    @include ckan-resource-icon-bg-pos(12,
+    "resourceIcon");
+}
+
+.format-label[data-format=wms],
+.format-label[data-format*=wms] {
+    @include ckan-resource-icon-bg-pos(13,
+    "resourceIcon");
+}
+
+.format-label[data-format=png],
+.format-label[data-format*=png] {
+    @include ckan-resource-icon-bg-pos(14,
+    "resourceIcon");
+}
+
+.format-label[data-format=jpg],
+.format-label[data-format*=jpg],
+.format-label[data-format=jpeg],
+.format-label[data-format*=jpeg] {
+    @include ckan-resource-icon-bg-pos(15,
+    "resourceIcon");
+}
+
+.format-label[data-format=gif],
+.format-label[data-format*=gif] {
+    @include ckan-resource-icon-bg-pos(16,
+    "resourceIcon");
+}
+
+.format-label[data-format=wfs],
+.format-label[data-format*=wfs] {
+    @include ckan-resource-icon-bg-pos(18,
+    "resourceIcon");
+}
+
+.format-label[data-format=gml],
+.format-label[data-format*=gml] {
+    @include ckan-resource-icon-bg-pos(19,
+    "resourceIcon");
+}
+
+.format-label[data-format=wmts],
+.format-label[data-format*=wmts] {
+    @include ckan-resource-icon-bg-pos(20,
+    "resourceIcon");
+}
+
+.format-label[data-format=kml],
+.format-label[data-format*=kml] {
+    @include ckan-resource-icon-bg-pos(21,
+    "resourceIcon");
+}
+
+.format-label[data-format=geo],
+.format-label[data-format*=geo] {
+    @include ckan-resource-icon-bg-pos(22,
+    "resourceIcon");
+}

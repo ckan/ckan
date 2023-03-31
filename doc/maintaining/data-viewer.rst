@@ -54,7 +54,7 @@ The *New view* dropdown will show the available view types for this particular
 resource. If the list is empty, you may need to add the relevant view plugins
 to the :ref:`ckan.plugins` setting on your configuration file, eg::
 
-    ckan.plugins = ... image_view recline_view pdf_view
+    ckan.plugins = ... image_view datatables_view pdf_view
 
 Defining views to appear by default
 -----------------------------------
@@ -70,7 +70,7 @@ a suitable one, a view will be created.
 This is configured with the :ref:`ckan.views.default_views` setting. In it you
 define the view plugins that you want to be created as default::
 
-    ckan.views.default_views = recline_view pdf_view geojson_view
+    ckan.views.default_views = datatables_view pdf_view geojson_view
 
 This configuration does not mean that each new resource will get all of these
 views by default, but that for instance if the uploaded file is a PDF file,
@@ -123,93 +123,6 @@ It's also optimized for embedding datasets and saved searches on external
 sites - with a backlink to the portal and automatic resizing.
 
 This plugin requires data to be in the DataStore.
-
-
-.. _data-explorer:
-
-Data Explorer
-+++++++++++++
-
-.. image:: /images/recline_view.png
-
-View plugin: ``recline_view``
-
-Adds a rich widget, based on the Recline_ Javascript library. It  allows
-querying, filtering, graphing and mapping data. The Data Explorer is optimized
-for displaying structured data hosted on the :doc:`datastore`.
-
-The Data Explorer can also display certain formats of tabular data (CSV and
-Excel files) without its contents being uploaded to the DataStore. This is
-done via the DataProxy_, an external service that will parse the contents of
-the file and return a response that the view widget understands. However, as
-the resource must be downloaded by the DataProxy service and parsed before it
-is viewed, this option is slower and less reliable than viewing data that is
-in the DataStore. It also does not properly support different encodings, proper
-field type detection, etc so users are strongly encouraged to host data on the
-DataStore instead.
-
-.. note:: Support for the DataProxy will be dropped on future CKAN releases
-
-The three main panes of the Data Explorer are also available as separate views.
-
-DataStore Grid
-++++++++++++++
-
-
-.. image:: /images/recline_grid_view.png
-
-View plugin: ``recline_grid_view``
-
-Displays a filterable, sortable, table view of structured data.
-
-This plugin requires data to be in the DataStore.
-
-DataStore Graph
-+++++++++++++++
-
-.. image:: /images/recline_graph_view.png
-
-View plugin: ``recline_graph_view``
-
-Allows to create graphs from data stored on the DataStore. You can choose the
-graph type (such as lines, bars, columns, etc) and restrict the displayed data,
-by filtering by a certain field value or defining an offset and the number of
-rows.
-
-This plugin requires data to be in the DataStore.
-
-DataStore Map
-+++++++++++++
-
-.. image:: /images/recline_map_view.png
-
-View plugin: ``recline_map_view``
-
-Shows data stored on the DataStore in an interactive map. It supports plotting
-markers from a pair of latitude / longitude fields or from a field containing
-a GeoJSON_ representation of the geometries. The configuration also allows to
-cluster markers if there is a high density of them and to zoom automatically
-to the rendered features.
-
-This plugin requires data to be in the DataStore.
-
-There is partial support to change the map tiles to a different service, such
-as Mapbox. Look below for an example to add to your configuration file::
-
-    #Mapbox example:
-    ckanext.spatial.common_map.type = mapbox
-    ckanext.spatial.common_map.mapbox.map_id = <id>
-    ckanext.spatial.common_map.mapbox.access_token = <token>
-    ckanext.spatial.common_map.attribution=© <a target=_blank href='https://www.mapbox.com/map-feedback/'>Mapbox</a> © <a target=_blank href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>
-    ckanext.spatial.common_map.subdomains = <subdomains>
-
-    #Custom example:
-    ckanext.spatial.common_map.type = custom
-    ckanext.spatial.common_map.custom.url = <url>
-    ckanext.spatial.common_map.custom.tms = <tms>
-    ckanext.spatial.common_map.attribution = <copyright link>
-    ckanext.spatial.common_map.subdomains = <subdomains>
-
 
 
 
@@ -293,16 +206,18 @@ alternative URL on the edit view form.
     .. warning:: Do not activate this plugin unless you trust the URL sources.
         It is not recommended to enable this view type on instances where all users
         can create datasets.
-
+        
 Other view plugins
-++++++++++++++++++
+------------------
 
-There are many more view plugins developed by the CKAN team and others which
+There are many more view plugins developed by the CKAN community, which
 are hosted on separate repositories. Some examples include:
 
+* `React Data explorer`_: A modern replacement for Recline, maintained by Datopian.
+* `Ckanext Visualize`_: An extension to easily create user visualization from data in the DataStore, maintained by Keitaro.
 * `Dashboard`_: Allows to combine multiple views into a single dashboard.
 * `PDF viewer`_: Allows to render PDF files on the resource page.
-* `GeoJSON map`_: Renders GeoJSON_ files on an interactive map.
+* `Geo viewer`_: Renders various spatial formats like GeoJSON_, WMS or shapefiles in an interactive map.
 * `Choropleth map`_: Displays data on the DataStore on a choropleth map.
 * `Basic charts`_: Provides alternative graph types and renderings.
 
@@ -314,7 +229,110 @@ the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 
 .. todo:: Link to a proper tutorial for writing custom views
 
+Deprecated view plugins
+-----------------------
 
+.. _data-explorer:
+
+Data Explorer
++++++++++++++
+
+.. warning:: This Recline-based view plugin is deprecated and will be removed in future
+    versions
+
+
+.. image:: /images/recline_view.png
+
+View plugin: ``recline_view``
+
+Adds a rich widget, based on the Recline_ Javascript library. It  allows
+querying, filtering, graphing and mapping data. The Data Explorer is optimized
+for displaying structured data hosted on the :doc:`datastore`.
+
+The Data Explorer can also display certain formats of tabular data (CSV and
+Excel files) without its contents being uploaded to the DataStore. This is
+done via the DataProxy_, an external service that will parse the contents of
+the file and return a response that the view widget understands. However, as
+the resource must be downloaded by the DataProxy service and parsed before it
+is viewed, this option is slower and less reliable than viewing data that is
+in the DataStore. It also does not properly support different encodings, proper
+field type detection, etc so users are strongly encouraged to host data on the
+DataStore instead.
+
+.. note:: Support for the DataProxy will be dropped on future CKAN releases
+
+The three main panes of the Data Explorer are also available as separate views.
+
+DataStore Grid
+++++++++++++++
+
+.. warning:: This Recline-based view plugin is deprecated and will be removed in future
+    versions
+
+.. image:: /images/recline_grid_view.png
+
+View plugin: ``recline_grid_view``
+
+Displays a filterable, sortable, table view of structured data.
+
+This plugin requires data to be in the DataStore.
+
+DataStore Graph
++++++++++++++++
+
+.. warning:: This Recline-based view plugin is deprecated and will be removed in future
+    versions
+
+.. image:: /images/recline_graph_view.png
+
+View plugin: ``recline_graph_view``
+
+Allows to create graphs from data stored on the DataStore. You can choose the
+graph type (such as lines, bars, columns, etc) and restrict the displayed data,
+by filtering by a certain field value or defining an offset and the number of
+rows.
+
+This plugin requires data to be in the DataStore.
+
+DataStore Map
++++++++++++++
+
+.. warning:: This Recline-based view plugin is deprecated and will be removed in future
+    versions
+
+.. image:: /images/recline_map_view.png
+
+View plugin: ``recline_map_view``
+
+Shows data stored on the DataStore in an interactive map. It supports plotting
+markers from a pair of latitude / longitude fields or from a field containing
+a GeoJSON_ representation of the geometries. The configuration also allows to
+cluster markers if there is a high density of them and to zoom automatically
+to the rendered features.
+
+This plugin requires data to be in the DataStore.
+
+There is partial support to change the map tiles to a different service, such
+as Mapbox. Look below for an example to add to your configuration file::
+
+    #Mapbox example:
+    ckanext.spatial.common_map.type = mapbox
+    ckanext.spatial.common_map.mapbox.map_id = <id>
+    ckanext.spatial.common_map.mapbox.access_token = <token>
+    ckanext.spatial.common_map.attribution=© <a target=_blank href='https://www.mapbox.com/map-feedback/'>Mapbox</a> © <a target=_blank href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>
+    ckanext.spatial.common_map.subdomains = <subdomains>
+
+    #Custom example:
+    ckanext.spatial.common_map.type = custom
+    ckanext.spatial.common_map.custom.url = <url>
+    ckanext.spatial.common_map.custom.tms = <tms>
+    ckanext.spatial.common_map.attribution = <copyright link>
+    ckanext.spatial.common_map.subdomains = <subdomains>
+
+
+
+.. _React Data explorer: https://github.com/datopian/data-explorer
+.. _Ckanext visualize: https://github.com/keitaroinc/ckanext-visualize
 .. _Recline: https://github.com/okfn/recline/
 .. _DataTables: https://datatables.net/
 .. _DataProxy: https://github.com/okfn/dataproxy
@@ -323,7 +341,7 @@ the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 .. _Basic charts: https://github.com/ckan/ckanext-basiccharts
 .. _Choropleth map: https://github.com/ckan/ckanext-mapviews
 .. _PDF viewer: https://github.com/ckan/ckanext-pdfview
-.. _GeoJSON map: https://github.com/ckan/ckanext-spatial
+.. _Geo viewer: https://github.com/ckan/ckanext-geoview
 
 
 .. _resource-proxy:
@@ -378,7 +396,7 @@ resources fields.
 Before each run, you will be prompted with the number of datasets affected and
 asked if you want to continue (unless you pass the ``-y`` option)::
 
-    You are about to check 3336 datasets for the following view plugins: ['image_view', 'recline_view', 'text_view']
+    You are about to check 3336 datasets for the following view plugins: ['image_view', 'datatables_view', 'text_view']
      Do you want to continue? [Y/n]
 
 .. note:: On large CKAN instances the migration process can take a significant
@@ -394,7 +412,7 @@ If no view types are provided, the default ones are used
 
 Specific view types can be also provided::
 
-    ckan -c |ckan.ini| views create image_view recline_view pdf_view
+    ckan -c |ckan.ini| views create image_view datatables_view pdf_view
 
 For certain view types (the ones with plugins included in the main CKAN core),
 default filters are applied to the search to only get relevant resources. For
