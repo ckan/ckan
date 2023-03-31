@@ -6,6 +6,7 @@ import io
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
+import email.utils
 
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
@@ -199,10 +200,10 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
-        expected_from_header = "\"{0}\" <{1}>".format(
+        expected_from_header = email.utils.formataddr((
             config.get("ckan.site_title"),
             config.get("smtp.mail_from")
-        )
+        ))
 
         assert expected_from_header in msg[3]
 
