@@ -1076,7 +1076,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         # simple dictized list of groups from group_show
         # only including extras for translations
         # and excluding everything else for speed
-        #TODO: solve issue with groups not being inserted here...
         groups = []
         group_ids = model.Session.query(model.Group.id) \
                     .join(model.Member, model.Group.id == model.Member.group_id) \
