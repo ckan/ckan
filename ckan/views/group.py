@@ -842,6 +842,7 @@ class CreateGroupView(MethodView):
 
     def post(self, group_type: str,
              is_organization: bool) -> Union[Response, str]:
+
         set_org(is_organization)
         context = self._prepare()
         try:

@@ -327,7 +327,6 @@ class TestSubmit:
 
                 assert r_mock.call_count == 1
 
-    @pytest.mark.usefixtures("with_request_context")
     def test_task_status_changes(self, create_with_upload):
         """While updating task status, datapusher commits changes to database.
 

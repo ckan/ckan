@@ -203,7 +203,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
     Test correct interaction with the background jobs system.
     """
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.

@@ -14,7 +14,7 @@
   {% block form %}
   <form class="dataset-form add-member-form" method='post'>
     {{ h.csrf_input() }}
-    <div class="row">
+    <div class="row align-items-center">
       <div class="col-md-5">
         <div class="form-group control-medium">
           {% if not user %}
@@ -39,7 +39,7 @@
         </div>
       </div>
       {% if not user %}
-      <div class="col-md-2 add-member-or-wrap">
+      <div class="col-md-2">
         <div class="add-member-or">
           {{ _('or') }}
         </div>

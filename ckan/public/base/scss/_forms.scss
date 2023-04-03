@@ -50,16 +50,6 @@ label.checkbox:after {
     }
 }
 
-// input[type=radio],
-// input[type=checkbox] {
-//     position: relative;
-//     top: 7px;
-//     padding: 0;
-//     margin: 0;
-//     &.checkbox-onown {
-//         top: 0;
-//     }
-// }
 select {
     padding: 4px;
 }
@@ -201,10 +191,6 @@ form .control-medium .info-block.info-inline {
     text-decoration: underline;
 }
 
-// form .form-actions {
-//     padding-left: $gutterX;
-//     padding-right: $gutterX;
-// }
 .form-inline input {
     padding-bottom: 9px;
 }
@@ -259,7 +245,6 @@ select[data-module="autocomplete"] {
 .simple-input .field input {
     width: 100%;
     height: auto; // margin: 0 -7px; // Pull input out into gutter
-    // padding: 7px 5px;
 }
 
 .simple-input .field .btn-search {
@@ -402,7 +387,7 @@ select[data-module="autocomplete"] {
     @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
     display: block;
     padding: 6px 8px 3px;
-    background: $errorBorder; // margin: -$inputBorderRadius 0 0;
+    background: $errorBorder;
     color: $inputBackground;
     width: auto;
 }
@@ -437,7 +422,7 @@ select[data-module="autocomplete"] {
     @include list-unstyled;
     @include clearfix;
     color: $stagesTextColor;
-    counter-reset: stage; // margin: -$gutterY -$gutterX $gutterY;
+    counter-reset: stage;
     overflow: hidden;
     margin-bottom: $grid-gutter-width;
     padding: 0;
@@ -641,9 +626,6 @@ select[data-module="autocomplete"] {
 }
 
 .control-full .select2-container {
-    // Important is bad but select2 incorrectly calculates the width and sets it on the element@mixin
-    // Commenting out, as I cannot reproduce this problem (SS)
-    //width: 520px !important;
     max-width: 100%;
 }
 
@@ -698,23 +680,16 @@ select[data-module="autocomplete"] {
     }
 }
 
-.add-member-or-wrap{
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  @include media-breakpoint-up(sm) {
-    margin-bottom: $grid-gutter-width;
-  }
-  @include media-breakpoint-down(md) {
-    min-height: $grid-gutter-width*3 + 10;
-  }
-}
-
 .add-member-or {
     text-align: center;
     text-transform: uppercase;
-    color: $gray-300;
+    color: $gray-600;
     font-weight: bold;
+    margin-bottom: 30px;
+
+    @include media-breakpoint-up(md) {
+        margin-bottom: 0;
+    }
 }
 
 #recaptcha_table {

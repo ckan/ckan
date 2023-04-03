@@ -116,6 +116,14 @@ def update_config() -> None:
 
     webassets_init()
 
+    # these are collections of all template/public paths registered by
+    # extensions. Each call to `tk.add_template_directory` or
+    # `tk.add_public_directory` updates these collections. We have to reset
+    # them in order to remove templates/public files that came from plugins
+    # that were once enabled but are disabled right now.
+    config["plugin_template_paths"] = []
+    config["plugin_public_paths"] = []
+
     for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
