@@ -1455,7 +1455,7 @@ def follow_group(context: Context,
                  'include_followers': False})
         assert groupobj
         name = plugins.toolkit.h.get_translated(groupobj, 'title') \
-               or groupobj['display_name']
+            or groupobj['display_name']
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})
