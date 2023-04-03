@@ -1283,8 +1283,9 @@ def linked_user(user: Union[str, model.User],
 
 
 @core_helper
-@maintain.deprecated("helpers.group_name_to_title() is deprecated and will be removed "
-                     "in a future version of CKAN.",
+@maintain.deprecated("helpers.group_name_to_title()"
+                     " is deprecated and will be removed"
+                     " in a future version of CKAN.",
                      since="2.10.0")
 def group_name_to_title(name: str) -> str:
     """

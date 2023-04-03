@@ -1446,16 +1446,16 @@ def follow_group(context: Context,
         groupobj = logic.get_action('group_show')(
                 plugins.toolkit.fresh_context(context),
                 {'id': validated_data_dict[u'id'],
-                'include_datasets': False,
-                'include_dataset_count': False,
-                'include_extras': True,
-                'include_users': False,
-                'include_groups': False,
-                'include_tags': False,
-                'include_followers': False})
+                 'include_datasets': False,
+                 'include_dataset_count': False,
+                 'include_extras': True,
+                 'include_users': False,
+                 'include_groups': False,
+                 'include_tags': False,
+                 'include_followers': False})
         assert groupobj
         name = plugins.toolkit.h.get_translated(groupobj, 'title') \
-                or groupobj['display_name']
+               or groupobj['display_name']
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})

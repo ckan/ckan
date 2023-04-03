@@ -1077,11 +1077,12 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         # only including extras for translations
         # and excluding everything else for speed
         groups = []
-        group_ids = model.Session.query(model.Group.id) \
-                    .join(model.Member, model.Group.id == model.Member.group_id) \
+        group_ids = (model.Session.query(model.Group.id)
+                    .join(model.Member, model.Group.id == model.Member.group_id)
+                    # type_ignore_reason: incomplete SQLAlchemy types
                     .filter(_and_(model.Member.table_id == pkg.id,
-                                    model.Member.state == model.core.State.ACTIVE,
-                                    model.Group.is_organization == False)).all()
+                                    model.Member.state == model.core.State.ACTIVE,  # type: ignore
+                                    model.Group.is_organization == False)).all())
         for group_id in group_ids:
             group = logic.get_action('group_show')(
                 plugins.toolkit.fresh_context(context),
@@ -2047,12 +2048,12 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     groups = (session.query(model.Group.name,
                             model.Group.title,
-                            model.GroupExtra.value)
+                            model.GroupExtra.value)  # type: ignore
                     # type_ignore_reason: incomplete SQLAlchemy types
-                    .outerjoin(model.GroupExtra,
-                               model.Group.id == model.GroupExtra.group_id
-                               and model.GroupExtra.key == 'title_translated'
-                               and model.GroupExtra.active == model.core.State.ACTIVE)
+                    .outerjoin(model.GroupExtra,  # type: ignore
+                               model.Group.id == model.GroupExtra.group_id  # type: ignore
+                               and model.GroupExtra.key == 'title_translated'  # type: ignore
+                               and model.GroupExtra.active == model.core.State.ACTIVE)  # type: ignore
                     .filter(model.Group.name.in_(group_names))  # type: ignore
                     .all()
               if group_names else [])
@@ -3122,7 +3123,8 @@ def organization_followee_list(
 
 
 def _group_or_org_followee_list(
-        context: Context, data_dict: DataDict, is_org: bool = False):
+        context: Context, data_dict: DataDict, is_org: bool = False) \
+        -> list[dict[str, Any]]:
 
     if not context.get('skip_validation'):
         schema = context.get('schema',
