@@ -822,7 +822,7 @@ def list_of_strings(key: FlattenKey, data: FlattenDataDict,
 def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
                           errors: FlattenErrorDict, context: Context) -> Any:
     """Make an attempt to guess resource's format on creation using URL, otherwise
-    If a resource exists and its format changes, refresh it with the new one. 
+    If the resource exists and its format changes, refresh it with the new one. 
     (Since CKAN 2.10)
     """
     url = data.get(key[:-1] + ('url',), '')

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from typing import Any, Callable, NoReturn, Optional
+from typing import Any, Callable, NoReturn
 import six
 
 
@@ -8,8 +8,7 @@ import ckan.lib.navl.dictization_functions as df
 
 from ckan.common import _, json, config
 from ckan.types import (
-    Context, FlattenDataDict, FlattenErrorDict, FlattenKey, Validator,
-    Model
+    Context, FlattenDataDict, FlattenErrorDict, FlattenKey, Validator
 )
 
 missing = df.missing
@@ -340,28 +339,3 @@ def limit_to_configured_maximum(config_option: str,
         return value
 
     return callable
-
-
-def refresh_format_on_change(
-    resource: "Model.Resource", data_dict: "dict[str, Any]"
-) -> Optional[str]:
-    """
-    If the resource format has changed it will update it with the given one.
-    """
-    import mimetypes
-
-    format = _old_format = data_dict.get("format")
-    upload = data_dict.get("upload")
-    url = data_dict.get("url")
-
-    if url and url != resource.url:
-        mimetype, _ = mimetypes.guess_type(url)
-        if not mimetype:
-            return
-        format = mimetype.split("/")[-1].upper()
-
-    if upload:
-        mimetype = upload.mimetype
-        format = mimetype.split("/")[-1].upper()
-
-    return format
