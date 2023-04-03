@@ -323,6 +323,7 @@ def resource_create(context: Context,
     pkg_dict['resources'].append(data_dict)
 
     try:
+        context['resource_to_validate'] = data_dict.get('name')
         context['defer_commit'] = True
         context['use_cache'] = False
         _get_action('package_update')(context, pkg_dict)

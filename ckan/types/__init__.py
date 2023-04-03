@@ -110,6 +110,7 @@ class Context(TypedDict, total=False):
     skip_validation: bool
     validate: bool
     count_private_and_draft_datasets: bool
+    resource_to_validate: Optional[str]
 
     schema: "Schema"
     group: "Model.Group"
