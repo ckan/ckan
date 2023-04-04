@@ -12,7 +12,7 @@
       {{ self.flash() }}
     </div>
     {% block primary_content %}
-      {% snippet "home/layout{0}.html".format(homepage_style) %}
+      {% snippet "home/layout{0}.html".format(homepage_style), search_facets=search_facets %}
     {% endblock %}
   </div>
 {% endblock %}

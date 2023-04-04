@@ -38,6 +38,7 @@ def before_request() -> None:
 
 def index() -> str:
     u'''display home page'''
+    extra_vars: dict[str, Any] = {}
     try:
         context = cast(Context, {
             u'model': model,
@@ -76,6 +77,8 @@ def index() -> str:
             u'license': _(u'Licenses'),
         }
 
+        extra_vars[u'search_facets'] = query[u'search_facets']
+
     except search.SearchError:
         g.package_count = 0
 
@@ -87,7 +90,7 @@ def index() -> str:
                 u' if you need to reset your password.') \
             % config.get(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
-    return base.render(u'home/index.html', extra_vars={})
+    return base.render(u'home/index.html', extra_vars=extra_vars)
 
 
 def about() -> str:
