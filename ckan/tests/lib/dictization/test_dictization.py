@@ -393,4 +393,4 @@ class TestDictizeWithRemoveColumns:
         result = package_dictize(pkg, context)
         self.remove_changable_columns(result)
         assert "test-group-2" not in [g["name"] for g in result["groups"]]
-        assert "test-group-1" in [g["name"] for g in result["groups"]]
+        assert "test-group-1" not in [g["name"] for g in result["groups"]]

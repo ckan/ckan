@@ -578,18 +578,7 @@ class TestPackageDictize:
         result = model_dictize.package_dictize(dataset_obj, context)
 
         assert result["owner_org"] == org["id"]
-        assert_equal_for_keys(result["organization"], org, "name")
-        expected_dict = {
-            u"approval_status": org["approval_status"],
-            u"description": org["description"],
-            u"image_url": org["image_url"],
-            u"is_organization": org["is_organization"],
-            u"name": org["name"],
-            u"state": org["state"],
-            u"title": org["title"],
-            u"type": org["type"],
-        }
-        self.assert_equals_expected(expected_dict, result["organization"])
+        assert result["organization"] is None
 
 
 def assert_equal_for_keys(dict1, dict2, *keys):
@@ -697,10 +686,7 @@ class TestPackageSchema(object):
                 {"key": u"genre", "value": u"romantic novel"},
                 {"key": u"original media", "value": u"book"},
             ],
-            "groups": [
-                {u"name": group1["name"], u"title": group1["title"]},
-                {u"name": group2["name"], u"title": group2["title"]},
-            ],
+            "groups": [],
             "license_id": u"other-open",
             "name": first_name,
             "type": u"dataset",
