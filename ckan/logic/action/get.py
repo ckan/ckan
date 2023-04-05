@@ -754,7 +754,7 @@ def organization_list_for_user(context: Context,
         validated_org_and_capacity = logic.get_action('organization_show')(
             plugins.toolkit.fresh_context(context),
             {'id': org.id,
-            'with_package_counts': asbool(data_dict.get('include_dataset_count'))})
+            'include_dataset_count': asbool(data_dict.get('include_dataset_count'))})
         if validated_org_and_capacity:
             if capacity:
                 validated_org_and_capacity['capacity'] = capacity
