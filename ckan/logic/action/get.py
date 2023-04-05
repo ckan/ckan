@@ -1102,7 +1102,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         # simple dictized organization from organization_show
         # only including extras for translations
         # and excluding everything else for speed
-        organization = logic.get_action('organization_show')(
+        package_dict["organization"] = None
+        if pkg.owner_org:
+            organization = logic.get_action('organization_show')(
                 plugins.toolkit.fresh_context(context),
                 {'id': pkg.owner_org,
                 'include_datasets': False,
@@ -1112,10 +1114,8 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 'include_groups': False,
                 'include_tags': False,
                 'include_followers': False})
-        if organization:
-            package_dict["organization"] = organization
-        else:
-            package_dict["organization"] = None
+            if organization:
+                package_dict["organization"] = organization
 
     if include_tracking:
         # page-view tracking summary data
