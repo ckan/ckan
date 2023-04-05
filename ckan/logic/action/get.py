@@ -2077,12 +2077,13 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
                 display_name = group_titles_by_name.get(key_, key_)
-                if 'title_translated' not in display_name \
-                    or display_name['title_translated'] is None:
-                    display_name = display_name['title']
-                else:
+                if 'title_translated' in display_name \
+                    and display_name['title_translated'] is not None:
                     display_name = plugins.toolkit.h.get_translated(
                         display_name, 'title')
+                elif 'title' in display_name \
+                      and display_name['title'] is not None:
+                      display_name = display_name['title']
                 display_name = display_name \
                     if display_name and display_name.strip() else key_
                 new_facet_dict['display_name'] = display_name
