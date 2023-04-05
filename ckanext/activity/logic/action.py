@@ -246,6 +246,12 @@ def package_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
+    include_private_activity = True
+    try:
+        tk.check_access("package_update", context, data_dict)
+    except:
+        include_private_activity = False
+
     activity_objects = model_activity.package_activity_list(
         package.id,
         limit=limit,
@@ -253,6 +259,7 @@ def package_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
+        include_private_activity=include_private_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
     )

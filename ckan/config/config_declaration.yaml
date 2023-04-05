@@ -547,6 +547,14 @@ groups:
           ``True``, anyone can see this detail (assuming they have permission
           to view the dataset etc).
 
+      - key: ckan.auth.show_private_activities_publicly
+        type: bool
+        default: false
+        example: "false"
+        description: |
+          Makes dataset activities, recorded while dataset was private, publicly visible.
+          If `False` those activities will only be visible to users who can edit the dataset.
+
       - key: ckan.auth.allow_dataset_collaborators
         type: bool
         default: false

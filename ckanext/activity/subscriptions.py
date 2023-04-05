@@ -93,9 +93,6 @@ def package_changed(sender: str, **kwargs: Any):
     pkg = context["model"].Package.get(id_)
     assert pkg
 
-    if pkg.private:
-        return
-
     user_obj = context["model"].User.get(context["user"])
     if user_obj:
         user_id = user_obj.id
