@@ -122,6 +122,10 @@ class TestPackageShow(object):
                 "state": org["state"],
                 "title": org["title"],
                 "type": org["type"],
+                "display_name": org["display_name"],
+                "num_followers": org["num_followers"],
+                "extras": [],
+                "image_display_url": org["image_display_url"],
             },
             "owner_org": "<SOME-UUID>",
             "private": dataset1["private"],
@@ -2829,7 +2833,7 @@ class TestMembersList(object):
         assert len(org_members) == 0
 
 
-@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.usefixtures("non_clean_db", "with_request_context")
 class TestFollow(object):
     def test_followee_list(self):
 
