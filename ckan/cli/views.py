@@ -49,7 +49,7 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     """
 
     datastore_enabled = (
-        u"datastore" in config[u"ckan.plugins"].split()
+        u"datastore" in config[u"ckan.plugins"]
     )
 
     flask_app = ctx.meta['flask_app']
