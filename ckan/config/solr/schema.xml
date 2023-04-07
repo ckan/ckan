@@ -96,6 +96,13 @@ attribute with the form `ckan-X.Y` -->
       </analyzer>
     </fieldType>
 
+    <fieldType 
+        name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType"
+        spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
+        autoIndex="true" distErrPct="0.025" maxDistErr="0.000009"
+        distanceUnits="degrees"
+    />
+
 </types>
 
 
@@ -164,6 +171,9 @@ attribute with the form `ckan-X.Y` -->
 
     <field name="data_dict" type="string" indexed="false" stored="true" />
     <field name="validated_data_dict" type="string" indexed="false" stored="true" />
+    <!-- Allow ckanext-spatial and other extensions to index geometries -->
+    <field name="spatial_geom"  type="location_rpt" indexed="true" stored="true" multiValued="true" />
+    <field name="spatial_geom_*"  type="location_rpt" indexed="true" stored="true" multiValued="true" />
 
     <field name="_version_" type="string" indexed="true" stored="true"/>
 
