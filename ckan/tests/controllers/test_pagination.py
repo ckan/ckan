@@ -5,6 +5,7 @@ import pytest
 import ckan.tests.factories as factories
 from ckan.tests.helpers import call_action
 from ckan.lib.helpers import url_for
+from ckan.lib.pagination import Page
 
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
@@ -130,3 +131,80 @@ def test_users_index(app):
     ]
 
     assert all_names[20:] == names
+
+
+@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.ckan_config("ckan.datasets_per_page", 1)
+class TestPaginationSettings:
+    @pytest.mark.ckan_config("ckan.pagination.css_class.widget", "custom-pagination")
+    def test_widget_class(self, app, package_factory):
+        package_factory.create_batch(3)
+
+        resp = app.get(url_for("dataset.search"))
+        page = BeautifulSoup(resp.body)
+        assert page.select_one(".pagination-wrapper .custom-pagination")
+
+    @pytest.mark.ckan_config("ckan.pagination.css_class.item", "custom-item")
+    def test_item_class(self, app, package_factory):
+        package_factory.create_batch(3)
+
+        resp = app.get(url_for("dataset.search"))
+        page = BeautifulSoup(resp.body)
+        items = page.select(".pagination-wrapper .pagination .custom-item")
+        # 3 datasets + link to the last page
+        assert len(items) == 4
+
+    @pytest.mark.ckan_config("ckan.pagination.css_class.link", "custom-link")
+    def test_link_class(self, app, package_factory):
+        package_factory.create_batch(3)
+
+        resp = app.get(url_for("dataset.search"))
+        page = BeautifulSoup(resp.body)
+        items = page.select(".pagination-wrapper .pagination .page-item .custom-link")
+        # 3 datasets + link to the last page
+        assert len(items) == 4
+
+    @pytest.mark.ckan_config("ckan.pagination.template", "$page of $page_count")
+    def test_custom_template(self, app, package_factory):
+        package_factory.create_batch(3)
+
+        resp = app.get(url_for("dataset.search", page=2))
+        page = BeautifulSoup(resp.body)
+        widget = page.select_one(".pagination-wrapper .pagination")
+        assert widget.text == "2 of 3"
+
+    @pytest.mark.ckan_config("ckan.pagination.factory", "ckan.tests.controllers.test_pagination:CustomPage")
+    def test_custom_factory(self, app, package_factory):
+        package_factory.create_batch(3)
+        resp = app.get(url_for("dataset.search", page=2))
+        page = BeautifulSoup(resp.body)
+        items = page.select(".pagination-wrapper .page-item .page-link")
+        assert items[-1].text == "NEXT"
+
+    @pytest.mark.ckan_config("ckan.pagination.factory", "ckan.tests.controllers.test_pagination:WrongCustomPage")
+    def test_wrong_custom_factory(self, app, package_factory):
+        package_factory.create_batch(3)
+        resp = app.get(url_for("dataset.search", page=2))
+        page = BeautifulSoup(resp.body)
+        items = page.select(".pagination-wrapper .page-item .page-link")
+        assert items[-1].text == "»"
+
+    @pytest.mark.ckan_config("ckan.pagination.factory", "ckan.tests.controllers.test_pagination:NonExistingCustomPage")
+    def test_non_existing_custom_factory(self, app, package_factory):
+        package_factory.create_batch(3)
+        resp = app.get(url_for("dataset.search", page=2))
+        page = BeautifulSoup(resp.body)
+        items = page.select(".pagination-wrapper .page-item .page-link")
+        assert items[-1].text == "»"
+
+
+class CustomPage(Page):
+    def pager(self, *args, **kwargs):
+        kwargs["symbol_next"] = "NEXT"
+        return super().pager(*args, **kwargs)
+
+
+class WrongCustomPage:
+    def pager(self, *args, **kwargs):
+        kwargs["symbol_next"] = "NEXT"
+        return super().pager(*args, **kwargs)

@@ -837,20 +837,12 @@ def config_declaration_v1(
         ignore_missing: Validator, unicode_safe: Validator,
         not_empty: Validator, default: ValidatorFactory,
         dict_only: Validator, one_of: ValidatorFactory,
-        ignore_empty: Validator):
+        ignore_empty: Validator, as_import: Validator):
     from ckan.config.declaration import Key
     from ckan.config.declaration.load import option_types
 
     def key_from_string(s: str):
         return Key.from_string(s)
-
-    def importable_string(value: str):
-        from werkzeug.utils import import_string, ImportStringError
-        from ckan.logic.validators import Invalid
-        try:
-            return import_string(value)
-        except ImportStringError as e:
-            raise Invalid(str(e))
 
     return cast(Schema, {
         "groups": {
@@ -860,9 +852,9 @@ def config_declaration_v1(
                 "key": [not_empty, key_from_string],
                 "legacy_key": [ignore_empty, unicode_safe],
                 "default": [ignore_missing],
-                "default_callable": [ignore_empty, importable_string],
+                "default_callable": [ignore_empty, as_import],
                 "placeholder": [default(""), unicode_safe],
-                "placeholder_callable": [ignore_empty, importable_string],
+                "placeholder_callable": [ignore_empty, as_import],
                 "callable_args": [ignore_empty, dict_only],
                 "example": [ignore_missing],
                 "description": [default(""), unicode_safe],

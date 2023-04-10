@@ -3,6 +3,8 @@
 import json
 from typing import Any
 
+from werkzeug.utils import import_string, ImportStringError
+
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
@@ -253,3 +255,19 @@ def remove_whitespace(value: Any, context: Context) -> Any:
     if isinstance(value, str):
         return value.strip()
     return value
+
+
+def as_import(value: Any):
+    """Imports an object based on a string.
+
+    An import path can be specified either in dotted notation
+    (``xml.sax.saxutils.escape``) or with a colon as object delimiter
+    (``xml.sax.saxutils:escape``).
+    """
+    if not isinstance(value, str):
+        return value
+
+    try:
+        return import_string(value)
+    except ImportStringError as e:
+        raise df.Invalid(str(e))

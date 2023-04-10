@@ -55,7 +55,7 @@ import ckan.plugins as p
 import ckan
 
 
-from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
+from ckan.lib.pagination import Page as _Page
 from ckan.common import _, ungettext, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
@@ -2807,3 +2807,21 @@ def make_login_url(
 @core_helper
 def csrf_input():
     return snippet('snippets/csrf_input.html')
+
+
+class Page(_Page):
+    """An iterator of items representing one page in a larger collection."""
+    def __new__(cls, *args: Any, **kwargs: Any):
+        factory: str | type = config["ckan.pagination.factory"]
+
+        # factory can be either a `str` if invalid config option used, or a
+        # class. `issubclass` will raise an error if `str` instance passed to
+        # it, that's why both checks are required
+        if not isinstance(factory, type) or not issubclass(factory, _Page):
+            log.warning(
+                "Cannot use %s of type %s as a pagination widget factory.",
+                factory, type(factory)
+            )
+            factory = _Page
+
+        return factory(*args, **kwargs)

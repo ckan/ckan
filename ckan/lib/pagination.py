@@ -41,6 +41,7 @@ from typing import Any, Callable, Match, Optional, Sequence, List
 
 import dominate.tags as tags
 from markupsafe import Markup
+from ckan.common import config
 
 
 class BasePage(List[Any]):
@@ -633,28 +634,42 @@ class BasePage(List[Any]):
 
 class Page(BasePage):
     def pager(self, *args: Any, **kwargs: Any) -> Markup:
+        template = kwargs.get(
+            "pagination_template",
+            config["ckan.pagination.template"]
+        )
+        pagination_class = kwargs.get(
+            "pagination_class",
+            config["ckan.pagination.css_class.widget"]
+        )
+
         with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(
-                "$link_previous ~2~ $link_next",
-                cls="pagination justify-content-center"
-            )
+            tags.ul(template, cls=pagination_class)
         params = dict(
             format=str(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
-            curpage_attr={u"class": u"page-item active"},
-            link_attr={"class": "page-link"},
+            curpage_attr={"class": f"{self._item_class()} active"},
+            link_attr={"class": self._link_class()},
         )
         params.update(kwargs)
         return super(Page, self).pager(*args, **params)
 
     # Put each page link into a <li> (for Bootstrap to style it)
 
+    def _link_class(self):
+        """CSS class of every a-tag."""
+        return config["ckan.pagination.css_class.link"]
+
+    def _item_class(self):
+        """CSS class of every wrapper for an a-tag."""
+        return config["ckan.pagination.css_class.item"]
+
     def _pagerlink(
             self, page: int, text: str,
             extra_attributes: Optional[dict[str, Any]] = None):
         anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {"class": "page-item"}
+        extra_attributes = extra_attributes or {"class": self._item_class()}
         return str(tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>

@@ -1177,6 +1177,66 @@ groups:
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
 
+      - key: ckan.pagination.template
+        default: "$link_previous ~2~ $link_next"
+        description: |
+          Format string that defines how the pager is rendered. The string
+          can contain the following $-tokens that are substituted by the
+          ``string.Template`` module:
+
+          - ``$first_page``: number of first reachable page
+          - ``$last_page``: number of last reachable page
+          - ``$page``: number of currently selected page
+          - ``$page_count``: number of reachable pages
+          - ``$items_per_page``: maximal number of items per page
+          - ``$first_item``: index of first item on the current page
+          - ``$last_item``: index of last item on the current page
+          - ``$item_count``: total number of items
+          - ``$link_first``: link to first page (unless this is first page)
+          - ``$link_last``: link to last page (unless this is last page)
+          - ``$link_previous``: link to previous page (unless this is first page)
+          - ``$link_next``: link to next page (unless this is last page)
+
+          To render a range of pages the token '~3~' can be used. The
+          number sets the radius of pages around the current page.
+          Example for a range with radius 3:
+
+          '1 .. 5 6 7 [8] 9 10 11 .. 500'
+
+      - key: ckan.pagination.factory
+        default: "ckan.lib.pagination:Page"
+        validators: as_import
+        description: |
+          Import path of python class responsible for pagination widget. The
+          class must inherit from ``ckan.lib.pagination.Page``.
+
+      - key: ckan.pagination.css_class.widget
+        default: "pagination justify-content-center"
+        description: |
+          CSS class of the pagination widget::
+
+            <div class="<WIDGET CLASS>">
+             ..
+
+      - key: ckan.pagination.css_class.item
+        default: "page-item"
+        description: |
+          CSS class of the link wrapper used by pagination widget::
+
+            <div class="pagination">
+              <li class="<PAGE ITEM CLASS>">
+                ..
+
+      - key: ckan.pagination.css_class.link
+        default: "page-link"
+        description: |
+          CSS class of the link tag used by pagination widget::
+
+            <div class="pagination">
+              <li class="page-item">
+                <a class="<PAGE LINK CLASS>">
+                 ..
+
   - annotation: Resource Views Settings
     options:
       - key: ckan.views.default_views
