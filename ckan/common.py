@@ -29,7 +29,7 @@ from flask_babel import (gettext as flask_ugettext,
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
-from ckan.types import Model
+from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
@@ -149,7 +149,7 @@ def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy):
+class CKANRequest(LocalProxy[Request]):
     u'''Common request object
 
     This is just a wrapper around LocalProxy so we can handle some special

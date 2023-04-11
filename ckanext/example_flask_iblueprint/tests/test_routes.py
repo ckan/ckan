@@ -19,7 +19,6 @@ class TestFlaskIBlueprint(object):
     def test_plugin_route_core_flask_override(self, app):
         """Test extension overrides flask core route."""
         res = app.get("/")
-
         assert helpers.body_contains(
             res,
             "Hello World, this is served from an extension, "

@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-import six
-
 from urllib.parse import quote
 from flask.wrappers import Response
 
@@ -135,7 +133,7 @@ def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
             apitoken = u''
     if not apitoken:
         return None
-    apitoken = six.ensure_text(apitoken, errors=u"ignore")
+    apitoken = str(apitoken)
     log.debug(u'Received API Token: %s' % apitoken)
 
     user = api_token.get_user_from_token(apitoken)
