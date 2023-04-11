@@ -18,6 +18,7 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
+import decimal
 from collections import OrderedDict
 
 from urllib.parse import (
@@ -823,6 +824,8 @@ def convert(data: Any, type_name: str) -> Any:
     if type_name == 'nested':
         return json.loads(data[0])
     # array type
+    if isinstance(data, (int, float, decimal.Decimal)):
+        return data
     if type_name.startswith('_'):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
