@@ -1,0 +1,53 @@
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+  - commit-msg
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-yaml
+  - id: end-of-file-fixer
+    stages: [pre-commit]
+  - id: trailing-whitespace
+    stages: [pre-commit]
+  - id: debug-statements
+    stages: [pre-push]
+
+## Isort
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    name: isort
+    stages: [pre-commit]
+
+## Black
+- repo: https://github.com/psf/black
+  rev: 23.3.0
+  hooks:
+  - id: black
+    stages: [pre-commit]
+
+## Ruff
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: v0.0.260
+  hooks:
+  - id: ruff
+    stages: [pre-commit]
+
+## Detect passwords, api-tokens, secrets within a code base
+- repo: https://github.com/Yelp/detect-secrets
+  rev: v1.4.0
+  hooks:
+  - id: detect-secrets
+    stages: [pre-push]
+    # args: ['--baseline', '.secrets.baseline']
+
+# ## Conventional commit message(commitizen)
+# - repo: https://github.com/commitizen-tools/commitizen
+#   rev: v2.42.1
+#   hooks:
+#   - id: commitizen
+#     stages: [commit-msg]

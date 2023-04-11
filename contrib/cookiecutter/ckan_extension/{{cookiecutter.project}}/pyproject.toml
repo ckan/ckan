@@ -1,0 +1,103 @@
+[tool.black]
+# line-length = 88
+# preview = true
+
+[tool.ruff]
+target-version = "py38"
+# line-length = 88
+
+[tool.isort]
+known_ckan = "ckan"
+known_ckanext = "ckanext"
+known_self = "ckanext.{{ cookiecutter.project_shortname }}"
+sections = "FUTURE,STDLIB,FIRSTPARTY,THIRDPARTY,CKAN,CKANEXT,SELF,LOCALFOLDER"
+profile = "black"
+
+[tool.pytest.ini_options]
+addopts = "--ckan-ini test.ini"
+filterwarnings = [
+               "ignore::sqlalchemy.exc.SADeprecationWarning",
+               "ignore::sqlalchemy.exc.SAWarning",
+               "ignore::DeprecationWarning",
+]
+
+[tool.pyright]
+pythonVersion = "3.8"
+include = ["ckanext"]
+exclude = [
+    "**/test*",
+    "**/migration",
+]
+strict = []
+
+strictParameterNoneValue = true
+
+# Check the meaning of rules here
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+reportFunctionMemberAccess = true # non-standard member accesses for functions
+reportMissingImports = true
+reportMissingModuleSource = true
+reportMissingTypeStubs = false
+reportImportCycles = true
+reportUnusedImport = true
+reportUnusedClass = true
+reportUnusedFunction = true
+reportUnusedVariable = true
+reportDuplicateImport = true
+reportOptionalSubscript = true
+reportOptionalMemberAccess = true
+reportOptionalCall = true
+reportOptionalIterable = true
+reportOptionalContextManager = true
+reportOptionalOperand = true
+reportTypedDictNotRequiredAccess = false # Context won't work with this rule
+reportConstantRedefinition = true
+reportIncompatibleMethodOverride = true
+reportIncompatibleVariableOverride = true
+reportOverlappingOverload = true
+reportUntypedFunctionDecorator = false
+reportUnknownParameterType = true
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownMemberType = false
+reportMissingTypeArgument = true
+reportInvalidTypeVarUse = true
+reportCallInDefaultInitializer = true
+reportUnknownVariableType = true
+reportUntypedBaseClass = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryCast = true
+reportUnnecessaryComparison = true
+reportAssertAlwaysTrue = true
+reportSelfClsParameterName = true
+reportUnusedCallResult = false # allow function calls for side-effect only
+useLibraryCodeForTypes = true
+reportGeneralTypeIssues = true
+reportPropertyTypeMismatch = true
+reportWildcardImportFromLibrary = true
+reportUntypedClassDecorator = false
+reportUntypedNamedTuple = true
+reportPrivateUsage = true
+reportPrivateImportUsage = true
+reportInconsistentConstructor = true
+reportMissingSuperCall = false
+reportUninitializedInstanceVariable = true
+reportInvalidStringEscapeSequence = true
+reportMissingParameterType = true
+reportImplicitStringConcatenation = false
+reportUndefinedVariable = true
+reportUnboundVariable = true
+reportInvalidStubStatement = true
+reportIncompleteStub = true
+reportUnsupportedDunderAll = true
+reportUnusedCoroutine = true
+reportUnnecessaryTypeIgnoreComment = true
+reportMatchNotExhaustive = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+tag_format = "v$version"
+version_files = ["setup.cfg:version", "setup.py:version"]
+major_version_zero = true
+changelog_incremental = true
