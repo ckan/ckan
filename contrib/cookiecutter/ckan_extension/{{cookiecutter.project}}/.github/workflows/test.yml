@@ -49,4 +49,4 @@ jobs:
 
         ckan -c test.ini db init
     - name: Run tests
-      run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }} -p no:rerunfailures
+      run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }}
