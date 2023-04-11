@@ -5,9 +5,9 @@
 {% set action = form_action or h.url_for(dataset_type ~ '_resource.new', id=pkg_name) %}
 
 
-<form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+<form id="resource-edit" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
 
-  {{ h.csrf_input() }}	
+  {{ h.csrf_input() }}
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}

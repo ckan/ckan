@@ -1,26 +1,29 @@
 include ckan/config/deployment.ini_tmpl
+recursive-include ckan *.py
 recursive-include ckan/public *
+recursive-include ckan/public-bs3 *
 recursive-include ckan/config *.ini
 recursive-include ckan/config *.json
+recursive-include ckan/config *.yaml
 recursive-include ckan/config *.xml
 recursive-include ckan/i18n *
 recursive-include ckan/templates *
+recursive-include ckan/templates-bs3 *
 recursive-include ckan *.ini
 
+recursive-include ckanext *.py
 recursive-include ckanext/*/i18n *
 recursive-include ckanext/*/public *
+recursive-include ckanext/*/assets *
 recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
+recursive-include ckanext/* config_declaration.yaml
 include ckanext/datastore/set_permissions.sql
 include ckanext/datastore/allowed_functions.txt
 
 prune .git
 include CHANGELOG.txt
-include ckan/migration/migrate.cfg
 include ckan/migration/README
-recursive-include ckan/migration/versions *.sql
-include requirement-setuptools.txt
 include requirements.txt
-include requirements-py2.txt
 include dev-requirements.txt

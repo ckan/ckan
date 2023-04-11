@@ -31,6 +31,7 @@ from ckan.logic import (  # noqa: re-export
     auth_sysadmins_check,
     auth_allow_anonymous_access,
     auth_disallow_anonymous_access,
+    fresh_context,
 )
 
 import ckan.plugins.blanket as blanket
@@ -77,7 +78,7 @@ from ckan.lib.plugins import (
 from ckan.cli import error_shout
 
 from ckan.lib.mailer import mail_recipient, mail_user
-
+from ckan.model.base import BaseModel
 
 __all__ = [
     "ckan", "base", "render", "abort",
@@ -99,7 +100,8 @@ __all__ = [
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
-    "check_ckan_version", "requires_ckan_version", "get_endpoint"
+    "check_ckan_version", "requires_ckan_version", "get_endpoint",
+    "fresh_context", "BaseModel",
 ]
 
 get_converter = get_validator
@@ -123,7 +125,7 @@ def add_template_directory(config_: CKANConfig, relative_path: str):
     The path is relative to the file calling this function.
 
     """
-    _add_served_directory(config_, relative_path, "extra_template_paths")
+    _add_served_directory(config_, relative_path, "plugin_template_paths")
 
 
 def add_public_directory(config_: CKANConfig, relative_path: str):
@@ -139,7 +141,7 @@ def add_public_directory(config_: CKANConfig, relative_path: str):
     from ckan.lib.helpers import _local_url
     from ckan.lib.webassets_tools import add_public_path
 
-    path = _add_served_directory(config_, relative_path, "extra_public_paths")
+    path = _add_served_directory(config_, relative_path, "plugin_public_paths")
     url = _local_url("/", locale="default")
     add_public_path(path, url)
 
@@ -150,18 +152,18 @@ def _add_served_directory(
     import inspect
     import os
 
-    assert config_var in ("extra_template_paths", "extra_public_paths")
+    assert config_var in ("plugin_template_paths", "plugin_public_paths")
     # we want the filename that of the function caller but they will
     # have used one of the available helper functions
     filename = inspect.stack()[2].filename
 
     this_dir = os.path.dirname(filename)
     absolute_path = os.path.join(this_dir, relative_path)
-    if absolute_path not in config_.get_value(config_var).split(","):
-        if config_.get_value(config_var):
-            config_[config_var] += "," + absolute_path
+    if absolute_path not in config_.get(config_var, []):
+        if config_var in config_:
+            config_[config_var] = [absolute_path] + config_[config_var]
         else:
-            config_[config_var] = absolute_path
+            config_[config_var] = [absolute_path]
     return absolute_path
 
 
@@ -196,7 +198,7 @@ def add_ckan_admin_tab(
     Update 'ckan.admin_tabs' dict the passed config dict.
     """
     # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get(config_var, {})
+    admin_tabs_dict = config_.get(config_var)
     # update the admin_tabs dict with the new values
     admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
     # update the config with the updated admin_tabs dict
@@ -300,7 +302,7 @@ docstring_overrides = {
 
 It stores the configuration values defined in the :ref:`config_file`, eg::
 
-    title = toolkit.config.get_value("ckan.site_title")
+    title = toolkit.config.get("ckan.site_title")
 
 """,
     "_": """Translates a string to the current locale.
@@ -368,5 +370,19 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "ckan": "``ckan`` package itself."
+    "ckan": "``ckan`` package itself.",
+    "BaseModel": """Base class for SQLAlchemy declarative models.
+
+Models extending ``BaseModel`` class are attached to the SQLAlchemy's metadata
+object automatically::
+
+    from ckan.plugins import toolkit
+
+    class ExtModel(toolkit.BaseModel):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+""",
+
 }

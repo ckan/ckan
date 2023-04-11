@@ -86,7 +86,7 @@ def string_to_timedelta(s: str) -> datetime.timedelta:
 
 
 def render_activity_email(activities: list[dict[str, Any]]) -> str:
-    globals = {"site_title": config.get_value("ckan.site_title")}
+    globals = {"site_title": config.get("ckan.site_title")}
     template_name = "activity_streams/activity_stream_email_notifications.text"
 
     env = Environment(**jinja_extensions.get_jinja_env_options())
@@ -130,7 +130,7 @@ def _notifications_for_activities(
         "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities),
-    ).format(site_title=config.get_value("ckan.site_title"), n=len(activities))
+    ).format(site_title=config.get("ckan.site_title"), n=len(activities))
 
     body = render_activity_email(activities)
     notifications = [{"subject": subject, "body": body}]
@@ -230,7 +230,7 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
 
     # Parse the email_notifications_since config setting, email notifications
     # from longer ago than this time will not be sent.
-    email_notifications_since = config.get_value(
+    email_notifications_since = config.get(
         "ckan.email_notifications_since"
     )
     email_notifications_since = string_to_timedelta(email_notifications_since)

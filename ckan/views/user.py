@@ -103,7 +103,7 @@ def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')
     order_by = request.args.get('order_by', 'name')
-    default_limit: int = config.get_value('ckan.user_list_limit')
+    default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
     context = cast(Context, {
         u'return_query': True,
@@ -137,7 +137,7 @@ def index():
 
 def me() -> Response:
     return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+        config.get(u'ckan.auth.route_after_login'))
 
 
 def read(id: str) -> Union[Response, str]:
@@ -511,10 +511,8 @@ def rotate_token():
     for security purposes.
     """
     from flask_wtf.csrf import generate_csrf
-    from ckan.common import session
-    # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
         generate_csrf()
@@ -574,7 +572,7 @@ def logout() -> Response:
     came_from = request.args.get('came_from', '')
     logout_user()
 
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
 
@@ -630,7 +628,7 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
@@ -692,7 +690,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get_value(
+                return h.redirect_to(config.get(
                     u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
@@ -700,7 +698,7 @@ class RequestResetView(MethodView):
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get_value(
+        return h.redirect_to(config.get(
             u'ckan.user_reset_landing_page'))
 
     def get(self) -> str:
@@ -762,14 +760,23 @@ class PerformResetView(MethodView):
             if (username is not None and username != u''):
                 user_dict[u'name'] = username
             user_dict[u'reset_key'] = g.reset_key
-            user_dict[u'state'] = model.State.ACTIVE
-            logic.get_action(u'user_update')(context, user_dict)
+            updated_user = logic.get_action("user_update")(context, user_dict)
+            # Users can not change their own state, so we need another edit
+            if (updated_user["state"] == model.State.PENDING):
+                patch_context = cast(Context, {
+                    'user': logic.get_action("get_site_user")(
+                        {"ignore_auth": True}, {})["name"]
+                })
+                logic.get_action("user_patch")(
+                    patch_context,
+                    {"id": user_dict['id'], "state": model.State.ACTIVE}
+                )
             mailer.create_reset_key(context[u'user_obj'])
             signals.perform_password_reset.send(
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get_value(
+            return h.redirect_to(config.get(
                 u'ckan.user_reset_landing_page'))
 
         except logic.NotAuthorized:

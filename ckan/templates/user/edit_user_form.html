@@ -1,9 +1,9 @@
 {% import 'macros/form.html' as form %}
 
 {% block form %}
-  <form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
+  <form id="user-edit-form" method="post" action="{{ action }}" enctype="multipart/form-data">
     {{ h.csrf_input() }}
-    {{ form.errors(error_summary) }}
+    {% block form_errors %}{{ form.errors(error_summary) }}{% endblock %}
 
     {% block core_fields %}
       <fieldset>
@@ -38,10 +38,12 @@
       <legend>{{ _('Change ' + data.name|capitalize + "'s" + ' password') }}</legend>
       {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
       {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
-    </fieldset>
+      </fieldset>
+    {% endblock %}
 
-    <fieldset>
-      <legend>{{ _('Sysadmin password') }}</legend>
+    {% block sysadmin_old_password %}
+      <fieldset>
+        <legend>{{ _('Sysadmin password') }}</legend>
         {{ form.input('old_password',
                       type='password',
                       label=_('Sysadmin Password'),
@@ -76,6 +78,8 @@
     {% endblock %}
     {% endif %}
 
+    {{ form.required_message() }}
+
     <div class="form-actions">
       {% block form_actions %}
       {% set is_deleted = data.state == 'deleted' %}
@@ -86,7 +90,6 @@
           {% endif %}
         {% endblock %}
         {% endif %}
-        {{ form.required_message() }}
         <button class="btn btn-primary" type="submit" name="save">{{ _('Reactivate Profile') if is_deleted else _('Update Profile') }}</button>
       {% endblock %}
     </div>

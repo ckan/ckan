@@ -1,0 +1,2 @@
+Fixes `datastore_active` flagging during the `datastore_delete` action
+when an empty `filters` dict is passed.

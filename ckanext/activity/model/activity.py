@@ -21,7 +21,7 @@ import ckan.model as model
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
-from ckan.model.base import Base
+from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
 
 from ckan.types import Context, Query  # noqa
@@ -33,7 +33,7 @@ TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 
-class Activity(domain_object.DomainObject, Base):  # type: ignore
+class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     __tablename__ = "activity"
     # the line below handles cases when activity table was already loaded into
     # metadata state(via stats extension). Can be removed if stats stop using
@@ -237,15 +237,6 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     return q
 
 
-def _activities_at_offset(
-    q: QActivity, limit: int, offset: int
-) -> list[Activity]:
-    """
-    Return a list of all activities at an offset with a limit.
-    """
-    return _activities_limit(q, limit, offset).all()
-
-
 def _activities_from_user_query(user_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
@@ -268,7 +259,11 @@ def _user_activity_query(user_id: str, limit: int) -> QActivity:
 
 
 def user_activity_list(
-    user_id: str, limit: int, offset: int
+    user_id: str,
+    limit: int,
+    offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
 ) -> list[Activity]:
     """Return user_id's public activity stream.
 
@@ -280,11 +275,38 @@ def user_activity_list(
     etc.
 
     """
-    q = _user_activity_query(user_id, limit + offset)
+    q1 = _activities_from_user_query(user_id)
+    q2 = _activities_about_user_query(user_id)
+
+    q = _activities_union_all(q1, q2)
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def _package_activity_query(package_id: str) -> QActivity:
@@ -354,9 +376,7 @@ def package_activity_list(
     return results
 
 
-def _group_activity_query(
-    group_id: str, include_hidden_activity: bool = False
-) -> QActivity:
+def _group_activity_query(group_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
@@ -405,15 +425,10 @@ def _group_activity_query(
         )
     )
 
-    if not include_hidden_activity:
-        q = _filter_activitites_from_users(q)
-
     return q
 
 
-def _organization_activity_query(
-    org_id: str, include_hidden_activity: bool = False
-) -> QActivity:
+def _organization_activity_query(org_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about org_id.
 
     Returns a query for all activities whose object is either the org itself
@@ -445,8 +460,6 @@ def _organization_activity_query(
             )
         )
     )
-    if not include_hidden_activity:
-        q = _filter_activitites_from_users(q)
 
     return q
 
@@ -455,7 +468,10 @@ def group_activity_list(
     group_id: str,
     limit: int,
     offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
 
     """Return the given group's public activity stream.
@@ -468,15 +484,51 @@ def group_activity_list(
     etc.
 
     """
-    q = _group_activity_query(group_id, include_hidden_activity)
-    return _activities_at_offset(q, limit, offset)
+    q = _group_activity_query(group_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types
+        )
+
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def organization_activity_list(
     group_id: str,
     limit: int,
     offset: int,
+    after: Optional[datetime.datetime] = None,
+    before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
+    activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
     """Return the given org's public activity stream.
 
@@ -488,8 +540,41 @@ def organization_activity_list(
     etc.
 
     """
-    q = _organization_activity_query(group_id, include_hidden_activity)
-    return _activities_at_offset(q, limit, offset)
+    q = _organization_activity_query(group_id)
+
+    if not include_hidden_activity:
+        q = _filter_activitites_from_users(q)
+
+    if activity_types:
+        q = _filter_activitites_from_type(
+            q, include=True, types=activity_types
+        )
+
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def _activities_from_users_followed_by_user_query(
@@ -556,7 +641,7 @@ def _activities_from_groups_followed_by_user_query(
 
 
 def _activities_from_everything_followed_by_user_query(
-    user_id: str, limit: int
+    user_id: str, limit: int = 0
 ) -> QActivity:
     """Return a query for all activities from everything user_id follows."""
     q1 = _activities_from_users_followed_by_user_query(user_id, limit)
@@ -577,10 +662,10 @@ def activities_from_everything_followed_by_user(
     q = _activities_from_everything_followed_by_user_query(
         user_id, limit + offset
     )
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
-def _dashboard_activity_query(user_id: str, limit: int) -> QActivity:
+def _dashboard_activity_query(user_id: str, limit: int = 0) -> QActivity:
     """Return an SQLAlchemy query for user_id's dashboard activity stream."""
     q1 = _user_activity_query(user_id, limit)
     q2 = _activities_from_everything_followed_by_user_query(user_id, limit)
@@ -588,7 +673,11 @@ def _dashboard_activity_query(user_id: str, limit: int) -> QActivity:
 
 
 def dashboard_activity_list(
-    user_id: str, limit: int, offset: int
+    user_id: str,
+    limit: int,
+    offset: int,
+    before: Optional[datetime.datetime] = None,
+    after: Optional[datetime.datetime] = None,
 ) -> list[Activity]:
     """Return the given user's dashboard activity stream.
 
@@ -599,11 +688,35 @@ def dashboard_activity_list(
     activities_from_everything_followed_by_user(user_id).
 
     """
-    q = _dashboard_activity_query(user_id, limit + offset)
+    q = _dashboard_activity_query(user_id)
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    if after:
+        q = q.filter(Activity.timestamp > after)
+    if before:
+        q = q.filter(Activity.timestamp < before)
+
+    # revert sort queries for "only before" queries
+    revese_order = after and not before
+    if revese_order:
+        q = q.order_by(Activity.timestamp)
+    else:
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.order_by(Activity.timestamp.desc())  # type: ignore
+
+    if offset:
+        q = q.offset(offset)
+    if limit:
+        q = q.limit(limit)
+
+    results = q.all()
+
+    # revert result if required
+    if revese_order:
+        results.reverse()
+
+    return results
 
 
 def _changed_packages_activity_query() -> QActivity:
@@ -631,7 +744,7 @@ def recently_changed_packages_activity_list(
 
     q = _filter_activitites_from_users(q)
 
-    return _activities_at_offset(q, limit, offset)
+    return _activities_limit(q, limit, offset).all()
 
 
 def _filter_activitites_from_users(q: QActivity) -> QActivity:
@@ -667,7 +780,7 @@ def _activity_stream_get_filtered_users() -> list[str]:
     option and return a list of their ids. If the config is not specified,
     returns the id of the site user.
     """
-    users_list = config.get_value("ckan.hide_activity_from_users")
+    users_list = config.get("ckan.hide_activity_from_users")
     if not users_list:
         from ckan.logic import get_action
 

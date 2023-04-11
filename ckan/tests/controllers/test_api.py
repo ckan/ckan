@@ -7,7 +7,6 @@ import json
 import re
 
 import pytest
-import six
 from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
@@ -16,7 +15,7 @@ from ckan.tests import factories
 
 @pytest.mark.parametrize(
     "ver, expected, status",
-    [(0, 1, 404), (1, 1, 200), (2, 2, 200), (3, 3, 200), (4, 1, 404)],
+    [(1, 1, 200), (2, 2, 200), (3, 3, 200)],
 )
 def test_get_api_version(ver, expected, status, app):
     resp = app.get(url_for("api.get_api", ver=str(ver)), status=status)
@@ -58,7 +57,7 @@ def test_sideeffect_action_is_not_get_able(app):
     assert msg in resp
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
     def test_resource_create_upload_file(
         self, app, monkeypatch, tmpdir, ckan_config
@@ -74,9 +73,9 @@ class TestApiController(object):
             logic_function="resource_create",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
+        headers = {"Authorization": user_token["token"]}
 
-        content = six.ensure_binary('upload-content')
+        content = 'upload-content'.encode()
         upload_content = BytesIO(content)
         postparams = {
             "name": "test-flask-upload",
@@ -86,7 +85,7 @@ class TestApiController(object):
 
         resp = app.post(
             url,
-            extra_environ=env,
+            headers=headers,
             data=postparams,
             content_type="multipart/form-data",
         )
@@ -240,8 +239,8 @@ class TestApiController(object):
             logic_function="config_option_list",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
-        app.get(url=url, extra_environ=env, query_string={}, status=200)
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
@@ -251,8 +250,8 @@ class TestApiController(object):
             logic_function="config_option_list",
             ver=3,
         )
-        env = {"Authorization": user_token["token"]}
-        app.get(url=url, extra_environ=env, query_string={"callback": "myfn"}, status=403)
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 
@@ -266,7 +265,7 @@ class TestApiController(object):
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
-        assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
+        assert re.match(r"my_callback\(.*\);", str(res.body)), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
         msg = res.body[start:-2]
@@ -300,7 +299,7 @@ class TestApiController(object):
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
-        assert not six.ensure_str(res.body).startswith("my_callback")
+        assert not str(res.body).startswith("my_callback")
         res_dict = json.loads(res.body)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(
@@ -339,3 +338,80 @@ def test_i18n_only_known_locales_are_accepted(app):
     url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
     r = app.get(url, status=400)
     assert "Bad request - Unknown locale" in r.get_data(as_text=True)
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_cookie_based_auth_default(app):
+
+    sysadmin = factories.Sysadmin()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    env = {"REMOTE_USER": sysadmin["name"]}
+
+    res = app.get(url, environ_overrides=env)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.enable_cookie_auth_in_api", False)
+def test_cookie_based_auth_disabled(app):
+
+    sysadmin = factories.Sysadmin()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    env = {"REMOTE_USER": sysadmin["name"]}
+
+    res = app.get(url, environ_overrides=env)
+
+    assert res.status_code == 403
+
+    # Check that token auth still works
+    user_token = factories.APIToken(user=sysadmin["name"])
+    headers = {"Authorization": user_token["token"]}
+
+    res = app.get(url, headers=headers)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    headers = {"Authorization": sysadmin["token"]}
+
+    res = app.get(url, headers=headers)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default_post(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_patch")
+
+    headers = {"Authorization": sysadmin["token"]}
+
+    data = {
+        "id": dataset["id"],
+        "notes": "updated",
+    }
+    res = app.post(url, headers=headers, data=data)
+
+    assert res.status_code == 200

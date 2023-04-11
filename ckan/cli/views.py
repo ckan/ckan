@@ -40,10 +40,10 @@ def views():
 def create(ctx: click.Context, types: list[str], dataset: list[str],
            no_default_filters: bool, search: str, yes: bool):
     """Create views on relevant resources. You can optionally provide
-    specific view types (eg `recline_view`, `image_view`). If no types
+    specific view types (eg `datatables_view`, `image_view`). If no types
     are provided, the default ones will be used. These are generally
     the ones defined in the `ckan.views.default_views` config option.
-    Note that on either case, plugins must be loaded (ie added to
+    Note that in either case, plugins must be loaded (ie added to
     `ckan.plugins`), otherwise the command will stop.
 
     """
@@ -295,13 +295,13 @@ def _add_default_filters(search_data_dict: dict[str, Any],
     """
 
     from ckanext.textview.plugin import get_formats as get_text_formats
-    datapusher_formats = config.get_value("ckan.datapusher.formats")
+    datapusher_formats = config.get("ckan.datapusher.formats")
 
     filter_formats = []
 
     for view_type in view_types:
         if view_type == u"image_view":
-            formats = config.get_value(
+            formats = config.get(
                 "ckan.preview.image_formats").split()
             for _format in formats:
                 filter_formats.extend([_format, _format.upper()])

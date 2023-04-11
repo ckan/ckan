@@ -15,9 +15,6 @@ from typing_extensions import Literal
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
 
-import six
-
-
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
@@ -57,7 +54,7 @@ class ActionError(Exception):
         msg = self.message
         if not isinstance(msg, str):
             msg = str(msg)
-        return six.ensure_text(msg)
+        return msg
 
 
 class NotFound(ActionError):
@@ -167,7 +164,7 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     from ckan.common import config
 
     # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    csrf_token = config.get("WTF_CSRF_FIELD_NAME")
     if csrf_token in parsed:
         parsed.pop(csrf_token)
     return parsed
@@ -478,8 +475,8 @@ def get_action(action: str) -> Action:
             '.' + action_module_name, 'ckan.logic.action')
         for k, v in authz.get_local_functions(module):
             _actions[k] = v
-            # Whitelist all actions defined in logic/action/get.py as
-            # being side-effect free.
+            # Allow all actions defined in logic/action/get.py to
+            # be side-effect free.
             if action_module_name == 'get' and \
                not hasattr(v, 'side_effect_free'):
                 v.side_effect_free = True
@@ -864,3 +861,18 @@ def guard_against_duplicated_email(email: str):
                 )
             )
         raise
+
+
+def fresh_context(
+    context: Context,
+) -> Context:
+    """ Copy just the minimum fields into a new context
+        for cases in which we reuse the context and
+        we want a clean version with minimum fields """
+    new_context = {
+        k: context[k] for k in (
+            'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+        ) if k in context
+    }
+    new_context = cast(Context, new_context)
+    return new_context

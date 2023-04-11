@@ -436,7 +436,7 @@ def default_user_schema(
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
-        'state': [ignore_missing],
+        'state': [ignore_missing, ignore_not_sysadmin],
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
@@ -742,7 +742,7 @@ def default_update_configuration_schema(unicode_safe: Validator,
         'ckan.site_about': [ignore_missing, unicode_safe],
         'ckan.site_intro_text': [ignore_missing, unicode_safe],
         'ckan.site_custom_css': [ignore_missing, unicode_safe],
-        'ckan.main_css': [ignore_missing, unicode_safe],
+        'ckan.theme': [ignore_missing, unicode_safe],
         'ckan.homepage_style': [ignore_missing, is_positive_integer],
         'logo_upload': [ignore_missing, unicode_safe],
         'clear_logo_upload': [ignore_missing, unicode_safe],
@@ -836,7 +836,6 @@ def package_revise_schema(ignore_missing: Validator,
 def config_declaration_v1(
         ignore_missing: Validator, unicode_safe: Validator,
         not_empty: Validator, default: ValidatorFactory,
-        boolean_validator: Validator,
         dict_only: Validator, one_of: ValidatorFactory,
         ignore_empty: Validator):
     from ckan.config.declaration import Key
@@ -856,22 +855,19 @@ def config_declaration_v1(
     return cast(Schema, {
         "groups": {
             "annotation": [default(""), unicode_safe],
+            "section": [default("app:main"), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
+                "legacy_key": [ignore_empty, unicode_safe],
                 "default": [ignore_missing],
-                "example": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
+                "placeholder": [default(""), unicode_safe],
                 "placeholder_callable": [ignore_empty, importable_string],
                 "callable_args": [ignore_empty, dict_only],
+                "example": [ignore_missing],
                 "description": [default(""), unicode_safe],
-                "placeholder": [default(""), unicode_safe],
                 "validators": [default(""), unicode_safe],
                 "type": [default("base"), one_of(list(option_types))],
-
-                "ignored": [default(False), boolean_validator],
-                "experimental": [default(False), boolean_validator],
-                "internal": [default(False), boolean_validator],
-                "required": [default(False), boolean_validator],
             }
         }
     })

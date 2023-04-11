@@ -268,8 +268,6 @@ def _get_test_app():
 
     """
     config["testing"] = True
-    # exempt the CKAN TESTS from csrf-validation.
-    config["WTF_CSRF_METHODS"] = []
     app = ckan.config.middleware.make_app(config)
     app = CKANTestApp(app)
 
@@ -598,6 +596,7 @@ class FakeSMTP(smtplib.SMTP):
 
     def __init__(self):
         self._msgs = []
+        self.esmtp_features = ['starttls']
 
     def __call__(self, *args):
         return self

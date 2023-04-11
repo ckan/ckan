@@ -26,7 +26,7 @@
     },
 
     /* Simple helper function for both GET's and POST's to the ckan API
-     * 
+     *
      * type - GET or POST
      * path - The API endpoint
      * data - Any data you need passing to the endpoint
@@ -51,6 +51,11 @@
       if (type == 'POST') {
         options.type = 'POST';
         options.data = JSON.stringify(data);
+        var csrf_field = $('meta[name=csrf_field_name]').attr('content');
+        var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+        options.headers = {
+          'X-CSRFToken': csrf_token
+        }
       } else {
         options.type = 'GET';
         options.url += data;

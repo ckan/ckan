@@ -5,6 +5,7 @@ import os
 import logging
 import html
 import io
+import datetime
 
 from typing import Any, Callable, Optional, cast, Union
 
@@ -15,7 +16,6 @@ from werkzeug.datastructures import MultiDict
 
 import ckan.model as model
 from ckan.common import json, _, g, request, current_user
-from ckan.config.middleware.flask_app import csrf
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config
@@ -41,6 +41,12 @@ API_DEFAULT_VERSION = 3
 API_MAX_VERSION = 3
 
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
+
+
+def _json_serial(obj: Any):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError("Unhandled Object")
 
 
 def _finish(status_int: int,
@@ -72,6 +78,7 @@ def _finish(status_int: int,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
@@ -208,8 +215,6 @@ def _get_request_data(try_url_params: bool = False):
 
 # View functions
 
-# exempt the CKAN API actions from csrf-validation.
-@csrf.exempt
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 

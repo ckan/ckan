@@ -64,8 +64,8 @@ def test_import_v2_style_register():
 def test_import_v1_style_register_i18n(app):
     sysadmin = factories.Sysadmin(password="correct123")
     sysadmin_token = factories.APIToken(user=sysadmin["name"])
-    env = {"Authorization": sysadmin_token["token"]}
-    resp = app.get("/dataset/new", environ_overrides=env)
+    headers = {"Authorization": sysadmin_token["token"]}
+    resp = app.get("/dataset/new", headers=headers)
     assert "Altres (Oberta)" in resp.body
 
 
@@ -77,8 +77,8 @@ def test_import_v1_style_register_i18n(app):
 def test_import_v2_style_register_i18n(app):
     sysadmin = factories.Sysadmin(password="correct123")
     sysadmin_token = factories.APIToken(user=sysadmin["name"])
-    env = {"Authorization": sysadmin_token["token"]}
-    resp = app.get("/dataset/new", environ_overrides=env)
+    headers = {"Authorization": sysadmin_token["token"]}
+    resp = app.get("/dataset/new", headers=headers)
     assert "Altres (Oberta)" in resp.body
 
 
