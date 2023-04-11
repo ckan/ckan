@@ -1869,7 +1869,7 @@ class TestDatastoreSQLFunctional(object):
         sql = 'SELECT * FROM "{0}"'.format(resource["id"])
         result = helpers.call_action("datastore_search_sql", sql=sql)
         record_new = result["records"]
-        assert(isinstance(record_new[0]["foo"], decimal.Decimal))
+        assert (isinstance(record_new[0]["foo"], decimal.Decimal))
 
 
 class TestDatastoreSearchRecordsFormat(object):
