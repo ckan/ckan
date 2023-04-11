@@ -7,6 +7,7 @@ import copy
 
 import pytest
 import ckan.lib.navl.validators as validators
+from ckan.lib.navl.dictization_functions import StopOnError
 
 
 def validator_data_dict():
@@ -343,3 +344,41 @@ class TestDefault(object):
         dict_ = {"key": "original"}
         validators.default("default_value")("key", dict_, {}, {})
         assert dict_ == {"key": "original"}
+
+
+class TestNotEmpty(object):
+
+    def test_not_empty_passes(self):
+        dict_ = {"key": "some value"}
+        errors = {"key": []}
+        validators.not_empty("key", dict_, errors, {})
+        assert errors == {"key": []}
+
+    def test_not_empty_fails(self):
+        dict_ = {"key": ""}
+        errors = {"key": []}
+        with pytest.raises(StopOnError):
+            validators.not_empty("key", dict_, errors, {})
+        assert errors == {"key": ["Missing value"]}
+
+    @pytest.mark.parametrize('value', [True, 1, "False", "0"])
+    def test_not_empty_passes_truthy(self, value):
+        dict_ = {"key": value}
+        errors = {"key": []}
+        validators.not_empty("key", dict_, errors, {})
+        assert errors == {"key": []}
+
+    @pytest.mark.parametrize('value', [False, 0, 0.0])
+    def test_not_empty_passes_false_and_zero(self, value):
+        dict_ = {"key": value}
+        errors = {"key": []}
+        validators.not_empty("key", dict_, errors, {})
+        assert errors == {"key": []}
+
+    @pytest.mark.parametrize('value', [[], {}, set(), ()])
+    def test_not_empty_fails_empty_objects(self, value):
+        dict_ = {"key": value}
+        errors = {"key": []}
+        with pytest.raises(StopOnError):
+            validators.not_empty("key", dict_, errors, {})
+        assert errors == {"key": ["Missing value"]}

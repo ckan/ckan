@@ -170,6 +170,7 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     :raises: :class:`ckan.logic.NotFound`: if the group doesn't exist
 
     '''
+    _check_access('member_list', context, data_dict)
     model = context['model']
 
     group = model.Group.get(_get_or_bust(data_dict, 'id'))
@@ -336,7 +337,7 @@ def _group_or_org_list(
             data_dict, ckan.logic.schema.default_pagination_schema(), context)
         if errors:
             raise ValidationError(errors)
-    sort = data_dict.get('sort') or config.get_value('ckan.default_group_sort')
+    sort = data_dict.get('sort') or config.get('ckan.default_group_sort')
     q = data_dict.get('q', '').strip()
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -344,13 +345,13 @@ def _group_or_org_list(
     if all_fields:
         # all_fields is really computationally expensive, so need a tight limit
         try:
-            max_limit = config.get_value(
+            max_limit = config.get(
                 'ckan.group_and_organization_list_all_fields_max')
         except ValueError:
             max_limit = 25
     else:
         try:
-            max_limit = config.get_value('ckan.group_and_organization_list_max')
+            max_limit = config.get('ckan.group_and_organization_list_max')
         except ValueError:
             max_limit = 1000
 
@@ -824,6 +825,9 @@ def user_list(
     :param all_fields: return full user dictionaries instead of just names.
       (optional, default: ``True``)
     :type all_fields: bool
+    :param include_site_user: add site_user to the result
+      (optional, default: ``False``)
+    :type include_site_user: bool
 
     :rtype: list of user dictionaries. User properties include:
       ``number_created_packages`` which excludes datasets which are private
@@ -857,6 +861,10 @@ def user_list(
         )
     else:
         query = model.Session.query(model.User.name)
+
+    if not asbool(data_dict.get('include_site_user', False)):
+        site_id = config.get('ckan.site_id')
+        query = query.filter(model.User.name != site_id)
 
     if q:
         query = model.User.search(q, query, user_name=context.get('user'))
@@ -978,12 +986,23 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param include_tracking: add tracking information to dataset and
         resources (default: ``False``)
     :type include_tracking: bool
+    :param include_plugin_data: Include the internal plugin data object
+        (sysadmin only, optional, default:``False``)
+    :type: include_plugin_data: bool
     :rtype: dictionary
 
     '''
     model = context['model']
+    user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
+
+    include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
+    if user_obj and user_obj.is_authenticated:
+        include_plugin_data = user_obj.sysadmin and include_plugin_data
+
+        if include_plugin_data:
+            context['use_cache'] = False
 
     pkg = model.Package.get(
         name_or_id,
@@ -993,7 +1012,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         raise NotFound
 
     context['package'] = pkg
-
     _check_access('package_show', context, data_dict)
 
     if data_dict.get('use_default_schema', False):
@@ -1026,7 +1044,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
                 package_dict = None
 
     if not package_dict:
-        package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict = model_dictize.package_dictize(
+            pkg, context, include_plugin_data
+        )
         package_dict_validated = False
 
     if include_tracking:
@@ -1176,7 +1196,7 @@ def _group_or_org_show(
         packages_field = None
 
     try:
-        if config.get_value('ckan.auth.public_user_details'):
+        if config.get('ckan.auth.public_user_details'):
             include_users = asbool(data_dict.get('include_users', True))
         else:
             include_users = asbool(data_dict.get('include_users', False))
@@ -1226,8 +1246,9 @@ def _group_or_org_show(
         schema = group_plugin.db_to_form_schema()
 
     if include_followers:
+        context = plugins.toolkit.fresh_context(context)
         group_dict['num_followers'] = logic.get_action('group_follower_count')(
-            {'model': model, 'session': model.Session},
+            context,
             {'id': group_dict['id']})
     else:
         group_dict['num_followers'] = 0
@@ -1318,6 +1339,7 @@ def group_package_show(context: Context,
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_package_show', context, data_dict)
 
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
@@ -1455,11 +1477,6 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     user_dict = model_dictize.user_dictize(
         user_obj, context, include_password_hash, include_plugin_extras)
-
-    if context.get('return_minimal'):
-        log.warning('Use of the "return_minimal" in user_show is '
-                    'deprecated.')
-        return user_dict
 
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
@@ -1859,7 +1876,7 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
     abort = data_dict.get('abort_search', False)
 
     if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = config.get_value('ckan.search.default_package_sort')
+        data_dict['sort'] = config.get('ckan.search.default_package_sort')
 
     results: list[dict[str, Any]] = []
     facets: dict[str, Any] = {}
@@ -2068,6 +2085,8 @@ def resource_search(context: Context, data_dict: DataDict) -> ActionResult.Resou
     :rtype: dict
 
     '''
+    _check_access('resource_search', context, data_dict)
+
     model = context['model']
 
     query = data_dict.get('query')
@@ -2248,6 +2267,8 @@ def tag_search(context: Context, data_dict: DataDict) -> ActionResult.TagSearch:
     :rtype: dictionary
 
     '''
+    _check_access('tag_search', context, data_dict)
+
     tags, count = _tag_search(context, data_dict)
     return {'count': count,
             'results': [_table_dictize(tag, context) for tag in tags]}
@@ -2344,6 +2365,8 @@ def term_translation_show(
         (the translation of the term into the target language) and
         ``'lang_code'`` (the language code of the target language)
     '''
+    _check_access('term_translation_show', context, data_dict)
+
     model = context['model']
 
     trans_table = model.term_translation_table
@@ -2393,7 +2416,7 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
     '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
-    site_id = config.get_value('ckan.site_id')
+    site_id = config.get('ckan.site_id')
     user = model.User.get(site_id)
     if not user:
         apikey = str(uuid.uuid4())
@@ -2418,17 +2441,17 @@ def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusSho
 
     '''
     _check_access('status_show', context, data_dict)
-    extensions = config.get_value('ckan.plugins')
+    extensions = config.get('ckan.plugins')
 
     site_info = {
-        'site_title': config.get_value('ckan.site_title'),
-        'site_description': config.get_value('ckan.site_description'),
-        'site_url': config.get_value('ckan.site_url'),
-        'error_emails_to': config.get_value('email_to'),
-        'locale_default': config.get_value('ckan.locale_default'),
+        'site_title': config.get('ckan.site_title'),
+        'site_description': config.get('ckan.site_description'),
+        'site_url': config.get('ckan.site_url'),
+        'error_emails_to': config.get('email_to'),
+        'locale_default': config.get('ckan.locale_default'),
         'extensions': extensions,
     }
-    if not config.get_value('ckan.hide_version') or authz.is_sysadmin(context['user']):
+    if not config.get('ckan.hide_version') or authz.is_sysadmin(context['user']):
         site_info['ckan_version'] = ckan.__version__
     return site_info
 
@@ -2490,6 +2513,7 @@ def user_follower_count(
     :rtype: int
 
     '''
+    _check_access('user_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
@@ -2507,6 +2531,7 @@ def dataset_follower_count(
     :rtype: int
 
     '''
+    _check_access('dataset_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
@@ -2524,6 +2549,7 @@ def group_follower_count(
     :rtype: int
 
     '''
+    _check_access('group_follower_count', context, data_dict)
     return _follower_count(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
@@ -2541,6 +2567,7 @@ def organization_follower_count(
     :rtype: int
 
     '''
+    _check_access('organization_follower_count', context, data_dict)
     return group_follower_count(context, data_dict)
 
 
@@ -2668,6 +2695,7 @@ def am_following_user(context: Context,
     :rtype: bool
 
     '''
+    _check_access('am_following_user', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_user_schema(),
@@ -2685,6 +2713,7 @@ def am_following_dataset(
     :rtype: bool
 
     '''
+    _check_access('am_following_dataset', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_dataset_schema(),
@@ -2701,6 +2730,7 @@ def am_following_group(context: Context,
     :rtype: bool
 
     '''
+    _check_access('am_following_group', context, data_dict)
     return _am_following(
         context, data_dict,
         ckan.logic.schema.default_follow_group_schema(),
@@ -2709,14 +2739,20 @@ def am_following_group(context: Context,
 
 def _followee_count(
         context: Context, data_dict: DataDict,
-        FollowerClass: Type['ModelFollowingModel[Any ,Any]']) -> int:
+        FollowerClass: Type['ModelFollowingModel[Any ,Any]'],
+        is_org: bool = False
+        ) -> int:
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
         data_dict, errors = _validate(data_dict, schema, context)
         if errors:
             raise ValidationError(errors)
-    return FollowerClass.followee_count(data_dict['id'])
+
+    followees = _group_or_org_followee_list(context, data_dict, is_org)
+
+    return len(followees)
+
 
 
 def followee_count(context: Context,
@@ -2732,6 +2768,7 @@ def followee_count(context: Context,
     :rtype: int
 
     '''
+    _check_access('followee_count', context, data_dict)
     model = context['model']
     followee_users = _followee_count(context, data_dict,
                                      model.UserFollowingUser)
@@ -2759,6 +2796,7 @@ def user_followee_count(
     :rtype: int
 
     '''
+    _check_access('user_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingUser)
@@ -2775,6 +2813,7 @@ def dataset_followee_count(
     :rtype: int
 
     '''
+    _check_access('dataset_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
         context['model'].UserFollowingDataset)
@@ -2791,10 +2830,28 @@ def group_followee_count(
     :rtype: int
 
     '''
+    _check_access('group_followee_count', context, data_dict)
     return _followee_count(
         context, data_dict,
-        context['model'].UserFollowingGroup)
+        context['model'].UserFollowingGroup,
+        is_org = False)
 
+def organization_followee_count(
+        context: Context,
+        data_dict: DataDict) -> ActionResult.OrganizationFolloweeCount:
+    '''Return the number of organizations that are followed by the given user.
+
+    :param id: the id of the user
+    :type id: string
+
+    :rtype: int
+
+    '''
+    _check_access('organization_followee_count', context, data_dict)
+    return _followee_count(
+        context, data_dict,
+        context['model'].UserFollowingGroup,
+        is_org = True)
 
 @logic.validate(ckan.logic.schema.default_follow_user_schema)
 def followee_list(
@@ -3163,12 +3220,18 @@ def api_token_list(
         context: Context, data_dict: DataDict) -> ActionResult.ApiTokenList:
     '''Return list of all available API Tokens for current user.
 
+    :param string user_id: The user ID or name
+
     :returns: collection of all API Tokens
     :rtype: list
 
     .. versionadded:: 2.9
     '''
-    id_or_name = _get_or_bust(data_dict, u'user')
+    # Support "user" for backwards compatibility
+    id_or_name = data_dict.get("user_id", data_dict.get("user"))
+    if not id_or_name:
+        raise ValidationError({"user_id": ["Missing value"]})
+
     _check_access(u'api_token_list', context, data_dict)
     user = model.User.get(id_or_name)
     if user is None:

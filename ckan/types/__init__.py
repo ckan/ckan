@@ -88,7 +88,6 @@ class Context(TypedDict, total=False):
     user_is_admin: bool
     search_query: bool
     return_query: bool
-    return_minimal: bool
     return_id_only: bool
     defer_commit: bool
     reset_password: bool

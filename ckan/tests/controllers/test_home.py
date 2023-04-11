@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
@@ -34,12 +33,14 @@ class TestHome(object):
         # can't use factory to create user as without email it fails validation
         from ckan import model
 
-        user = model.user.User(name=factories.User.stub().name)
+        user = model.User(name="has-no-email", password="correct123")
         model.Session.add(user)
         model.Session.commit()
-        env = {"REMOTE_USER": six.ensure_str(user.name)}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        user_token = factories.APIToken(user=user.id)
+        headers = {"Authorization": user_token["token"]}
+
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body
@@ -47,10 +48,11 @@ class TestHome(object):
 
     @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_no_nag(self, app):
-        user = factories.User(email=factories.User.stub().email)
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user = factories.User(email="filled_in@nicely.com")
+        user_token = factories.APIToken(user=user["name"])
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        headers = {"Authorization": user_token["token"]}
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "add your email address" not in response
 
@@ -75,7 +77,6 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 

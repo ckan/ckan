@@ -65,7 +65,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_search_template_called = 0
     num_times_history_template_called = 0
     num_times_package_form_called = 0
-    num_times_check_data_dict_called = 0
     num_times_setup_template_variables_called = 0
 
     def update_config(self, config: CKANConfig):
@@ -185,11 +184,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def package_form(self) -> Any:
         ExampleIDatasetFormPlugin.num_times_package_form_called += 1
         return super(ExampleIDatasetFormPlugin, self).package_form()
-
-    # check_data_dict() is deprecated, this method is only here to test that
-    # legacy support for the deprecated method works.
-    def check_data_dict(self, data_dict: dict[str, Any], schema: Any = None):
-        ExampleIDatasetFormPlugin.num_times_check_data_dict_called += 1
 
 
 class ExampleIDatasetFormInheritPlugin(plugins.SingletonPlugin,

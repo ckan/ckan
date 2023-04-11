@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 
 import pytest
-import six
 from freezegun import freeze_time
 
 import ckan.model as model
@@ -32,15 +31,14 @@ class TestExpireApiTokenPlugin(object):
         decoded = api_token.decode(data["token"])
         id = decoded["jti"]
         assert model.ApiToken.get(id)
-
-        url = url_for(u"user.api_tokens", id=user["id"])
+        url = url_for("api.action", logic_function=u"api_token_list", ver=3, user=user["id"])
         app.get(
-            url, headers={u"authorization": six.ensure_str(data[u"token"])},
+            url, headers={u"authorization": data["token"]},
         )
 
         with freeze_time(now + timedelta(seconds=22)):
             app.get(
                 url,
-                headers={u"authorization": six.ensure_str(data[u"token"])},
+                headers={u"authorization": data["token"]},
                 status=403,
             )

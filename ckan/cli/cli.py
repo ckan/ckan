@@ -16,6 +16,7 @@ from ckan.exceptions import CkanConfigurationException
 from . import (
     asset,
     config,
+    clean,
     dataset,
     db, search_index, server,
     generate,
@@ -30,7 +31,8 @@ from . import (
     user,
     views,
     config_tool,
-    error_shout
+    error_shout,
+    shell
 )
 
 META_ATTR = u'_ckan_meta'
@@ -51,8 +53,12 @@ class CtxObject(object):
     def __init__(self, conf: Optional[str] = None):
         # Don't import `load_config` by itself, rather call it using
         # module so that it can be patched during tests
-        self.config = ckan_cli.load_config(conf)
-        self.app = make_app(self.config)
+        raw_config = ckan_cli.load_config(conf)
+        self.app = make_app(raw_config)
+
+        # Attach the actual CKAN config object to the context
+        from ckan.common import config
+        self.config = config
 
 
 class ExtendableGroup(click.Group):
@@ -227,3 +233,5 @@ ckan.add_command(tracking.tracking)
 ckan.add_command(translation.translation)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
+ckan.add_command(shell.shell)
+ckan.add_command(clean.clean)

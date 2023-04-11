@@ -125,7 +125,7 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMatchNotExhaustive = true
 
 [tool.mypy]
-plugins = "sqlmypy"
+plugins = "sqlalchemy.ext.mypy.plugin"
 files = "ckan"
 exclude = "ckan/(pastertemplates|tests|migration)"
 
@@ -147,6 +147,5 @@ module = [
     "repoze.*",
     "rq.*",
     "webassets.*",
-    "webob.*",
     "zope.*",
 ]

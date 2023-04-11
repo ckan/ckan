@@ -5,6 +5,8 @@ import datetime as _datetime
 from typing import Generic, Optional, Type, TypeVar
 
 import sqlalchemy
+import sqlalchemy.orm
+
 from typing_extensions import Self
 
 import ckan.model
@@ -106,7 +108,8 @@ class ModelFollowingModel(domain_object.DomainObject,
 
     @classmethod
     def _get(
-            cls, follower_id: Optional[str] = None,
+            cls,
+            follower_id: Optional[str] = None,
             object_id: Optional[str] = None
     ) -> Query[tuple[Self, Follower, Followed]]:
         follower_alias = sqlalchemy.orm.aliased(cls._follower_class())

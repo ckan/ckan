@@ -1,6 +1,6 @@
 {% extends "user/edit_base.html" %}
 
-{% set user = g.userobj %}
+{% set user = current_user %}
 {% set org_type = h.default_group_type('organization') %}
 {% set group_type = h.default_group_type('group') %}
 {% set dataset_type = h.default_package_type() %}

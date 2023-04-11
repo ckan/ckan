@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import mock
+from flask_login import user_logged_in as signals_user_logged_in
 import pytest
 
 import ckan.model as model
@@ -76,12 +77,12 @@ class TestUserSignals:
             assert perform_reset.call_count == 1
 
     def test_login(self, app):
-        user = factories.User(password=u"correct123")
-        url = u"/login_generic"
+        user = factories.User(email='user@ckan.org', password=u"correct123")
+        url = url_for(u"user.login")
         success = mock.Mock()
         fail = mock.Mock()
         invalid = factories.User.stub().name
-        with signals.successful_login.connected_to(success):
+        with signals_user_logged_in.connected_to(success):
             with signals.failed_login.connected_to(fail):
                 data = {u"login": invalid, u"password": u"invalid"}
                 app.post(url, data=data)
@@ -101,9 +102,4 @@ class TestUserSignals:
                 data = {u"login": user[u"name"], u"password": u"correct123"}
                 app.post(url, data=data)
                 assert success.call_count == 1
-                assert fail.call_count == 3
-
-                data = {u"login": user["email"], u"password": "correct123"}
-                app.post(url, data=data)
-                assert success.call_count == 2
                 assert fail.call_count == 3

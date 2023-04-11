@@ -99,6 +99,10 @@ The uwsgi configuration file can be copied from the CKAN distribution:
     callable        =  application
     strict          =  true
 
+If you notice database connection issues in the uwsgi log, try adding the following configurations to resolve them::
+
+    enable-threads  = true
+    lazy-apps       = true
 
 -----------------------------------
 4. Install Supervisor for the uwsgi

@@ -17,7 +17,6 @@
 @import "footer.scss";
 @import "tables.scss";
 @import "profile.scss";
-@import "activity.scss";
 @import "dropdown.scss";
 @import "dashboard.scss";
 @import "resource-view.scss";
@@ -150,6 +149,10 @@ iframe {
 
 .reduced-padding {
     padding: 3px 5px;
+}
+
+.skip-content {
+    background-color: white;
 }
 
 // @import "iehacks.scss";

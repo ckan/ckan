@@ -67,6 +67,11 @@ class CKANConfigLoader(object):
         parser = RawConfigParser()
         chain = []
         while True:
+            if not os.path.exists(filename):
+                raise CkanConfigurationException(
+                    f"Config file not found: {filename}"
+                )
+
             parser.read(filename)
             chain.append(filename)
             use = parser.get(self.section, "use")

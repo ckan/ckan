@@ -31,7 +31,7 @@ def send_email_notifications(
     """
     tk.check_access("send_email_notifications", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_email_notifications"):
+    if not tk.config.get("ckan.activity_streams_email_notifications"):
         raise tk.ValidationError(
             {
                 "message": (
@@ -65,6 +65,7 @@ def dashboard_mark_activities_old(
         model.repo.commit()
 
 
+@tk.side_effect_free
 def activity_create(
     context: Context, data_dict: DataDict
 ) -> Optional[dict[str, Any]]:
@@ -91,7 +92,7 @@ def activity_create(
 
     tk.check_access("activity_create", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_enabled"):
+    if not tk.config.get("ckan.activity_streams_enabled"):
         return
 
     model = context["model"]
@@ -117,6 +118,7 @@ def activity_create(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def user_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -135,6 +137,12 @@ def user_activity_list(
         ``ckan.activity_list_limit``, upper limit: ``100`` unless set in
         site's configuration ``ckan.activity_list_limit_max``)
     :type limit: int
+    :param after: After timestamp
+        (optional, default: ``None``)
+    :type after: int, str
+    :param before: Before timestamp
+        (optional, default: ``None``)
+    :type before: int, str
 
     :rtype: list of dictionaries
 
@@ -152,15 +160,22 @@ def user_activity_list(
 
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
+    after = data_dict.get("after")
+    before = data_dict.get("before")
 
     activity_objects = model_activity.user_activity_list(
-        user.id, limit=limit, offset=offset
+        user.id,
+        limit=limit,
+        offset=offset,
+        after=after,
+        before=before,
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def package_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -246,6 +261,7 @@ def package_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def group_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -279,6 +295,7 @@ def group_activity_list(
     # authorized to read.
     data_dict = dict(data_dict, include_data=False)
     include_hidden_activity = data_dict.get("include_hidden_activity", False)
+    activity_types = data_dict.pop("activity_types", None)
     tk.check_access("group_activity_list", context, data_dict)
 
     group_id = data_dict.get("id")
@@ -289,17 +306,24 @@ def group_activity_list(
     group_show = tk.get_action("group_show")
     group_id = group_show(context, {"id": group_id})["id"]
 
+    after = data_dict.get("after")
+    before = data_dict.get("before")
+
     activity_objects = model_activity.group_activity_list(
         group_id,
         limit=limit,
         offset=offset,
+        after=after,
+        before=before,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def organization_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -335,22 +359,30 @@ def organization_activity_list(
     org_id = data_dict.get("id")
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
+    activity_types = data_dict.pop("activity_types", None)
 
     # Convert org_id (could be id or name) into id.
     org_show = tk.get_action("organization_show")
     org_id = org_show(context, {"id": org_id})["id"]
 
+    after = data_dict.get("after")
+    before = data_dict.get("before")
+
     activity_objects = model_activity.organization_activity_list(
         org_id,
         limit=limit,
         offset=offset,
+        after=after,
+        before=before,
         include_hidden_activity=include_hidden_activity,
+        activity_types=activity_types
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def recently_changed_packages_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -381,6 +413,7 @@ def recently_changed_packages_activity_list(
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def dashboard_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -414,11 +447,12 @@ def dashboard_activity_list(
     user_id = user_obj.id
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
-
+    before = data_dict.get("before")
+    after = data_dict.get("after")
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     activity_objects = model_activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset
+        user_id, limit=limit, offset=offset, before=before, after=after
     )
 
     activity_dicts = model_activity.activity_list_dictize(
@@ -441,6 +475,7 @@ def dashboard_activity_list(
     return activity_dicts
 
 
+@tk.side_effect_free
 def dashboard_new_activities_count(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DashboardNewActivitiesCount:
@@ -461,6 +496,7 @@ def dashboard_new_activities_count(
     return len([activity for activity in activities if activity["is_new"]])
 
 
+@tk.side_effect_free
 def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Show details of an item of 'activity' (part of the activity stream).
 
@@ -483,6 +519,7 @@ def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return activity
 
 
+@tk.side_effect_free
 def activity_data_show(
     context: Context, data_dict: DataDict
 ) -> dict[str, Any]:
@@ -525,6 +562,7 @@ def activity_data_show(
     return activity_data
 
 
+@tk.side_effect_free
 def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Returns a diff of the activity, compared to the previous version of the
     object

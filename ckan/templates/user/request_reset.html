@@ -13,6 +13,7 @@
       <h1 class="page-heading">{{ _('Reset your password') }}</h1>
       {% block form %}
         <form action="" method="post">
+          {{ h.csrf_input() }} 
           <div class="form-group">
             <label for="field-username">{{ _('Email or username') }}</label>
             <input id="field-username" class="control-medium form-control" name="user" value="" type="text" />

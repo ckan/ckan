@@ -70,7 +70,7 @@ def render_snippet(*template_names: str, **kw: Any) -> str:
     for template_name in template_names:
         try:
             output = render(template_name, extra_vars=kw)
-            if config.get_value('debug'):
+            if config.get('debug'):
                 output = (
                     '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->'
                     '\n' % (template_name, output, template_name))
@@ -118,7 +118,7 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif ('user' in g and g.user) or _is_valid_session_cookie_data():
         allow_cache = False
     # Tests etc.
-    elif 'REMOTE_USER' in request.environ:
+    elif session.get("_user_id"):
         allow_cache = False
     # Don't cache if based on a non-cachable template used in this.
     elif request.environ.get('__no_cache__'):
@@ -127,7 +127,7 @@ def _allow_caching(cache_force: Optional[bool] = None):
     elif request.args.get('__no_cache__'):
         allow_cache = False
     # Don't cache if caching is not enabled in config
-    elif not config.get_value('ckan.cache_enabled'):
+    elif not config.get('ckan.cache_enabled'):
         allow_cache = False
 
     if not allow_cache:
@@ -138,6 +138,8 @@ def _allow_caching(cache_force: Optional[bool] = None):
 def _is_valid_session_cookie_data() -> bool:
     is_valid_cookie_data = False
     for key, value in session.items():
+        if key == config.get("WTF_CSRF_FIELD_NAME"):
+            continue
         if not key.startswith(u'_') and value:
             is_valid_cookie_data = True
             break

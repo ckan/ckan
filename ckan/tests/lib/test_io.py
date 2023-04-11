@@ -5,7 +5,6 @@ import os.path
 import shutil
 import tempfile
 import pytest
-import six
 
 
 import ckan.lib.io as ckan_io
@@ -30,7 +29,7 @@ def test_encode_path_returns_str():
 
 
 def test_decode_encode_path():
-    temp_dir = ckan_io.decode_path(six.b(tempfile.mkdtemp()))
+    temp_dir = ckan_io.decode_path(tempfile.mkdtemp().encode())
     try:
         filename = u"\xf6\xe4\xfc.txt"
         path = os.path.join(temp_dir, filename)

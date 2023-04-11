@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing_extensions import TypeAlias
 
+import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
 from ckan.types import Context, ErrorDict
 import copy
@@ -19,9 +20,8 @@ import hashlib
 import json
 from collections import OrderedDict
 
-import six
 from urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl, urlparse
+    urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
 
@@ -135,9 +135,10 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # when using native json types in 9.2+
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
-    register_default_json(conn_or_curs=engine.raw_connection().connection,
-                          globally=False,
-                          loads=_loads)
+    register_default_json(
+        conn_or_curs=engine.raw_connection().connection,
+        globally=False,
+        loads=_loads)
 
     return engine
 
@@ -299,7 +300,7 @@ def _get_fields(connection: Any, resource_id: str):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'id': six.ensure_text(field[0]),
+                'id': str(field[0]),
                 'type': _get_type(connection, field[1])
             })
     return fields
@@ -541,7 +542,7 @@ def _build_query_and_rank_statements(
 
 
 def _fts_lang(lang: Optional[str] = None) -> str:
-    return lang or config.get_value('ckan.datastore.default_fts_lang')
+    return lang or config.get('ckan.datastore.default_fts_lang')
 
 
 def _sort(sort: Union[None, str, list[str]], fields_types: Container[str],
@@ -602,7 +603,7 @@ def _get_resources(context: Context, alias: str):
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
     values: Optional[str] = data_dict.get('aliases')
-    aliases = datastore_helpers.get_list(values)
+    aliases: Any = datastore_helpers.get_list(values)
     alias = None
     if aliases is not None:
         # delete previous aliases
@@ -641,7 +642,7 @@ def _generate_index_name(resource_id: str, field: str):
 
 
 def _get_fts_index_method() -> str:
-    return config.get_value('ckan.datastore.default_fts_index_method')
+    return config.get('ckan.datastore.default_fts_index_method')
 
 
 def _build_fts_indexes(
@@ -650,7 +651,7 @@ def _build_fts_indexes(
     fts_indexes: list[str] = []
     resource_id = data_dict['resource_id']
     fts_lang = data_dict.get(
-        'language', config.get_value('ckan.datastore.default_fts_lang'))
+        'language', config.get('ckan.datastore.default_fts_lang'))
 
     # create full-text search indexes
     def to_tsvector(x: str):
@@ -764,7 +765,7 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
@@ -826,7 +827,7 @@ def convert(data: Any, type_name: str) -> Any:
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return six.ensure_text(data)
+        return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -1140,6 +1141,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
+                elif value == '' and field['type'] != 'text':
+                    value = None
                 row.append(value)
             rows.append(row)
 
@@ -1162,37 +1165,50 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
-        if len(unique_keys) < 1:
-            raise ValidationError({
-                'table': [u'table does not have a unique key defined']
-            })
 
         for num, record in enumerate(records):
-            # all key columns have to be defined
-            missing_fields = [field for field in unique_keys
-                              if field not in record]
-            if missing_fields:
+            if not unique_keys and '_id' not in record:
                 raise ValidationError({
-                    'key': [u'''fields "{fields}" are missing
-                        but needed as key'''.format(
-                            fields=', '.join(missing_fields))]
+                    'table': [u'unique key must be passed for update/upsert']
                 })
+
+            elif '_id' not in record:
+                # all key columns have to be defined
+                missing_fields = [field for field in unique_keys
+                                  if field not in record]
+                if missing_fields:
+                    raise ValidationError({
+                        'key': [u'''fields "{fields}" are missing
+                            but needed as key'''.format(
+                                fields=', '.join(missing_fields))]
+                    })
 
             for field in fields:
                 value = record.get(field['id'])
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
+                elif value == '' and field['type'] != 'text':
+                    record[field['id']] = None
 
-            non_existing_filed_names = [field for field in record
-                                        if field not in field_names]
-            if non_existing_filed_names:
+            non_existing_field_names = [
+                field for field in record
+                if field not in field_names and field != '_id'
+            ]
+            if non_existing_field_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
-                        ', '.join(non_existing_filed_names))]
+                        ', '.join(non_existing_field_names))]
                 })
 
-            unique_values = [record[key] for key in unique_keys]
+            if '_id' in record:
+                unique_values = [record['_id']]
+                pk_sql = '"_id"'
+                pk_values_sql = '%s'
+            else:
+                unique_values = [record[key] for key in unique_keys]
+                pk_sql = ','.join([identifier(part) for part in unique_keys])
+                pk_values_sql = ','.join(['%s'] * len(unique_keys))
 
             used_fields = [field for field in fields
                            if field['id'] in record]
@@ -1203,19 +1219,18 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             if method == _UPDATE:
                 sql_string = u'''
-                    UPDATE "{res_id}"
+                    UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
                 '''.format(
-                    res_id=data_dict['resource_id'],
+                    res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]).replace('%', '%%'),
                     values=u', '.join(
                         ['%s' for _ in used_field_names]),
-                    primary_key=u','.join(
-                        [u'"{0}"'.format(part) for part in unique_keys]),
-                    primary_value=u','.join(["%s"] * len(unique_keys))
+                    primary_key=pk_sql.replace('%', '%%'),
+                    primary_value=pk_values_sql,
                 )
                 try:
                     results = context['connection'].execute(
@@ -1233,24 +1248,23 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             elif method == _UPSERT:
                 sql_string = u'''
-                    UPDATE "{res_id}"
+                    UPDATE {res_id}
                     SET ({columns}, "_full_text") = ({values}, NULL)
                     WHERE ({primary_key}) = ({primary_value});
-                    INSERT INTO "{res_id}" ({columns})
+                    INSERT INTO {res_id} ({columns})
                            SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM "{res_id}"
+                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
                                     WHERE ({primary_key}) = ({primary_value}));
                 '''.format(
-                    res_id=data_dict['resource_id'],
-                    columns=u', '.join([
-                        u'"{0}"'.format(field.replace('%', '%%'))
-                        for field in used_field_names]),
+                    res_id=identifier(data_dict['resource_id']),
+                    columns=u', '.join(
+                        [identifier(field)
+                         for field in used_field_names]).replace('%', '%%'),
                     values=u', '.join(['%s::nested'
                                        if field['type'] == 'nested' else '%s'
                                        for field in used_fields]),
-                    primary_key=u','.join([u'"{0}"'.format(part)
-                                           for part in unique_keys]),
-                    primary_value=u','.join(["%s"] * len(unique_keys))
+                    primary_key=pk_sql.replace('%', '%%'),
+                    primary_value=pk_values_sql,
                 )
                 try:
                     context['connection'].execute(
@@ -1484,7 +1498,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     result_fields: list[dict[str, Any]] = []
     for field in results.cursor.description:
         result_fields.append({
-            'id': six.ensure_text(field[0]),
+            'id': str(field[0]),
             'type': _get_type(context['connection'], field[1])
         })
 
@@ -1660,7 +1674,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
-    rows_max = config.get_value('ckan.datastore.search.rows_max')
+    rows_max = config.get('ckan.datastore.search.rows_max')
     sql = 'SELECT * FROM ({0}) AS blah LIMIT {1} ;'.format(sql, rows_max + 1)
 
     try:
@@ -1732,7 +1746,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return _get_engine_from_url(self.read_url)
 
     def _log_or_raise(self, message: str):
-        if self.config.get_value('debug'):
+        if self.config.get('debug'):
             log.critical(message)
         else:
             raise DatastoreException(message)
@@ -1769,7 +1783,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             connection = _get_engine_from_url(url).connect()
             try:
                 sql = u"SELECT has_schema_privilege('public', 'CREATE')"
-                is_writable: bool = connection.execute(sql).first()[0]
+                is_writable: bool = connection.execute(sql).one()[0]
             finally:
                 connection.close()
             if is_writable:
@@ -1807,7 +1821,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 have_privilege: bool = write_connection.execute(
                     privilege_sql,
                     (read_connection_user, privilege)
-                ).first()[0]
+                ).one()[0]
                 if have_privilege:
                     return False
         finally:
@@ -1826,11 +1840,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             raise DatastoreException(error_msg)
 
         # Check whether users have disabled datastore_search_sql
-        self.enable_sql_search = self.config.get_value(
+        self.enable_sql_search = self.config.get(
             'ckan.datastore.sqlsearch.enabled')
 
         if self.enable_sql_search:
-            allowed_sql_functions_file = self.config.get_value(
+            allowed_sql_functions_file = self.config.get(
                 'ckan.datastore.sqlsearch.allowed_functions_file'
             )
 
@@ -1901,6 +1915,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         elif fields and fts_q:
             field_ids = datastore_helpers.get_list(fields)
             all_field_ids = list(fields_types.keys())
+            if "rank" not in fields:
+                all_field_ids.remove("rank")
             field_intersect = [x for x in field_ids
                                if x not in all_field_ids]
             field_ids = all_field_ids + field_intersect
@@ -2071,7 +2087,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             })
         return search_sql(context, data_dict)
 
-    def resource_exists(self, id: str):
+    def resource_exists(self, id: str) -> bool:
         resources_sql = sqlalchemy.text(
             u'''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
@@ -2191,6 +2207,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             schema_results = engine.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
+                row: Any  # Row has incomplete type definition
                 colname: str = row.column_name
                 if colname.startswith('_'):  # Skip internal rows
                     continue
@@ -2303,5 +2320,5 @@ def _programming_error_summary(pe: Any):
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
-    message = six.ensure_text(pe.args[0].split('\n')[0])
-    return message.split(u') ', 1)[-1]
+    message = str(pe.args[0].split('\n')[0])
+    return message.split(') ', 1)[-1]

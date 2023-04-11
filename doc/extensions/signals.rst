@@ -165,8 +165,6 @@ plugins to subscribe:
    :annotation: (blueprint_type, blueprint)
 .. autodata:: resource_download
    :annotation: (resource_id)
-.. autodata:: successful_login
-   :annotation: (username)
 .. autodata:: failed_login
    :annotation: (username)
 .. autodata:: user_created

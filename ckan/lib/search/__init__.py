@@ -37,7 +37,6 @@ from ckan.lib.search.index import SearchIndex
 
 log = logging.getLogger(__name__)
 
-TIMEOUT = config.get_value('ckan.requests.timeout')
 
 def text_traceback() -> str:
     info = sys.exc_info()
@@ -220,11 +219,11 @@ def rebuild(package_id: Optional[str] = None,
             package_index.update_dict(pkg_dict, True)
     else:
         packages = model.Session.query(model.Package.id)
-        if config.get_value('ckan.search.remove_deleted_packages'):
+        if config.get('ckan.search.remove_deleted_packages'):
             packages = packages.filter(model.Package.state != 'deleted')
-        
+
         package_ids = [r[0] for r in packages.all()]
-        
+
         if only_missing:
             log.info('Indexing only missing packages...')
             package_query = query_for(model.Package)
@@ -273,7 +272,7 @@ def rebuild(package_id: Optional[str] = None,
 def commit() -> None:
     package_index = index_for(model.Package)
     package_index.commit()
-    log.info('Commited pending changes on the search index')
+    log.info('Committed pending changes on the search index')
 
 
 def check() -> None:
@@ -311,6 +310,9 @@ def clear_all() -> None:
     package_index.clear()
 
 def _get_schema_from_solr(file_offset: str):
+
+    timeout = config.get('ckan.requests.timeout')
+
     solr_url, solr_user, solr_password = SolrSettings.get()
 
     url = solr_url.strip('/') + file_offset
@@ -318,10 +320,10 @@ def _get_schema_from_solr(file_offset: str):
     if solr_user is not None and solr_password is not None:
         response = requests.get(
             url,
-            timeout=TIMEOUT,
+            timeout=timeout,
             auth=HTTPBasicAuth(solr_user, solr_password))
     else:
-        response = requests.get(url, timeout=TIMEOUT)
+        response = requests.get(url, timeout=timeout)
 
     return response
 

@@ -2,6 +2,7 @@
 
 {% block form %}
   <form id="user-register-form" action="" method="post" enctype="multipart/form-data">
+    {{ h.csrf_input() }}	  
     {{ form.errors(error_summary) }}
 
     {% block core_fields %}

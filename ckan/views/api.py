@@ -5,6 +5,7 @@ import os
 import logging
 import html
 import io
+import datetime
 
 from typing import Any, Callable, Optional, cast, Union
 
@@ -14,7 +15,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.datastructures import MultiDict
 
 import ckan.model as model
-from ckan.common import json, _, g, request
+from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config
@@ -42,6 +43,12 @@ API_MAX_VERSION = 3
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
+def _json_serial(obj: Any):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError("Unhandled Object")
+
+
 def _finish(status_int: int,
             response_data: Any = None,
             content_type: str = u'text',
@@ -62,7 +69,7 @@ def _finish(status_int: int,
     :rtype: response object. Return this value from the view function
         e.g. return _finish(404, 'Dataset not found')
     '''
-    assert(isinstance(status_int, int))
+    assert isinstance(status_int, int)
     response_msg = u''
     if headers is None:
         headers = {}
@@ -71,6 +78,7 @@ def _finish(status_int: int,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
@@ -207,7 +215,6 @@ def _get_request_data(try_url_params: bool = False):
 
 # View functions
 
-
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 
@@ -228,10 +235,13 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = cast(
-        Context,
-        {u'model': model, u'session': model.Session, u'user': g.user,
-         u'api_version': ver, u'auth_user_obj': g.userobj})
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'api_version': ver,
+        u'auth_user_obj': current_user
+    })
     model.Session()._context = context
 
     return_dict: dict[str, Any] = {
@@ -350,8 +360,10 @@ def dataset_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
 
@@ -370,8 +382,10 @@ def tag_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         if vocab != u'':
@@ -394,8 +408,10 @@ def format_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
@@ -415,8 +431,10 @@ def user_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     if q:
         context = cast(
             Context,
-            {u'model': model, u'session': model.Session,
-             u'user': g.user, u'auth_user_obj': g.userobj})
+            {u'model': model,
+             u'session': model.Session,
+             u'user': current_user.name,
+             u'auth_user_obj': current_user})
 
         data_dict: dict[str, Any] = {
             u'q': q, u'limit': limit, u'ignore_self': ignore_self}
@@ -432,7 +450,9 @@ def group_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
 
     if q:
         context = cast(
-            Context, {u'user': g.user, u'model': model}
+            Context, {
+                u'user': current_user.name,
+                u'model': model}
         )
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
@@ -445,7 +465,9 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     organization_list = []
 
     if q:
-        context = cast(Context, {u'user': g.user, u'model': model})
+        context = cast(Context, {
+            u'user': current_user.name,
+            u'model': model})
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)

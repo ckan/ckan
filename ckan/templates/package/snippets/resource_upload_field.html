@@ -35,7 +35,7 @@ placeholder - placeholder text for url field
   <input type="radio" id="resource-url-none" name="url_type" value="" {{
     'checked' if not data.url and not data.url_type else '' }}>
   <div class="select-type">
-    <label id="resource-menu-label" class="control-label"
+    <label id="resource-menu-label" class="form-label"
       >{{ menu_label or _('Data') }}</label>
     <div role="group" aria-labelledby="resource-menu-label">
       {% block url_type_select %}
@@ -45,7 +45,7 @@ placeholder - placeholder text for url field
             onclick="
               document.getElementById('resource-url-upload').checked = true;
               document.getElementById('field-resource-upload').click();
-            "><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
+            "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
         {% endif %}
         <button type="button" class="btn btn-default" id="resource-link-button"
           title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
@@ -72,7 +72,7 @@ placeholder - placeholder text for url field
                   document.getElementById('field-clear-upload').checked = true;
                   document.getElementById('field-resource-upload').focus();
                 ">{{ _('Clear Upload') }}</button>
-              <label class="control-label">{{ upload_label or _('File') }}</label>
+              <label class="form-label">{{ upload_label or _('File') }}</label>
               <div class="controls">
                 {% set existing_name = data.get('url', '').split('/')[-1].split('?')[0].split('#')[0] %}
                 <input value="{{ existing_name }}" class="form-control" readonly>
@@ -105,7 +105,7 @@ placeholder - placeholder text for url field
           id='field-resource-url',
           type='url',
           placeholder=placeholder,
-          value=data.get('url') if is_url,
+          value=data.get('url'),
           error=errors.get('url'),
           classes=['control-full']) }}
       {% endblock %}

@@ -14,6 +14,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from datetime import date
 import re
 import os
 import subprocess
@@ -103,13 +104,17 @@ master_doc = 'contents'
 # General information about the project.
 project = u'CKAN'
 project_short_name = u'CKAN'
-copyright = u'''&copy; 2009-2018 <a href="https://okfn.org/">Open Knowledge Foundation</a> and <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
+copyright = u'&copy; 2009-{} '.format(date.today().strftime("%Y"))
+copyright += u'''<a href="https://okfn.org/">Open Knowledge Foundation</a> and
+    <a href="https://github.com/ckan/ckan/graphs/contributors">contributors</a>.
     Licensed under <a
     href="https://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
     <img src="https://licensebuttons.net/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="https://opendefinition.org/"><img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
-      alt="{{ _('Open Content') }}" /></a>
+    <a href="https://opendefinition.org/">
+      <img src="https://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
+      alt="{{ _('Open Content') }}" />
+    </a>
   '''
 html_show_sphinx = False
 
@@ -124,7 +129,7 @@ release = ckan.__version__
 version_re = None
 point_releases_ = None
 
-SUPPORTED_CKAN_VERSIONS = 3
+SUPPORTED_CKAN_VERSIONS = 2
 
 
 def get_release_tags():
@@ -249,6 +254,23 @@ def get_current_release_version():
     return version
 
 
+def get_previous_release_version() -> str:
+    """Returns the version number of the previous release
+
+    eg if the latest release is 2.9.5, it returns 2.8.10
+
+    """
+    current_version = parse_version(get_current_release_version())
+
+    previous_tag_prefix = f"ckan-{current_version[0]}.{int(current_version[1]) - 1}"
+
+    previous_version_tags = [
+        r for r in get_release_tags() if r.startswith(previous_tag_prefix)
+    ]
+    previous_release_version = previous_version_tags[-1][len("ckan-"):]
+    return previous_release_version
+
+
 def get_latest_package_name(distro, py_version=None):
     '''Return the filename of the Ubuntu package for the latest stable release.
 
@@ -274,14 +296,29 @@ def get_latest_package_name(distro, py_version=None):
     return name
 
 
-def get_min_setuptools_version():
+def get_current_package_name(distro, py_version=None):
+    '''Return the filename of the Ubuntu package for the current stable release.
+
+    e.g. "python-ckan_2.1-trusty_amd64.deb"
+
+    If ``py_version`` is provided, it's added as part of the iter number:
+
+    e.g. "python-ckan_2.9-py3-focal_amd64.deb"
+
     '''
-    Get the minimum setuptools version as defined in requirement-setuptools.txt
-    '''
-    filename = os.path.join(os.path.dirname(__file__), '..',
-                            'requirement-setuptools.txt')
-    with open(filename) as f:
-        return f.read().split('==')[1].strip()
+    # We don't create a new package file name for a patch release like 2.1.1,
+    # instead we just update the existing 2.1 package. So package names only
+    # have the X.Y part of the version number in them, not X.Y.Z.
+    version = get_current_release_version()
+    current_minor_version = version[:version.find(".", 3)]
+
+    if py_version:
+        name = 'python-ckan_{version}-py{py_version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro, py_version=py_version)
+    else:
+        name = 'python-ckan_{version}-{distro}_amd64.deb'.format(
+            version=current_minor_version, distro=distro)
+    return name
 
 
 def config_defaults_from_declaration():
@@ -327,7 +364,7 @@ def write_substitutions_file(**kwargs):
     Any keyword argument is stored as a substitution.
     '''
     filename = '_substitutions.rst'
-    header = ''':orphan:
+    header = '''
 
 .. Some common reStructuredText substitutions.
 
@@ -351,24 +388,28 @@ def write_substitutions_file(**kwargs):
 
 current_release_tag_value = get_current_release_tag()
 current_release_version = get_current_release_version()
+previous_release_version = get_previous_release_version()
+previous_release_version_format = f"**CKAN {previous_release_version}**"
 current_minor_version = current_release_version[:current_release_version.find(".", 3)]
 latest_release_tag_value = get_latest_release_tag()
 latest_release_version = get_latest_release_version()
+latest_release_version_format = f"**CKAN {latest_release_version}**"
 latest_minor_version = latest_release_version[:latest_release_version.find(".", 3)]
-is_master = release.endswith('a')
+is_master = "a" in release.split(".")[-1]
 is_supported = get_status_of_this_version() == 'supported'
 is_latest_version = version == latest_release_version
 
 write_substitutions_file(
     current_release_tag=current_release_tag_value,
     current_release_version=current_release_version,
+    previous_release_version=previous_release_version,
+    previous_release_version_format=previous_release_version_format,
     current_minor_version=current_minor_version,
     latest_release_tag=latest_release_tag_value,
     latest_release_version=latest_release_version,
-    latest_package_name_bionic=get_latest_package_name('bionic'),
-    latest_package_name_focal_py2=get_latest_package_name('focal', py_version=2),
-    latest_package_name_focal_py3=get_latest_package_name('focal', py_version=3),
-    min_setuptools_version=get_min_setuptools_version(),
+    latest_release_version_format=latest_release_version_format,
+    current_package_name_jammy=get_current_package_name('jammy'),
+    current_package_name_focal=get_current_package_name('focal'),
     **config_defaults_from_declaration()
 )
 

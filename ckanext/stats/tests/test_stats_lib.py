@@ -12,7 +12,7 @@ from ckanext.activity.tests.conftest import ActivityFactory
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.freeze_time
 class TestStatsPlugin(object):
     @pytest.fixture(autouse=True)

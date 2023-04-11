@@ -64,6 +64,7 @@ FolloweeCount = int
 UserFolloweeCount = int
 DatasetFolloweeCount = int
 GroupFolloweeCount = int
+OrganizationFolloweeCount = int
 FolloweeList = List[AnyDict]
 UserFolloweeList = List[AnyDict]
 DatasetFolloweeList = List[AnyDict]

@@ -19,7 +19,6 @@ import re
 import subprocess
 import sys
 import pytest
-import six
 
 
 FILESYSTEM_ENCODING = str(
@@ -312,23 +311,7 @@ class TestActionAuth(object):
         "delete: unfollow_dataset",
         "delete: unfollow_group",
         "delete: unfollow_user",
-        "get: am_following_dataset",
-        "get: am_following_group",
-        "get: am_following_user",
-        "get: dataset_followee_count",
-        "get: dataset_follower_count",
-        "get: followee_count",
-        "get: group_followee_count",
-        "get: group_follower_count",
-        "get: group_package_show",
-        "get: member_list",
-        "get: organization_follower_count",
-        "get: resource_search",
         "get: roles_show",
-        "get: tag_search",
-        "get: term_translation_show",
-        "get: user_followee_count",
-        "get: user_follower_count",
         "update: task_status_update_many",
         "update: term_translation_update_many",
     ]
@@ -411,7 +394,7 @@ class TestActionAuth(object):
 
     def test_fn_signatures(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             params = inspect.signature(fn).parameters
             if list(params) != ["context", "data_dict"]:
                 errors.append(name)
@@ -423,7 +406,7 @@ class TestActionAuth(object):
 
     def test_fn_docstrings(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             if not getattr(fn, "__doc__", None):
                 if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
                     errors.append(name)

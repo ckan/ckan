@@ -8,8 +8,8 @@ from typing import Any, Optional, TYPE_CHECKING, overload
 from typing_extensions import Literal
 
 import ckan.logic as logic
-import ckan.authz as authz
 from ckan.types import Context, AuthResult, DataDict
+from ckan.common import current_user
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -91,7 +91,7 @@ def get_user_object(
 
 
 def restrict_anon(context: Context) -> AuthResult:
-    if authz.auth_is_anon_user(context):
+    if current_user.is_anonymous:
         return {'success': False}
     else:
         return {'success': True}

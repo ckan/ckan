@@ -10,30 +10,41 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Iterable
 
 from typing import (
-    Any, Iterable, Optional, TYPE_CHECKING,
-    TypeVar, cast, overload, Container, Union)
+    Any, Optional, TYPE_CHECKING,
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
 
 from werkzeug.local import Local, LocalProxy
 
+from flask_login import current_user as _cu
+from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
-from ckan.config.declaration import Declaration, Key
+from ckan.config.declaration import Declaration
+from ckan.types import Model, Request
+
 
 if TYPE_CHECKING:
     # starting from python 3.7 the following line can be used without any
     # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
 
+SENTINEL = {}
+
 log = logging.getLogger(__name__)
+
+
+current_user = cast(Union["Model.User", "Model.AnonymousUser"], _cu)
+login_user = _login_user
+logout_user = _logout_user
 
 
 @maintain.deprecated('All web requests are served by Flask', since="2.10.0")
@@ -57,14 +68,14 @@ def streaming_response(data: Iterable[Any],
 
 
 def ugettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ugettext(*args, **kwargs))
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
 
 
 def ungettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ungettext(*args, **kwargs))
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -119,36 +130,26 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-    def get_value(self, key: str) -> Any:
-        if self.get("config.mode") == "strict":
-            return self[key]
+    def is_declared(self, key: str) -> bool:
+        return key in config_declaration
 
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return self.get(key)
+    def get(self, key: str, default: Any = SENTINEL) -> Any:
+        """Return the value for key if key is in the config, else default.
+        """
+        if default is SENTINEL:
+            default = None
+            is_strict = super().get("config.mode") == "strict"
+            if is_strict and key not in config_declaration:
+                log.warning("Option %s is not declared", key)
 
-        value = self.get(key, option.default)
-        return option._normalize(value)
-
-    def subset(
-            self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = None
-    ) -> dict[str, Any]:
-        subset = {}
-        exclude = exclude or set()
-        for k, v in self.store.items():
-            if k in exclude or pattern != k:
-                continue
-            subset[k] = v
-        return subset
+        return super().get(key, default)
 
 
 def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy):
+class CKANRequest(LocalProxy[Request]):
     u'''Common request object
 
     This is just a wrapper around LocalProxy so we can handle some special
@@ -252,6 +253,8 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return lst
     elif isinstance(obj, (list, tuple)):
         return cast(Any, obj)
+    elif isinstance(obj, Iterable):
+        return list(obj)
     elif obj is None:
         return []
     else:

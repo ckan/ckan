@@ -89,6 +89,11 @@ class TestDescribe(object):
                             "description": mock.ANY,
                         },
                         {
+                            "key": "ckan.datapusher.api_token",
+                            "description": mock.ANY,
+                        },
+
+                        {
                             "key": "ckan.datapusher.callback_url_base",
                             "description": mock.ANY,
                             "placeholder": "%(ckan.site_url)s",
@@ -194,7 +199,6 @@ class TestSearch(object):
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
-
         assert not result.output
         assert not result.exit_code, result.output
 
@@ -222,21 +226,20 @@ class TestUndeclared(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestValidate(object):
     def test_no_errors_by_default_in_safe_mofe(self, command):
         result = command("validate")
         assert not result.output
         assert not result.exit_code, result.output
 
-    @pytest.mark.ckan_config("beaker.session.secret", "")
-    def test_report_missing_use(self, command, capsys):
-        result = command("validate")
-        assert result.exit_code, result
-        assert "beaker.session.secret" in result.exception.args[0]
-
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
     def test_invalid_port(self, command):
         result = command("validate")
+        assert not result.exit_code, result.output
+        assert "ckan.devserver.port" in result.stdout
+
+    @pytest.mark.ckan_config("config.mode", "strict")
+    @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
+    def test_invalid_port_in_strict_mode_prevents_application_initialization(self, command):
+        result = command("validate")
         assert result.exit_code, result.stdout
-        assert "ckan.devserver.port" in result.exception.args[0]

@@ -43,6 +43,10 @@ def datastore_delete(context: Context, data_dict: DataDict):
     return datastore_auth(context, data_dict)
 
 
+def datastore_records_delete(context: Context, data_dict: DataDict):
+    return datastore_auth(context, data_dict)
+
+
 @p.toolkit.auth_allow_anonymous_access
 def datastore_info(context: Context, data_dict: DataDict):
     return datastore_auth(context, data_dict, 'resource_show')

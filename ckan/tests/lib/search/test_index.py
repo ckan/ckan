@@ -3,10 +3,12 @@
 import datetime
 import hashlib
 import json
+from unittest import mock
 import pytest
 import six
 from ckan.common import config
 import ckan.lib.search as search
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
@@ -299,3 +301,22 @@ class TestPackageSearchIndex:
 
         # Resource types are indexed
         assert indexed_pkg["res_type"] == ["doc", "file"]
+
+
+@pytest.mark.usefixtures("clean_index")
+def test_index_only_called_once():
+
+    with mock.patch("ckan.lib.search.index.PackageSearchIndex.index_package") as m:
+
+        dataset = factories.Dataset()
+
+        assert m.call_count == 1
+
+        m.reset_mock()
+
+        dataset["notes"] = "hi"
+        helpers.call_action("package_update", **dataset)
+
+        assert m.call_count == 1
+
+        assert helpers.call_action("package_show", id=dataset["id"])["notes"] == "hi"
