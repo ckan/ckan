@@ -1130,9 +1130,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         '''shift first field element to last'''
         non_first_field = fields[1:]
         first_field = fields[0:1]
-        value = first_field[0]['type'] 
+        value = first_field[0]['type']
 
-        #check if value is nested
+        # check if value is nested
         if value == 'nested':
             new_field = non_first_field + first_field
         fields = new_field
