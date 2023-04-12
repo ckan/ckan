@@ -1125,7 +1125,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     method = data_dict.get('method', _UPSERT)
 
     fields = _get_fields(context['connection'], data_dict['resource_id'])
-    
+
     def first_to_last_field(fields):
         '''shift first field element to last'''
         non_first_field = fields[1:]
