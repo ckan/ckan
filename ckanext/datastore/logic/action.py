@@ -7,8 +7,6 @@ from typing import Any, cast
 
 import sqlalchemy
 import sqlalchemy.exc
-import six
-
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -204,7 +202,7 @@ def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
     try:
         results: Any = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = six.ensure_text(err.args[0].split('\n')[0])
+        message = str(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount

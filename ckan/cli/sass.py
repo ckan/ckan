@@ -5,7 +5,6 @@ import subprocess
 import os
 
 import click
-import six
 
 from ckan.common import config
 
@@ -44,4 +43,4 @@ def _compile_sass(
         stderr=subprocess.PIPE)
     output = process.communicate()
     for block in output:
-        click.echo(six.ensure_text(block))
+        click.echo(str(block))

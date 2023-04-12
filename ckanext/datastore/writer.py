@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from email.utils import encode_rfc2231
 from typing import Any, Optional
 from simplejson import dumps
-import six
 
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
@@ -100,8 +99,8 @@ def json_writer(response: Any, fields: list[dict[str, Any]],
     if bom:
         response.stream.write(BOM_UTF8)
     response.stream.write(
-        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':'))))
+        '{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(',', ':')))
     yield JSONWriter(response.stream)
     response.stream.write(b'\n]}\n')
 
