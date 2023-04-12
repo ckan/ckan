@@ -35,7 +35,6 @@ script_location = %(here)s
 # are written from script.py.mako
 # output_encoding = utf-8
 
-# pragma: allowlist nextline secret
 sqlalchemy.url = driver://user:pass@localhost/dbname
 
 

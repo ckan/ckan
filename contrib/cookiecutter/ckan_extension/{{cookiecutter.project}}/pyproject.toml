@@ -3,8 +3,9 @@
 # preview = true
 
 [tool.ruff]
-target-version = "py38"
 # line-length = 88
+target-version = "py38"
+select = ["E", "F"]
 
 [tool.isort]
 known_ckan = "ckan"

@@ -37,14 +37,6 @@ repos:
   - id: ruff
     stages: [pre-commit]
 
-## Detect passwords, api-tokens, secrets within a code base
-- repo: https://github.com/Yelp/detect-secrets
-  rev: v1.4.0
-  hooks:
-  - id: detect-secrets
-    stages: [pre-push]
-    # args: ['--baseline', '.secrets.baseline']
-
 # ## Conventional commit message(commitizen)
 # - repo: https://github.com/commitizen-tools/commitizen
 #   rev: v2.42.1

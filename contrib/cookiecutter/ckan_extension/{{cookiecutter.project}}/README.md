@@ -93,7 +93,6 @@ Following hooks are enabled by default:
 * `isort`: Sorts your imports, so you don't have to.
 * `black`: The uncompromising Python code formatter.
 * `ruff`: Run 'ruff' for extremely fast Python linting.
-* `detect-secrets`: Detects high entropy strings that are likely to be passwords.
 
 And following hooks are available but disabled by default:
 
