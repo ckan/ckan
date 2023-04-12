@@ -129,6 +129,237 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][1]["book"] == u"The boy"
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")   
+    def test_nested_data_at_last(self):
+        resource = factories.Resource()
+        data = {
+	        "resource_id": resource["id"],
+	        "force": True,
+	        "primary_key": "id",
+	        "fields": [
+	        {"id": "name","type": "text"},
+	        {"id": "id","type": "text"},
+	        {"id": "geojson","type": "json"}
+	        ],
+	        "records":[
+	        {
+		        "name": "nY",
+                "id": "3",
+		        "geojson": {
+                    "coordinates": [2.3508,48.432],
+                    "type": "Point"
+			}
+			}
+			],
+		}
+        helpers.call_action("datastore_create", **data)
+        data = {
+	        "resource_id": resource["id"],
+	        "force": True,
+	        "method": "upsert",
+	        "records": [
+	            {
+		        "name": "nY",
+		        "id": "3",
+		        "geojson": {
+			    "coordinates": [2.3508,48.432],
+			    "type": "Point"
+			    }
+			    }
+			],
+		}
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["name"] == u"nY"
+        assert search_result["records"][0]["id"] == u"3"
+        assert search_result["records"][0]["geojson"] == {"coordinates":[2.3508,48.432],"type":"Point"}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_nested_data_at_first(self):
+        resource = factories.Resource()
+        data = {
+	        "resource_id": resource["id"],
+	        "force": True,
+	        "primary_key": "id",
+	        "fields":[
+	            {"id": "geojson","type": "json"},
+				{"id": "name","type": "text"},
+				{"id": "id","type": "text"}
+                        ],
+            "records": [
+			{
+			    "geojson": {
+				    "coordinates": [2.3508,48.432],
+				    "type": "Point"
+				    },
+			    "name": "nY",
+			    "id": "3"
+			}
+            ],
+            }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records":[
+			{
+			"geojson": {
+				"coordinates": [2.3508,48.432],
+                "type": "Point"
+				},
+			"name": "nY",
+			"id": "3"
+			}
+			],
+			}
+        helpers.call_action("datastore_upsert", **data)
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["name"] == u"nY"
+        assert search_result["records"][0]["id"] == u"3"
+        assert search_result["records"][0]["geojson"] == {"coordinates":[2.3508,48.432],"type":"Point"}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_nested_data_at_middle(self):
+        resource = factories.Resource()
+        data = {
+	        "resource_id": resource["id"],
+	        "force": True,
+	        "primary_key": "id",
+	        "fields":[
+	            {"id": "name","type": "text"},
+	            {"id": "geojson","type": "json"},
+                {"id": "id","type": "text"}
+                        ],
+            "records": [
+                {
+                    "name": "nY",
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    },
+                    "id": "3"
+                }
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {
+                    "name": "nY",
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    },
+                    "id": "3"
+                }
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["name"] == u"nY"
+        assert search_result["records"][0]["id"] == u"3"
+        assert search_result["records"][0]["geojson"] == {"coordinates":[2.3508,48.432],"type":"Point"}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_nested_data_with_two_values_with_nested_at_last(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "id","type": "text"},
+                {"id": "geojson","type": "json"}
+            ],
+            "records": [
+                {
+                    "id": "3",
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    }
+                }
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {
+                    "id": "3",
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    }
+                }
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["id"] == u"3"
+        assert search_result["records"][0]["geojson"] == {"coordinates":[2.3508,48.432],"type":"Point"}
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_nested_data_with_two_values_with_nested_at_first(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "primary_key": "id",
+            "fields": [
+                {"id": "geojson","type": "json"},
+                {"id": "id","type": "text"}
+                        ],
+            "records": [
+                {
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    },
+                    "id": "3"
+                }
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "upsert",
+            "records": [
+                {
+                    "geojson": {
+                        "coordinates": [2.3508,48.432],
+                        "type": "Point"
+                    },
+                    "id": "3"
+                }
+            ],
+        }
+        helpers.call_action("datastore_upsert", **data)
+
+        search_result = _search(resource["id"])
+        assert search_result["total"] == 1
+        assert search_result["records"][0]["id"] == u"3"
+        assert search_result["records"][0]["geojson"] == {"coordinates":[2.3508,48.432],"type":"Point"}
+    
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_upsert_only_one_field(self):
         resource = factories.Resource()
