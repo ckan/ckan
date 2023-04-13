@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-import itertoolsdatastore_active = plugin_loaded("datastore")
+import itertools
 from typing import Any, Optional
 
 import click
