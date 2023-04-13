@@ -800,7 +800,7 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
 def link_to(label: str, url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
     attrs['href'] = url
-    if label == '' or label is None:
+    if label == '':
         label = url
     return literal(str(dom_tags.a(label, **attrs)))
 
@@ -2796,11 +2796,12 @@ def make_login_url(
 
     if url_is_local(next_url):
         md = {}
+
         md[next_field] = urlparse(next_url).path
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
+        return cast(str, urlunparse(parsed_base))
     return base
 
 

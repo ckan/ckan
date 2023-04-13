@@ -159,8 +159,6 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
     return base.render(u'user/read.html', extra_vars)
 
 
@@ -194,8 +192,6 @@ class ApiTokenView(MethodView):
         }
 
         extra_vars = _extra_template_variables(context, data_dict)
-        if extra_vars is None:
-            return h.redirect_to(u'user.login')
         extra_vars[u'tokens'] = tokens
         extra_vars.update({
             u'data': data,
