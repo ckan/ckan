@@ -80,25 +80,6 @@ def _extra_template_variables(context: Context,
     return extra
 
 
-@user.before_request
-def before_request() -> None:
-    try:
-        context = cast(Context, {
-            "model": model,
-            "user": current_user.name,
-            "auth_user_obj": current_user
-        })
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        action = plugins.toolkit.get_endpoint()[1]
-        if action not in (
-                u'login',
-                u'request_reset',
-                u'perform_reset',
-        ):
-            base.abort(403, _(u'Not authorized to see this page'))
-
-
 def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')

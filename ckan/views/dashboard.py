@@ -27,16 +27,6 @@ def before_request() -> None:
         # flask types do not mention that it's possible to return a response
         # from the `before_request` callback
         return h.redirect_to(u'user.login')  # type: ignore
-
-    try:
-        context = cast(Context, {
-            "model": model,
-            "user": current_user.name,
-            "auth_user_obj": current_user
-        })
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        base.abort(403, _(u'Not authorized to see this page'))
     return None
 
 

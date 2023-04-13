@@ -23,19 +23,6 @@ CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
 home = Blueprint(u'home', __name__)
 
 
-@home.before_request
-def before_request() -> None:
-    u'''set context and check authorization'''
-    try:
-        context = cast(Context, {
-            u'model': model,
-            u'user': current_user.name,
-            u'auth_user_obj': current_user})
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        abort(403)
-
-
 def index() -> str:
     u'''display home page'''
     try:
