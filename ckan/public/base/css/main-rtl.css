@@ -13084,21 +13084,13 @@ td.diff_header {
 }
 @media (min-width: 768px) {
   .wrapper:before {
-    content: "";
     display: block;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     width: 25%;
-    border-right: 1px solid #ddd;
     z-index: 1;
-  }
-  .wrapper.no-nav:before {
-    display: none;
-  }
-  .wrapper.no-nav .module > .page-header {
-    margin-top: 0;
   }
 }
 
@@ -13128,6 +13120,7 @@ td.diff_header {
   padding: 0;
   z-index: 1;
   padding-right: 1px;
+  border-right: 1px solid #ddd;
 }
 
 /* Filters modal */

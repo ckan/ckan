@@ -6,37 +6,17 @@
     background-color: #fff;
     @include media-breakpoint-up(md) {
         &:before {
-            content: '';
             display: block;
             position: absolute;
             top: 0;
             bottom: 0;
             left: 0;
             width: 25%;
-            border-right: 1px solid $genericBorderColor;
             z-index: 1; // Fixes overlapping .secondary on the Resource view page
-        }
-        &.no-nav {
-            &:before {
-                display: none;
-            }
-            .module {
-                >.page-header {
-                    margin-top: 0;
-                }
-            }
         }
     }
 }
 
-// @media (min-width: $screen-md-min) {
-//   .wrapper {
-//     background-position:0px 0px;
-//   }
-// }
-// .wrapper.no-nav {
-//     background-image: none;
-// }
 [role=main],
 .main {
     position: relative;
@@ -63,6 +43,7 @@
     padding: 0;
     z-index: 1;
     padding-right: 1px;
+    border-right: 1px solid $genericBorderColor;
 }
 
 

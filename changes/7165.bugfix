@@ -1,0 +1,1 @@
+Fix duplicated call of `secondary` html snippet. Move CSS attributes that previously depended on `wrapper` into `secondary` class.
