@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 from typing import cast
 
-import six
 import click
 
 import ckan.logic as logic
@@ -49,10 +48,6 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
     if u'password' not in data_dict:
         data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
-
-    # Optional
-    if u'fullname' in data_dict:
-        data_dict['fullname'] = six.ensure_text(data_dict['fullname'])
 
     import ckan.logic as logic
     import ckan.model as model
