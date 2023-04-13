@@ -168,12 +168,14 @@ def enqueue(fn: Callable[..., Any],
         rq_kwargs = {}
     timeout = config.get(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
+
+    rq_queue = get_queue(queue)
     if enqueue_at:
         status = JobStatus.SCHEDULED
-        enqueue_function = get_queue(queue).enqueue_at
+        enqueue_function = rq_queue.enqueue_at
     else:
         status = JobStatus.QUEUED
-        enqueue_function = get_queue(queue).enqueue_call
+        enqueue_function = rq_queue.enqueue_call
 
     rq_kwargs['status'] = status
 
