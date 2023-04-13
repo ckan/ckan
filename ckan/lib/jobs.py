@@ -171,13 +171,11 @@ def enqueue(fn: Callable[..., Any],
 
     rq_queue = get_queue(queue)
     if enqueue_at:
-        status = JobStatus.SCHEDULED
+        rq_kwargs['status'] = JobStatus.SCHEDULED
         enqueue_function = rq_queue.enqueue_at
     else:
-        status = JobStatus.QUEUED
+        rq_kwargs['status'] = JobStatus.QUEUED
         enqueue_function = rq_queue.enqueue_call
-
-    rq_kwargs['status'] = status
 
     job = enqueue_function(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
