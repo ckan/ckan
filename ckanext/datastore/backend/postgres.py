@@ -1935,7 +1935,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
             typ = fields_types.get(field_id, '')
             if typ == u'nested':
-                fmt = u'({0}).json'
+                fmt = u"coalesce(({0}).json,'null')"
             elif typ == u'timestamp':
                 fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
                 if records_format == u'lists':
