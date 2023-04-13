@@ -18,7 +18,7 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 .. versionadded:: 2.7
 '''
 from __future__ import annotations
-
+from datetime import datetime
 import logging
 from typing import Any, Callable, Iterable, Optional, cast
 from redis import Redis
@@ -26,7 +26,7 @@ from redis import Redis
 import rq
 from rq.connections import push_connection
 from rq.exceptions import NoSuchJobError
-from rq.job import Job
+from rq.job import Job, JobStatus
 from rq.utils import ensure_list
 
 from ckan.lib.redis import connect_to_redis
@@ -130,7 +130,8 @@ def enqueue(fn: Callable[..., Any],
             kwargs: Optional[dict[str, Any]] = None,
             title: Optional[str] = None,
             queue: str = DEFAULT_QUEUE_NAME,
-            rq_kwargs: Optional[dict[str, Any]] = None) -> Job:
+            rq_kwargs: Optional[dict[str, Any]] = None,
+            enqueue_at: Optional[datetime] = None) -> Job:
     u'''
     Enqueue a job to be run in the background.
 
@@ -152,6 +153,10 @@ def enqueue(fn: Callable[..., Any],
         to the RQ ``enqueue_call`` invocation (eg ``timeout``, ``depends_on``,
         ``ttl`` etc).
 
+    :param datetime enqueue_at: Optional datetime object to specify when
+        the job should be enqueued. If not given then the job will be
+        enqueued immediately.
+
     :returns: The enqueued job.
     :rtype: ``rq.job.Job``
     '''
@@ -163,12 +168,22 @@ def enqueue(fn: Callable[..., Any],
         rq_kwargs = {}
     timeout = config.get(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
+    if enqueue_at:
+        status = JobStatus.SCHEDULED
+        enqueue_function = get_queue(queue).enqueue_at
+    else:
+        status = JobStatus.QUEUED
+        enqueue_function = get_queue(queue).enqueue_call
 
-    job = get_queue(queue).enqueue_call(
+    rq_kwargs['status'] = status
+
+    job = enqueue_function(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
     job.meta[u'title'] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
+    if enqueue_at:
+        msg = u'{} to be run at {}'.format(msg, enqueue_at)
     if title:
         msg = u'{} ("{}")'.format(msg, title)
     msg = u'{} to queue "{}"'.format(msg, queue)
