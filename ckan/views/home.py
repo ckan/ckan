@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, make_response, abort, redirect, request
+from flask import Blueprint, make_response, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic

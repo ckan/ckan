@@ -8,8 +8,6 @@ from flask import Blueprint
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-import ckan.logic as logic
-import ckan.model as model
 from ckan.common import _, current_user
 from ckan.views.user import _extra_template_variables
 from ckan.types import Context
