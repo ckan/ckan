@@ -831,8 +831,6 @@ def convert(data: Any, type_name: str) -> Any:
         return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
-    if isinstance(data, (int, float)):
-        return data
     if isinstance(data, (int, float, decimal.Decimal)):
         return data
     return str(data)
