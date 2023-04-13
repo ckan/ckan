@@ -51,11 +51,12 @@ Example
                         <th scope="row">{{ _('Query') }}</th>
                         <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search', qualified=True) }}</code></td>
                       </tr>
+                      {% if h.datastore_search_sql_enabled() %}
                       <tr>
                         <th scope="row">{{ _('Query (via SQL)') }}</th>
                         <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search_sql', qualified=True) }}</code></td>
                       </tr>
-
+                      {% endif %}
                     </tbody>
                   </table>
                 </div>
@@ -77,12 +78,12 @@ Example
                   <p>
                   <code><a href="{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
                   </p>
-
+                  {% if h.datastore_search_sql_enabled() %}
                   <strong>{{ _('Query example (via SQL statement)') }}</strong>
                   <p>
                   <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
                   </p>
-
+                  {% endif %}
                 </div>
               </div>
             </div>

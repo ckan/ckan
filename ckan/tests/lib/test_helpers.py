@@ -2,7 +2,6 @@
 
 import datetime
 import hashlib
-import six
 import os
 
 import pytz
@@ -495,7 +494,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008 at 8:40:59 PM UTC",
+            "April 13, 2008, 8:40:59\u202fPM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),
@@ -777,7 +776,7 @@ def test_gravatar():
     email = "zephod@gmail.com"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default="mm")
     assert expected in res
 
@@ -790,7 +789,7 @@ def test_gravatar_config_set_default(ckan_config):
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
     )
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200)
     assert expected in res
 
@@ -801,7 +800,7 @@ def test_gravatar_encodes_url_correctly():
     default = "http://example.com/images/avatar.jpg"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default=default)
     assert expected in res
 

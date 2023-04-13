@@ -11,7 +11,7 @@ import ckan.lib.create_test_data as create_test_data
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class BaseTestReclineViewBase(object):
 
     @pytest.fixture(autouse=True)

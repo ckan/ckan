@@ -72,7 +72,7 @@ class TestDatasetTermTranslation:
                 response = app.get(
                     offset,
                     status=200,
-                    extra_environ={
+                    environ_overrides={
                         "CKAN_LANG": lang_code,
                         "CKAN_CURRENT_URL": offset,
                     },

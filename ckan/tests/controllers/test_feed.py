@@ -9,7 +9,7 @@ import ckan.tests.factories as factories
 import ckan.plugins as plugins
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db")
 class TestFeeds(object):
     @pytest.mark.parametrize("page", [0, -2, "abc"])
     def test_atom_feed_incorrect_page_gives_error(self, page, app):

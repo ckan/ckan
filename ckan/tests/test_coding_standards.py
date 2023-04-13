@@ -19,7 +19,6 @@ import re
 import subprocess
 import sys
 import pytest
-import six
 
 
 FILESYSTEM_ENCODING = str(
@@ -395,7 +394,7 @@ class TestActionAuth(object):
 
     def test_fn_signatures(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             params = inspect.signature(fn).parameters
             if list(params) != ["context", "data_dict"]:
                 errors.append(name)
@@ -407,7 +406,7 @@ class TestActionAuth(object):
 
     def test_fn_docstrings(self, results):
         errors = []
-        for name, fn in six.iteritems(results[0]):
+        for name, fn in results[0].items():
             if not getattr(fn, "__doc__", None):
                 if name not in self.ACTION_NO_DOC_STR_BLACKLIST:
                     errors.append(name)
