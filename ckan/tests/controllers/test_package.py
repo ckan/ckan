@@ -1420,7 +1420,7 @@ class TestResourceDelete(object):
             headers=headers
         )
         assert 403 == response.status_code
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete resource")
 
     def test_sysadmins_can_delete_any_resource(self, app, sysadmin):
         owner_org = factories.Organization()
