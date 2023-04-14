@@ -127,7 +127,6 @@ def load_all():
     Load all plugins listed in the 'ckan.plugins' config directive.
     '''
     # Clear any loaded plugins
-    unload_all()
 
     plugins = config.get('ckan.plugins', '').split() + find_system_plugins()
     # Add the synchronous search plugin, unless already loaded or
@@ -149,7 +148,7 @@ def load(*plugins):
     observers = PluginImplementations(interfaces.IPluginObserver)
     for plugin in plugins:
         if plugin in _PLUGINS:
-            raise Exception('Plugin `%s` already loaded' % plugin)
+            continue
 
         service = _get_service(plugin)
         for observer_plugin in observers:
