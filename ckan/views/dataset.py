@@ -1075,12 +1075,31 @@ class GroupView(MethodView):
 
         user_group_ids = set(group[u'id'] for group in users_groups)
 
-        group_dropdown = [[group[u'id'], group[u'display_name']]
+        group_dropdown = [[group[u'id'],
+                           h.get_translated(group, 'title')
+                           or group['display_name']]
                           for group in users_groups
                           if group[u'id'] not in pkg_group_ids]
 
+        # validated groups are not stored in a
+        # package's validated_data_dict or data_dict
+        groups = []
         for group in pkg_dict.get(u'groups', []):
-            group[u'user_member'] = (group[u'id'] in user_group_ids)
+            validated_group = logic.get_action('group_show')(
+                plugins.toolkit.fresh_context(context),
+                {'id': group[u'id'],
+                 'include_datasets': False,
+                 'include_dataset_count': False,
+                 'include_extras': True,
+                 'include_users': False,
+                 'include_groups': False,
+                 'include_tags': False,
+                 'include_followers': False})
+            if validated_group:
+                validated_group[u'user_member'] = (validated_group[u'id']
+                                                   in user_group_ids)
+                groups.append(validated_group)
+        pkg_dict[u'groups'] = groups
 
         # TODO: remove
         g.pkg_dict = pkg_dict

@@ -212,32 +212,10 @@ def package_dictize(
     result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
-    member = model.member_table
-    group = model.group_table
-    q = select([group, member.c["capacity"]],
-               from_obj=member.join(group, group.c["id"] == member.c["group_id"])
-               ).where(member.c["table_id"] == pkg.id)\
-                .where(member.c["state"] == 'active') \
-                .where(group.c["is_organization"] == False)
-    result = execute(q, member, context)
-    context['with_capacity'] = False
-    # no package counts as cannot fetch from search index at the same
-    # time as indexing to it.
-    # tags, extras and sub-groups are not included for speed
-    result_dict["groups"] = group_list_dictize(result, context,
-                                               with_package_counts=False)
+    result_dict["groups"] = []
 
     # owning organization
-    group = model.group_table
-    q = select([group]
-               ).where(group.c["id"] == pkg.owner_org) \
-                .where(group.c["state"] == 'active')
-    result = execute(q, group, context)
-    organizations = d.obj_list_dictize(result, context)
-    if organizations:
-        result_dict["organization"] = organizations[0]
-    else:
-        result_dict["organization"] = None
+    result_dict["organization"] = None
 
     # relations
     rel = model.package_relationship_table

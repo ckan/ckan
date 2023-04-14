@@ -1283,11 +1283,23 @@ def linked_user(user: Union[str, model.User],
 
 
 @core_helper
+@maintain.deprecated("helpers.group_name_to_title()"
+                     " is deprecated and will be removed"
+                     " in a future version of CKAN.",
+                     since="2.10.0")
 def group_name_to_title(name: str) -> str:
+    """
+    Deprecated: will be removed in a future version of CKAN.
+    """
     group = model.Group.by_name(name)
-    if group is not None:
-        return group.display_name
-    return name
+    if group is None:
+        return name
+    group_dict = logic.get_action(u'%s_show' % group.type)(
+                    {}, {u'id': group.id})
+    if group_dict is None:
+        return name
+    return p.toolkit.h.get_translated(group_dict, 'title') \
+        or group_dict['name']
 
 
 @core_helper
@@ -1690,7 +1702,6 @@ def time_ago_from_timestamp(timestamp: int) -> str:
 @core_helper
 def dataset_display_name(
         package_or_package_dict: Union[dict[str, Any], model.Package]) -> str:
-
     if isinstance(package_or_package_dict, dict):
         return get_translated(package_or_package_dict, 'title') or \
             package_or_package_dict['name']
@@ -1999,7 +2010,9 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
 
     '''
     context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    data_dict = {
+        'available_only': True,
+        'am_member': am_member}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
@@ -2378,7 +2391,6 @@ def list_dict_filter(list_: list[dict[str, Any]],
 
     :param value: the value to search for
     '''
-
     for item in list_:
         if item.get(search_field) == value:
             return item.get(output_field, value)

@@ -553,21 +553,7 @@ class TestPackageDictize:
 
         result = model_dictize.package_dictize(dataset_obj, context)
 
-        assert_equal_for_keys(result["groups"][0], group, "name")
-        expected_dict = {
-            u"approval_status": group["approval_status"],
-            u"capacity": "public",
-            u"description": group["description"],
-            "display_name": group["display_name"],
-            "image_display_url": group["image_display_url"],
-            u"image_url": group["image_url"],
-            u"is_organization": group["is_organization"],
-            u"name": group["name"],
-            u"state": group["state"],
-            u"title": group["title"],
-            u"type": group["type"],
-        }
-        self.assert_equals_expected(expected_dict, result["groups"][0])
+        assert result["groups"] == []
 
     def test_package_dictize_owner_org(self):
         org = factories.Organization()
@@ -578,18 +564,7 @@ class TestPackageDictize:
         result = model_dictize.package_dictize(dataset_obj, context)
 
         assert result["owner_org"] == org["id"]
-        assert_equal_for_keys(result["organization"], org, "name")
-        expected_dict = {
-            u"approval_status": org["approval_status"],
-            u"description": org["description"],
-            u"image_url": org["image_url"],
-            u"is_organization": org["is_organization"],
-            u"name": org["name"],
-            u"state": org["state"],
-            u"title": org["title"],
-            u"type": org["type"],
-        }
-        self.assert_equals_expected(expected_dict, result["organization"])
+        assert result["organization"] is None
 
 
 def assert_equal_for_keys(dict1, dict2, *keys):
@@ -688,8 +663,6 @@ class TestPackageSchema(object):
         return dict
 
     def test_package_schema(self):
-        group1 = factories.Group(title="Dave's books")
-        group2 = factories.Group(title="Roger's books")
         first_name = factories.Dataset.stub().name
         second_name = factories.Dataset.stub().name
         expected_data = {
@@ -697,10 +670,7 @@ class TestPackageSchema(object):
                 {"key": u"genre", "value": u"romantic novel"},
                 {"key": u"original media", "value": u"book"},
             ],
-            "groups": [
-                {u"name": group1["name"], u"title": group1["title"]},
-                {u"name": group2["name"], u"title": group2["title"]},
-            ],
+            "groups": [],
             "license_id": u"other-open",
             "name": first_name,
             "type": u"dataset",

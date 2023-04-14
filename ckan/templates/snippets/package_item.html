@@ -10,8 +10,8 @@ Example:
   {% snippet 'snippets/package_item.html', package=c.datasets[0] %}
 
 #}
-{% set title = package.title or package.name %}
-{% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+{% set title = h.dataset_display_name(package) %}
+{% set notes = h.markdown_extract(h.get_translated(package, 'notes'), extract_length=180) %}
 
 {% block package_item %}
   <li class="{{ item_class or "dataset-item" }}">

@@ -9,7 +9,7 @@
 
   {% block basic_fields %}
     {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
-    {{ form.input('title', label=_('Name'), id='field-name', placeholder=h.humanize_entity_type('organization', group_type, 'name placeholder') or _('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
+    {{ form.input('title', label=_('Name'), id='field-name', placeholder=h.humanize_entity_type('organization', group_type, 'name placeholder') or _('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs, is_required=true) }}
 
     {# Perhaps these should be moved into the controller? #}
     {% set prefix = h.url_for(group_type + '.read', id='') %}

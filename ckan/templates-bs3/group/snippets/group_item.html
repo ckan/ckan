@@ -20,7 +20,7 @@ Example:
     <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image img-responsive">
   {% endblock %}
   {% block title %}
-    <h2 class="media-heading">{{ group.display_name }}</h2>
+    <h2 class="media-heading">{{ h.get_translated(group, 'title') or group['display_name'] }}</h2>
   {% endblock %}
   {% block description %}
     {% if group.description %}
@@ -35,8 +35,8 @@ Example:
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
-    <span>{{ _('View {name}').format(name=group.display_name) }}</span>
+  <a href="{{ url }}" title="{{ _('View {name}').format(name=h.get_translated(group, 'title') or group['display_name']) }}" class="media-view">
+    <span>{{ _('View {name}').format(name=h.get_translated(group, 'title') or group['display_name']) }}</span>
   </a>
   {% endblock %}
   {% if group.user_member %}

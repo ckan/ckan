@@ -1296,11 +1296,12 @@ def follow_dataset(context: Context,
     # Don't let a user follow a dataset she is already following.
     if model.UserFollowingDataset.is_following(userobj.id,
                                                validated_data_dict['id']):
-        # FIXME really package model should have this logic and provide
-        # 'display_name' like users and groups
-        pkgobj = model.Package.get(validated_data_dict['id'])
+        pkgobj = logic.get_action('package_show')(
+                plugins.toolkit.fresh_context(context),
+                {'id': validated_data_dict[u'id']})
         assert pkgobj
-        name = pkgobj.title or pkgobj.name or pkgobj.id
+        name = plugins.toolkit.h.get_translated(pkgobj, 'title') \
+            or pkgobj.name or pkgobj.id
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})
@@ -1442,9 +1443,19 @@ def follow_group(context: Context,
     # Don't let a user follow a group she is already following.
     if model.UserFollowingGroup.is_following(userobj.id,
                                              validated_data_dict['id']):
-        groupobj = model.Group.get(validated_data_dict['id'])
+        groupobj = logic.get_action('group_show')(
+                plugins.toolkit.fresh_context(context),
+                {'id': validated_data_dict[u'id'],
+                 'include_datasets': False,
+                 'include_dataset_count': False,
+                 'include_extras': True,
+                 'include_users': False,
+                 'include_groups': False,
+                 'include_tags': False,
+                 'include_followers': False})
         assert groupobj
-        name = groupobj.display_name
+        name = plugins.toolkit.h.get_translated(groupobj, 'title') \
+            or groupobj['display_name']
         message = _(
             'You are already following {0}').format(name)
         raise ValidationError({'message': message})
