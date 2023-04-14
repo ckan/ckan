@@ -75,9 +75,9 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
             else:
                 return h.redirect_to(
                     "user.login",
-                    came_from=h.url_for('resource.read',
-                                        id=id, resource_id=resource_id)
-                )
+                    came_from=h.url_for(
+                        '{}_resource.read'.format(package_type),
+                        id=id, resource_id=resource_id))
         return base.abort(
             404,
             _(u'Dataset not found')
