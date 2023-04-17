@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-6">
         {% block search %}
-          {% snippet 'home/snippets/search.html' %}
+          {% snippet 'home/snippets/search.html', search_facets=search_facets %}
         {% endblock %}
         {% block stats %}
           {% snippet 'home/snippets/stats.html' %}
