@@ -1,1 +1,1 @@
-Fix downloading datastore resources as json with null values in columns
+Fix datastore_search + downloading datastore resources as json with null values
