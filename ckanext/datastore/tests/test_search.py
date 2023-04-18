@@ -2174,8 +2174,8 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"objects",
             sort=u"num nulls last, dt nulls last",
         )["records"] == [
-            {"_id":2, "num":9, "dt":"2020-01-02T00:00:00", "txt":"aaab", "lst":None},
-            {"_id":3, "num":9, "dt":None, "txt":"aaac", "lst":["one", "two"]},
-            {"_id":1, "num":10, "dt":"2020-01-01T00:00:00", "txt":"aaab", "lst":["one", "two"]},
-            {"_id":4, "num":None, "dt":None, "txt":None, "lst":None},
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one", "two"]},
+            {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
         ]
