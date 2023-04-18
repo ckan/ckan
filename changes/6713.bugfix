@@ -1,1 +1,1 @@
-Fix downloading datastore resources as json with null values in json columns
+Fix downloading datastore resources as json with null values in columns

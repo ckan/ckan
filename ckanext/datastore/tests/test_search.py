@@ -2059,3 +2059,115 @@ class TestDatastoreSearchRecordsFormat(object):
             {u"id": u"rank txt", u"type": u"float"},
         ]
         assert r["records"][:7] == u"aaac,0."
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_specific_field_and_all_fields(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "fields": "from, rank from",
+            "full_text": "Brazil",
+            "q": {"from": "Brazil"},
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks_from = [r["rank from"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks_from)) == 1
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_when_q_string_and_fulltext_is_given(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "full_text": "Brazil",
+            "q": "Brazil",
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks = [r["rank"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks)) == 2
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_fts_on_field_calculates_ranks_when_full_text_is_given(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "records": [
+                {"from": "Brazil", "to": "Brazil"},
+                {"from": "Brazil", "to": "Italy"},
+            ],
+        }
+        result = helpers.call_action("datastore_create", **data)
+        search_data = {
+            "resource_id": resource["id"],
+            "full_text": "Brazil",
+        }
+        result = helpers.call_action("datastore_search", **search_data)
+        ranks = [r["rank"] for r in result["records"]]
+        assert len(result["records"]) == 2
+        assert len(set(ranks)) == 2
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_results_with_nulls(self):
+        ds = factories.Dataset()
+        r = helpers.call_action(
+            "datastore_create",
+            resource={"package_id": ds["id"]},
+            fields=[
+                {"id": "num", "type": "numeric"},
+                {"id": "dt", "type": "timestamp"},
+                {"id": "txt", "type": "text"},
+                {"id": "lst", "type": "_text"},
+            ],
+            records=[
+                {"num": 10, "dt": "2020-01-01", "txt": "aaab", "lst": ["one", "two"]},
+                {"num": 9, "dt": "2020-01-02", "txt": "aaab"},
+                {"num": 9, "txt": "aaac", "lst": ["one", "two"]},
+                {},  # all nulls
+            ],
+        )
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"lists",
+            sort=u"num nulls last, dt nulls last",
+        )["records"] == [
+            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [3, 9, None, "aaac", ["one", "two"]],
+            [1, 10, "2020-01-01T00:00:00", "aaab", ["one", "two"]],
+            [4, None, None, None, None],
+        ]
+        assert helpers.call_action(
+            "datastore_search",
+            resource_id=r["resource_id"],
+            records_format=u"objects",
+            sort=u"num nulls last, dt nulls last",
+        )["records"] == [
+            {"_id":2, "num":9, "dt":"2020-01-02T00:00:00", "txt":"aaab", "lst":None},
+            {"_id":3, "num":9, "dt":None, "txt":"aaac", "lst":["one", "two"]},
+            {"_id":1, "num":10, "dt":"2020-01-01T00:00:00", "txt":"aaab", "lst":["one", "two"]},
+            {"_id":4, "num":None, "dt":None, "txt":None, "lst":None},
+        ]
