@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+from pydantic import BaseModel
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -149,6 +150,7 @@ Validator = Union[ValueValidator, ContextValidator, DataValidator]
 ValidatorFactory = Callable[..., Validator]
 
 Schema: TypeAlias = "dict[str, Union[list[Validator], Schema]]"
+PydanticModel: TypeAlias = type[BaseModel]
 
 # Function that accepts arbitary number of validators(decorated by
 # ckan.logic.schema.validator_args) and returns Schema dictionary

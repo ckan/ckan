@@ -1082,9 +1082,10 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         schema = context.get('schema') or package_plugin.show_package_schema()
 
         if bool(schema) and context.get('validate', True):
+            from ckan.lib.pydantic.schema import DefaultShowPackageSchema
             package_dict, _errors = lib_plugins.plugin_validate(
                 package_plugin, context, package_dict, schema,
-                'package_show')
+                DefaultShowPackageSchema, 'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_dataset_show(context, package_dict)

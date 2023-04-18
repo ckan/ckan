@@ -8,6 +8,7 @@ import logging
 import random
 import re
 import datetime
+import pydantic
 from socket import error as socket_error
 from typing import Any, Union, cast
 
@@ -16,6 +17,7 @@ import six
 import ckan.common
 
 import ckan.lib.plugins as lib_plugins
+import ckan.lib.pydantic.schema as pydantic_schema
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.dictization
@@ -34,7 +36,7 @@ import ckan.authz as authz
 import ckan.model
 
 from ckan.common import _
-from ckan.types import Context, DataDict, ErrorDict, Schema
+from ckan.types import Context, DataDict, ErrorDict, Schema, PydanticModel
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -156,6 +158,7 @@ def package_create(
     '''
     model = context['model']
     user = context['user']
+    pydantic_model: PydanticModel = pydantic_schema.DefaultCreatePackageSchema
 
     if 'type' not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
@@ -176,7 +179,7 @@ def package_create(
     _check_access('package_create', context, data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_create')
+        package_plugin, context, data_dict, schema, pydantic_model, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
@@ -973,6 +976,7 @@ def user_create(context: Context,
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
+    UserCreateSchema = pydantic_schema.UserCreateSchema
 
     _check_access('user_create', context, data_dict)
 
@@ -986,12 +990,20 @@ def user_create(context: Context,
     upload = uploader.get_uploader('user')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
-    data, errors = _validate(data_dict, schema, context)
 
-    if errors:
+    try:
+        data = UserCreateSchema(**data_dict)
+        data = data.dict()
+    except pydantic.ValidationError as e:
+        breakpoint()
         session.rollback()
-        raise ValidationError(errors)
+        raise ValidationError(e.errors())
+    # data, errors = _validate(data_dict, schema, context)
 
+    # if errors:
+    #     session.rollback()
+    #     raise ValidationError(errors)
+    breakpoint()
     # user schema prevents non-sysadmins from providing password_hash
     if 'password_hash' in data:
         data['_password'] = data.pop('password_hash')

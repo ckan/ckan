@@ -9,10 +9,10 @@ from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
 from flask import Blueprint
 
 import ckan.logic.schema as schema
-from ckan.common import g
+from ckan.common import g, config
 from ckan import logic, model, plugins
 import ckan.authz
-from ckan.types import Context, DataDict, Schema
+from ckan.types import Context, DataDict, Schema, PydanticModel
 from . import signals
 from .navl.dictization_functions import validate
 if TYPE_CHECKING:
@@ -323,17 +323,23 @@ def set_default_group_plugin() -> None:
 
 def plugin_validate(
         plugin: Any, context: Context,
-        data_dict: DataDict, schema: Schema, action: Any) -> Any:
+        data_dict: DataDict, schema: Schema, pydantic_model: PydanticModel, action: Any) -> Any:
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
     """
     if hasattr(plugin, 'validate'):
-        result = plugin.validate(context, data_dict, schema, action)
-        if result is not None:
-            return result
+        result = plugin.validate(context, data_dict, schema, pydantic_model, action)
+        if result:
+            return result.dict(), None if isinstance(result, pydantic_model) else result
 
-    return validate(data_dict, schema, context)
+    validator_model = config.get('ckan.validator_model', 'navl')
+
+    return (
+        validate(data_dict, schema, context) 
+        if validator_model == 'navl'
+        else pydantic_model(**data_dict)
+    )
 
 
 def get_permission_labels() -> Any:
