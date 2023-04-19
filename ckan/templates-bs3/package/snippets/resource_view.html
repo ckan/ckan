@@ -6,7 +6,7 @@
     <a class="btn btn-default"
        target="_blank"
        rel="noreferrer"
-       href="{{ h.url_for('resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
+       href="{{ h.url_for(package['type'] ~ '_resource.view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
       <i class="fa fa-arrows-alt"></i>
       {{ _("Fullscreen") }}
     </a>
@@ -14,7 +14,7 @@
        href="#embed-{{ resource_view['id'] }}"
        data-module="resource-view-embed"
        data-module-id="{{ resource_view['id'] }}"
-       data-module-url="{{ h.url_for('resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
+       data-module-url="{{ h.url_for(package['type'] ~ '_resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id'], qualified=True) }}">
       <i class="fa fa-code"></i>
       {{ _("Embed") }}
     </a>
