@@ -181,8 +181,6 @@ def read_organizations(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
     return base.render(u'user/read_organizations.html', extra_vars)
 
 
@@ -204,8 +202,6 @@ def read_groups(id: str) -> Union[Response, str]:
     # any ideas?
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
     return base.render(u'user/read_groups.html', extra_vars)
 
 
