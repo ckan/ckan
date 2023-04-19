@@ -797,10 +797,10 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
 
 
 @core_helper
-def link_to(label: str, url: str, **attrs: Any) -> Markup:
+def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
     attrs['href'] = url
-    if label == '':
+    if label == '' or label is None:
         label = url
     return literal(str(dom_tags.a(label, **attrs)))
 
