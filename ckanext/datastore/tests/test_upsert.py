@@ -147,7 +147,7 @@ class TestDatastoreUpsert(object):
                 "id": "3",
                 "geojson": {
                     "coordinates": [2.3508,48.432],
-                    "type": "Point
+                    "type": "Point"
             }
             }
             ],
