@@ -48,7 +48,7 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
     `ckan.plugins`), otherwise the command will stop.
 
     """
-    
+
     flask_app = ctx.meta['flask_app']
     datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
