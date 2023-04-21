@@ -62,7 +62,7 @@ def test_get_user_object_in_context():
 
 
 def test_get_group_object_in_context():
-    
+
     with pytest.raises(KeyError):
         _get_object_in_context("group")
 
