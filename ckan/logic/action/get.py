@@ -184,17 +184,12 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     # User must be able to update the group to remove a member from it
     _check_access('group_show', context, data_dict)
 
-    q = model.Session.query(model.Member).\
-        filter(model.Member.group_id == group.id).\
-        filter(model.Member.state == "active")
-
+    q = model.Session.query(model.Member)
     if obj_type:
-        q = q.filter(model.Member.table_name == obj_type)
-        models = { "user" : model.User, "package": model.Package, "group": model.Group}
-        outer_mdl = models.get(obj_type, None)        
-        if outer_mdl:
-            q = q.join(outer_mdl, outer_mdl.id == model.Member.table_id, isouter=True).\
-                filter(outer_mdl.state=='active')
+        q = model.Member.all(obj_type)
+
+    q = q.filter(model.Member.group_id == group.id).\
+        filter(model.Member.state == "active")
 
     if capacity:
         q = q.filter(model.Member.capacity == capacity)

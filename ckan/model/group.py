@@ -110,10 +110,32 @@ class Member(core.StatefulObjectMixin,
             member = cls.by_name(reference)
         return member
 
+    @classmethod
+    def all(cls, object_type: str) -> Query[Self]:
+        """Filter members that do not have an associated entity.
+
+        Given the design of the member table and the lack of a CASCADE trigger, manually
+        deleted entities will not properly drop it's member row. This can cause member_list
+        to return users or datasets that no longer exist in the system.
+
+        Returns a query object
+        """
+        import ckan.model as model
+
+        models = { "user" : model.User, "package": model.Package, "group": model.Group}
+        outer_mdl = models.get(object_type, None)
+        q = meta.Session.query(cls).filter(model.Member.table_name == object_type)
+        if outer_mdl:
+            q = q.join(outer_mdl, outer_mdl.id == model.Member.table_id, isouter=True).\
+                filter(outer_mdl.state=='active')
+        return q
+
+
     def related_packages(self) -> list[_package.Package]:
         # TODO do we want to return all related packages or certain ones?
         return meta.Session.query(_package.Package).filter_by(
             id=self.table_id).all()
+    
 
     def __str__(self):
         # refer to objects by name, not ID, to help debugging
