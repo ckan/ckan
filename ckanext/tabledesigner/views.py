@@ -3,6 +3,7 @@ from flask import Blueprint, make_response
 from flask.views import MethodView
 
 from ckanext.datastore.blueprint import DictionaryView
+from ckanext.datastore.backend.postgres import literal_string, identifier
 import ckan.lib.navl.dictization_functions as dict_fns
 from ckan.logic import (
     tuplize_dict,
@@ -41,23 +42,8 @@ class _TableDesignerDictionary(MethodView):
             e['id'] = f['id']
             e['type'] = f['type']
 
-        primary_key = [f['id'] for f in info if f.get('pk')]
+        create_table(info)
 
-        get_action('datastore_create')(
-            None, {
-                'resource_id': resource_id,
-                'force': True,
-                'primary_key': primary_key,
-                'fields': [{
-                    'id': i['id'],
-                    'type': i['type'],
-                    'info': {
-                        k:v for (k, v) in i.items()
-                        if k != 'id' and k != 'type'
-                    },
-                } for i in info]
-            }
-        )
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
 
@@ -94,20 +80,24 @@ class _TableDesignerAddRow(MethodView):
                 }
             )
         except ValidationError as err:
-            if err.error_dict.get('records', [''])[0].startswith('duplicate key'):
+            rec_err = err.error_dict.get('records', [''])[0]
+            if rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pk')]
-                return render(
-                    'tabledesigner/add_row.html',
-                    dict(
-                        data_dict,
-                        row=row,
-                        errors={
-                            k:[_('Duplicate primary key exists')] for k in pk_fields
-                        }
-                    ),
-                )
-            raise
+                errors={
+                    k:[_('Duplicate primary key exists')] for k in pk_fields
+                }
+            elif rec_err.startswith('TAB-DELIMITED\t'):
+                errors = {}
+                erriter = iter(rec_err.split('\t')[1:])
+                for field, err in zip(erriter, erriter):
+                    errors.setdefault(field, []).append(err)
+            else:
+                raise
+            return render(
+                'tabledesigner/add_row.html',
+                dict(data_dict, row=row, errors=errors),
+            )
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
 
 
@@ -159,20 +149,24 @@ class _TableDesignerEditRow(MethodView):
                 }
             )
         except ValidationError as err:
-            if err.error_dict.get('records', [''])[0].startswith('duplicate key'):
+            rec_err = err.error_dict.get('records', [''])[0]
+            if rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pk')]
-                return render(
-                    'tabledesigner/edit_row.html',
-                    dict(
-                        data_dict,
-                        row=row,
-                        errors={
-                            k:[_('Duplicate primary key exists')] for k in pk_fields
-                        }
-                    ),
-                )
-            raise
+                errors={
+                    k:[_('Duplicate primary key exists')] for k in pk_fields
+                }
+            elif rec_err.startswith('TAB-DELIMITED\t'):
+                errors = {}
+                erriter = iter(rec_err.split('\t')[1:])
+                for field, err in zip(erriter, erriter):
+                    errors.setdefault(field, []).append(err)
+            else:
+                raise
+            return render(
+                'tabledesigner/edit_row.html',
+                dict(data_dict, row=row, errors=errors),
+            )
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
 
 tabledesigner.add_url_rule(
