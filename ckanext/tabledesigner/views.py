@@ -20,6 +20,8 @@ from ckan.plugins.toolkit import (
     ValidationError,
 )
 
+from ckanext.tabledesigner.datastore import create_table
+
 tabledesigner = Blueprint(u'tabledesigner', __name__)
 
 class _TableDesignerDictionary(MethodView):
@@ -41,8 +43,10 @@ class _TableDesignerDictionary(MethodView):
         for e, f in zip(info, fields):
             e['id'] = f['id']
             e['type'] = f['type']
+            if f['info'].get('pk'):
+                e['pk'] = 'on'
 
-        create_table(info)
+        create_table(resource_id, info)
 
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
