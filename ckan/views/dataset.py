@@ -805,7 +805,7 @@ class EditView(MethodView):
         resources_json = h.json.dumps(data.get(u'resources', []))
         user = current_user.name
         try:
-            check_access(u'package_update', context)
+            check_access(u'package_update', context, {"id": pkg.id})
         except NotAuthorized:
             return base.abort(
                 403,

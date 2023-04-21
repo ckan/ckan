@@ -44,19 +44,27 @@ def _get_object_id_none(obj_type):
 
 
 def test_get_package_object_in_context():
-    _get_object_in_context("package")
+
+    with pytest.raises(KeyError):
+        _get_object_in_context("package")
 
 
 def test_get_resource_object_in_context():
-    _get_object_in_context("resource")
+
+    with pytest.raises(KeyError):
+        _get_object_in_context("resource")
 
 
 def test_get_user_object_in_context():
-    _get_object_in_context("user")
+
+    with pytest.raises(KeyError):
+        _get_object_in_context("user")
 
 
 def test_get_group_object_in_context():
-    _get_object_in_context("group")
+    
+    with pytest.raises(KeyError):
+        _get_object_in_context("group")
 
 
 def test_get_package_object_id_not_found():
@@ -105,7 +113,6 @@ class TestInit(object):
         obj = logic_auth.get_package_object(context, {"id": dataset["id"]})
 
         assert obj.id == dataset["id"]
-        assert context["package"] == obj
 
     def test_get_resource_object_with_id(self):
 
@@ -126,7 +133,6 @@ class TestInit(object):
         obj = logic_auth.get_resource_object(context, {"id": resource["id"]})
 
         assert obj.id == resource["id"]
-        assert context["resource"] == obj
 
     def test_get_user_object_with_id(self):
 
@@ -143,7 +149,6 @@ class TestInit(object):
         obj = logic_auth.get_user_object(context, {"id": user["id"]})
 
         assert obj.id == user["id"]
-        assert context["user_obj"] == obj
 
     def test_get_group_object_with_id(self):
 
@@ -157,4 +162,3 @@ class TestInit(object):
         obj = logic_auth.get_group_object(context, {"id": group["id"]})
 
         assert obj.id == group["id"]
-        assert context["group"] == obj
