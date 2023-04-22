@@ -17,7 +17,7 @@ import six
 import ckan.common
 
 import ckan.lib.plugins as lib_plugins
-import ckan.lib.pydantic.schema as pydantic_schema
+import ckan.lib.pydantic as pydantic_schema
 import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.dictization
@@ -990,7 +990,14 @@ def user_create(context: Context,
     upload = uploader.get_uploader('user')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
-
+    breakpoint()
+    data_dict.update({'buz': '123'})
+    from ckan.lib.pydantic.user_schema import _not_empty
+    UserCreateSchema.update_fields([
+        # this is for reference only 
+        # add _not_empty validator to email field
+        {'name': 'email', 'extra': {'validator': _not_empty}}
+    ])
     try:
         data = UserCreateSchema(**data_dict)
         data = data.dict()
