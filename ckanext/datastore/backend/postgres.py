@@ -18,6 +18,7 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
+import decimal
 from collections import OrderedDict
 
 from urllib.parse import (
@@ -830,7 +831,7 @@ def convert(data: Any, type_name: str) -> Any:
         return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
-    if isinstance(data, (int, float)):
+    if isinstance(data, (int, float, decimal.Decimal)):
         return data
     return str(data)
 

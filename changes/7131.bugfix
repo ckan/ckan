@@ -1,0 +1,1 @@
+Use `resource_delete` auth function in `views.resource.DeleteView`.

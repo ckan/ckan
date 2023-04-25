@@ -5,9 +5,9 @@
       if change.org_id else
       h.url_for("dataset.search")) %}
     {% set resource_url = (h.url_for(
-     "resource.read", 
-      id=change.pkg_id, 
-      resource_id=change.resource_id, 
+     "dataset_resource.read",
+      id=change.pkg_id,
+      resource_id=change.resource_id,
       qualified=True)) %}
 
     {% if change.method == "add" %}
@@ -16,7 +16,7 @@
       <a href="{{resource_url}}">
         {{change.resource_name}}
       </a>
-      
+
       {{ _('to') }}
       <a href="{{format_search_base_url + '?res_format=' + change.format}}">
        {{change.format}}
