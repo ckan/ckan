@@ -19,6 +19,7 @@ Compatibility with core CKAN versions:
 | 2.8 and earlier | not tested  |
 | 2.9             | not tested  |
 | 2.10            | not tested  |
+| 2.11            | not tested  |
 
 Suggested values:
 
@@ -79,30 +80,11 @@ do:
     python setup.py develop
     pip install -r dev-requirements.txt
 
-Optionally, initialize [pre-commit](https://pre-commit.com/) hooks:
-
-    pip install -U pre-commit
-    pre-commit install
-
-Following hooks are enabled by default:
-
-* `check-yaml`: Attempts to load all yaml files to verify syntax.
-* `end-of-file-fixer`: Makes sure files end in a newline and only a newline.
-* `trailing-whitespace`: Trims trailing whitespace.
-* `debug-statements`: Checks for debugger imports and `breakpoint()` calls in python source.
-* `isort`: Sorts your imports, so you don't have to.
-* `black`: The uncompromising Python code formatter.
-* `ruff`: Run 'ruff' for extremely fast Python linting.
-
-And following hooks are available but disabled by default:
-
-* `commitizen`: Enforce [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) messages.
-
 ## Tests
 
 To run the tests, do:
 
-    pytest
+    pytest --ckan-ini=test.ini
 
 ## Releasing a new version of {{ cookiecutter.project }}
 
@@ -127,23 +109,18 @@ If {{ cookiecutter.project }} should be available on PyPI you can follow these s
    twine upload dist/*
    ```
 
-5. If you are following [Conventional Commits
-   specification](https://www.conventionalcommits.org/en/v1.0.0/), compile the
-   changelog using [git-changelog](https://pawamoy.github.io/git-changelog/),
-   [commitizen](https://pawamoy.github.io/git-changelog/), or similar tool.
-
-6. Commit any outstanding changes:
+5. Commit any outstanding changes:
    ```sh
    git commit -a
    git push
    ```
 
-7. Tag the new release of the project on GitHub with the version number from
+6. Tag the new release of the project on GitHub with the version number from
    the `setup.py` file. For example if the version number in `setup.py` is
    0.0.1 then do:
 
    ```sh
-   git tag v0.0.1
+   git tag 0.0.1
    git push --tags
    ```
 
