@@ -18,16 +18,9 @@
       label=_('ID'), classes=['control-full']) }}
     {{ form.select(prefix ~ '__' ~ position ~ '__type',
       is_required=true,
-      label=_('Type'), options=[
-        {'name': 'text', 'value': 'text'},
-        {'name': 'numeric', 'value': 'numeric'},
-        {'name': 'integer', 'value': 'integer'},
-        {'name': 'boolean', 'value': 'boolean'},
-        {'name': 'timestamp', 'value': 'timestamp'},
-        {'name': 'time', 'value': 'time'},
-        {'name': 'date', 'value': 'date'},
-        {'name': 'uuid', 'value': 'uuid'},
-        ], selected='text') }}
+      label=_('Type'),
+      options=h.tabledesigner_column_type_options(),
+      selected='text') }}
   {% endif %}
 {% endblock %}
 

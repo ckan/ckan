@@ -6,6 +6,7 @@ import ckanext.tabledesigner.views as views
 
 @toolkit.blanket.actions
 @toolkit.blanket.blueprints(views.tabledesigner)
+@toolkit.blanket.helpers
 class TableDesignerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
 
