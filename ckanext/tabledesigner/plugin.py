@@ -4,11 +4,13 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.tabledesigner import actions
 import ckanext.tabledesigner.views as views
+import ckanext.tabledesigner.helpers as helpers
 
 class TableDesignerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.ITemplateHelpers)
 
     # IConfigurer
 
@@ -28,3 +30,11 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
 
     def get_blueprint(self):
         return views.tabledesigner
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {
+            'tabledesigner_column_type_options':
+                helpers.tabledesigner_column_type_options,
+        }
