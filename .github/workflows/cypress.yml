@@ -1,0 +1,73 @@
+name: Cypress
+on: [pull_request]
+env:
+  NODE_VERSION: '16'
+  PYTHON_VERSION: '3.7'
+
+permissions:
+  contents: read
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    services:
+      ckan-postgres:
+        image: postgres:10
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: ckan_default
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: ckan_test
+
+      ckan-redis:
+        image: redis
+        ports:
+          - 6379:6379
+      ckan-solr:
+        image: ckan/ckan-solr:master
+        ports:
+          - 8983:8983
+
+    env:
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
+      CKAN_SOLR_URL: http://localhost:8983/solr/ckan
+      CKAN_REDIS_URL: redis://localhost:6379/1
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install python deps
+        run: pip install -r requirements.txt -r dev-requirements.txt -e.
+
+      - name: Init environment
+        run: |
+          ckan -c test-core-cypress.ini db init
+
+      - name: Run Cypress
+        uses: cypress-io/github-action@v2
+        with:
+          start: ckan -c test-core-cypress.ini run
+
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      # Test run video was always captured, so this action uses "always()" condition
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos

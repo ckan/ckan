@@ -1,0 +1,101 @@
+version: 1
+groups:
+- annotation: Datastore settings
+  options:
+  - default: postgresql://ckan_default:pass@localhost/datastore_default
+    key: ckan.datastore.write_url
+    example: postgresql://ckanuser:pass@localhost/datastore
+    required: true
+    description: >-
+      The database connection to use for writing to the datastore (this can be
+      ignored if you're not using the :ref:`datastore`). Note that the database used
+      should not be the same as the normal CKAN database. The format is the same as
+      in :ref:`sqlalchemy.url`.
+
+  - default: postgresql://datastore_default:pass@localhost/datastore_default
+    key: ckan.datastore.read_url
+    required: true
+    example: postgresql://readonlyuser:pass@localhost/datastore
+    description: >-
+      The database connection to use for reading from the datastore (this can be
+      ignored if you're not using the :ref:`datastore`). The database used must be
+      the same used in :ref:`ckan.datastore.write_url`, but the user should be one
+      with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
+
+  - key: ckan.datastore.sqlsearch.allowed_functions_file
+    default_callable: ckanext.datastore.plugin:sql_functions_allowlist_file
+    example: /path/to/my_allowed_functions.txt
+    description: |
+      Allows to define the path to a text file listing the SQL functions that should be allowed to run
+      on queries sent to the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` function
+      (if enabled, see :ref:`ckan.datastore.sqlsearch.enabled`). Function names should be listed one on
+      each line, eg::
+
+        abbrev
+        abs
+        abstime
+        ...
+
+  - key: ckan.datastore.sqlsearch.enabled
+    type: bool
+    example: 'true'
+    description: |
+      This option allows you to enable the :py:func:`~ckanext.datastore.logic.action.datastore_search_sql` action function, and corresponding API endpoint.
+
+      This action function has protections from abuse including:
+
+        - parsing of the query to prevent unsafe functions from being called, see :ref:`ckan.datastore.sqlsearch.allowed_functions_file`
+        - parsing of the query to prevent multiple statements
+        - prevention of data modification by using a read-only database role
+        - use of ``explain`` to resolve tables accessed in the query to check against user permissions
+        - use of a statement timeout to prevent queries from running indefinitely
+
+      These protections offer some safety but are not designed to prevent all types of abuse. Depending on the sensitivity of private data in your datastore and the likelihood of abuse of your site you may choose to disable this action function or restrict its use with a :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin.
+
+  - default: 100
+    key: ckan.datastore.search.rows_default
+    type: int
+    example: 1000
+    description: |
+      Default number of rows returned by ``datastore_search``, unless the client
+      specifies a different ``limit`` (up to ``ckan.datastore.search.rows_max``).
+
+      NB this setting does not affect ``datastore_search_sql``.
+
+  - default: 32000
+    key: ckan.datastore.search.rows_max
+    example: 1000000
+    type: int
+    description: |
+      Maximum allowed value for the number of rows returned by the datastore.
+
+      Specifically this limits:
+
+        * ``datastore_search``'s ``limit`` parameter.
+        * ``datastore_search_sql`` queries have this limit inserted.
+
+  - key: ckan.datastore.sqlalchemy.<OPTION>
+    type: dynamic
+    description: |
+      Custom sqlalchemy config parameters used to establish the DataStore
+      database connection.
+
+      To get the list of all the available properties check the `SQLAlchemy documentation`_
+
+      .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
+  - default: english
+    key: ckan.datastore.default_fts_lang
+    example: english
+    description: >
+      The default language used when creating full-text search indexes and querying
+      them. It can be overwritten by the user by passing the "lang" parameter to
+      "datastore_search" and "datastore_create".
+
+  - default: gist
+    key: ckan.datastore.default_fts_index_method
+    example: gist
+    description: >
+      The default method used when creating full-text search indexes. Currently it
+      can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
+      characteristics of each one and pick the best for your instance.

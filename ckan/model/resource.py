@@ -1,24 +1,24 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import datetime
+from typing import Any, Callable, ClassVar, Optional
 
-from six import text_type
+
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, func, Column, Table, ForeignKey
+from sqlalchemy import types, Column, Table, ForeignKey
+from typing_extensions import Self
 
-from ckan.model import (
-    meta,
-    core,
-    types as _types,
-    extension,
-    domain_object,
-)
-import ckan.lib.dictization
+import ckan.model.meta as meta
+import ckan.model.core as core
+import ckan.model.types as _types
+import ckan.model.domain_object as domain_object
+
 from .package import Package
-import ckan.model
+
 
 __all__ = ['Resource', 'resource_table']
 
@@ -60,10 +60,35 @@ resource_table = Table(
 
 class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
-    extra_columns = None
+    id: str
+    package_id: Optional[str]
+    url: str
+    format: str
+    description: str
+    hash: str
+    position: int
+    name: str
+    resource_type: str
+    mimetype: str
+    size: int
+    created: datetime.datetime
+    last_modified: datetime.datetime
+    metadata_modified: datetime.datetime
+    cache_url: str
+    cache_last_update: datetime.datetime
+    url_type: str
+    extras: dict[str, Any]
+    state: str
 
-    def __init__(self, url=u'', format=u'', description=u'', hash=u'',
-                 extras=None, package_id=None, **kwargs):
+    extra_columns: ClassVar[Optional[list[str]]] = None
+
+    package: Package
+
+    url_changed: Optional[bool]
+
+    def __init__(self, url: str=u'', format: str=u'', description: str=u'',
+                 hash: str=u'', extras: Optional[dict[str, Any]]=None,
+                 package_id: Optional[str]=None, **kwargs: Any) -> None:
         self.id = _types.make_uuid()
         self.url = url
         self.format = format
@@ -84,8 +109,8 @@ class Resource(core.StatefulObjectMixin,
         if kwargs:
             raise TypeError('unexpected keywords %s' % kwargs)
 
-    def as_dict(self, core_columns_only=False):
-        _dict = OrderedDict()
+    def as_dict(self, core_columns_only: bool=False) -> dict[str, Any]:
+        _dict: dict[str, Any] = OrderedDict()
         cols = self.get_columns()
         if not core_columns_only:
             cols = ['id'] + cols + ['position']
@@ -94,18 +119,19 @@ class Resource(core.StatefulObjectMixin,
             if isinstance(value, datetime.datetime):
                 value = value.isoformat()
             _dict[col] = value
-        for k, v in self.extras.items() if self.extras else []:
-            _dict[k] = v
+        if self.extras:
+            for k, v in self.extras.items():
+                _dict[k] = v
         if self.package_id and not core_columns_only:
             _dict["package_id"] = self.package_id
         return _dict
 
-    def get_package_id(self):
+    def get_package_id(self) -> Optional[str]:
         '''Returns the package id for a resource. '''
         return self.package_id
 
     @classmethod
-    def get(cls, reference):
+    def get(cls, reference: str) -> Optional[Self]:
         '''Returns a resource object referenced by its name or id.'''
         if not reference:
             return None
@@ -116,7 +142,7 @@ class Resource(core.StatefulObjectMixin,
         return resource
 
     @classmethod
-    def get_columns(cls, extra_columns=True):
+    def get_columns(cls, extra_columns: bool=True) -> list[str]:
         '''Returns the core editable columns of the resource.'''
         if extra_columns:
             return CORE_RESOURCE_COLUMNS + cls.get_extra_columns()
@@ -124,34 +150,15 @@ class Resource(core.StatefulObjectMixin,
             return CORE_RESOURCE_COLUMNS
 
     @classmethod
-    def get_extra_columns(cls):
+    def get_extra_columns(cls) -> list[str]:
         if cls.extra_columns is None:
-            cls.extra_columns = config.get(
-                'ckan.extra_resource_fields', '').split()
+            cls.extra_columns = config.get("ckan.extra_resource_fields")
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
+        assert cls.extra_columns is not None
         return cls.extra_columns
 
-    @classmethod
-    def get_all_without_views(cls, formats=[]):
-        '''Returns all resources that have no resource views
-
-        :param formats: if given, returns only resources that have no resource
-            views and are in any of the received formats
-        :type formats: list
-
-        :rtype: list of ckan.model.Resource objects
-        '''
-        query = meta.Session.query(cls).outerjoin(ckan.model.ResourceView) \
-                    .filter(ckan.model.ResourceView.id == None)
-
-        if formats:
-            lowercase_formats = [f.lower() for f in formats]
-            query = query.filter(func.lower(cls.format).in_(lowercase_formats))
-
-        return query.all()
-
-    def related_packages(self):
+    def related_packages(self) -> list[Package]:
         return [self.package]
 
 
@@ -164,27 +171,27 @@ meta.mapper(Resource, resource_table, properties={
         # formally package_resources_all
         backref=orm.backref('resources_all',
                             collection_class=ordering_list('position'),
-                            cascade='all, delete',
-                            order_by=resource_table.c.position,
+                            cascade='all, delete'
                             ),
     )
-},
-extension=[extension.PluginMapperExtension()],
-)
+})
 
 
-def resource_identifier(obj):
+def resource_identifier(obj: Resource) -> str:
     return obj.id
 
 
 class DictProxy(object):
 
-    def __init__(self, target_key, target_dict, data_type=text_type):
+    def __init__(
+            self,
+            target_key: str, target_dict: Any,
+            data_type: Callable[[Any], Any] = str):
         self.target_key = target_key
         self.target_dict = target_dict
         self.data_type = data_type
 
-    def __get__(self, obj, type):
+    def __get__(self, obj: Any, type: Any):
 
         if not obj:
             return self
@@ -193,7 +200,7 @@ class DictProxy(object):
         if proxied_dict:
             return proxied_dict.get(self.target_key)
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: Any, value: Any):
 
         proxied_dict = getattr(obj, self.target_dict)
         if proxied_dict is None:
@@ -202,7 +209,7 @@ class DictProxy(object):
 
         proxied_dict[self.target_key] = self.data_type(value)
 
-    def __delete__(self, obj):
+    def __delete__(self, obj: Any):
 
         proxied_dict = getattr(obj, self.target_dict)
         proxied_dict.pop(self.target_key)

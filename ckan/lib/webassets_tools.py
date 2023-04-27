@@ -1,31 +1,33 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
 import os
 import tempfile
-import yaml
+from typing import Any, Optional
 
+import yaml
 from markupsafe import Markup
 from webassets import Environment
 from webassets.loaders import YAMLLoader
 
-from ckan.common import config, g, asbool
+from ckan.common import config, g
 
 
 logger = logging.getLogger(__name__)
-env = None
+env: Optional[Environment] = None
 
 yaml.warnings({u'YAMLLoadWarning': False})
 
 
-def create_library(name, path):
+def create_library(name: str, path: str) -> None:
     """Create WebAssets library(set of Bundles).
     """
     config_path = os.path.join(path, u'webassets.yml')
     if not os.path.exists(config_path):
         return
-
-    library = YAMLLoader(config_path).load_bundles()
+    assert env
+    library: dict[str, Any] = YAMLLoader(config_path).load_bundles()
     bundles = {
         u'/'.join([name, key]): bundle
         for key, bundle
@@ -44,7 +46,7 @@ def create_library(name, path):
     env.append_path(path)
 
 
-def webassets_init():
+def webassets_init() -> None:
     global env
 
     static_path = get_webassets_path()
@@ -58,7 +60,7 @@ def webassets_init():
 
     env = Environment()
     env.directory = static_path
-    env.debug = asbool(config.get(u'debug', False))
+    env.debug = config.get(u'debug')
     env.url = u'/webassets/'
 
     add_public_path(base_path, u'/base/')
@@ -74,11 +76,11 @@ def webassets_init():
     create_library(u'css', os.path.join(base_path, u'css'))
 
 
-def _make_asset_collection():
+def _make_asset_collection() -> dict[str, Any]:
     return {u'style': [], u'script': [], u'included': set()}
 
 
-def include_asset(name):
+def include_asset(name: str) -> None:
     from ckan.lib.helpers import url_for_static_or_external
     try:
         if not g.webassets:
@@ -88,13 +90,14 @@ def include_asset(name):
     if name in g.webassets[u'included']:
         return
 
+    assert env
     try:
-        bundle = env[name]
+        bundle: Any = env[name]
     except KeyError:
         logger.error(u'Trying to include unknown asset: <{}>'.format(name))
         return
 
-    deps = bundle.extra.get(u'preload', [])
+    deps: list[str] = bundle.extra.get(u'preload', [])
 
     # Using DFS may lead to infinite recursion(unlikely, because
     # extensions rarely depends on each other), so there is a sense to
@@ -123,7 +126,7 @@ def include_asset(name):
     g.webassets[u'included'].add(name)
 
 
-def _to_tag(url, type_):
+def _to_tag(url: str, type_: str):
     if type_ == u'style':
         return u'<link href="{}" rel="stylesheet"/>'.format(url)
     elif type_ == u'script':
@@ -131,21 +134,21 @@ def _to_tag(url, type_):
     return u''
 
 
-def render_assets(type_):
+def render_assets(type_: str) -> Markup:
     try:
         assets = g.webassets
     except AttributeError:
-        return u''
+        return Markup(u'')
 
     if not assets:
-        return u''
+        return Markup(u'')
     collection = assets[type_]
     tags = u'\n'.join([_to_tag(asset, type_) for asset in assets[type_]])
     collection[:] = []
     return Markup(tags)
 
 
-def get_webassets_path():
+def get_webassets_path() -> str:
     webassets_path = config.get(u'ckan.webassets.path')
 
     if not webassets_path:
@@ -164,5 +167,6 @@ def get_webassets_path():
     return webassets_path
 
 
-def add_public_path(path, url):
+def add_public_path(path: str, url: str) -> None:
+    assert env
     env.append_path(path, url)

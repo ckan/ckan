@@ -1,0 +1,100 @@
+.resource-view {
+  .actions {
+    right: 0;
+  }
+}
+
+.resource-view-filters {
+  margin-bottom: 1em;
+  .resource-view-filter {
+    margin-bottom: 1.0em;
+  }
+  .resource-view-remove-filter {
+    cursor: pointer;
+    color: $errorText;
+  }
+  .resource-view-filter-values .select2-container {
+    margin-right: 0.3em;
+    margin-bottom: 0.2em;
+    width: 24% !important;
+    .select2-search-choice-close {
+      left: auto;
+    }
+  }
+}
+
+.resource-view-list {
+  &.reordering {
+    margin: -10px -10px 0;
+    li {
+      margin-bottom: 10px;
+      @include border-radius($nav-pills-border-radius - 1);
+      cursor: move;
+      a {
+        cursor: inherit;
+      }
+      .handle {
+        padding: 0;
+        display: block;
+        position: absolute;
+        color: $moduleHeadingActionTextColor;
+        left: -31px;
+        top: 50%;
+        margin-top: -15px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        border: 1px solid $moduleHeadingBorderColor;
+        border-width: 1px 0 1px 1px;
+        background-color: $moduleBackgroundColor;
+        @include border-radius(20px 0 0 20px);
+        &:hover {
+          text-decoration: none;
+        }
+      }
+      &:hover .handle {
+        background-color: $layoutBackgroundColor;
+      }
+      &.ui-sortable-helper {
+        background-color: $layoutBackgroundColor;
+        border: 1px solid $layoutLinkColor;
+        .handle {
+          background-color: $layoutBackgroundColor;
+          border-color: $layoutLinkColor;
+          color: $navLinkColor;
+        }
+      }
+    }
+  }
+}
+
+.resource-view-list {
+  >li>a {
+    border-radius: 0;
+  }
+  li {
+    margin-bottom: -3px;
+    border: 1px solid $moduleHeadingBorderColor;
+    &:first-child {
+      border-top-left-radius: $nav-pills-border-radius;
+      border-top-right-radius: $nav-pills-border-radius;
+    }
+    &:last-child {
+      border-bottom-left-radius: $nav-pills-border-radius;
+      border-bottom-right-radius: $nav-pills-border-radius;
+    }
+    .handle {
+      display: none;
+    }
+  }
+}
+
+.view-preview-container {
+  .module-content {
+    position: relative;
+  }
+  .actions {
+    right: $grid-gutter-width/2;
+  }
+}

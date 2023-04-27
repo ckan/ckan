@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+
+{% block primary_content_inner %}
+<form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
+  {{ h.csrf_input() }}
+  <div class="form-actions">
+    <input type="hidden" name="action" value="all">
+    <a class="btn btn-danger purge-all"
+       type="submit"
+       href="{{ h.url_for('admin.trash', name='all') }}"
+       data-module="confirm-action"
+       data-module-with-data=true
+       data-module-content="{{ _('Are you sure you want to purge everything?') }}">
+      {{ _('Purge all') }}
+    </a>
+  </div>
+</form>
+
+{% for ent_type, entities in data.items() %}
+  {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities, messages=messages %}
+{% endfor %}
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="fa fa-info-circle"></i>
+    {{ _("Trash") }}
+  </h2>
+  <div class="module-content">
+    <p>
+      {% trans %}
+      Purge deleted datasets, organizations or groups forever and irreversibly.
+      {% endtrans %}
+    </p>
+  </div>
+</div>
+{% endblock %}

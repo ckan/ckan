@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import click
+
 import ckan.plugins.toolkit as tk
 
 
@@ -20,7 +22,7 @@ def bye_cmd():
 
 @bye_cmd.command()
 @click.argument(u"name", required=False)
-def bye(name):
+def bye(name: str):
     """Command with optional argument.
     """
     if not name:
@@ -29,5 +31,5 @@ def bye(name):
         click.secho(u"Bye, {}".format(name))
 
 
-def get_commands():
+def get_commands() -> list[click.Command]:
     return [hello_cmd, bye_cmd]

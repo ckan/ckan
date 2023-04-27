@@ -1,4 +1,0 @@
-include README.rst
-include LICENSE
-include requirements.txt
-recursive-include ckanext/{{ project_shortname }} *.html *.json *.js *.less *.css *.mo

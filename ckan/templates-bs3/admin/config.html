@@ -1,0 +1,73 @@
+{% import 'macros/autoform.html' as autoform %}
+
+{% extends "admin/base.html" %}
+
+{% import 'macros/form.html' as form %}
+
+{% block primary_content_inner %}
+
+  {{ form.errors(error_summary) }}
+
+  <form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
+    {% block admin_form %}
+      {{ h.csrf_input() }}
+
+      {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=data['ckan.site_title'], error=error, classes=['control-medium']) }}
+
+      {{ form.input('ckan.theme', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=data['ckan.theme'], error=error, classes=['control-medium']) }}
+
+      {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=data['ckan.site_description'], error=error, classes=['control-medium']) }}
+
+      {% set field_url = 'ckan.site_logo' %}
+      {% set is_upload = data[field_url] and not data[field_url].startswith('http') %}
+      {% set is_url = data[field_url] and data[field_url].startswith('http') %}
+      {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
+
+      {{ form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=data['ckan.site_about'], error=error, placeholder=_('About page text')) }}
+
+      {{ form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=data['ckan.site_intro_text'], error=error, placeholder=_('Text on home page')) }}
+
+      {{ form.textarea('ckan.site_custom_css', id='field-ckan-site-custom-css', label=_('Custom CSS'), value=data['ckan.site_custom_css'], error=error, placeholder=_('Customisable css inserted into the page header')) }}
+
+      {{ form.select('ckan.homepage_style', id='field-homepage-style', label=_('Homepage'), options=homepages, selected=data['ckan.homepage_style'], error=error) }}
+
+      {% endblock %}
+      <div class="form-actions">
+        <a href="{% url_for 'admin.reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
+        <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
+      </div>
+  </form>
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="fa fa-info-circle"></i>
+      {{ _('CKAN config options') }}
+    </h2>
+    <div class="module-content">
+      {% block admin_form_help %}
+        {% set about_url = h.url_for('home.about') %}
+        {% set home_url = h.url_for('home.index') %}
+        {% set docs_url = "http://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
+        {% trans %}
+          <p><strong>Site Title:</strong> This is the title of this CKAN instance
+            It appears in various places throughout CKAN.</p>
+          <p><strong>Custom Stylesheet:</strong> Define an alternative main CSS file.</p>
+          <p><strong>Site Tag Logo:</strong> This is the logo that appears in the
+            header of all the CKAN instance templates.</p>
+          <p><strong>About:</strong> This text will appear on this CKAN instances
+            <a href="{{ about_url }}">about page</a>.</p>
+          <p><strong>Intro Text:</strong> This text will appear on this CKAN instances
+            <a href="{{ home_url }}">home page</a> as a welcome to visitors.</p>
+          <p><strong>Custom CSS:</strong> This is a block of CSS that appears in
+            <code>&lt;head&gt;</code> tag of every page. If you wish to customize
+            the templates more fully we recommend
+            <a href="{{ docs_url }}" target="_blank" rel="noreferrer">reading the documentation</a>.</p>
+          <p><strong>Homepage:</strong> This is for choosing a predefined layout for
+            the modules that appear on your homepage.</p>
+      {% endtrans %}
+    {% endblock %}
+    </div>
+  </div>
+{% endblock %}

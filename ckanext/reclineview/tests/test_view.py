@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 import ckan.model as model
 import ckan.plugins as p
@@ -12,8 +11,7 @@ import ckan.lib.create_test_data as create_test_data
 from ckan.tests import helpers, factories
 
 
-@pytest.mark.ckan_config('ckan.legacy_templates', 'false')
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class BaseTestReclineViewBase(object):
 
     @pytest.fixture(autouse=True)
@@ -70,7 +68,6 @@ class TestReclineView(BaseTestReclineViewBase):
             assert not self.p.can_view(data_dict)
 
 
-@pytest.mark.ckan_config('ckan.legacy_templates', 'false')
 @pytest.mark.ckan_config('ckan.plugins', 'recline_view datastore')
 @pytest.mark.ckan_config('ckan.views.default_views', 'recline_view')
 @pytest.mark.usefixtures("clean_db", "with_plugins")

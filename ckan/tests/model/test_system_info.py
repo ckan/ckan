@@ -7,11 +7,11 @@ from ckan import model
 from ckan.model.system_info import SystemInfo, set_system_info
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestSystemInfo(object):
     def test_set_value(self):
 
-        key = "config_option_1"
+        key = factories.SystemInfo.stub().key
         value = "test_value"
         set_system_info(key, value)
 

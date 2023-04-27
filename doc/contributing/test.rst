@@ -62,7 +62,7 @@ When the tests run they will use these databases, because in ``test-core.ini``
 they are specified in the ``sqlalchemy.url`` and ``ckan.datastore.write_url``
 connection strings.
 
-You should also make sure that the :ref:`Redis database <ckan_redis_url>`
+You should also make sure that the :ref:`Redis database <ckan.redis.url>`
 configured in ``test-core.ini`` is different from your production database.
 
 

@@ -5,6 +5,7 @@
 {% block page_primary_action %}
   {% if h.check_access('api_token_create', {'user': user['name']}) %}
     <form method="POST" class="form">
+      {{ h.csrf_input() }}
       {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
       {% block base_fields %}

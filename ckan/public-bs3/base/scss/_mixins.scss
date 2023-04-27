@@ -1,0 +1,168 @@
+@mixin break-word {
+    -ms-word-break: break-all;
+    word-break: break-all;
+    /* Non standard for webkit */
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
+
+@mixin border-radius($size) {
+    border-radius: $size;
+}
+
+@mixin transform ($args...) {
+    -webkit-transform: $args;
+    -moz-transform: $args;
+    -ms-transform: $args;
+    -o-transform: $args;
+    transform: $args;
+}
+
+@mixin transform-origin ($x, $y) {
+    -webkit-transform-origin: $x,$y ;
+    -moz-transform-origin: $x,$y;
+    -ms-transform-origin: $x,$y;
+    -o-transform-origin: $x,$y;
+    transform-origin: $x,$y;
+}
+// Allows use of rgba() in gradients. This will not provide a fallback for IE.
+@mixin rgba-vertial-gradient($startColor: #555, $endColor: #333) {
+    background-color: mix($startColor, $endColor, 60%);
+    background-image: -moz-linear-gradient(top, $startColor, $endColor); // FF 3.6+
+    background-image: -ms-linear-gradient(top, $startColor, $endColor); // IE10
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from($startColor), to($endColor)); // Safari 4+, Chrome 2+
+    background-image: -webkit-linear-gradient(top, $startColor, $endColor); // Safari 5.1+, Chrome 10+
+    background-image: -o-linear-gradient(top, $startColor, $endColor); // Opera 11.10
+    background-image: linear-gradient(top, $startColor, $endColor); // The standard
+    background-repeat: repeat-x;
+}
+
+@mixin rgba-vertical-gradient-three-colors($startColor: #00b3ee, $midColor: #7a43b6, $colorStop: 50%, $endColor: #c3325f) {
+    background-color: mix($midColor, $endColor, 80%);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from($startColor), color-stop($colorStop, $midColor), to($endColor));
+    background-image: -webkit-linear-gradient($startColor, $midColor $colorStop, $endColor);
+    background-image: -moz-linear-gradient(top, $startColor, $midColor $colorStop, $endColor);
+    background-image: -ms-linear-gradient($startColor, $midColor $colorStop, $endColor);
+    background-image: -o-linear-gradient($startColor, $midColor $colorStop, $endColor);
+    background-image: linear-gradient($startColor, $midColor $colorStop, $endColor);
+    background-repeat: no-repeat;
+}
+
+@mixin list-unstyled {
+    margin: 0;
+    list-style: none;
+}
+
+@mixin simple-item {
+    font-size: 12px;
+    line-height: (14em/12);
+    padding: 7px $gutterX;
+    border-bottom: 1px dotted $genericBorderColor;
+    &:last-of-type {
+        border-bottom: 0;
+    }
+}
+
+@mixin simple-list {
+    @include clearfix;
+    @include list-unstyled;
+    &>li {
+        @include simple-item;
+    }
+    .ckan-icon {
+        position: relative;
+        top: 0px;
+    }
+}
+@mixin ckan-icon {
+    //@extend ie7-restore-right-whitespace;
+    display: inline-block;
+    vertical-align: text-bottom;
+    position: relative;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background-image: url("#{$imagePath}/sprite-ckan-icons.png");
+    background-repeat: no-repeat;
+    background-position: 16px 16px;
+}
+
+
+.tag {
+    display: inline-block;
+    margin-bottom: 4px;
+    color: $tabTextColor;
+    background-color: $tagBackgroundColor;
+    padding: 1px 10px;
+    border: 1px solid darken($tagBackgroundColor, 10%);
+    @include border-radius(100px);
+    @include box-shadow(inset 0 1px 0 lighten($tagBackgroundColor, 10%));
+}
+
+a.tag:hover {
+    text-decoration: none;
+    color: #fff;
+    background-color: $btnPrimaryBackground;
+    border: 1px solid darken($btnPrimaryBackground, 10%);
+    @include box-shadow(inset 0 1px 0 lighten($btnPrimaryBackground, 10%));
+}
+
+.pill {
+    display: inline-block;
+    background-color: $pillBackgroundColor;
+    color: $pillTextColor;
+    padding: 2px 10px 1px 10px;
+    margin-right: 5px;
+    font-weight: normal;
+    @include border-radius(100px);
+    a {
+        color: $pillTextColor;
+        &.remove {
+            font-size: 11px;
+        }
+    }
+}
+
+.list-unstyled  {
+  @include list-unstyled; 
+}
+
+
+.module-narrow .simple-list>li {
+    padding-left: $gutterSmallX;
+    padding-right: $gutterSmallX;
+    position: relative;
+}
+
+.listing li {
+    text-align: right; //overflow: hidden;
+    //white-space: nowrap;
+    //text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.listing .key,
+.listing .value {}
+
+.listing .key {
+    clear: right;
+    font-weight: bold;
+}
+
+.js .tab-content {
+    display: none;
+}
+
+.js .tab-content.active {
+    display: block;
+}
+
+.box {
+    background-color: $body-bg;
+    border: 1px solid $layoutTrimBorderColor;
+    @include border-radius(4px);
+    @include box-shadow(0 0 0 4px rgba(0, 0, 0, 0.05));
+}

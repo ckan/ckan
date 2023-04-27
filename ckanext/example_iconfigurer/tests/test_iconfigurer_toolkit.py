@@ -1,11 +1,9 @@
 # encoding: utf-8
 
-import pytest
-import ckan.tests.helpers as helpers
 import ckan.plugins.toolkit as toolkit
+from ckan.common import CKANConfig
 
 
-@pytest.mark.usefixtures("clean_db")
 class TestIConfigurerToolkitAddCkanAdminTab(object):
 
     """
@@ -14,7 +12,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
 
     def test_add_ckan_admin_tab_updates_config_dict(self):
         """Config dict updated by toolkit.add_ckan_admin_tabs method."""
-        config = {}
+        config = CKANConfig({"ckan.admin_tabs": {}})
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
 
@@ -29,7 +27,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
         Calling add_ckan_admin_tab twice with same values returns expected
         config.
         """
-        config = {}
+        config = CKANConfig({"ckan.admin_tabs": {}})
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
@@ -47,7 +45,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
         Calling add_ckan_admin_tab twice with a different value returns
         expected config.
         """
-        config = {}
+        config = CKANConfig({"ckan.admin_tabs": {}})
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
         toolkit.add_ckan_admin_tab(
@@ -69,7 +67,7 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
         """
         Add two different route/label pairs to ckan.admin_tabs.
         """
-        config = {}
+        config = CKANConfig({"ckan.admin_tabs": {}})
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
         toolkit.add_ckan_admin_tab(
@@ -92,14 +90,14 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
         """
         Config already has a ckan.admin_tabs option.
         """
-        config = {
+        config = CKANConfig(**{
             "ckan.admin_tabs": {
                 "my_existing_route": {
                     "label": "my_existing_label",
                     "icon": None,
                 }
             }
-        }
+        })
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
         toolkit.add_ckan_admin_tab(
@@ -126,7 +124,10 @@ class TestIConfigurerToolkitAddCkanAdminTab(object):
         """
         Config already has existing other option.
         """
-        config = {"ckan.my_option": "This is my option"}
+        config = CKANConfig(**{
+            "ckan.my_option": "This is my option",
+            "ckan.admin_tabs": {}
+        })
 
         toolkit.add_ckan_admin_tab(config, "my_route_name", "my_label")
         toolkit.add_ckan_admin_tab(

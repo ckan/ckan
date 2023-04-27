@@ -1,0 +1,41 @@
+{#
+Displays a sidebar module with information for given package
+
+pkg    - The package dict that owns the resources.
+
+Example:
+
+  {% snippet "package/snippets/info.html", pkg=pkg %}
+
+#}
+{% block package_info %}
+  {% if pkg %}
+    <section class="module module-narrow">
+      <div class="module context-info">
+        <div class="module-content">
+          {% block package_info_inner %}
+            {% block heading %}
+              <h1 class="heading">{{ h.dataset_display_name(pkg) }}</h1>
+            {% endblock %}
+            {% block nums %}
+              {% set num_followers = h.follow_count('dataset', pkg.id) %}
+              <div class="nums">
+                <dl>
+                  <dt>{{ _('Followers') }}</dt>
+                  <dd data-module="followers-counter" data-module-id="{{ pkg.id }}" data-module-num_followers="{{ num_followers }}">{{ h.SI_number_span(num_followers) }}</dd>
+                </dl>
+              </div>
+            {% endblock %}
+            {% block follow_button %}
+              {% if not hide_follow_button %}
+                <div class="follow_button">
+                  {{ h.follow_button('dataset', pkg.id) }}
+                </div>
+              {% endif %}
+            {% endblock %}
+          {% endblock %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

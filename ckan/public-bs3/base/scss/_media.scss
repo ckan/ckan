@@ -1,0 +1,126 @@
+.media-grid {
+    @include list-unstyled;
+    @include clearfix;
+    padding-left: 0px;
+    min-height: 205px;
+    padding-top: $grid-gutter-width/2;
+    background: lighten($layoutBackgroundColor, 5%) url("#{$bgPath}");
+    border: 1px solid $moduleHeadingBorderColor;
+    border-width: 1px 0;
+}
+
+.media-item {
+    position: relative;
+    float: left;
+    width: 178px;
+    padding: $grid-gutter-width/2;
+    margin: 0 0 $grid-gutter-width/2 $grid-gutter-width/2;
+    background-color: white;
+    @include border-radius(3px);
+    span.count {
+        color: #999;
+    }
+    .media-image {
+        margin-bottom: 5px;
+    }
+    .media-edit {
+        opacity: 0;
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        @include transition(opacity 0.2s ease-in);
+    }
+    &:hover {
+        z-index: 1;
+        .media-edit {
+            opacity: 1;
+        }
+    }
+}
+
+.media-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid $moduleHeadingBorderColor;
+    overflow: hidden;
+    @include transition(all 0.2s ease-in);
+    @include border-radius(3px);
+    &:hover,
+    &.hovered {
+        border-color: $mastheadBackgroundColor;
+        @include box-shadow(0 0 0 4px rgba(0, 0, 0, 0.1));
+    }
+    span {
+        display: none;
+    }
+}
+
+.media-image {
+    @include border-radius(4px);
+    img {
+        min-width: 100%;
+    }
+}
+
+.media-heading {
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 5px 0;
+    @include break-word();
+}
+
+.media-description {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+// Overlay
+.media-overlay {
+    position: relative;
+    min-height: 35px; // Min height for the heading.
+}
+
+.media-overlay .media-heading {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px 10px;
+    margin: 0;
+    background-color: #000;
+    background-color: rgba(0, 0, 0, 0.8);
+    font-size: 13px;
+    color: #fff;
+    z-index: 1;
+    @include border-radius(0 0 3px 3px);
+}
+
+.media-overlay .media-image {
+    float: none;
+    display: block;
+    margin-right: 0;
+}
+
+.media-item.is-expander {
+    .truncator-link {
+        @include transition(opacity 0.2s ease-in);
+        position: absolute;
+        z-index: 10;
+        left: 15px;
+        bottom: 15px;
+        opacity: 0;
+    }
+    &:hover {
+        padding-bottom: 35px;
+        .truncator-link {
+            opacity: 1;
+        }
+    }
+}
+
+.wide .media-item {
+    width: 186px;
+}

@@ -5,10 +5,6 @@ class CkanException(Exception):
     pass
 
 
-class EmptyRevisionException(CkanException):
-    pass
-
-
 class CkanUrlException(Exception):
     pass
 
@@ -32,3 +28,7 @@ class HelperError(Exception):
     Normally, this would be a subclass of AttributeError, but Jinja2 will
     catch and ignore them. We want this to be an explicit failure re #2908.
     """
+
+
+class CkanDeprecationWarning(DeprecationWarning):
+    pass

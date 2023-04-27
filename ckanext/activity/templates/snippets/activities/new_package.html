@@ -1,0 +1,22 @@
+{% set dataset_type = activity.data.package.type or 'dataset' %}
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <span class="fa-stack fa-lg">
+    <i class="fa fa-circle fa-stack-2x icon"></i>
+    <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+  </span>
+  {{ _('{actor} created the {dataset_type} {dataset}').format(
+    actor=ah.actor(activity),
+    dataset_type=h.humanize_entity_type('package', dataset_type,'activity_record') or _('dataset'),
+    dataset=ah.dataset(activity)
+  )|safe }}
+  <br />
+  <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+    {{ h.time_ago_from_timestamp(activity.timestamp) }}
+    {% if can_show_activity_detail %}
+      &nbsp;|&nbsp;
+      <a href="{{ h.url_for('activity.package_history', id=activity.object_id, activity_id=activity.id) }}">
+        {{ _('View this version') }}
+      </a>
+    {% endif %}
+  </span>
+</li>

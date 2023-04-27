@@ -1,0 +1,114 @@
+{% extends "organization/edit_base.html" %}
+{% set dataset_type = h.default_package_type() %}
+
+
+{% block subtitle %}{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block page_primary_action %}
+  {% snippet 'snippets/add_dataset.html', group=group_dict.id %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  <div class="row">
+    <h1 class="hide-heading">{{ h.humanize_entity_type('package', dataset_type, 'edit label') or _('Edit datasets') }}</h1>
+    <div class="primary col-md-12">
+      <h3 class="page-heading">
+        {% block page_heading %}
+          {%- if page.item_count -%}
+            {{ page.item_count }} datasets{{ _(" found for \"{query}\"").format(query=q) if q }}
+          {%- elif request.params -%}
+            {{ _('Sorry no datasets found for "{query}"').format(query=q) }}
+          {%- else -%}
+            {{ _('Datasets') }}
+          {%- endif -%}
+        {% endblock %}
+      </h3>
+
+      {% block search_form %}
+        {% set sorting = [
+            (_('Name Ascending'), 'title_string asc'),
+            (_('Name Descending'), 'title_string desc'),
+            (_('Last Modified'), 'data_modified desc') ]
+                %}
+        {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type=dataset_type, query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
+      {% endblock %}
+
+      {% block form %}
+        {% if page.item_count %}
+          <form method="POST" data-module="basic-form">
+            {{ h.csrf_input() }}
+            <table class="table table-bordered table-header table-hover table-bulk-edit table-edit-hover" data-module="table-selectable-rows">
+              <col width="8">
+              <col width="120">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th class="table-actions">
+                    <div class="btn-group">
+                      <button name="bulk_action.public" value="public" class="btn btn-default" type="submit">
+                        <i class="fa fa-eye"></i>
+                        {{ _('Make public') }}
+                      </button>
+                      <button name="bulk_action.private" value="private" class="btn btn-default" type="submit">
+                        <i class="fa fa-eye-slash"></i>
+                        {{ _('Make private') }}
+                      </button>
+                    </div>
+                    <div class="btn-group">
+                      <button name="bulk_action.delete" value="delete" class="btn btn-danger" type="submit">
+                        <i class="fa fa-times"></i>
+                        {{ _('Delete') }}
+                      </button>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for package in packages %}
+                  {% set title = package.title or package.name %}
+                  {% set notes = h.markdown_extract(package.notes, extract_length=180) %}
+                  <tr>
+                    <td>
+                      <input type="checkbox" name="dataset_{{ package.id }}">
+                    </td>
+                    <td class="context">
+                      <a href="{% url_for package.type ~ '.edit', id=package.name %}" class="edit pull-right">
+                        {{ _('Edit') }}
+                      </a>
+                      <h3 class="dataset-heading">
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}">
+                          {{ title|truncate(80) }}
+                        </a>
+                        {% if package.get('state', '').startswith('draft') %}
+                          <span class="label label-info">{{ _('Draft') }}</span>
+                        {% elif package.get('state', '').startswith('deleted') %}
+                          <span class="label label-danger">{{ _('Deleted') }}</span>
+                        {% endif %}
+                        {% if package.private %}
+                          <span class="label label-danger">{{ _('Private') }}</span>
+                        {% endif %}
+                      </h3>
+                      {% if notes %}
+                        <p>{{ notes|urlize }}</p>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </form>
+        {% else %}
+          <p class="empty">{{ _('This organization has no datasets associated to it') }}</p>
+        {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+  {{ page.pager() }}
+{% endblock %}
+
+{% block secondary_content %}
+    {{  super() }}
+    {% for facet in c.facet_titles %}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}) }}
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,95 @@
+.homepage {
+    .row {
+        position: relative;
+    }
+    .module-search {
+        padding: 5px;
+        // margin: 20px 0 0 0;
+        color: $mastheadTextColor;
+        background: $layoutTrimBackgroundColor;
+        .search-giant {
+            margin-bottom: 10px;
+            input {
+                border-color: darken($mastheadBackgroundColorEnd, 5);
+            }
+        }
+        .module-content {
+            @include border-radius(3px 3px 0 0);
+            background-color: $mastheadBackgroundColor;
+            border-bottom: none;
+            .heading {
+                margin-top: 0;
+                margin-bottom: 7px;
+                font-size: 24px;
+                line-height: 40px;
+            }
+        }
+        .tags {
+            @include clearfix();
+            padding: 5px 10px 10px 10px;
+            background-color: darken($mastheadBackgroundColor, 10%);
+            @include border-radius(0 0 3px 3px);
+            h3,
+            .tag {
+                display: block;
+                float: left;
+                margin: 5px 10px 0 0;
+            }
+            h3 {
+                font-size: $font-size-base;
+                line-height: $line-height-base;
+                padding: 2px 8px;
+            }
+        }
+    }
+    .group-list {
+        margin: 0;
+    }
+    .box .inner {
+        padding: $gutterY $gutterX;
+    }
+    .stats {
+        h3 {
+            margin: 0 0 10px 0;
+        }
+        ul {
+            @include list-unstyled;
+            @include clearfix;
+            li {
+                float: left;
+                width: 25%;
+                font-weight: 300;
+                a {
+                    display: block;
+                    b {
+                        display: block;
+                        font-size: $font-size-large*2;
+                        line-height: 1.5;
+                    }
+                    &:hover {
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+    }
+    &.layout-2 .stats {
+        margin-top: $gutterY;
+    }
+
+}
+@media (min-width: $screen-md-min) {
+    .homepage [role=main] {
+        padding: 20px 0;
+    }
+    .homepage.layout-1 .row1 .col2 {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        .module-search {
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+    }
+}

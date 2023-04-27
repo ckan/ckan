@@ -4,7 +4,7 @@
 {% block subtitle %}{{ _(dataset_type.title()) }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type, highlight_actions = 'new index') }}</li>
+  <li class="active">{{ h.nav_link(_(dataset_type.title() + 's'), named_route='%s.search' % dataset_type) }}</li>
 {% endblock %}
 
 {% block primary_content %}
@@ -32,7 +32,7 @@
           (_('Last Modified'), 'metadata_modified desc'),
           (_('Popular'), 'views_recent desc') if g.tracking_enabled else (false, false) ]
         %}
-        {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=_('Search ' + dataset_type + 's') + '...', facets=facets, show_empty=request.params, error=query_error, fields=fields %}
+        {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets...'), facets=facets, show_empty=request.args, error=query_error, fields=fields %}
       {% endblock %}
       {% block package_search_results_list %}
         {{ h.snippet('snippets/package_list.html', packages=page.items) }}
@@ -49,7 +49,7 @@
       <div class="module-content">
         {% block package_search_results_api_inner %}
           <small>
-            {% set api_link = h.link_to(_('API'), h.url_for(controller='api', action='get_api', ver=3)) %}
+            {% set api_link = h.link_to(_('API'), h.url_for('api.get_api', ver=3)) %}
             {% set api_doc_link = h.link_to(_('API Docs'), 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version)) %}
             {% if g.dumps_url -%}
               {% set dump_link = h.link_to(_('full {format} dump').format(format=g.dumps_format), g.dumps_url) %}

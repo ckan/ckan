@@ -47,7 +47,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
 
-    ckan.plugins = stats text_view recline_view example_theme
+    ckan.plugins = stats text_view datatables_view example_theme
 
 6. Start CKAN in the development web server:
 
@@ -483,7 +483,7 @@ now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v08_custom_helper_function/plugin.py
    :start-after: # Declare that this plugin will implement ITemplateHelpers.
-   :end-before: def update_config(self, config):
+   :end-before: def update_config(self, config: CKANConfig):
 
 Finally, we implemented the
 :py:meth:`~ckan.plugins.interfaces.ITemplateHelpers.get_helpers` method from

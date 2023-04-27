@@ -5,7 +5,7 @@
 {%- block htmltag -%}
 {% set lang = h.lang() %}
 <!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> <html lang="{{ lang }}" {% if h.is_rtl_language()  %} dir="rtl" {% endif %} > <!--<![endif]-->
 {%- endblock -%}
 
   {# Allows custom attributes to be added to the <head> tag #}
@@ -24,6 +24,9 @@
     #}
     {%- block meta -%}
       <meta charset="utf-8" />
+      <meta name="csrf_field_name" content="{{ g.csrf_field_name }}" />
+      <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
+
       {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
       {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
     {%- endblock -%}
@@ -67,9 +70,8 @@
     #}
     {%- block styles %}
       {# TODO: store just name of asset instead of path to it. #}
-      {% set main_css = h.get_rtl_css() if h.is_rtl_language() else g.main_css %}
-      {# strip '/base/' prefix and '.css' suffix #}
-      {% asset main_css[6:-4] %}
+      {% set theme = h.get_rtl_theme() if h.is_rtl_language() else g.theme %}
+      {% asset theme %}
     {% endblock %}
 
     {% block head_extras %}
@@ -89,7 +91,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url_for('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url_for('/', qualified=true) }}" {% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url_for('home.index', locale='default', qualified=true) }}" data-locale-root="{{ h.url_for('home.index', qualified=true) }}" {% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
@@ -107,7 +109,7 @@
 
     {#
     DO NOT USE THIS BLOCK FOR ADDING SCRIPTS
-    Scripts should be loaded by the {% resource %} tag except in very special
+    Scripts should be loaded by the {% assets %} tag except in very special
     circumstances
     #}
     {%- block scripts %}

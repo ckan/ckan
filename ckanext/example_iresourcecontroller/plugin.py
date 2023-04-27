@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from collections import defaultdict
+from typing import Any
 import ckan.plugins as plugins
 
 
@@ -8,26 +9,32 @@ class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
 
     plugins.implements(plugins.IResourceController)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.counter = defaultdict(int)
 
-    def before_create(self, context, resource):
-        self.counter['before_create'] += 1
+    # this method deliberately uses deprecated `before_create` name instead of
+    # `before_resource_create`. Change the name after support for deprecated
+    # names is dropped.
+    def before_create(self, context: Any, resource: Any):
+        self.counter['before_resource_create'] += 1
 
-    def after_create(self, context, resource):
-        self.counter['after_create'] += 1
+    def after_resource_create(self, context: Any, resource: Any):
+        self.counter['after_resource_create'] += 1
 
-    def before_update(self, context, current, resource):
-        self.counter['before_update'] += 1
+    def before_resource_update(
+            self, context: Any, current: Any, resource: Any):
+        self.counter['before_resource_update'] += 1
 
-    def after_update(self, context, resource):
-        self.counter['after_update'] += 1
+    def after_resource_update(self, context: Any, resource: Any):
+        self.counter['after_resource_update'] += 1
 
-    def before_delete(self, context, resource, resources):
-        self.counter['before_delete'] += 1
+    def before_resource_delete(
+            self, context: Any, resource: Any, resources: Any):
+        self.counter['before_resource_delete'] += 1
 
-    def after_delete(self, context, resources):
-        self.counter['after_delete'] += 1
+    def after_resource_delete(self, context: Any, resources: Any):
+        self.counter['after_resource_delete'] += 1
 
-    def before_show(self, resource):
-        self.counter['before_show'] += 1
+    def before_resource_show(self, resource: Any):
+        self.counter['before_resource_show'] += 1

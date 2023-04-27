@@ -16,16 +16,12 @@ from ckan.common import config
 
 log = logging.getLogger(__name__)
 
-REDIS_URL_SETTING_NAME = u'ckan.redis.url'
-
-REDIS_URL_DEFAULT_VALUE = u'redis://localhost:6379/0'
-
 # Redis connection pool. Do not use this directly, use ``connect_to_redis``
 # instead.
 _connection_pool = None
 
 
-def connect_to_redis():
+def connect_to_redis() -> Redis:  # type: ignore
     u'''
     (Lazily) connect to Redis.
 
@@ -39,13 +35,13 @@ def connect_to_redis():
     '''
     global _connection_pool
     if _connection_pool is None:
-        url = config.get(REDIS_URL_SETTING_NAME, REDIS_URL_DEFAULT_VALUE)
+        url = config.get('ckan.redis.url')
         log.debug(u'Using Redis at {}'.format(url))
         _connection_pool = ConnectionPool.from_url(url)
     return Redis(connection_pool=_connection_pool)
 
 
-def is_redis_available():
+def is_redis_available() -> bool:
     u'''
     Check whether Redis is available.
 

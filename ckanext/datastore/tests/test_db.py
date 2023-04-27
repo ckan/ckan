@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import mock
+import unittest.mock as mock
 import pytest
 import sqlalchemy.exc
 
@@ -12,8 +12,9 @@ import ckanext.datastore.backend as backend
 import ckanext.datastore.backend.postgres as db
 
 
+@pytest.mark.ckan_config("ckan.plugins", "datastore")
+@pytest.mark.usefixtures("with_plugins")
 class TestCreateIndexes(object):
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_index_method", None)
     def test_creates_fts_index_using_gist_by_default(self):
         connection = mock.MagicMock()
         context = {"connection": connection}
@@ -39,7 +40,6 @@ class TestCreateIndexes(object):
             "_full_text", connection, resource_id, method="gin"
         )
 
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", None)
     @mock.patch("ckanext.datastore.backend.postgres._get_fields")
     def test_creates_fts_index_on_all_fields_except_dates_nested_and_arrays_with_english_as_default(
         self, _get_fields
@@ -90,7 +90,7 @@ class TestCreateIndexes(object):
         connection = mock.MagicMock()
         context = {"connection": connection}
         resource_id = "resource_id"
-        data_dict = {"resource_id": resource_id, "lang": "french"}
+        data_dict = {"resource_id": resource_id, "language": "french"}
 
         db.create_indexes(context, data_dict)
 
@@ -203,7 +203,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
     Test correct interaction with the background jobs system.
     """
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.

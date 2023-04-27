@@ -1,0 +1,13 @@
+{% set class_prev = "btn btn-default" if newer_activities_url else "btn disabled" %}
+{% set class_next = "btn btn-default" if older_activities_url else "btn disabled" %}
+
+{% if newer_activities_url or older_activities_url %}
+    <div id="activity_page_buttons" class="activity_buttons" style="margin-top: 25px;">
+        <a href="{{ newer_activities_url }}" class="{{ class_prev }}">
+            {{ _('Newer activities') }}
+        </a>
+        <a href="{{ older_activities_url }}" class="{{ class_next }}">
+            {{ _('Older activities') }}
+        </a>
+    </div>
+{% endif %}

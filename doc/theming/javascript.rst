@@ -243,7 +243,7 @@ JavaScript module using ``data-module-*`` attributes:
 .. literalinclude:: /../ckanext/example_theme_docs/v18_snippet_api/templates/snippets/package_item.html
    :language: django
 
-We've also added a second ``{% resource %}`` tag to the snippet above, to
+We've also added a second ``{% asset %}`` tag to the snippet above, to
 include a custom CSS file. We'll see the contents of that CSS file later.
 
 Next, we need to add a new template snippet to our extension that will be used
@@ -308,7 +308,7 @@ going on:
    :language: javascript
 
 Finally, we need some custom CSS to make the HTML from our new snippet look
-nice. In ``package_item.html`` above we added a ``{% resource %}`` tag to
+nice. In ``package_item.html`` above we added a ``{% asset %}`` tag to
 include a custom CSS file. Now we need to create that file,
 ``ckanext-example_theme/ckanext/example_theme/assets/example_theme_popover.css``:
 
@@ -500,7 +500,7 @@ a single expression by chaining our jQuery method with another method:
 
 Before we can use our ``greenify()`` method in CKAN, we need to import the
 ``jquery.greenify.js`` file into the CKAN page. To do this, add a
-``{% resource %}`` tag to a template file, just as you would do to include any
+``{% asset %}`` tag to a template file, just as you would do to include any
 other JavaScript or CSS file in CKAN. Edit the ``package_item.html`` file:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v21_custom_jquery_plugin/templates/snippets/package_item.html

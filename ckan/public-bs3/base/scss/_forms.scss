@@ -1,0 +1,817 @@
+@use 'sass:math';
+
+.js .js-hide {
+    display: none;
+}
+
+.js .js-hide.active {
+    display: block;
+}
+
+.btn,
+label {
+    font-weight: bold;
+}
+
+.btn-rounded {
+    @include border-radius(100px);
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+label {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+label:after {
+    content: ":";
+}
+
+label.radio:after,
+label.checkbox:after {
+    content: "";
+}
+
+.cr-controls-reset {
+    position: relative;
+    margin-left: initial;
+    margin-right: $grid-gutter-width/6;
+    top: 2px;
+}
+
+.checkbox {
+    input[type=checkbox] {
+        @extend .cr-controls-reset;
+    }
+}
+
+.radio {
+    input[type=radio] {
+        @extend .cr-controls-reset;
+    }
+}
+
+// input[type=radio],
+// input[type=checkbox] {
+//     position: relative;
+//     top: 7px;
+//     padding: 0;
+//     margin: 0;
+//     &.checkbox-onown {
+//         top: 0;
+//     }
+// }
+select {
+    padding: 4px;
+}
+
+textarea {
+    max-width: 100%;
+}
+
+.form-group .btn {
+    position: relative;
+    top: -2px;
+}
+
+.unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox,
+.radio {
+    @extend .unselectable;
+}
+
+.control-full input,
+.control-full select,
+.control-full textarea {
+    @include box-sizing(border-box);
+    height: auto;
+    width: 100%;
+}
+
+.control-large {
+    input {
+        @extend .input-lg;
+    }
+    .control-label {
+        font-size: $font-size-large;
+    }
+}
+
+.control-required {
+    color: $errorBorder;
+}
+
+.form-actions .control-required-message {
+    float: left;
+    margin-left: 20px;
+    margin-bottom: 0;
+    line-height: 30px;
+    &:first-child {
+        margin-left: 0;
+    }
+}
+
+.form-actions {
+  overflow: auto;
+}
+
+@media (min-width: $screen-sm-min) {
+    .form-actions {
+        text-align: right;
+    }
+}
+
+.form-actions .action-info {
+    line-height: 2;
+    text-align: left;
+    color: $formInfoText;
+    margin: 0;
+}
+
+@media (min-width: $screen-sm-min) {
+    .form-actions .action-info {
+        float: left;
+        width: 50%;
+        margin-right: $grid-gutter-width/2;
+    }
+}
+
+.form-actions .action-info.small {
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+@media (max-width: $screen-sm-max) {
+    .form-actions .btn {
+        margin-top: 5px;
+    }
+}
+
+// Override the default form widths.
+// .form-horizontal .control-label {
+//     width: 120px;
+// }
+// @media (min-width: $screen-sm-min) {
+//     .form-horizontal .controls {
+//         margin-left: 130px;
+//     }
+// }
+.form-group .info-block {
+    position: relative;
+    display: block;
+    font-size: 11px;
+    color: $emptyTextColor;
+    line-height: 1.3;
+    margin-top: 6px;
+}
+
+.form-group .info-help {
+    padding: 6px 0;
+    &:before {
+        display: none;
+    }
+}
+
+.form-group .info-help-tight {
+    margin-top: -10px;
+}
+
+@media (min-width: $screen-md-min) {
+    .form-group .info-block {
+        padding: $grid-gutter-width/6 0 $grid-gutter-width/6 $grid-gutter-width/3;
+    }
+    .form-group .info-inline {
+        margin-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+form .control-medium .info-block.info-inline {
+    width: 165px;
+}
+
+.form-group .info-block:before {
+    font-size: 2.2em;
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+.form-group .info-inline:before {
+    top: 8px;
+}
+
+.info-block,
+.info-inline {
+    .icon-large {
+        float: left;
+        font-size: 22px;
+        margin-right: $gutterSmallX;
+    }
+}
+
+.form-group .info-block a {
+    color: $emptyTextColor;
+    text-decoration: underline;
+}
+
+// form .form-actions {
+//     padding-left: $gutterX;
+//     padding-right: $gutterX;
+// }
+.form-inline input {
+    padding-bottom: 9px;
+}
+
+.form-inline select {
+    margin-top: 0;
+}
+
+.form-inline .btn {
+    margin-left: 5px;
+}
+
+// Form Narrow
+.form-narrow label {
+    margin-bottom: 0;
+}
+
+.form-narrow select {
+    width: 100%;
+}
+
+.form-narrow .form-actions {
+    margin-left: -$gutterSmallX;
+    margin-right: -$gutterSmallX;
+    padding: 10px $gutterSmallX 0;
+}
+
+input[data-module="autocomplete"],
+select[data-module="autocomplete"] {
+    width: 100%;
+}
+
+// Inline Select Forms
+.form-select label {
+    margin-right: 5px;
+}
+
+// Single Field Inputs
+.simple-input label,
+.simple-input button {
+  display: none;
+}
+
+.simple-input .field {
+    position: relative;
+}
+
+.simple-input .field-bordered {
+    border-bottom: 1px dotted $genericBorderColor;
+}
+
+.simple-input .field input {
+    width: 100%;
+    height: auto; // margin: 0 -7px; // Pull input out into gutter
+    // padding: 7px 5px;
+}
+
+.simple-input .field .btn-search {
+    position: absolute;
+    display: block;
+    height: 17px;
+    width: 17px;
+    padding: 0;
+    top: 50%;
+    right: $grid-gutter-width/3;
+    margin-top: -10px;
+    background-color: transparent;
+    border: none;
+    color: #999;
+    @include transition(color 0.2s ease-in);
+    &:hover {
+        color: #000;
+    }
+}
+
+.editor textarea {
+    @include border-radius($inputBorderRadius $inputBorderRadius 0 0);
+    border-bottom: none;
+}
+
+.editor .editor-info-block {
+    @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
+    display: block;
+    float: none;
+    padding: 4px 10px;
+    background: #ebebeb;
+    width: auto;
+    border: 1px solid $inputBorder;
+    border-top: none;
+    font-size: 11px;
+    color: #282828;
+}
+
+.editor .editor-info-block a {
+    text-decoration: none;
+}
+
+// Custom Key/Value input
+.control-custom {
+    font-size: 0; // Remove whitespace between fields.
+    .input-group {
+        margin-bottom: $grid-gutter-width/3;
+    }
+}
+
+.control-custom .checkbox {
+    display: inline-block;
+    margin: 2px 0 2px $grid-gutter-width/3;
+}
+
+.control-custom .checkbox input {
+    width: auto;
+}
+
+.control-custom.disabled label,
+.control-custom.disabled input {
+    color: $disabledCustomInputTextColor;
+    text-decoration: line-through;
+    text-shadow: none;
+}
+
+.control-custom.disabled input {
+    @include box-shadow(none);
+    background-color: $disabledCustomInputBackground;
+}
+
+.control-custom.disabled .checkbox {
+    color: $layoutTextColor;
+    text-decoration: none;
+}
+
+// JavaScript Enabled Remove Button
+.control-custom .checkbox.btn {
+    @include border-radius(15px);
+    position: relative;
+    top: 0;
+    left: 5px;
+    height: 1px;
+    width: 9px;
+    padding: 3px 8px;
+    line-height: 18px;
+}
+
+.control-custom .checkbox.btn span {
+    display: none;
+    width: 30px;
+}
+
+.control-custom .checkbox.btn:before {
+    position: relative;
+    top: 1px;
+    left: -1px;
+    color: #fff;
+}
+
+.control-custom .checkbox input {
+    display: none;
+}
+
+.control-custom.disabled .checkbox.btn {
+    @extend .btn-danger;
+}
+
+// Errors
+.alert-danger a {
+    color: $errorText;
+}
+
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea,
+.form-group.has-error .input-group .input-group-addon,
+.form-group.has-error .input-group .input-group-addon {
+    border-color: $errorBorder;
+}
+
+.form-group {
+    select,
+    .select2-container {
+        max-width: 100%;
+    }
+}
+
+.error-inline {
+    color: $errorText;
+    margin: $grid-gutter-width/3;
+}
+
+.error-block,
+.error-inline {
+    font-size: $font-size-small;
+}
+
+.error-block {
+    @include border-radius(0 0 $inputBorderRadius $inputBorderRadius);
+    display: block;
+    padding: 6px 8px 3px;
+    background: $errorBorder; // margin: -$inputBorderRadius 0 0;
+    color: $inputBackground;
+    width: auto;
+}
+
+.control-medium .error-block {
+    width: auto;
+}
+
+.control-full .error-block {
+    width: auto;
+}
+
+.form-group.has-error .input-group .error-block,
+.control-custom.error .error-block {
+    width: auto;
+}
+
+.control-custom.error .error-block {
+    width: auto;
+    @include border-radius($border-radius-small);
+}
+
+.control-select.error .error-block {
+    width: auto;
+}
+
+// Stages
+// Builds form stages out of an ordered list. The following CSS uses tag
+// selectors on the .active class to prevent the styles bleeding into the
+// anchor element which can also have an active class.
+.stages {
+    @include list-unstyled;
+    @include clearfix;
+    color: $stagesTextColor;
+    counter-reset: stage; // margin: -$gutterY -$gutterX $gutterY;
+    overflow: hidden;
+    margin-bottom: $grid-gutter-width;
+}
+
+.stages li {
+    @include box-sizing(border-box);
+    line-height: 27px;
+    counter-increment: stage;
+    width: 50%;
+    background-color: $stagesBackground;
+    float: left;
+    padding: 10px 20px;
+    position: relative;
+    z-index: 0;
+}
+
+.stages li:before {
+    @include border-radius(14px);
+    content: counter(stage);
+    display: inline-block;
+    width: 27px;
+    height: 27px;
+    margin-right: 5px;
+    font-weight: bold;
+    text-align: center;
+    color: $stagesCounterTextColor;
+    background-color: $stagesCounterBackground;
+    z-index: 1;
+}
+
+.stages li:after {
+    left: 0;
+    border: solid $stagesTransparentBackground;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-top-color: $stagesBackground;
+    border-bottom-color: $stagesBackground;
+    border-width: 29px; // Needs to be an odd number
+    top: 50%;
+    margin-top: -29px;
+    margin-left: -30px;
+}
+
+.stages li.last {
+    position: relative;
+    right: -1px;
+}
+
+.stages li.last,
+.stages li.last .highlight {
+    @include border-radius(0 3px 0 0);
+}
+
+.stages li.first:after {
+    content: none;
+    border: none;
+}
+
+.stages li.active:after {
+    border-color: $stagesActiveTransparentBackground;
+    border-top-color: $stagesActiveBackground;
+    border-bottom-color: $stagesActiveBackground;
+}
+
+.stages li.complete:after {
+    border-color: $stagesCompleteTransparentBackground;
+    border-top-color: $stagesCompleteBackground;
+    border-bottom-color: $stagesCompleteBackground;
+}
+
+.stages.stage-3 li.complete:first-child:after {
+    content: none;
+}
+
+.stages li.active,
+.stages li.complete {
+    background: none;
+}
+
+.stages li.active:before {
+    color: $stagesCounterActiveTextColor;
+    background: $stagesCounterActiveBackground;
+}
+
+.stages li.complete:before {
+    color: $stagesCounterCompleteTextColor;
+    background: $stagesCounterCompleteBackground;
+}
+
+// Needs to style spa, button and a elements.
+.stages li .highlight {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 10px 52px;
+    border: none;
+    text-align: left;
+    text-decoration: none;
+    line-height: 27px;
+    z-index: -1;
+}
+
+@media (max-width: $screen-sm-max) {
+    .stages li .highlight {
+        text-indent: -9999px;
+    }
+}
+
+.stages li.active .highlight {
+    color: $stagesActiveTextColor;
+    background: $stagesActiveBackground;
+}
+
+.stages li.complete .highlight {
+    color: $stagesCompleteTextColor;
+    background: $stagesCompleteBackground;
+}
+
+// Errors
+.alert> :last-child {
+    margin-bottom: 0;
+}
+
+// Slug Preview Field
+.slug-preview {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.slug-preview-value {
+    background-color: #faedcf;
+    margin-right: 3px;
+}
+
+// Select2
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+    font-size: 14px;
+}
+
+.select2-container-multi .select2-choices .select2-search-field input {
+    height: 29px;
+}
+
+.select2-container .select2-choice input,
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+    // Only apply if there are no other tags (ie. is the first child)
+    padding-left: 10px;
+}
+
+.select2-container {
+    margin-top: 1px;
+    margin-bottom: $grid-gutter-width/4;
+}
+
+.select2-container-multi {
+    margin-top: 0;
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    padding: 5px 8px 5px 22px;
+}
+
+.select2-container-multi.select2-container .select2-choices {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.select2-search-choice-close,
+.select2-container-multi .select2-search-choice-close {
+    top: 6px;
+    left: 5px;
+}
+
+.select2-container-multi .select2-choices {
+    @include border-radius(3px);
+    @include box-shadow(inset 0 1px 1px rgba(0, 0, 0, .075));
+    $transition: border linear .2s,
+    box-shadow linear .2s;
+    @include transition($transition);
+    background-color: $inputBackground;
+    border: 1px solid $inputBorder;
+}
+
+.select2-container-active .select2-choices,
+.select2-container-multi.select2-container-active .select2-choices {
+    border-color: rgba(82, 168, 236, .8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+}
+
+.select2-container-multi .select2-drop {
+    margin-top: -2px;
+}
+
+.select2-container .select2-results li {
+    line-height: 18px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.control-full .select2-container {
+    // Important is bad but select2 incorrectly calculates the width and sets it on the element@mixin
+    // Commenting out, as I cannot reproduce this problem (SS)
+    //width: 520px !important;
+    max-width: 100%;
+}
+
+.form-group.has-error .select2-container {
+    input:focus,
+    select:focus,
+    textarea:focus {
+        @include box-shadow(none);
+    }
+}
+
+.js .image-upload {
+    #field-image-url {
+        padding-right: 90px;
+    }
+    #field-image-upload {
+        cursor: pointer;
+        position: absolute;
+        z-index: 1;
+        @include opacity(0);
+    }
+    .controls {
+        position: relative;
+    }
+    .btn {
+        position: relative;
+        top: 0;
+        margin-right: 10px;
+        &.hover {
+            color: $gray-dark;
+            text-decoration: none;
+            background-position: 0 -15px;
+            @include transition(background-position .1s linear);
+        }
+    }
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        top: $grid-gutter-width/5;
+        right: $grid-gutter-width/6;
+        padding: 0 12px;
+        @include border-radius(100px);
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    .error-inline {
+      margin-top: 5px;
+      margin-left: 2px;
+      font-weight: bold;
+    }
+}
+
+.add-member-form .control-label {
+  display: block;
+}
+
+.add-member-or-wrap{
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  @media (max-width: $screen-sm-max){
+    margin-bottom: $grid-gutter-width;
+  }
+  @media (min-width: $screen-md-min){
+    min-height: $grid-gutter-width*3 + 10;
+  }
+}
+
+.add-member-or {
+    text-align: center;
+    text-transform: uppercase;
+    color: $gray-light;
+    font-weight: bold;
+}
+
+#recaptcha_table {
+    table-layout: inherit;
+    line-height: 1;
+}
+
+.resource-upload-field {
+    > input[type="radio"] {
+        // hide the radio buttons we're using to show/hide select-type divs
+        display: none;
+    }
+
+    > div.select-type {
+        // "Remove" buttons should be positioned relative to this element
+        position: relative;
+        // defaut select-type divs to hidden...
+        display: none;
+    }
+
+    > input[type="radio"]:checked + div.select-type {
+        // ...unless the radio button above is checked
+        display: block;
+    }
+
+    label.btn::after {
+        // button labels don't need a ":" at the end of the content
+        content: "";
+    }
+
+    .btn-remove-url {
+        position: absolute;
+        margin-right: 0;
+        margin-top: 2px;
+        top: $grid-gutter-width;
+        right: math.div($grid-gutter-width, 6);
+        padding: 0 12px;
+        border-radius: 100px;
+        .icon-remove {
+            margin-right: 0;
+        }
+    }
+
+    input#field-clear-upload {
+        // checkbox shows/hides existing upload display and new upload input
+        display: none;
+
+        + div.upload-type {
+          display: block;
+        }
+
+        ~ .upload-type {
+          display: none;
+        }
+    }
+
+    input#field-clear-upload:checked {
+        + div.upload-type {
+          display: none;
+        }
+
+        ~ .upload-type {
+          display: block;
+        }
+    }
+}

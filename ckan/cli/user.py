@@ -1,16 +1,17 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import logging
-import six
+from typing import Optional, cast
+
 import click
-from six import text_type
 
 import ckan.logic as logic
-import ckan.plugins as plugin
 import ckan.model as model
 from ckan.cli import error_shout
 from ckan.common import json
-
+from ckan.types import Context
+from ckan.lib.helpers import helper_functions as h
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ def user():
 @click.argument(u'username')
 @click.argument(u'args', nargs=-1)
 @click.pass_context
-def add_user(ctx, username, args):
+def add_user(ctx: click.Context, username: str, args: list[str]):
     u'''Add new user if we use ckan sysadmin add
     or ckan user add
     '''
@@ -48,26 +49,21 @@ def add_user(ctx, username, args):
         data_dict['password'] = click.prompt(u'Password ', hide_input=True,
                                              confirmation_prompt=True)
 
-    # Optional
-    if u'fullname' in data_dict:
-        data_dict['fullname'] = six.ensure_text(data_dict['fullname'])
-
-    # pprint(u'Creating user: %r' % username)
+    import ckan.logic as logic
+    import ckan.model as model
 
     try:
-        import ckan.logic as logic
-        import ckan.model as model
-        site_user = logic.get_action(u'get_site_user')({
+        site_user = logic.get_action(u'get_site_user')(cast(Context, {
             u'model': model,
-            u'ignore_auth': True},
+            u'ignore_auth': True}),
             {}
         )
-        context = {
+        context = cast(Context, {
             u'model': model,
             u'session': model.Session,
             u'ignore_auth': True,
             u'user': site_user['name'],
-        }
+        })
         flask_app = ctx.meta['flask_app']
         # Current user is tested agains sysadmin role during model
         # dictization, thus we need request context
@@ -80,7 +76,7 @@ def add_user(ctx, username, args):
         raise click.Abort()
 
 
-def get_user_str(user):
+def get_user_str(user: model.User):
     user_str = u'name=%s' % user.name
     if user.name != user.display_name:
         user_str += u' display=%s' % user.display_name
@@ -100,47 +96,51 @@ def list_users():
 @user.command(u'remove', short_help=u'Remove user')
 @click.argument(u'username')
 @click.pass_context
-def remove_user(ctx, username):
+def remove_user(ctx: click.Context, username: str):
     if not username:
         error_shout(u'Please specify the username to be removed')
         return
 
     site_user = logic.get_action(u'get_site_user')({u'ignore_auth': True}, {})
-    context = {u'user': site_user[u'name']}
+    context: Context = {u'user': site_user[u'name']}
     with ctx.meta['flask_app'].test_request_context():
-        plugin.toolkit.get_action(u'user_delete')(context, {u'id': username})
+        logic.get_action(u'user_delete')(context, {u'id': username})
         click.secho(u'Deleted user: %s' % username, fg=u'green', bold=True)
 
 
 @user.command(u'show', short_help=u'Show user')
 @click.argument(u'username')
-def show_user(username):
+def show_user(username: str):
     import ckan.model as model
     if not username:
         error_shout(u'Please specify the username for the user')
         return
-    user = model.User.get(text_type(username))
+    user = model.User.get(str(username))
     click.secho(u'User: %s' % user)
 
 
-@user.command(u'setpass', short_help=u'Set password for the user')
-@click.argument(u'username')
-def set_password(username):
-    import ckan.model as model
-    if not username:
-        error_shout(u'Need name of the user.')
-        return
+@user.command("setpass")
+@click.argument("username")
+@click.option("-p", "--password", help="New password")
+def set_password(username: str, password: Optional[str]):
+    """Set password for the user."""
     user = model.User.get(username)
     if not user:
-        error_shout(u"User not found!")
-        return
-    click.secho(u'Editing user: %r' % user.name, fg=u'yellow')
+        error_shout("User not found!")
+        raise click.Abort()
 
-    password = click.prompt(u'Password', hide_input=True,
-                            confirmation_prompt=True)
+    click.secho(f"Editing user: {user.name}", fg="yellow")
+
+    if not password:
+        password = click.prompt(
+            "Password",
+            hide_input=True,
+            confirmation_prompt=True,
+        )
+
     user.password = password
     model.repo.commit_and_remove()
-    click.secho(u'Password updated!', fg=u'green', bold=True)
+    click.secho("Password updated!", fg="green", bold=True)
 
 
 @user.group()
@@ -155,12 +155,20 @@ def token():
 @click.argument(u"extras", type=click.UNPROCESSED, nargs=-1)
 @click.option(
     u"--json",
+    "json_str",
     metavar=u"EXTRAS",
-    type=json.loads,
     default=u"{}",
     help=u"Valid JSON object with additional fields for api_token_create",
 )
-def add_token(username, token_name, extras, json):
+@click.option(
+    "--quiet",
+    "-q",
+    is_flag=True,
+    help="Output just the token itself (useful in automated scripts)",
+)
+def add_token(
+        username: str, token_name: str, extras: list[str], json_str: str,
+        quiet: bool):
     """Create a new API Token for the given user.
 
     Arbitrary fields can be passed in the form `key=value` or using
@@ -173,6 +181,7 @@ def add_token(username, token_name, extras, json):
       ckan user token add john_doe new_token x=y --json '{"prop": "value"}'
 
     """
+    data_dict = json.loads(json_str)
     for chunk in extras:
         try:
             key, value = chunk.split(u"=")
@@ -183,23 +192,25 @@ def add_token(username, token_name, extras, json):
                 )
             )
             raise click.Abort()
-        json[key] = value
-    json.update({u"user": username, u"name": token_name})
+        data_dict[key] = value
+
+    data_dict.update({u"user": username, u"name": token_name})
     try:
-        token = plugin.toolkit.get_action(u"api_token_create")(
-            {u"ignore_auth": True}, json
+        token = logic.get_action(u"api_token_create")(
+            {u"ignore_auth": True}, data_dict
         )
-    except plugin.toolkit.ObjectNotFound as e:
+    except logic.NotFound as e:
         error_shout(e)
         raise click.Abort()
-    click.secho(u"API Token created:", fg=u"green")
-    click.echo(u"\t", nl=False)
+    if not quiet:
+        click.secho(u"API Token created:", fg=u"green")
+        click.echo(u"\t", nl=False)
     click.echo(token[u"token"])
 
 
 @token.command(u"revoke")
 @click.argument(u"id")
-def revoke_token(id):
+def revoke_token(id: str):
     """Remove API Token with the given ID"""
     if not model.ApiToken.revoke(id):
         error_shout(u"API Token not found")
@@ -209,13 +220,13 @@ def revoke_token(id):
 
 @token.command(u"list")
 @click.argument(u"username")
-def list_tokens(username):
+def list_tokens(username: str):
     """List all API Tokens for the given user"""
     try:
-        tokens = plugin.toolkit.get_action(u"api_token_list")(
+        tokens = logic.get_action(u"api_token_list")(
             {u"ignore_auth": True}, {u"user": username}
         )
-    except plugin.toolkit.ObjectNotFound as e:
+    except logic.NotFound as e:
         error_shout(e)
         raise click.Abort()
     if not tokens:
@@ -226,7 +237,7 @@ def list_tokens(username):
     for token in tokens:
         last_access = token[u"last_access"]
         if last_access:
-            accessed = plugin.toolkit.h.date_str_to_datetime(
+            accessed = h.date_str_to_datetime(
                 last_access
             ).isoformat(u" ", u"seconds")
 

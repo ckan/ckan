@@ -1,4 +1,5 @@
-describe('ckan.views.filters', function(){
+// Skip view filters tests until resource views are tested in cypress
+describe.skip('ckan.views.filters', function(){
   before(() => {
     cy.visit('/');
     cy.window().then(win => {

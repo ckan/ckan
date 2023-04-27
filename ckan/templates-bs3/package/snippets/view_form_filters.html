@@ -1,0 +1,48 @@
+{% import 'macros/form.html' as form %}
+
+{% macro filtersInputs(name, selectName, inputName, label='', options='', error='', filters={}, classes=[], attrs={}, is_required=false) %}
+  {% set classes = (classes|list) %}
+  {% do classes.append('control-select') %}
+
+  {%- set extra_html = caller() if caller -%}
+  {% call form.input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
+  <div class="resource-view-filters">
+    {% for field in filters %}
+      {% for value in filters[field] %}
+        {{ selectAndInput(selectName, inputName, selectOptions=options, selected=field, inputValue=value, attrs=attrs) }}
+      {% endfor %}
+    {% endfor %}
+    </div>
+    <a href="#" class="btn btn-primary resource-view-add-filter">{{ _('Add Filter') }}</a>
+  {% endcall %}
+{% endmacro %}
+
+{% macro selectAndInput(selectName, inputName, selectOptions='', selected='', inputValue='', attrs={}) %}
+  <div>
+  <select id="{{ selectName }}" name="{{ selectName }}" {{ form.attributes(attrs) }}>
+    {% for option in selectOptions %}
+      <option value="{{ option }}"{% if option == selected %} selected{% endif %}>{{ option }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="{{ inputName }}" value="{{ inputValue }}" />
+  <span title="{{ _('Remove Filter') }}" class="resource-view-remove-filter icon fa fa-times"></span>
+  </div>
+{% endmacro %}
+
+{% set fields = h.resource_view_get_fields(resource) %}
+{% set templateFilterInputs = selectAndInput('filter_fields', 'filter_values', selectOptions=fields) %}
+{% set filters = resource_view['filters'] %}
+
+<div
+  data-module = "resource-view-filters-form"
+  data-module-resource-id = "{{ resource['id'] }}"
+  data-module-template-filter-inputs = "{{ h.remove_linebreaks(templateFilterInputs) }}"
+  data-module-filters-selector = ".resource-view-filters"
+  data-module-add-filter-selector = ".resource-view-add-filter"
+  data-module-remove-filter-selector = ".resource-view-remove-filter"
+  >
+  {{
+      filtersInputs('filters', 'filter_fields', 'filter_values',
+          label=_('Filters'), options=fields, filters=filters, classes=["control-filters"])
+  }}
+</div>

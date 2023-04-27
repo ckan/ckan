@@ -1,14 +1,12 @@
 # encoding: utf-8
 
 import pytest
-import six
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
 from ckan.tests import factories
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestHome(object):
     def test_home_renders(self, app):
         response = app.get(url_for("home.index"))
@@ -29,29 +27,32 @@ class TestHome(object):
         response = app.get(url_for("home.index"))
         assert test_html in response.body
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_nag(self, app):
         # before CKAN 1.6, users were allowed to have no email addresses
         # can't use factory to create user as without email it fails validation
         from ckan import model
 
-        user = model.user.User(name="has-no-email")
+        user = model.User(name="has-no-email", password="correct123")
         model.Session.add(user)
         model.Session.commit()
-        env = {"REMOTE_USER": six.ensure_str(user.name)}
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        user_token = factories.APIToken(user=user.id)
+        headers = {"Authorization": user_token["token"]}
+
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "update your profile" in response.body
         assert str(url_for("user.edit")) in response.body
         assert " and add your email address." in response.body
 
-    @pytest.mark.usefixtures("clean_db")
+    @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_no_nag(self, app):
         user = factories.User(email="filled_in@nicely.com")
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        user_token = factories.APIToken(user=user["name"])
 
-        response = app.get(url=url_for("home.index"), extra_environ=env)
+        headers = {"Authorization": user_token["token"]}
+        response = app.get(url=url_for("home.index"), headers=headers)
 
         assert "add your email address" not in response
 
@@ -76,7 +77,6 @@ class TestHome(object):
         assert "Welcome to CKAN" in response.body
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestI18nURLs(object):
     def test_right_urls_are_rendered_on_language_selector(self, app):
 
@@ -117,3 +117,30 @@ class TestI18nURLs(object):
                 assert option["selected"] == "selected"
             else:
                 assert not option.has_attr("selected")
+
+    def test_redirects_legacy_locales(self, app):
+        locales_mapping = [
+            ('zh_TW', 'zh_Hant_TW'),
+            ('zh_CN', 'zh_Hans_CN'),
+        ]
+
+        for locale in locales_mapping:
+
+            legacy_locale = locale[0]
+            new_locale = locale[1]
+
+            response = app.get(f'/{legacy_locale}/', follow_redirects=False)
+
+            assert response.status_code == 308
+            assert (
+                response.headers['Location'] ==
+                f'http://test.ckan.net/{new_locale}'
+            )
+
+            response = app.get(f'/{legacy_locale}/dataset?some=param', follow_redirects=False)
+
+            assert response.status_code == 308
+            assert (
+                response.headers['Location'] ==
+                f'http://test.ckan.net/{new_locale}/dataset?some=param'
+            )

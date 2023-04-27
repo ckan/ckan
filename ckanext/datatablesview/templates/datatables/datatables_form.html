@@ -3,13 +3,30 @@
 {{ form.checkbox(
   'responsive',
   id='field-responsive',
-  label=_('Responsive display'),
+  label=_('List view/Responsive display'),
   value='True',
   checked=data.responsive,
   ) }}
+{% call form.input(
+  'ellipsis_length',
+  id='field-ellipsis_length',
+  label=_('Ellipsis length'),
+  value=data.ellipsis_length,
+  is_required='True') %}
+  {{ form.info(
+  _('Length at which data will be truncated with an ellipsis for display. Set to zero for no truncation, and for data to be wrapped at column name width instead.', classes=['info-help-tight'])) }}
+{% endcall %}
+{% call form.input(
+  'date_format',
+  id='field-date_format',
+  label=_('Date format'),
+  value=data.date_format) %}
+  {{ form.info(
+  _('Moment.js date format to use for displaying dates (see <a href="https://devhints.io/moment#formatting-1" target="_blank">Moment.js cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown.', classes=['info-help-tight'])) }}
+{% endcall %}
 
 <div class="control-group">
-  <label class="control-label">{{ _('Show Columns') }}</label>
+  <label class="form-label">{{ _('Show Columns') }}</label>
   <div class="controls">
     <table class="table table-striped table-bordered">
       <thead>
@@ -18,18 +35,32 @@
           <th scope="col">{{ _('Label') }}</th>
         </tr>
       </thead>
-      {% for f in [{'id': '_id'}] + h.datastore_dictionary(resource.id) %}
         <tr>
           <td>
             <label class="checkbox">
             <input type="checkbox"
             name="show_fields"
-            id="field-show_fields_{{ loop.index }}"
+            id="field-show_fields_1" readonly onclick="return false"
+            value="_id" checked/>_id</label>
+          </td>
+          <td></td>
+        </tr>
+      {% for f in h.datastore_dictionary(resource.id) %}
+        <tr>
+          <td>
+            <label class="checkbox">
+            <input type="checkbox"
+            name="show_fields"
+            id="field-show_fields_{{ loop.index + 1 }}"
             value="{{ f.id }}"
             {{ 'checked' if 'show_fields' not in data else
               'checked' if f.id in data.show_fields else '' }}
             />{{ f.id }}</label></td>
-          <td>{{ f.get('info', {}).label }}</td>
+          <td>
+            {%- block dict_field_label scoped -%}
+              {{ f.get('info', {}).label }}
+            {%- endblock -%}
+          </td>
         </tr>
       {% endfor %}
     </table>

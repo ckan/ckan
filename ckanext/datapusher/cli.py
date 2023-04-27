@@ -1,8 +1,11 @@
 # encoding: utf-8
 
-from __future__ import print_function
+from __future__ import annotations
+
+from ckan.types import Context
 
 import logging
+from typing import cast
 
 import click
 
@@ -23,21 +26,22 @@ requires_confirmation = click.option(
 )
 
 
-def confirm(yes):
+def confirm(yes: bool):
     if yes:
         return
     click.confirm(question, abort=True)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands in the datapusher.")
 def datapusher():
-    u'''Perform commands in the datapusher.
-    '''
+    """Perform commands in the datapusher.
+    """
+    pass
 
 
 @datapusher.command()
 @requires_confirmation
-def resubmit(yes):
+def resubmit(yes: bool):
     u'''Resubmit updated datastore resources.
     '''
     confirm(yes)
@@ -49,7 +53,7 @@ def resubmit(yes):
 @datapusher.command()
 @click.argument(u'package', required=False)
 @requires_confirmation
-def submit(package, yes):
+def submit(package: str, yes: bool):
     u'''Submits resources from package.
 
     If no package ID/name specified, submits all resources from all
@@ -58,20 +62,20 @@ def submit(package, yes):
     confirm(yes)
 
     if not package:
-        ids = tk.get_action(u'package_list')({
+        ids = tk.get_action(u'package_list')(cast(Context, {
             u'model': model,
             u'ignore_auth': True
-        }, {})
+        }), {})
     else:
         ids = [package]
 
     for id in ids:
         package_show = tk.get_action(u'package_show')
         try:
-            pkg = package_show({
+            pkg = package_show(cast(Context, {
                 u'model': model,
                 u'ignore_auth': True
-            }, {u'id': id})
+            }), {u'id': id})
         except Exception as e:
             error_shout(e)
             error_shout(u"Package '{}' was not found".format(package))
@@ -82,12 +86,12 @@ def submit(package, yes):
         _submit(resource_ids)
 
 
-def _submit(resources):
+def _submit(resources: list[str]):
     click.echo(u'Submitting {} datastore resources'.format(len(resources)))
-    user = tk.get_action(u'get_site_user')({
+    user = tk.get_action(u'get_site_user')(cast(Context, {
         u'model': model,
         u'ignore_auth': True
-    }, {})
+    }), {})
     datapusher_submit = tk.get_action(u'datapusher_submit')
     for id in resources:
         click.echo(u'Submitting {}...'.format(id), nl=False)

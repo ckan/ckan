@@ -1,0 +1,27 @@
+{% ckan_extends %}
+
+{% block breadcrumb_content %}
+  <li class="active"><a href="{{ h.url_for('activity.dashboard') }}">{{ _('Dashboard') }}</a></li>
+{% endblock %}
+
+{% block dashboard_nav_links %}
+  {{ h.build_nav_icon('activity.dashboard', _('News feed'), icon='list') }}
+  {{ super() }}
+{% endblock %}
+
+
+{% block primary_content_inner %}
+  <div data-module="dashboard">
+    {% snippet 'user/snippets/followee_dropdown.html', context=dashboard_activity_stream_context, followees=followee_list %}
+    <h2 class="page-heading mb-4">
+      {% block page_heading %}
+        {{ _('News feed') }}
+      {% endblock %}
+      <small class="text-muted fs-5">{{ _("Activity from items that I'm following") }}</small>
+    </h2>
+    {% snippet 'snippets/stream.html', activity_stream=dashboard_activity_stream %}
+  </div>
+
+  {% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
+
+{% endblock %}

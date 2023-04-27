@@ -1,0 +1,19 @@
+main-css:
+  output: ckanext-datatablesview/%(version)s_datatablesview.css
+  filters: cssrewrite
+  contents:
+    - vendor/DataTables/datatables.css
+    - vendor/DataTables/datatables.mark.css
+    - datatables_view.css
+main-js:
+  output: ckanext-datatablesview/%(version)s_datatablesview.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - vendor/DataTables/datatables.js
+    - vendor/DataTables/datatables.mark.js
+    - vendor/DataTables/jquery.mark.js
+    - vendor/DataTables/dataTables.scrollResize.js
+    - vendor/DataTables/datetime.js
+    - datatablesview.js

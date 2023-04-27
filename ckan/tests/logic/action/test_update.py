@@ -2,31 +2,21 @@
 """Unit tests for ckan/logic/action/update.py."""
 import datetime
 
-import mock
+import unittest.mock as mock
 import pytest
-import six
 
-import ckan
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
+from ckan.logic.action.get import package_show as core_package_show
 import ckan.plugins as p
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan import model
-
+from ckan.lib.navl.dictization_functions import DataError
 from freezegun import freeze_time
 
 
-def datetime_from_string(s):
-    """Return a standard datetime.datetime object initialised from a string in
-    the same format used for timestamps in dictized activities (the format
-    produced by datetime.datetime.isoformat())
-
-    """
-    return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUpdate(object):
     def teardown(self):
         # Since some of the test methods below use the mock module to patch
@@ -57,54 +47,15 @@ class TestUpdate(object):
 
     # END-BEFORE
 
-    def test_user_generate_apikey(self):
-        user = factories.User()
-        context = {"user": user["name"]}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_sysadmin_user(self):
-        user = factories.User()
-        sysadmin = factories.Sysadmin()
-        context = {"user": sysadmin["name"], "ignore_auth": False}
-        result = helpers.call_action(
-            "user_generate_apikey", context=context, id=user["id"]
-        )
-        updated_user = helpers.call_action(
-            "user_show", context=context, id=user["id"]
-        )
-
-        assert updated_user["apikey"] != user["apikey"]
-        assert result["apikey"] == updated_user["apikey"]
-
-    def test_user_generate_apikey_nonexistent_user(self):
-        user = {
-            "id": "nonexistent",
-            "name": "nonexistent",
-            "email": "does@notexist.com",
-        }
-        context = {"user": user["name"]}
-        with pytest.raises(logic.NotFound):
-            helpers.call_action(
-                "user_generate_apikey", context=context, id=user["id"]
-            )
-
     def test_user_update_with_id_that_does_not_exist(self):
-        user_dict = factories.User.attributes()()
+        user_dict = vars(factories.User.stub())
         user_dict["id"] = "there's no user with this id"
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_update", **user_dict)
 
     def test_user_update_with_no_id(self):
-        user_dict = factories.User.attributes()()
+        user_dict = vars(factories.User.stub())
         assert "id" not in user_dict
         with pytest.raises(logic.ValidationError):
             helpers.call_action("user_update", **user_dict)
@@ -133,8 +84,8 @@ class TestUpdate(object):
             helpers.call_action("user_update", **user)
 
     def test_user_update_to_name_that_already_exists(self):
-        fred = factories.User(name="fred")
-        bob = factories.User(name="bob")
+        fred = factories.User()
+        bob = factories.User()
 
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
@@ -179,7 +130,7 @@ class TestUpdate(object):
         changed either.
 
         """
-        user_dict = factories.User.attributes()()
+        user_dict = vars(factories.User.stub())
         original_password = user_dict["password"]
         user_dict = factories.User(**user_dict)
 
@@ -229,35 +180,6 @@ class TestUpdate(object):
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
 
-    def test_user_update_activity_stream(self):
-        """Test that the right activity is emitted when updating a user."""
-
-        user = factories.User()
-        before = datetime.datetime.utcnow()
-
-        # FIXME we have to pass the email address and password to user_update
-        # even though we're not updating those fields, otherwise validation
-        # fails.
-        helpers.call_action(
-            "user_update",
-            id=user["id"],
-            name=user["name"],
-            email=user["email"],
-            password=factories.User.password,
-            fullname="updated full name",
-        )
-
-        activity_stream = helpers.call_action(
-            "user_activity_list", id=user["id"]
-        )
-        latest_activity = activity_stream[0]
-        assert latest_activity["activity_type"] == "changed user"
-        assert latest_activity["object_id"] == user["id"]
-        assert latest_activity["user_id"] == user["id"]
-        after = datetime.datetime.utcnow()
-        timestamp = datetime_from_string(latest_activity["timestamp"])
-        assert timestamp >= before and timestamp <= after
-
     def test_user_update_with_custom_schema(self):
         """Test that custom schemas passed to user_update do get used.
 
@@ -274,8 +196,13 @@ class TestUpdate(object):
         user = factories.User()
 
         # A mock validator method, it doesn't do anything but it records what
-        # params it gets called with and how many times.
-        mock_validator = mock.MagicMock()
+        # params it gets called with and how many times. We are using function
+        # instead of MagicMock, because validator must have __code__ attribute
+        calls = []
+
+        def mock_validator(v):
+            calls.append(v)
+            return v
 
         # Build a custom schema by taking the default schema and adding our
         # mock method to its 'id' field.
@@ -291,9 +218,10 @@ class TestUpdate(object):
             id=user["id"],
             name=user["name"],
             email=user["email"],
-            password=factories.User.password,
+            password=factories.User.stub().password,
             fullname="updated full name",
         )
+        assert calls == [user["id"]]
 
     def test_user_update_multiple(self):
         """Test that updating multiple user attributes at once works."""
@@ -309,7 +237,7 @@ class TestUpdate(object):
             "email": user["email"],
             # FIXME: We shouldn't have to put password here since we're not
             # updating it, but user_update sucks.
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         helpers.call_action("user_update", **params)
@@ -329,7 +257,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -345,7 +273,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -366,7 +294,7 @@ class TestUpdate(object):
             "fullname": "updated full name",
             "about": "updated about",
             "email": user["email"],
-            "password": factories.User.password,
+            "password": factories.User.stub().password,
         }
 
         updated_user = helpers.call_action("user_update", **params)
@@ -427,6 +355,29 @@ class TestUpdate(object):
             "http://a.html",
         ]
 
+    def test_normal_user_can_not_change_their_state(self):
+
+        user = factories.User(state='pending')
+
+        user['state'] = 'active'
+
+        updated_user = helpers.call_action("user_update", **user)
+
+        updated_user['state'] == 'pending'
+
+    def test_sysadmin_user_can_change_a_user_state(self):
+
+        user = factories.User(state='pending')
+        sysadmin = factories.Sysadmin()
+
+        user['state'] = 'active'
+
+        context = {'user': sysadmin['name']}
+
+        updated_user = helpers.call_action("user_update", context=context, **user)
+
+        updated_user['state'] == 'active'
+
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
         dataset = factories.Dataset(
@@ -449,30 +400,23 @@ class TestUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        org = factories.Organization(
-            type="organization", name="unchanging", user=user
-        )
+        org = factories.Organization(type="organization", user=user)
 
-        org = helpers.call_action(
-            "organization_update",
-            context=context,
-            id=org["id"],
-            name="unchanging",
-            type="ragtagband",
-        )
-
-        assert org["type"] == "organization"
-        assert (
-            helpers.call_action("organization_show", id="unchanging")["type"]
-            == "organization"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "organization_update",
+                context=context,
+                id=org["id"],
+                name=org["name"],
+                type="ragtagband",
+            )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetUpdate(object):
     def test_missing_id(self):
         user = factories.User()
-        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user)
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action("package_update")
@@ -481,14 +425,15 @@ class TestDatasetUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
 
+        stub = factories.Dataset.stub()
         dataset_ = helpers.call_action(
-            "package_update", id=dataset["id"], name="new-name"
+            "package_update", id=dataset["id"], name=stub.name
         )
 
-        assert dataset_["name"] == "new-name"
+        assert dataset_["name"] == stub.name
         assert (
             helpers.call_action("package_show", id=dataset["id"])["name"]
-            == "new-name"
+            == stub.name
         )
 
     def test_title(self):
@@ -512,7 +457,7 @@ class TestDatasetUpdate(object):
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            extras=[{"key": u"original media", "value": u'"book"'}],
+            extras=[{"key": "original media", "value": '"book"'}],
         )
 
         assert dataset_["extras"][0]["key"] == "original media"
@@ -529,8 +474,8 @@ class TestDatasetUpdate(object):
             "package_update",
             id=dataset["id"],
             extras=[
-                {"key": u"old attribute", "value": u'value'},
-                {"key": u"original media", "value": u'"book"'},
+                {"key": "old attribute", "value": "value"},
+                {"key": "original media", "value": '"book"'},
             ],
         )
 
@@ -548,8 +493,8 @@ class TestDatasetUpdate(object):
             "package_update",
             id=dataset["id"],
             extras=[
-                {"key": u"original media", "value": u'"book"'},
-                {"key": u"new attribute", "value": u'value'},
+                {"key": "original media", "value": '"book"'},
+                {"key": "new attribute", "value": "value"},
             ],
         )
 
@@ -588,20 +533,20 @@ class TestDatasetUpdate(object):
             id=dataset["id"],
             resources=[
                 {
-                    "alt_url": u"alt123",
-                    "description": u"Full text.",
+                    "alt_url": "alt123",
+                    "description": "Full text.",
                     "somekey": "somevalue",  # this is how to do resource extras
-                    "extras": {u"someotherkey": u"alt234"},  # this isnt
-                    "format": u"plain text",
-                    "hash": u"abc123",
+                    "extras": {"someotherkey": "alt234"},  # this isn't
+                    "format": "plain text",
+                    "hash": "abc123",
                     "position": 0,
-                    "url": u"http://datahub.io/download/",
+                    "url": "http://datahub.io/download/",
                 },
                 {
-                    "description": u"Index of the novel",
-                    "format": u"JSON",
+                    "description": "Index of the novel",
+                    "format": "JSON",
                     "position": 1,
-                    "url": u"http://datahub.io/index.json",
+                    "url": "http://datahub.io/index.json",
                 },
             ],
         )
@@ -640,18 +585,19 @@ class TestDatasetUpdate(object):
     def test_tags(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-
+        tag1 = factories.Tag.stub().name
+        tag2 = factories.Tag.stub().name
         dataset_ = helpers.call_action(
             "package_update",
             id=dataset["id"],
-            tags=[{"name": u"russian"}, {"name": u"tolstoy"}],
+            tags=[{"name": tag1}, {"name": tag2}],
         )
 
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
         dataset_ = helpers.call_action("package_show", id=dataset["id"])
-        tag_names = sorted([tag_dict["name"] for tag_dict in dataset_["tags"]])
-        assert tag_names == ["russian", "tolstoy"]
+        tag_names = sorted(tag_dict["name"] for tag_dict in dataset_["tags"])
+        assert tag_names == sorted([tag1, tag2])
 
     def test_return_id_only(self):
         user = factories.User()
@@ -667,26 +613,9 @@ class TestDatasetUpdate(object):
         assert updated_dataset == dataset["id"]
 
 
-@pytest.mark.usefixtures("with_request_context")
-class TestUpdateSendEmailNotifications(object):
-    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", True)
-    @mock.patch("ckan.logic.action.update.request")
-    def test_calling_through_paster_doesnt_validates_auth(self, mock_request):
-        mock_request.environ.get.return_value = True
-        helpers.call_action("send_email_notifications")
-
-    @pytest.mark.ckan_config("ckan.activity_streams_email_notifications", True)
-    @mock.patch("ckan.logic.action.update.request")
-    def test_not_calling_through_paster_validates_auth(self, mock_request):
-        mock_request.environ.get.return_value = False
-        with pytest.raises(logic.NotAuthorized):
-            helpers.call_action(
-                "send_email_notifications", context={"ignore_auth": False}
-            )
-
-
+@pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceViewUpdate(object):
     def test_resource_view_update(self):
         resource_view = factories.ResourceView()
@@ -778,7 +707,7 @@ class TestResourceViewUpdate(object):
             resource_id=resource_id, title="View 2"
         )
 
-        # Reorder Views back just by specifiying a single view to go first
+        # Reorder Views back just by specifying a single view to go first
 
         result = helpers.call_action(
             "resource_view_reorder",
@@ -805,10 +734,9 @@ class TestResourceViewUpdate(object):
         assert result == resource_view
 
 
-@pytest.mark.ckan_config("ckan.plugins", "image_view recline_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.ckan_config("ckan.plugins", "image_view text_view resource_proxy")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
-
     def test_url_only(self):
         dataset = factories.Dataset()
         resource = factories.Resource(package=dataset, url="http://first")
@@ -981,7 +909,7 @@ class TestResourceUpdate(object):
 
         assert "datastore_active" not in res_returned
 
-    def test_mimetype_by_url(self, monkeypatch, tmpdir):
+    def test_mimetype_by_url(self, monkeypatch, ckan_config, tmpdir):
         """The mimetype is guessed from the url
 
         Real world usage would be externally linking the resource and
@@ -992,7 +920,7 @@ class TestResourceUpdate(object):
         resource = factories.Resource(
             package=dataset, url="http://localhost/data.csv", name="Test"
         )
-        monkeypatch.setattr(ckan.lib.uploader, "_storage_path", str(tmpdir))
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
             id=resource["id"],
@@ -1053,9 +981,13 @@ class TestResourceUpdate(object):
         """
 
         res_update = create_with_upload(
-            content, "update_test", action="resource_update",
-            id=resource["id"], url="http://localhost",
-            package_id=dataset["id"])
+            content,
+            "update_test",
+            action="resource_update",
+            id=resource["id"],
+            url="http://localhost",
+            package_id=dataset["id"],
+        )
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1091,8 +1023,11 @@ class TestResourceUpdate(object):
         """
         dataset = factories.Dataset()
         resource = create_with_upload(
-            content, 'test.json',
-            package_id=dataset['id'], url="http://localhost")
+            content,
+            "test.json",
+            package_id=dataset["id"],
+            url="http://localhost",
+        )
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1102,9 +1037,13 @@ class TestResourceUpdate(object):
         """
 
         res_update = create_with_upload(
-            content, "update_test.csv", action="resource_update",
-            id=resource["id"], url="http://localhost",
-            package_id=dataset['id'])
+            content,
+            "update_test.csv",
+            action="resource_update",
+            id=resource["id"],
+            url="http://localhost",
+            package_id=dataset["id"],
+        )
 
         org_mimetype = resource.pop("mimetype")
         upd_mimetype = res_update.pop("mimetype")
@@ -1139,9 +1078,7 @@ class TestResourceUpdate(object):
         assert org_size < upd_size
 
     def test_size_of_resource_by_upload(self, create_with_upload):
-        """The size of the resource determined by the uploaded file
-
-        """
+        """The size of the resource determined by the uploaded file"""
         content = """
         "info": {
             "title": "BC Data Catalogue API",
@@ -1163,8 +1100,11 @@ class TestResourceUpdate(object):
         dataset = factories.Dataset()
 
         resource = create_with_upload(
-            content, 'test.json',
-            package_id=dataset['id'], url="http://localhost")
+            content,
+            "test.json",
+            package_id=dataset["id"],
+            url="http://localhost",
+        )
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1173,9 +1113,13 @@ class TestResourceUpdate(object):
         NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
         """
         res_update = create_with_upload(
-            content, "update_test.csv", action="resource_update",
-            id=resource["id"], url="http://localhost",
-            package_id=dataset["id"])
+            content,
+            "update_test.csv",
+            action="resource_update",
+            id=resource["id"],
+            url="http://localhost",
+            package_id=dataset["id"],
+        )
 
         org_size = int(resource.pop("size"))  # 669 bytes
         upd_size = int(res_update.pop("size"))  # 358 bytes
@@ -1186,16 +1130,16 @@ class TestResourceUpdate(object):
         user = factories.User()
         dataset = factories.Dataset(
             user=user,
-            resources=[dict(format=u"json", url=u"http://datahub.io/")],
+            resources=[dict(format="json", url="http://datahub.io/")],
         )
 
         resource = helpers.call_action(
             "resource_update",
             id=dataset["resources"][0]["id"],
             somekey="somevalue",  # this is how to do resource extras
-            extras={u"someotherkey": u"alt234"},  # this isnt
-            format=u"plain text",
-            url=u"http://datahub.io/download/",
+            extras={"someotherkey": "alt234"},  # this isn't
+            format="plain text",
+            url="http://datahub.io/download/",
         )
 
         assert resource["somekey"] == "somevalue"
@@ -1208,15 +1152,15 @@ class TestResourceUpdate(object):
         assert "extras" not in resource
         assert "someotherkey" not in resource
 
-    @helpers.change_config(
-        "ckan.views.default_views", "image_view recline_view"
+    @pytest.mark.ckan_config(
+        "ckan.views.default_views", "image_view text_view"
     )
     def test_resource_format_update(self):
         dataset = factories.Dataset()
 
         # Create resource without format
         resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test"
+            package=dataset, url="http://localhost", name="Test", format=""
         )
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
@@ -1226,11 +1170,11 @@ class TestResourceUpdate(object):
 
         # Update resource with format
         resource = helpers.call_action(
-            "resource_update", id=resource["id"], format="CSV"
+            "resource_update", id=resource["id"], format="TXT"
         )
 
         # Format changed
-        assert resource["format"] == "CSV"
+        assert resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
@@ -1240,7 +1184,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
         second_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2", format="CSV"
+            package=dataset, url="http://localhost", name="Test2", format="TXT"
         )
 
         res_views = helpers.call_action(
@@ -1263,7 +1207,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 2
 
         third_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2"
+            package=dataset, url="http://localhost", name="Test3", format=""
         )
 
         res_views = helpers.call_action(
@@ -1287,11 +1231,11 @@ class TestResourceUpdate(object):
         assert len(res_views) == 0
 
         third_resource = helpers.call_action(
-            "resource_update", id=third_resource["id"], format="CSV"
+            "resource_update", id=third_resource["id"], format="TXT"
         )
 
         # Format changed
-        assert third_resource["format"] == "CSV"
+        assert third_resource["format"] == "TXT"
 
         res_views = helpers.call_action(
             "resource_view_list", id=third_resource["id"]
@@ -1302,113 +1246,155 @@ class TestResourceUpdate(object):
 
     def test_edit_metadata_updates_metadata_modified_field(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource(package_id=dataset["id"])
 
-        with freeze_time('2020-02-25 12:00:00'):
+        with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
                 "resource_update",
                 id=resource["id"],
-                description='New Description',
+                description="New Description",
             )
-            assert resource['metadata_modified'] == '2020-02-25T12:00:00'
+            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_same_values_dont_update_metadata_modified_field(self):
         dataset = factories.Dataset()
 
-        with freeze_time('1987-03-04 23:30:00'):
+        with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset['id'],
-                description='Test',
-                some_custom_field='test',
+                package_id=dataset["id"],
+                description="Test",
+                some_custom_field="test",
+                url="http://link.to.some.data",
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
 
-        with freeze_time('2020-02-25 12:00:00'):
+        with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
                 "resource_update",
                 id=resource["id"],
-                description='Test',
-                some_custom_field='test',
-                url='http://link.to.some.data'  # Default Value from Factory
+                description="Test",
+                some_custom_field="test",
+                url="http://link.to.some.data",  # Default Value from Factory
             )
-            assert (resource['metadata_modified'] !=
-                    datetime.datetime.utcnow().isoformat())
-            assert (resource['metadata_modified'] ==
-                    '1987-03-04T23:30:00')
+            assert (
+                resource["metadata_modified"]
+                != datetime.datetime.utcnow().isoformat()
+            )
+            assert resource["metadata_modified"] == "1987-03-04T23:30:00"
 
     def test_new_keys_update_metadata_modified_field(self):
         dataset = factories.Dataset()
 
-        with freeze_time('1987-03-04 23:30:00'):
-            resource = factories.Resource(package_id=dataset['id'], description='test')
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
+        with freeze_time("1987-03-04 23:30:00"):
+            resource = factories.Resource(
+                package_id=dataset["id"], description="test"
+            )
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
 
-        with freeze_time('2020-02-25 12:00:00'):
+        with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
                 "resource_update",
                 id=resource["id"],
-                description='test',
-                some_custom_field='test',
-                url='http://link.to.some.data'  # default value from factory
+                description="test",
+                some_custom_field="test",
+                url="http://link.to.some.data",  # default value from factory
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
-            assert (resource['metadata_modified'] ==
-                    '2020-02-25T12:00:00')
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
+            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_remove_keys_update_metadata_modified_field(self):
         dataset = factories.Dataset()
 
-        with freeze_time('1987-03-04 23:30:00'):
+        with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset['id'],
-                description='test',
-                some_custom_field='test',
+                package_id=dataset["id"],
+                description="test",
+                some_custom_field="test",
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
 
-        with freeze_time('2020-02-25 12:00:00'):
+        with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
                 "resource_update",
                 id=resource["id"],
-                description='test',
-                url='http://link.to.some.data'  # default value from factory
+                description="test",
+                url="http://link.to.some.data",  # default value from factory
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
-            assert (resource['metadata_modified'] ==
-                    '2020-02-25T12:00:00')
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
+            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_update_keys_update_metadata_modified_field(self):
         dataset = factories.Dataset()
 
-        with freeze_time('1987-03-04 23:30:00'):
+        with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset['id'],
-                description='test',
-                some_custom_field='test',
+                package_id=dataset["id"],
+                description="test",
+                some_custom_field="test",
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
 
-        with freeze_time('2020-02-25 12:00:00'):
+        with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
                 "resource_update",
                 id=resource["id"],
-                description='test',
-                some_custom_field='test2',
-                url='http://link.to.some.data'  # default value from factory
+                description="test",
+                some_custom_field="test2",
+                url="http://link.to.some.data",  # default value from factory
             )
-            assert (resource['metadata_modified'] ==
-                    datetime.datetime.utcnow().isoformat())
-            assert (resource['metadata_modified'] ==
-                    '2020-02-25T12:00:00')
+            assert (
+                resource["metadata_modified"]
+                == datetime.datetime.utcnow().isoformat()
+            )
+            assert resource["metadata_modified"] == "2020-02-25T12:00:00"
+
+    def test_resource_update_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_update', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_reorder_for_update(self):
+
+        dataset = factories.Dataset()
+        resource1 = factories.Resource(package_id=dataset['id'])
+        resource2 = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action(
+                'package_resource_reorder',
+                id=dataset['id'], order=[resource2['id'], resource1['id']])
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
 
     # NOTE: the opposite is tested in
@@ -1429,7 +1415,7 @@ class TestConfigOptionUpdate(object):
         assert getattr(app_globals.app_globals, globals_key) == value
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserUpdate(object):
     def test_user_update_with_password_hash(self):
         sysadmin = factories.Sysadmin()
@@ -1438,7 +1424,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=sysadmin["email"],
             id=sysadmin["name"],
             password_hash="pretend-this-is-a-valid-hash",
         )
@@ -1453,7 +1439,7 @@ class TestUserUpdate(object):
         user = helpers.call_action(
             "user_update",
             context=context,
-            email="test@example.com",
+            email=normal_user["email"],
             id=normal_user["name"],
             password="required",
             password_hash="pretend-this-is-a-valid-hash",
@@ -1463,30 +1449,30 @@ class TestUserUpdate(object):
         assert user_obj.password != "pretend-this-is-a-valid-hash"
 
     def test_user_update_image_url(self):
-        user = factories.User(image_url='user_image.jpg')
+        user = factories.User(image_url="user_image.jpg")
         context = {"user": user["name"]}
 
         user = helpers.call_action(
             "user_update",
             context=context,
             id=user["name"],
-            email="test@example.com",
+            email=user["email"],
             image_url="new_image_url.jpg",
         )
 
         assert user["image_url"] == "new_image_url.jpg"
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestGroupUpdate(object):
     def test_group_update_image_url_field(self):
         user = factories.User()
         context = {"user": user["name"]}
         group = factories.Group(
             type="group",
-            name="testing",
             user=user,
-            image_url='group_image.jpg')
+            image_url="group_image.jpg",
+        )
 
         group = helpers.call_action(
             "group_update",
@@ -1494,7 +1480,7 @@ class TestGroupUpdate(object):
             id=group["id"],
             name=group["name"],
             type=group["type"],
-            image_url="new_image_url.jpg"
+            image_url="new_image_url.jpg",
         )
 
         assert group["image_url"] == "new_image_url.jpg"
@@ -1502,24 +1488,19 @@ class TestGroupUpdate(object):
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
-        group = factories.Group(type="group", name="unchanging", user=user)
+        group = factories.Group(type="group", user=user)
 
-        group = helpers.call_action(
-            "group_update",
-            context=context,
-            id=group["id"],
-            name="unchanging",
-            type="favouritecolour",
-        )
-
-        assert group["type"] == "group"
-        assert (
-            helpers.call_action("group_show", id="unchanging")["type"]
-            == "group"
-        )
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_update",
+                context=context,
+                name=group["name"],
+                id=group["id"],
+                type="favouritecolour",
+            )
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPackageOwnerOrgUpdate(object):
     def test_package_owner_org_added(self):
         """A package without an owner_org can have one added."""
@@ -1572,7 +1553,7 @@ class TestPackageOwnerOrgUpdate(object):
         assert dataset_obj.owner_org is None
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestBulkOperations(object):
     def test_bulk_make_private(self):
 
@@ -1635,10 +1616,6 @@ class TestBulkOperations(object):
         )
         for dataset in datasets:
             assert not (dataset.private)
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]['activity_type'] == 'changed package'
 
     def test_bulk_delete(self):
 
@@ -1670,345 +1647,320 @@ class TestBulkOperations(object):
         for dataset in datasets:
             assert dataset.state == "deleted"
 
-        activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
-        )
-        assert activities[0]['activity_type'] == 'deleted package'
 
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-class TestDashboardMarkActivitiesOld(object):
-    def test_mark_as_old_some_activities_by_a_followed_user(self):
-        # do some activity that will show up on user's dashboard
-        user = factories.User()
-        # now some activity that is "new" because it is by a followed user
-        followed_user = factories.User()
-        helpers.call_action(
-            "follow_user", context={"user": user["name"]}, **followed_user
-        )
-        dataset = factories.Dataset(user=followed_user)
-        dataset["title"] = "Dataset with changed title"
-        helpers.call_action(
-            "package_update",
-            context={"user": followed_user["name"]},
-            **dataset
-        )
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 3
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", True),
-            ("new package", True),
-            ("changed package", True),
-        ]
-
-        helpers.call_action(
-            "dashboard_mark_activities_old", context={"user": user["name"]}
-        )
-
-        assert (
-            helpers.call_action(
-                "dashboard_new_activities_count", context={"user": user["id"]}
-            )
-            == 0
-        )
-        activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
-        )
-        assert [
-            (activity["activity_type"], activity["is_new"])
-            for activity in activities[::-1]
-        ] == [
-            ("new user", False),
-            ("new user", False),
-            ("new package", False),
-            ("changed package", False),
-        ]
-
-
-@pytest.mark.usefixtures("clean_db", "with_request_context")
-@pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.ckan_config("ckan.auth.allow_dataset_collaborators", True)
 class TestCollaboratorsUpdate(object):
-
-    @pytest.mark.ckan_config('ckan.auth.allow_admin_collaborators', True)
-    @pytest.mark.parametrize('role', ['admin', 'editor'])
+    @pytest.mark.ckan_config("ckan.auth.allow_admin_collaborators", True)
+    @pytest.mark.parametrize("role", ["admin", "editor"])
     def test_collaborators_can_update_resources(self, role):
 
         org1 = factories.Organization()
-        dataset = factories.Dataset(owner_org=org1['id'])
-        resource = factories.Resource(package_id=dataset['id'])
+        dataset = factories.Dataset(owner_org=org1["id"])
+        resource = factories.Resource(package_id=dataset["id"])
 
         user = factories.User()
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity=role)
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity=role,
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
         updated_resource = helpers.call_action(
-            'resource_update',
+            "resource_update",
             context=context,
-            id=resource['id'],
-            description='updated')
+            id=resource["id"],
+            description="updated",
+        )
 
-        assert updated_resource['description'] == 'updated'
+        assert updated_resource["description"] == "updated"
 
     def test_collaborators_can_not_change_owner_org_by_default(self):
 
         org1 = factories.Organization()
-        dataset = factories.Dataset(owner_org=org1['id'])
+        dataset = factories.Dataset(owner_org=org1["id"])
 
         user = factories.User()
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
-        dataset['owner_org'] = org2['id']
+        dataset["owner_org"] = org2["id"]
 
         with pytest.raises(logic.ValidationError) as e:
-            helpers.call_action('package_update', context=context, **dataset)
+            helpers.call_action("package_update", context=context, **dataset)
 
-        assert e.value.error_dict['owner_org'] == [
-            'You cannot move this dataset to another organization']
+        assert e.value.error_dict["owner_org"] == [
+            "You cannot move this dataset to another organization"
+        ]
 
-    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    @pytest.mark.ckan_config(
+        "ckan.auth.allow_collaborators_to_change_owner_org", True
+    )
     def test_collaborators_can_change_owner_org_if_config_true(self):
         org1 = factories.Organization()
-        dataset = factories.Dataset(owner_org=org1['id'])
+        dataset = factories.Dataset(owner_org=org1["id"])
 
         user = factories.User()
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
-        dataset['owner_org'] = org2['id']
+        dataset["owner_org"] = org2["id"]
 
-        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+        updated_dataset = helpers.call_action(
+            "package_update", context=context, **dataset
+        )
 
-        assert updated_dataset['owner_org'] == org2['id']
+        assert updated_dataset["owner_org"] == org2["id"]
 
-    @pytest.mark.ckan_config('ckan.auth.allow_collaborators_to_change_owner_org', True)
+    @pytest.mark.ckan_config(
+        "ckan.auth.allow_collaborators_to_change_owner_org", True
+    )
     def test_editors_can_change_owner_org_even_if_collaborators(self):
 
         user = factories.User()
 
-        org1 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
-        dataset = factories.Dataset(owner_org=org1['id'])
+        org1 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        dataset = factories.Dataset(owner_org=org1["id"])
 
-        org2 = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org2 = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
 
         helpers.call_action(
-            'package_collaborator_create',
-            id=dataset['id'], user_id=user['id'], capacity='editor')
+            "package_collaborator_create",
+            id=dataset["id"],
+            user_id=user["id"],
+            capacity="editor",
+        )
 
         context = {
-            'user': user['name'],
-            'ignore_auth': False,
-
+            "user": user["name"],
+            "ignore_auth": False,
         }
 
-        dataset['owner_org'] = org2['id']
+        dataset["owner_org"] = org2["id"]
 
-        updated_dataset = helpers.call_action('package_update', context=context, **dataset)
+        updated_dataset = helpers.call_action(
+            "package_update", context=context, **dataset
+        )
 
-        assert updated_dataset['owner_org'] == org2['id']
+        assert updated_dataset["owner_org"] == org2["id"]
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestDatasetRevise(object):
     def test_revise_description(self):
-        factories.Dataset(name='xyz', notes='old notes')
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
-            'package_revise',
-            match={'notes': 'old notes', 'name': 'xyz'},
-            update={'notes': 'new notes'},
+            "package_revise",
+            match={"notes": "old notes", "name": dataset["name"]},
+            update={"notes": "new notes"},
         )
-        assert response['package']['notes'] == 'new notes'
+        assert response["package"]["notes"] == "new notes"
 
     def test_revise_failed_match(self):
-        factories.Dataset(name='xyz', notes='old notes')
+        dataset = factories.Dataset(notes="old notes")
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-                'package_revise',
-                match={'notes': 'wrong notes', 'name': 'xyz'},
-                update={'notes': 'new notes'},
+                "package_revise",
+                match={"notes": "wrong notes", "name": dataset["name"]},
+                update={"notes": "new notes"},
             )
 
     def test_revise_description_flattened(self):
-        factories.Dataset(name='xyz', notes='old notes')
+        dataset = factories.Dataset(notes="old notes")
         response = helpers.call_action(
-            'package_revise',
-            match__notes='old notes',
-            match__name='xyz',
-            update__notes='new notes',
+            "package_revise",
+            match__notes="old notes",
+            match__name=dataset["name"],
+            update__notes="new notes",
         )
-        assert response['package']['notes'] == 'new notes'
+        assert response["package"]["notes"] == "new notes"
 
     def test_revise_dataset_fields_only(self):
         dataset = factories.Dataset(
-            name='xyz',
-            notes='old notes',
-            resources=[{'url': 'http://example.com'}])
-        response = helpers.call_action(
-            'package_revise',
-            match={'id': dataset['id']},
-            filter=[
-                '+resources',  # keep everything under resources
-                '-*',  # remove everything else
-            ],
-            update={'name': 'fresh-start', 'title': 'Fresh Start'},
+            notes="old notes",
+            resources=[{"url": "http://example.com"}],
         )
-        assert response['package']['notes'] is None
-        assert response['package']['name'] == 'fresh-start'
-        assert response['package']['resources'][0]['url'] == 'http://example.com'
+        stub = factories.Dataset.stub()
+        response = helpers.call_action(
+            "package_revise",
+            match={"id": dataset["id"]},
+            filter=[
+                "+resources",  # keep everything under resources
+                "-*",  # remove everything else
+            ],
+            update={"name": stub.name, "title": "Fresh Start"},
+        )
+        assert response["package"]["notes"] is None
+        assert response["package"]["name"] == stub.name
+        assert (
+            response["package"]["resources"][0]["url"] == "http://example.com"
+        )
 
     def test_revise_add_resource(self):
         dataset = factories.Dataset()
         response = helpers.call_action(
-            'package_revise',
-            match={'id': dataset['id']},
-            update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
+            "package_revise",
+            match={"id": dataset["id"]},
+            update__resources__extend=[
+                {"name": "new resource", "url": "http://example.com"}
+            ],
         )
-        assert response['package']['resources'][0]['name'] == 'new resource'
+        assert response["package"]["resources"][0]["name"] == "new resource"
 
     def test_revise_resource_by_index(self):
-        dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])
+        dataset = factories.Dataset(resources=[{"url": "http://example.com"}])
         response = helpers.call_action(
-            'package_revise',
-            match={'id': dataset['id']},
-            update__resources__0={'name': 'new name'},
+            "package_revise",
+            match={"id": dataset["id"]},
+            update__resources__0={"name": "new name"},
         )
-        assert response['package']['resources'][0]['name'] == 'new name'
+        assert response["package"]["resources"][0]["name"] == "new name"
 
     def test_revise_resource_by_id(self):
-        dataset = factories.Dataset(resources=[{
-            'id': '34a12bc-1420-cbad-1922',
-            'url': 'http://example.com',
-            'name': 'old name',
-        }])
-        response = helpers.call_action(
-            'package_revise',
-            match={'id': dataset['id']},
-            update__resources__34a12={'name': 'new name'},  # prefixes allowed >4 chars
+        dataset = factories.Dataset(
+            resources=[
+                {
+                    "id": "34a12bc-1420-cbad-1922",
+                    "url": "http://example.com",
+                    "name": "old name",
+                }
+            ]
         )
-        assert response['package']['resources'][0]['name'] == 'new name'
+        response = helpers.call_action(
+            "package_revise",
+            match={"id": dataset["id"]},
+            update__resources__34a12={
+                "name": "new name"
+            },  # prefixes allowed >4 chars
+        )
+        assert response["package"]["resources"][0]["name"] == "new name"
 
     def test_revise_resource_replace_all(self):
-        dataset = factories.Dataset(resources=[{
-            'id': '34a12bc-1420-cbad-1922',
-            'url': 'http://example.com',
-            'name': 'old name',
-        }])
-        response = helpers.call_action(
-            'package_revise',
-            match={'id': dataset['id']},
-            filter=['+resources__34a12__id', '-resources__34a12__*'],
-            update__resources__34a12={'name': 'new name'},
+        dataset = factories.Dataset(
+            resources=[
+                {
+                    "id": "34a12bc-1420-cbad-1922",
+                    "url": "http://example.com",
+                    "name": "old name",
+                }
+            ]
         )
-        assert response['package']['resources'][0]['name'] == 'new name'
-        assert response['package']['resources'][0]['url'] == ''
+        response = helpers.call_action(
+            "package_revise",
+            match={"id": dataset["id"]},
+            filter=["+resources__34a12__id", "-resources__34a12__*"],
+            update__resources__34a12={"name": "new name"},
+        )
+        assert response["package"]["resources"][0]["name"] == "new name"
+        assert response["package"]["resources"][0]["url"] == ""
 
     def test_revise_normal_user(self):
         user = factories.User()
-        org = factories.Organization(users=[{'name': user['id'], 'capacity': 'admin'}])
+        org = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
         # make sure normal users can use package_revise
-        context = {'user': user['name'], 'ignore_auth': False}
-        ds = factories.Dataset(owner_org=org['id'])
+        context = {"user": user["name"], "ignore_auth": False}
+        ds = factories.Dataset(owner_org=org["id"])
         response = helpers.call_action(
-            'package_revise',
-            match={'id': ds['id']},
-            update={'notes': 'new notes'},
+            "package_revise",
+            match={"id": ds["id"]},
+            update={"notes": "new notes"},
             context=context,
         )
-        assert response['package']['notes'] == 'new notes'
+        assert response["package"]["notes"] == "new notes"
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("non_clean_db")
 class TestUserPluginExtras(object):
-
     def test_stored_on_update_if_sysadmin(self):
 
         sysadmin = factories.Sysadmin()
 
-        user = factories.User(
-            plugin_extras={
-                'plugin1': {
-                    'key1': 'value1'
-                }
-            }
-        )
+        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
 
-        user['plugin_extras'] = {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2'
-            }
+        user["plugin_extras"] = {
+            "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
         # helpers.call_action sets 'ignore_auth' to True by default
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
 
         updated_user = helpers.call_action(
-            'user_update', context=context, **user)
+            "user_update", context=context, **user
+        )
 
-        assert updated_user['plugin_extras'] == {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2',
+        assert updated_user["plugin_extras"] == {
+            "plugin1": {
+                "key1": "value1.2",
+                "key2": "value2",
             }
         }
 
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
-            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=user["id"],
+            include_plugin_extras=True,
+        )
 
-        assert updated_user['plugin_extras'] == {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2',
+        assert updated_user["plugin_extras"] == {
+            "plugin1": {
+                "key1": "value1.2",
+                "key2": "value2",
             }
         }
 
-        plugin_extras_from_db = model.Session.execute(
-            'SELECT plugin_extras FROM "user" WHERE id=:id',
-            {'id': user['id']}
-        ).first().values()[0]
+        plugin_extras_from_db = (
+            model.Session.execute(
+                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                {"id": user["id"]},
+            )
+            .first()[0]
+        )
 
         assert plugin_extras_from_db == {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2',
+            "plugin1": {
+                "key1": "value1.2",
+                "key2": "value2",
             }
         }
 
@@ -2016,38 +1968,30 @@ class TestUserPluginExtras(object):
 
         sysadmin = factories.Sysadmin()
 
-        user = factories.User(
-            plugin_extras={
-                'plugin1': {
-                    'key1': 'value1'
-                }
-            }
-        )
+        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
 
-        user['plugin_extras'] = {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2'
-            }
+        user["plugin_extras"] = {
+            "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
         # User edits themselves
-        context = {'user': user['name'], 'ignore_auth': False}
+        context = {"user": user["name"], "ignore_auth": False}
 
         created_user = helpers.call_action(
-            'user_update', context=context, **user)
+            "user_update", context=context, **user
+        )
 
-        assert 'plugin_extras' not in created_user
+        assert "plugin_extras" not in created_user
 
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=created_user["id"],
+            include_plugin_extras=True,
+        )
 
-        assert user['plugin_extras'] == {
-            'plugin1': {
-                'key1': 'value1'
-            }
-        }
+        assert user["plugin_extras"] == {"plugin1": {"key1": "value1"}}
 
     def test_ignored_on_update_if_non_sysadmin_when_empty(self):
 
@@ -2055,55 +1999,460 @@ class TestUserPluginExtras(object):
 
         user = factories.User()
 
-        user['plugin_extras'] = {
-            'plugin1': {
-                'key1': 'value1.2',
-                'key2': 'value2'
-            }
+        user["plugin_extras"] = {
+            "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
         # User edits themselves
-        context = {'user': user['name'], 'ignore_auth': False}
+        context = {"user": user["name"], "ignore_auth": False}
 
         created_user = helpers.call_action(
-            'user_update', context=context, **user)
+            "user_update", context=context, **user
+        )
 
-        assert 'plugin_extras' not in created_user
+        assert "plugin_extras" not in created_user
 
-        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
-            'user_show', context=context, id=created_user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=created_user["id"],
+            include_plugin_extras=True,
+        )
 
-        assert user['plugin_extras'] is None
+        assert user["plugin_extras"] is None
 
     def test_nested_updates_are_reflected_in_db(self):
 
-        user = factories.User(
-            plugin_extras={
-                'plugin1': {
-                    'key1': 'value1'
-                }
-            }
-        )
+        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
 
         sysadmin = factories.Sysadmin()
 
-        context = {'user': sysadmin['name']}
+        context = {"user": sysadmin["name"]}
 
         user = helpers.call_action(
-            'user_show', context=context, id=user['id'], include_plugin_extras=True)
+            "user_show",
+            context=context,
+            id=user["id"],
+            include_plugin_extras=True,
+        )
 
-        user['plugin_extras']['plugin1']['key1'] = 'value2'
+        user["plugin_extras"]["plugin1"]["key1"] = "value2"
 
-        updated_user = helpers.call_action('user_update', context=context, **user)
+        updated_user = helpers.call_action(
+            "user_update", context=context, **user
+        )
 
-        assert updated_user['plugin_extras']['plugin1']['key1'] == 'value2'
+        assert updated_user["plugin_extras"]["plugin1"]["key1"] == "value2"
 
         # Hold on, partner
 
-        plugin_extras = model.Session.execute(
-            'SELECT plugin_extras FROM "user" WHERE id=:id',
-            {'id': user['id']}
-        ).first().values()[0]
+        plugin_extras = (
+            model.Session.execute(
+                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                {"id": user["id"]},
+            )
+            .first()[0]
+        )
 
-        assert plugin_extras['plugin1']['key1'] == 'value2'
+        assert plugin_extras["plugin1"]["key1"] == "value2"
+
+
+class TestVocabularyUpdate(object):
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_no_real_update(self):
+        vocab = factories.Vocabulary()
+        updated = helpers.call_action("vocabulary_update", id=vocab["id"])
+        assert vocab == updated
+
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name=vocab["name"]
+        )
+        assert vocab == updated
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_update_name(self):
+        vocab = factories.Vocabulary()
+        stub = factories.Vocabulary.stub()
+
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], name=stub.name
+        )
+        assert updated["name"] == stub.name
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_add_tags(self):
+        vocab = factories.Vocabulary()
+        assert vocab["tags"] == []
+
+        tags = [
+            {"name": factories.Tag.stub().name},
+            {"name": factories.Tag.stub().name},
+        ]
+
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], tags=tags
+        )
+        assert {t["name"] for t in updated["tags"]} == {
+            t["name"] for t in tags
+        }
+
+        tags.append(
+            {"name": factories.Tag.stub().name},
+        )
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], tags=tags
+        )
+        assert {t["name"] for t in updated["tags"]} == {
+            t["name"] for t in tags
+        }
+
+    def test_non_existing(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action(
+                "vocabulary_update", id=factories.Vocabulary.stub().name
+            )
+
+    def test_missing_id(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("vocabulary_update")
+
+    @pytest.mark.parametrize("tags", [])
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_with_bad_tags(self, tags):
+        vocab = factories.Vocabulary()
+        for tags in [
+            [{"id": "xxx"}, {"name": "foo"}],
+            [{"name": "foo"}, {"name": None}],
+            [{"name": "foo"}, {"name": ""}],
+            [{"name": "foo"}, {"name": "f"}],
+            [{"name": "f" * 200}, {"name": "foo"}],
+            [{"name": "Invalid!"}, {"name": "foo"}],
+        ]:
+            with pytest.raises(logic.ValidationError):
+                helpers.call_action(
+                    "vocabulary_update", id=vocab["id"], tags=tags
+                )
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_with_no_tags(self):
+        vocab = factories.Vocabulary()
+        with pytest.raises(DataError):
+            helpers.call_action("vocabulary_update", id=vocab["id"], tags=None)
+
+    @pytest.mark.usefixtures("non_clean_db")
+    def test_clen_tags(self):
+        vocab = factories.Vocabulary(
+            tags=[{"name": factories.Tag.stub().name}]
+        )
+        updated = helpers.call_action(
+            "vocabulary_update", id=vocab["id"], tags=[]
+        )
+        assert updated["tags"] == []
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestTaskStatusUpdate:
+    def test_task_status_update(self):
+        pkg = factories.Dataset()
+
+        task_status = {
+            "entity_id": pkg["id"],
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_key",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
+        }
+        task_status_updated = helpers.call_action(
+            "task_status_update", **task_status
+        )
+
+        task_status_id = task_status_updated.pop("id")
+        task_status_updated.pop("last_updated")
+        assert task_status_updated == task_status
+
+        task_status_updated["id"] = task_status_id
+        task_status_updated["value"] = "test_value_2"
+
+        task_status_updated_2 = helpers.call_action(
+            "task_status_update", **task_status_updated
+        )
+        task_status_updated_2.pop("last_updated")
+        assert task_status_updated_2 == task_status_updated
+
+    def test_task_status_update_many(self):
+        pkg = factories.Dataset()
+        task_statuses = {
+            "data": [
+                {
+                    "entity_id": pkg["id"],
+                    "entity_type": "package",
+                    "task_type": "test_task",
+                    "key": "test_task_1",
+                    "value": "test_value_1",
+                    "state": "test_state",
+                    "error": "test_error",
+                },
+                {
+                    "entity_id": pkg["id"],
+                    "entity_type": "package",
+                    "task_type": "test_task",
+                    "key": "test_task_2",
+                    "value": "test_value_2",
+                    "state": "test_state",
+                    "error": "test_error",
+                },
+            ]
+        }
+        task_statuses_updated = helpers.call_action(
+            "task_status_update_many", **task_statuses
+        )["results"]
+
+        for i in range(len(task_statuses["data"])):
+            task_status = task_statuses["data"][i]
+            task_status_updated = task_statuses_updated[i]
+            task_status_updated.pop("id")
+            task_status_updated.pop("last_updated")
+            assert task_status == task_status_updated, (
+                task_status_updated,
+                task_status,
+                i,
+            )
+
+    def test_task_status_normal_user_not_authorized(self):
+        user = factories.User()
+        context = {"model": model, "user": user["name"]}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("task_status_update", context)
+
+    def test_task_status_validation(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("task_status_update")
+
+    def test_task_status_show(self):
+        pkg = factories.Dataset()
+        task_status = {
+            "entity_id": pkg["id"],
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_task_status_show",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
+        }
+        task_status_updated = helpers.call_action(
+            "task_status_update", **task_status
+        )
+        task_status_show = helpers.call_action(
+            "task_status_show", id=task_status_updated["id"]
+        )
+
+        task_status_show.pop("last_updated")
+        task_status_updated.pop("last_updated")
+        assert task_status_show == task_status_updated, (
+            task_status_show,
+            task_status_updated,
+        )
+        task_status_show = helpers.call_action(
+            "task_status_show",
+            entity_id=task_status["entity_id"],
+            task_type=task_status["task_type"],
+            key=task_status["key"],
+        )
+
+        task_status_show.pop("last_updated")
+        assert task_status_show == task_status_updated, (
+            task_status_show,
+            task_status_updated,
+        )
+
+    def test_task_status_delete(self):
+        pkg = factories.Dataset()
+        task_status = {
+            "entity_id": pkg["id"],
+            "entity_type": "package",
+            "task_type": "test_task",
+            "key": "test_task_status_delete",
+            "value": "test_value",
+            "state": "test_state",
+            "error": "test_error",
+        }
+        task_status_updated = helpers.call_action(
+            "task_status_update", **task_status
+        )
+        helpers.call_action("task_status_delete", id=task_status_updated["id"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestTermTranslations:
+    def test_update_single(self, app):
+
+        data = {"term": "moo", "term_translation": "moo", "lang_code": "fr"}
+        helpers.call_action("term_translation_update", **data)
+        data = {
+            "term": "moo",
+            "term_translation": "moomoo",
+            "lang_code": "fr",
+        }
+        helpers.call_action("term_translation_update", **data)
+        data = {
+            "term": "moo",
+            "term_translation": "moomoo",
+            "lang_code": "en",
+        }
+        helpers.call_action("term_translation_update", **data)
+        result = helpers.call_action("term_translation_show", terms=["moo"])
+
+        assert sorted(result, key=dict.items) == sorted(
+            [
+                {
+                    "lang_code": "fr",
+                    "term": "moo",
+                    "term_translation": "moomoo",
+                },
+                {
+                    "lang_code": "en",
+                    "term": "moo",
+                    "term_translation": "moomoo",
+                },
+            ],
+            key=dict.items,
+        )
+
+    def test_2_update_many(self, app):
+
+        data = [
+            {
+                "term": "many",
+                "term_translation": "manymoo",
+                "lang_code": "fr",
+            },
+            {
+                "term": "many",
+                "term_translation": "manymoo",
+                "lang_code": "en",
+            },
+            {
+                "term": "many",
+                "term_translation": "manymoomoo",
+                "lang_code": "en",
+            },
+        ]
+        result = helpers.call_action("term_translation_update_many", data=data)
+        assert result["success"] == "3 rows updated"
+
+        result = helpers.call_action("term_translation_show", terms=["many"])
+        assert sorted(result, key=dict.items) == sorted(
+            [
+                {
+                    "lang_code": "fr",
+                    "term": "many",
+                    "term_translation": "manymoo",
+                },
+                {
+                    "lang_code": "en",
+                    "term": "many",
+                    "term_translation": "manymoomoo",
+                },
+            ],
+            key=dict.items,
+        )
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestPackagePluginData(object):
+    def test_stored_on_update_if_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": sysadmin["name"],
+            "ignore_auth": False,
+            "auth_user_obj": model.User.get(sysadmin["name"])
+        }
+
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+        assert updated_pkg["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        pkg_dict = helpers.call_action(
+            "package_show",
+            context=context,
+            id=dataset["id"],
+            include_plugin_data=True
+        )
+        assert pkg_dict["plugin_data"] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+        plugin_data_from_db = model.Session.execute(
+            'SELECT plugin_data from "package" where id=:id',
+            {"id": dataset["id"]}
+        ).first()
+
+        assert plugin_data_from_db[0] == {
+            "plugin1": {
+                "key1": "updated_value",
+                "key2": "value2"
+            }
+        }
+
+    def test_ignored_on_update_if_non_sysadmin(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            plugin_data={
+                "plugin1": {
+                    "key1": "value1"
+                }
+            }
+        )
+        context = {
+            "user": user["name"],
+            "ignore_auth": False,
+        }
+        pkg_dict = {
+            "id": dataset["id"],
+            "plugin_data": {
+                "plugin1": {
+                    "key1": "updated_value",
+                    "key2": "value2"
+                }
+            }
+        }
+        updated_pkg = helpers.call_action(
+            "package_update", context=context, **pkg_dict
+        )
+
+        assert "plugin_data" not in updated_pkg
+        pkg = model.Package.get(dataset["id"])
+        assert pkg.plugin_data == {
+            "plugin1": {
+                "key1": "value1"
+            }
+        }

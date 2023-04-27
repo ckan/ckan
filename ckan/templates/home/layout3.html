@@ -1,19 +1,19 @@
 <div role="main" class="hero">
   <div class="container">
     {% block search %}
-      {% snippet 'home/snippets/search.html' %}
+      {% snippet 'home/snippets/search.html', search_facets=search_facets %}
     {% endblock %}
   </div>
 </div>
-<div role="main">
+<div role="main" class="module-feeds">
   <div class="container">
-    <div class="row row2">
-      <div class="col-md-6 col2">
+    <div class="row">
+      <div class="col-md-6">
         {% block promoted %}
           {% snippet 'home/snippets/promoted.html' %}
         {% endblock %}
       </div>
-      <div class="col-md-6 col1">
+      <div class="col-md-6">
         {% block stats %}
           {% snippet 'home/snippets/stats.html' %}
         {% endblock %}

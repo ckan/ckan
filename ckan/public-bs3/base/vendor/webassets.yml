@@ -1,0 +1,68 @@
+select2-css:
+  output: vendor/%(version)s_select2.css
+  filters: cssrewrite
+  contents:
+    - select2/select2.css
+
+fontawesome:
+  output: vendor/%(version)s_fontawesome.css
+  filters: cssrewrite
+  contents:
+    - fontawesome-free/css/all.css
+
+jquery:
+  filters: rjsmin
+  output: vendor/%(version)s_jquery.js
+  contents:
+    - jquery.js
+
+qs:
+  filters: rjsmin
+  output: vendor/%(version)s_qs.js
+  contents:
+    - qs.js
+
+vendor:
+  filters: rjsmin
+  output: vendor/%(version)s_vendor.js
+  extra:
+    preload:
+      - vendor/select2-css
+      - vendor/jquery
+  contents:
+    - jed.js
+    - moment-with-locales.js
+    - select2/select2.js
+
+bootstrap:
+  filters: rjsmin
+  output: vendor/%(version)s_bootstrap.js
+  extra:
+    preload:
+      - vendor/fontawesome
+      - vendor/jquery
+  contents:
+    - bootstrap/javascripts/bootstrap.js
+
+fileupload:
+  filters: rjsmin
+  output: vendor/%(version)s_fileupload.js
+  extra:
+    preload:
+      - vendor/jquery
+  contents:
+    - jquery.ui.widget.js
+    - jquery-fileupload/jquery.iframe-transport.js
+    - jquery-fileupload/jquery.fileupload.js
+
+reorder:
+  filters: rjsmin
+  output: vendor/%(version)s_reorder.js
+  extra:
+    preload:
+      - vendor/jquery
+  contents:
+    - jquery.ui.core.js
+    - jquery.ui.widget.js
+    - jquery.ui.mouse.js
+    - jquery.ui.sortable.js

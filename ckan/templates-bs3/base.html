@@ -1,0 +1,128 @@
+{# Allows the DOCTYPE to be set on a page by page basis #}
+{%- block doctype %}<!DOCTYPE html>{% endblock -%}
+
+{# Allows custom attributes to be added to the <html> tag #}
+{%- block htmltag -%}
+{% set lang = h.lang() %}
+<!--[if IE 9]> <html lang="{{ lang }}" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="{{ lang }}"> <!--<![endif]-->
+{%- endblock -%}
+
+  {# Allows custom attributes to be added to the <head> tag #}
+  <head{% block headtag %}{% endblock %}>
+    {#
+    Add custom meta tags to the page. Call super() to get the default tags
+    such as charset, viewport and generator.
+
+    Example:
+
+    {% block meta %}
+      {{ super() }}
+      <meta name="description" value="My website description" />
+    {% endblock %}
+
+    #}
+    {%- block meta -%}
+      <meta charset="utf-8" />
+      <meta name="csrf_field_name" content="{{ g.csrf_field_name }}" />
+      <meta name="{{ g.csrf_field_name }}" content="{{ csrf_token() }}" />
+
+      {% block meta_generator %}<meta name="generator" content="ckan {{ h.ckan_version() }}" />{% endblock %}
+      {% block meta_viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0">{% endblock %}
+    {%- endblock -%}
+
+    {#
+    Add a custom title to the page by extending the title block. Call super()
+    to get the default page title.
+
+    Example:
+
+      {% block title %}My Subtitle - {{ super() }}{% endblock %}
+
+    #}
+    <title>
+      {%- block title -%}
+        {%- block subtitle %}{% endblock -%}
+        {%- if self.subtitle()|trim %} {{ g.template_title_delimiter }} {% endif -%}
+        {{ g.site_title }}
+      {%- endblock -%}
+    </title>
+
+    {#
+    The links block allows you to add additonal content before the stylesheets
+    such as rss feeds and favicons in the same way as the meta block.
+    #}
+    {% block links -%}
+      <link rel="shortcut icon" href="{{ g.favicon }}" />
+    {% endblock -%}
+
+    {#
+    The styles block allows you to add additonal stylesheets to the page in
+    the same way as the meta block. Use super() to include the default
+    stylesheets before or after your own.
+
+    Example:
+
+      {% block styles %}
+        {{ super() }}
+        <link rel="stylesheet" href="/base/css/custom.css" />
+      {% endblock %}
+    #}
+    {%- block styles %}
+      {# TODO: store just name of asset instead of path to it. #}
+      {% set theme = h.get_rtl_theme() if h.is_rtl_language() else g.theme %}
+      {% asset theme %}
+    {% endblock %}
+
+    {% block head_extras %}
+      {# defined in the config.ini under "ckan.template_head_end" #}
+      {{ g.template_head_end | safe }}
+    {% endblock %}
+
+    {# render all assets included in styles block #}
+    {{ h.render_assets('style') }}
+    {%- block custom_styles %}
+      {%- if g.site_custom_css -%}
+      <style>
+        {{ g.site_custom_css | safe }}
+      </style>
+      {%- endif %}
+    {% endblock %}
+  </head>
+
+  {# Allows custom attributes to be added to the <body> tag #}
+  <body{% block bodytag %} data-site-root="{{ h.url_for('home.index', locale='default', qualified=true) }}" data-locale-root="{{ h.url_for('home.index', qualified=true) }}" {% endblock %}>
+
+    {#
+    The page block allows you to add content to the page. Most of the time it is
+    recommended that you extend one of the page.html templates in order to get
+    the site header and footer. If you need a clean page then this is the
+    block to use.
+
+    Example:
+
+      {% block page %}
+        <div>Some other page content</div>
+      {% endblock %}
+    #}
+    {%- block page %}{% endblock -%}
+
+    {#
+    DO NOT USE THIS BLOCK FOR ADDING SCRIPTS
+    Scripts should be loaded by the {% assets %} tag except in very special
+    circumstances
+    #}
+    {%- block scripts %}
+    {% endblock -%}
+
+    {% block body_extras -%}
+      {# defined in the config.ini under "ckan.template_footer_end" #}
+      {{ g.template_footer_end | safe }}
+    {%- endblock %}
+
+    {# render all assets included in scripts block and everywhere else #}
+    {# make sure there are no calls to `asset` tag after this point #}
+    {{ h.render_assets('style') }}
+    {{ h.render_assets('script') }}
+  </body>
+</html>

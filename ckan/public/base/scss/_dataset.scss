@@ -1,0 +1,383 @@
+.dataset-item {
+    border-bottom: 1px dotted $genericBorderColor;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+@include media-breakpoint-down(sm){
+    .dataset-item {
+        word-wrap: break-word;
+    }
+}
+
+.dataset-item:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.dataset-heading {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.dataset-heading a {
+    color: $listingHeadingTextColor;
+}
+
+.dataset-heading .badge {
+    position: relative;
+    top: -1px;
+}
+
+.badge-inverse {
+    background-color: $gray-600;
+}
+
+.dataset-private {
+    margin-right: 10px;
+    text-transform: uppercase;
+    .icon-lock {
+        width: 9px;
+    }
+    &.pull-right {
+        margin-right: 0;
+    }
+}
+
+.dataset-resources {
+    margin-top: 8px;
+}
+
+.dataset-resources li {
+    display: inline;
+}
+
+.dataset-resources li a {
+    background-color: $resourceFormatBackground;
+}
+
+.popular {
+    color:#f29c2b;
+}
+
+// Resource List
+.resource-list {
+    @include list-unstyled;
+    padding-left: 0;
+    margin: -10px -10px 10px -10px;
+}
+
+.resource-item {
+    position: relative;
+    padding: 10px 10px 10px 60px;
+    margin-bottom: 0px;
+    @include border-radius(3px);
+    &:hover {
+        background-color: $layoutBackgroundColor;
+    }
+}
+
+.resource-item .heading {
+    color: $layoutBoldColor;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.resource-item .format-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.resource-item .description {
+    font-size: 12px;
+    margin-bottom: 0;
+    min-height: 12px;
+}
+
+.resource-item .btn-group {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+@include media-breakpoint-down(sm) {
+    .resource-item .btn-group {
+        display: none;
+    }
+}
+
+.resource-list.reordering {
+    .resource-item {
+        border: 1px solid $moduleHeadingBorderColor;
+        margin-bottom: 10px;
+        cursor: move;
+        .handle {
+            display: block;
+            position: absolute;
+            color: $moduleHeadingActionTextColor;
+            left: -31px;
+            top: 50%;
+            margin-top: -15px;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border: 1px solid $moduleHeadingBorderColor;
+            border-width: 1px 0 1px 1px;
+            background-color: $moduleBackgroundColor;
+            @include border-radius(20px 0 0 20px);
+            &:hover {
+                text-decoration: none;
+            }
+        }
+        &:hover .handle {
+            background-color: $layoutBackgroundColor;
+        }
+        &.ui-sortable-helper {
+            background-color: $layoutBackgroundColor;
+            border: 1px solid $layoutLinkColor;
+            .handle {
+                background-color: $layoutBackgroundColor;
+                border-color: $layoutLinkColor;
+                color: $navLinkColor;
+            }
+        }
+    }
+}
+
+.resource-item .handle {
+    display: none;
+}
+
+// Dataset Forms
+// Tag List
+.tag-list {
+    padding: 10px 10px 5px 10px;
+    background-color: $gray-100;
+    border: 1px solid $genericBorderColor;
+    border-radius: 0.25rem;
+}
+
+.tag-list li {
+    display: inline-block;
+}
+
+.tag-list li:last-child {
+    margin-right: 0;
+}
+
+// Additional Info
+.additional-info td,
+.additional-info th {
+    width: 50%;
+}
+
+// FORMATS
+.badge[data-format=html],
+.badge[data-format*=html] {
+    background-color: #2E759E;
+}
+
+.badge[data-format=json],
+.badge[data-format*=json] {
+    background-color: #D63B00;
+}
+
+.badge[data-format=xml],
+.badge[data-format*=xml] {
+    background-color: #D63B00;
+}
+
+.badge[data-format=text],
+.badge[data-format*=text] {
+    background-color: #1A7EA3;
+}
+
+.badge[data-format=csv],
+.badge[data-format*=csv] {
+    background-color: #856A00;
+}
+
+.badge[data-format=xls],
+.badge[data-format*=xls] {
+    background-color: #207E42;
+}
+
+.badge[data-format=zip],
+.badge[data-format*=zip] {
+    background-color: #686868;
+}
+
+.badge[data-format=api],
+.badge[data-format*=api] {
+    background-color: #D22D81;
+}
+
+.badge[data-format=pdf],
+.badge[data-format*=pdf] {
+    background-color: #e0051e;
+}
+
+.badge[data-format=rdf],
+.badge[data-format*=rdf],
+.badge[data-format*=nquad],
+.badge[data-format*=ntriples],
+.badge[data-format*=turtle] {
+    background-color: #0b4498;
+}
+
+.badge-default[href]:hover,
+.badge-default[href]:focus {
+    background-color: #5e5e5e;
+    color: $white;
+    text-decoration: none;
+}
+
+// Views
+.view-list {
+    @include list-unstyled;
+    li {
+        position: relative;
+        margin-bottom: 10px;
+        a {
+            display: block;
+            min-height: 50px;
+            padding: 10px;
+            border: 1px solid $moduleHeadingBorderColor;
+            overflow: hidden;
+            @include border-radius(3px);
+            .icon {
+                float: left;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin-right: 10px;
+                color: $layoutTextColor;
+                background-color: $layoutBackgroundColor;
+                @include border-radius(3px);
+                i {
+                    display: block;
+                    text-align: center;
+                    font-size: 28px;
+                    line-height: 50px;
+                }
+            }
+            h3 {
+                font-weight: bold;
+                color: $layoutBoldColor;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 0 0 3px 0;
+            }
+            p {
+                margin: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                color: $layoutTextColor;
+            }
+            &.active,
+            &:hover {
+                text-decoration: none;
+                border-color: $layoutLinkColor;
+                .icon {
+                    background-color: $layoutLinkColor;
+                    color: $navActiveBackgroundColor;
+                }
+            }
+        }
+        .arrow {
+            position: absolute;
+            display: none;
+            border: 8px solid transparent;
+            border-top-color: $layoutLinkColor;
+            left: 50%;
+            bottom: -15px;
+            margin-left: -4px;
+        }
+        &.active {
+            a {
+                text-decoration: none;
+                border-color: $layoutLinkColor;
+                .icon {
+                    background-color: $layoutLinkColor;
+                    color: $navActiveBackgroundColor;
+                }
+            }
+            .arrow {
+                display: block;
+            }
+        }
+    }
+    &.stacked {
+        overflow-y: hidden;
+        overflow-x: auto;
+        height: 100px;
+        white-space: nowrap;
+        li {
+            display: inline-block;
+            width: 250px;
+            margin-right: 10px;
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+        &::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        &::-webkit-scrollbar-track {
+            border-radius: 10px;
+            background-color: $navActiveBackgroundColor;
+        }
+        &::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background-color: darken($navActiveBackgroundColor, 20%);
+            &:hover {
+                background-color: $layoutLinkColor;
+            }
+        }
+    }
+}
+
+.resource-view {
+    margin-top: 20px;
+}
+
+#activity-archive-notice {
+  clear: both;
+}
+
+/* diff styles */
+table.diff {
+  font-family:Courier;
+  border:medium;
+}
+.diff_header {
+  background-color:#e0e0e0;
+}
+td.diff_header {
+  text-align:right;
+}
+.diff_next {
+  background-color:#c0c0c0;
+}
+.diff_add {
+  background-color:#aaffaa;
+}
+.diff_chg {
+  background-color:#ffff77;
+}
+.diff_sub {
+  background-color:#ffaaaa;
+}
+// TRASH VIEW accordion
+// --------------------------------------------------
+
+  .purge-all {
+    float: right;
+    margin-bottom: 15px;
+  }

@@ -1,0 +1,51 @@
+version: 1
+groups:
+- annotation: Datapusher settings
+  options:
+  - key: ckan.datapusher.formats
+    default:
+      - csv
+      - xls
+      - xlsx
+      - tsv
+      - application/csv
+      - application/vnd.ms-excel
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - ods
+      - application/vnd.oasis.opendocument.spreadsheet
+    type: list
+    example: csv xls
+    description: >-
+      File formats that will be pushed to the DataStore by the DataPusher. When
+      adding or editing a resource which links to a file in one of these formats,
+      the DataPusher will automatically try to import its contents to the DataStore.
+
+  - key: ckan.datapusher.url
+    example: http://127.0.0.1:8800/
+    description: >-
+      DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
+      installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
+      running on port 8800. If you want to manually install the DataPusher, follow
+      the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
+
+  - key: ckan.datapusher.api_token
+    description: >-
+      Starting from CKAN 2.10, DataPusher requires a valid API token to operate (see :ref:`api authentication`), and
+      will fail to start if this option is not set.
+
+  - key: ckan.datapusher.callback_url_base
+    example: http://ckan:5000/
+    placeholder: '%(ckan.site_url)s'
+    description: >-
+      Alternative callback URL for DataPusher when performing a request to CKAN. This is
+      useful on scenarios where the host where DataPusher is running can not access the
+      public CKAN site URL.
+
+  - key: ckan.datapusher.assume_task_stale_after
+    default: 3600
+    type: int
+    example: 86400
+    description: >-
+      In case a DataPusher task gets stuck and fails to recover, this is the minimum
+      amount of time (in seconds) after a resource is submitted to DataPusher that the
+      resource can be submitted again.

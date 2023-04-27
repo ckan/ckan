@@ -1,0 +1,1 @@
+CKAN is typed now

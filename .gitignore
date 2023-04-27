@@ -8,6 +8,7 @@ ckan.egg-info/*
 sandbox/*
 dist
 .mypy_cache
+.eggs/*
 
 # pylons
 development.ini*
@@ -48,3 +49,6 @@ node_modules/
 # docker
 contrib/docker/.env
 cypress.env.json
+
+# cypress
+cypress/videos

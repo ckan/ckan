@@ -11,7 +11,7 @@
     <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Login') }}{% endblock %}</h1>
       {% block form %}
-        {% snippet "user/snippets/login_form.html", action=g.login_handler, error_summary=error_summary %}
+        {% snippet "user/snippets/login_form.html", error_summary=error_summary %}
       {% endblock %}
     </div>
   </section>

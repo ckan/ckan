@@ -18,11 +18,11 @@ notifications for a CKAN site, a sysadmin must:
    shell to edit your crontab file, and adding a line to the file to specify
    the new job.  For more information run ``man crontab`` in a shell.
 
-   CKAN API actions can be called via the ``paster post`` command, which
-   simulates an HTTP-request. For example, here is a crontab line to send out
-   CKAN email notifications hourly::
+   CKAN's ``send_email_notifications`` API action can be called via the cli's 
+   ``ckan notify send_emails`` command. 
+   For example, here is a crontab line to send out CKAN email notifications hourly::
 
-    @hourly echo '{}' | ckan post -c |ckan.ini| /api/action/send_email_notifications > /dev/null
+    @hourly echo '{}' | ckan -c path-to-your-ckan.ini notify send_emails > /dev/null
 
    The ``@hourly`` can be replaced with ``@daily``, ``@weekly`` or ``@monthly``.
 

@@ -1,57 +1,119 @@
 # encoding: utf-8
-
+# type: ignore
 """This is a collection of factory classes for building CKAN users, datasets,
 etc.
 
-These are meant to be used by tests to create any objects that are needed for
-the tests. They're written using ``factory_boy``:
+Factories can be either used directly or via corresponding pytest fixtures to
+create any objects that are needed for the tests. These factories are written
+using ``factory_boy``:
 
 https://factoryboy.readthedocs.org/en/latest/
 
-These are not meant to be used for the actual testing, e.g. if you're writing
-a test for the :py:func:`~ckan.logic.action.create.user_create` function then
+These are not meant to be used for the actual testing, e.g. if you're writing a
+test for the :py:func:`~ckan.logic.action.create.user_create` function then
 call :py:func:`~ckan.tests.helpers.call_action`, don't test it via the
-:py:class:`~ckan.tests.factories.User` factory below.
+:py:class:`~ckan.tests.factories.User` factory or
+:py:func:`~ckan.tests.pytest_ckan.fixtures.user_factory` fixture.
 
 Usage::
 
  # Create a user with the factory's default attributes, and get back a
  # user dict:
- user_dict = factories.User()
+ def test_creation():
+     user_dict = factories.User()
+
+ # or
+
+ def test_creation(user_factory):
+     user_dict = user_factory()
 
  # You can create a second user the same way. For attributes that can't be
  # the same (e.g. you can't have two users with the same name) a new value
  # will be generated each time you use the factory:
- another_user_dict = factories.User()
+ def test_creation():
+     user_dict = factories.User()
+     another_user_dict = factories.User()
 
  # Create a user and specify your own user name and email (this works
  # with any params that CKAN's user_create() accepts):
- custom_user_dict = factories.User(name='bob', email='bob@bob.com')
+ def test_creation():
+     custom_user_dict = factories.User(name='bob', email='bob@bob.com')
 
  # Get a user dict containing the attributes (name, email, password, etc.)
  # that the factory would use to create a user, but without actually
  # creating the user in CKAN:
- user_attributes_dict = factories.User.attributes()
+ def test_creation():
+     user_attributes_dict = vars(factories.User.stub())
 
  # If you later want to create a user using these attributes, just pass them
  # to the factory:
- user = factories.User(**user_attributes_dict)
+ def test_creation():
+     user = factories.User(**user_attributes_dict)
+
+ # If you just need random user, you can get ready-to-use dictionary inside
+ # your test by requiring `user` fixture (just drop `_factory` suffix):
+ def test_creation(user):
+     assert isinstance(user, dict)
+     assert "name" in user
+
+ # If you need SQLAlchemy model object instead of the plain dictionary, call
+ # `model` method of the corresponding factory. All arguments has the same
+ # effect as if they were passed directly to the factory:
+ def test_creation():
+     user = factories.User.model(name="bob")
+     assert isinstance(user, model.User)
+
+
+ # In order to create your own factory:
+ # * inherit from :py:class:`~ckan.tests.factories.CKANFactory`
+ # * create `Meta` class inside it, with the two properties:
+ #   * model: corresponding SQLAlchemy model
+ #   * action: API action that can create instances of the model
+ # * define any extra attributes
+ # * register factory as a fixture using :py:func:`~pytest_factoryboy.register`
+ import factory
+ from pytest_factoryboy import register
+ from ckan.tests.factories import CKANFactory
+
+ @register
+ class RatingFactory(CKANFactory):
+
+     class Meta:
+         model = ckanext.ext.model.Rating
+         action = "rating_create"
+
+     # These are the default params that will be used to create new ratings
+     value = factory.Faker("pyint")
+     comment = factory.Faker("text")
+     approved = factory.Faker("boolean")
+
+Factory-fixtures are generated using ``pytest-factoryboy``:
+
+https://pytest-factoryboy.readthedocs.io/en/latest/
 
 """
-import random
+from __future__ import annotations
+
 import string
+import unittest.mock as mock
+
+from functools import partial
+from typing import Any, Optional
+
 import factory
-import mock
+from faker import Faker
 
 import ckan.model
 import ckan.logic
 import ckan.tests.helpers as helpers
 
+fake = Faker()
 
-def _get_action_user_name(kwargs):
+
+def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
     """Return the name of the user in kwargs, defaulting to the site user
 
-    It can be overriden by explictly setting {'user': None} in the keyword
+    It can be overridden by explicitly setting {'user': None} in the keyword
     arguments. In that case, this method will return None.
     """
 
@@ -68,105 +130,126 @@ def _get_action_user_name(kwargs):
     return user_name
 
 
-def _generate_email(user):
-    """Return an email address for the given User factory stub object."""
-
-    return "{0}@ckan.org".format(user.name).lower()
-
-
 def _generate_reset_key(user):
     """Return a reset key for the given User factory stub object."""
 
     return "{0}_reset_key".format(user.name).lower()
 
 
-def _generate_user_id(user):
-    """Return a user id for the given User factory stub object."""
-
-    return "{0}_user_id".format(user.name).lower()
-
-
-def _generate_group_title(group):
-    """Return a title for the given Group factory stub object."""
-
-    return group.name.replace("_", " ").title()
+def _name(type_):
+    return fake.unique.pystr_format(
+        string_format=type_ + "-????-####-????",
+        letters=string.ascii_lowercase,
+    )
 
 
-def _generate_random_string(length=6):
-    """Return a random string of the defined length."""
+class CKANOptions(factory.alchemy.SQLAlchemyOptions):
+    """CKANFactory options.
 
-    return "".join(random.sample(string.ascii_lowercase, length))
+    :param action: name of the CKAN API action used for entity creation
+    :param primary_key: name of the entity's property that can be used for
+        retrieving entity object from database
+
+    """
+
+    def _build_default_options(self):
+        return super()._build_default_options() + [
+            factory.base.OptionDefault("action", None, inherit=True),
+            factory.base.OptionDefault("primary_key", "id", inherit=True),
+        ]
 
 
-class User(factory.Factory):
-    """A factory class for creating CKAN users."""
+class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
+    """Extension of SQLAlchemy factory.
 
-    # This is the class that UserFactory will create and return instances
-    # of.
+    Creates entities via CKAN API using an action specified by the
+    `Meta.action`.
+
+    Provides ``model`` method that returns created model object instead of the
+    plain dictionary.
+
+    Check factoryboy's documentation for more details:
+    https://factoryboy.readthedocs.io/en/stable/orms.html#sqlalchemy
+
+    """
+
+    _options_class = CKANOptions
+
     class Meta:
-        model = ckan.model.User
+        sqlalchemy_session = ckan.model.Session
 
-    # These are the default params that will be used to create new users.
-    fullname = "Mr. Test User"
-    password = "RandomPassword123"
-    about = "Just another test user."
-    image_url = "https://placekitten.com/g/200/100"
-
-    # Generate a different user name param for each user that gets created.
-    name = factory.Sequence(lambda n: "test_user_{0:02d}".format(n))
-
-    # Compute the email param for each user based on the values of the other
-    # params above.
-    email = factory.LazyAttribute(_generate_email)
-
-    # I'm not sure how to support factory_boy's .build() feature in CKAN,
-    # so I've disabled it here.
     @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
+    def _api_prepare_args(cls, data_dict):
+        """Add any extra details for the action."""
+        if "context" not in data_dict:
+            data_dict["context"] = {"user": _get_action_user_name(data_dict)}
+        return data_dict
 
-    # To make factory_boy work with CKAN we override _create() and make it call
-    # a CKAN action function.
-    # We might also be able to do this by using factory_boy's direct SQLAlchemy
-    # support: http://factoryboy.readthedocs.org/en/latest/orms.html#sqlalchemy
     @classmethod
-    def _create(cls, target_class, *args, **kwargs):
+    def _api_postprocess_result(cls, result):
+        """Modify result before returning it to the consumer."""
+        return result
+
+    @classmethod
+    def api_create(cls, data_dict):
+        """Create entity via API call."""
+        data_dict = cls._api_prepare_args(data_dict)
+        result = helpers.call_action(cls._meta.action, **data_dict)
+        return cls._api_postprocess_result(result)
+
+    @classmethod
+    def model(cls, **kwargs):
+        """Create entity via API and retrieve result directly from the DB."""
+        result = cls(**kwargs)
+        return cls._meta.sqlalchemy_session.query(cls._meta.model).get(
+            result[cls._meta.primary_key]
+        )
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        """Replace default entity creation strategy(DB)."""
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        user_dict = helpers.call_action("user_create", **kwargs)
-        return user_dict
+
+        return cls.api_create(kwargs)
 
 
-class Resource(factory.Factory):
+class User(CKANFactory):
+    """A factory class for creating CKAN users."""
+
+    class Meta:
+        model = ckan.model.User
+        action = "user_create"
+
+    # These are the default params that will be used to create new users.
+    fullname = factory.LazyFunction(fake.name)
+    password = factory.LazyFunction(fake.password)
+    about = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
+    name = factory.LazyFunction(fake.unique.user_name)
+    email = factory.LazyFunction(
+        lambda: fake.unique.email(domain="ckan.example.com")
+    )
+    reset_key = None
+    sysadmin = False
+
+
+class Resource(CKANFactory):
     """A factory class for creating CKAN resources."""
 
     class Meta:
         model = ckan.model.Resource
+        action = "resource_create"
 
-    name = factory.Sequence(lambda n: "test_resource_{0:02d}".format(n))
-    description = "Just another test resource."
-    format = "res_format"
-    url = "http://link.to.some.data"
-    package_id = factory.LazyAttribute(lambda _: Dataset()["id"])
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-
-        context = {"user": _get_action_user_name(kwargs)}
-
-        resource_dict = helpers.call_action(
-            "resource_create", context=context, **kwargs
-        )
-        return resource_dict
+    name = factory.LazyFunction(partial(_name, "resource"))
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    format = factory.LazyFunction(fake.file_extension)
+    url = factory.LazyFunction(fake.url)
+    url_type = None
+    package_id = factory.LazyFunction(lambda: Dataset()["id"])
 
 
-class ResourceView(factory.Factory):
+class ResourceView(CKANFactory):
     """A factory class for creating CKAN resource views.
 
     Note: if you use this factory, you need to load the `image_view` plugin
@@ -178,170 +261,80 @@ class ResourceView(factory.Factory):
         @pytest.mark.usefixtures("with_plugins")
         def test_resource_view_factory():
             ...
-
     """
 
     class Meta:
         model = ckan.model.ResourceView
+        action = "resource_view_create"
 
-    title = factory.Sequence(lambda n: "test_resource_view_{0:02d}".format(n))
-    description = "Just another test resource view."
+    title = factory.LazyFunction(partial(_name, "resource-view"))
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
     view_type = "image_view"
-    resource_id = factory.LazyAttribute(lambda _: Resource()["id"])
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-
-        context = {"user": _get_action_user_name(kwargs)}
-
-        resource_dict = helpers.call_action(
-            "resource_view_create", context=context, **kwargs
-        )
-        return resource_dict
+    resource_id = factory.LazyFunction(lambda: Resource()["id"])
 
 
-class Sysadmin(factory.Factory):
+class Sysadmin(User):
     """A factory class for creating sysadmin users."""
 
-    class Meta:
-        model = ckan.model.User
-
-    fullname = "Mr. Test Sysadmin"
-    password = "RandomPassword123"
-    about = "Just another test sysadmin."
-
-    name = factory.Sequence(lambda n: "test_sysadmin_{0:02d}".format(n))
-
-    email = factory.LazyAttribute(_generate_email)
     sysadmin = True
 
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
 
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-
-        user = target_class(**dict(kwargs, sysadmin=True))
-        ckan.model.Session.add(user)
-        ckan.model.Session.commit()
-        ckan.model.Session.remove()
-
-        # We want to return a user dict not a model object, so call user_show
-        # to get one. We pass the user's name in the context because we want
-        # the API key and other sensitive data to be returned in the user
-        # dict.
-        user_dict = helpers.call_action(
-            "user_show", id=user.id, context={"user": user.name}
-        )
-        return user_dict
-
-
-class Group(factory.Factory):
+class Group(CKANFactory):
     """A factory class for creating CKAN groups."""
 
     class Meta:
         model = ckan.model.Group
+        action = "group_create"
 
-    name = factory.Sequence(lambda n: "test_group_{0:02d}".format(n))
-    title = factory.LazyAttribute(_generate_group_title)
-    description = "A test description for this test group."
+    name = factory.LazyFunction(partial(_name, "group"))
+    title = factory.LazyFunction(fake.company)
 
-    user = factory.LazyAttribute(
-        lambda _: helpers.call_action("get_site_user")
-    )
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-
-        context = {"user": _get_action_user_name(kwargs)}
-
-        group_dict = helpers.call_action(
-            "group_create", context=context, **kwargs
-        )
-        return group_dict
+    description = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
 
 
-class Organization(factory.Factory):
+class Organization(Group):
     """A factory class for creating CKAN organizations."""
 
-    # This is the class that OrganizationFactory will create and return
-    # instances of.
     class Meta:
-        model = ckan.model.Group
+        action = "organization_create"
 
-    # These are the default params that will be used to create new
-    # organizations.
+    name = factory.LazyFunction(partial(_name, "organization"))
     is_organization = True
-
-    title = "Test Organization"
-    description = "Just another test organization."
-    image_url = "https://placekitten.com/g/200/100"
-
-    # Generate a different group name param for each user that gets created.
-    name = factory.Sequence(lambda n: "test_org_{0:02d}".format(n))
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-
-        context = {"user": _get_action_user_name(kwargs)}
-
-        kwargs.setdefault("type", "organization")
-
-        group_dict = helpers.call_action(
-            "organization_create", context=context, **kwargs
-        )
-        return group_dict
+    type = "organization"
 
 
-class Dataset(factory.Factory):
+class Dataset(CKANFactory):
     """A factory class for creating CKAN datasets."""
 
     class Meta:
         model = ckan.model.Package
+        action = "package_create"
 
-    # These are the default params that will be used to create new groups.
-    title = "Test Dataset"
-    notes = "Just another test dataset."
+    name = factory.LazyFunction(partial(_name, "dataset"))
+    title = factory.LazyFunction(lambda: fake.sentence(nb_words=5))
+    notes = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
 
-    # Generate a different group name param for each user that gets created.
-    name = factory.Sequence(lambda n: "test_dataset_{0:02d}".format(n))
 
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
+class Vocabulary(CKANFactory):
+    """A factory class for creating tag vocabularies."""
 
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
+    class Meta:
+        model = ckan.model.Vocabulary
+        action = "vocabulary_create"
 
-        context = {"user": _get_action_user_name(kwargs)}
+    name = factory.LazyFunction(partial(_name, "vocabulary"))
 
-        dataset_dict = helpers.call_action(
-            "package_create", context=context, **kwargs
-        )
-        return dataset_dict
+
+class Tag(CKANFactory):
+    """A factory class for creating tag vocabularies."""
+
+    class Meta:
+        model = ckan.model.Tag
+        action = "tag_create"
+
+    name = factory.LazyFunction(partial(_name, "tag"))
+    vocabulary_id = factory.LazyFunction(lambda: Vocabulary()["id"])
 
 
 class MockUser(factory.Factory):
@@ -350,13 +343,17 @@ class MockUser(factory.Factory):
     class Meta:
         model = mock.MagicMock
 
-    fullname = "Mr. Mock User"
-    password = "pass"
-    about = "Just another mock user."
-    name = factory.Sequence(lambda n: "mock_user_{0:02d}".format(n))
-    email = factory.LazyAttribute(_generate_email)
+    fullname = factory.LazyFunction(fake.name)
+    password = factory.LazyFunction(fake.password)
+    about = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
+    image_url = factory.LazyFunction(fake.image_url)
+    name = factory.LazyFunction(fake.unique.user_name)
+    email = factory.LazyFunction(
+        lambda: fake.unique.email(domain="ckan.example.com")
+    )
+    sysadmin = False
     reset_key = factory.LazyAttribute(_generate_reset_key)
-    id = factory.LazyAttribute(_generate_user_id)
+    id = factory.LazyFunction(fake.uuid4)
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -372,19 +369,16 @@ class MockUser(factory.Factory):
         return mock_user
 
 
-class SystemInfo(factory.Factory):
+class SystemInfo(factory.alchemy.SQLAlchemyModelFactory):
     """A factory class for creating SystemInfo objects (config objects
-       stored in the DB)."""
+    stored in the DB).
+    """
 
     class Meta:
         model = ckan.model.SystemInfo
 
     key = factory.Sequence(lambda n: "test_config_{0:02d}".format(n))
-    value = _generate_random_string()
-
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
+    value = factory.LazyFunction(fake.pystr)
 
     @classmethod
     def _create(cls, target_class, *args, **kwargs):
@@ -401,52 +395,44 @@ class SystemInfo(factory.Factory):
         return obj
 
 
-def validator_data_dict():
-    """Return a data dict with some arbitrary data in it, suitable to be passed
-    to validator functions for testing.
-
-    """
-    return {("other key",): "other value"}
-
-
-def validator_errors_dict():
-    """Return an errors dict with some arbitrary errors in it, suitable to be
-    passed to validator functions for testing.
-
-    """
-    return {("other key",): ["other error"]}
-
-
-class Vocabulary(factory.Factory):
-    """A factory class for creating tag vocabularies."""
+class APIToken(CKANFactory):
+    """A factory class for creating CKAN API Tokens"""
 
     class Meta:
-        model = ckan.model.Vocabulary
-    name = factory.Sequence(lambda n: "test_vocabulary_{0:02d}".format(n))
+        model = ckan.model.ApiToken
+        action = "api_token_create"
+
+    name = factory.LazyFunction(fake.name)
+    user = factory.LazyFunction(lambda: User()["id"])
 
     @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
-
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-        return helpers.call_action("vocabulary_create", **kwargs)
+    def _api_prepare_args(cls, data_dict):
+        """Do not try to put `user` parameter into context."""
+        return data_dict
 
 
-class Activity(factory.Factory):
-    """A factory class for creating CKAN activity objects."""
+class UserWithToken(User):
+    """A factory class for creating CKAN users with an associated API token."""
 
-    class Meta:
-        model = ckan.model.Activity
+    password = "correct123"
 
-    @classmethod
-    def _build(cls, target_class, *args, **kwargs):
-        raise NotImplementedError(".build() isn't supported in CKAN")
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]
 
-    @classmethod
-    def _create(cls, target_class, *args, **kwargs):
-        if args:
-            assert False, "Positional args aren't supported, use keyword args."
-        return helpers.call_action("activity_create", **kwargs)
+
+class SysadminWithToken(Sysadmin):
+    """A factory class for creating CKAN sysadmin users
+    with an associated API token.
+    """
+    password = "correct123"
+
+    @factory.post_generation
+    def token(obj, create, extracted, **kwargs):
+        if not create:
+            return
+        api_token = APIToken(user=obj["id"])
+        obj["token"] = api_token["token"]

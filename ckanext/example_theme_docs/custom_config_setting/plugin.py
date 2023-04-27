@@ -1,9 +1,11 @@
 # encoding: utf-8
+from __future__ import annotations
 
-
+from typing import Any, Callable
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import config
+from ckan.common import CKANConfig, config
+from ckan.config.declaration import Declaration, Key
 
 
 def show_most_popular_groups():
@@ -19,8 +21,7 @@ def show_most_popular_groups():
     :rtype: bool
 
     '''
-    value = config.get('ckan.example_theme.show_most_popular_groups', False)
-    value = toolkit.asbool(value)
+    value = config.get('ckan.example_theme.show_most_popular_groups')
     return value
 
 
@@ -30,7 +31,7 @@ def most_popular_groups():
     # Get a list of all the site's groups from CKAN, sorted by number of
     # datasets.
     groups = toolkit.get_action('group_list')(
-        data_dict={'sort': 'package_count desc', 'all_fields': True})
+        {}, {'sort': 'package_count desc', 'all_fields': True})
 
     # Truncate the list to the 10 most popular groups only.
     groups = groups[:10]
@@ -43,17 +44,18 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
 
     '''
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IConfigDeclaration)
 
     # Declare that this plugin will implement ITemplateHelpers.
     plugins.implements(plugins.ITemplateHelpers)
 
-    def update_config(self, config):
+    def update_config(self, config: CKANConfig):
 
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
         # that CKAN will use this plugin's custom templates.
         toolkit.add_template_directory(config, 'templates')
 
-    def get_helpers(self):
+    def get_helpers(self) -> dict[str, Callable[..., Any]]:
         '''Register the most_popular_groups() function above as a template
         helper function.
 
@@ -65,3 +67,9 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
                 'example_theme_show_most_popular_groups':
                 show_most_popular_groups,
                 }
+
+    # IConfigDeclaration
+
+    def declare_config_options(self, declaration: Declaration, key: Key):
+        declaration.declare_bool(
+            key.ckan.example_theme.show_most_popular_groups)

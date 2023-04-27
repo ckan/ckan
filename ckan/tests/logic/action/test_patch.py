@@ -2,33 +2,33 @@
 """Unit tests for ckan/logic/action/patch.py."""
 import pytest
 
+from unittest import mock
+
 from ckan.tests import helpers, factories
+from ckan.logic.action.get import package_show as core_package_show
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("non_clean_db")
 class TestPatch(object):
     def test_package_patch_updating_single_field(self):
         user = factories.User()
-        dataset = factories.Dataset(
-            name="annakarenina", notes="some test now", user=user
-        )
-
+        dataset = factories.Dataset(notes="some test now", user=user)
+        stub = factories.Dataset.stub()
         dataset = helpers.call_action(
-            "package_patch", id=dataset["id"], name="somethingnew"
+            "package_patch", id=dataset["id"], name=stub.name
         )
 
-        assert dataset["name"] == "somethingnew"
+        assert dataset["name"] == stub.name
         assert dataset["notes"] == "some test now"
 
         dataset2 = helpers.call_action("package_show", id=dataset["id"])
 
-        assert dataset2["name"] == "somethingnew"
+        assert dataset2["name"] == stub.name
         assert dataset2["notes"] == "some test now"
 
     def test_resource_patch_updating_single_field(self):
         user = factories.User()
         dataset = factories.Dataset(
-            name="annakarenina",
             notes="some test now",
             user=user,
             resources=[{"url": "http://example.com/resource"}],
@@ -51,10 +51,8 @@ class TestPatch(object):
 
     def test_group_patch_updating_single_field(self):
         user = factories.User()
-        group = factories.Group(
-            name="economy", description="some test now", user=user
-        )
-
+        group = factories.Group(description="some test now", user=user)
+        name = group["name"]
         group = helpers.call_action(
             "group_patch",
             id=group["id"],
@@ -62,21 +60,21 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert group["name"] == "economy"
+        assert group["name"] == name
         assert group["description"] == "somethingnew"
 
         group2 = helpers.call_action("group_show", id=group["id"])
 
-        assert group2["name"] == "economy"
+        assert group2["name"] == name
         assert group2["description"] == "somethingnew"
 
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-    def test_group_patch_updating_single_field_when_public_user_details_is_false(self):
+    def test_group_patch_updating_single_field_when_public_user_details_is_false(
+        self,
+    ):
         user = factories.User()
-        group = factories.Group(
-            name="economy", description="some test now", user=user
-        )
-
+        group = factories.Group(description="some test now", user=user)
+        name = group["name"]
         group = helpers.call_action(
             "group_patch",
             id=group["id"],
@@ -84,21 +82,21 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert group["name"] == "economy"
+        assert group["name"] == name
         assert group["description"] == "somethingnew"
 
-        group2 = helpers.call_action("group_show", id=group["id"], include_users=True)
+        group2 = helpers.call_action(
+            "group_show", id=group["id"], include_users=True
+        )
 
-        assert group2["name"] == "economy"
+        assert group2["name"] == name
         assert group2["description"] == "somethingnew"
         assert len(group2["users"]) == 1
         assert group2["users"][0]["name"] == user["name"]
 
     def test_group_patch_preserve_datasets(self):
         user = factories.User()
-        group = factories.Group(
-            name="economy", description="some test now", user=user
-        )
+        group = factories.Group(description="some test now", user=user)
         factories.Dataset(groups=[{"name": group["name"]}])
 
         group2 = helpers.call_action("group_show", id=group["id"])
@@ -126,8 +124,9 @@ class TestPatch(object):
     def test_organization_patch_updating_single_field(self):
         user = factories.User()
         organization = factories.Organization(
-            name="economy", description="some test now", user=user
+            description="some test now", user=user
         )
+        name = organization["name"]
 
         organization = helpers.call_action(
             "organization_patch",
@@ -136,23 +135,25 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert organization["name"] == "economy"
+        assert organization["name"] == name
         assert organization["description"] == "somethingnew"
 
         organization2 = helpers.call_action(
             "organization_show", id=organization["id"]
         )
 
-        assert organization2["name"] == "economy"
+        assert organization2["name"] == name
         assert organization2["description"] == "somethingnew"
 
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", u"false")
-    def test_organization_patch_updating_single_field_when_public_user_details_is_false(self):
+    def test_organization_patch_updating_single_field_when_public_user_details_is_false(
+        self,
+    ):
         user = factories.User()
         organization = factories.Organization(
-            name="economy", description="some test now", user=user
+            description="some test now", user=user
         )
-
+        name = organization["name"]
         organization = helpers.call_action(
             "organization_patch",
             id=organization["id"],
@@ -160,14 +161,14 @@ class TestPatch(object):
             context={"user": user["name"]},
         )
 
-        assert organization["name"] == "economy"
+        assert organization["name"] == name
         assert organization["description"] == "somethingnew"
 
         organization2 = helpers.call_action(
             "organization_show", id=organization["id"], include_users=True
         )
 
-        assert organization2["name"] == "economy"
+        assert organization2["name"] == name
         assert organization2["description"] == "somethingnew"
         assert len(organization2["users"]) == 1
         assert organization2["users"][0]["name"] == user["name"]
@@ -192,3 +193,26 @@ class TestPatch(object):
 
         assert user2["fullname"] == "Mr. Test User"
         assert user2["about"] == "somethingnew"
+
+    def test_package_patch_for_update(self):
+
+        dataset = factories.Dataset()
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('package_patch', id=dataset['id'], notes='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_patch_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_patch', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True

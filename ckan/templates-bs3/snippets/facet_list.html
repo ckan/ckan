@@ -1,0 +1,99 @@
+{#
+Construct a facet module populated with links to filtered results.
+
+name
+The field name identifying the facet field, eg. "tags"
+
+title
+The title of the facet, eg. "Tags", or "Tag Cloud"
+
+label_function
+Renders the human-readable label for each facet value.
+If defined, this should be a callable that accepts a `facet_item`.
+eg. lambda facet_item: facet_item.display_name.upper()
+By default it displays the facet item's display name, which should
+usually be good enough
+
+if_empty
+A string, which if defined, and the list of possible facet items is empty,
+is displayed in lieu of an empty list.
+
+count_label
+A callable which accepts an integer, and returns a string.  This controls
+how a facet-item's count is displayed.
+
+extras
+Extra info passed into the add/remove params to make the url
+
+alternative_url
+URL to use when building the necessary URLs, instead of the default
+ones returned by url_for. Useful eg for dataset types.
+
+hide_empty
+Do not show facet if there are none, Default: false.
+
+within_tertiary
+Boolean for when a facet list should appear in the the right column of the
+page and not the left column.
+
+search_facets
+Dictionary with search facets
+
+#}
+{% block facet_list %}
+    {% set hide_empty = hide_empty or false %}
+    {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+	{% if items or not hide_empty %}
+	    {% if within_tertiary %}
+		{% set nav_class = 'nav nav-pills nav-stacked' %}
+		{% set nav_item_class = ' ' %}
+		{% set wrapper_class = 'nav-facet nav-facet-tertiary' %}
+	    {% endif %}
+	    {% block facet_list_item %}
+		<section class="{{ wrapper_class or 'module module-narrow module-shallow' }}">
+		    {% block facet_list_heading %}
+			<h2 class="module-heading">
+			    <i class="fa fa-filter"></i>
+			    {{ title }}
+			</h2>
+		    {% endblock %}
+		    {% block facet_list_items %}
+			{% with items = items or h.get_facet_items_dict(name, search_facets) %}
+			    {% if items %}
+				<nav aria-label="{{ title }}">
+				    <ul class="{{ nav_class or 'list-unstyled nav nav-simple nav-facet' }}">
+					{% for item in items %}
+					    {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
+					    {% set label = label_function(item) if label_function else item.display_name %}
+					    {% set label_truncated = label|truncate(22) if not label_function else label %}
+					    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
+					    <li class="{{ nav_item_class or 'nav-item' }}{% if item.active %} active{% endif %}">
+						<a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
+						    <span class="item-label">{{ label_truncated }}</span>
+						    <span class="hidden separator"> - </span>
+						    <span class="item-count badge">{{ count }}</span>
+						</a>
+					    </li>
+					{% endfor %}
+				    </ul>
+				</nav>
+
+				<p class="module-footer">
+				    {% if h.get_param_int('_%s_limit' % name) %}
+					{% if h.has_more_facets(name, search_facets) %}
+					    <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
+					{% endif %}
+				    {% else %}
+					<a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+				    {% endif %}
+				</p>
+			    {% else %}
+				<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
+			    {% endif %}
+			{% endwith %}
+		    {% endblock %}
+		</section>
+	    {% endblock %}
+	{% endif %}
+    {% endwith %}
+{% endblock %}
