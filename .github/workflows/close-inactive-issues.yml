@@ -45,10 +45,10 @@ jobs:
           stale-issue-message: "This issue is stale because it has no recent activity."
           close-issue-message: "This issue was closed because it has been inactive since being marked as stale."
           # Issues with these labels won't be marked as stale
-          exempt-issue-labels: WIP,Long-standing
+          exempt-issue-labels: WIP,Long-standing,Good for Contribution
 
           stale-pr-label: "Inactive?"
           stale-pr-message: "This PR is stale because it has no recent activity."
           close-pr-message: "This PR was closed because it has been inactive since being marked as stale."
           # PRs with these labels won't be marked as stale
-          exempt-pr-labels: WIP,Long-standing
+          exempt-pr-labels: WIP,Long-standing,Good for Contribution
