@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+# type: ignore
 from __future__ import print_function
 
 import sys

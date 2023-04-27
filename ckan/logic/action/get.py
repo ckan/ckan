@@ -415,7 +415,7 @@ def _group_or_org_list(
         elif sort_field == 'name':
             sort_model_field = model.Group.name
         elif sort_field == 'title':
-            sort_model_field = model.Group.title
+            sort_model_field = cast(Any, model.Group.title)
 
         if sort_direction == 'asc':
             query = query.order_by(sqlalchemy.asc(sort_model_field))
