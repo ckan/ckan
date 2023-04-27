@@ -511,7 +511,6 @@ CONFIG_PERMISSIONS_DEFAULTS: dict[str, Union[bool, str]] = {
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
     'public_activity_stream_detail': False,
-    'show_private_activities_publicly': False,
     'allow_dataset_collaborators': False,
     'allow_admin_collaborators': False,
     'allow_collaborators_to_change_owner_org': False,

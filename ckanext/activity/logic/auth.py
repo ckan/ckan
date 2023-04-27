@@ -146,9 +146,6 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
     # activity
     if "package" in activity.activity_type:
         object_type = "package"
-
-        if activity.data['package']['private'] and not authz.check_config_permission('ckan.auth.show_private_activities_publicly'):
-            tk.check_access("package_update", context, {'id': activity.data['package']['id']})
     else:
         return {"success": False, "msg": "object_type not recognized"}
     return activity_list(

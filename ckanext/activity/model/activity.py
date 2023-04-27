@@ -12,7 +12,6 @@ from sqlalchemy import (
     ForeignKey,
     or_,
     and_,
-    not_,
     union_all,
     text,
 )
@@ -24,7 +23,6 @@ import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
 from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
-from ckan import authz
 from ckan.types import Context, Query  # noqa
 
 
@@ -51,6 +49,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
+    permission_labels = Column("permission_labels", types.Text)
 
     activity_detail: "ActivityDetail"
 
@@ -323,7 +322,6 @@ def package_activity_list(
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
-    include_private_activity: bool = False,
     activity_types: Optional[list[str]] = None,
     exclude_activity_types: Optional[list[str]] = None,
 ) -> list[Activity]:
@@ -355,9 +353,6 @@ def package_activity_list(
         q = q.filter(Activity.timestamp > after)
     if before:
         q = q.filter(Activity.timestamp < before)
-
-    if not authz.check_config_permission('ckan.auth.show_private_activities_publicly') and not include_private_activity:
-        q = q.filter(not_(text("activity.data::json->'package'->>'private' = 'true'")))
 
     # revert sort queries for "only before" queries
     revese_order = after and not before

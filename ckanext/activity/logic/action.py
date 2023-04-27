@@ -8,10 +8,11 @@ import json
 from typing import Any, Optional
 
 import ckan.plugins.toolkit as tk
-
+from ckan import authz
 from ckan.logic import validate
 from ckan.types import Context, DataDict, ActionResult
 import ckanext.activity.email_notifications as email_notifications
+from ckan.lib.plugins import get_permission_labels
 
 from . import schema
 from ..model import activity as model_activity, activity_dict_save
@@ -246,12 +247,6 @@ def package_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
-    include_private_activity = True
-    try:
-        tk.check_access("package_update", context, data_dict)
-    except:
-        include_private_activity = False
-
     activity_objects = model_activity.package_activity_list(
         package.id,
         limit=limit,
@@ -259,12 +254,26 @@ def package_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
-        include_private_activity=include_private_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
     )
 
-    return model_activity.activity_list_dictize(activity_objects, context)
+    # Filter based on user permissions
+    filtered_activity_objects = []
+    user = context.get('user')
+    if not authz.is_sysadmin(user):
+        labels = get_permission_labels()
+        user_permission_labels = labels.get_user_activity_labels(context['auth_user_obj'])
+
+        for activity in activity_objects:
+            activity.permission_labels = labels.get_activity_labels(activity)
+
+            if activity.permission_labels and any(permission in activity.permission_labels for permission in user_permission_labels):
+                filtered_activity_objects.append(activity)
+    else:
+        filtered_activity_objects = activity_objects
+
+    return model_activity.activity_list_dictize(filtered_activity_objects, context)
 
 
 @validate(schema.default_activity_list_schema)
