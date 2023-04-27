@@ -666,12 +666,18 @@ class DefaultPermissionLabels(object):
 
     def get_activity_labels(self, activity_obj: Activity) -> list[str]:
         dataset = model.Package.get(activity_obj.object_id)
-        labels = self.get_dataset_labels(dataset)
+        labels = []
 
-        # Remove 'public' label if activity was created while dataset was private
-        if activity_obj.data['package']['private']:
-            if 'public' in labels:
-                labels.remove('public')
+        if dataset.state == u'active' and not dataset.private and not activity_obj.data['package']['private']:
+            labels.append(u'public')
+
+        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
+            labels.append(u'collaborator-%s' % dataset.id)
+
+        if dataset.owner_org:
+            labels.append(u'member-%s' % dataset.owner_org)
+        else:
+            labels.append(u'creator-%s' % dataset.creator_user_id)
 
         return labels
 
