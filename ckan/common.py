@@ -12,7 +12,9 @@ from __future__ import annotations
 import logging
 from collections.abc import MutableMapping, Iterable
 
-from typing import Any, Optional, TypeVar, cast, overload, Union
+from typing import (
+    Any, Optional, TYPE_CHECKING,
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
@@ -29,6 +31,9 @@ import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
 from ckan.types import Model, Request
 
+
+if TYPE_CHECKING:
+    MutableMapping = MutableMapping[str, Any]
 
 SENTINEL = {}
 
@@ -71,7 +76,7 @@ def ungettext(*args: Any, **kwargs: Any) -> str:
     return flask_ungettext(*args, **kwargs)
 
 
-class CKANConfig(MutableMapping[str, Any]):
+class CKANConfig(MutableMapping):
     u'''Main CKAN configuration object
 
     This is a dict-like object that also proxies any changes to the
