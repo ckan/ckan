@@ -15,7 +15,9 @@ beaker==1.12.1
 bleach==6.0.0
     # via -r requirements.in
 blinker==1.6.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   flask
 certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.12
@@ -31,7 +33,7 @@ dominate==2.7.0
     # via -r requirements.in
 feedgen==0.9.0
     # via -r requirements.in
-flask==2.2.3
+flask==2.3.1
     # via
     #   -r requirements.in
     #   flask-babel
@@ -53,7 +55,7 @@ importlib-metadata==6.3.0
     # via
     #   flask
     #   markdown
-itsdangerous==2.1.1
+itsdangerous==2.1.2
     # via
     #   flask
     #   flask-wtf
@@ -147,13 +149,13 @@ tzlocal==4.3
     # via -r requirements.in
 urllib3==1.26.9
     # via requests
-watchdog==2.1.6
+watchdog==3.0.0
     # via werkzeug
 webassets==2.0
     # via -r requirements.in
 webencodings==0.5.1
     # via bleach
-werkzeug[watchdog]==2.2.3
+werkzeug[watchdog]==2.3.1
     # via
     #   -r requirements.in
     #   flask
