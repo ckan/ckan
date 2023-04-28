@@ -51,7 +51,7 @@ testpaths = ["ckan", "ckanext"]
 addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb -p no:ckan"
 
 [tool.pyright]
-pythonVersion = "3.7"
+pythonVersion = "3.8"
 include = ["ckan", "ckanext"]
 exclude = [
     "**/test*",
