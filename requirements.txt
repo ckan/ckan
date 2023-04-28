@@ -43,8 +43,10 @@ flask-login==0.6.2
     # via -r requirements.in
 flask-wtf==1.1.1
     # via -r requirements.in
-greenlet==1.1.2
-    # via sqlalchemy
+greenlet==2.0.2
+    # via
+    #   -r requirements.in
+    #   sqlalchemy
 idna==3.3
     # via requests
 importlib-metadata==6.3.0

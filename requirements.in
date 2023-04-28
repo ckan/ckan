@@ -12,6 +12,8 @@ Flask==2.2.3
 Flask-Babel==3.1.0
 Flask-Login==0.6.2
 Flask-WTF==1.1.1
+# For Python 3.11 support
+greenlet==2.0.2
 Jinja2==3.1.2
 Markdown==3.4.3
 passlib==1.7.4
