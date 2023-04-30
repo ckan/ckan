@@ -174,7 +174,6 @@ plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
 run               Start Development server.
 search-index      Creates a search index for all datasets
-seed              Create test data in the database.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
