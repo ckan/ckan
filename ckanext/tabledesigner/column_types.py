@@ -8,6 +8,10 @@ def _standard_column(key):
         _standard_column_types[key] = cls
     return register
 
+
+column_types = _standard_column_types  # FIXME: include plugin column types
+
+
 class ColumnType:
     sql_is_empty = "{column} IS NULL"
 
