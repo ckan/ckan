@@ -22,7 +22,7 @@ class VideoView(p.SingletonPlugin):
 
     def update_config(self, config: CKANConfig):
         p.toolkit.add_template_directory(config, 'theme/templates')
-        self.formats = config.get_value('ckan.preview.video_formats').split()
+        self.formats = config.get('ckan.preview.video_formats').split()
 
     def info(self) -> dict[str, Any]:
         return {'name': 'video_view',

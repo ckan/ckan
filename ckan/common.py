@@ -14,7 +14,7 @@ from collections.abc import MutableMapping, Iterable
 
 from typing import (
     Any, Optional, TYPE_CHECKING,
-    TypeVar, cast, overload, Container, Union)
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
@@ -28,14 +28,14 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
-from ckan.config.declaration import Declaration, Key
-from ckan.types import Model
+from ckan.config.declaration import Declaration
+from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
-    # starting from python 3.7 the following line can be used without any
-    # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
+
+SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
@@ -66,14 +66,14 @@ def streaming_response(data: Iterable[Any],
 
 
 def ugettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ugettext(*args, **kwargs))
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
 
 
 def ungettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ungettext(*args, **kwargs))
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -131,36 +131,23 @@ class CKANConfig(MutableMapping):
     def is_declared(self, key: str) -> bool:
         return key in config_declaration
 
-    def get_value(self, key: str) -> Any:
-        if self.get("config.mode") == "strict":
-            return self[key]
+    def get(self, key: str, default: Any = SENTINEL) -> Any:
+        """Return the value for key if key is in the config, else default.
+        """
+        if default is SENTINEL:
+            default = None
+            is_strict = super().get("config.mode") == "strict"
+            if is_strict and key not in config_declaration:
+                log.warning("Option %s is not declared", key)
 
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return self.get(key)
-
-        value = self.get(key, option.default)
-        return option.normalize(value)
-
-    def subset(
-            self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = None
-    ) -> dict[str, Any]:
-        subset = {}
-        exclude = exclude or set()
-        for k, v in self.store.items():
-            if k in exclude or pattern != k:
-                continue
-            subset[k] = v
-        return subset
+        return super().get(key, default)
 
 
 def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy):
+class CKANRequest(LocalProxy[Request]):
     u'''Common request object
 
     This is just a wrapper around LocalProxy so we can handle some special

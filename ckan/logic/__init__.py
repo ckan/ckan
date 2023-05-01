@@ -15,9 +15,6 @@ from typing_extensions import Literal
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
 
-import six
-
-
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
@@ -57,7 +54,7 @@ class ActionError(Exception):
         msg = self.message
         if not isinstance(msg, str):
             msg = str(msg)
-        return six.ensure_text(msg)
+        return msg
 
 
 class NotFound(ActionError):
@@ -167,7 +164,7 @@ def checks_and_delete_if_csrf_token_in_forms(parsed: dict[str, Any]):
     from ckan.common import config
 
     # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    csrf_token = config.get_value("WTF_CSRF_FIELD_NAME")
+    csrf_token = config.get("WTF_CSRF_FIELD_NAME")
     if csrf_token in parsed:
         parsed.pop(csrf_token)
     return parsed

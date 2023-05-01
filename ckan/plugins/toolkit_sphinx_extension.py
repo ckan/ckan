@@ -159,7 +159,7 @@ def source_read(app: Any, docname: str, source: Any) -> None:
     if docname != 'extensions/plugins-toolkit':
         return
 
-    source_ = ''
+    source_ = '\n'
     for name, thing in inspect.getmembers(toolkit):
         if name not in toolkit.__all__:
             continue

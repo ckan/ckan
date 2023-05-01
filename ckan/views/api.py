@@ -5,6 +5,7 @@ import os
 import logging
 import html
 import io
+import datetime
 
 from typing import Any, Callable, Optional, cast, Union
 
@@ -42,6 +43,12 @@ API_MAX_VERSION = 3
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
+def _json_serial(obj: Any):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError("Unhandled Object")
+
+
 def _finish(status_int: int,
             response_data: Any = None,
             content_type: str = u'text',
@@ -71,6 +78,7 @@ def _finish(status_int: int,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
@@ -255,14 +263,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
             _(u'JSON Error: %s') % inst)
-    if not isinstance(request_data, dict):
-        # this occurs if request_data is blank
-        log.info(u'Bad Action API request data - not dict: %r',
-                 request_data)
-        return _finish_bad_request(
-            _(u'Bad request data: %s') %
-            u'Request data JSON decoded to %r but '
-            u'it needs to be a dictionary.' % request_data)
+
     if u'callback' in request_data:
         del request_data[u'callback']
         g.user = None

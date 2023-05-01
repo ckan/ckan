@@ -136,7 +136,7 @@ class Group(core.StatefulObjectMixin,
 
     id: str
     name: str
-    title: str
+    title: str | None
     type: str
     description: str
     image_url: str

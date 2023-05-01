@@ -103,7 +103,7 @@ def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')
     order_by = request.args.get('order_by', 'name')
-    default_limit: int = config.get_value('ckan.user_list_limit')
+    default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
     context = cast(Context, {
         u'return_query': True,
@@ -137,7 +137,7 @@ def index():
 
 def me() -> Response:
     return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+        config.get(u'ckan.auth.route_after_login'))
 
 
 def read(id: str) -> Union[Response, str]:
@@ -159,9 +159,50 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
     return base.render(u'user/read.html', extra_vars)
+
+
+def read_organizations(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_organizations.html', extra_vars)
+
+
+def read_groups(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_groups.html', extra_vars)
 
 
 class ApiTokenView(MethodView):
@@ -194,8 +235,6 @@ class ApiTokenView(MethodView):
         }
 
         extra_vars = _extra_template_variables(context, data_dict)
-        if extra_vars is None:
-            return h.redirect_to(u'user.login')
         extra_vars[u'tokens'] = tokens
         extra_vars.update({
             u'data': data,
@@ -511,10 +550,8 @@ def rotate_token():
     for security purposes.
     """
     from flask_wtf.csrf import generate_csrf
-    from ckan.common import session
-    # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
         generate_csrf()
@@ -574,7 +611,7 @@ def logout() -> Response:
     came_from = request.args.get('came_from', '')
     logout_user()
 
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
 
@@ -630,7 +667,7 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
@@ -692,7 +729,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get_value(
+                return h.redirect_to(config.get(
                     u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
@@ -700,7 +737,7 @@ class RequestResetView(MethodView):
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get_value(
+        return h.redirect_to(config.get(
             u'ckan.user_reset_landing_page'))
 
     def get(self) -> str:
@@ -778,7 +815,7 @@ class PerformResetView(MethodView):
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get_value(
+            return h.redirect_to(config.get(
                 u'ckan.user_reset_landing_page'))
 
         except logic.NotAuthorized:
@@ -932,6 +969,8 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(u'/<id>/organizations', view_func=read_organizations)
+user.add_url_rule(u'/<id>/groups', view_func=read_groups)
 user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )

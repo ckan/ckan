@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Optional, Type, TypeVar, cast
+from typing import Any, Iterable, Optional, Type, TypeVar, cast
 from typing_extensions import TypeAlias
 
 from sqlalchemy.orm import relationship, backref
@@ -21,7 +21,7 @@ import ckan.model as model
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
-from ckan.model.base import Base
+from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
 
 from ckan.types import Context, Query  # noqa
@@ -33,7 +33,7 @@ TActivityDetail = TypeVar("TActivityDetail", bound="ActivityDetail")
 QActivity: TypeAlias = "Query[Activity]"
 
 
-class Activity(domain_object.DomainObject, Base):  # type: ignore
+class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     __tablename__ = "activity"
     # the line below handles cases when activity table was already loaded into
     # metadata state(via stats extension). Can be removed if stats stop using
@@ -148,7 +148,7 @@ def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
 
 
 def activity_list_dictize(
-    activity_list: list[Activity], context: Context
+    activity_list: Iterable[Activity], context: Context
 ) -> list[dict[str, Any]]:
     return [activity_dictize(activity, context) for activity in activity_list]
 
@@ -761,7 +761,7 @@ def _filter_activitites_from_users(q: QActivity) -> QActivity:
 
 
 def _filter_activitites_from_type(
-    q: QActivity, types: list[str], include: bool = True
+    q: QActivity, types: Iterable[str], include: bool = True
 ):
     """Adds a filter to an existing query object to include or exclude
     (include=False) activities based on a list of types.
@@ -780,7 +780,7 @@ def _activity_stream_get_filtered_users() -> list[str]:
     option and return a list of their ids. If the config is not specified,
     returns the id of the site user.
     """
-    users_list = config.get_value("ckan.hide_activity_from_users")
+    users_list = config.get("ckan.hide_activity_from_users")
     if not users_list:
         from ckan.logic import get_action
 

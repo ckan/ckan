@@ -13,10 +13,10 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.8'
           cache: 'pip'
       - name: Install python deps
-        run: pip install -r requirement-setuptools.txt -r requirements.txt -r dev-requirements.txt -e.
+        run: pip install -r requirements.txt -r dev-requirements.txt -e.
 
       - name: Check that changelog is updated
         run: towncrier check >> $GITHUB_STEP_SUMMARY

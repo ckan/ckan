@@ -344,6 +344,7 @@ def default_show_group_schema(
     schema['display_name'] = []
     schema['extras'] = cast(Schema, {'__extras': [keep_extras]})
     schema['package_count'] = [ignore_missing]
+    schema['member_count'] = [ignore_missing]
     schema['packages'] = cast(Schema, {'__extras': [keep_extras]})
     schema['state'] = []
     schema['users'] = cast(Schema, {'__extras': [keep_extras]})
@@ -858,6 +859,7 @@ def config_declaration_v1(
             "section": [default("app:main"), unicode_safe],
             "options": {
                 "key": [not_empty, key_from_string],
+                "legacy_key": [ignore_empty, unicode_safe],
                 "default": [ignore_missing],
                 "default_callable": [ignore_empty, importable_string],
                 "placeholder": [default(""), unicode_safe],

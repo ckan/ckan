@@ -80,7 +80,7 @@ def get_resource_uploader(data_dict: dict[str, Any]) -> PResourceUploader:
 
 def get_storage_path() -> str:
     '''Function to get the storage path from config file.'''
-    storage_path = config.get_value('ckan.storage_path')
+    storage_path = config.get('ckan.storage_path')
     if not storage_path:
         log.critical('''Please specify a ckan.storage_path in your config
                         for your uploads''')
@@ -89,11 +89,11 @@ def get_storage_path() -> str:
 
 
 def get_max_image_size() -> int:
-    return config.get_value('ckan.max_image_size')
+    return config.get('ckan.max_image_size')
 
 
 def get_max_resource_size() -> int:
-    return config.get_value('ckan.max_resource_size')
+    return config.get('ckan.max_resource_size')
 
 
 class Upload(object):
@@ -205,9 +205,9 @@ class Upload(object):
         if not self.filename or not self.upload_file:
             return
 
-        mimetypes = config.get_value(
+        mimetypes = config.get(
             f"ckan.upload.{self.object_type}.mimetypes")
-        types = config.get_value(f"ckan.upload.{self.object_type}.types")
+        types = config.get(f"ckan.upload.{self.object_type}.types")
         if not mimetypes and not types:
             return
 
@@ -230,7 +230,7 @@ class ResourceUpload(object):
 
     def __init__(self, resource: dict[str, Any]) -> None:
         path = get_storage_path()
-        config_mimetype_guess = config.get_value('ckan.mimetype_guess')
+        config_mimetype_guess = config.get('ckan.mimetype_guess')
 
         if not path:
             self.storage_path = None

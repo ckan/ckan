@@ -35,7 +35,7 @@ def connect_to_redis() -> Redis:  # type: ignore
     '''
     global _connection_pool
     if _connection_pool is None:
-        url = config.get_value('ckan.redis.url')
+        url = config.get('ckan.redis.url')
         log.debug(u'Using Redis at {}'.format(url))
         _connection_pool = ConnectionPool.from_url(url)
     return Redis(connection_pool=_connection_pool)

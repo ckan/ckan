@@ -36,7 +36,7 @@ this.ckan.module('resource-view-embed', function ($) {
   }
 
   function _embedCode () {
-    return '<iframe width="' + self.options.width + '" height="' + self.options.height + '" src="' + self.options.url + '" frameBorder="0"></iframe>';
+    return '<iframe title="Data viewer" width="' + self.options.width + '" height="' + self.options.height + '" src="' + self.options.url + '" frameBorder="0"></iframe>';
   }
 
   return {
