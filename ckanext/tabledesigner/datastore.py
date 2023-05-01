@@ -2,24 +2,35 @@ from ckan.plugins.toolkit import get_action
 
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
+from .column_types import column_types
+
 
 def create_table(resource_id, info):
     '''
     Set up datastore table + validation
     '''
-    primary_key = [f['id'] for f in info if f.get('pk')]
+    primary_key = [(f['id'], f['type']) for f in info if f.get('pk')]
 
-    validate_def = None
-    if primary_key:
+    validate_rules = []
+    for colname, typ in primary_key:
+        ct = column_types[typ]
+        condition = ct.sql_is_empty.format(
+            column=f'NEW.{identifier(colname)}'
+        )
+        validate_rules.append(f'''
+IF {condition} THEN
+    errors := errors || ARRAY[
+        {literal_string(colname)}, 'Primary key must not be empty'
+    ];
+END IF;
+''')
+
+    if validate_rules:
         validate_def = '''
 DECLARE
   errors text[] := '{}';
 BEGIN
-''' + ''.join(f'''
-  IF (NEW.{identifier(f)} = '') IS NOT FALSE THEN
-    errors := errors || ARRAY[{literal_string(f)}, 'Primary key must not be empty'];
-  END IF;
-''' for f in primary_key) + '''
+''' + ''.join(validate_rules) + '''
   IF errors = '{}' THEN
     RETURN NEW;
   END IF;
@@ -42,7 +53,7 @@ END;
         None, {
             'resource_id': resource_id,
             'force': True,
-            'primary_key': primary_key,
+            'primary_key': [f for f, typ in primary_key],
             'fields': [{
                 'id': i['id'],
                 'type': i['type'],
@@ -56,4 +67,3 @@ END;
             ] if validate_def else [],
         }
     )
-
