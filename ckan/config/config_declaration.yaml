@@ -1751,3 +1751,15 @@ groups:
         type: int
         default: 180
         description: The option defines the timeout in seconds until giving up on a job
+
+
+  - annotation: NoneType Display Settings
+    options:
+      - key: ckan.null_label
+        description: |
+          The option defines the label used to display NoneType values for the front-end.
+          This can be a string or a dictionary for locale strings.
+          example::
+
+            ckan.null_label = "N/A"
+            ckan.null_label = {"en": "N/A", "fr": "Aucun"}

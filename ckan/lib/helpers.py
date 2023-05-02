@@ -2809,3 +2809,24 @@ def make_login_url(
 @core_helper
 def csrf_input():
     return snippet('snippets/csrf_input.html')
+
+
+@core_helper
+def get_null_label() -> Union[str, None]:
+    _auto_flask_context = _get_auto_flask_context()
+
+    if _auto_flask_context:
+        _auto_flask_context.push()
+
+    null_label = config.get('ckan.null_label', None)
+    
+    if null_label is not None:
+        try:
+            null_label = json.loads(null_label)
+            if lang() in null_label:
+                return null_label[lang()]
+        except ValueError as e:
+            if '{' not in null_label:
+                return null_label
+            raise ValueError(e)
+    return None
