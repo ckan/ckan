@@ -67,11 +67,10 @@ def is_available() -> bool:
     try:
         conn = make_connection()
         conn.search(q="*:*", rows=1)
+        conn.get_session().close()
     except Exception as e:
         log.exception(e)
         return False
-    finally:
-        conn.get_session().close()
     return True
 
 

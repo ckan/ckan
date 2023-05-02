@@ -308,6 +308,7 @@ class PackageSearchIndex(SearchIndex):
             if not config.get('ckan.search.solr_commit'):
                 commit = False
             conn.add(docs=[pkg_dict], commit=commit)
+            conn.get_session().close()
         except pysolr.SolrError as e:
             msg = 'Solr returned an error: {0}'.format(
                 e.args[0][:1000] # limit huge responses
@@ -319,8 +320,6 @@ class PackageSearchIndex(SearchIndex):
                 conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
-        finally:
-            conn.get_session().close()
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
@@ -329,11 +328,10 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             conn.commit(waitSearcher=False)
+            conn.get_session().close()
         except Exception as e:
             log.exception(e)
             raise SearchIndexError(e)
-        finally:
-            conn.get_session().close()
 
     def delete_package(self, pkg_dict: dict[str, Any]) -> None:
         conn = make_connection()
