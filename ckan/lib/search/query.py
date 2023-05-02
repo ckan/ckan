@@ -291,6 +291,7 @@ class PackageSearchQuery(SearchQuery):
 
         conn = make_connection()
         data = conn.search(query, fq=fq, rows=max_results, fl='id')
+        conn.get_session().close()
         return [r.get('id') for r in data.docs]
 
     def get_index(self, reference: str) -> dict[str, Any]:
@@ -314,6 +315,8 @@ class PackageSearchQuery(SearchQuery):
             raise SearchError(
                 'SOLR returned an error running query: %r Error: %r' %
                 (query, e))
+        finally:
+            conn.get_session().close()
 
         if solr_response.hits == 0:
             raise SearchError('Dataset not found in the search index: %s' %
@@ -424,6 +427,9 @@ class PackageSearchQuery(SearchQuery):
                     raise SearchQueryError('Invalid "sort" parameter')
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
+        finally:
+            conn.get_session().close()
+
         self.count = solr_response.hits
         self.results = cast("list[Any]", solr_response.docs)
 

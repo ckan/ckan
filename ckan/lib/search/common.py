@@ -70,6 +70,8 @@ def is_available() -> bool:
     except Exception as e:
         log.exception(e)
         return False
+    finally:
+        conn.get_session().close()
     return True
 
 
