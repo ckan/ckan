@@ -1,0 +1,1 @@
+Close Solr sessions correctly after use to suppress warnings.
