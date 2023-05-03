@@ -810,6 +810,10 @@ def user_activity(id: str) -> str:
 
 @bp.route("/dashboard/", strict_slashes=False)
 def dashboard() -> str:
+    if tk.current_user.is_anonymous:
+        tk.h.flash_error(tk._(u'Not authorized to see this page'))
+        return tk.h.redirect_to(u'user.login')
+
     context = cast(
         Context,
         {
@@ -836,11 +840,11 @@ def dashboard() -> str:
     )
     activity_stream = tk.h.dashboard_activity_stream(
         tk.g.userobj.id,
-        filter_type,
-        filter_id,
-        limit + 1,
-        before,
-        after
+        filter_type=filter_type,
+        filter_id=filter_id,
+        limit=limit + 1,
+        before=before,
+        after=after
     )
 
     has_more = len(activity_stream) > limit

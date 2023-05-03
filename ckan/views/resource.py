@@ -75,9 +75,9 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
             else:
                 return h.redirect_to(
                     "user.login",
-                    came_from=h.url_for('resource.read',
-                                        id=id, resource_id=resource_id)
-                )
+                    came_from=h.url_for(
+                        '{}_resource.read'.format(package_type),
+                        id=id, resource_id=resource_id))
         return base.abort(
             404,
             _(u'Dataset not found')
@@ -443,7 +443,7 @@ class EditView(MethodView):
 
 
 class DeleteView(MethodView):
-    def _prepare(self, id: str):
+    def _prepare(self, resource_id: str):
         context = cast(Context, {
             u'model': model,
             u'session': model.Session,
@@ -451,12 +451,14 @@ class DeleteView(MethodView):
             u'auth_user_obj': current_user
         })
         try:
-            check_access(u'package_delete', context, {u'id': id})
+            check_access(u'resource_delete', context, {u'id': resource_id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'Unauthorized to delete package %s') % u''
+                _(u'Unauthorized to delete resource %s') % u''
             )
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
         return context
 
     def post(self, package_type: str, id: str, resource_id: str) -> Response:
@@ -465,7 +467,7 @@ class DeleteView(MethodView):
                 u'{}_resource.edit'.format(package_type),
                 resource_id=resource_id, id=id
             )
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
 
         try:
             get_action(u'resource_delete')(context, {u'id': resource_id})
@@ -487,7 +489,7 @@ class DeleteView(MethodView):
             return base.abort(404, _(u'Resource not found'))
 
     def get(self, package_type: str, id: str, resource_id: str) -> str:
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
         try:
             resource_dict = get_action(u'resource_show')(
                 context, {

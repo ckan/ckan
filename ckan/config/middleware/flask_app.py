@@ -5,7 +5,6 @@ import os
 import sys
 import time
 import inspect
-import itertools
 import pkgutil
 import logging
 
@@ -22,7 +21,6 @@ from werkzeug.exceptions import (
     Unauthorized,
     Forbidden
 )
-from werkzeug.routing import Rule
 from werkzeug.local import LocalProxy
 
 from flask_babel import Babel
@@ -131,7 +129,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.testing = testing
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
-    app.url_rule_class = CKAN_Rule
 
     # Update Flask config with the CKAN values. We use the common config
     # object as values might have been modified on `load_environment`
@@ -227,8 +224,11 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # WebAssets
     _setup_webassets(app)
 
-    # Auto-register all blueprints defined in the `views` folder
+    # Register Blueprints. First registered wins, so we need to register
+    # plugins first to be able to override core blueprints.
+    _register_plugins_blueprints(app)
     _register_core_blueprints(app)
+
     _register_error_handler(app)
 
     # CSRF
@@ -237,9 +237,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
     csrf.init_app(app)
-
-    # Set up each IBlueprint extension as a Flask Blueprint
-    _register_plugins_blueprints(app)
 
     if config.get("ckan.csrf_protection.ignore_extensions"):
         log.warn(csrf_warn_extensions)
@@ -428,23 +425,11 @@ def helper_functions() -> dict[str, h.HelperAttributeDict]:
     return dict(h=h.helper_functions)
 
 
-def c_object() -> dict[str, LocalProxy]:
+def c_object() -> dict[str, LocalProxy[Any]]:
     u'''
     Expose `c` as an alias of `g` in templates for backwards compatibility
     '''
     return dict(c=g)
-
-
-class CKAN_Rule(Rule):  # noqa
-
-    u'''Custom Flask url_rule_class.
-
-    We use it to be able to flag routes defined in extensions as such
-    '''
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        self.ckan_core = True
-        super(CKAN_Rule, self).__init__(*args, **kwargs)
 
 
 class CKAN_AppCtxGlobals(_AppCtxGlobals):  # noqa
@@ -470,61 +455,6 @@ class CKANFlask(MultiStaticFlask):
     static_folder: list[str]
     session_interface: SessionInterface
 
-    def can_handle_request(
-            self,
-            environ: Any) -> Union[tuple[bool, str], tuple[bool, str, str]]:
-        '''
-        Decides whether it can handle a request with the Flask app by
-        matching the request environ against the route mapper
-
-        Returns (True, 'flask_app', origin) if this is the case.
-
-        `origin` can be either 'core' or 'extension' depending on where
-        the route was defined.
-        '''
-        urls = self.url_map.bind_to_environ(environ)
-
-        try:
-            rule, args = urls.match(return_rule=True)
-            origin = 'core'
-            if not getattr(rule, 'ckan_core', True):
-                origin = 'extension'
-            log.debug('Flask route match, endpoint: {0}, args: {1}, '
-                      'origin: {2}'.format(rule.endpoint, args, origin))
-
-            # Disable built-in flask's ability to prepend site root to
-            # generated url, as we are going to use locale and existing
-            # logic is not flexible enough for this purpose
-            environ['SCRIPT_NAME'] = ''
-
-            return (True, self.app_name, origin)
-        except HTTPException:
-            return (False, self.app_name)
-
-    def register_extension_blueprint(self, blueprint: Blueprint,
-                                     **kwargs: dict[str, Any]):
-        '''
-        This method should be used to register blueprints that come from
-        extensions, so there's an opportunity to add extension-specific
-        options.
-
-        Sets the rule property `ckan_core` to False, to indicate that the rule
-        applies to an extension route.
-        '''
-        self.register_blueprint(blueprint, **kwargs)
-
-        # Get the new blueprint rules
-        bp_rules = itertools.chain.from_iterable(
-            v for k, v in self.url_map._rules_by_endpoint.items()
-            if k.startswith(u'{0}.'.format(blueprint.name))
-        )
-
-        # This compare key will ensure the rule will be near the top.
-        top_compare_key = False, -100, [(-2, 0)]
-        for r in bp_rules:
-            setattr(r, "ckan_core", False)
-            setattr(r, "match_compare_key", lambda: top_compare_key)
-
 
 def _register_plugins_blueprints(app: CKANApp):
     """ Resgister all blueprints defined in plugins by IBlueprint
@@ -533,9 +463,9 @@ def _register_plugins_blueprints(app: CKANApp):
         plugin_blueprints = plugin.get_blueprint()
         if isinstance(plugin_blueprints, list):
             for blueprint in plugin_blueprints:
-                app.register_extension_blueprint(blueprint)
+                app.register_blueprint(blueprint)
         else:
-            app.register_extension_blueprint(plugin_blueprints)
+            app.register_blueprint(plugin_blueprints)
 
 
 def _exempt_plugins_blueprints_from_csrf(csrf: CSRFProtect):

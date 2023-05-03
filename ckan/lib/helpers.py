@@ -797,7 +797,7 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
 
 
 @core_helper
-def link_to(label: str, url: str, **attrs: Any) -> Markup:
+def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
     attrs['href'] = url
     if label == '' or label is None:
@@ -1988,7 +1988,10 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False,
+                     include_dataset_count: bool = False,
+                     include_member_count: bool = False,
+                     user: Union[str, None] = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1998,23 +2001,44 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
     :type am-member: bool
 
     '''
-    context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
+    data_dict = {'available_only': True,
+                 'am_member': am_member,
+                 'include_dataset_count': include_dataset_count,
+                 'include_member_count': include_member_count}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False
+                            include_dataset_count: bool = False,
+                            include_member_count: bool = False,
+                            user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': current_user.name}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
+        'include_dataset_count': include_dataset_count,
+        'include_member_count': include_member_count}
     return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+@core_helper
+def member_count(group: str) -> int:
+    '''Return the number of members belonging to the group'''
+    context: Context = {}
+    data_dict = {
+        u'id': group,
+        u'object_type': u'user'
+    }
+    return len(logic.get_action(u'member_list')(context, data_dict))
 
 
 @core_helper
@@ -2796,11 +2820,12 @@ def make_login_url(
 
     if url_is_local(next_url):
         md = {}
+
         md[next_field] = urlparse(next_url).path
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
+        return cast(str, urlunparse(parsed_base))
     return base
 
 

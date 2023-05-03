@@ -54,8 +54,7 @@ class DataTablesView(p.SingletonPlugin):
         self.default_view = config.get(u"ckan.datatables.default_view")
 
         toolkit.add_template_directory(config, u'templates')
-        toolkit.add_public_directory(config, u'public')
-        toolkit.add_resource(u'public', u'ckanext-datatablesview')
+        toolkit.add_resource(u'assets', u'ckanext-datatablesview')
 
     # IResourceView
 

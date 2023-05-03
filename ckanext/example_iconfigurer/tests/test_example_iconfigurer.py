@@ -1,6 +1,4 @@
 # encoding: utf-8
-
-import six
 import pytest
 
 import ckan.tests.helpers as helpers
@@ -44,7 +42,7 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
         monkeypatch.setitem(ckan_config, "ckan.admin_tabs", {})
         expected = ""
         response = app.get("/build_extra_admin_nav")
-        assert six.ensure_text(response.data) == expected
+        assert response.get_data(as_text=True) == expected
 
     def test_build_extra_admin_nav_one_value_in_config(
         self, app, ckan_config, monkeypatch
@@ -67,7 +65,7 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
         )
 
         response = app.get("/build_extra_admin_nav")
-        assert six.ensure_text(response.data) == expected
+        assert response.get_data(as_text=True) == expected
 
     def test_build_extra_admin_nav_two_values_in_config(
         self, app, ckan_config, monkeypatch
@@ -91,4 +89,4 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
         )
         expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-image"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
         response = app.get("/build_extra_admin_nav")
-        assert six.ensure_text(response.data) == expected
+        assert response.get_data(as_text=True) == expected

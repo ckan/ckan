@@ -55,9 +55,8 @@ class TextView(p.SingletonPlugin):
                                  self.xml_formats +
                                  self.json_formats)
 
-        p.toolkit.add_public_directory(config, 'theme/public')
-        p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-textview')
+        p.toolkit.add_template_directory(config, 'templates')
+        p.toolkit.add_resource('assets', 'ckanext-textview')
 
     def info(self):
         return {'name': 'text_view',

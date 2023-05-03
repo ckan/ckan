@@ -97,9 +97,8 @@ class ReclineViewBase(p.SingletonPlugin):
         Set up the resource library, public directory and
         template directory for the view
         '''
-        toolkit.add_public_directory(config, 'theme/public')
-        toolkit.add_template_directory(config, 'theme/templates')
-        toolkit.add_resource('theme/public', 'ckanext-reclineview')
+        toolkit.add_template_directory(config, 'templates')
+        toolkit.add_resource('assets', 'ckanext-reclineview')
 
         log.warning(
             "The Recline-based views are deprecated and"

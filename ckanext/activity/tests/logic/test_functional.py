@@ -2,6 +2,8 @@
 
 import pytest
 
+from bs4 import BeautifulSoup
+
 import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -30,11 +32,19 @@ class TestPagination():
         url = tk.url_for("dataset.activity", id=dataset["id"])
         response = app.get(url)
 
-        assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
-        assert f'<a href="/dataset/activity/{dataset["id"]}?before=' in response.body
+        body = BeautifulSoup(response.body)
+        link = body.select_one('a.btn.disabled[href=None]')
+
+        assert link
+        assert "Newer activities" in link.text
+        assert body.select_one(f'a[href^="/dataset/activity/{dataset["id"]}?before="]')
 
         url = tk.url_for("activity.organization_activity", id=org["id"])
         response = app.get(url)
 
-        assert '<a href="None" class="btn disabled">Newer activities</a>' in response.body
-        assert f'<a href="/organization/activity/{org["id"]}?before=' in response.body
+        body = BeautifulSoup(response.body)
+        link = body.select_one('a.btn.disabled[href=None]')
+
+        assert link
+        assert "Newer activities" in link.text
+        assert body.select_one(f'a[href^="/organization/activity/{org["id"]}?before="]')

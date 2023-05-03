@@ -34,7 +34,6 @@ from io import BytesIO
 import copy
 
 import pytest
-import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
@@ -237,7 +236,7 @@ def clean_db(reset_db):
     reset_db()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def migrate_db_for():
     """Apply database migration defined by plugin.
 
@@ -408,10 +407,12 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
-        action = kwargs.pop(u"action", u"resource_create")
-        field = kwargs.pop(u"upload_field_name", u"upload")
+        action = kwargs.pop("action", "resource_create")
+        field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        test_file.write(six.ensure_binary(data))
+        if type(data) is not bytes:
+            data = bytes(data, encoding="utf-8")
+        test_file.write(data)
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 
