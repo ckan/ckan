@@ -79,7 +79,7 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
             {
                 "example_iconfigurer.config_one": {
                     "label": "My Label",
-                    "icon": "picture-o",
+                    "icon": "image",
                 },
                 "example_iconfigurer.config_two": {
                     "label": "My Other Label",
@@ -87,6 +87,6 @@ class TestExampleIConfigurerBuildExtraAdminTabsHelper(object):
                 },
             },
         )
-        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-picture-o"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
+        expected = """<li><a href="/ckan-admin/myext_config_one"><i class="fa fa-image"></i> My Label</a></li><li><a href="/ckan-admin/myext_config_two">My Other Label</a></li>"""
         response = app.get("/build_extra_admin_nav")
         assert response.get_data(as_text=True) == expected
