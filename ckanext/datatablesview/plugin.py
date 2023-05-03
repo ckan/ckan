@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from ckan.common import CKANConfig
-from typing import Any, cast
+from typing import Any, cast, Callable
 from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -22,6 +22,7 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.ITemplateHelpers)
 
     # IBlueprint
 
@@ -52,6 +53,7 @@ class DataTablesView(p.SingletonPlugin):
             u"ckan.datatables.ellipsis_length")
         self.date_format = config.get(u"ckan.datatables.date_format")
         self.default_view = config.get(u"ckan.datatables.default_view")
+        self.null_label = config.get(u"ckan.datatables.null_label")
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_resource(u'assets', u'ckanext-datatablesview')
@@ -96,3 +98,10 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
+
+    # ITemplateHelpers
+
+    def get_helpers(self) -> dict[str, Callable[..., object]]:
+        if self.null_label is None:
+            return {'get_null_label': lambda: u''}
+        return {'get_null_label': lambda: toolkit._(self.null_label)}
