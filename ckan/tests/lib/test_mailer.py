@@ -2,11 +2,11 @@
 
 import base64
 import pytest
-import six
 import io
 from email.header import decode_header
 from email.mime.text import MIMEText
 from email.parser import Parser
+import email.utils
 
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
@@ -200,10 +200,10 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
 
-        expected_from_header = "{0} <{1}>".format(
+        expected_from_header = email.utils.formataddr((
             config.get("ckan.site_title"),
             config.get("smtp.mail_from")
-        )
+        ))
 
         assert expected_from_header in msg[3]
 
@@ -262,8 +262,8 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert group["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert group["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
     @pytest.mark.usefixtures("with_request_context")
     def test_send_invite_email_with_org(self, mail_server):
@@ -280,8 +280,8 @@ class TestMailer(MailerBase):
         msgs = mail_server.get_smtp_messages()
         msg = msgs[0]
         body = self.get_email_body(msg[3])
-        assert org["title"] in six.ensure_text(body)
-        assert h.roles_translated()[role] in six.ensure_text(body)
+        assert org["title"] in body.decode()
+        assert h.roles_translated()[role] in body.decode()
 
     @pytest.mark.ckan_config("smtp.server", "999.999.999.999")
     def test_bad_smtp_host(self):

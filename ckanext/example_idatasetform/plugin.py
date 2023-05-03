@@ -46,8 +46,10 @@ def country_codes_helper():
         return None
 
 
-class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
-        tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(
+        tk.DefaultDatasetForm,
+        plugins.SingletonPlugin,
+):
     '''An example IDatasetForm CKAN plugin.
 
     Uses a tag vocabulary to add a custom metadata field to datasets.

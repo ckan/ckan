@@ -1106,7 +1106,7 @@ class TestResourceView(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource["package_id"],
             resource_id=resource["id"],
             view_type="image_view",
@@ -1129,7 +1129,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1153,7 +1153,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1170,7 +1170,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1182,7 +1182,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id="inexistent-view-id",
@@ -1193,7 +1193,7 @@ class TestResourceView(object):
     def test_resource_view_description_is_rendered_as_markdown(self, app):
         resource_view = factories.ResourceView(description="Some **Markdown**")
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1420,7 +1420,7 @@ class TestResourceDelete(object):
             headers=headers
         )
         assert 403 == response.status_code
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete resource")
 
     def test_sysadmins_can_delete_any_resource(self, app, sysadmin):
         owner_org = factories.Organization()
