@@ -123,8 +123,16 @@ def ajax(resource_view_id: str):
     else:
         data = []
         null_label = h.get_null_label()
+        from pprint import pprint
+        from logging import getLogger
+        log = getLogger(__name__)
+        log.info("    ")
+        log.info("DEBUGGING::")
+        log.info(pprint(null_label))
+        log.info("    ")
         for row in response[u'records']:
-            record = {colname: str(row.get(colname, u'') or null_label)
+            record = {colname: str(null_label if row.get(colname, u'')
+                                   is None else row.get(colname, u''))
                       for colname in cols}
             # the DT_RowId is used in DT to set an element id for each record
             record['DT_RowId'] = 'row' + str(row.get(u'_id', u''))
