@@ -103,5 +103,5 @@ class DataTablesView(p.SingletonPlugin):
 
     def get_helpers(self) -> dict[str, Callable[..., object]]:
         return {'get_null_label': lambda: toolkit._(self.null_label)
-                                          if self.null_label is not None
-                                          else u''}
+                if self.null_label is not None
+                else u''}
