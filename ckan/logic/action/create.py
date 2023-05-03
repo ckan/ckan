@@ -51,6 +51,7 @@ ValidationError = logic.ValidationError
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
+fresh_context = logic.fresh_context
 
 
 def package_create(
@@ -771,13 +772,10 @@ def _group_or_org_create(context: Context,
         'object_type': 'user',
         'capacity': 'admin',
     }
-    member_create_context: Context = {
-        'model': model,
-        'user': user,
-        'ignore_auth': True,  # we are not a member of the group at this point
-        'session': session,
-        'defer_commit': context.get("defer_commit") or False,
-    }
+    member_create_context = fresh_context(context)
+    # We are not a member of the group at this point
+    member_create_context['ignore_auth'] = True
+
     logic.get_action('member_create')(member_create_context, member_dict)
     log.debug('Created object %s' % group.name)
 
