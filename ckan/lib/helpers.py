@@ -2812,14 +2812,13 @@ def csrf_input():
 
 
 @core_helper
-def get_null_label() -> Union[str, None]:
+def get_null_label() -> str:
     _auto_flask_context = _get_auto_flask_context()
 
     if _auto_flask_context:
         _auto_flask_context.push()
 
     null_label = config.get('ckan.null_label', None)
-    
     if null_label is not None:
         try:
             null_label = json.loads(null_label)
@@ -2829,4 +2828,4 @@ def get_null_label() -> Union[str, None]:
             if '{' not in null_label:
                 return null_label
             raise ValueError(e)
-    return None
+    return ''
