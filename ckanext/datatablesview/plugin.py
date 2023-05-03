@@ -6,7 +6,7 @@ from typing import Any, cast, Callable
 from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from ckanext.datatablesview import blueprint
+from ckanext.datatablesview import blueprint, helpers
 
 default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -53,7 +53,6 @@ class DataTablesView(p.SingletonPlugin):
             u"ckan.datatables.ellipsis_length")
         self.date_format = config.get(u"ckan.datatables.date_format")
         self.default_view = config.get(u"ckan.datatables.default_view")
-        self.null_label = config.get(u"ckan.datatables.null_label")
 
         toolkit.add_template_directory(config, u'templates')
         toolkit.add_resource(u'assets', u'ckanext-datatablesview')
@@ -102,6 +101,4 @@ class DataTablesView(p.SingletonPlugin):
     # ITemplateHelpers
 
     def get_helpers(self) -> dict[str, Callable[..., object]]:
-        return {'get_null_label': lambda: toolkit._(self.null_label)
-                if self.null_label is not None
-                else u''}
+        return {'datatablesview_null_label': helpers.datatablesview_null_label}

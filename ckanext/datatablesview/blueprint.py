@@ -122,14 +122,7 @@ def ajax(resource_view_id: str):
         dtdata = {u'error': query_error}
     else:
         data = []
-        null_label = h.get_null_label()
-        from pprint import pprint
-        from logging import getLogger
-        log = getLogger(__name__)
-        log.info("    ")
-        log.info("DEBUGGING::")
-        log.info(pprint(null_label))
-        log.info("    ")
+        null_label = h.datatablesview_null_label()
         for row in response[u'records']:
             record = {colname: str(null_label if row.get(colname, u'')
                                    is None else row.get(colname, u''))
