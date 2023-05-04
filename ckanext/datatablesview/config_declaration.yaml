@@ -95,6 +95,7 @@ groups:
       DataTables resource view.
 
   - key: ckan.datatables.null_label
+    default: ''
     example: N/A
     description: |
       The option defines the label used to display NoneType values for the front-end.
