@@ -9,6 +9,31 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.1 2023-05-XX
+===================
+
+Bug fixes
+---------
+- Redirect on password reset form error now maintains root_path and locale (`#7006 <https://github.com/ckan/ckan/pull/7006>`_)
+- Fix display of Popular snippet (`#7205 <https://github.com/ckan/ckan/pull/7205>`_)
+- Fixes missing CSRF token when trying to remove a group from a package. (`#7417 <https://github.com/ckan/ckan/pull/7417>`_)
+- ``IMiddleware`` implementations produce an error mentioning missing ``app.after_request`` attribute. (`#7426 <https://github.com/ckan/ckan/pull/7426>`_)
+- Application hangs during startup when using config chains. (`#7427 <https://github.com/ckan/ckan/pull/7427>`_)
+- Fix exception in ``license_list`` action (`#7454 <https://github.com/ckan/ckan/pull/7454>`_)
+- In tests, templates from ``ckan.plugins`` set by the config file are used even if these plugins are disabled for the test via ``pytest.mark.ckan_config("ckan.plugins", "")`` (`#7483 <https://github.com/ckan/ckan/pull/7483>`_)
+- Fix usage of ``defer_commit`` in context in create actions for users, datasets, organizations and groups.
+- ``model.Dashboard.get()`` no longer creates a dashboard object under the hood if it does not exist in the database (`#7487 <https://github.com/ckan/ckan/pull/7487>`_)
+- "Groups" link in the header is not translated. (`#7500 <https://github.com/ckan/ckan/pull/7500>`_)
+- Names are now quoted in From and To addresses in emails, meaning that site titles with commas no longer break email clients. (`#7508 <https://github.com/ckan/ckan/pull/7508>`_)
+- Pagination widget is not styled in Bootstrap 5 templates. (`#7528 <https://github.com/ckan/ckan/pull/7528>`_)
+- Fix missing resource URL on update resource with uploaded file (`#7449 <https://github.com/ckan/ckan/pull/7449>`_)
+- Fix custom macro styles (`#7461 <https://github.com/ckan/ckan/pull/7461>`_)
+- Fix mobile layout styles (`#7467 <https://github.com/ckan/ckan/pull/7467>`_)
+- Fix fontawesome icons, replace unavailable FA v3 icons (`#7474 <https://github.com/ckan/ckan/pull/7474>`_)
+- Fix promote sysadmin layout (`#7476 <https://github.com/ckan/ckan/pull/7476>`_)
+- Fix markdown macros regression (`#7485 <https://github.com/ckan/ckan/pull/7485>`_)
+- Set session scope for migrate_db_for fixture (`#7563 <https://github.com/ckan/ckan/pull/7563>`_)
+
 v.2.10.0 2023-02-15
 ===================
 
