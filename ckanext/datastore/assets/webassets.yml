@@ -9,4 +9,5 @@ datastore:
     preload:
       - base/main
       - ckanext_datastore/datastore_css
-  contents: []
+  contents:
+      - js/api-info.js
