@@ -1,0 +1,31 @@
+input#lang-curl ~ div pre.example-curl {
+  display: none;
+}
+
+input#lang-curl:checked ~ div pre.example-curl {
+  display: block;
+}
+
+input#lang-jquery ~ div pre.example-jquery {
+  display: none;
+}
+
+input#lang-jquery:checked ~ div pre.example-jquery {
+  display: block;
+}
+
+input#lang-powershell ~ div pre.example-powershell {
+  display: none;
+}
+
+input#lang-powershell:checked ~ div pre.example-powershell {
+  display: block;
+}
+
+input#lang-python ~ div pre.example-python {
+  display: none;
+}
+
+input#lang-python:checked ~ div pre.example-python {
+  display: block;
+}

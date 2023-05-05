@@ -73,6 +73,7 @@ class DatastorePlugin(p.SingletonPlugin):
         templates_base = config.get('ckan.base_templates_folder')
 
         p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_resource('assets', 'ckanext_datastore')
         self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable
