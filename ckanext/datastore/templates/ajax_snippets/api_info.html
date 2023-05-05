@@ -123,7 +123,7 @@ ckan = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TO
 result = ckan.action.datastore_search(
     resource_id="{{ resource_id }}",
     limit=5,
-    q="jones
+    q="jones",
 )
 pprint(result['records'])</code></pre>
               </div>
