@@ -17,72 +17,72 @@ Example
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-          <h3>
-            {{ _('CKAN Data API') }}
-          </h3>
-        </div>
-        <div {% if not embedded %} class="modal-body"{% endif %}>
-          <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
-          {% trans url="https://docs.ckan.org/en/latest/maintaining/datastore.html#api-reference" %}
-          Further information in the <a
-            href="{{ url }}" target="_blank">main
-            CKAN Data API and DataStore documentation</a>.</p>
-          {% endtrans %}
+        <h3>
+          {{ _('CKAN Data API') }}
+        </h3>
+      </div>
+      <div {% if not embedded %} class="modal-body"{% endif %}>
+        <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
+        {% trans url="https://docs.ckan.org/en/latest/maintaining/datastore.html#api-reference" %}
+        Further information in the <a
+          href="{{ url }}" target="_blank">main
+          CKAN Data API and DataStore documentation</a>.</p>
+        {% endtrans %}
 
-          {{ _("Code examples:") }}
-          {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
-          <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
-          <label class="btn btn-secondary radio" for="lang-curl">
-            curl
-          </label>
-          <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
-          <label class="btn btn-secondary radio" for="lang-jquery">
-            jQuery
-          </label>
-          <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
-          <label class="btn btn-secondary radio" for="lang-powershell">
-            PowerShell
-          </label>
-          <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
-          <label class="btn btn-secondary radio" for="lang-python">
-            Python
-          </label>
+        {{ _("Code examples:") }}
+        {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
+        <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
+        <label class="btn btn-secondary radio" for="lang-curl">
+          curl
+        </label>
+        <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
+        <label class="btn btn-secondary radio" for="lang-jquery">
+          jQuery
+        </label>
+        <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
+        <label class="btn btn-secondary radio" for="lang-powershell">
+          PowerShell
+        </label>
+        <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
+        <label class="btn btn-secondary radio" for="lang-python">
+          Python
+        </label>
 
-          <div class="accordion" id="accordion2">
+        <div class="accordion" id="accordion2">
 
-            <div class="accordion-item">
-              <h2 class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-get" aria-expanded="false" aria-controls="collapse-querying-get">{{ _('Querying with your Web Browser') }} &raquo;</button>
-              </h2>
-              <div id="collapse-querying-get"  class="accordion-collapse collapse" aria-labelledby="collapse-querying-get" data-bs-parent="#accordion2">
-                <div class="accordion-body code-block">
-                  <strong>{{ _('Query example (first 5 results)') }}</strong>
-                  <p>
-                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
-                  </p>
+          <div class="accordion-item">
+            <h2 class="accordion-heading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-get" aria-expanded="false" aria-controls="collapse-querying-get">{{ _('Querying with your Web Browser') }} &raquo;</button>
+            </h2>
+            <div id="collapse-querying-get"  class="accordion-collapse collapse" aria-labelledby="collapse-querying-get" data-bs-parent="#accordion2">
+              <div class="accordion-body code-block">
+                <strong>{{ _('Query example (first 5 results)') }}</strong>
+                <p>
+                <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
+                </p>
 
-                  <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
-                  <p>
-                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
-                  </p>
-                  {% if h.datastore_search_sql_enabled() %}
-                  <strong>{{ _('Query example (via SQL statement)') }}</strong>
-                  <p>
-                  <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
-                  </p>
-                  {% endif %}
-                </div>
+                <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
+                <p>
+                <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
+                </p>
+                {% if h.datastore_search_sql_enabled() %}
+                <strong>{{ _('Query example (via SQL statement)') }}</strong>
+                <p>
+                <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
+                </p>
+                {% endif %}
               </div>
             </div>
+          </div>
 
-            <div class="accordion-item">
-              <h2 class="accordion-heading">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying with Code') }} &raquo;</button>
-              </h2>
-              <div id="collapse-querying-post" class="accordion-collapse collapse" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
-                <div class="accordion-body">
-                  <p>{{ _('Get 5 results containing "jones".') }}</p>
-                  <pre class="example-curl"><code class="language-bash"
+          <div class="accordion-item">
+            <h2 class="accordion-heading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying with Code') }} &raquo;</button>
+            </h2>
+            <div id="collapse-querying-post" class="accordion-collapse collapse" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
+              <div class="accordion-body">
+                <p>{{ _('Get 5 results containing "jones".') }}</p>
+                <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d '
 {
@@ -90,7 +90,7 @@ Example
   "limit": 5,
   "q": "jones"
 }'</code></pre>
-                  <pre class="example-jquery"><code class="language-javascript"
+                <pre class="example-jquery"><code class="language-javascript"
 >var data = {
   resource_id: '{{resource_id}}',
   limit: 5,
@@ -104,7 +104,7 @@ $.ajax({
     alert('Total results found: ' + data.result.total)
   }
 });</code></pre>
-                  <pre class="example-powershell"><code class="language-powershell"
+                <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
 {
   "resource_id": "{{resource_id}}",
@@ -115,7 +115,7 @@ $.ajax({
 $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
-                  <pre class="example-python"><code class="language-python"
+                <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
 from pprint import pprint
 
@@ -126,7 +126,6 @@ result = ckan.action.datastore_search(
     q="jones
 )
 pprint(result['records'])</code></pre>
-                </div>
               </div>
             </div>
           </div>
