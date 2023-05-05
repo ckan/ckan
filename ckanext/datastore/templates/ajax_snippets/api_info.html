@@ -29,25 +29,24 @@ Example
             CKAN Data API and DataStore documentation</a>.</p>
           {% endtrans %}
 
-          <p>
-            {{ _("Code examples:") }}
-            <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
-            <label class="btn btn-secondary radio" for="lang-curl">
-              curl
-            </label>
-            <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
-            <label class="btn btn-secondary radio" for="lang-jquery">
-              jQuery
-            </label>
-            <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
-            <label class="btn btn-secondary radio" for="lang-powershell">
-              PowerShell
-            </label>
-            <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
-            <label class="btn btn-secondary radio" for="lang-python">
-              Python
-            </label>
-          </p>
+          {{ _("Code examples:") }}
+          {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
+          <label class="btn btn-secondary radio" for="lang-curl">
+            curl
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
+          <label class="btn btn-secondary radio" for="lang-jquery">
+            jQuery
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
+          <label class="btn btn-secondary radio" for="lang-powershell">
+            PowerShell
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
+          <label class="btn btn-secondary radio" for="lang-python">
+            Python
+          </label>
 
           <div class="accordion" id="accordion2">
 
@@ -83,15 +82,15 @@ Example
               <div id="collapse-querying-post" class="accordion-collapse collapse" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
                 <div class="accordion-body">
                   <p>{{ _('Get 5 results containing "jones".') }}</p>
-                  <pre class="curl"
+                  <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d '
 {
   "resource_id": "{{resource_id}}",
   "limit": 5,
   "q": "jones"
-}'</pre>
-                  <pre class="jquery"
+}'</code></pre>
+                  <pre class="example-jquery"><code class="language-javascript"
 >var data = {
   resource_id: '{{resource_id}}',
   limit: 5,
@@ -104,8 +103,8 @@ $.ajax({
   success: function(data) {
     alert('Total results found: ' + data.result.total)
   }
-});</pre>
-                  <pre class="powershell"
+});</code></pre>
+                  <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
 {
   "resource_id": "{{resource_id}}",
@@ -115,8 +114,8 @@ $.ajax({
 '@
 $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
-$response.result.records</pre>
-                  <pre class="python"
+$response.result.records</code></pre>
+                  <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
 from pprint import pprint
 
@@ -126,7 +125,7 @@ result = ckan.action.datastore_search(
     limit=5,
     q="jones
 )
-pprint(result['records'])</pre>
+pprint(result['records'])</code></pre>
                 </div>
               </div>
             </div>

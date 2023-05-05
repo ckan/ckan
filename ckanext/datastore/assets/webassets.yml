@@ -1,0 +1,12 @@
+datastore_css:
+  output: ckanext_datastore/%(version)s_datastore.css
+  contents:
+    - css/datastore.css
+
+datastore:
+  output: ckanext_datastore/%(version)s_datastore.js
+  extra:
+    preload:
+      - base/main
+      - ckanext_datastore/datastore_css
+  contents: []
