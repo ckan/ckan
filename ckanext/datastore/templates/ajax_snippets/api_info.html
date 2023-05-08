@@ -81,7 +81,7 @@ Example
             </h2>
             <div id="collapse-querying-post" class="accordion-collapse collapse" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
               <div class="accordion-body">
-                <p>{{ _('Get 5 results containing "jones".') }}</p>
+                <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
                 <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d '
@@ -119,13 +119,101 @@ $response.result.records</code></pre>
 >from ckanapi import RemoteCKAN
 from pprint import pprint
 
-ckan = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
-result = ckan.action.datastore_search(
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = ck.action.datastore_search(
     resource_id="{{ resource_id }}",
     limit=5,
     q="jones",
 )
 pprint(result['records'])</code></pre>
+
+
+                <strong>{{ _('Get results with either "watershed" or "survey" as a title and "active" as its stage:') }}</strong>
+                <pre class="example-curl"><code class="language-bash"
+>curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
+  -H"Authorization:$API_TOKEN" -d '
+{
+  "resource_id": "{{resource_id}}",
+  "filters": {
+    "subject": ["watershed", "survey"],
+    "stage": "active"
+  }
+}'</code></pre>
+                <pre class="example-jquery"><code class="language-javascript"
+>var data = {
+  resource_id: '{{resource_id}}',
+  filters: {
+    subject: ["watershed", "survey"],
+    stage: "active"
+  }
+};
+$.ajax({
+  url: '{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}',
+  data: data,
+  dataType: 'jsonp',
+  success: function(data) {
+    alert('Total results found: ' + data.result.total)
+  }
+});</code></pre>
+                <pre class="example-powershell"><code class="language-powershell"
+>$json = @'
+{
+  "resource_id": "{{resource_id}}",
+  "filters": {
+    "subject": ["watershed", "survey"],
+    "stage": "active"
+  }
+}
+'@
+$response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
+  -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
+$response.result.records</code></pre>
+                <pre class="example-python"><code class="language-python"
+>result = ck.action.datastore_search(
+    resource_id="{{ resource_id }}",
+    filters={
+      "subject": ["watershed", "survey"],
+      "stage": "active",
+    },
+)
+pprint(result['records'])</code></pre>
+
+                {% if h.datastore_search_sql_enabled() %}
+                  <strong>{{ _('SQL query example:') }}</strong>
+                  <pre class="example-curl"><code class="language-bash"
+>curl {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }} \
+  -H"Authorization:$API_TOKEN" -d @- &lt;&lt;END
+{
+  "sql": "SELECT * from \"{{resource_id}}\" WHERE title LIKE 'jones'"
+}
+END</code></pre>
+                  <pre class="example-jquery"><code class="language-javascript"
+>var data = {
+  sql: `SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'`
+};
+$.ajax({
+  url: '{{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}',
+  data: data,
+  dataType: 'jsonp',
+  success: function(data) {
+    alert(data.result)
+  }
+});</code></pre>
+                  <pre class="example-powershell"><code class="language-powershell"
+>$json = @'
+{
+  "sql": "SELECT * from \"{{resource_id}}\" WHERE title LIKE 'jones'"
+}
+'@
+$response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}`
+  -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
+$response.result.records</code></pre>
+                  <pre class="example-python"><code class="language-python"
+>result = ck.action.datastore_search_sql(
+    sql="""SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'"""
+)
+pprint(result['records'])</code></pre>
+                {% endif %}
               </div>
             </div>
           </div>
