@@ -11,7 +11,6 @@ Example
 #}
 
 {% set resource_id = h.sanitize_id(resource_id) %}
-{% set sql_example_url = h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
 {# not urlencoding the sql because its clearer #}
 <div {% if not embedded %} class="modal"{% endif %} tabindex="-1">
   <div class="modal-dialog modal-lg">
@@ -29,60 +28,38 @@ Example
           CKAN Data API and DataStore documentation</a>.</p>
         {% endtrans %}
 
-        {{ _("Code examples:") }}
-        {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
-        <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
-        <label class="btn btn-secondary radio" for="lang-curl">
-          curl
-        </label>
-        <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
-        <label class="btn btn-secondary radio" for="lang-jquery">
-          jQuery
-        </label>
-        <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
-        <label class="btn btn-secondary radio" for="lang-powershell">
-          PowerShell
-        </label>
-        <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
-        <label class="btn btn-secondary radio" for="lang-python">
-          Python
-        </label>
+        {% block code_example_buttons %}
+          {{ _("Code examples:") }}
+          {# these checkboxes must be preceeding div below (not nested) for show/hide css #}
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-curl" checked>
+          <label class="btn btn-secondary radio" for="lang-curl">
+            curl
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-jquery">
+          <label class="btn btn-secondary radio" for="lang-jquery">
+            jQuery
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-powershell">
+          <label class="btn btn-secondary radio" for="lang-powershell">
+            PowerShell
+          </label>
+          <input class="btn-check" type="radio" name="lang-choice" id="lang-python">
+          <label class="btn btn-secondary radio" for="lang-python">
+            Python
+          </label>
+        {% endblock %}
 
-        <div class="accordion" id="accordion2">
+        <div class="accordion pt-2" id="accordion2">
 
-          <div class="accordion-item">
-            <h2 class="accordion-heading">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-get" aria-expanded="false" aria-controls="collapse-querying-get">{{ _('Querying with your Web Browser') }} &raquo;</button>
-            </h2>
-            <div id="collapse-querying-get"  class="accordion-collapse collapse" aria-labelledby="collapse-querying-get" data-bs-parent="#accordion2">
-              <div class="accordion-body code-block">
-                <strong>{{ _('Query example (first 5 results)') }}</strong>
-                <p>
-                <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
-                </p>
-
-                <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
-                <p>
-                <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
-                </p>
-                {% if h.datastore_search_sql_enabled() %}
-                <strong>{{ _('Query example (via SQL statement)') }}</strong>
-                <p>
-                <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
-                </p>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-          <div class="accordion-item">
-            <h2 class="accordion-heading">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying with Code') }} &raquo;</button>
-            </h2>
-            <div id="collapse-querying-post" class="accordion-collapse collapse" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
-              <div class="accordion-body">
-                <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
-                <pre class="example-curl"><code class="language-bash"
+          {% block query_examples %}
+            <div class="accordion-item">
+              <h2 class="accordion-heading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying') }} &raquo;</button>
+              </h2>
+              <div id="collapse-querying-post" class="accordion-collapse collapse show" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
+                <div class="accordion-body">
+                  <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
+                  <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d '
 {
@@ -90,7 +67,7 @@ Example
   "limit": 5,
   "q": "jones"
 }'</code></pre>
-                <pre class="example-jquery"><code class="language-javascript"
+                  <pre class="example-jquery"><code class="language-javascript"
 >var data = {
   resource_id: '{{resource_id}}',
   limit: 5,
@@ -101,10 +78,10 @@ $.ajax({
   data: data,
   dataType: 'jsonp',
   success: function(data) {
-    alert('Total results found: ' + data.result.total)
+    alert(data.result.records)
   }
 });</code></pre>
-                <pre class="example-powershell"><code class="language-powershell"
+                  <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
 {
   "resource_id": "{{resource_id}}",
@@ -115,7 +92,7 @@ $.ajax({
 $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
-                <pre class="example-python"><code class="language-python"
+                  <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
 from pprint import pprint
 
@@ -128,8 +105,8 @@ result = ck.action.datastore_search(
 pprint(result['records'])</code></pre>
 
 
-                <strong>{{ _('Get results with either "watershed" or "survey" as a title and "active" as its stage:') }}</strong>
-                <pre class="example-curl"><code class="language-bash"
+                  <strong>{{ _('Get results with either "watershed" or "survey" as a title and "active" as its stage:') }}</strong>
+                  <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d '
 {
@@ -139,7 +116,7 @@ pprint(result['records'])</code></pre>
     "stage": "active"
   }
 }'</code></pre>
-                <pre class="example-jquery"><code class="language-javascript"
+                  <pre class="example-jquery"><code class="language-javascript"
 >var data = {
   resource_id: '{{resource_id}}',
   filters: {
@@ -152,10 +129,10 @@ $.ajax({
   data: data,
   dataType: 'jsonp',
   success: function(data) {
-    alert('Total results found: ' + data.result.total)
+    alert(data.result.records)
   }
 });</code></pre>
-                <pre class="example-powershell"><code class="language-powershell"
+                  <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
 {
   "resource_id": "{{resource_id}}",
@@ -168,7 +145,7 @@ $.ajax({
 $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
-                <pre class="example-python"><code class="language-python"
+                  <pre class="example-python"><code class="language-python"
 >result = ck.action.datastore_search(
     resource_id="{{ resource_id }}",
     filters={
@@ -178,16 +155,16 @@ $response.result.records</code></pre>
 )
 pprint(result['records'])</code></pre>
 
-                {% if h.datastore_search_sql_enabled() %}
-                  <strong>{{ _('SQL query example:') }}</strong>
-                  <pre class="example-curl"><code class="language-bash"
+                  {% if h.datastore_search_sql_enabled() %}
+                    <strong>{{ _('SQL query example:') }}</strong>
+                    <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }} \
   -H"Authorization:$API_TOKEN" -d @- &lt;&lt;END
 {
   "sql": "SELECT * from \"{{resource_id}}\" WHERE title LIKE 'jones'"
 }
 END</code></pre>
-                  <pre class="example-jquery"><code class="language-javascript"
+                    <pre class="example-jquery"><code class="language-javascript"
 >var data = {
   sql: `SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'`
 };
@@ -196,10 +173,10 @@ $.ajax({
   data: data,
   dataType: 'jsonp',
   success: function(data) {
-    alert(data.result)
+    alert(data.result.records)
   }
 });</code></pre>
-                  <pre class="example-powershell"><code class="language-powershell"
+                    <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
 {
   "sql": "SELECT * from \"{{resource_id}}\" WHERE title LIKE 'jones'"
@@ -208,15 +185,48 @@ $.ajax({
 $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}`
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
-                  <pre class="example-python"><code class="language-python"
+                    <pre class="example-python"><code class="language-python"
 >result = ck.action.datastore_search_sql(
     sql="""SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'"""
 )
 pprint(result['records'])</code></pre>
-                {% endif %}
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          {% endblock %}
+
+          {% block get_query_examples %}
+            <div class="accordion-item">
+              <h2 class="accordion-heading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-get" aria-expanded="false" aria-controls="collapse-querying-get">{{ _('Using the API with this Web Browser') }} &raquo;</button>
+              </h2>
+              <div id="collapse-querying-get"  class="accordion-collapse collapse" aria-labelledby="collapse-querying-get" data-bs-parent="#accordion2">
+                <div class="accordion-body code-block">
+                  <p>{{ _('Some API endpoints may be accessed using a GET query string.') }}</p>
+                  <strong>{{ _('Query example (first 5 results)') }}</strong>
+                  <p>
+                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) }}</a></code>
+                  </p>
+
+                  <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
+                  <p>
+                  <code><a href="{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noreferrer">{{ h.url_for('api.action', logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code>
+                  </p>
+                  {% if h.datastore_search_sql_enabled() %}
+                    {% set sql_example_url = h.url_for(
+                        'api.action', logic_function='datastore_search_sql', qualified=True
+                      ) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
+                    <strong>{{ _('Query example (via SQL statement)') }}</strong>
+                    <p>
+                    <code><a href="{{sql_example_url}}" target="_blank" rel="noreferrer">{{ sql_example_url }}</a></code>
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endblock %}
+
         </div>
 
       </div>
