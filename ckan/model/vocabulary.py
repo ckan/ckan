@@ -51,4 +51,4 @@ class Vocabulary(domain_object.DomainObject):
         query = meta.Session.query(tag.Tag)
         return query.filter(tag.Tag.vocabulary_id == self.id)
 
-meta.mapper(Vocabulary, vocabulary_table)
+meta.registry.map_imperatively(Vocabulary, vocabulary_table)

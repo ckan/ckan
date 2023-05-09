@@ -161,7 +161,7 @@ user_following_user_table = sqlalchemy.Table('user_following_user',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingUser, user_following_user_table)
+meta.registry.map_imperatively(UserFollowingUser, user_following_user_table)
 
 class UserFollowingDataset(
         ModelFollowingModel['ckan.model.User', 'ckan.model.Package']):
@@ -193,7 +193,7 @@ user_following_dataset_table = sqlalchemy.Table('user_following_dataset',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingDataset, user_following_dataset_table)
+meta.registry.map_imperatively(UserFollowingDataset, user_following_dataset_table)
 
 
 class UserFollowingGroup(
@@ -225,4 +225,4 @@ user_following_group_table = sqlalchemy.Table('user_following_group',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingGroup, user_following_group_table)
+meta.registry.map_imperatively(UserFollowingGroup, user_following_group_table)

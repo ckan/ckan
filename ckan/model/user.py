@@ -365,7 +365,7 @@ class AnonymousUser(AnonymousUserMixin):
     email: str = ""
 
 
-meta.mapper(
+meta.registry.map_imperatively(
     User, user_table,
     properties={'password': synonym('_password', map_column=True)}
     )

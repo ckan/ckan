@@ -8,6 +8,7 @@ import re
 from time import sleep
 from typing import Any, Optional
 
+import sqlalchemy as sa
 from sqlalchemy import MetaData, Table
 from sqlalchemy.exc import ProgrammingError
 
@@ -20,8 +21,8 @@ from alembic.config import Config as AlembicConfig
 
 import ckan.model.meta as meta
 
-from ckan.model.meta import Session
-
+from ckan.model.meta import Session, registry
+from ckan.exceptions import CkanConfigurationException
 from ckan.model.core import (
     State,
 )
@@ -124,7 +125,7 @@ from sqlalchemy.engine import Engine
 from ckan.types import AlchemySession
 
 __all__ = [
-    "Session", "State", "System", "Package", "PackageMember",
+    "registry", "Session", "State", "System", "Package", "PackageMember",
     "PACKAGE_NAME_MIN_LENGTH", "PACKAGE_NAME_MAX_LENGTH",
     "PACKAGE_VERSION_MAX_LENGTH", "package_table", "package_member_table",
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
@@ -214,12 +215,17 @@ class Repository():
 
     def clean_db(self) -> None:
         self.commit_and_remove()
-        meta.metadata = MetaData(self.metadata.bind)
+        meta.metadata = MetaData()
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
-            meta.metadata.reflect()
+            meta.metadata.reflect(meta.engine)
 
-        meta.metadata.drop_all()
+        if not meta.engine:
+            raise CkanConfigurationException("Model is not initialized")
+
+        with meta.engine.begin() as conn:
+            meta.metadata.drop_all(conn)
+
         self.tables_created_and_initialised = False
         log.info('Database tables dropped')
 
@@ -228,7 +234,10 @@ class Repository():
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
         '''
-        self.metadata.create_all(bind=self.metadata.bind)
+        if not meta.engine:
+            raise CkanConfigurationException("Model is not initialized")
+        with meta.engine.begin() as conn:
+            self.metadata.create_all(conn)
         log.info('Database tables created')
 
     def rebuild_db(self) -> None:
@@ -278,9 +287,10 @@ class Repository():
             "sqlalchemy.url", config.get("sqlalchemy.url")
         )
         try:
-            sqlalchemy_migrate_version = self.metadata.bind.execute(
-                u'select version from migrate_version'
-            ).scalar()
+            with self.metadata.bind.connect() as conn:
+                sqlalchemy_migrate_version = conn.execute(
+                    sa.text('select version from migrate_version')
+                ).scalar()
         except ProgrammingError:
             sqlalchemy_migrate_version = 0
 

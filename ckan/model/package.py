@@ -492,7 +492,7 @@ class PackageMember(domain_object.DomainObject):
 from ckan.model import tag
 
 # type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(Package, package_table, properties={
+meta.registry.map_imperatively(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points
     # where PackageTag object is created *and* flushed but does not yet have
@@ -500,11 +500,11 @@ meta.mapper(Package, package_table, properties={
     # second commit happens in which the package_id is correctly set.
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
-    'package_tags':orm.relation(tag.PackageTag, backref='package',
+    'package_tags':orm.relationship(tag.PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
         ),
     })
 
-meta.mapper(tag.PackageTag, tag.package_tag_table)
+meta.registry.map_imperatively(tag.PackageTag, tag.package_tag_table)
 
-meta.mapper(PackageMember, package_member_table)
+meta.registry.map_imperatively(PackageMember, package_member_table)

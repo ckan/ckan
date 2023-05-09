@@ -79,11 +79,11 @@ class ApiToken(DomainObject):
             meta.Session.commit()
 
 
-meta.mapper(
+meta.registry.map_imperatively(
     ApiToken,
     api_token_table,
     properties={
-        u"owner": orm.relation(
+        u"owner": orm.relationship(
             User, backref=orm.backref(u"api_tokens",
                                       cascade=u"all, delete")
         )

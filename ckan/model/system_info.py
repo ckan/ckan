@@ -44,7 +44,7 @@ class SystemInfo(core.StatefulObjectMixin,
         self.value = str(value)
 
 
-meta.mapper(SystemInfo, system_info_table)
+meta.registry.map_imperatively(SystemInfo, system_info_table)
 
 
 def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:

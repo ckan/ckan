@@ -185,10 +185,10 @@ class PackageRelationship(core.StatefulObjectMixin,
                     return cls.types_printable[i][j]
         raise TypeError(type_)
 
-meta.mapper(PackageRelationship, package_relationship_table, properties={
-    'subject':orm.relation(_package.Package, primaryjoin=\
+meta.registry.map_imperatively(PackageRelationship, package_relationship_table, properties={
+    'subject':orm.relationship(_package.Package, primaryjoin=\
            package_relationship_table.c["subject_package_id"]==_package.Package.id,
            backref='relationships_as_subject'),
-    'object':orm.relation(_package.Package, primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
+    'object':orm.relationship(_package.Package, primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
            backref='relationships_as_object'),
     })

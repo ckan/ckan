@@ -89,7 +89,7 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
     package_table = model.package_table
     col = (package_table.c["id"]
            if api == 2 else package_table.c["name"])
-    query = _select([col])
+    query = _select(col)
     query = query.where(_and_(
         package_table.c["state"] == 'active',
         package_table.c["private"] == False,
@@ -2390,7 +2390,7 @@ def term_translation_show(
 
     trans_table = model.term_translation_table
 
-    q = _select([trans_table])
+    q = _select(trans_table)
 
     if 'terms' not in data_dict:
         raise ValidationError({'terms': 'terms not in data'})

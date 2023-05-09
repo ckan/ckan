@@ -60,4 +60,4 @@ class TrackingSummary(domain_object.DomainObject):
 
         return {'total' : 0, 'recent' : 0}
 
-meta.mapper(TrackingSummary, tracking_summary_table)
+meta.registry.map_imperatively(TrackingSummary, tracking_summary_table)

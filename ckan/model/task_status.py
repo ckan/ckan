@@ -44,4 +44,4 @@ class TaskStatus(domain_object.DomainObject):
         task = meta.Session.query(cls).get(reference)
         return task
 
-meta.mapper(TaskStatus, task_status_table)
+meta.registry.map_imperatively(TaskStatus, task_status_table)

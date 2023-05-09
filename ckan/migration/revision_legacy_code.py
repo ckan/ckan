@@ -57,7 +57,7 @@ def package_dictize_with_revisions(pkg, context):
         result = pkg
     else:
         package_rev = revision_model.package_revision_table
-        q = select([package_rev]).where(package_rev.c.id == pkg.id)
+        q = select(package_rev).where(package_rev.c.id == pkg.id)
         result = execute(q, package_rev, context).first()
     if not result:
         raise logic.NotFound
@@ -76,7 +76,7 @@ def package_dictize_with_revisions(pkg, context):
     mm_col = res._columns.get(u'metadata_modified')
     if mm_col is not None:
         res._columns.remove(mm_col)
-    q = select([res]).where(res.c.package_id == pkg.id)
+    q = select(res).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get(u'resources', []))
@@ -87,9 +87,9 @@ def package_dictize_with_revisions(pkg, context):
         pkg_tag = model.package_tag_table
     else:
         pkg_tag = revision_model.package_tag_revision_table
-    q = select([tag, pkg_tag.c.state],
-               from_obj=pkg_tag.join(tag, tag.c.id == pkg_tag.c.tag_id)
-               ).where(pkg_tag.c.package_id == pkg.id)
+    q = select(tag, pkg_tag.c.state).join(
+        pkg_tag, tag.c.id == pkg_tag.c.tag_id
+    ).where(pkg_tag.c.package_id == pkg.id)
     result = execute(q, pkg_tag, context)
     result_dict["tags"] = d.obj_list_dictize(result, context,
                                              lambda x: x["name"])
@@ -107,7 +107,7 @@ def package_dictize_with_revisions(pkg, context):
         extra = model.package_extra_table
     else:
         extra = revision_model.extra_revision_table
-    q = select([extra]).where(extra.c.package_id == pkg.id)
+    q = select(extra).where(extra.c.package_id == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
 
@@ -117,11 +117,13 @@ def package_dictize_with_revisions(pkg, context):
     else:
         member = revision_model.member_revision_table
     group = model.group_table
-    q = select([group, member.c.capacity],
-               from_obj=member.join(group, group.c.id == member.c.group_id)
-               ).where(member.c.table_id == pkg.id)\
-                .where(member.c.state == u'active') \
-                .where(group.c.is_organization == False)  # noqa
+    q = select(group, member.c.capacity).join(
+        member, group.c.id == member.c.group_id
+    ).where(
+        member.c.table_id == pkg.id,
+        member.c.state == u'active',
+        group.c.is_organization == False
+    )  # noqa
     result = execute(q, member, context)
     context['with_capacity'] = False
     # no package counts as cannot fetch from search index at the same
@@ -135,7 +137,7 @@ def package_dictize_with_revisions(pkg, context):
         group = model.group_table
     else:
         group = revision_model.group_revision_table
-    q = select([group]
+    q = select(group
                ).where(group.c.id == result_dict['owner_org']) \
                 .where(group.c.state == u'active')
     result = execute(q, group, context)
@@ -151,11 +153,11 @@ def package_dictize_with_revisions(pkg, context):
     else:
         rel = revision_model \
             .package_relationship_revision_table
-    q = select([rel]).where(rel.c.subject_package_id == pkg.id)
+    q = select(rel).where(rel.c.subject_package_id == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_subject"] = \
         d.obj_list_dictize(result, context)
-    q = select([rel]).where(rel.c.object_package_id == pkg.id)
+    q = select(rel).where(rel.c.object_package_id == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_object"] = \
         d.obj_list_dictize(result, context)

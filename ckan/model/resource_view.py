@@ -84,4 +84,4 @@ class ResourceView(domain_object.DomainObject):
         return query.delete(synchronize_session='fetch')
 
 
-meta.mapper(ResourceView, resource_view_table)
+meta.registry.map_imperatively(ResourceView, resource_view_table)

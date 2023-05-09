@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Optional, Any
 
-from sqlalchemy.orm import relation
+from sqlalchemy.orm import relationship
 from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
 from typing_extensions import Self
 
@@ -319,11 +319,11 @@ class PackageTag(core.StatefulObjectMixin,
         return []
 
 # type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(Tag, tag_table, properties={
-    'package_tags': relation(PackageTag, backref='tag',
+meta.registry.map_imperatively(Tag, tag_table, properties={
+    'package_tags': relationship(PackageTag, backref='tag',
         cascade='all, delete, delete-orphan',
         ),
-    'vocabulary': relation(vocabulary.Vocabulary,
+    'vocabulary': relationship(vocabulary.Vocabulary,
                            order_by=tag_table.c["name"])
     })
 

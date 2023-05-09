@@ -164,8 +164,8 @@ class Resource(core.StatefulObjectMixin,
 
 ## Mappers
 
-meta.mapper(Resource, resource_table, properties={
-    'package': orm.relation(
+meta.registry.map_imperatively(Resource, resource_table, properties={
+    'package': orm.relationship(
         Package,
         # all resources including deleted
         # formally package_resources_all

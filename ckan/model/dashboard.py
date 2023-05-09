@@ -41,4 +41,4 @@ class Dashboard(object):
         query = query.filter(Dashboard.user_id == user_id)
         return query.first()
 
-meta.mapper(Dashboard, dashboard_table)
+meta.registry.map_imperatively(Dashboard, dashboard_table)

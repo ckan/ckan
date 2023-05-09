@@ -11,7 +11,6 @@ from ckan.types import AlchemySession
 
 __all__ = ['Session']
 
-
 # SQLAlchemy database engine. Updated by model.init_model()
 engine: Optional[Engine] = None
 
@@ -20,7 +19,6 @@ Session: AlchemySession = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
-    future=True,
 ))
 
 
@@ -86,3 +84,4 @@ mapper = orm.mapper
 # Global metadata. If you have multiple databases with overlapping table
 # names, you'll need a metadata for each database
 metadata = MetaData()
+registry = orm.registry(metadata=metadata)

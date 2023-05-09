@@ -413,12 +413,13 @@ class Group(core.StatefulObjectMixin,
     def __repr__(self):
         return '<Group %s>' % self.name
 
-meta.mapper(Group, group_table)
+meta.registry.map_imperatively(Group, group_table)
 
-meta.mapper(Member, member_table, properties={
-    'group': orm.relation(Group,
+meta.registry.map_imperatively(Member, member_table, properties={
+    'group': orm.relationship(Group,
                           backref=orm.backref('member_all',
-                                              cascade='all, delete-orphan')),
+                                              cascade='all, delete-orphan',
+                                              cascade_backrefs=False)),
 })
 
 

@@ -38,8 +38,8 @@ class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
 
 
 # type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(PackageExtra, package_extra_table, properties={
-    'package': orm.relation(_package.Package,
+meta.registry.map_imperatively(PackageExtra, package_extra_table, properties={
+    'package': orm.relationship(_package.Package,
         backref=orm.backref('_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),  # type: ignore
             cascade='all, delete, delete-orphan',
