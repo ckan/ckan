@@ -65,6 +65,8 @@ def load_environment(conf: Union[Config, CKANConfig]):
     for msg in msgs:
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
+    warnings.filterwarnings("always", category=sqlalchemy.exc.RemovedIn20Warning)
+
     # load all CKAN plugins
     p.load_all()
 

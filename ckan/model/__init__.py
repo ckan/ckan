@@ -161,15 +161,14 @@ def init_model(engine: Engine) -> None:
     import sqlalchemy.exc
     for i in reversed(range(DB_CONNECT_RETRIES)):
         try:
-            Table('alembic_version', meta.metadata, autoload=True)
-            break
-        except sqlalchemy.exc.NoSuchTableError:
-            break
+            Table('alembic_version', meta.metadata).exists(engine)
         except sqlalchemy.exc.OperationalError as e:
             if 'database system is starting up' in repr(e.orig) and i:
                 sleep(DB_CONNECT_RETRIES - i)
                 continue
             raise
+        else:
+            break
 
 
 class Repository():
@@ -204,7 +203,7 @@ class Repository():
         that may have been setup with either upgrade_db or a previous run of
         init_db.
         '''
-        warnings.filterwarnings('ignore', 'SAWarning')
+
         self.session.rollback()
         self.session.remove()
 

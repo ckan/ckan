@@ -20,6 +20,7 @@ Session: AlchemySession = orm.scoped_session(orm.sessionmaker(
     autoflush=False,
     autocommit=False,
     expire_on_commit=False,
+    future=True,
 ))
 
 

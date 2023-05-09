@@ -231,7 +231,7 @@ class User(core.StatefulObjectMixin,
 
         result: int = meta.Session.execute(
             q.statement.with_only_columns(
-                [func.count()]
+                func.count()
             ).order_by(
                 None
             )

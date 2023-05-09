@@ -60,8 +60,13 @@ class TrackingMiddleware(object):
             # store key/data here
             sql = '''INSERT INTO tracking_raw
                      (user_key, url, tracking_type)
-                     VALUES (%s, %s, %s)'''
-            self.engine.execute(sql, key, data.get('url'), data.get('type'))
+                     VALUES (:key, :url, :type)'''
+            with self.engine.begin() as conn:
+                conn.execute(sa.text(sql), {
+                    "key": key,
+                    "url": data.get("url"),
+                    "type": data.get("type"),
+                })
             return []
         return self.app(environ, start_response)
 

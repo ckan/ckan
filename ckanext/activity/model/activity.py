@@ -12,7 +12,6 @@ from sqlalchemy import (
     ForeignKey,
     or_,
     and_,
-    union_all,
     text,
 )
 
@@ -229,11 +228,10 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     Return union of two or more activity queries sorted by timestamp,
     and remove duplicates
     """
-    q: QActivity = (
-        model.Session.query(Activity)
-        .select_entity_from(union_all(*[q.subquery().select() for q in qlist]))
-        .distinct(Activity.timestamp)
-    )
+    q, *rest = qlist
+    for query in rest:
+        q = q.union(query)
+
     return q
 
 
