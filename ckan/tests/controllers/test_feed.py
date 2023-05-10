@@ -71,6 +71,14 @@ class TestFeeds(object):
 
         assert not helpers.body_contains(res, u'<title">{0}</title>'.format(dataset2["title"]))
 
+    def test_dataset_atom_feed_works(self, app):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'], description="Test\x0c Description")
+        offset = url_for(u"feeds.dataset", id=dataset['id'])
+        res = app.get(offset)
+        assert helpers.body_contains(res, u"<title>{0}</title>".format(resource["name"]))
+        assert helpers.body_contains(res, u"<content>Test Description</content>")
+
 
 class MockFeedPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IFeed)

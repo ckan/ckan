@@ -4,10 +4,10 @@ from __future__ import annotations
 import logging
 import json
 import unicodedata
-from typing import Optional, cast, Any
+from typing import Optional, cast, Any, Union
 
 
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote_plus
 from flask import Blueprint, make_response
 
 from dateutil.tz import tzutc
@@ -50,13 +50,15 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
     return query['count'], query['results']
 
 
-def _enclosure(pkg: dict[str, Any]) -> 'Enclosure':
+def _enclosure(pkg: Union[dict[str, Any], list[dict[str, Any]]],
+               logic_function: str,
+               **kwargs: Any) -> 'Enclosure':
     url = h.url_for(
         u'api.action',
-        logic_function=u'package_show',
-        id=pkg['name'],
+        logic_function=logic_function,
         ver=3,
-        _external=True
+        _external=True,
+        **kwargs
     )
     enc = Enclosure(url)
     enc.mime_type = u'application/json'
@@ -75,26 +77,49 @@ class CKANFeed(FeedGenerator):
     def __init__(
         self,
         feed_title: str,
-        feed_link: str,
         feed_description: str,
         language: Optional[str],
         author_name: Optional[str],
         feed_guid: Optional[str],
-        feed_url: Optional[str],
+        feed_self_link: Optional[Union[str, None]],
+        feed_enclosure: Optional[Union[str, None]],
+        feed_alternate_link: Optional[Union[str, None]],
+        feed_via_link: Optional[Union[str, None]],
+        feed_related_link: Optional[Union[str, None]],
         previous_page: Optional[str],
         next_page: Optional[str],
         first_page: Optional[str],
         last_page: Optional[str],
     ) -> None:
         super(CKANFeed, self).__init__()
-
         self.title(feed_title)
-        self.link(href=feed_link, rel=u"alternate")
         self.description(feed_description)
         self.language(language)
         self.author({u"name": author_name})
         self.id(feed_guid)
-        self.link(href=feed_url, rel=u"self")
+        # rel="self" normally indicates the current element
+        # (feed or entry) and represents the object itself.
+        # This is the URI for that object (feed or entry)
+        if feed_self_link is not None:
+            self.link(href=feed_self_link, rel=u"self")
+        # rel="enclosure" can mean that the linked to object is
+        # intended to be downloaded and cached, as it may be large.
+        # In this case, this is the JSON data from the API
+        if feed_enclosure is not None:
+            self.link(href=feed_enclosure, rel=u"enclosure")
+        # rel="alternate" specifies a link to an alternative representation
+        # of the same element (feed or entry) such as another Hypertext format.
+        # In this case, the route to the HTML page
+        if feed_alternate_link is not None:
+            self.link(href=feed_alternate_link, rel=u"alternate")
+        # rel="via" can identify the original source of the information
+        # of the feed or the entry, such as a credit to a source
+        if feed_via_link is not None:
+            self.link(href=feed_via_link, rel=u"via")
+        # rel="related" indicates the link is related to the current
+        # feed or entry in some way other than being a source (see rel="via")
+        if feed_related_link is not None:
+            self.link(href=feed_related_link, rel=u"related")
         links = (
             (u"prev", previous_page),
             (u"next", next_page),
@@ -107,7 +132,9 @@ class CKANFeed(FeedGenerator):
             self.link(href=href, rel=rel)
 
     def writeString(self, encoding: str) -> str:  # noqa
-        return cast(str, self.atom_str(encoding=encoding))
+        return cast(str, self.atom_str(
+            encoding=encoding,
+            pretty=h.asbool(config.get('ckan.feeds.pretty', False))))
 
     def add_item(self, **kwargs: Any) -> None:
         entry = self.add_entry()
@@ -119,8 +146,18 @@ class CKANFeed(FeedGenerator):
             elif key == u'categories':
                 key = u'category'
                 value = [{u'term': t} for t in value]
-            elif key == u'link':
-                value = {u'href': value}
+            elif key == u'self_link':
+                key = u'link'
+                value = {u'href': value, u'rel': u'self'}
+            elif key == u'alternate_link':
+                key = u'link'
+                value = {u'href': value, u'rel': u'alternate'}
+            elif key == u'via_link':
+                key = u'link'
+                value = {u'href': value, u'rel': u'via'}
+            elif key == u'related_link':
+                key = u'link'
+                value = {u'href': value, u'rel': u'related'}
             elif key == u'author_name':
                 key = u'author'
                 value = {u'name': value}
@@ -134,8 +171,12 @@ class CKANFeed(FeedGenerator):
 
 def output_feed(
         results: list[dict[str, Any]], feed_title: str, feed_description: str,
-        feed_link: str, feed_url: str, navigation_urls: dict[str, str],
-        feed_guid: str) -> Response:
+        navigation_urls: dict[str, str], feed_guid: str,
+        feed_self_link: Optional[Union[str, None]] = None,
+        feed_enclosure: Optional[Union[Enclosure, None]] = None,
+        feed_alternate_link: Optional[Union[str, None]] = None,
+        feed_via_link: Optional[Union[str, None]] = None,
+        feed_related_link: Optional[Union[str, None]] = None) -> Response:
     author_name = config.get(u'ckan.feeds.author_name').strip() or \
         config.get(u'ckan.site_id').strip()
 
@@ -145,7 +186,6 @@ def output_feed(
 
         return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
-    # TODO: language
     feed_class: PFeedFactory = CKANFeed
     for plugin in plugins.PluginImplementations(plugins.IFeed):
         if hasattr(plugin, u'get_feed_class'):
@@ -153,12 +193,15 @@ def output_feed(
 
     feed = feed_class(
         feed_title,
-        feed_link,
         feed_description,
-        language=u'en',
+        language=h.lang(),
         author_name=author_name,
         feed_guid=feed_guid,
-        feed_url=feed_url,
+        feed_self_link=feed_self_link,
+        feed_enclosure=feed_enclosure,
+        feed_alternate_link=feed_alternate_link,
+        feed_via_link=feed_via_link,
+        feed_related_link=feed_related_link,
         previous_page=navigation_urls[u'previous'],
         next_page=navigation_urls[u'next'],
         first_page=navigation_urls[u'first'],
@@ -171,23 +214,51 @@ def output_feed(
             if hasattr(plugin, u'get_item_additional_fields'):
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
-        feed.add_item(
-            title=pkg.get(u'title', u''),
-            link=h.url_for(
-                u'api.action',
-                logic_function=u'package_show',
-                id=pkg['id'],
-                ver=3,
-                _external=True),
-            description=remove_control_characters(pkg.get(u'notes', u'')),
-            updated=h.date_str_to_datetime(pkg.get(u'metadata_modified', '')),
-            published=h.date_str_to_datetime(pkg.get(u'metadata_created', '')),
-            unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
-            author_name=pkg.get(u'author', u''),
-            author_email=pkg.get(u'author_email', u''),
-            categories=[t[u'name'] for t in pkg.get(u'tags', [])],
-            enclosure=_enclosure(pkg),
-            **additional_fields)
+        if 'package_id' in pkg:  # Resource
+            feed.add_item(
+                title=h.get_translated(pkg, u'name'),
+                alternate_link=h.url_for(
+                    u'dataset_resource.read',
+                    package_type='dataset',
+                    id=pkg['package_id'],
+                    resource_id=pkg['id'],
+                    _external=True),
+                description=remove_control_characters(
+                                h.get_translated(pkg, 'description')),
+                updated=h.date_str_to_datetime(
+                            pkg.get(u'metadata_modified', '')),
+                published=h.date_str_to_datetime(
+                            pkg.get(u'created', '')),
+                unique_id=_create_atom_id(u'/dataset/%s/resource/%s' %
+                                          (pkg['package_id'], pkg['id'])),
+                author_name=pkg.get(u'author', u''),
+                author_email=pkg.get(u'author_email', u''),
+                categories=[t[u'name'] for t in pkg.get(u'tags', [])],
+                enclosure=_enclosure(pkg, u'resource_show', id=pkg['id']),
+                **additional_fields)
+        else:  # Dataset
+            feed.add_item(
+                title=h.get_translated(pkg, u'title'),
+                self_link=h.url_for(
+                    u'feeds.dataset',
+                    id=pkg['id'],
+                    _external=True),
+                alternate_link=h.url_for(
+                    u'dataset.read',
+                    id=pkg['id'],
+                    _external=True),
+                description=remove_control_characters(
+                                h.get_translated(pkg, 'notes')),
+                updated=h.date_str_to_datetime(
+                            pkg.get(u'metadata_modified', '')),
+                published=h.date_str_to_datetime(
+                            pkg.get(u'metadata_created', '')),
+                unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
+                author_name=pkg.get(u'author', u''),
+                author_email=pkg.get(u'author_email', u''),
+                categories=[t[u'name'] for t in pkg.get(u'tags', [])],
+                enclosure=_enclosure(pkg, u'package_show', id=pkg['id']),
+                **additional_fields)
 
     resp = make_response(feed.writeString(u'utf-8'), 200)
     resp.headers['Content-Type'] = u'application/atom+xml'
@@ -232,36 +303,48 @@ def organization(id: str) -> Response:
 
 def tag(id: str) -> Response:
     data_dict, params = _parse_url_params()
-    data_dict['fq'] = u'tags: "%s"' % id
+    data_dict['fq'] = u'tags:"%s"' % unquote_plus(id)
 
     item_count, results = _package_search(data_dict)
 
-    navigation_urls = _navigation_urls(
+    nav_urls = _navigation_urls(
         params,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feeds',
-        action=u'tag',
-        id=id)
+        controller=u'dataset',
+        action=u'search',
+        tags=id)
 
-    feed_url = _feed_url(params, controller=u'feeds', action=u'tag', id=id)
+    self_link = _feed_url(params,
+                          controller=u'feeds',
+                          action=u'tag',
+                          id=id)
 
-    alternate_url = _alternate_url(params, tags=id)
+    alternate_link = _feed_url(params,
+                               controller=u'dataset',
+                               action=u'search',
+                               tags=id)
+
+    enclosure = _enclosure(results,
+                           u'package_search',
+                           **data_dict,
+                           **params)
 
     site_title = config.get(u'ckan.site_title')
-    title = u'%s - Tag: "%s"' % (site_title, id)
-    desc = u'Recently created or updated datasets on %s by tag: "%s"' % \
-           (site_title, id)
+    title = _(u'%s - Tag: "%s"') % (site_title, unquote_plus(id))
+    desc = _(u'Recently created or updated datasets on %s by tag: "%s"') % \
+            (site_title, unquote_plus(id))
     guid = _create_atom_id(u'/feeds/tag/%s.atom' % id)
 
     return output_feed(
         results,
         feed_title=title,
         feed_description=desc,
-        feed_link=alternate_url,
+        navigation_urls=nav_urls,
         feed_guid=guid,
-        feed_url=feed_url,
-        navigation_urls=navigation_urls)
+        feed_self_link=self_link,
+        feed_enclosure=enclosure,
+        feed_alternate_link=alternate_link)
 
 
 def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
@@ -279,39 +362,55 @@ def group_or_organization(obj_dict: dict[str, Any], is_org: bool) -> Response:
     item_count, results = _package_search(data_dict)
     site_title = config.get(u'ckan.site_title')
 
-    navigation_urls = _navigation_urls(
+    nav_urls = _navigation_urls(
         params,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feeds',
-        action=group_type,
+        controller=group_type,
+        action=u'read',
         id=obj_dict['name'])
-    feed_url = _feed_url(
+    self_link = _feed_url(
         params, controller=u'feeds', action=group_type, id=obj_dict['name'])
-    # site_title = SITE_TITLE
+    alternate_link = _feed_url(
+        params, controller=group_type, action=u'read', id=obj_dict['name'])
     if is_org:
         guid = _create_atom_id(
             u'feeds/organization/%s.atom' % obj_dict['name'])
-        alternate_url = _alternate_url(params, organization=obj_dict['name'])
-        desc = u'Recently created or updated datasets on %s '\
-               'by organization: "%s"' % (site_title, obj_dict['title'])
-        title = u'%s - Organization: "%s"' % (site_title, obj_dict['title'])
+        enclosure = _enclosure(obj_dict,
+                               u'organization_show',
+                               id=obj_dict['id'],
+                               **params)
+        desc = _(u'Recently created or updated datasets on %s '
+                 'by organization: "%s"') % \
+                (site_title, h.get_translated(obj_dict, 'title')
+                 or obj_dict['name'])
+        title = _(u'%s - Organization: "%s"') % \
+                 (site_title, h.get_translated(obj_dict, 'title')
+                  or obj_dict['name'])
 
     else:
         guid = _create_atom_id(u'feeds/group/%s.atom' % obj_dict['name'])
-        alternate_url = _alternate_url(params, groups=obj_dict['name'])
-        desc = u'Recently created or updated datasets on %s '\
-               'by group: "%s"' % (site_title, obj_dict['title'])
-        title = u'%s - Group: "%s"' % (site_title, obj_dict['title'])
+        enclosure = _enclosure(obj_dict,
+                               u'group_show',
+                               id=obj_dict['id'],
+                               **params)
+        desc = _(u'Recently created or updated datasets on %s '
+                 'by group: "%s"') % \
+                (site_title, h.get_translated(obj_dict, 'title')
+                 or obj_dict['name'])
+        title = _(u'%s - Group: "%s"') % \
+                 (site_title, h.get_translated(obj_dict, 'title')
+                  or obj_dict['name'])
 
     return output_feed(
         results,
         feed_title=title,
         feed_description=desc,
-        feed_link=alternate_url,
+        navigation_urls=nav_urls,
         feed_guid=guid,
-        feed_url=feed_url,
-        navigation_urls=navigation_urls)
+        feed_self_link=self_link,
+        feed_enclosure=enclosure,
+        feed_alternate_link=alternate_link)
 
 
 def _parse_url_params() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -333,36 +432,94 @@ def _parse_url_params() -> tuple[dict[str, Any], dict[str, Any]]:
     return data_dict, params
 
 
+def dataset(id: str) -> Response:
+    _data_dict, params = _parse_url_params()
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user
+    })
+    pkg_dict = logic.get_action(u'package_show')(context, {'id': id})
+
+    self_link = _feed_url(params,
+                          controller=u'feeds',
+                          action=u'dataset',
+                          id=id)
+
+    alternate_link = _feed_url(params,
+                               controller=u'dataset',
+                               action=u'read',
+                               id=id)
+
+    guid = _create_atom_id(u'/feeds/dataset/%s.atom' % id)
+
+    enclosure = _enclosure(pkg_dict,
+                           u'package_show',
+                           id=pkg_dict['id'],
+                           **params)
+
+    site_title = config.get(u'ckan.site_title')
+    title = _(u'%s - Dataset: "%s"') % \
+             (site_title, h.get_translated(pkg_dict, 'title'))
+    desc = _(u'Recently created or updated resources on %s '
+             'for dataset: %s') % \
+            (site_title, h.get_translated(pkg_dict, 'title'))
+
+    # dataset resources have no paging
+    # so we can ignore the feeds paging
+    nav_urls = _navigation_urls(
+        params,
+        item_count=len(pkg_dict['resources']),
+        limit=len(pkg_dict['resources']),
+        controller=u'dataset',
+        action=u'read')
+
+    return output_feed(
+        pkg_dict['resources'],
+        feed_title=title,
+        feed_description=desc,
+        navigation_urls=nav_urls,
+        feed_guid=guid,
+        feed_self_link=self_link,
+        feed_enclosure=enclosure,
+        feed_alternate_link=alternate_link)
+
+
 def general() -> Response:
     data_dict, params = _parse_url_params()
     data_dict['q'] = u'*:*'
 
     item_count, results = _package_search(data_dict)
 
-    navigation_urls = _navigation_urls(
+    nav_urls = _navigation_urls(
         params,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feeds',
-        action=u'general')
+        controller=u'dataset',
+        action=u'search')
 
-    feed_url = _feed_url(params, controller=u'feeds', action=u'general')
+    self_link = _feed_url(params, controller=u'feeds', action=u'general')
 
-    alternate_url = _alternate_url(params)
+    alternate_link = _feed_url(params, controller=u'dataset', action=u'search')
+
+    enclosure = _enclosure(results, u'package_search', **data_dict, **params)
 
     guid = _create_atom_id(u'/feeds/dataset.atom')
 
     site_title = config.get(u'ckan.site_title')
-    desc = u'Recently created or updated datasets on %s' % site_title
+    title = _(u'%s - Datasets') % site_title
+    desc = _(u'Recently created or updated datasets on %s') % site_title
 
     return output_feed(
         results,
-        feed_title=site_title,
+        feed_title=title,
         feed_description=desc,
-        feed_link=alternate_url,
+        navigation_urls=nav_urls,
         feed_guid=guid,
-        feed_url=feed_url,
-        navigation_urls=navigation_urls)
+        feed_self_link=self_link,
+        feed_enclosure=enclosure,
+        feed_alternate_link=alternate_link)
 
 
 def custom() -> Response:
@@ -392,39 +549,41 @@ def custom() -> Response:
 
     item_count, results = _package_search(data_dict)
 
-    navigation_urls = _navigation_urls(
+    nav_urls = _navigation_urls(
         request.args,
         item_count=item_count,
         limit=data_dict['rows'],
-        controller=u'feeds',
-        action=u'custom')
+        controller=u'dataset',
+        action=u'search')
 
-    feed_url = _feed_url(request.args, controller=u'feeds', action=u'custom')
+    self_link = _feed_url(request.args,
+                          controller=u'feeds',
+                          action=u'custom')
 
-    atom_url = h._url_with_params(u'/feeds/custom.atom', search_params.items())
+    alternate_link = _feed_url(request.args,
+                               controller=u'dataset',
+                               action=u'search')
 
-    alternate_url = _alternate_url(request.args)
+    guid = _create_atom_id(
+                h._url_with_params(u'/feeds/custom.atom',
+                                   search_params.items()))
+
+    enclosure = _enclosure(results, u'package_search', **data_dict)
+
     site_title = config.get(u'ckan.site_title')
+    title = _(u'%s - Custom query') % site_title
+    desc = _(u'Recently created or updated'
+             ' datasets on %s. Custom query: \'%s\'') % (site_title, q)
+
     return output_feed(
         results,
-        feed_title=u'%s - Custom query' % site_title,
-        feed_description=u'Recently created or updated'
-        ' datasets on %s. Custom query: \'%s\'' % (site_title, q),
-        feed_link=alternate_url,
-        feed_guid=_create_atom_id(atom_url),
-        feed_url=feed_url,
-        navigation_urls=navigation_urls)
-
-
-def _alternate_url(params: dict[str, Any], **kwargs: Any) -> str:
-    search_params = params.copy()
-    search_params.update(kwargs)
-
-    # Can't count on the page sizes being the same on the search results
-    # view.  So provide an alternate link to the first page, regardless
-    # of the page we're looking at in the feed.
-    search_params.pop(u'page', None)
-    return _feed_url(search_params, controller=u'dataset', action=u'search')
+        feed_title=title,
+        feed_description=desc,
+        navigation_urls=nav_urls,
+        feed_guid=guid,
+        feed_self_link=self_link,
+        feed_enclosure=enclosure,
+        feed_alternate_link=alternate_link)
 
 
 def _feed_url(query: dict[str, Any], controller: str, action: str,
@@ -433,10 +592,8 @@ def _feed_url(query: dict[str, Any], controller: str, action: str,
     Constructs the url for the given action.  Encoding the query
     parameters.
     """
-    for item in query.items():
-        kwargs['query'] = item
     endpoint = controller + '.' + action
-    return h.url_for(endpoint, **kwargs)
+    return h.url_for(endpoint, query.items(), _external=True, **kwargs)
 
 
 def _navigation_urls(
@@ -445,25 +602,29 @@ def _navigation_urls(
     """
     Constructs and returns first, last, prev and next links for paging
     """
-
     urls: dict[str, Optional[str]] = dict(
         (rel, None) for rel in u'previous next first last'.split()
     )
 
     page = int(query.get(u'page', 1))
+    last_page = 0
 
-    # first: remove any page parameter
-    first_query = query.copy()
-    first_query.pop(u'page', None)
-    urls['first'] = _feed_url(first_query, controller,
-                              action, **kwargs)
+    if item_count > limit:
+        # first: remove any page parameter
+        first_query = query.copy()
+        first_query.pop(u'page', None)
+        urls['first'] = _feed_url(first_query, controller,
+                                  action, **kwargs)
 
-    # last: add last page parameter
-    last_page = (item_count / limit) + min(1, item_count % limit)
-    last_query = query.copy()
-    last_query['page'] = last_page
-    urls['last'] = _feed_url(last_query, controller,
-                             action, **kwargs)
+        # last: add last page parameter
+        last_page = (item_count / limit) + min(1, item_count % limit)
+        last_query = query.copy()
+        last_query['page'] = last_page
+        urls['last'] = _feed_url(last_query, controller,
+                                 action, **kwargs)
+    else:
+        urls['first'] = None
+        urls['last'] = None
 
     # previous
     if page > 1:
@@ -580,6 +741,8 @@ def _create_atom_id(resource_path: str,
 
 
 # Routing
+feeds.add_url_rule(u'/dataset/<string:id>.atom', methods=[u'GET'],
+                   view_func=dataset)
 feeds.add_url_rule(u'/dataset.atom', methods=[u'GET'], view_func=general)
 feeds.add_url_rule(u'/custom.atom', methods=[u'GET'], view_func=custom)
 feeds.add_url_rule(u'/tag/<string:id>.atom', methods=[u'GET'], view_func=tag)
