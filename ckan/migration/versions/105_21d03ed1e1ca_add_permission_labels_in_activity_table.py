@@ -17,8 +17,9 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('activity', sa.Column('permission_labels', sa.Text))
+    op.add_column('activity', sa.Column(
+        'permission_labels', sa.ARRAY(sa.Text)))
 
 
 def downgrade():
-    pass
+    op.drop_column('activity', 'permission_labels')
