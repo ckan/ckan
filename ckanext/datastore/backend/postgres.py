@@ -4,6 +4,7 @@ from typing_extensions import TypeAlias
 
 import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
+from sqlalchemy.dialects.postgresql import REGCLASS
 from ckan.types import Context, ErrorDict
 import copy
 import logging
@@ -644,7 +645,9 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                             alias)]
                     })
 
-                context['connection'].execute(sql_alias_string)
+                context['connection'].execute(sqlalchemy.text(
+                    sql_alias_string
+                ))
         except DBAPIError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
@@ -1128,8 +1131,9 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 info_sql))
 
     if alter_sql:
-        context['connection'].execute(
-            u';'.join(alter_sql).replace(u'%', u'%%'))
+        context['connection'].execute(sqlalchemy.text(
+            ';'.join(alter_sql).replace(u'%', u'%%')
+        ))
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
@@ -1576,9 +1580,15 @@ def _create_triggers(connection: Any, resource_id: str,
     or "for_each" parameters from triggers list.
     '''
     existing = connection.execute(
-        u"""SELECT tgname FROM pg_trigger
-        WHERE tgrelid = %s::regclass AND tgname LIKE 't___'""",
-        resource_id)
+        sqlalchemy.select(
+            sqlalchemy.column("tgname")  # type: ignore
+        ).select_from(sqlalchemy.table("pg_trigger")).where(
+            sqlalchemy.column("tgrelid") == sqlalchemy.cast(
+                resource_id, REGCLASS
+            ),
+            sqlalchemy.column("tgname").like("t___")  # type: ignore
+        )
+    )
     sql_list = (
         [u'DROP TRIGGER {name} ON {table}'.format(
             name=identifier(r[0]),
@@ -1594,7 +1604,7 @@ def _create_triggers(connection: Any, resource_id: str,
          for i, t in enumerate(triggers)])
     try:
         if sql_list:
-            connection.execute(u';\n'.join(sql_list))
+            connection.execute(sqlalchemy.text(";\n".join(sql_list)))
     except ProgrammingError as pe:
         raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
 
@@ -1623,8 +1633,8 @@ def upsert(context: Context, data_dict: dict[str, Any]):
     trans: Any = context['connection'].begin()
     try:
         # check if table already existes
-        context['connection'].execute(
-            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
+        context['connection'].execute(sqlalchemy.text(
+            f"SET LOCAL statement_timeout TO {timeout}"))
         upsert_data(context, data_dict)
         if data_dict.get(u'dry_run', False):
             trans.rollback()
@@ -2328,7 +2338,7 @@ def _write_engine_execute(sql: str):
     connection: Any = connection.execution_options(no_parameters=True)
     trans = connection.begin()
     try:
-        connection.execute(sql)
+        connection.execute(sqlalchemy.text(sql))
         trans.commit()
     except Exception:
         trans.rollback()
