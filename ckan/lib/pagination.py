@@ -634,13 +634,16 @@ class BasePage(List[Any]):
 class Page(BasePage):
     def pager(self, *args: Any, **kwargs: Any) -> Markup:
         with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
+            tags.ul(
+                "$link_previous ~2~ $link_next",
+                cls="pagination justify-content-center"
+            )
         params = dict(
             format=str(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
-            curpage_attr={u"class": u"active"},
-            link_attr={},
+            curpage_attr={u"class": u"page-item active"},
+            link_attr={"class": "page-link"},
         )
         params.update(kwargs)
         return super(Page, self).pager(*args, **params)
@@ -651,7 +654,7 @@ class Page(BasePage):
             self, page: int, text: str,
             extra_attributes: Optional[dict[str, Any]] = None):
         anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
+        extra_attributes = extra_attributes or {"class": "page-item"}
         return str(tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>

@@ -33,8 +33,6 @@ from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
-    # starting from python 3.7 the following line can be used without any
-    # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
 
 SENTINEL = {}

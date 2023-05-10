@@ -415,7 +415,7 @@ def _group_or_org_list(
         elif sort_field == 'name':
             sort_model_field = model.Group.name
         elif sort_field == 'title':
-            sort_model_field = model.Group.title
+            sort_model_field = cast(Any, model.Group.title)
 
         if sort_direction == 'asc':
             query = query.order_by(sqlalchemy.asc(sort_model_field))
@@ -625,7 +625,9 @@ def group_list_authz(context: Context,
         if package:
             groups = set(groups) - set(package.get_groups())
 
-    group_list = model_dictize.group_list_dictize(groups, context)
+    group_list = model_dictize.group_list_dictize(groups, context,
+        with_package_counts=asbool(data_dict.get('include_dataset_count')),
+        with_member_counts=asbool(data_dict.get('include_member_count')))
     return group_list
 
 
@@ -743,7 +745,8 @@ def organization_list_for_user(context: Context,
 
     context['with_capacity'] = True
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
-        with_package_counts=asbool(data_dict.get('include_dataset_count')))
+        with_package_counts=asbool(data_dict.get('include_dataset_count')),
+        with_member_counts=asbool(data_dict.get('include_member_count')))
     return orgs_list
 
 
@@ -759,7 +762,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licenses = [l.as_dict() for l in licenses]
+    licenses = [l.license_dictize() for l in licenses]
     return licenses
 
 
@@ -1210,6 +1213,7 @@ def _group_or_org_show(
         include_groups = asbool(data_dict.get('include_groups', True))
         include_extras = asbool(data_dict.get('include_extras', True))
         include_followers = asbool(data_dict.get('include_followers', True))
+        include_member_count = asbool(data_dict.get('include_member_count', False))
     except ValueError:
         raise logic.ValidationError({
             'message': _('Parameter is not an bool')
@@ -1234,7 +1238,8 @@ def _group_or_org_show(
                                              include_tags=include_tags,
                                              include_extras=include_extras,
                                              include_groups=include_groups,
-                                             include_users=include_users,)
+                                             include_users=include_users,
+                                             include_member_count=include_member_count,)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
