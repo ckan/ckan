@@ -1,0 +1,48 @@
+{% call register_example('powershell', 'button_label') %}
+PowerShell
+{% endcall %}
+
+
+{% call register_example('powershell', 'request_limit') %}
+<pre class="example-powershell"><code class="language-powershell"
+>$json = @'
+{
+  "resource_id": "{{resource_id}}",
+  "limit": 5,
+  "q": "jones"
+}
+'@
+$response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
+  -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
+$response.result.records</code></pre>
+{% endcall %}
+
+
+{% call register_example('powershell', 'request_filter') %}
+<pre class="example-powershell"><code class="language-powershell"
+>$json = @'
+{
+  "resource_id": "{{resource_id}}",
+  "filters": {
+    "subject": ["watershed", "survey"],
+    "stage": "active"
+  }
+}
+'@
+$response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`
+  -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
+$response.result.records</code></pre>
+{% endcall %}
+
+
+{% call register_example('powershell', 'request_sql') %}
+<pre class="example-powershell"><code class="language-powershell"
+>$json = @'
+{
+  "sql": "SELECT * from \"{{resource_id}}\" WHERE title LIKE 'jones'"
+}
+'@
+$response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}`
+  -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
+$response.result.records</code></pre>
+{% endcall %}
