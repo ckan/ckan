@@ -188,7 +188,7 @@ def package_dictize(
 
     # resources
     res = model.resource_table
-    q = select(res).where(res.c["package_id"] == pkg.id)
+    q = select(res).where(res.c["package_id"] == pkg.id)  # type: ignore
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
@@ -196,9 +196,14 @@ def package_dictize(
     # tags
     tag = model.tag_table
     pkg_tag = model.package_tag_table
-    q = select(tag, pkg_tag.c["state"]).join(
+    q = select(
+        tag,  # type: ignore
+        pkg_tag.c["state"]
+    ).join(
         pkg_tag, tag.c["id"] == pkg_tag.c["tag_id"]
-    ).where(pkg_tag.c["package_id"] == pkg.id)
+    ).where(  # type: ignore
+        pkg_tag.c["package_id"] == pkg.id
+    )
     result = execute(q, pkg_tag, context)
     result_dict["tags"] = d.obj_list_dictize(result, context,
                                              lambda x: x["name"])
@@ -213,16 +218,21 @@ def package_dictize(
 
     # extras - no longer revisioned, so always provide latest
     extra = model.package_extra_table
-    q = select(extra).where(extra.c["package_id"] == pkg.id)
+    q = select(
+        extra  # type: ignore
+    ).where(extra.c["package_id"] == pkg.id)
     result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
 
     # groups
     member = model.member_table
     group = model.group_table
-    q = select(group, member.c["capacity"]).join(
+    q = select(
+        group,  # type: ignore
+        member.c["capacity"]
+    ).join(
         member, group.c["id"] == member.c["group_id"]
-    ).where(
+    ).where(  # type: ignore
         member.c["table_id"] == pkg.id,
         member.c["state"] == 'active',
         group.c["is_organization"] == False
@@ -238,7 +248,9 @@ def package_dictize(
 
     # owning organization
     group = model.group_table
-    q = select(group).where(
+    q = select(
+        group  # type: ignore
+    ).where(
         group.c["id"] == pkg.owner_org
     ).where(group.c["state"] == 'active')
     result = execute(q, group, context)
@@ -250,11 +262,15 @@ def package_dictize(
 
     # relations
     rel = model.package_relationship_table
-    q = select(rel).where(rel.c["subject_package_id"] == pkg.id)
+    q = select(
+        rel  # type: ignore
+    ).where(rel.c["subject_package_id"] == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_subject"] = \
         d.obj_list_dictize(result, context)
-    q = select(rel).where(rel.c["object_package_id"] == pkg.id)
+    q = select(
+        rel  # type: ignore
+    ).where(rel.c["object_package_id"] == pkg.id)
     result = execute(q, rel, context)
     result_dict["relationships_as_object"] = \
         d.obj_list_dictize(result, context)

@@ -157,7 +157,6 @@ def init_model(engine: Engine) -> None:
     meta.Session.configure(bind=engine)
     meta.create_local_session.configure(bind=engine)
     meta.engine = engine
-    meta.metadata.bind = engine
     # sqlalchemy migrate version table
     import sqlalchemy.exc
     for i in reversed(range(DB_CONNECT_RETRIES)):
@@ -216,12 +215,13 @@ class Repository():
     def clean_db(self) -> None:
         self.commit_and_remove()
         meta.metadata = MetaData()
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
-            meta.metadata.reflect(meta.engine)
 
         if not meta.engine:
             raise CkanConfigurationException("Model is not initialized")
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
+            meta.metadata.reflect(meta.engine)
 
         with meta.engine.begin() as conn:
             meta.metadata.drop_all(conn)
@@ -262,7 +262,7 @@ class Repository():
         for table in tables:
             if table.name == 'alembic_version':
                 continue
-            connection.execute('delete from "%s"' % table.name)
+            connection.execute(sa.delete(table))
         self.session.commit()
         log.info('Database table data deleted')
 
@@ -280,14 +280,17 @@ class Repository():
         return output
 
     def setup_migration_version_control(self) -> None:
-        assert isinstance(self.metadata.bind, Engine)
         self.reset_alembic_output()
         alembic_config = AlembicConfig(self._alembic_ini)
         alembic_config.set_main_option(
             "sqlalchemy.url", config.get("sqlalchemy.url")
         )
+
+        if not meta.engine:
+            raise CkanConfigurationException("Model is not initialized")
+
         try:
-            with self.metadata.bind.connect() as conn:
+            with meta.engine.connect() as conn:
                 sqlalchemy_migrate_version = conn.execute(
                     sa.text('select version from migrate_version')
                 ).scalar()
@@ -356,10 +359,10 @@ class Repository():
             log.info(u'CKAN database version remains as: %s', version_after)
 
     def are_tables_created(self) -> bool:
-        meta.metadata = MetaData(self.metadata.bind)
+        meta.metadata = MetaData()
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
-            meta.metadata.reflect()
+            meta.metadata.reflect(meta.engine)
         return bool(meta.metadata.tables)
 
 

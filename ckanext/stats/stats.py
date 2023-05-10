@@ -33,7 +33,10 @@ class Stats(object):
         j = join(activity, package, activity.c["object_id"] == package.c["id"])
 
         s = (
-            select(package.c["owner_org"], func.count(package.c["id"]))
+            select(
+                package.c["owner_org"],  # type: ignore
+                func.count(package.c["id"])
+            )
             .select_from(j)
             .group_by(package.c["owner_org"])
             .where(

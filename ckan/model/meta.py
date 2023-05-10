@@ -84,4 +84,4 @@ mapper = orm.mapper
 # Global metadata. If you have multiple databases with overlapping table
 # names, you'll need a metadata for each database
 metadata = MetaData()
-registry = orm.registry(metadata=metadata)
+registry = orm.registry(metadata=metadata)  # type: ignore
