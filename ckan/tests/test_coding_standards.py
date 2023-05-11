@@ -11,7 +11,6 @@ etc.
 
 import importlib
 import inspect
-import io
 import itertools
 import os
 import os.path
