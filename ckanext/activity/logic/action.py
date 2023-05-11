@@ -247,6 +247,17 @@ def package_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
+    # Get activity permission labels
+    labels = get_permission_labels()
+    x = model.Session.query(model_activity.Activity).filter_by(object_id=package.id)
+    for activity in x:
+        activity.permission_labels = labels.get_activity_labels(activity)
+    model.Session.commit()
+
+    user_permission_labels = []
+    if not authz.is_sysadmin(context.get('user')):
+        user_permission_labels = labels.get_user_activity_labels(context['auth_user_obj'])
+
     activity_objects = model_activity.package_activity_list(
         package.id,
         limit=limit,
@@ -256,24 +267,10 @@ def package_activity_list(
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
+        user_permission_labels=user_permission_labels,
     )
 
-    # Filter based on user permissions
-    filtered_activity_objects = []
-    user = context.get('user')
-    if not authz.is_sysadmin(user):
-        labels = get_permission_labels()
-        user_permission_labels = labels.get_user_activity_labels(context['auth_user_obj'])
-
-        for activity in activity_objects:
-            activity.permission_labels = labels.get_activity_labels(activity)
-
-            if activity.permission_labels and any(permission in activity.permission_labels for permission in user_permission_labels):
-                filtered_activity_objects.append(activity)
-    else:
-        filtered_activity_objects = activity_objects
-
-    return model_activity.activity_list_dictize(filtered_activity_objects, context)
+    return model_activity.activity_list_dictize(activity_objects, context)
 
 
 @validate(schema.default_activity_list_schema)

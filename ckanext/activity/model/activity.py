@@ -324,6 +324,7 @@ def package_activity_list(
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None,
     exclude_activity_types: Optional[list[str]] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return the given dataset (package)'s public activity stream.
 
@@ -348,6 +349,10 @@ def package_activity_list(
         q = _filter_activitites_from_type(
             q, include=False, types=exclude_activity_types
         )
+
+    # Filter based on user permissions
+    if user_permission_labels:
+        q = q.filter(Activity.permission_labels.op('&&')(user_permission_labels))
 
     if after:
         q = q.filter(Activity.timestamp > after)
