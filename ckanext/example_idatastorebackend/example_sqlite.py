@@ -121,4 +121,4 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
             return [t.name for t in conn.execute(text(
                 '''select name from sqlite_master
                 where type = "table"'''
-            ).fetchall()]
+            )).fetchall()]
