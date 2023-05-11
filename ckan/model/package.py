@@ -16,6 +16,7 @@ from sqlalchemy.sql import and_, or_
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from ckan.common import config
 
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
      Group,
     )
 
-
+Mapped = orm.Mapped
 PrintableRelationship: TypeAlias = "tuple[Package, str, Optional[str]]"
 
 logger = logging.getLogger(__name__)
@@ -92,34 +93,34 @@ package_member_table = Table(
 
 class Package(core.StatefulObjectMixin,
               domain_object.DomainObject):
-    id: str
-    name: str
-    title: str
-    version: str
-    url: str
-    author: str
-    author_email: str
-    maintainer: str
-    maintainer_email: str
-    notes: str
-    licensce_id: str
-    type: str
-    owner_org: Optional[str]
-    creator_user_id: str
-    metadata_created: datetime.datetime
-    metadata_modified: datetime.datetime
-    private: bool
-    state: str
-    plugin_data: dict[str, Any]
+    id: Mapped[str]
+    name: Mapped[str]
+    title: Mapped[str]
+    version: Mapped[str]
+    url: Mapped[str]
+    author: Mapped[str]
+    author_email: Mapped[str]
+    maintainer: Mapped[str]
+    maintainer_email: Mapped[str]
+    notes: Mapped[str]
+    licensce_id: Mapped[str]
+    type: Mapped[str]
+    owner_org: Mapped[Optional[str]]
+    creator_user_id: Mapped[str]
+    metadata_created: Mapped[datetime.datetime]
+    metadata_modified: Mapped[datetime.datetime]
+    private: Mapped[bool]
+    state: Mapped[str]
+    plugin_data: Mapped[dict[str, Any]]
 
-    package_tags: list["PackageTag"]
+    package_tags: Mapped[list["PackageTag"]]
 
-    resources_all: list["Resource"]
-    _extras: dict[str, Any]  # list['PackageExtra']
-    extras: dict[str, Any]
+    resources_all: Mapped[list["Resource"]]
+    _extras: Mapped[dict[str, Any]]
+    extras: AssociationProxy
 
-    relationships_as_subject: 'PackageRelationship'
-    relationships_as_object: 'PackageRelationship'
+    relationships_as_subject: Mapped['PackageRelationship']
+    relationships_as_object: Mapped['PackageRelationship']
 
     _license_register: ClassVar['_license.LicenseRegister']
 
@@ -128,8 +129,7 @@ class Package(core.StatefulObjectMixin,
     @classmethod
     def search_by_name(cls, text_query: str) -> Query[Self]:
         return meta.Session.query(cls).filter(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            cls.name.contains(text_query.lower())  # type: ignore
+            cls.name.contains(text_query.lower())
         )
 
     @classmethod
@@ -229,7 +229,7 @@ class Package(core.StatefulObjectMixin,
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:
-            query = query.filter(model.Tag.vocabulary_id == None)
+            query = query.filter(model.Tag.vocabulary_id.is_(None))
         query = query.order_by(model.Tag.name)
         tags = query.all()
         return tags
@@ -482,16 +482,15 @@ class Package(core.StatefulObjectMixin,
 
 
 class PackageMember(domain_object.DomainObject):
-    package_id: str
-    user_id: str
-    capacity: str
-    modified: datetime.datetime
+    package_id: Mapped[str]
+    user_id: Mapped[str]
+    capacity: Mapped[str]
+    modified: Mapped[datetime.datetime]
 
 
 # import here to prevent circular import
 from ckan.model import tag
 
-# type_ignore_reason: incomplete SQLAlchemy types
 meta.registry.map_imperatively(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points

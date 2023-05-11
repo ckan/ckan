@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime
 
 from sqlalchemy import types, Column, Table, text
+from sqlalchemy.orm import Mapped
 
 import ckan.model.meta as meta
 import ckan.model.domain_object as domain_object
@@ -29,14 +30,14 @@ tracking_summary_table = Table('tracking_summary', meta.metadata,
     )
 
 class TrackingSummary(domain_object.DomainObject):
-    url: str
-    package_id: str
-    tracking_type: str
+    url: Mapped[str]
+    package_id: Mapped[str]
+    tracking_type: Mapped[str]
     # count attribute shadows DomainObject.count()
-    count: int
-    running_total: int
-    recent_views: int
-    tracking_date: datetime.datetime
+    count: Mapped[int]
+    running_total: Mapped[int]
+    recent_views: Mapped[int]
+    tracking_date: Mapped[datetime.datetime]
 
     @classmethod
     def get_for_package(cls, package_id: str) -> dict[str, int]:

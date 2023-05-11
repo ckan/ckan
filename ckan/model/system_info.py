@@ -10,6 +10,7 @@ For more details, check :doc:`maintaining/configuration`.
 from typing import Any, Optional
 
 from sqlalchemy import types, Column, Table
+from sqlalchemy.orm import Mapped
 from sqlalchemy.exc import ProgrammingError
 
 
@@ -31,10 +32,10 @@ system_info_table = Table(
 
 class SystemInfo(core.StatefulObjectMixin,
                  domain_object.DomainObject):
-    id: int
-    key: str
-    value: str
-    state: str
+    id: Mapped[int]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     def __init__(self, key: str, value: Any) -> None:
 

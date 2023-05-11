@@ -78,10 +78,9 @@ def ckan_after_rollback(session: Any):
         del session._object_cache
 
 
-#mapper = Session.mapper
 mapper = orm.mapper
 
 # Global metadata. If you have multiple databases with overlapping table
 # names, you'll need a metadata for each database
 metadata = MetaData()
-registry = orm.registry(metadata=metadata)  # type: ignore
+registry = orm.registry(metadata=metadata)

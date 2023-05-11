@@ -16,6 +16,8 @@ from ckan.common import config
 
 __all__ = [u"ApiToken", u"api_token_table"]
 
+Mapped = orm.Mapped
+
 
 def _make_token() -> str:
     nbytes = config.get(u"api_token.nbytes")
@@ -35,13 +37,13 @@ api_token_table = Table(
 
 
 class ApiToken(DomainObject):
-    id: str
-    name: str
-    user_id: Optional[str]
-    created_at: datetime.datetime
-    last_access: Optional[datetime.datetime]
-    plugin_extras: dict[str, Any]
-    owner: Optional[User]
+    id: Mapped[str]
+    name: Mapped[str]
+    user_id: Mapped[Optional[str]]
+    created_at: Mapped[datetime.datetime]
+    last_access: Mapped[Optional[datetime.datetime]]
+    plugin_extras: Mapped[dict[str, Any]]
+    owner: Mapped[Optional[User]]
 
     def __init__(
             self, user_id: Optional[str] = None,

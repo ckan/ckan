@@ -14,6 +14,7 @@ import ckan.model.domain_object as domain_object
 
 __all__ = ['GroupExtra', 'group_extra_table']
 
+Mapped = orm.Mapped
 group_extra_table = Table('group_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('group_id', types.UnicodeText, ForeignKey('group.id')),
@@ -25,15 +26,15 @@ group_extra_table = Table('group_extra', meta.metadata,
 
 class GroupExtra(core.StatefulObjectMixin,
                  domain_object.DomainObject):
-    id: str
-    group_id: str
-    key: str
-    value: str
-    state: str
+    id: Mapped[str]
+    group_id: Mapped[str]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     group: group.Group
 
-# type_ignore_reason: incomplete SQLAlchemy types
+
 meta.registry.map_imperatively(GroupExtra, group_extra_table, properties={
     'group': orm.relationship(group.Group,
         backref=orm.backref(

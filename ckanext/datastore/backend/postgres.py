@@ -138,7 +138,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
     register_default_json(
-        conn_or_curs=engine.raw_connection().connection,
+        conn_or_curs=engine.raw_connection().connection,  # type: ignore
         globally=False,
         loads=_loads)
 
@@ -300,7 +300,7 @@ def _get_fields(connection: Any, resource_id: str):
     '''
     fields: list[dict[str, Any]] = []
     all_fields = connection.execute(sa.select(
-        sa.text("*")  # type: ignore
+        sa.text("*")
     ).select_from(sa.table(resource_id)).limit(1))
 
     for field in all_fields.cursor.description:
@@ -1611,12 +1611,13 @@ def _create_triggers(connection: Any, resource_id: str,
     '''
     existing = connection.execute(
         sa.select(
-            sa.column("tgname")  # type: ignore
+            sa.column("tgname")
         ).select_from(sa.table("pg_trigger")).where(
             sa.column("tgrelid") == sa.cast(
-                resource_id, REGCLASS
+                resource_id,  # type: ignore
+                REGCLASS
             ),
-            sa.column("tgname").like("t___")  # type: ignore
+            sa.column("tgname").like("t___")
         )
     )
     sql_list = (
@@ -2169,8 +2170,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             results = conn.execute(resources_sql, {"id": alias})
 
         res_exists = results.rowcount > 0
-        if res_exists:
-            real_id = results.fetchone()[0]
+        if res_exists and (row := results.fetchone()):
+            real_id = row[0]
         return res_exists, real_id
 
     # def resource_info(self, id):
@@ -2191,7 +2192,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 u'SELECT count(_id) FROM "{0}"'.format(id))
             with engine.connect() as conn:
                 meta_results = conn.execute(meta_sql)
-            info['meta']['count'] = meta_results.fetchone()[0]
+            info['meta']['count'] = meta_results.one()[0]
 
             # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
             tabletype_sql = sa.text(u'''
@@ -2201,7 +2202,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             with engine.connect() as conn:
                 tabletype_results = conn.execute(tabletype_sql)
             info['meta']['table_type'] = \
-                tabletype_results.fetchone()[0]
+                tabletype_results.one()[0]
             # MATERIALIZED VIEWS show as BASE TABLE, so
             # we check pg_matviews
             matview_sql = sa.text(u'''
@@ -2210,7 +2211,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 '''.format(id))
             with engine.connect() as conn:
                 matview_results = conn.execute(matview_sql)
-            if matview_results.fetchone()[0]:
+            if matview_results.one()[0]:
                 info['meta']['table_type'] = 'MATERIALIZED VIEW'
 
             # SIZE - size of table in bytes
@@ -2218,23 +2219,21 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 u"SELECT pg_relation_size('{0}')".format(id))
             with engine.connect() as conn:
                 size_results = conn.execute(size_sql)
-            info['meta']['size'] = size_results.fetchone()[0]
+            info['meta']['size'] = size_results.one()[0]
 
             # DB_SIZE - size of database in bytes
             dbsize_sql = sa.text(
                 u"SELECT pg_database_size(current_database())")
             with engine.connect() as conn:
                 dbsize_results = conn.execute(dbsize_sql)
-            info['meta']['db_size'] = \
-                dbsize_results.fetchone()[0]
+            info['meta']['db_size'] = dbsize_results.one()[0]
 
             # IDXSIZE - size of all indices for table in bytes
             idxsize_sql = sa.text(
                 u"SELECT pg_indexes_size('{0}')".format(id))
             with engine.connect() as conn:
                 idxsize_results = conn.execute(idxsize_sql)
-            info['meta']['idx_size'] = \
-                idxsize_results.fetchone()[0]
+            info['meta']['idx_size'] = idxsize_results.one()[0]
 
             # all the aliases for this resource
             alias_sql = sa.text(u'''

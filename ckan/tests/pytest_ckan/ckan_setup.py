@@ -10,7 +10,7 @@ from ckan.common import config
 # SQLAlchemy v2.0 guard. Tests will fail if a non-compatible operation detected
 warnings.filterwarnings(
     "error",
-    category=exc.RemovedIn20Warning  # type: ignore
+    category=exc.RemovedIn20Warning
 )
 
 # This is a test Flask request context to be used internally.

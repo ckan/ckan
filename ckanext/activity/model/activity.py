@@ -5,7 +5,7 @@ import datetime
 from typing import Any, Iterable, Optional, Type, TypeVar, cast
 from typing_extensions import TypeAlias
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, Mapped
 from sqlalchemy import (
     types,
     Column,
@@ -44,13 +44,11 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     )
     timestamp = Column("timestamp", types.DateTime)
     user_id = Column("user_id", types.UnicodeText)
-    object_id = Column("object_id", types.UnicodeText)
+    object_id: Any = Column("object_id", types.UnicodeText)
     # legacy revision_id values are used by migrate_package_activity.py
     revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
-
-    activity_detail: "ActivityDetail"
 
     def __init__(
         self,
@@ -153,7 +151,7 @@ def activity_list_dictize(
 
 
 # deprecated
-class ActivityDetail(domain_object.DomainObject):
+class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
     __tablename__ = "activity_detail"
     id = Column(
         "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
@@ -166,7 +164,7 @@ class ActivityDetail(domain_object.DomainObject):
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
 
-    activity = relationship(
+    activity: Mapped[Activity] = relationship(  # type: ignore
         Activity,
         backref=backref("activity_detail", cascade="all, delete-orphan"),
     )

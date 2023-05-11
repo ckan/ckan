@@ -131,7 +131,7 @@ sqlalchemy[mypy]==1.4.47
     # via
     #   -r requirements.in
     #   alembic
-sqlalchemy2-stubs==0.0.2a27
+sqlalchemy2-stubs==0.0.2a34
     # via sqlalchemy
 sqlparse==0.4.4
     # via -r requirements.in
