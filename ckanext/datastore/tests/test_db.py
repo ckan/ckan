@@ -120,7 +120,7 @@ class TestCreateIndexes(object):
             )
 
         calls = connection.execute.call_args_list
-        was_called = [call for call in calls if call[0][0].find(sql_str) != -1]
+        was_called = [call for call in calls if str(call[0][0]).find(sql_str) != -1]
 
         assert was_called, (
             "Expected 'connection.execute' to have been "

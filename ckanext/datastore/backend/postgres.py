@@ -329,7 +329,7 @@ def _cache_types(connection: Any) -> None:
 
             backend = DatastorePostgresqlBackend.get_active_backend()
             engine: Engine = backend._get_write_engine()  # type: ignore
-            with cast(Any, engine.begin()) as write_connection:
+            with engine.begin() as write_connection:
                 write_connection.execute(sqlalchemy.text(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
                         'json' if native_json else 'text')))
@@ -380,16 +380,13 @@ def _where_clauses(
     filters = data_dict.get('filters', {})
     clauses: WhereClauses = []
 
-    idx_gen = iter(range(1, 999_999))
+    idx_gen = iter(range(999_999))
 
     for field, value in filters.items():
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
-        # "%" needs to be escaped as "%%" in any query going to
-        # connection.execute, otherwise it will think the "%" is for
-        # substituting a bind parameter
-        field = field.replace('%', '%%')
+
         if isinstance(value, list) and not field_array_type:
             placeholders = [
                 f"value_{next(idx_gen)}" for _ in value
@@ -725,7 +722,7 @@ def _drop_indexes(context: Context, data_dict: dict[str, Any],
     ).fetchall()
     for index in indexes_to_drop:
         context['connection'].execute(sqlalchemy.text(
-            sql_drop_index.format(index[0]).replace('%', '%%')
+            sql_drop_index.format(index[0])
         ))
 
 
@@ -753,7 +750,10 @@ def _is_valid_pg_type(context: Context, type_name: str):
     else:
         connection = context['connection']
         try:
-            connection.execute('SELECT %s::regtype', type_name)
+            connection.execute(
+                sqlalchemy.text('SELECT cast(:type as regtype)'),
+                {"type": type_name}
+            )
         except ProgrammingError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
                                  _PG_ERR_CODE['syntax_error']]:
@@ -769,6 +769,7 @@ def _execute_single_statement(
         raise ValidationError({
             'query': ['Query is not a single statement.']
         })
+
     params = {}
     for chunk in where_values:
         params.update(chunk)
@@ -825,7 +826,7 @@ def _where(
     '''Return a SQL WHERE clause from list with clauses and values
 
     :param where_clauses_and_values: list of tuples with format
-        (where_clause, param1, ...)
+        (where_clause, {placeholder_name_1: param1, ...})
     :type where_clauses_and_values: list of tuples
 
     :returns: SQL WHERE string with placeholders for the parameters, and list
@@ -932,7 +933,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
         fields_string = u', '.join(
             ['(("{0}").json::text)'.format(field)
                 if field in json_fields else
-                '"%s"' % field
+                f'"{field}"'
                 for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
@@ -940,7 +941,6 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
             name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
-    sql_index_strings = [x.replace('%', '%%') for x in sql_index_strings]
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
     for sql_index_string in sql_index_strings:
@@ -1042,7 +1042,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
                     json.dumps(info, ensure_ascii=False))))
 
     context['connection'].execute(sqlalchemy.text(
-        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%')))
+        sql_string + u';'.join(info_sql)))
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
@@ -1132,7 +1132,7 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
 
     if alter_sql:
         context['connection'].execute(sqlalchemy.text(
-            ';'.join(alter_sql).replace(u'%', u'%%')
+            ';'.join(alter_sql)
         ))
 
 
@@ -1165,26 +1165,28 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         for num, record in enumerate(records):
             _validate_record(record, num, field_names)
 
-            row = []
-            for field in fields:
+            row = {}
+            for idx, field in enumerate(fields):
                 value = record.get(field['id'])
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 elif value == '' and field['type'] != 'text':
                     value = None
-                row.append(value)
+                row[f"val_{idx}"] = value
             rows.append(row)
 
-        sql_string = u'''INSERT INTO {res_id} ({columns})
+        sql_string = '''INSERT INTO {res_id} ({columns})
             VALUES ({values});'''.format(
             res_id=identifier(data_dict['resource_id']),
-            columns=sql_columns.replace('%', '%%'),
-            values=', '.join(['%s' for _ in field_names])
+            columns=sql_columns,
+            values=', '.join([
+                f":val_{idx}" for idx in range(0, len(field_names))
+            ])
         )
 
         try:
-            context['connection'].execute(sql_string, rows)
+            context['connection'].execute(sqlalchemy.text(sql_string), rows)
         except sqlalchemy.exc.DataError as err:
             raise InvalidDataError(
                 toolkit._("The data was invalid: {}"
@@ -1231,21 +1233,27 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         ', '.join(non_existing_field_names))]
                 })
 
-            if '_id' in record:
-                unique_values = [record['_id']]
-                pk_sql = '"_id"'
-                pk_values_sql = '%s'
-            else:
-                unique_values = [record[key] for key in unique_keys]
-                pk_sql = ','.join([identifier(part) for part in unique_keys])
-                pk_values_sql = ','.join(['%s'] * len(unique_keys))
+            idx_gen = iter(range(999_999))
 
             used_fields = [field for field in fields
                            if field['id'] in record]
 
             used_field_names = _pluck('id', used_fields)
 
-            used_values = [record[field] for field in used_field_names]
+            value_placeholders = [f"val_{next(idx_gen)}" for _ in used_field_names]
+            values = [":" + p for p in value_placeholders]
+            used_values = dict(zip(value_placeholders, [record[field] for field in used_field_names]))
+
+            if '_id' in record:
+                placeholder = f'val_{next(idx_gen)}'
+                unique_values = {placeholder: record['_id']}
+                pk_sql = '"_id"'
+                pk_values_sql = ":" + placeholder
+            else:
+                placeholders = [f"val_{next(idx_gen)}" for _ in range(len(unique_keys))]
+                unique_values = dict(zip(placeholders, [record[key] for key in unique_keys]))
+                pk_sql = ','.join([identifier(part) for part in unique_keys])
+                pk_values_sql = ','.join([":" + p for p in placeholders])
 
             if method == _UPDATE:
                 sql_string = u'''
@@ -1256,15 +1264,15 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
-                         for field in used_field_names]).replace('%', '%%'),
-                    values=u', '.join(
-                        ['%s' for _ in used_field_names]),
-                    primary_key=pk_sql.replace('%', '%%'),
+                         for field in used_field_names]),
+                    values=u', '.join(values),
+                    primary_key=pk_sql,
                     primary_value=pk_values_sql,
                 )
                 try:
                     results = context['connection'].execute(
-                        sql_string, used_values + unique_values)
+                        sqlalchemy.text(sql_string),
+                        {**used_values, **unique_values})
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
@@ -1277,29 +1285,37 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     })
 
             elif method == _UPSERT:
-                sql_string = u'''
-                    UPDATE {res_id}
-                    SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value});
-                    INSERT INTO {res_id} ({columns})
-                           SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
-                                    WHERE ({primary_key}) = ({primary_value}));
-                '''.format(
+                format_params = dict(
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
-                         for field in used_field_names]).replace('%', '%%'),
-                    values=u', '.join(['%s::nested'
-                                       if field['type'] == 'nested' else '%s'
-                                       for field in used_fields]),
-                    primary_key=pk_sql.replace('%', '%%'),
+                         for field in used_field_names]),
+                    values=u', '.join([f'cast(:{p} as nested)'
+                                       if field['type'] == 'nested' else ":" + p
+                                       for p, field in zip(value_placeholders, used_fields)]),
+                    primary_key=pk_sql,
                     primary_value=pk_values_sql,
                 )
+
+                update_string = """
+                    UPDATE {res_id}
+                    SET ({columns}, "_full_text") = ({values}, NULL)
+                    WHERE ({primary_key}) = ({primary_value})
+                """.format(**format_params)
+
+                insert_string = """
+                    INSERT INTO {res_id} ({columns})
+                           SELECT {values}
+                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
+                                    WHERE ({primary_key}) = ({primary_value}))
+                """.format(**format_params)
+
+                values = {**used_values, **unique_values}
                 try:
                     context['connection'].execute(
-                        sql_string,
-                        (used_values + unique_values) * 2)
+                        sqlalchemy.text(update_string), values)
+                    context['connection'].execute(
+                        sqlalchemy.text(insert_string), values)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
@@ -1372,9 +1388,9 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select']).replace('%', '%%')
-    ts_query = cast(str, query_dict['ts_query']).replace('%', '%%')
-    resource_id = data_dict['resource_id'].replace('%', '%%')
+    select_columns = ', '.join(query_dict['select'])
+    ts_query = cast(str, query_dict['ts_query'])
+    resource_id = data_dict['resource_id']
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
@@ -1388,7 +1404,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort = ['_id']
 
     if sort:
-        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
+        sort_clause = 'ORDER BY {}'.format(', '.join(sort))
     else:
         sort_clause = ''
 
@@ -1403,7 +1419,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
-        ).replace('%', '%%')
+        )
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
@@ -1708,7 +1724,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
     timeout = context.get('query_timeout', _TIMEOUT)
     _cache_types(context['connection'])
 
-    sql = data_dict['sql'].replace('%', '%%')
+    sql = data_dict['sql']
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
@@ -2011,6 +2027,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def delete(self, context: Context, data_dict: dict[str, Any]):
         engine = self._get_write_engine()
         with engine.begin() as conn:
+            context["connection"] = conn
             _cache_types(conn)
             # check if table exists
             if 'filters' not in data_dict:
@@ -2334,8 +2351,6 @@ def drop_function(name: str, if_exists: bool):
 
 def _write_engine_execute(sql: str):
     connection = get_write_engine().connect()
-    # No special meaning for '%' in sql parameter:
-    connection: Any = connection.execution_options(no_parameters=True)
     trans = connection.begin()
     try:
         connection.execute(sqlalchemy.text(sql))

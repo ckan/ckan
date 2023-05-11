@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import sqlalchemy as sa
 from sqlalchemy import orm
 
 import ckan.model as model
@@ -18,9 +19,9 @@ def clear_db(Session):  # noqa
     drop_tables = u"""select 'drop table "' || tablename || '" cascade;'
                     from pg_tables where schemaname = 'public' """
     c = Session.connection()
-    results = c.execute(drop_tables)
+    results = c.execute(sa.text(drop_tables))
     for result in results:
-        c.execute(result[0])
+        c.execute(sa.text(result[0]))
 
     drop_functions_sql = u"""
         SELECT 'drop function if exists ' || quote_ident(proname) || '();'
@@ -28,9 +29,9 @@ def clear_db(Session):  # noqa
         INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public' AND proname != 'populate_full_text_trigger'
         """
-    drop_functions = u"".join(r[0] for r in c.execute(drop_functions_sql))
+    drop_functions = u"".join(r[0] for r in c.execute(sa.text(drop_functions_sql)))
     if drop_functions:
-        c.execute(drop_functions)
+        c.execute(sa.text(drop_functions))
 
     Session.commit()
     Session.remove()
