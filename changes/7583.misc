@@ -1,5 +1,5 @@
-:py:meth:`~ckan.plugins.interfaces.IDatasetForm.update_config_schema` of
-:py:class:`~ckan.plugins.interfaces.IDatasetForm` interface is not completely
+:py:meth:`~ckanext.datastore.interfaces.IDatastore.datastore_search` of
+:py:class:`~ckanext.datastore.interfaces.IDatastore` interface is not completely
 compatible with old version.
 
 ``where`` key of the ``query_dict`` returned from this method has a different
