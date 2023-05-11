@@ -861,12 +861,11 @@ def user_list(
             model.User.about.label('about'),  # type: ignore
             model.User.email.label('email'),  # type: ignore
             model.User.created.label('created'),  # type: ignore
-            _select([_func.count(model.Package.id)],
-                    _and_(
-                        model.Package.creator_user_id == model.User.id,
-                        model.Package.state == 'active',
-                        model.Package.private == False,
-                    )).label('number_created_packages')
+            _select(_func.count(model.Package.id)).where(
+                model.Package.creator_user_id == model.User.id,
+                model.Package.state == 'active',
+                model.Package.private == False,
+            ).label('number_created_packages')
         )
     else:
         query = model.Session.query(model.User.name)
@@ -894,16 +893,10 @@ def user_list(
             pass
     if order_by == 'display_name' or order_by_field is None:
         query = query.order_by(
-            _case(
-                [(
-                    _or_(
-                        model.User.fullname == None,
-                        model.User.fullname == ''
-                    ),
-                    model.User.name
-                )],
-                else_=model.User.fullname
-            )
+            _case((_or_(
+                model.User.fullname == None,
+                model.User.fullname == ''
+            ), model.User.name), else_=model.User.fullname)
         )
     elif order_by_field == 'number_created_packages' \
          or order_by_field == 'fullname' \

@@ -56,10 +56,8 @@ class TestExampleIDatastoreBackendPlugin():
     @pytest.mark.usefixtures("with_request_context")
     @pytest.mark.ckan_config(u"ckan.datastore.write_url", u"sqlite://x")
     @pytest.mark.ckan_config(u"ckan.datastore.read_url", u"sqlite://x")
-    @patch(class_to_patch + u"._get_engine")
-    def test_backend_functionality(self, get_engine):
-        engine = get_engine()
-        execute = engine.execute
+    @patch(class_to_patch + u".execute")
+    def test_backend_functionality(self, execute):
         fetchall = execute().fetchall
         execute.reset_mock()
 
@@ -81,17 +79,17 @@ class TestExampleIDatastoreBackendPlugin():
         )
         # check, create and 3 inserts
         assert 4 == execute.call_count
-        insert_query = u'INSERT INTO "{0}"(a) VALUES(?)'.format(res["id"])
+        insert_query = u'INSERT INTO "{0}"(a) VALUES(:a)'.format(res["id"])
         execute.assert_has_calls(
             [
                 call(
-                    u' CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
+                    'CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
                         res["id"]
                     )
                 ),
-                call(insert_query, ["x"]),
-                call(insert_query, ["y"]),
-                call(insert_query, ["z"]),
+                call(insert_query, {"a": "x"}),
+                call(insert_query, {"a": "y"}),
+                call(insert_query, {"a": "z"}),
             ]
         )
 
@@ -112,9 +110,7 @@ class TestExampleIDatastoreBackendPlugin():
         execute.reset_mock()
         helpers.call_action(u"datastore_info", id=res["id"])
         # check
-        c = u'''
-            select name from sqlite_master
-            where type = "table" and name = "{0}"'''.format(
+        c = u'''select name from sqlite_master where type = "table" and name = "{0}"'''.format(
             res["id"]
         )
         execute.assert_called_with(c)

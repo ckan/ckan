@@ -322,7 +322,7 @@ class PackageTag(core.StatefulObjectMixin,
 meta.registry.map_imperatively(Tag, tag_table, properties={
     'package_tags': relationship(PackageTag, backref='tag',
                                  cascade='all, delete, delete-orphan',
-                                 cascade_backrefs=False
+                                 cascade_backrefs=False,
         ),
     'vocabulary': relationship(vocabulary.Vocabulary,
                            order_by=tag_table.c["name"])

@@ -500,10 +500,12 @@ meta.registry.map_imperatively(Package, package_table, properties={
     # second commit happens in which the package_id is correctly set.
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
-    'package_tags':orm.relationship(tag.PackageTag, backref='package',
+    'package_tags':orm.relationship(
+        tag.PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
-        ),
-    })
+        cascade_backrefs=False
+    )
+})
 
 meta.registry.map_imperatively(tag.PackageTag, tag.package_tag_table)
 

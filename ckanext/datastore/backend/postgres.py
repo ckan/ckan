@@ -343,7 +343,9 @@ def _cache_types(connection: Any) -> None:
 def _pg_version_is_at_least(connection: Any, version: Any):
     try:
         v = distutils.version.LooseVersion(version)
-        pg_version = connection.execute('select version();').fetchone()
+        pg_version = connection.execute(
+            sa.text('select version();')
+        ).fetchone()
         pg_version_number = pg_version[0].split()[1]
         pv = distutils.version.LooseVersion(pg_version_number)
         return v <= pv
@@ -1488,8 +1490,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             FROM pg_class
             WHERE relname=:resource;
             ''')
-            count_result = context['connection'].execute(analyze_count_sql,
-                                                         resource=resource_id)
+            count_result = context['connection'].execute(
+                analyze_count_sql,
+                {"resource": resource_id},
+            )
             try:
                 estimated_total = count_result.fetchall()[0][0]
             except ValueError:
@@ -2171,52 +2175,59 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             # count of rows in table
             meta_sql = sa.text(
                 u'SELECT count(_id) FROM "{0}"'.format(id))
-            meta_results = engine.execute(meta_sql)
-            info['meta']['count'] = meta_results.fetchone()[0]  # type: ignore
+            with engine.connect() as conn:
+                meta_results = conn.execute(meta_sql)
+            info['meta']['count'] = meta_results.fetchone()[0]
 
             # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
             tabletype_sql = sa.text(u'''
                 SELECT table_type FROM INFORMATION_SCHEMA.TABLES
                 WHERE table_name = '{0}'
                 '''.format(id))
-            tabletype_results = engine.execute(tabletype_sql)
+            with engine.connect() as conn:
+                tabletype_results = conn.execute(tabletype_sql)
             info['meta']['table_type'] = \
-                tabletype_results.fetchone()[0]  # type: ignore
+                tabletype_results.fetchone()[0]
             # MATERIALIZED VIEWS show as BASE TABLE, so
             # we check pg_matviews
             matview_sql = sa.text(u'''
                 SELECT count(*) FROM pg_matviews
                 WHERE matviewname = '{0}'
                 '''.format(id))
-            matview_results = engine.execute(matview_sql)
-            if matview_results.fetchone()[0]:  # type: ignore
+            with engine.connect() as conn:
+                matview_results = conn.execute(matview_sql)
+            if matview_results.fetchone()[0]:
                 info['meta']['table_type'] = 'MATERIALIZED VIEW'
 
             # SIZE - size of table in bytes
             size_sql = sa.text(
                 u"SELECT pg_relation_size('{0}')".format(id))
-            size_results = engine.execute(size_sql)
-            info['meta']['size'] = size_results.fetchone()[0]  # type: ignore
+            with engine.connect() as conn:
+                size_results = conn.execute(size_sql)
+            info['meta']['size'] = size_results.fetchone()[0]
 
             # DB_SIZE - size of database in bytes
             dbsize_sql = sa.text(
                 u"SELECT pg_database_size(current_database())")
-            dbsize_results = engine.execute(dbsize_sql)
+            with engine.connect() as conn:
+                dbsize_results = conn.execute(dbsize_sql)
             info['meta']['db_size'] = \
-                dbsize_results.fetchone()[0]  # type: ignore
+                dbsize_results.fetchone()[0]
 
             # IDXSIZE - size of all indices for table in bytes
             idxsize_sql = sa.text(
                 u"SELECT pg_indexes_size('{0}')".format(id))
-            idxsize_results = engine.execute(idxsize_sql)
+            with engine.connect() as conn:
+                idxsize_results = conn.execute(idxsize_sql)
             info['meta']['idx_size'] = \
-                idxsize_results.fetchone()[0]  # type: ignore
+                idxsize_results.fetchone()[0]
 
             # all the aliases for this resource
             alias_sql = sa.text(u'''
                 SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
             '''.format(id))
-            alias_results = engine.execute(alias_sql)
+            with engine.connect() as conn:
+                alias_results = conn.execute(alias_sql)
             aliases = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
@@ -2253,7 +2264,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                       AND f.attnum > 0
                 ORDER BY c.relname,f.attnum;
             '''.format(id))
-            schema_results = engine.execute(schema_sql)
+            with engine.connect() as conn:
+                schema_results = conn.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
                 row: Any  # Row has incomplete type definition

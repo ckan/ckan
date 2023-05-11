@@ -135,7 +135,7 @@ class TestGetFunctions(object):
             u"CREATE TABLE test_b (name text, subject_id text)",
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         test_cases = [
             (u"SELECT max(id) from test_a", ["max"]),
@@ -168,7 +168,7 @@ class TestGetFunctions(object):
             """
         ]
         for create_table_sql in create_tables:
-            session.execute(create_table_sql)
+            session.execute(sa.text(create_table_sql))
 
         context = {"connection": session.connection()}
 

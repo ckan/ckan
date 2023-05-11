@@ -3,6 +3,7 @@
 import json
 import pytest
 
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 
 import ckan.lib.create_test_data as ctd
@@ -364,7 +365,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            u'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -386,7 +389,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == "annakarenina"
@@ -407,7 +412,9 @@ class TestDatastoreDeleteLegacy(object):
         assert res_dict["success"] is True
 
         c = self.Session.connection()
-        result = c.execute(u'select * from "{0}";'.format(resource_id))
+        result = c.execute(sa.text(
+            'select * from "{0}";'.format(resource_id)
+        ))
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()
