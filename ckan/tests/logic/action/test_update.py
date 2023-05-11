@@ -4,6 +4,7 @@ import datetime
 
 import unittest.mock as mock
 import pytest
+import sqlalchemy as sa
 
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
@@ -1951,7 +1952,7 @@ class TestUserPluginExtras(object):
 
         plugin_extras_from_db = (
             model.Session.execute(
-                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
                 {"id": user["id"]},
             )
             .first()[0]
@@ -2049,7 +2050,7 @@ class TestUserPluginExtras(object):
 
         plugin_extras = (
             model.Session.execute(
-                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
                 {"id": user["id"]},
             )
             .first()[0]
@@ -2412,7 +2413,7 @@ class TestPackagePluginData(object):
         }
 
         plugin_data_from_db = model.Session.execute(
-            'SELECT plugin_data from "package" where id=:id',
+            sa.text('SELECT plugin_data from "package" where id=:id'),
             {"id": dataset["id"]}
         ).first()
 

@@ -161,7 +161,7 @@ def init_model(engine: Engine) -> None:
     import sqlalchemy.exc
     for i in reversed(range(DB_CONNECT_RETRIES)):
         try:
-            Table('alembic_version', meta.metadata).exists(engine)
+            Table('alembic_version', meta.metadata, autoload_with=engine)
         except sqlalchemy.exc.OperationalError as e:
             if 'database system is starting up' in repr(e.orig) and i:
                 sleep(DB_CONNECT_RETRIES - i)

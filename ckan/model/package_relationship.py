@@ -186,9 +186,12 @@ class PackageRelationship(core.StatefulObjectMixin,
         raise TypeError(type_)
 
 meta.registry.map_imperatively(PackageRelationship, package_relationship_table, properties={
-    'subject':orm.relationship(_package.Package, primaryjoin=\
-           package_relationship_table.c["subject_package_id"]==_package.Package.id,
-           backref='relationships_as_subject'),
+    'subject':orm.relationship(
+        _package.Package, primaryjoin=\
+        package_relationship_table.c["subject_package_id"]==_package.Package.id,
+        backref='relationships_as_subject',
+        cascade_backrefs=False
+    ),
     'object':orm.relationship(_package.Package, primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
            backref='relationships_as_object'),
     })

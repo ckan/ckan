@@ -6,7 +6,7 @@ import datetime
 import operator
 import unittest.mock as mock
 import pytest
-
+import sqlalchemy as sa
 
 import ckan.logic as logic
 from ckan.logic.action.get import package_show as core_package_show
@@ -1747,7 +1747,7 @@ class TestUserPluginExtras(object):
 
         plugin_extras_from_db = (
             model.Session.execute(
-                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
                 {"id": created_user["id"]},
             )
             .first()[0]
@@ -2142,7 +2142,7 @@ class TestPackagePluginData(object):
             }
         }
         plugin_data_from_db = model.Session.execute(
-            'SELECT plugin_data FROM "package" WHERE id=:id',
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}
         ).first()[0]
 
@@ -2169,7 +2169,7 @@ class TestPackagePluginData(object):
         assert "plugin_data" not in created_pkg
 
         plugin_data_from_db = model.Session.execute(
-            'SELECT plugin_data FROM "package" WHERE id=:id',
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}
         ).first()[0]
         assert plugin_data_from_db is None

@@ -229,7 +229,7 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
 
     package_ids: set[str] = set()
     for row in results:
-        package_ids.add(row[u'package_id'])
+        package_ids.add(row[0])
 
     total = len(package_ids)
     not_found = 0

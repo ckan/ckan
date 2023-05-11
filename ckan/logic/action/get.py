@@ -105,7 +105,7 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
         query = query.offset(offset)
 
     ## Returns the first field in each result record
-    return [r[0] for r in query.execute() or []]
+    return context["session"].scalars(query).all()
 
 
 @logic.validate(ckan.logic.schema.default_package_list_schema)
