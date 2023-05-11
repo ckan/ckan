@@ -45,8 +45,11 @@ def _package_search(data_dict):
     if u'rows' not in data_dict or not data_dict['rows']:
         data_dict['rows'] = ITEMS_LIMIT
 
+    include_private = h.asbool(config.get('ckan.feeds.include_private', False))
+
     # package_search action modifies the data_dict, so keep our copy intact.
-    query = logic.get_action(u'package_search')(context, data_dict.copy())
+    query = logic.get_action(u'package_search')(context, dict(data_dict.copy(),
+                                                              include_private=include_private))
 
     return query['count'], query['results']
 
