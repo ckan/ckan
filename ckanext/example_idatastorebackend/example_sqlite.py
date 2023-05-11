@@ -11,14 +11,12 @@ from ckanext.datastore.backend import DatastoreBackend
 log = logging.getLogger(__name__)
 
 
-
-
 class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def __init__(self):
         self._engine = None
 
-    def execute(self, sql: str, params: dict[str, Any]|None = None):
+    def execute(self, sql: str, params: dict[str, Any] | None = None):
         with self._get_engine().begin() as conn:
             return conn.execute(text(sql), params)
 
@@ -97,7 +95,8 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def resource_exists(self, id):
         return self.execute(
-            '''select name from sqlite_master where type = "table" and name = "{0}"'''.format(id)
+            'select name from sqlite_master where ' +
+            f'type = "table" and name = "{id}"'
         ).fetchone()
 
     def resource_fields(self, id):

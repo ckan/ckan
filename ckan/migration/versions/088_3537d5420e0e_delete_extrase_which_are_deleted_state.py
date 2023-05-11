@@ -24,7 +24,9 @@ def upgrade():
     )
 
     conn = op.get_bind()
-    conn.execute(text('''DELETE FROM "package_extra" WHERE state='deleted';'''))
+    conn.execute(text(
+        '''DELETE FROM "package_extra" WHERE state='deleted';'''
+    ))
     conn.execute(text('''DELETE FROM "group_extra" WHERE state='deleted';'''))
 
 

@@ -105,7 +105,9 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
         query = query.offset(offset)
 
     ## Returns the first field in each result record
-    return context["session"].scalars(query).all()
+    return context["session"].scalars(  # type: ignore
+        query
+    ).all()
 
 
 @logic.validate(ckan.logic.schema.default_package_list_schema)
@@ -863,7 +865,7 @@ def user_list(
             model.User.created.label('created'),  # type: ignore
             _select(_func.count(model.Package.id)).where(
                 model.Package.creator_user_id == model.User.id,
-                model.Package.state == 'active',
+                model.Package.state == 'active',  # type: ignore
                 model.Package.private == False,
             ).label('number_created_packages')
         )
@@ -893,7 +895,7 @@ def user_list(
             pass
     if order_by == 'display_name' or order_by_field is None:
         query = query.order_by(
-            _case((_or_(
+            _case((_or_(  # type: ignore
                 model.User.fullname == None,
                 model.User.fullname == ''
             ), model.User.name), else_=model.User.fullname)

@@ -89,7 +89,7 @@ def package_dictize_with_revisions(pkg, context):
         pkg_tag = revision_model.package_tag_revision_table
     q = select(tag, pkg_tag.c.state).join(
         pkg_tag, tag.c.id == pkg_tag.c.tag_id
-    ).where(pkg_tag.c.package_id == pkg.id)
+    ).where(pkg_tag.c.package_id == pkg.id)  # type: ignore
     result = execute(q, pkg_tag, context)
     result_dict["tags"] = d.obj_list_dictize(result, context,
                                              lambda x: x["name"])
@@ -119,10 +119,10 @@ def package_dictize_with_revisions(pkg, context):
     group = model.group_table
     q = select(group, member.c.capacity).join(
         member, group.c.id == member.c.group_id
-    ).where(
+    ).where(  # type: ignore
         member.c.table_id == pkg.id,
         member.c.state == u'active',
-        group.c.is_organization == False
+        group.c.is_organization == False  # noqa
     )  # noqa
     result = execute(q, member, context)
     context['with_capacity'] = False

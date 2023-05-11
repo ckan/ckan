@@ -31,7 +31,9 @@ def clear_db(Session):  # noqa
         INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid)
         WHERE ns.nspname = 'public' AND proname != 'populate_full_text_trigger'
         """
-    drop_functions = u"".join(r[0] for r in c.execute(sa.text(drop_functions_sql)))
+    drop_functions = u"".join(
+        r[0] for r in c.execute(sa.text(drop_functions_sql))
+    )
     if drop_functions:
         c.execute(sa.text(drop_functions))
 

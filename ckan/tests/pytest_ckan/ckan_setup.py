@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import warnings
 
+from sqlalchemy import exc
 import ckan.plugins as plugins
 from ckan.config.middleware import make_app
 from ckan.cli import load_config
 from ckan.common import config
+
+# SQLAlchemy v2.0 guard. Tests will fail if a non-compatible operation detected
+warnings.filterwarnings(
+    "error",
+    category=exc.RemovedIn20Warning  # type: ignore
+)
 
 # This is a test Flask request context to be used internally.
 # Do not use it!
@@ -85,26 +93,3 @@ def pytest_runtest_setup(item):
 
     if custom_config:
         item.fixturenames.append(u"ckan_config")
-
-
-import warnings
-from sqlalchemy import exc
-
-# for warnings not included in regex-based filter below, just log
-warnings.filterwarnings("always", category=exc.RemovedIn20Warning)
-
-# for warnings related to execute() / scalar(), raise
-for msg in [
-    r"The (?:Executable|Engine)\.(?:execute|scalar)\(\) function",
-    r"The current statement is being autocommitted using implicit autocommit,",
-    r"The connection.execute\(\) method in SQLAlchemy 2.0 will accept "
-    "parameters as a single dictionary or a single sequence of "
-    "dictionaries only.",
-    r"The Connection.connect\(\) function/method is considered legacy",
-    r".*DefaultGenerator.execute\(\)",
-]:
-    warnings.filterwarnings(
-        "error",
-        message=msg,
-        category=exc.RemovedIn20Warning,
-    )

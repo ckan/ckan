@@ -15,7 +15,11 @@ DATE_FORMAT = "%Y-%m-%d"
 
 
 def table(name: str):
-    return Table(name, model.meta.metadata, autoload_with=model.meta.engine)
+    return Table(
+        name,
+        model.meta.metadata,
+        autoload_with=model.meta.engine  # type: ignore
+    )
 
 
 def datetime2date(datetime_: datetime.datetime):
@@ -71,19 +75,21 @@ class Stats(object):
         if returned_tag_info == "name":
             tag_column = tag.c["name"]
             s = select(
-                tag_column, func.count(package_tag.c["package_id"])
+                tag_column,  # type: ignore
+                func.count(package_tag.c["package_id"])
             ).join(package_tag)
         else:
             tag_column = package_tag.c["tag_id"]
             s = select(
-                tag_column, func.count(package_tag.c["package_id"])
+                tag_column,  # type: ignore
+                func.count(package_tag.c["package_id"])
             )
 
         j = join(
             package_tag, package, package_tag.c["package_id"] == package.c["id"]
         )
         s = (
-            s.select_from(j)
+            s.select_from(j)  # type: ignore
             .where(
                 and_(
                     package_tag.c["state"] == "active",
@@ -135,11 +141,12 @@ class Stats(object):
 
         s = (
             select(
-                package.c["id"], func.count(activity.c["id"])
+                package.c["id"],  # type: ignore
+                func.count(activity.c["id"])
             ).select_from(activity).join(
                 package, activity.c["object_id"] == package.c["id"]
             )
-            .where(
+            .where(  # type: ignore
                 and_(
                     package.c["private"] == False,
                     activity.c["activity_type"] == "changed package",
@@ -169,10 +176,13 @@ class Stats(object):
         package = table("package")
         activity = table("activity")
         s = select(
-            package.c["id"], activity.c["timestamp"]
+            package.c["id"],  # type: ignore
+            activity.c["timestamp"]
         ).select_from(activity).join(
             package, activity.c["object_id"] == package.c["id"]
-        ).order_by(activity.c["timestamp"])
+        ).order_by(  # type: ignore
+            activity.c["timestamp"]
+        )
         res = model.Session.execute(s).fetchall()
         return res
 
@@ -257,12 +267,15 @@ class Stats(object):
             activity = table("activity")
             s = (
                 select(
-                    package.c["id"], func.min(activity.c["timestamp"])
+                    package.c["id"],  # type: ignore
+                    func.min(activity.c["timestamp"])
                 ).select_from(activity)
                 .join(
                     package, activity.c["object_id"] == package.c["id"]
                 )
-                .group_by(package.c["id"])
+                .group_by(  # type: ignore
+                    package.c["id"]
+                )
                 .order_by(func.min(activity.c["timestamp"]))
             )
             res = model.Session.execute(s).fetchall()
@@ -384,12 +397,15 @@ class Stats(object):
 
             s = (
                 select(
-                    package.c["id"], func.min(activity.c["timestamp"])
+                    package.c["id"],  # type: ignore
+                    func.min(activity.c["timestamp"])
                 ).select_from(activity)
                 .join(
                     package, activity.c["object_id"] == package.c["id"]
                 )
-                .where(activity.c["activity_type"] == "deleted package")
+                .where(  # type: ignore
+                    activity.c["activity_type"] == "deleted package"
+                )
                 .group_by(package.c["id"])
                 .order_by(func.min(activity.c["timestamp"]))
             )

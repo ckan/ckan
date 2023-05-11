@@ -53,7 +53,7 @@ log = logging.getLogger(__name__)
 _pg_types: dict[str, str] = {}
 _type_names: Set[str] = set()
 _engines: Dict[str, Engine] = {}
-WhereClauses: TypeAlias = "list[tuple[str, dict[str, Any]]|tuple[str]]"
+WhereClauses: TypeAlias = "list[tuple[str, dict[str, Any]] | tuple[str]]"
 
 _TIMEOUT = 60000  # milliseconds
 
@@ -453,7 +453,7 @@ def _where_clauses(
 def _update_where_clauses_on_q_dict(
         data_dict: dict[str, str], fields_types: dict[str, str],
         q: dict[str, str],
-        clauses: list[tuple[str]|tuple[str, dict[str, Any]]]) -> None:
+        clauses: WhereClauses) -> None:
     lang = _fts_lang(data_dict.get('language'))
     for field, _ in q.items():
         if field not in fields_types:
@@ -603,7 +603,7 @@ def _get_aliases(context: Context, data_dict: dict[str, Any]):
     res_id = data_dict['resource_id']
     alias_sql = sa.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
-    return context['connection'].scalars(alias_sql, {"id":res_id}).fetchall()
+    return context['connection'].scalars(alias_sql, {"id": res_id}).fetchall()
 
 
 def _get_resources(context: Context, alias: str):
@@ -612,7 +612,9 @@ def _get_resources(context: Context, alias: str):
     alias_sql = sa.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
-    return context['connection'].scalars(alias_sql, {"alias": alias}).fetchall()
+    return context['connection'].scalars(
+        alias_sql, {"alias": alias}
+    ).fetchall()
 
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
@@ -1239,9 +1241,14 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
             used_field_names = _pluck('id', used_fields)
 
-            value_placeholders = [f"val_{next(idx_gen)}" for _ in used_field_names]
+            value_placeholders = [
+                f"val_{next(idx_gen)}" for _ in used_field_names
+            ]
             values = [":" + p for p in value_placeholders]
-            used_values = dict(zip(value_placeholders, [record[field] for field in used_field_names]))
+            used_values = dict(zip(
+                value_placeholders,
+                [record[field] for field in used_field_names]
+            ))
 
             if '_id' in record:
                 placeholder = f'val_{next(idx_gen)}'
@@ -1249,8 +1256,12 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 pk_sql = '"_id"'
                 pk_values_sql = ":" + placeholder
             else:
-                placeholders = [f"val_{next(idx_gen)}" for _ in range(len(unique_keys))]
-                unique_values = dict(zip(placeholders, [record[key] for key in unique_keys]))
+                placeholders = [
+                    f"val_{next(idx_gen)}" for _ in range(len(unique_keys))
+                ]
+                unique_values = dict(zip(
+                    placeholders, [record[key] for key in unique_keys]
+                ))
                 pk_sql = ','.join([identifier(part) for part in unique_keys])
                 pk_values_sql = ','.join([":" + p for p in placeholders])
 
@@ -1289,9 +1300,11 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     columns=u', '.join(
                         [identifier(field)
                          for field in used_field_names]),
-                    values=u', '.join([f'cast(:{p} as nested)'
-                                       if field['type'] == 'nested' else ":" + p
-                                       for p, field in zip(value_placeholders, used_fields)]),
+                    values=u', '.join([
+                        f'cast(:{p} as nested)'
+                        if field['type'] == 'nested' else ":" + p
+                        for p, field in zip(value_placeholders, used_fields)
+                    ]),
                     primary_key=pk_sql,
                     primary_value=pk_values_sql,
                 )
@@ -1868,11 +1881,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
         drop_foo_sql = sa.text("DROP TABLE IF EXISTS _foo")
 
-        with self._get_write_engine().connect() as conn:
-            with conn.begin():
-                conn.execute(drop_foo_sql)
-                conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
-            try:
+        engine = self._get_write_engine()
+        with engine.begin() as conn:
+            conn.execute(drop_foo_sql)
+            conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
+        try:
+            with engine.connect() as conn:
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
                     have_privilege: bool = conn.scalar(sa.select(
                         sa.func.has_table_privilege(
@@ -1883,9 +1897,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                     ))
                     if have_privilege:
                         return False
-            finally:
-                with conn.begin():
-                    conn.execute(drop_foo_sql)
+        finally:
+            with engine.begin() as conn:
+                conn.execute(drop_foo_sql)
 
         return True
 

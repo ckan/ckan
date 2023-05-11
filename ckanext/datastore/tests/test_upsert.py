@@ -871,7 +871,6 @@ class TestDatastoreUpdate(object):
         with pytest.raises(ValidationError, match=r"key .*\\\'1\\\'.* not found"):
             helpers.call_action("datastore_upsert", **data)
 
-
     def test_update_non_existing_field(self):
         resource = factories.Resource(url_type="datastore")
         data = {

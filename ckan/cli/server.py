@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import sqlalchemy
 from ckan.exceptions import CkanDeprecationWarning
 import logging
 import warnings
@@ -63,6 +64,11 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
 
     if config.get("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
+
+    warnings.filterwarnings(
+        "always",
+        category=sqlalchemy.exc.RemovedIn20Warning  # type: ignore
+    )
 
     # passthrough_errors overrides conflicting options
     if passthrough_errors:
