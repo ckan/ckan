@@ -2,7 +2,6 @@
 from __future__ import annotations
 from typing_extensions import TypeAlias
 
-import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.dialects.postgresql import REGCLASS
 from ckan.types import Context, ErrorDict
@@ -12,7 +11,7 @@ import sys
 from typing import (
     Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
     cast)
-import sqlalchemy
+import sqlalchemy as sa
 import os
 import pprint
 import sqlalchemy.engine.url as sa_url
@@ -37,7 +36,7 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, DatabaseError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -129,9 +128,9 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
         config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
         for key, value in kwargs.items():
             config.setdefault(key, value)
-        engine = sqlalchemy.engine_from_config(config,
-                                               'ckan.datastore.sqlalchemy.',
-                                               **extras)
+        engine = sa.engine_from_config(config,
+                                       'ckan.datastore.sqlalchemy.',
+                                       **extras)
         _engines[connection_url] = engine
 
     # don't automatically convert to python objects
@@ -252,7 +251,7 @@ def _guess_type(field: Any):
 
 
 def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
-    sql_get_unique_key = sqlalchemy.text("""
+    sql_get_unique_key = sa.text("""
     SELECT
         a.attname AS column_names
     FROM
@@ -279,7 +278,7 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
 def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
     u'''return a dictionary mapping column names to their info data,
     when present'''
-    qtext = sqlalchemy.text(u'''
+    qtext = sa.text(u'''
         select pa.attname as name, pd.description as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
@@ -300,9 +299,9 @@ def _get_fields(connection: Any, resource_id: str):
     for the passed resource_id, excluding '_'-prefixed columns.
     '''
     fields: list[dict[str, Any]] = []
-    all_fields = connection.execute(sqlalchemy.select(
-        sqlalchemy.text("*")  # type: ignore
-    ).select_from(sqlalchemy.table(resource_id)).limit(1))
+    all_fields = connection.execute(sa.select(
+        sa.text("*")  # type: ignore
+    ).select_from(sa.table(resource_id)).limit(1))
 
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
@@ -315,7 +314,7 @@ def _get_fields(connection: Any, resource_id: str):
 
 def _cache_types(connection: Any) -> None:
     if not _pg_types:
-        results = connection.execute(sqlalchemy.text(
+        results = connection.execute(sa.text(
             'SELECT oid, typname FROM pg_type;'
         ))
         for result in results:
@@ -330,7 +329,7 @@ def _cache_types(connection: Any) -> None:
             backend = DatastorePostgresqlBackend.get_active_backend()
             engine: Engine = backend._get_write_engine()  # type: ignore
             with engine.begin() as write_connection:
-                write_connection.execute(sqlalchemy.text(
+                write_connection.execute(sa.text(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
                         'json' if native_json else 'text')))
             _pg_types.clear()
@@ -600,20 +599,18 @@ def _ts_query_alias(field: Optional[str] = None):
 def _get_aliases(context: Context, data_dict: dict[str, Any]):
     '''Get a list of aliases for a resource.'''
     res_id = data_dict['resource_id']
-    alias_sql = sqlalchemy.text(
+    alias_sql = sa.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
-    results = context['connection'].execute(alias_sql, id=res_id).fetchall()
-    return [x[0] for x in results]
+    return context['connection'].scalars(alias_sql, {"id":res_id}).fetchall()
 
 
 def _get_resources(context: Context, alias: str):
     '''Get a list of resources for an alias. There could be more than one alias
     in a resource_dict.'''
-    alias_sql = sqlalchemy.text(
+    alias_sql = sa.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
-    results = context['connection'].execute(alias_sql, alias=alias).fetchall()
-    return [x[0] for x in results]
+    return context['connection'].scalars(alias_sql, {"alias": alias}).fetchall()
 
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
@@ -625,7 +622,7 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
             sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
-            context['connection'].execute(sql_alias_drop_string)
+            context['connection'].execute(sa.text(sql_alias_drop_string))
 
         try:
             for alias in aliases:
@@ -642,7 +639,7 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                             alias)]
                     })
 
-                context['connection'].execute(sqlalchemy.text(
+                context['connection'].execute(sa.text(
                     sql_alias_string
                 ))
         except DBAPIError as e:
@@ -717,17 +714,17 @@ def _drop_indexes(context: Context, data_dict: dict[str, Any],
             AND t.relname = :relname
         """.format(unique='true' if unique else 'false')
     indexes_to_drop = context['connection'].execute(
-        sqlalchemy.text(sql_get_index_string),
+        sa.text(sql_get_index_string),
         {"relname": data_dict['resource_id']}
     ).fetchall()
     for index in indexes_to_drop:
-        context['connection'].execute(sqlalchemy.text(
+        context['connection'].execute(sa.text(
             sql_drop_index.format(index[0])
         ))
 
 
 def _get_index_names(connection: Any, resource_id: str):
-    sql = sqlalchemy.text("""
+    sql = sa.text("""
         SELECT
             i.relname AS index_name
         FROM
@@ -751,7 +748,7 @@ def _is_valid_pg_type(context: Context, type_name: str):
         connection = context['connection']
         try:
             connection.execute(
-                sqlalchemy.text('SELECT cast(:type as regtype)'),
+                sa.text('SELECT cast(:type as regtype)'),
                 {"type": type_name}
             )
         except ProgrammingError as e:
@@ -775,7 +772,7 @@ def _execute_single_statement(
         params.update(chunk)
 
     results = context['connection'].execute(
-        sqlalchemy.text(sql_string),
+        sa.text(sql_string),
         params
     )
 
@@ -947,7 +944,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
         has_index = [c for c in current_indexes
                      if sql_index_string.find(c) != -1]
         if not has_index:
-            connection.execute(sqlalchemy.text(sql_index_string))
+            connection.execute(sa.text(sql_index_string))
 
 
 def create_table(context: Context, data_dict: dict[str, Any]):
@@ -1041,7 +1038,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
                 literal_string(
                     json.dumps(info, ensure_ascii=False))))
 
-    context['connection'].execute(sqlalchemy.text(
+    context['connection'].execute(sa.text(
         sql_string + u';'.join(info_sql)))
 
 
@@ -1131,7 +1128,7 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 info_sql))
 
     if alter_sql:
-        context['connection'].execute(sqlalchemy.text(
+        context['connection'].execute(sa.text(
             ';'.join(alter_sql)
         ))
 
@@ -1186,12 +1183,12 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         )
 
         try:
-            context['connection'].execute(sqlalchemy.text(sql_string), rows)
-        except sqlalchemy.exc.DataError as err:
+            context['connection'].execute(sa.text(sql_string), rows)
+        except DataError as err:
             raise InvalidDataError(
                 toolkit._("The data was invalid: {}"
                           ).format(_programming_error_summary(err)))
-        except sqlalchemy.exc.DatabaseError as err:
+        except DatabaseError as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
 
@@ -1271,9 +1268,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 )
                 try:
                     results = context['connection'].execute(
-                        sqlalchemy.text(sql_string),
+                        sa.text(sql_string),
                         {**used_values, **unique_values})
-                except sqlalchemy.exc.DatabaseError as err:
+                except DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
                         u'_records_row': num})
@@ -1313,10 +1310,10 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 values = {**used_values, **unique_values}
                 try:
                     context['connection'].execute(
-                        sqlalchemy.text(update_string), values)
+                        sa.text(update_string), values)
                     context['connection'].execute(
-                        sqlalchemy.text(insert_string), values)
-                except sqlalchemy.exc.DatabaseError as err:
+                        sa.text(insert_string), values)
+                except DatabaseError as err:
                     raise ValidationError({
                         u'records': [_programming_error_summary(err)],
                         u'_records_row': num})
@@ -1486,7 +1483,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             # See: https://wiki.postgresql.org/wiki/Count_estimate
             # (We also tried using the EXPLAIN to estimate filtered queries but
             #  it didn't estimate well in tests)
-            analyze_count_sql = sqlalchemy.text('''
+            analyze_count_sql = sa.text('''
             SELECT reltuples::BIGINT AS approximate_row_count
             FROM pg_class
             WHERE relname=:resource;
@@ -1596,13 +1593,13 @@ def _create_triggers(connection: Any, resource_id: str,
     or "for_each" parameters from triggers list.
     '''
     existing = connection.execute(
-        sqlalchemy.select(
-            sqlalchemy.column("tgname")  # type: ignore
-        ).select_from(sqlalchemy.table("pg_trigger")).where(
-            sqlalchemy.column("tgrelid") == sqlalchemy.cast(
+        sa.select(
+            sa.column("tgname")  # type: ignore
+        ).select_from(sa.table("pg_trigger")).where(
+            sa.column("tgrelid") == sa.cast(
                 resource_id, REGCLASS
             ),
-            sqlalchemy.column("tgname").like("t___")  # type: ignore
+            sa.column("tgname").like("t___")  # type: ignore
         )
     )
     sql_list = (
@@ -1620,13 +1617,13 @@ def _create_triggers(connection: Any, resource_id: str,
          for i, t in enumerate(triggers)])
     try:
         if sql_list:
-            connection.execute(sqlalchemy.text(";\n".join(sql_list)))
+            connection.execute(sa.text(";\n".join(sql_list)))
     except ProgrammingError as pe:
         raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
 
 
 def _create_fulltext_trigger(connection: Any, resource_id: str):
-    connection.execute(sqlalchemy.text(
+    connection.execute(sa.text(
         u'''CREATE TRIGGER zfulltext
         BEFORE INSERT OR UPDATE ON {table}
         FOR EACH ROW EXECUTE PROCEDURE populate_full_text_trigger()'''.format(
@@ -1649,7 +1646,7 @@ def upsert(context: Context, data_dict: dict[str, Any]):
     trans: Any = context['connection'].begin()
     try:
         # check if table already existes
-        context['connection'].execute(sqlalchemy.text(
+        context['connection'].execute(sa.text(
             f"SET LOCAL statement_timeout TO {timeout}"))
         upsert_data(context, data_dict)
         if data_dict.get(u'dry_run', False):
@@ -1695,7 +1692,7 @@ def search(context: Context, data_dict: dict[str, Any]):
     _cache_types(context['connection'])
 
     try:
-        context['connection'].execute(sqlalchemy.text(
+        context['connection'].execute(sa.text(
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
         return search_data(context, data_dict)
@@ -1733,7 +1730,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     try:
 
-        context['connection'].execute(sqlalchemy.text(
+        context['connection'].execute(sa.text(
             f"SET LOCAL statement_timeout TO {timeout}"
         ))
 
@@ -1759,7 +1756,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
                     'Not authorized to call function {}'.format(f)
                 )
 
-        results: Any = context['connection'].execute(sqlalchemy.text(sql))
+        results: Any = context['connection'].execute(sa.text(sql))
 
         if results.rowcount == rows_max + 1:
             data_dict['records_truncated'] = True
@@ -1837,8 +1834,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = _get_engine_from_url(url).connect()
             try:
-                is_writable: bool = connection.scalar(sqlalchemy.select(
-                    sqlalchemy.func.has_schema_privilege("public", "CREATE")
+                is_writable: bool = connection.scalar(sa.select(
+                    sa.func.has_schema_privilege("public", "CREATE")
                 ))
             finally:
                 connection.close()
@@ -1865,20 +1862,20 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         '''
         read_connection_user = sa_url.make_url(self.read_url).username
 
-        drop_foo_sql = sqlalchemy.text("DROP TABLE IF EXISTS _foo")
+        drop_foo_sql = sa.text("DROP TABLE IF EXISTS _foo")
 
         with self._get_write_engine().connect() as conn:
             with conn.begin():
                 conn.execute(drop_foo_sql)
-                conn.execute(sqlalchemy.text("CREATE TEMP TABLE _foo ()"))
+                conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
             try:
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    have_privilege: bool = conn.scalar(sqlalchemy.select(
-                            sqlalchemy.func.has_table_privilege(
-                                read_connection_user,
-                                "_foo",
-                                privilege
-                            )
+                    have_privilege: bool = conn.scalar(sa.select(
+                        sa.func.has_table_privilege(
+                            read_connection_user,
+                            "_foo",
+                            privilege
+                        )
                     ))
                     if have_privilege:
                         return False
@@ -2031,7 +2028,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             _cache_types(conn)
             # check if table exists
             if 'filters' not in data_dict:
-                conn.execute(sqlalchemy.text('DROP TABLE "{0}" CASCADE'.format(
+                conn.execute(sa.text('DROP TABLE "{0}" CASCADE'.format(
                     data_dict['resource_id']
                 )))
             else:
@@ -2067,10 +2064,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         trans = context['connection'].begin()
         try:
             # check if table already exists
-            context['connection'].execute(sqlalchemy.text(
+            context['connection'].execute(sa.text(
                 f"SET LOCAL statement_timeout TO {timeout}"
             ))
-            result = context['connection'].execute(sqlalchemy.text(
+            result = context['connection'].execute(sa.text(
                 'SELECT * FROM pg_tables WHERE tablename = :table'
             ), {"table": data_dict['resource_id']}).fetchone()
             if not result:
@@ -2138,7 +2135,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return search_sql(context, data_dict)
 
     def resource_exists(self, id: str) -> bool:
-        resources_sql = sqlalchemy.text(
+        resources_sql = sa.text(
             '''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
         with self._get_read_engine().connect() as conn:
@@ -2148,13 +2145,14 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def resource_id_from_alias(self, alias: str) -> tuple[bool, Optional[str]]:
         real_id: Optional[str] = None
-        resources_sql = sqlalchemy.text(
+        resources_sql = sa.text(
             u'''SELECT alias_of FROM "_table_metadata" WHERE name = :id''')
-        results = self._get_read_engine().execute(resources_sql, id=alias)
+        with self._get_read_engine().connect() as conn:
+            results = conn.execute(resources_sql, {"id": alias})
 
         res_exists = results.rowcount > 0
         if res_exists:
-            real_id = results.fetchone()[0]  # type: ignore
+            real_id = results.fetchone()[0]
         return res_exists, real_id
 
     # def resource_info(self, id):
@@ -2171,13 +2169,13 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['id'] = id
 
             # count of rows in table
-            meta_sql = sqlalchemy.text(
+            meta_sql = sa.text(
                 u'SELECT count(_id) FROM "{0}"'.format(id))
             meta_results = engine.execute(meta_sql)
             info['meta']['count'] = meta_results.fetchone()[0]  # type: ignore
 
             # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
-            tabletype_sql = sqlalchemy.text(u'''
+            tabletype_sql = sa.text(u'''
                 SELECT table_type FROM INFORMATION_SCHEMA.TABLES
                 WHERE table_name = '{0}'
                 '''.format(id))
@@ -2186,7 +2184,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 tabletype_results.fetchone()[0]  # type: ignore
             # MATERIALIZED VIEWS show as BASE TABLE, so
             # we check pg_matviews
-            matview_sql = sqlalchemy.text(u'''
+            matview_sql = sa.text(u'''
                 SELECT count(*) FROM pg_matviews
                 WHERE matviewname = '{0}'
                 '''.format(id))
@@ -2195,27 +2193,27 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 info['meta']['table_type'] = 'MATERIALIZED VIEW'
 
             # SIZE - size of table in bytes
-            size_sql = sqlalchemy.text(
+            size_sql = sa.text(
                 u"SELECT pg_relation_size('{0}')".format(id))
             size_results = engine.execute(size_sql)
             info['meta']['size'] = size_results.fetchone()[0]  # type: ignore
 
             # DB_SIZE - size of database in bytes
-            dbsize_sql = sqlalchemy.text(
+            dbsize_sql = sa.text(
                 u"SELECT pg_database_size(current_database())")
             dbsize_results = engine.execute(dbsize_sql)
             info['meta']['db_size'] = \
                 dbsize_results.fetchone()[0]  # type: ignore
 
             # IDXSIZE - size of all indices for table in bytes
-            idxsize_sql = sqlalchemy.text(
+            idxsize_sql = sa.text(
                 u"SELECT pg_indexes_size('{0}')".format(id))
             idxsize_results = engine.execute(idxsize_sql)
             info['meta']['idx_size'] = \
                 idxsize_results.fetchone()[0]  # type: ignore
 
             # all the aliases for this resource
-            alias_sql = sqlalchemy.text(u'''
+            alias_sql = sa.text(u'''
                 SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
             '''.format(id))
             alias_results = engine.execute(alias_sql)
@@ -2227,7 +2225,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             # get the data dictionary for the resource
             data_dictionary = datastore_helpers.datastore_dictionary(id)
 
-            schema_sql = sqlalchemy.text(u'''
+            schema_sql = sa.text(u'''
                 SELECT
                 f.attname AS column_name,
                 pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
@@ -2277,12 +2275,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             pass
         return info
 
-    def get_all_ids(self):
-        resources_sql = sqlalchemy.text(
+    def get_all_ids(self) -> list[str]:
+        resources_sql = sa.text(
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
-        query = self._get_read_engine().execute(resources_sql)
-        return [q[0] for q in query.fetchall()]
+        with self._get_read_engine().connect() as conn:
+            return conn.scalars(resources_sql).fetchall()
 
     def create_function(self, *args: Any, **kwargs: Any):
         return create_function(*args, **kwargs)
@@ -2304,8 +2302,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         connection = get_write_engine().connect()
         sql = 'ANALYZE "{}"'.format(resource_id)
         try:
-            connection.execute(sql)
-        except sqlalchemy.exc.DatabaseError as err:
+            connection.execute(sa.text(sql))
+        except DatabaseError as err:
             raise DatastoreException(err)
 
 
@@ -2353,7 +2351,7 @@ def _write_engine_execute(sql: str):
     connection = get_write_engine().connect()
     trans = connection.begin()
     try:
-        connection.execute(sqlalchemy.text(sql))
+        connection.execute(sa.text(sql))
         trans.commit()
     except Exception:
         trans.rollback()

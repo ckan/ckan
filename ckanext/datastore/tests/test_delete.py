@@ -51,7 +51,8 @@ class TestDatastoreDelete(object):
         helpers.call_action("datastore_delete", **data)
 
         results = execute_sql(
-            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+            u"select 1 from pg_views where viewname = :name",
+            {"name": "b\xfck2"}
         )
         assert results.rowcount == 0
 
@@ -59,8 +60,8 @@ class TestDatastoreDelete(object):
         results = execute_sql(
             u"""SELECT table_name
             FROM information_schema.tables
-            WHERE table_name=%s;""",
-            resource["id"],
+            WHERE table_name=:name;""",
+            {"name": resource["id"]},
         )
         assert results.rowcount == 0
 
@@ -151,7 +152,8 @@ class TestDatastoreRecordsDelete(object):
         helpers.call_action("datastore_records_delete", **data)
 
         results = execute_sql(
-            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+            u"select 1 from pg_views where viewname = :name",
+            {"name": "b\xfck2"}
         )
         assert results.rowcount == 1
 
@@ -159,8 +161,8 @@ class TestDatastoreRecordsDelete(object):
         results = execute_sql(
             u"""SELECT table_name
             FROM information_schema.tables
-            WHERE table_name=%s;""",
-            resource["id"],
+            WHERE table_name=:name;""",
+            {"name": resource["id"]},
         )
         assert results.rowcount == 1
 

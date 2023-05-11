@@ -33,7 +33,7 @@ class TestDatastoreCreateNewTests(object):
                 pg_class.relname = :relname
             """
         index_name = db._generate_index_name(resource_id, field)
-        results = execute_sql(sa.text(sql), {"relname": index_name}).fetchone()
+        results = execute_sql(sql, {"relname": index_name}).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -50,7 +50,7 @@ class TestDatastoreCreateNewTests(object):
                 AND t.relkind = 'r'
                 AND t.relname = :relname
             """
-        results = execute_sql(sa.text(sql), {"relname": resource_id}).fetchall()
+        results = execute_sql(sql, {"relname": resource_id}).fetchall()
         return [result[0] for result in results]
 
     def test_create_works_with_empty_array_in_json_field(self):

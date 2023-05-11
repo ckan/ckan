@@ -1,5 +1,7 @@
 # encoding: utf-8
+from __future__ import annotations
 
+from typing import Any
 import sqlalchemy as sa
 from sqlalchemy import orm
 
@@ -61,19 +63,19 @@ def set_url_type(resources, user):
         p.toolkit.get_action("resource_update")(context, resource)
 
 
-def execute_sql(sql, *args):
+def execute_sql(sql: str, params: dict[str, Any]):
     engine = db.get_write_engine()
     session = orm.scoped_session(orm.sessionmaker(bind=engine))
-    return session.connection().execute(sql, *args)
+    return session.connection().execute(sa.text(sql), params)
 
 
 def when_was_last_analyze(resource_id):
     results = execute_sql(
         """SELECT last_analyze
         FROM pg_stat_user_tables
-        WHERE relname=%s;
+        WHERE relname=:relname;
         """,
-        resource_id,
+        {"relname": resource_id},
     ).fetchall()
     return results[0][0]
 
