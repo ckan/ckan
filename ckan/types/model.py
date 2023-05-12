@@ -16,7 +16,7 @@ Query = Query
 
 
 class Meta(Protocol):
-    create_local_session: sessionmaker[Session]
+    create_local_session: "sessionmaker[Session]"
 
 
 class Model(Protocol):
