@@ -315,7 +315,7 @@ def _build_js_translation(
         s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
         f.write(s)
 
-def _check_js_translations_dest_dir()-> None:
+def _check_js_translations_dest_dir() -> None:
     dest_dir = get_js_translations_dir()
     if not os.path.isdir(dest_dir):
         os.makedirs(dest_dir)
