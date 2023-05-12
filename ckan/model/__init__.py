@@ -162,6 +162,8 @@ def init_model(engine: Engine) -> None:
     for i in reversed(range(DB_CONNECT_RETRIES)):
         try:
             Table('alembic_version', meta.metadata, autoload_with=engine)
+        except sqlalchemy.exc.NoSuchTableError:
+            break
         except sqlalchemy.exc.OperationalError as e:
             if 'database system is starting up' in repr(e.orig) and i:
                 sleep(DB_CONNECT_RETRIES - i)
