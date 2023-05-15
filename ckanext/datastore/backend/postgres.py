@@ -314,9 +314,10 @@ def _get_fields(connection: Any, resource_id: str):
 
 def _cache_types(connection: Any) -> None:
     if not _pg_types:
-        results = connection.execute(sa.text(
-            'SELECT oid, typname FROM pg_type;'
-        ))
+        with connection.begin():
+            results = connection.execute(sa.text(
+                'SELECT oid, typname FROM pg_type;'
+            ))
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
@@ -2373,16 +2374,8 @@ def drop_function(name: str, if_exists: bool):
 
 
 def _write_engine_execute(sql: str):
-    connection = get_write_engine().connect()
-    trans = connection.begin()
-    try:
-        connection.execute(sa.text(sql))
-        trans.commit()
-    except Exception:
-        trans.rollback()
-        raise
-    finally:
-        connection.close()
+    with get_write_engine().begin() as conn:
+        conn.execute(sa.text(sql))
 
 
 def _programming_error_summary(pe: Any):

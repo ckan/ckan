@@ -3,6 +3,8 @@
 import os
 import pytest
 
+from sqlalchemy import inspect
+
 import ckan.migration as migration
 import ckanext.example_database_migrations.plugin as example_plugin
 
@@ -47,9 +49,10 @@ class TestMigrations:
         assert version == "base"
 
     def check_upgrade(self, has_x, has_y, expected_version):
-        has_table = model.Session.bind.has_table
-        assert has_table("example_database_migrations_x") is has_x
-        assert has_table("example_database_migrations_y") is has_y
+        inspector = inspect(model.Session.bind)
+
+        assert inspector.has_table("example_database_migrations_x") is has_x
+        assert inspector.has_table("example_database_migrations_y") is has_y
         version = db.current_revision("example_database_migrations")
         assert version == expected_version
 

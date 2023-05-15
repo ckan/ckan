@@ -4,6 +4,7 @@ import os
 
 import pytest
 from urllib.parse import urlparse
+from sqlalchemy import inspect
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
@@ -114,14 +115,16 @@ class TestMigrateDbFor(object):
     @pytest.mark.usefixtures("with_plugins", "clean_db")
     def test_migrations_applied(self, migrate_db_for):
         import ckan.model as model
-        has_table = model.Session.bind.has_table
-        assert not has_table("example_database_migrations_x")
-        assert not has_table("example_database_migrations_y")
+
+        inspector = inspect(model.Session.bind)
+        assert not inspector.has_table("example_database_migrations_x")
+        assert not inspector.has_table("example_database_migrations_y")
 
         migrate_db_for("example_database_migrations")
 
-        assert has_table("example_database_migrations_x")
-        assert has_table("example_database_migrations_y")
+        inspector = inspect(model.Session.bind)
+        assert inspector.has_table("example_database_migrations_x")
+        assert inspector.has_table("example_database_migrations_y")
 
 
 @pytest.mark.usefixtures("non_clean_db")
