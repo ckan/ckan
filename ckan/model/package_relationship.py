@@ -190,9 +190,11 @@ meta.registry.map_imperatively(PackageRelationship, package_relationship_table, 
     'subject':orm.relationship(
         _package.Package, primaryjoin=\
         package_relationship_table.c["subject_package_id"]==_package.Package.id,
-        backref='relationships_as_subject',
-        cascade_backrefs=False
+        backref=orm.backref('relationships_as_subject', cascade_backrefs=False),
     ),
-    'object':orm.relationship(_package.Package, primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
-           backref='relationships_as_object'),
-    })
+    'object':orm.relationship(
+        _package.Package,
+        primaryjoin=package_relationship_table.c["object_package_id"]==_package.Package.id,
+        backref=orm.backref('relationships_as_object', cascade_backrefs=False)
+    ),
+})
