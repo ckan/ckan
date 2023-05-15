@@ -156,9 +156,10 @@ this.ckan.module('resource-view-filters', function (jQuery) {
     currentFilters = currentFilters.slice();
 
     if (evt.removed) {
-      addToIndex = currentFilters.indexOf(evt.removed.id);
       if (addToIndex !== -1) {
-        currentFilters.splice(addToIndex, 1);
+        if( typeof evt.removed.id !== "undefined" && currentFilters.indexOf(evt.removed.id) !== -1 ){
+          currentFilters.splice(currentFilters.indexOf(evt.removed.id), 1);
+        }
       }
     }
     if (evt.added) {
