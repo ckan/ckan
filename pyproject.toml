@@ -40,7 +40,7 @@ filterwarnings = [
     "ignore::sqlalchemy.exc.SAWarning",
     "ignore::DeprecationWarning",
     "ignore::bs4.GuessedAtParserWarning",  # using lxml as default parser
-    "always::sqlalchemy.exc.RemovedIn20Warning",
+    "error::sqlalchemy.exc.RemovedIn20Warning",
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",

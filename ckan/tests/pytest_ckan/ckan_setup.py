@@ -7,12 +7,6 @@ from ckan.config.middleware import make_app
 from ckan.cli import load_config
 from ckan.common import config
 
-# SQLAlchemy v2.0 guard. Tests will fail if a non-compatible operation detected
-warnings.filterwarnings(
-    "error",
-    category=exc.RemovedIn20Warning
-)
-
 # This is a test Flask request context to be used internally.
 # Do not use it!
 _tests_test_request_context = None
