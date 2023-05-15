@@ -213,8 +213,8 @@ def _result_fields(fields_types: 'OrderedDict[str, str]',
     return result_fields
 
 
-def _get_type(connection: Any, oid: str) -> str:
-    _cache_types(connection)
+def _get_type(engine: Engine, oid: str) -> str:
+    _cache_types(engine)
     return _pg_types[oid]
 
 
@@ -307,38 +307,44 @@ def _get_fields(connection: Any, resource_id: str):
         if not field[0].startswith('_'):
             fields.append({
                 'id': str(field[0]),
-                'type': _get_type(connection, field[1])
+                'type': _get_type(connection.engine, field[1])
             })
     return fields
 
 
-def _cache_types(connection: Any) -> None:
+def _cache_types(engine: Engine) -> None:
     if not _pg_types:
-        with connection.begin():
-            results = connection.execute(sa.text(
+        with engine.begin() as conn:
+            results = conn.execute(sa.text(
                 'SELECT oid, typname FROM pg_type;'
             ))
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
         if 'nested' not in _type_names:
-            native_json = _pg_version_is_at_least(connection, '9.2')
+            with engine.begin() as conn:
+                native_json = _pg_version_is_at_least(conn, '9.2')
 
             log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
             backend = DatastorePostgresqlBackend.get_active_backend()
-            engine: Engine = backend._get_write_engine()  # type: ignore
-            with engine.begin() as write_connection:
+            write_engine: Engine = backend._get_write_engine()  # type: ignore
+            with write_engine.begin() as write_connection:
                 write_connection.execute(sa.text(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
                         'json' if native_json else 'text')))
             _pg_types.clear()
 
             # redo cache types with json now available.
-            return _cache_types(connection)
+            return _cache_types(engine)
 
-        register_composite('nested', connection.connection.connection, True)
+        with engine.connect() as conn:
+            register_composite(
+                'nested',
+                conn.connection.connection,  # type: ignore
+                True
+            )
 
 
 def _pg_version_is_at_least(connection: Any, version: Any):
@@ -1564,7 +1570,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     for field in results.cursor.description:
         result_fields.append({
             'id': str(field[0]),
-            'type': _get_type(context['connection'], field[1])
+            'type': _get_type(context['connection'].engine, field[1])
         })
 
     records = []
@@ -1710,9 +1716,9 @@ def upsert(context: Context, data_dict: dict[str, Any]):
 def search(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_read_engine()  # type: ignore
+    _cache_types(engine)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
 
     try:
         context['connection'].execute(sa.text(
@@ -1739,10 +1745,10 @@ def search(context: Context, data_dict: dict[str, Any]):
 def search_sql(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_read_engine()  # type: ignore
+    _cache_types(engine)
 
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
 
     sql = data_dict['sql']
 
@@ -2047,9 +2053,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def delete(self, context: Context, data_dict: dict[str, Any]):
         engine = self._get_write_engine()
+        _cache_types(engine)
+
         with engine.begin() as conn:
             context["connection"] = conn
-            _cache_types(conn)
             # check if table exists
             if 'filters' not in data_dict:
                 conn.execute(sa.text('DROP TABLE "{0}" CASCADE'.format(
@@ -2079,9 +2086,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                                   data
         '''
         engine = get_write_engine()
+        _cache_types(engine)
+
         context['connection'] = engine.connect()
         timeout = context.get('query_timeout', _TIMEOUT)
-        _cache_types(context['connection'])
 
         _rename_json_field(data_dict)
 
@@ -2332,12 +2340,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         Postgresql's pg_stat_user_tables. This number will be used when
         specifying `total_estimation_threshold`
         '''
-        connection = get_write_engine().connect()
         sql = 'ANALYZE "{}"'.format(resource_id)
-        try:
-            connection.execute(sa.text(sql))
-        except DatabaseError as err:
-            raise DatastoreException(err)
+        with get_write_engine().connect() as conn:
+            try:
+                conn.execute(sa.text(sql))
+            except DatabaseError as err:
+                raise DatastoreException(err)
 
 
 def create_function(name: str, arguments: Iterable[dict[str, Any]],
