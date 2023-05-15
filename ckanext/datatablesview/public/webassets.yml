@@ -1,7 +1,7 @@
 main-css:
   output: datapreview/%(version)s_main.css
   contents:
-    - vendor/DataTables-1.10.15/css/dataTables.bootstrap.css
+    - vendor/DataTables-1.10.25/css/dataTables.bootstrap.css
     - vendor/Buttons-1.3.1/css/buttons.bootstrap.css
     - vendor/FixedColumns-3.2.2/css/fixedColumns.bootstrap.css
     - vendor/FixedHeader-3.1.2/css/fixedHeader.bootstrap.css
@@ -16,8 +16,8 @@ main-js:
       - base/main
   contents:
     - vendor/Bootstrap-3.3.7/js/bootstrap.js
-    - vendor/DataTables-1.10.15/js/jquery.dataTables.js
-    - vendor/DataTables-1.10.15/js/dataTables.bootstrap.js
+    - vendor/DataTables-1.10.25/js/jquery.dataTables.js
+    - vendor/DataTables-1.10.25/js/dataTables.bootstrap.js
     - vendor/Buttons-1.3.1/js/dataTables.buttons.js
     - vendor/Buttons-1.3.1/js/buttons.bootstrap.js
     - vendor/Buttons-1.3.1/js/buttons.colVis.js
