@@ -409,6 +409,47 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
+.. _filters:
+
+Filters
+-------
+
+Filters define the matching conditions to select from the DataStore. A filter is defined as follows::
+
+    {
+        "resource_id":  # the resource ID (required)
+        "filters": {
+            # column name: # field value
+            # column name: # List of field values
+            ...:  # other user-defined filters
+  }
+    }
+
+Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
+The filters have to be valid key/value pairs. The key must be a valid column name
+and the value must match the respective column type. The value may be provided as a List
+of multiple matching values. See :ref:`valid-types` for details on which types are valid.
+
+Example (single filter values, used as `WHERE =` statements)::
+
+    {
+        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
+        "filters": {
+            "name": "Fred",
+            "dob":  "1994-7-07"
+        }
+    }
+
+Example (multiple filter values, used as `WHERE IN` statements)::
+
+    {
+        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
+        "filters": {
+            "name": ["Fred", "Jones"],
+            "dob":  ["1994-7-07", "1992-7-27"]
+        }
+    }
+
 .. _resource-aliases:
 
 Resource aliases
