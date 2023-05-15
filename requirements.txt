@@ -127,7 +127,7 @@ six==1.16.0
     #   bleach
     #   python-dateutil
     #   pyutilib
-sqlalchemy[mypy]==1.4.47
+sqlalchemy~=2.0
     # via
     #   -r requirements.in
     #   alembic
