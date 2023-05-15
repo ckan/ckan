@@ -342,7 +342,7 @@ def _cache_types(engine: Engine) -> None:
         with engine.connect() as conn:
             register_composite(
                 'nested',
-                conn.connection.connection,  # type: ignore
+                conn.connection.connection,
                 True
             )
 
@@ -2319,7 +2319,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             WHERE alias_of IS NULL''')
         with self._get_read_engine().connect() as conn:
             return [
-                item[0] for item in
+                item for item in
                 conn.scalars(resources_sql)
             ]
 
