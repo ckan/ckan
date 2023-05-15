@@ -604,7 +604,10 @@ def _get_aliases(context: Context, data_dict: dict[str, Any]):
     res_id = data_dict['resource_id']
     alias_sql = sa.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
-    return context['connection'].scalars(alias_sql, {"id": res_id}).fetchall()
+    return [
+        item[0] for item in
+        context['connection'].execute(alias_sql, {"id": res_id})
+    ]
 
 
 def _get_resources(context: Context, alias: str):
@@ -613,9 +616,10 @@ def _get_resources(context: Context, alias: str):
     alias_sql = sa.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
-    return context['connection'].scalars(
-        alias_sql, {"alias": alias}
-    ).fetchall()
+    return [
+        item[0] for item in
+        context['connection'].execute(alias_sql, {"alias": alias})
+    ]
 
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
@@ -2306,7 +2310,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
         with self._get_read_engine().connect() as conn:
-            return conn.scalars(resources_sql).fetchall()
+            return [
+                item[0] for item in
+                conn.scalars(resources_sql)
+            ]
 
     def create_function(self, *args: Any, **kwargs: Any):
         return create_function(*args, **kwargs)
