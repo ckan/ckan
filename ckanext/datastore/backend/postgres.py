@@ -1902,7 +1902,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             with engine.begin() as conn:
                 conn.execute(drop_foo_sql)
 
-
         return True
 
     def configure(self, config: CKANConfig):
