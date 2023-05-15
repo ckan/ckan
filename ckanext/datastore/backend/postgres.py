@@ -1883,11 +1883,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         drop_foo_sql = sa.text("DROP TABLE IF EXISTS _foo")
 
         engine = self._get_write_engine()
-        with engine.begin() as conn:
-            conn.execute(drop_foo_sql)
-            conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
+                conn.execute(drop_foo_sql)
+                conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
+
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
                     have_privilege: bool = conn.scalar(sa.select(
                         sa.func.has_table_privilege(
@@ -1901,6 +1901,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         finally:
             with engine.begin() as conn:
                 conn.execute(drop_foo_sql)
+
 
         return True
 
