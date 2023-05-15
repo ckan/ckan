@@ -105,7 +105,7 @@ def default_create_package_schema(
         package_name_validator, if_empty_same_as, strip_value, email_validator,
         package_version_validator, ignore_not_package_admin,
         boolean_validator, datasets_with_no_organization_cannot_be_private,
-        empty, tag_string_convert, owner_org_validator, no_http):
+        empty, tag_string_convert, owner_org_validator, no_http, license_choices):
     return {
         '__before': [duplicate_extras_key, ignore],
         'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
@@ -119,7 +119,7 @@ def default_create_package_schema(
         'maintainer': [ignore_missing, unicode_safe],
         'maintainer_email': [ignore_missing, unicode_safe, strip_value,
                              email_validator],
-        'license_id': [ignore_missing, unicode_safe],
+        'license_id': [ignore_missing, unicode_safe, license_choices],
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],
         'version': [ignore_missing, unicode_safe, package_version_validator],

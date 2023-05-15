@@ -22,8 +22,9 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.authz as authz
 from ckan.model.core import State
+from ckan.model import Package
 
-from ckan.common import _
+from ckan.common import _, asbool, config
 
 Invalid = df.Invalid
 StopOnError = df.StopOnError
@@ -1009,3 +1010,12 @@ def extras_valid_json(extras, context):
         raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                 format(name=extra))
     return extras
+
+
+def license_choices(value, context):
+    if not asbool(config.get('ckan.dataset.restrict_license_choices', False)):
+        return value
+    licenses = Package.get_license_register()
+    if value in licenses:
+        return value
+    raise Invalid(_('Invalid license'))
