@@ -53,6 +53,8 @@ Example:
   {% endblock %}
 {% endif %}
 
-<div class="module-content">
-  {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-light btn-sm', icon='plus' %}
-</div>
+{% if can_edit %}
+  <div class="module-content">
+    {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-light btn-sm', icon='plus' %}
+  </div>
+{% endif %}
