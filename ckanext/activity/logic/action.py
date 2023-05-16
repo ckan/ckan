@@ -249,8 +249,8 @@ def package_activity_list(
 
     # Get activity permission labels
     labels = get_permission_labels()
-    x = model.Session.query(model_activity.Activity).filter_by(object_id=package.id)
-    for activity in x:
+    activities = model.Session.query(model_activity.Activity).filter_by(object_id=package.id)
+    for activity in activities:
         activity.permission_labels = labels.get_activity_labels(activity)
     model.Session.commit()
 
