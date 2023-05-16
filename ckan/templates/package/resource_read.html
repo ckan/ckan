@@ -25,11 +25,15 @@
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
-          <ul>
-            {% block resource_actions_inner %}
-            {% if h.check_access('package_update', {'id':pkg.id }) and not is_activity_archive %}
-              <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
-            {% endif %}
+            <ul>
+              {% block resource_actions_inner %}
+                {% block action_manage %}
+                  {% if h.check_access('package_update', {'id':pkg.id }) %}
+                    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='pencil' %}</li>
+                    {% block action_manage_inner %}{% endblock %}
+                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}
+                  {% endif %}
+                {% endblock action_manage %}
             {% if res.url and h.is_url(res.url) %}
               <li>
                 <div class="btn-group">
