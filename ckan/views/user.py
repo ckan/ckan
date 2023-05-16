@@ -604,17 +604,15 @@ def logout() -> Response:
         response = item.logout()
         if response:
             return response
+
     user = current_user.name
     if not user:
         return h.redirect_to('user.login')
 
-    came_from = request.args.get('came_from', '')
     logout_user()
+    session.clear()
 
-    field_name = config.get("WTF_CSRF_FIELD_NAME")
-    if session.get(field_name):
-        session.pop(field_name)
-
+    came_from = request.args.get('came_from', '')
     if h.url_is_local(came_from):
         return h.redirect_to(str(came_from))
 
