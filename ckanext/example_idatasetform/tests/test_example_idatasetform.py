@@ -309,7 +309,7 @@ class TestUrlsForCustomDatasetType(object):
             )
         )
 
-        assert page.find(class_="resources").find(
+        assert page.find(class_="content_action").find(
             href=url_for(
                 "fancy_type_resource.read",
                 id=pkg["name"],
