@@ -246,7 +246,12 @@ def handle_request(request, tmpl_context):
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
 
-    set_lang(lang)
+    if lang != 'en':
+        set_lang(lang)
+
+    if is_flask_request():
+        tmpl_context.language = lang
+        return lang
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():
