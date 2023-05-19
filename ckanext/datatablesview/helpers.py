@@ -1,3 +1,4 @@
+# encoding: utf-8
 from ckan.plugins.toolkit import _, config
 
 
