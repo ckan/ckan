@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 from ckan.common import CKANConfig
-from typing import Any, cast, Callable
+from typing import Any, cast
 from ckan.types import Context, ValidatorFactory
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-from ckanext.datatablesview import blueprint, helpers
+from ckanext.datatablesview import blueprint
 
 default = cast(ValidatorFactory, toolkit.get_validator(u'default'))
 boolean_validator = toolkit.get_validator(u'boolean_validator')
