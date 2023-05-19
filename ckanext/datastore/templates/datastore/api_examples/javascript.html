@@ -1,0 +1,55 @@
+{% call register_example('javascript', 'button_label') %}
+JavaScript
+{% endcall %}
+
+{% call register_example('javascript', 'request_limit') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        resource_id: '{{ resource_id }}',
+        limit: 5,
+        q: 'jones'
+    })
+})
+await resp.json()</code></pre>
+{% endcall %}
+
+
+{% call register_example('javascript', 'request_filter') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_search', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({resource_id: '{{ resource_id }}', filters: {
+        subject: ['watershed', 'survey'],
+        stage: 'active'
+    }})})
+await resp.json()</code></pre>
+{% endcall %}
+
+
+{% call register_example('javascript', 'request_sql') %}
+<pre class="example-javascript"><code class="language-javascript"
+>const resp = await fetch(`{{
+  h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}`, {
+    method: 'POST',
+    headers: {
+        'content-type': 'application/json',
+        authorization: API_TOKEN
+    },
+    body: JSON.stringify({
+        sql: `SELECT * FROM "{{ resource_id }}" WHERE title LIKE 'jones'`
+    })
+})
+await resp.json()</code></pre>
+{% endcall %}
