@@ -11,7 +11,6 @@ etc.
 
 import importlib
 import inspect
-import io
 import itertools
 import os
 import os.path
@@ -257,45 +256,6 @@ def test_building_the_docs():
             u"Don't add any new warnings to the Sphinx build: \n"
             u"{warnings}".format(warnings="\n".join(warnings))
         )
-
-
-def test_source_files_specify_encoding():
-    u"""
-    Test that *.py files have a PEP 263 UTF-8 encoding specification.
-
-    Empty files and files that only contain comments are ignored.
-    """
-    pattern = re.compile(u"#.*?coding[:=][ \\t]*utf-?8")
-    decode_errors = []
-    no_specification = []
-    for abs_path, rel_path in walk_python_files():
-        try:
-            with io.open(abs_path, encoding=u"utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if pattern.match(line):
-                        # Pattern found
-                        break
-                    elif line and not line.startswith(u"#"):
-                        # File contains non-empty non-comment line
-                        no_specification.append(rel_path)
-                        break
-        except UnicodeDecodeError:
-            decode_errors.append(rel_path)
-
-    msgs = []
-    if no_specification:
-        msgs.append(
-            u"The following files are missing an encoding specification: "
-            u"{}".format(no_specification)
-        )
-    if decode_errors:
-        msgs.append(
-            u"The following files are not valid UTF-8: "
-            u"{}".format(decode_errors)
-        )
-    if msgs:
-        assert False, u"\n\n".join(msgs)
 
 
 class TestActionAuth(object):

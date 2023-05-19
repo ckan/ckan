@@ -57,15 +57,6 @@ _func = sqlalchemy.func
 _case = sqlalchemy.case
 
 
-def site_read(context: Context, data_dict: Optional[DataDict]=None) -> bool:
-    '''Return ``True``.
-
-    :rtype: bool
-    '''
-    _check_access('site_read', context, data_dict)
-    return True
-
-
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageList:
     '''Return a list of the names of the site's datasets (packages).
@@ -762,7 +753,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licenses = [l.as_dict() for l in licenses]
+    licenses = [l.license_dictize() for l in licenses]
     return licenses
 
 

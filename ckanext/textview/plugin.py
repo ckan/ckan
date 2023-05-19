@@ -61,7 +61,7 @@ class TextView(p.SingletonPlugin):
     def info(self):
         return {'name': 'text_view',
                 'title': p.toolkit._('Text'),
-                'icon': 'file-text-o',
+                'icon': 'file-lines',
                 'default_title': p.toolkit._('Text'),
                 }
 

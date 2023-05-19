@@ -141,7 +141,6 @@ def index(group_type: str, is_organization: bool) -> str:
     })
 
     try:
-        assert _check_access(u'site_read', context)
         assert _check_access(u'group_list', context)
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
