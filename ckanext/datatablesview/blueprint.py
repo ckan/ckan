@@ -121,9 +121,10 @@ def ajax(resource_view_id):
         dtdata = {u'error': query_error}
     else:
         data = []
+        null_label = h.datatablesview_null_label()
         for row in response[u'records']:
-            record = {colname: text_type(
-                      '' if row.get(colname) is None else row.get(colname))
+            record = {colname: text_type(null_label if row.get(colname, u'')
+                                   is None else row.get(colname, u''))
                       for colname in cols}
             # the DT_RowId is used in DT to set an element id for each record
             record['DT_RowId'] = 'row' + text_type(row.get(u'_id', u''))

@@ -17,6 +17,7 @@ DEFAULT_ELLIPSIS_LENGTH = 100
 DEFAULT_DATE_FORMAT = 'llll'
 
 
+@toolkit.blanket.helpers
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
