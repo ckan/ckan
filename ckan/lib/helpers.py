@@ -2785,6 +2785,18 @@ def unified_resource_format(format):
 
 
 @core_helper
+def resource_url_type(resource_id):
+    '''api_info ajax snippet: "which extension manages this resource_id?"'''
+    # ajax snippets have no permissions checking and require things like
+    # this for full functionality, should we stop using them instead?
+    query = model.Session.query(model.Resource.url_type).filter(
+        model.Resource.id == resource_id,
+    )
+    result = query.one_or_none()
+    return result[0] if result else ''
+
+
+@core_helper
 def check_config_permission(permission):
     return authz.check_config_permission(permission)
 
