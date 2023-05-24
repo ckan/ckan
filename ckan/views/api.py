@@ -263,14 +263,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
             _(u'JSON Error: %s') % inst)
-    if not isinstance(request_data, dict):
-        # this occurs if request_data is blank
-        log.info(u'Bad Action API request data - not dict: %r',
-                 request_data)
-        return _finish_bad_request(
-            _(u'Bad request data: %s') %
-            u'Request data JSON decoded to %r but '
-            u'it needs to be a dictionary.' % request_data)
+
     if u'callback' in request_data:
         del request_data[u'callback']
         g.user = None

@@ -2,7 +2,7 @@ name: Cypress
 on: [pull_request]
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.7'
+  PYTHON_VERSION: '3.8'
 
 permissions:
   contents: read

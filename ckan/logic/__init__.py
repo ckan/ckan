@@ -15,9 +15,6 @@ from typing_extensions import Literal
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
 
-import six
-
-
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
@@ -57,7 +54,7 @@ class ActionError(Exception):
         msg = self.message
         if not isinstance(msg, str):
             msg = str(msg)
-        return six.ensure_text(msg)
+        return msg
 
 
 class NotFound(ActionError):
@@ -874,7 +871,8 @@ def fresh_context(
         we want a clean version with minimum fields """
     new_context = {
         k: context[k] for k in (
-            'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+            'model', 'session', 'user', 'auth_user_obj',
+            'ignore_auth', 'defer_commit',
         ) if k in context
     }
     new_context = cast(Context, new_context)

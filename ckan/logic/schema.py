@@ -34,9 +34,12 @@ def default_resource_schema(
         ignore_missing: Validator, remove_whitespace: Validator,
         if_empty_guess_format: Validator, clean_format: Validator,
         isodate: Validator, int_validator: Validator,
-        extras_valid_json: Validator, keep_extras: Validator):
+        extras_valid_json: Validator, keep_extras: Validator,
+        resource_id_validator: Validator,
+        resource_id_does_not_exist: Validator):
     return cast(Schema, {
-        'id': [ignore_empty, unicode_safe],
+        'id': [ignore_empty, resource_id_validator,
+               resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
         'description': [ignore_missing, unicode_safe],
@@ -344,6 +347,7 @@ def default_show_group_schema(
     schema['display_name'] = []
     schema['extras'] = cast(Schema, {'__extras': [keep_extras]})
     schema['package_count'] = [ignore_missing]
+    schema['member_count'] = [ignore_missing]
     schema['packages'] = cast(Schema, {'__extras': [keep_extras]})
     schema['state'] = []
     schema['users'] = cast(Schema, {'__extras': [keep_extras]})

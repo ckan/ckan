@@ -80,25 +80,6 @@ def _extra_template_variables(context: Context,
     return extra
 
 
-@user.before_request
-def before_request() -> None:
-    try:
-        context = cast(Context, {
-            "model": model,
-            "user": current_user.name,
-            "auth_user_obj": current_user
-        })
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        action = plugins.toolkit.get_endpoint()[1]
-        if action not in (
-                u'login',
-                u'request_reset',
-                u'perform_reset',
-        ):
-            base.abort(403, _(u'Not authorized to see this page'))
-
-
 def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')
@@ -159,9 +140,50 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
     return base.render(u'user/read.html', extra_vars)
+
+
+def read_organizations(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_organizations.html', extra_vars)
+
+
+def read_groups(id: str) -> Union[Response, str]:
+    context = cast(Context, {
+        u'model': model,
+        u'session': model.Session,
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    })
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_groups.html', extra_vars)
 
 
 class ApiTokenView(MethodView):
@@ -194,8 +216,6 @@ class ApiTokenView(MethodView):
         }
 
         extra_vars = _extra_template_variables(context, data_dict)
-        if extra_vars is None:
-            return h.redirect_to(u'user.login')
         extra_vars[u'tokens'] = tokens
         extra_vars.update({
             u'data': data,
@@ -628,7 +648,7 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
         context = cast(
@@ -930,6 +950,8 @@ user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(u'/<id>/organizations', view_func=read_organizations)
+user.add_url_rule(u'/<id>/groups', view_func=read_groups)
 user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )

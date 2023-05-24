@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, make_response, abort, redirect, request
+from flask import Blueprint, make_response, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -23,21 +23,9 @@ CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
 home = Blueprint(u'home', __name__)
 
 
-@home.before_request
-def before_request() -> None:
-    u'''set context and check authorization'''
-    try:
-        context = cast(Context, {
-            u'model': model,
-            u'user': current_user.name,
-            u'auth_user_obj': current_user})
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        abort(403)
-
-
 def index() -> str:
     u'''display home page'''
+    extra_vars: dict[str, Any] = {}
     try:
         context = cast(Context, {
             u'model': model,
@@ -76,6 +64,8 @@ def index() -> str:
             u'license': _(u'Licenses'),
         }
 
+        extra_vars[u'search_facets'] = query[u'search_facets']
+
     except search.SearchError:
         g.package_count = 0
 
@@ -87,7 +77,7 @@ def index() -> str:
                 u' if you need to reset your password.') \
             % config.get(u'ckan.site_title')
         h.flash_notice(msg, allow_html=True)
-    return base.render(u'home/index.html', extra_vars={})
+    return base.render(u'home/index.html', extra_vars=extra_vars)
 
 
 def about() -> str:

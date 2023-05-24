@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2022
+# Jiří Podhorecký, 2023
 # 
 #, fuzzy
 msgid ""
@@ -13,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-16 11:30+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
-"Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
+"Last-Translator: Jiří Podhorecký, 2023\n"
+"Language-Team: Czech (Czech Republic) (https://app.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -108,76 +109,77 @@ msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1058
 msgid "Add {object_type}"
-msgstr ""
+msgstr "Přidat {object_type}"
 
 #: ckan/lib/helpers.py:1059 ckan/lib/helpers.py:1060 ckan/lib/helpers.py:1068
 #: ckan/lib/helpers.py:1070 ckan/lib/helpers.py:1081
 msgid "{object_type}s"
-msgstr ""
+msgstr "{object_type}"
 
 #: ckan/lib/helpers.py:1061 ckan/lib/helpers.py:1062
 msgid "Create {object_type}"
-msgstr ""
+msgstr "Vytvořit {object_type}"
 
 #: ckan/lib/helpers.py:1063
 msgid "Are you sure you want to delete this {object_type}?"
-msgstr ""
+msgstr "Opravdu chcete odstranit tento {object_type}?"
 
 #: ckan/lib/helpers.py:1065
 msgid "A little information about my {object_type}..."
-msgstr ""
+msgstr "Několik informací o mém {object_type}..."
 
 #: ckan/lib/helpers.py:1067
 msgid "Edit {object_type}"
-msgstr ""
+msgstr "Upravit {object_type}"
 
 #: ckan/lib/helpers.py:1069
 msgid "{object_type} Form"
-msgstr ""
+msgstr "Formulář {object_type} "
 
 #: ckan/lib/helpers.py:1071
 msgid "My {object_type}s"
-msgstr ""
+msgstr "Moje {object_type}"
 
 #: ckan/lib/helpers.py:1072
 msgid "View {object_type}"
-msgstr ""
+msgstr "Zobrazit {object_type}"
 
 #: ckan/lib/helpers.py:1073
 msgid "My {object_type}"
-msgstr ""
+msgstr "Můj {object_type}"
 
 #: ckan/lib/helpers.py:1074
 msgid "There are currently no {object_type}s for this site"
 msgstr ""
+"Pro tuto stránku nejsou v současné době k dispozici žádné {object_type}"
 
 #: ckan/lib/helpers.py:1076
 msgid "There are no {object_type}s associated with this dataset"
-msgstr ""
+msgstr "K této datové sadě nejsou přiřazeny žádné {object_type}."
 
 #: ckan/lib/helpers.py:1078
 msgid "There is no description for this {object_type}"
-msgstr ""
+msgstr "Pro tento {object_type} neexistuje žádný popis."
 
 #: ckan/lib/helpers.py:1080
 msgid "No {object_type}"
-msgstr ""
+msgstr "Žádný {object_type}"
 
 #: ckan/lib/helpers.py:1082
 msgid "Save {object_type}"
-msgstr ""
+msgstr "Uložit {object_type}"
 
 #: ckan/lib/helpers.py:1083
 msgid "Search {object_type}s..."
-msgstr ""
+msgstr "Hledat  {object_type} ..."
 
 #: ckan/lib/helpers.py:1084
 msgid "You are not a member of any {object_type}s."
-msgstr ""
+msgstr "Nejste členem žádného {object_type}."
 
 #: ckan/lib/helpers.py:1085
 msgid "Update {object_type}"
-msgstr ""
+msgstr "Aktualizovat {object_type}"
 
 #: ckan/lib/helpers.py:1683
 msgid "Unknown"
@@ -340,11 +342,11 @@ msgstr "Hodnota musí být přirozené číslo"
 
 #: ckan/logic/validators.py:147
 msgid "Must be a positive integer"
-msgstr ""
+msgstr "Musí být kladné celé číslo"
 
 #: ckan/logic/validators.py:156
 msgid "Must be a float timestamp"
-msgstr ""
+msgstr "Musí to být časové razítko typu float"
 
 #: ckan/logic/validators.py:185
 msgid "Date format incorrect"
@@ -430,6 +432,8 @@ msgid ""
 "Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
 " (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
+"Tag \"%s\" může obsahovat pouze alfanumerické znaky, mezery (\" \"), pomlčky"
+" (\"-\"), podtržítka (\"_\") nebo tečky (\".\")."
 
 #: ckan/logic/validators.py:459
 #, python-format
@@ -616,7 +620,7 @@ msgstr "Vytvářím organizaci jako skupinu"
 
 #: ckan/logic/action/create.py:1116
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Chyba při odesílání zvacího e-mailu, uživatel nebyl vytvořen: {0}"
 
 #: ckan/logic/action/create.py:1237 ckan/logic/action/create.py:1243
 msgid "You must be logged in to follow users"
@@ -1250,11 +1254,11 @@ msgstr "Chyba %(error_code)s"
 
 #: ckan/templates/error_document_template.html:16
 msgid "You might need to login to access this page."
-msgstr ""
+msgstr "Pro přístup na tuto stránku se možná budete muset přihlásit."
 
 #: ckan/templates/error_document_template.html:16
 msgid "Click here to login"
-msgstr ""
+msgstr "Klikněte zde pro přihlášení"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
@@ -1286,7 +1290,7 @@ msgstr "Zobrazit profil"
 
 #: ckan/templates/header.html:27
 msgid "View dashboard"
-msgstr ""
+msgstr "Zobrazit ovládací panel"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:10
 #: ckanext/activity/templates/header.html:11
@@ -1364,7 +1368,7 @@ msgstr "O nás"
 
 #: ckan/templates/header.html:114
 msgid "Search Datasets..."
-msgstr ""
+msgstr "Hledat datové sady..."
 
 #: ckan/templates/header.html:115 ckan/templates/home/snippets/search.html:12
 #: ckan/templates/snippets/simple_search.html:5
@@ -1413,7 +1417,7 @@ msgstr "Název portálu"
 
 #: ckan/templates/admin/config.html:17
 msgid "Custom Stylesheet"
-msgstr ""
+msgstr "Vlastní stylopis"
 
 #: ckan/templates/admin/config.html:19
 msgid "Site Tag Line"
@@ -1491,19 +1495,19 @@ msgstr "Potvrďte reset"
 
 #: ckan/templates/admin/index.html:4
 msgid "Current Sysadmins"
-msgstr ""
+msgstr "Aktuální správci systému"
 
 #: ckan/templates/admin/index.html:26
 msgid "Revoke Sysadmin permission"
-msgstr ""
+msgstr "Odebrání oprávnění správce systému"
 
 #: ckan/templates/admin/index.html:40 ckan/templates/admin/index.html:60
 msgid "Promote user to Sysadmin"
-msgstr ""
+msgstr "Povýšit uživatele na správce systému"
 
 #: ckan/templates/admin/index.html:61
 msgid "Promote"
-msgstr ""
+msgstr "Povýšit"
 
 #: ckan/templates/admin/index.html:73
 msgid "Administer CKAN"
@@ -1517,6 +1521,10 @@ msgid ""
 " href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">sysadmin "
 "guide</a></p>"
 msgstr ""
+"<p>Jako uživatel sysadmin máte nad touto instancí CKAN plnou kontrolu. "
+"Postupujte opatrně!</p> <p>Pokyny k používání funkcí sysadmin naleznete v <a"
+" href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">příručce CKAN "
+"sysadmin</a>.</p>"
 
 #: ckan/templates/admin/trash.html:13 ckan/views/admin.py:155
 msgid "Are you sure you want to purge everything?"
@@ -1641,7 +1649,7 @@ msgstr ""
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
 msgid "Invite for %(site_title)s"
-msgstr ""
+msgstr "Pozvánka pro %(site_title)s"
 
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
@@ -1651,6 +1659,9 @@ msgid ""
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
+"Vážený %(user_name)s, požádali jste o obnovení hesla na %(site_title)s. Pro "
+"potvrzení této žádosti klikněte na následující odkaz: %(reset_link)s Přejeme"
+" hezký den. -- Zprávu odeslal %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/reset_password_subject.txt:1
 #, python-format
@@ -2007,6 +2018,24 @@ msgid ""
 "Features overview: <a "
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 msgstr ""
+"<p>CKAN je přední světová platforma pro datové portály s otevřeným zdrojovým"
+" kódem.</p> <p>CKAN je kompletní hotové softwarové řešení, které "
+"zpřístupňuje a používá data - poskytuje nástroje pro zefektivnění "
+"publikování, sdílení, vyhledávání a používání dat (včetně ukládání dat a "
+"poskytování robustních datových rozhraní API). CKAN je určen vydavatelům dat"
+" (národním a regionálním vládám, společnostem a organizacím), kteří chtějí "
+"svá data zpřístupnit a otevřít.</p> <p>CKAN používají vlády a skupiny "
+"uživatelů po celém světě a pohání celou řadu oficiálních a komunitních "
+"datových portálů, včetně portálů pro místní, národní a mezinárodní vlády, "
+"jako je britský <a href=\"https://data.gov.uk\">data.gov.uk</a> a americký "
+"<a href=\"https://catalog.data.gov/\">catalog.data.gov</a>, brazilský <a "
+"href=\"https://dados.gov.br/\">dados.gov.br</a>, nizozemské a nizozemské "
+"vládní portály, stejně jako městské a obecní weby v USA, Velké Británii, "
+"Argentině, Finsku a jinde.</p> <p>CKAN: <a "
+"href=\"https://ckan.org/\">https://ckan.org/</a> <br />Ukázky CKAN: <a "
+"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a> <br "
+"/>Přehled funkcí: <a "
+"href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2745,7 +2774,7 @@ msgstr "Organizace"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:79
 msgid "No Organization"
-msgstr ""
+msgstr "Žádná organizace"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:94
 msgid "Visibility"
@@ -3033,7 +3062,7 @@ msgstr "Tato organizace nemá uveden popis"
 
 #: ckan/templates/snippets/package_item.html:49
 msgid "There is no description for this dataset"
-msgstr ""
+msgstr "Pro tuto datovou sadu neexistuje žádný popis"
 
 #: ckan/templates/snippets/search_form.html:33
 #: ckan/templates/snippets/simple_search.html:8
@@ -3249,13 +3278,15 @@ msgstr "URL profilového obrázku"
 
 #: ckan/templates/user/edit_user_form.html:28
 msgid "Reactivate User"
-msgstr ""
+msgstr "Znovu aktivovat uživatele"
 
 #: ckan/templates/user/edit_user_form.html:29
 msgid ""
 "This account is deactivated, if you want to reactivate it, please click on "
 "checkbox."
 msgstr ""
+"Tento účet je deaktivován, pokud jej chcete znovu aktivovat, klikněte na "
+"zaškrtávací políčko."
 
 #: ckan/templates/user/edit_user_form.html:39
 #: ckan/templates/user/edit_user_form.html:74
@@ -3273,7 +3304,7 @@ msgstr "Potvrďte heslo"
 
 #: ckan/templates/user/edit_user_form.html:46
 msgid "Sysadmin password"
-msgstr ""
+msgstr "Heslo systémového administrátora"
 
 #: ckan/templates/user/edit_user_form.html:49 ckan/views/user.py:343
 msgid "Sysadmin Password"
@@ -3293,7 +3324,7 @@ msgstr "Opravdu chcete smazat tohoto uživatele?"
 
 #: ckan/templates/user/edit_user_form.html:92
 msgid "Reactivate Profile"
-msgstr ""
+msgstr "Znovu aktivovat profil"
 
 #: ckan/templates/user/edit_user_form.html:92
 msgid "Update Profile"
@@ -3451,7 +3482,7 @@ msgstr "Členem od"
 
 #: ckan/templates/user/read_base.html:91
 msgid "Last Active"
-msgstr ""
+msgstr "Poslední aktivní"
 
 #: ckan/templates/user/read_base.html:101
 msgid "API Key"
@@ -3505,7 +3536,7 @@ msgstr "Žádní sledující"
 
 #: ckan/templates/user/snippets/login_form.html:21
 msgid "Username or Email"
-msgstr ""
+msgstr "Uživatelské jméno nebo e-mail"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
@@ -3610,7 +3641,7 @@ msgstr "Uživatel %r nemá oprávnění měnit %s"
 
 #: ckan/views/dataset.py:451 ckan/views/dataset.py:465
 msgid "Dataset not found or you have no permission to view it"
-msgstr ""
+msgstr "Datová sada nebyla nalezena nebo nemáte oprávnění k jejímu zobrazení"
 
 #: ckan/views/dataset.py:457 ckan/views/dataset.py:751
 #: ckan/views/dataset.py:999
@@ -3718,11 +3749,11 @@ msgstr "Neoprávněný přístup"
 
 #: ckan/views/group.py:758
 msgid "OrganizationGroup"
-msgstr ""
+msgstr "OrganizationGroup"
 
 #: ckan/views/group.py:760
 msgid "{} not found"
-msgstr ""
+msgstr "{} nenalezeno"
 
 #: ckan/views/group.py:811
 msgid "Not authorized to perform bulk update"
@@ -3744,7 +3775,7 @@ msgstr "Skupina %s byla smazána."
 
 #: ckan/views/group.py:1048
 msgid "message"
-msgstr ""
+msgstr "zpráva"
 
 #: ckan/views/group.py:1085
 #, python-format
@@ -3970,15 +4001,15 @@ msgstr "Vaše heslo bylo obnoveno."
 
 #: ckan/views/user.py:889
 msgid "Not authorized to promote user to sysadmin"
-msgstr ""
+msgstr "Není oprávněn povýšit uživatele na správce systému"
 
 #: ckan/views/user.py:896
 msgid "Promoted {} to sysadmin"
-msgstr ""
+msgstr "{} povýšen na správce systému"
 
 #: ckan/views/user.py:901
 msgid "Revoked sysadmin permission from {}"
-msgstr ""
+msgstr "Odebrání oprávnění správce systému od {}"
 
 #: ckan/views/util.py:25
 msgid "Redirecting to external site is not allowed."
@@ -4016,7 +4047,7 @@ msgstr "Nemáte oprávnění ke čtení datové sady %s"
 
 #: ckanext/activity/views.py:336
 msgid "Invalid parameters"
-msgstr ""
+msgstr "Neplatné parametry"
 
 #: ckanext/activity/views.py:919
 msgid "Follow item not found"
@@ -4080,11 +4111,11 @@ msgstr "%(timestamp)s, %(username)s:"
 
 #: ckanext/activity/templates/package/activity_stream.html:15
 msgid "No activity found for this type"
-msgstr ""
+msgstr "Pro tento typ nebyla nalezena žádná aktivita"
 
 #: ckanext/activity/templates/package/activity_stream.html:17
 msgid "No activity found"
-msgstr ""
+msgstr "Nebyla nalezena žádná aktivita"
 
 #: ckanext/activity/templates/package/history.html:6
 #: ckanext/activity/templates/package/resource_history.html:10
@@ -4094,18 +4125,21 @@ msgid ""
 "match the old version of the metadata. <a href=\"%(url)s\">View the current "
 "version</a>."
 msgstr ""
+"Právě si prohlížíte starší verzi této datové sady. Datové soubory nemusí "
+"odpovídat staré verzi metadat. <a href=\"%(url)s\">Zobrazit aktuální "
+"verzi</a>."
 
 #: ckanext/activity/templates/snippets/activity_type_selector.html:16
 msgid "All activity types"
-msgstr ""
+msgstr "Všechny typy aktivit"
 
 #: ckanext/activity/templates/snippets/pagination.html:5
 msgid "Newer activities"
-msgstr ""
+msgstr "Novější aktivity"
 
 #: ckanext/activity/templates/snippets/pagination.html:6
 msgid "Older activities"
-msgstr ""
+msgstr "Starší aktivity"
 
 #: ckanext/activity/templates/snippets/activities/added_tag.html:6
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -4121,7 +4155,7 @@ msgstr "{actor} upravil(-a) organizaci {organization}"
 
 #: ckanext/activity/templates/snippets/activities/changed_package.html:7
 msgid "{actor} updated the {dataset_type} {dataset}"
-msgstr ""
+msgstr "{actor} aktualizoval {dataset_type} {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/changed_package.html:18
 #: ckanext/activity/templates/snippets/activities/new_package.html:18
@@ -4146,7 +4180,7 @@ msgstr "{actor} odstranil(-a) organizaci {organization}"
 
 #: ckanext/activity/templates/snippets/activities/deleted_package.html:8
 msgid "{actor} deleted the {dataset_type} {dataset}"
-msgstr ""
+msgstr "{actor} smazal {dataset_type} {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/deleted_resource.html:6
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
@@ -4178,7 +4212,7 @@ msgstr "{actor} vytvořil(-a) organizaci {organization}"
 
 #: ckanext/activity/templates/snippets/activities/new_package.html:7
 msgid "{actor} created the {dataset_type} {dataset}"
-msgstr ""
+msgstr "{actor} vytvořil {dataset_type} {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/new_resource.html:6
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
@@ -4231,7 +4265,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:6
 msgid "Set author email of "
-msgstr ""
+msgstr "Nastavení e-mailu autora"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:11
 #: ckanext/activity/templates/snippets/changes/author_email.html:29
@@ -4251,11 +4285,11 @@ msgstr ""
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:16
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:35
 msgid "to"
-msgstr ""
+msgstr "na"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:16
 msgid "( previously "
-msgstr ""
+msgstr "( předchozí"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:20
 #: ckanext/activity/templates/snippets/changes/license.html:21
@@ -4264,15 +4298,15 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:20
 #: ckanext/activity/templates/snippets/changes/resource_format.html:46
 msgid ")"
-msgstr ""
+msgstr ")"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:24
 msgid "Set author email of"
-msgstr ""
+msgstr "Nastavení e-mailu autora"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:36
 msgid "Removed author email from"
-msgstr ""
+msgstr "Odstraněný e-mail autora z"
 
 #: ckanext/activity/templates/snippets/changes/delete_resource.html:3
 msgid "Deleted resource {resource_link} from {pkg_link}"
@@ -4331,25 +4365,25 @@ msgstr "<q>{key}</q>"
 
 #: ckanext/activity/templates/snippets/changes/license.html:7
 msgid "Changed the license of "
-msgstr ""
+msgstr "Změna licence"
 
 #: ckanext/activity/templates/snippets/changes/license.html:17
 #: ckanext/activity/templates/snippets/changes/license.html:48
 msgid "( previously"
-msgstr ""
+msgstr "( předchozí"
 
 #: ckanext/activity/templates/snippets/changes/license.html:26
 #: ckanext/activity/templates/snippets/changes/license.html:41
 #: ckanext/activity/templates/snippets/changes/license.html:57
 msgid "Changed the license of"
-msgstr ""
+msgstr "Změna licence"
 
 #: ckanext/activity/templates/snippets/changes/license.html:36
 #: ckanext/activity/templates/snippets/changes/license.html:63
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:16
 #: ckanext/activity/templates/snippets/changes/resource_format.html:42
 msgid "(previously"
-msgstr ""
+msgstr "(předchozí"
 
 #: ckanext/activity/templates/snippets/changes/maintainer.html:5
 msgid ""
@@ -4369,22 +4403,22 @@ msgstr "Odebrán správce z {pkg_link}"
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:6
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:24
 msgid "Set maintainer email of"
-msgstr ""
+msgstr "Nastavení e-mailu správce"
 
 #: ckanext/activity/templates/snippets/changes/maintainer_email.html:36
 msgid "Removed maintainer email from"
-msgstr ""
+msgstr "Odstraněn e-mail správce z"
 
 #: ckanext/activity/templates/snippets/changes/name.html:6
 msgid "Moved"
-msgstr ""
+msgstr "Přesunuto"
 
 #: ckanext/activity/templates/snippets/changes/name.html:11
 #: ckanext/activity/templates/snippets/changes/url.html:11
 #: ckanext/activity/templates/snippets/group_changes/image_url.html:11
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:11
 msgid "from"
-msgstr ""
+msgstr "z "
 
 #: ckanext/activity/templates/snippets/changes/new_file.html:3
 msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
@@ -4509,11 +4543,11 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/resource_format.html:15
 #: ckanext/activity/templates/snippets/changes/resource_format.html:32
 msgid "Set format of resource"
-msgstr ""
+msgstr "Nastavení formátu zdroje"
 
 #: ckanext/activity/templates/snippets/changes/resource_format.html:25
 msgid "in"
-msgstr ""
+msgstr "v "
 
 #: ckanext/activity/templates/snippets/changes/resource_name.html:3
 msgid ""
@@ -4552,11 +4586,11 @@ msgstr "Název změněn na {title_link} (dříve {old_title})"
 #: ckanext/activity/templates/snippets/changes/url.html:6
 #: ckanext/activity/templates/snippets/changes/url.html:30
 msgid "Changed the source URL of"
-msgstr ""
+msgstr "Změna zdrojové adresy URL"
 
 #: ckanext/activity/templates/snippets/changes/url.html:23
 msgid "Removed the source URL from"
-msgstr ""
+msgstr "Odstranění zdrojové adresy URL z"
 
 #: ckanext/activity/templates/snippets/changes/version.html:5
 msgid ""
@@ -4578,28 +4612,33 @@ msgid ""
 "height2\"><blockquote>{old_description}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Aktualizace popisu {group_link} z <br class=\"line-"
+"height2\"><blockquote>{old_description}</blockquote> na <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/group_changes/description.html:13
 msgid ""
 "Updated description of {group_link} to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Aktualizace popisu {group_link} na <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/group_changes/description.html:20
 msgid "Removed description from {group_link}"
-msgstr ""
+msgstr "Odstranění popisu z {group_link}"
 
 #: ckanext/activity/templates/snippets/group_changes/image_url.html:6
 #: ckanext/activity/templates/snippets/group_changes/image_url.html:30
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:6
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:30
 msgid "Changed the image URL of"
-msgstr ""
+msgstr "Změna adresy URL obrázku"
 
 #: ckanext/activity/templates/snippets/group_changes/image_url.html:23
 #: ckanext/activity/templates/snippets/organization_changes/image_url.html:23
 msgid "Removed the image URL from"
-msgstr ""
+msgstr "Odstranění adresy URL obrázku z"
 
 #: ckanext/activity/templates/snippets/organization_changes/description.html:5
 msgid ""
@@ -4607,16 +4646,21 @@ msgid ""
 "height2\"><blockquote>{old_description}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Aktualizace popisu {org_link} z <br class=\"line-"
+"height2\"><blockquote>{old_description}</blockquote> na <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/organization_changes/description.html:13
 msgid ""
 "Updated description of {org_link} to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Aktualizace popisu {org_link} na <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/organization_changes/description.html:20
 msgid "Removed description from {org_link}"
-msgstr ""
+msgstr "Odstranění popisu z {org_link}"
 
 #: ckanext/activity/templates/user/dashboard.html:8
 #: ckanext/activity/templates/user/dashboard.html:18
@@ -4642,7 +4686,7 @@ msgstr "Prohledat seznam..."
 
 #: ckanext/activity/templates/user/snippets/followee_dropdown.html:26
 msgid "Search followee"
-msgstr ""
+msgstr "Vyhledávání sledujících"
 
 #: ckanext/activity/templates/user/snippets/followee_dropdown.html:49
 msgid "You are not following anything"
@@ -4668,6 +4712,8 @@ msgid ""
 "Your browser doesn't support <code>HTML5 audio</code>. Here is a <a "
 "href=\"%(res_url)s\" alt=\"audio url\">link to the audio</a> instead."
 msgstr ""
+"Váš prohlížeč nepodporuje <code>HTML5 audio</code>. Zde je <a "
+"href=\"%(res_url)s\" alt=\"audio url\">odkaz na zvukový záznam</a>."
 
 #: ckanext/datapusher/helpers.py:23
 msgid "Complete"
@@ -4749,7 +4795,7 @@ msgstr "Zdroj \"{0}\" nenalezen."
 
 #: ckanext/datastore/logic/action.py:334
 msgid "Resource/Alias \"{0}\" was not found."
-msgstr ""
+msgstr "Prostředek/Alias \"{0}\" nebyl nalezen."
 
 #: ckanext/datastore/logic/auth.py:21
 msgid "User {0} not authorized to update resource {1}"
@@ -4873,74 +4919,76 @@ msgstr "Tabulka"
 #: ckanext/datatablesview/public/datatablesview.js:419
 #: ckanext/datatablesview/public/datatablesview.js:812
 msgid "Print"
-msgstr ""
+msgstr "Tisk"
 
 #: ckanext/datatablesview/public/datatablesview.js:606
 msgid "seconds"
-msgstr ""
+msgstr "sekund"
 
 #: ckanext/datatablesview/public/datatablesview.js:607
 msgid "Double-click to reset filters"
-msgstr ""
+msgstr "Dvojklikem obnovíte filtry"
 
 #: ckanext/datatablesview/public/datatablesview.js:693
 msgid "Table/List toggle"
-msgstr ""
+msgstr "Přepínání tabulky/seznamu"
 
 #: ckanext/datatablesview/public/datatablesview.js:713
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Kopírování do schránky"
 
 #: ckanext/datatablesview/public/datatablesview.js:727
 msgid "Toggle column visibility"
-msgstr ""
+msgstr "Přepínání viditelnosti sloupců"
 
 #: ckanext/datatablesview/public/datatablesview.js:733
 msgid "Restore visibility"
-msgstr ""
+msgstr "Obnovení viditelnosti"
 
 #: ckanext/datatablesview/public/datatablesview.js:736
 msgid "Show all"
-msgstr ""
+msgstr "Zobrazit vše"
 
 #: ckanext/datatablesview/public/datatablesview.js:740
 msgid "Show none"
-msgstr ""
+msgstr "Nezobrazovat nic"
 
 #: ckanext/datatablesview/public/datatablesview.js:750
 msgid "Filtered"
-msgstr ""
+msgstr "Filtrované"
 
 #: ckanext/datatablesview/public/datatablesview.js:765
 msgid "Filtered download"
-msgstr ""
+msgstr "Stažení filtrovaného"
 
 #: ckanext/datatablesview/public/datatablesview.js:828
 #: ckanext/datatablesview/public/datatablesview.js:833
 msgid "Share current view"
-msgstr ""
+msgstr "Sdílet aktuální zobrazení"
 
 #: ckanext/datatablesview/public/datatablesview.js:833
 msgid "Copied deeplink to clipboard"
-msgstr ""
+msgstr "Hluboký odkaz zkopírovaný do schránky"
 
 #: ckanext/datatablesview/public/datatablesview.js:881
 msgid "Sort"
-msgstr ""
+msgstr "Seřadit"
 
 #: ckanext/datatablesview/public/datatablesview.js:882
 msgid ""
 "Press SHIFT key while clicking on\n"
 "sort control for multi-column sort"
 msgstr ""
+"Stiskněte klávesu SHIFT a zároveň \n"
+"klikněte na třídění více sloupců"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "List view/Responsive display"
-msgstr ""
+msgstr "Zobrazení seznamu / Responzivního zobrazení"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:13
 msgid "Ellipsis length"
-msgstr ""
+msgstr "Délka elipsy"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid ""
@@ -4948,10 +4996,13 @@ msgid ""
 "zero for no truncation, and for data to be wrapped at column name width "
 "instead."
 msgstr ""
+"Délka, při které budou data zkrácena elipsou pro zobrazení. Nastavte na "
+"nulu, aby nedošlo k žádnému zkrácení a data se místo toho obalila na šířku "
+"názvu sloupce."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:22
 msgid "Date format"
-msgstr ""
+msgstr "Formát data"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:25
 msgid ""
@@ -4959,6 +5010,10 @@ msgid ""
 "href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
 " cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown."
 msgstr ""
+"Formát data Moment.js, který se má použít pro zobrazení data (viz <a "
+"href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
+" cheatsheet</a>). Pokud je <b>NONE</b>, zobrazí se surová hodnota časového "
+"razítka."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:29
 msgid "Show Columns"
@@ -4966,11 +5021,11 @@ msgstr "Zobrazit sloupce"
 
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:56
 msgid "Refit"
-msgstr ""
+msgstr "Refit"
 
 #: ckanext/example_humanizer/plugin.py:28
 msgid "Create new {object_type}"
-msgstr ""
+msgstr "Vytvořit nový {object_type}"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
@@ -5160,42 +5215,42 @@ msgstr "Neplatné URL."
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Celkový počet datových sad"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Celkem datových sad"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:165
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Revizí datových sad za týden"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Všechny revize datových sad"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Nové datové sady"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:166
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "Nejčastěji upravované datové sady"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:64
 msgid "Number of edits"
-msgstr ""
+msgstr "Počet úprav"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "No edited datasets"
-msgstr ""
+msgstr "Žádné upravené datové sady"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:86
 #: ckanext/stats/templates/ckanext/stats/index.html:167
@@ -5235,7 +5290,7 @@ msgstr "Menu statistiky"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:164
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Celkový počet datových sad"
 
 #: ckanext/textview/plugin.py:64 ckanext/textview/plugin.py:66
 msgid "Text"

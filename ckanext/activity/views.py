@@ -810,6 +810,10 @@ def user_activity(id: str) -> str:
 
 @bp.route("/dashboard/", strict_slashes=False)
 def dashboard() -> str:
+    if tk.current_user.is_anonymous:
+        tk.h.flash_error(tk._(u'Not authorized to see this page'))
+        return tk.h.redirect_to(u'user.login')
+
     context = cast(
         Context,
         {

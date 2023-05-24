@@ -3,7 +3,7 @@
 import datetime
 import sqlalchemy
 import ckan.model.meta as meta
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Optional
 from typing_extensions import Self
 
 dashboard_table = sqlalchemy.Table('dashboard', meta.metadata,
@@ -30,7 +30,7 @@ class Dashboard(object):
         self.email_last_sent = datetime.datetime.utcnow()
 
     @classmethod
-    def get(cls, user_id: str) -> Self:
+    def get(cls, user_id: str) -> Optional[Self]:
         '''Return the Dashboard object for the given user_id.
 
         If there's no dashboard row in the database for this user_id, a fresh
@@ -39,12 +39,6 @@ class Dashboard(object):
         '''
         query = meta.Session.query(Dashboard)
         query = query.filter(Dashboard.user_id == user_id)
-        try:
-            row = query.one()
-        except NoResultFound:
-            row = Dashboard(user_id)
-            meta.Session.add(row)
-            meta.Session.commit()
-        return row
+        return query.first()
 
 meta.mapper(Dashboard, dashboard_table)
