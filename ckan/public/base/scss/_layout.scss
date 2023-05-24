@@ -4,7 +4,7 @@
     position: relative;
     min-height: 300px;
     background-color: #fff;
-    @include media-breakpoint-up(sm) {
+    @include media-breakpoint-up(md) {
         &:before {
             content: '';
             display: block;

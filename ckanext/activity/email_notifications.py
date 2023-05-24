@@ -241,25 +241,26 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
     # FIXME: We are accessing model from lib here but I'm not sure what
     # else to do unless we add a get_email_last_sent() logic function which
     # would only be needed by this lib.
-    email_last_sent = model.Dashboard.get(user["id"]).email_last_sent
-    activity_stream_last_viewed = model.Dashboard.get(
-        user["id"]
-    ).activity_stream_last_viewed
-    since = max(
-        email_notifications_since, email_last_sent, activity_stream_last_viewed
-    )
+    dashboard = model.Dashboard.get(user["id"])
+    if dashboard:
+        email_last_sent = dashboard.email_last_sent
+        activity_stream_last_viewed = dashboard.activity_stream_last_viewed
+        since = max(
+            email_notifications_since,
+            email_last_sent,
+            activity_stream_last_viewed,
+        )
 
-    notifications = get_notifications(user, since)
-    # TODO: Handle failures from send_email_notification.
-    for notification in notifications:
-        send_notification(user, notification)
+        notifications = get_notifications(user, since)
+        # TODO: Handle failures from send_email_notification.
+        for notification in notifications:
+            send_notification(user, notification)
 
-    # FIXME: We are accessing model from lib here but I'm not sure what
-    # else to do unless we add a update_email_last_sent()
-    # logic function which would only be needed by this lib.
-    dash = model.Dashboard.get(user["id"])
-    dash.email_last_sent = datetime.datetime.utcnow()
-    model.repo.commit()
+        # FIXME: We are accessing model from lib here but I'm not sure what
+        # else to do unless we add a update_email_last_sent()
+        # logic function which would only be needed by this lib.
+        dashboard.email_last_sent = datetime.datetime.utcnow()
+        model.repo.commit()
 
 
 def get_and_send_notifications_for_all_users() -> None:

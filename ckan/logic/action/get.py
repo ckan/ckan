@@ -759,7 +759,7 @@ def license_list(context: Context, data_dict: DataDict) -> ActionResult.LicenseL
 
     license_register = model.Package.get_license_register()
     licenses = license_register.values()
-    licenses = [l.as_dict() for l in licenses]
+    licenses = [l.license_dictize() for l in licenses]
     return licenses
 
 

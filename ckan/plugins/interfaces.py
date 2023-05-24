@@ -17,7 +17,8 @@ from flask.wrappers import Response
 from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
-    PUploader, PResourceUploader, Schema, SignalMapping, Validator)
+    PUploader, PResourceUploader, Schema, SignalMapping, Validator,
+    CKANApp)
 
 if TYPE_CHECKING:
     import click
@@ -98,8 +99,7 @@ class IMiddleware(Interface):
     one for the Pylons stack and one for the Flask stack (eventually
     there will be only the Flask stack).
     '''
-    def make_middleware(self, app: 'CKANFlask',
-                        config: 'CKANConfig') -> 'CKANFlask':
+    def make_middleware(self, app: CKANApp, config: 'CKANConfig') -> CKANApp:
         u'''Return an app configured with this middleware
 
         When called on the Flask stack, this method will get the actual Flask
@@ -270,7 +270,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture-o',
+             'icon': 'image',
              'always_available': True,
              'iframed': False,
              }

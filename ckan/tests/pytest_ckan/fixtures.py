@@ -237,7 +237,7 @@ def clean_db(reset_db):
     reset_db()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def migrate_db_for():
     """Apply database migration defined by plugin.
 

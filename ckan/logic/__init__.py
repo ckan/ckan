@@ -874,7 +874,8 @@ def fresh_context(
         we want a clean version with minimum fields """
     new_context = {
         k: context[k] for k in (
-            'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+            'model', 'session', 'user', 'auth_user_obj',
+            'ignore_auth', 'defer_commit',
         ) if k in context
     }
     new_context = cast(Context, new_context)

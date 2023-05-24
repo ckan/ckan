@@ -401,6 +401,42 @@ class TestResourceCreate:
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_create", **data_dict)
 
+    def test_invalid_characters_in_id(self):
+
+        data_dict = {
+            "id": "../../nope.txt",
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", **data_dict)
+
+    def test_id_too_long(self):
+
+        data_dict = {
+            "id": "x" * 111,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", **data_dict)
+
+    def test_id_already_exists(self):
+        data_dict = {
+            'id': 'wont-be-fooled-again',
+            'package_id': factories.Dataset()['id'],
+        }
+        helpers.call_action('resource_create', **data_dict)
+
+        data_dict['package_id'] = factories.Dataset()['id']
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_create', **data_dict)
+
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()
         data_dict = {"package_id": dataset["id"]}
@@ -1216,6 +1252,22 @@ class TestUserCreate(object):
         assert err.value.error_dict == {
             "password": ["Your password must be 8 characters or longer"]
         }
+
+    def test_user_create_defer_commit(self):
+        stub = factories.User.stub()
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        context = {"defer_commit": True}
+
+        helpers.call_action("user_create", context=context, **user_dict)
+
+        model.Session.close()
+
+        with pytest.raises(logic.NotFound):
+            helpers.call_action("user_show", id=user_dict["name"])
 
 
 @pytest.mark.usefixtures("clean_db")
