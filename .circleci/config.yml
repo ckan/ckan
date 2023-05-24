@@ -89,7 +89,7 @@ defaults:
 jobs:
   test-python-3:
     docker:
-      - image: python:3-buster
+      - image: python:3.9-buster
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
