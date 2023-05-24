@@ -287,6 +287,9 @@ class ResourceUpload(object):
             resource['url_type'] = ''
 
     def get_directory(self, id: str) -> str:
+        if self.storage_path is None:
+            raise TypeError("storage_path is not defined")
+
         real_storage = os.path.realpath(self.storage_path)
         directory = os.path.join(real_storage, id[0:3], id[3:6])
         if directory != os.path.realpath(directory):
