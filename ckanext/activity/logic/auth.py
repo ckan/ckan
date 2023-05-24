@@ -152,11 +152,16 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
         user = context.get('user')
         if not authz.is_sysadmin(user):
             labels = get_permission_labels()
-            user_permission_labels = labels.get_user_activity_labels(context['auth_user_obj'])
+            user_permission_labels = labels.get_user_activity_labels(
+                context['auth_user_obj'])
             activity.permission_labels = labels.get_activity_labels(activity)
 
-            if not any(permission in activity.permission_labels for permission in user_permission_labels):
-                return {'success': False, 'msg': tk._("Unauthorized to view activity data")}
+            if not any(permission in activity.permission_labels
+                       for permission in user_permission_labels):
+                return {
+                    'success': False,
+                    'msg': tk._("Unauthorized to view activity data")
+                }
     else:
         return {"success": False, "msg": "object_type not recognized"}
     return activity_list(

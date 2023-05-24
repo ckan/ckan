@@ -352,7 +352,8 @@ def package_activity_list(
 
     # Filter based on user permissions
     if user_permission_labels:
-        q = q.filter(Activity.permission_labels.op('&&')(user_permission_labels))
+        q = q.filter(Activity.permission_labels.op(
+            '&&')(user_permission_labels))
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -478,7 +479,6 @@ def group_activity_list(
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None
 ) -> list[Activity]:
-
     """Return the given group's public activity stream.
 
     Returns activities where the given group or one of its datasets is the
