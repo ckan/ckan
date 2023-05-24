@@ -9,11 +9,14 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.10.1 2023-05-XX
+v.2.10.1 2023-05-24
 ===================
 
 Bug fixes
 ---------
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+  potential path traversal, remote code execution, information disclosure and
+  DOS vulnerabilities via crafted resource ids.
 - Redirect on password reset form error now maintains root_path and locale (`#7006 <https://github.com/ckan/ckan/pull/7006>`_)
 - Fix display of Popular snippet (`#7205 <https://github.com/ckan/ckan/pull/7205>`_)
 - Fixes missing CSRF token when trying to remove a group from a package. (`#7417 <https://github.com/ckan/ckan/pull/7417>`_)
@@ -33,6 +36,25 @@ Bug fixes
 - Fix promote sysadmin layout (`#7476 <https://github.com/ckan/ckan/pull/7476>`_)
 - Fix markdown macros regression (`#7485 <https://github.com/ckan/ckan/pull/7485>`_)
 - Set session scope for migrate_db_for fixture (`#7563 <https://github.com/ckan/ckan/pull/7563>`_)
+
+Migration notes
+---------------
+- The default storage backend for the session data used by the Beaker library
+  uses the Python ``pickle`` module, which is considered unsafe. While there is
+  no direct known vulnerability using this vector, a safer alternative is to
+  store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
+  This will probably be the default behaviour in future CKAN versions::
+
+	# ckan.ini
+	beaker.session.type = cookie
+    beaker.session.data_serializer = json
+	beaker.session.validate_key = CHANGE_ME
+
+	beaker.session.httponly = True
+	beaker.session.secure = True
+	beaker.session.samesite = Lax
+    # or Strict, depending on your setup
+
 
 v.2.10.0 2023-02-15
 ===================
