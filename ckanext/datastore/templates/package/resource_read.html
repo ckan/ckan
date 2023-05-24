@@ -35,3 +35,8 @@
   {% endif %}
   {{ super() }}
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% asset "ckanext_datastore/datastore" %}
+{% endblock %}

@@ -367,12 +367,6 @@ def url_for(*args: Any, **kw: Any) -> str:
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
 
-    # All API URLs generated should provide the version number
-    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
-        ver = kw.get('ver')
-        if not ver:
-            raise Exception('API URLs must specify the version (eg ver=3)')
-
     _auto_flask_context = _get_auto_flask_context()
     try:
         if _auto_flask_context:
