@@ -1008,7 +1008,7 @@ Default value: ``HS256``
 Algorithm to sign the token with, e.g. "ES256", "RS256"
 
 User Session Settings
-------------------
+---------------------
 
 .. _beaker.session.type:
 
