@@ -1,8 +1,10 @@
 # encoding: utf-8
+import pytest
 import six
 
 from werkzeug.datastructures import FileStorage
 
+from ckan.logic import ValidationError
 import ckan.lib.uploader
 from ckan.lib.uploader import ResourceUpload, Upload
 
@@ -61,6 +63,25 @@ class TestInitResourceUpload(object):
 
         assert res_upload.filesize == 0
         assert res_upload.filename == u'data.csv'
+
+    def test_resource_with_dodgy_id(
+            self, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
+
+        resource_id = u'aaabbb/../../../../nope.txt'
+        res = {u'clear_upload': u'',
+               u'format': u'PNG',
+               u'url': u'https://example.com/data.csv',
+               u'description': u'',
+               u'upload': FileStorage(filename=u'data.csv', content_type=u'CSV'),
+               u'package_id': u'dataset1',
+               u'id': resource_id,
+               u'name': u'data.csv'}
+        res_upload = ResourceUpload(res)
+
+        with pytest.raises(ValidationError):
+            res_upload.upload(resource_id)
 
 
 class TestUpload(object):

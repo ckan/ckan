@@ -12,6 +12,8 @@ import json
 from six import string_types, iteritems
 from six.moves.urllib.parse import urlparse
 
+from sqlalchemy.orm.exc import NoResultFound
+
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
 import ckan.lib.helpers as h
@@ -188,6 +190,29 @@ def package_id_does_not_exist(value, context):
         raise Invalid(_('Dataset id already exists'))
     return value
 
+
+def resource_id_does_not_exist(key, data, errors, context):
+    session = context['session']
+    model = context['model']
+
+    if data[key] is missing:
+        return
+    resource_id = data[key]
+    assert key[0] == 'resources', ('validator depends on resource schema '
+                                   'validating as part of package schema')
+    package_id = data.get(('id',))
+    query = session.query(model.Resource.package_id).filter(
+        model.Resource.id == resource_id,
+        model.Resource.state != State.DELETED,
+    )
+    try:
+        [parent_id] = query.one()
+    except NoResultFound:
+        return
+    if parent_id != package_id:
+        errors[key].append(_('Resource id already exists.'))
+
+
 def package_name_exists(value, context):
 
     model = context['model']
@@ -227,6 +252,15 @@ def resource_id_exists(value, context):
     session = context['session']
     if not session.query(model.Resource).get(value):
         raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    return value
+
+
+def resource_id_validator(value):
+    pattern = re.compile("[^0-9a-zA-Z _-]")
+    if pattern.search(value):
+        raise Invalid(_('Invalid characters in resource id'))
+    if len(value) < 7 or len(value) > 100:
+        raise Invalid(_('Invalid length for resource id'))
     return value
 
 

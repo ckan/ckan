@@ -660,6 +660,23 @@ class TestDatasetUpdate(object):
         assert resources_[1]["url"] == "http://datahub.io/index.json"
         assert resources_[1]["position"] == 1
 
+    def test_invalid_characters_in_resource_id(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "package_update",
+                id=dataset["id"],
+                resources=[
+                    {
+                        "id": "../../nope.txt",
+                        "url": "http://data",
+                        "name": "A nice resource",
+                    },
+                ],
+            )
+
     def test_tags(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -1924,6 +1941,21 @@ class TestDatasetRevise(object):
             update__resources__extend=[{'name': 'new resource', 'url': 'http://example.com'}],
         )
         assert response['package']['resources'][0]['name'] == 'new resource'
+
+    def test_revise_invalid_resource_id(self):
+        dataset = factories.Dataset()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                'package_revise',
+                match={'id': dataset['id']},
+                update__resources__extend=[
+                    {
+                        'id': '../../nope.txt',
+                        'name': 'new resource',
+                        'url': 'http://example.com'
+                    }
+                ],
+            )
 
     def test_revise_resource_by_index(self):
         dataset = factories.Dataset(resources=[{'url': 'http://example.com'}])

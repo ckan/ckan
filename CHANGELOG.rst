@@ -9,6 +9,35 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.9.9 2023-05-24
+==================
+
+Bugfixes
+--------
+
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+  potential path traversal, remote code execution, information disclosure and
+  DOS vulnerabilities via crafted resource ids.
+
+Migration notes
+---------------
+- The default storage backend for the session data used by the Beaker library
+  uses the Python ``pickle`` module, which is considered unsafe. While there is
+  no direct known vulnerability using this vector, a safer alternative is to
+  store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
+  This will probably be the default behaviour in future CKAN versions::
+
+	# ckan.ini
+	beaker.session.type = cookie
+    beaker.session.data_serializer = json
+	beaker.session.validate_key = CHANGE_ME
+
+	beaker.session.httponly = True
+	beaker.session.secure = True
+	beaker.session.samesite = Lax
+    # or Strict, depending on your setup
+
+
 v.2.9.8 2023-02-15
 ==================
 
