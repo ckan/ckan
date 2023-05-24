@@ -18,6 +18,8 @@ Bugfixes
 - `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
   potential path traversal, remote code execution, information disclosure and
   DOS vulnerabilities via crafted resource ids.
+- Names are now quoted in From and To addresses in emails, meaning that site titles with
+  commas no longer break email clients. (`#7508 <https://github.com/ckan/ckan/pull/7508>`_)
 
 Migration notes
 ---------------

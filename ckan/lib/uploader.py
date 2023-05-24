@@ -294,7 +294,8 @@ class ResourceUpload(object):
         real_storage = os.path.realpath(self.storage_path)
         directory = os.path.join(real_storage, id[0:3], id[3:6])
         if directory != os.path.realpath(directory):
-            raise logic.ValidationError({'upload': ['Invalid storage directory']})
+            raise logic.ValidationError(
+                {'upload': ['Invalid storage directory']})
         return directory
 
     def get_path(self, id):
