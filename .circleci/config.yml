@@ -29,7 +29,7 @@ defaults:
         npm install
         ;;
       esac
-      apt install -y postgresql-client solr-jetty openjdk-8-jdk
+      apt install -y postgresql-client solr-jetty openjdk-11-jdk
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
     run: |
