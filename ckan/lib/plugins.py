@@ -667,6 +667,8 @@ class DefaultPermissionLabels(object):
     def get_activity_labels(self, activity_obj: Activity) -> list[str]:
         dataset = model.Package.get(activity_obj.object_id)
         labels = []
+        if not dataset:
+            return labels
 
         if dataset.state == u'active' and not dataset.private and not activity_obj.data['package']['private']:
             labels.append(u'public')
