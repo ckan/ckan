@@ -2252,8 +2252,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['idx_size'] = idxsize_results.one()[0]
 
             # all the aliases for this resource
-            alias_sql = sa.text(u'''
-                SELECT name FROM "_table_metadata" WHERE alias_of = {literal_string(id)}
+            alias_sql = sa.text(f'''
+                SELECT name FROM "_table_metadata"
+                WHERE alias_of = {literal_string(id)}
             ''')
             with engine.connect() as conn:
                 alias_results = conn.execute(alias_sql)
