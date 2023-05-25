@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+
+import itertools
+
 from typing_extensions import TypeAlias
 
 from sqlalchemy.engine.base import Engine
@@ -388,7 +391,7 @@ def _where_clauses(
     filters = data_dict.get('filters', {})
     clauses: WhereClauses = []
 
-    idx_gen = iter(range(999_999))
+    idx_gen = itertools.count()
 
     for field, value in filters.items():
         if field not in fields_types:
@@ -1245,7 +1248,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         ', '.join(non_existing_field_names))]
                 })
 
-            idx_gen = iter(range(999_999))
+            idx_gen = itertools.count()
 
             used_fields = [field for field in fields
                            if field['id'] in record]
