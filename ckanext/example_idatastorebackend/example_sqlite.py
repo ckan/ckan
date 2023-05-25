@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from sqlalchemy import create_engine, text
-
+import sqlalchemy as sa
 
 from ckanext.datastore.backend import DatastoreBackend
 
@@ -18,24 +17,20 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def execute(self, sql: str, params: dict[str, Any] | None = None):
         with self._get_engine().begin() as conn:
-            return conn.execute(text(sql), params)
+            return conn.execute(sa.text(sql), params)
 
     def _get_engine(self):
         if not self._engine:
-            self._engine = create_engine(self.write_url)
+            self._engine = sa.create_engine(self.write_url)
         return self._engine
 
     def _insert_records(self, table, records):
         if len(records):
             for record in records:
-                self.execute(
-                    'INSERT INTO "{0}"({1}) VALUES({2})'.format(
-                        table,
-                        u', '.join(record.keys()),
-                        u', '.join([f":{key}" for key in record])
-                    ),
-                    record
-                )
+                sql = sa.insert(
+                    sa.table(table, *map(sa.column, record))
+                ).values(record)
+                self.execute(sql)
 
     def configure(self, config):
         self.write_url = config.get(
@@ -46,13 +41,14 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
     def create(self, context, data_dict):
         columns = str(u', '.join(
-            [e['id'] + u' text' for e in data_dict['fields']]))
-        self.execute(
+            [str(sa.column(e['id'])) + " text" for e in data_dict['fields']]))
+
+        self.execute(sa.text(
             'CREATE TABLE IF NOT EXISTS "{name}"({columns});'.format(
-                name=data_dict['resource_id'],
+                name=sa.table(data_dict['resource_id']),
                 columns=columns
             )
-        )
+        ))
         self._insert_records(data_dict['resource_id'], data_dict['records'])
         return data_dict
 

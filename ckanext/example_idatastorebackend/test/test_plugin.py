@@ -3,7 +3,7 @@
 
 from unittest.mock import patch, Mock, call
 import pytest
-
+import sqlalchemy as sa
 from ckan.common import config
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
@@ -61,37 +61,42 @@ class TestExampleIDatastoreBackendPlugin():
         fetchall = execute().fetchall
         execute.reset_mock()
 
+        COLUMN = "a;\"\' x"
         DatastoreExampleSqliteBackend.resource_fields = Mock(
-            return_value={u"meta": {}, u"schema": {u"a": u"text"}}
+            return_value={u"meta": {}, u"schema": {COLUMN: u"text"}}
         )
         records = [
-            {u"a": u"x"},
-            {u"a": u"y"},
-            {u"a": u"z"},
+            {COLUMN: u"x"},
+            {COLUMN: u"y"},
+            {COLUMN: u"z"},
         ]
         DatastoreBackend.set_active_backend(config)
         res = factories.Resource(url_type=u"datastore")
         helpers.call_action(
             u"datastore_create",
             resource_id=res["id"],
-            fields=[{u"id": u"a"}],
+            fields=[{u"id": COLUMN}],
             records=records,
         )
         # check, create and 3 inserts
         assert 4 == execute.call_count
-        insert_query = u'INSERT INTO "{0}"(a) VALUES(:a)'.format(res["id"])
-        execute.assert_has_calls(
-            [
-                call(
-                    'CREATE TABLE IF NOT EXISTS "{0}"(a text);'.format(
-                        res["id"]
-                    )
-                ),
-                call(insert_query, {"a": "x"}),
-                call(insert_query, {"a": "y"}),
-                call(insert_query, {"a": "z"}),
-            ]
-        )
+        insert_query = sa.insert(sa.table(
+            res["id"], sa.column(COLUMN)
+        ))
+
+        call_args = [
+            str(call.args[0])
+            for call in execute.call_args_list
+        ]
+        assert call_args == [
+            'CREATE TABLE IF NOT EXISTS "{}"({} text);'.format(
+                res["id"],
+                sa.column(COLUMN)
+            ),
+            str(insert_query.values({COLUMN: "x"})),
+            str(insert_query.values({COLUMN: "y"})),
+            str(insert_query.values({COLUMN: "z"})),
+        ]
 
         execute.reset_mock()
         fetchall.return_value = records
