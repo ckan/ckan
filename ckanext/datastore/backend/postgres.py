@@ -2205,7 +2205,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             # count of rows in table
             meta_sql = sa.text(
-                u'SELECT count(_id) FROM "{0}"'.format(id))
+                u'SELECT count(_id) FROM {0}'.format(identifier(id)))
             with engine.connect() as conn:
                 meta_results = conn.execute(meta_sql)
             info['meta']['count'] = meta_results.one()[0]
