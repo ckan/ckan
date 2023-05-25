@@ -5,7 +5,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 from typing import Any, Optional, cast, List, Tuple
 
-from flask import Blueprint, make_response, abort, redirect, request
+from flask import Blueprint, make_response, redirect, request
 
 import ckan.model as model
 import ckan.logic as logic
@@ -21,19 +21,6 @@ CACHE_PARAMETERS = [u'__cache', u'__no_cache__']
 
 
 home = Blueprint(u'home', __name__)
-
-
-@home.before_request
-def before_request() -> None:
-    u'''set context and check authorization'''
-    try:
-        context = cast(Context, {
-            u'model': model,
-            u'user': current_user.name,
-            u'auth_user_obj': current_user})
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        abort(403)
 
 
 def index() -> str:

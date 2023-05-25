@@ -110,6 +110,11 @@ def update_config() -> None:
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
+    for option in CONFIG_FROM_ENV_VARS:
+        from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
+        if from_env:
+            config[option] = from_env
+
     config_declaration.setup()
     config_declaration.make_safe(config)
     config_declaration.normalize(config)
@@ -128,11 +133,6 @@ def update_config() -> None:
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
-
-    for option in CONFIG_FROM_ENV_VARS:
-        from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
-        if from_env:
-            config[option] = from_env
 
     _, errors = config_declaration.validate(config)
     if errors:

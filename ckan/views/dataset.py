@@ -210,18 +210,7 @@ def _get_search_details() -> dict[str, Any]:
 def search(package_type: str) -> str:
     extra_vars: dict[str, Any] = {}
 
-    try:
-        context = cast(Context, {
-            u'model': model,
-            u'user': current_user.name,
-            u'auth_user_obj': current_user
-        })
-        check_access(u'site_read', context)
-    except NotAuthorized:
-        base.abort(403, _(u'Not authorized to see this page'))
-
-    # unicode format (decoded from utf8)
-    extra_vars[u'q'] = q = request.args.get(u'q', u'')
+    extra_vars['q'] = q = request.args.get('q', '')
 
     extra_vars['query_error'] = False
     page = h.get_page_number(request.args)

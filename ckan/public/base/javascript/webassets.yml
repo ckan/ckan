@@ -36,7 +36,6 @@ ckan:
     - modules/slug-preview.js
     - modules/basic-form.js
     - modules/confirm-action.js
-    - modules/api-info.js
     - modules/autocomplete.js
     - modules/custom-fields.js
     - modules/data-viewer.js

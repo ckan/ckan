@@ -65,6 +65,8 @@ this.ckan.module('api-info', function (jQuery) {
         module.modal = jQuery(html);
         module.modal.find('.modal-header').append('<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>');
         module.modal.modal().appendTo(sandbox.body);
+        module.modal.modal('show');
+        hljs.highlightAll();
       });
     },
 
