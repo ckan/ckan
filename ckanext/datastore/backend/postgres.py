@@ -946,7 +946,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
                             index)]
                 })
         fields_string = u', '.join(
-            ['(("{0}").json::text)'.format(field)
+            ['(({0}).json::text)'.format(identifier(field))
                 if field in json_fields else
                 identifier(field)
                 for field in index_fields])
