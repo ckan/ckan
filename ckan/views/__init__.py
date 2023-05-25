@@ -8,7 +8,7 @@ from flask.wrappers import Response
 
 import ckan.model as model
 import ckan.lib.api_token as api_token
-from ckan.common import g, request, config, current_user, logout_user
+from ckan.common import g, request, config, current_user, logout_user, session
 from ckan.lib.i18n import get_locales_from_config
 import ckan.plugins as p
 
@@ -91,8 +91,11 @@ def identify_user() -> Optional[Response]:
             except AttributeError:
                 continue
 
-    # do not overwrite g.user if the extensions provide it
-    if not getattr(g, u'user', None):
+    # these two values should be set by the extensions
+    if hasattr(g, "_temp_login") and hasattr(g, "user"):
+        if g._temp_login:
+            set_temp_user(g.user)
+    else:
         # sets the g.user/g.userobj for extensions
         g.user = current_user.name
         g.userobj = '' if current_user.is_anonymous else current_user
@@ -190,3 +193,27 @@ def set_ckan_current_url(environ: Any) -> None:
         environ[u'CKAN_CURRENT_URL'] = u'%s?%s' % (path_info, qs)
     else:
         environ[u'CKAN_CURRENT_URL'] = path_info
+
+
+# Custom function to perform temporary login
+def set_temp_user(user_id: str) -> None:
+    from flask import current_app
+    from flask_wtf.csrf import generate_csrf
+
+    if not getattr(g, u'userobj', None):
+        userobj = model.User.by_name(user_id)
+        g.userobj = userobj
+
+    # hack for flask-login
+    g._login_user = g.userobj
+
+    session['temp_user_id'] = user_id
+    session['_id'] = current_app.login_manager._session_identifier_generator() # type: ignore
+    generate_csrf()
+
+
+# Request hook to log out the temporary user after the request
+def clear_temp_user(response: Response) -> Response:
+    session.clear()
+    g._temp_login = False
+    return response

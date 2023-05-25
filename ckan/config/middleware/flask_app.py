@@ -54,6 +54,7 @@ from ckan.views import (identify_user,
                         handle_i18n,
                         set_ckan_current_url,
                         _get_user_for_apitoken,
+                        clear_temp_user,
                         )
 from ckan.types import CKANApp, Config, Response
 
@@ -408,6 +409,10 @@ def ckan_after_request(response: Response) -> Response:
 
     # Set Cache Control headers
     response = set_cache_control_headers_for_response(response)
+
+    if hasattr(g, "_temp_login"):
+        if g._temp_login:
+            response = clear_temp_user(response)
 
     r_time = time.time() - g.__timer
     url = request.environ['PATH_INFO']
