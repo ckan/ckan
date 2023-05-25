@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 
-from unittest.mock import patch, Mock, call
+from unittest.mock import patch, Mock
 import pytest
 import sqlalchemy as sa
 from ckan.common import config
