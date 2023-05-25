@@ -2062,8 +2062,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             context["connection"] = conn
             # check if table exists
             if 'filters' not in data_dict:
-                conn.execute(sa.text('DROP TABLE "{0}" CASCADE'.format(
-                    data_dict['resource_id']
+                conn.execute(sa.text('DROP TABLE {0} CASCADE'.format(
+                    identifier(data_dict['resource_id'])
                 )))
             else:
                 delete_data(context, data_dict)
