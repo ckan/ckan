@@ -2211,20 +2211,20 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['count'] = meta_results.one()[0]
 
             # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
-            tabletype_sql = sa.text(u'''
+            tabletype_sql = sa.text(f'''
                 SELECT table_type FROM INFORMATION_SCHEMA.TABLES
-                WHERE table_name = '{0}'
-                '''.format(id))
+                WHERE table_name = {literal_string(id)}
+                ''')
             with engine.connect() as conn:
                 tabletype_results = conn.execute(tabletype_sql)
             info['meta']['table_type'] = \
                 tabletype_results.one()[0]
             # MATERIALIZED VIEWS show as BASE TABLE, so
             # we check pg_matviews
-            matview_sql = sa.text(u'''
+            matview_sql = sa.text(f'''
                 SELECT count(*) FROM pg_matviews
-                WHERE matviewname = '{0}'
-                '''.format(id))
+                WHERE matviewname = {literal_string(id)}
+                ''')
             with engine.connect() as conn:
                 matview_results = conn.execute(matview_sql)
             if matview_results.one()[0]:
@@ -2232,7 +2232,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             # SIZE - size of table in bytes
             size_sql = sa.text(
-                u"SELECT pg_relation_size('{0}')".format(id))
+                f"SELECT pg_relation_size({literal_string(id)})")
             with engine.connect() as conn:
                 size_results = conn.execute(size_sql)
             info['meta']['size'] = size_results.one()[0]
@@ -2246,15 +2246,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             # IDXSIZE - size of all indices for table in bytes
             idxsize_sql = sa.text(
-                u"SELECT pg_indexes_size('{0}')".format(id))
+                f"SELECT pg_indexes_size({literal_string(id)})")
             with engine.connect() as conn:
                 idxsize_results = conn.execute(idxsize_sql)
             info['meta']['idx_size'] = idxsize_results.one()[0]
 
             # all the aliases for this resource
             alias_sql = sa.text(u'''
-                SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
-            '''.format(id))
+                SELECT name FROM "_table_metadata" WHERE alias_of = {literal_string(id)}
+            ''')
             with engine.connect() as conn:
                 alias_results = conn.execute(alias_sql)
             aliases = []
@@ -2265,7 +2265,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             # get the data dictionary for the resource
             data_dictionary = datastore_helpers.datastore_dictionary(id)
 
-            schema_sql = sa.text(u'''
+            schema_sql = sa.text(f'''
                 SELECT
                 f.attname AS column_name,
                 pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
@@ -2289,10 +2289,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                           AND c.oid = f.attrelid AND c.oid = ix.indrelid
                 LEFT JOIN pg_class AS i ON ix.indexrelid = i.oid
                 WHERE c.relkind = 'r'::char
-                      AND c.relname = '{0}'
+                      AND c.relname = {literal_string(id)}
                       AND f.attnum > 0
                 ORDER BY c.relname,f.attnum;
-            '''.format(id))
+            ''')
             with engine.connect() as conn:
                 schema_results = conn.execute(schema_sql)
             schemainfo = {}
@@ -2343,7 +2343,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         Postgresql's pg_stat_user_tables. This number will be used when
         specifying `total_estimation_threshold`
         '''
-        sql = 'ANALYZE "{}"'.format(resource_id)
+        sql = f'ANALYZE {identifier(resource_id)}'
         with get_write_engine().connect() as conn:
             try:
                 conn.execute(sa.text(sql))
