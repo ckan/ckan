@@ -948,7 +948,7 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
         fields_string = u', '.join(
             ['(("{0}").json::text)'.format(field)
                 if field in json_fields else
-                f'"{field}"'
+                identifier(field)
                 for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
