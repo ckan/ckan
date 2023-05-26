@@ -73,7 +73,6 @@ class Context(TypedDict, total=False):
 
     __auth_user_obj_checked: bool
     __auth_audit: list[tuple[str, int]]
-    _temp_login: bool
     auth_user_obj: Optional["Model.User"]
     user_obj: "Model.User"
 

@@ -251,7 +251,7 @@ def check_ckan_version(
 
 def set_user_for_current_request(user: Model.User | Model.AnonymousUser):
     from flask import current_app
-    current_app.login_manager._update_request_context_with_user(user)
+    current_app.login_manager._update_request_context_with_user(user) # type: ignore
 
 
 def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
