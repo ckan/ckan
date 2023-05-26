@@ -15,6 +15,7 @@ from typing import Any, Optional, Union, cast
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
+from ckan.types import Model
 
 from ckan.logic import (  # noqa: re-export
     get_action,
@@ -101,7 +102,7 @@ __all__ = [
     "render_snippet", "add_template_directory", "add_public_directory",
     "add_resource", "add_ckan_admin_tab",
     "check_ckan_version", "requires_ckan_version", "get_endpoint",
-    "fresh_context", "BaseModel",
+    "fresh_context", "BaseModel", "set_user_for_current_request",
 ]
 
 get_converter = get_validator
@@ -246,6 +247,11 @@ def check_ckan_version(
         if current > max_required:
             return False
     return True
+
+
+def set_user_for_current_request(user: Model.User | Model.AnonymousUser):
+    from flask import current_app
+    current_app.login_manager._update_request_context_with_user(user)
 
 
 def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
