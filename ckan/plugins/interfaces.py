@@ -6,8 +6,10 @@ extend CKAN.
 '''
 from __future__ import annotations
 
-from typing import (Any, Callable, Iterable, Mapping, Optional, Sequence,
-                    TYPE_CHECKING, Type, Union)
+from typing import (
+    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Type, Union,
+)
 
 from pyutilib.component.core import Interface as _pca_Interface
 
@@ -74,6 +76,9 @@ class Interface(_pca_Interface):
     of subclasses of Interface are recorded, and these
     classes are used to define extension points.
     '''
+
+    # force PluginImplementations to iterate over interface in reverse order
+    ckan_reverse_iteration_order: ClassVar[bool] = False
 
     @classmethod
     def provided_by(cls, instance: "SingletonPlugin") -> bool:
@@ -743,6 +748,8 @@ class IConfigDeclaration(Interface):
 
     """
 
+    ckan_reverse_iteration_order = True
+
     def declare_config_options(self, declaration: Declaration, key: Key):
         """Register extra config options.
 
@@ -789,6 +796,8 @@ class IConfigurer(Interface):
 
     See also :py:class:`IConfigurable`.
     '''
+
+    ckan_reverse_iteration_order = True
 
     def update_config(self, config: 'CKANConfig') -> None:
         u'''
@@ -861,6 +870,9 @@ class IValidators(Interface):
     Add extra validators to be returned by
     :py:func:`ckan.plugins.toolkit.get_validator`.
     '''
+
+    ckan_reverse_iteration_order = True
+
     def get_validators(self) -> dict[str, Validator]:
         u'''Return the validator functions provided by this plugin.
 
@@ -1711,6 +1723,9 @@ class ITranslation(Interface):
     u'''
     Allows extensions to provide their own translation strings.
     '''
+
+    ckan_reverse_iteration_order = True
+
     def i18n_directory(self) -> str:
         u'''Change the directory of the .mo translation files'''
         return ''
@@ -1892,6 +1907,7 @@ class IApiToken(Interface):
 
 
     """
+    ckan_reverse_iteration_order = True
 
     def create_api_token_schema(self, schema: Schema) -> Schema:
         u'''Return the schema for validating new API tokens.

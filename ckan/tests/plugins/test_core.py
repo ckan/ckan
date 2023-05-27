@@ -44,36 +44,31 @@ class FooBarImpl(object):
     plugins.implements(IBar)
 
 
-@pytest.mark.usefixtures(u"with_plugins")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.ckan_config(
-    u"ckan.plugins",
-    u"example_idatasetform_v1 example_idatasetform_v2 example_idatasetform_v3")
-def test_plugins_order_in_pluginimplementations():
+    "ckan.plugins",
+    "example_idatasetform_v1 example_idatasetform_v3 example_idatasetform_v2")
+class TestPluginsOrderInPluginImplementations:
+    def test_order_matches_config(self):
+        assert (
+            [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
+            [
+                "example_idatasetform_v1",
+                "example_idatasetform_v3",
+                "example_idatasetform_v2",
+            ]
+        )
 
-    assert (
-        [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
-        [
-            u"example_idatasetform_v1",
-            u"example_idatasetform_v2",
-            u"example_idatasetform_v3"
-        ]
-    )
-
-
-@pytest.mark.usefixtures(u"with_plugins")
-@pytest.mark.ckan_config(
-    u"ckan.plugins",
-    u"example_idatasetform_v1 example_idatasetform_v3 example_idatasetform_v2")
-def test_plugins_order_in_pluginimplementations_matches_config():
-
-    assert (
-        [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
-        [
-            u"example_idatasetform_v1",
-            u"example_idatasetform_v3",
-            u"example_idatasetform_v2"
-        ]
-    )
+    def test_reverse_order_by_interface_attribute(self, monkeypatch):
+        monkeypatch.setattr(plugins.IDatasetForm, "ckan_reverse_iteration_order", True)
+        assert (
+            [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
+            [
+                "example_idatasetform_v2",
+                "example_idatasetform_v3",
+                "example_idatasetform_v1",
+            ]
+        )
 
 
 def test_implemented_by():

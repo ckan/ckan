@@ -117,6 +117,9 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
             # add to the end of the iterator
             ordered_plugins.extend(plugin_lookup.values())
 
+        if self.interface.ckan_reverse_iteration_order:
+            ordered_plugins = list(reversed(ordered_plugins))
+
         return iter(ordered_plugins)
 
 

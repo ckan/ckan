@@ -124,7 +124,7 @@ def get_user_from_token(token: str,
     # do preprocessing in reverse order, allowing onion-like
     # "unwrapping" of the data, added during postprocessing, when
     # token was created
-    for plugin in reversed(list(_get_plugins())):
+    for plugin in _get_plugins():
         data = plugin.preprocess_api_token(data)
     if not data or u"jti" not in data:
         return None
