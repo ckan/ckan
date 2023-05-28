@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Add permission labels in activity table
 
 Revision ID: 21d03ed1e1ca
