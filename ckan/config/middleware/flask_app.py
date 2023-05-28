@@ -587,4 +587,5 @@ def _setup_webassets(app: CKANApp):
     def webassets(path: str):
         return send_from_directory(webassets_folder, path)
 
-    app.add_url_rule('/webassets/<path:path>', 'webassets.index', webassets)
+    path = config["ckan.webassets.url"].rstrip("/")
+    app.add_url_rule(f'{path}/<path:path>', 'webassets.index', webassets)
