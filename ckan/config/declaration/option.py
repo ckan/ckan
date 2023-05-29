@@ -5,11 +5,11 @@
 from __future__ import annotations
 
 import enum
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, cast
 
 from typing_extensions import Self
 
-from ckan.types import Validator
+from ckan.types import Validator, ValidatorFactory
 
 T = TypeVar("T")
 
@@ -351,24 +351,37 @@ class Option(SectionMixin, Generic[T]):
 
 
 # taken from ckanext-scheming
-# (https://github.com/ckan/ckanext-scheming/blob/release-2.1.0/ckanext/scheming/validation.py#L407-L426).
+# (https://github.com/ckan/ckanext-scheming/blob/master/ckanext/scheming/validation.py#L332).
 # This syntax is familiar for everyone and we can switch to the original
 # when scheming become a part of core.
 def _validators_from_string(s: str) -> list[Validator]:
     """
     convert a schema validators string to a list of validators
-    e.g. "if_empty_same_as(name) unicode" becomes:
-    [if_empty_same_as("name"), unicode]
+
+    e.g. "if_empty_same_as(name) unicode_safe" becomes:
+    [if_empty_same_as("name"), unicode_safe]
     """
+    import ast
     from ckan.logic import get_validator
 
     out = []
     parts = s.split()
     for p in parts:
-        if "(" in p and p[-1] == ")":
-            name, args = p.split("(", 1)
-            args: Any = args[:-1].split(",")  # trim trailing ')', break up
-            v = get_validator(name)(*args)
+        if '(' in p and p[-1] == ')':
+            name, args = p.split('(', 1)
+            args = args[:-1]  # trim trailing ')'
+            try:
+                parsed_args = ast.literal_eval(args)
+                if not isinstance(parsed_args, tuple) or not parsed_args:
+                    # it's a signle argument. `not parsed_args` means that this single
+                    # argument is an empty tuple, for example: "default(())"
+                    parsed_args = (parsed_args,)
+
+            except (ValueError, TypeError, SyntaxError, MemoryError):
+                parsed_args = args.split(',')
+
+            factory = cast(ValidatorFactory, get_validator(name))
+            v = factory(*parsed_args)
         else:
             v = get_validator(p)
         out.append(v)
