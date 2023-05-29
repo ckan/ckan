@@ -11,7 +11,7 @@ has been given.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
