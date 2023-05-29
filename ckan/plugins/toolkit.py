@@ -283,10 +283,11 @@ def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
 
 def get_endpoint() -> Union[tuple[str, str], tuple[None, None]]:
     """Returns tuple in format: (blueprint, view)."""
-    if not request:
+    # skip CLI requests and requests with unallowed method
+    if not request or not request.endpoint:
         return None, None
 
-    blueprint, *rest = cast(str, request.endpoint).split(".", 1)
+    blueprint, *rest = request.endpoint.split(".", 1)
     # service routes, like `static`
     view = rest[0] if rest else "index"
     return blueprint, view

@@ -1,0 +1,1 @@
+POST request to GET-only endpoint causes 500 error
