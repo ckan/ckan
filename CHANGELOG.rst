@@ -8,6 +8,56 @@ Changelog
 ---------
 
 .. towncrier release notes start
+   
+v.2.10.1 2023-05-24
+===================
+
+Bug fixes
+---------
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+  potential path traversal, remote code execution, information disclosure and
+  DOS vulnerabilities via crafted resource ids.
+- Redirect on password reset form error now maintains root_path and locale (`#7006 <https://github.com/ckan/ckan/pull/7006>`_)
+- Fix display of Popular snippet (`#7205 <https://github.com/ckan/ckan/pull/7205>`_)
+- Fixes missing CSRF token when trying to remove a group from a package. (`#7417 <https://github.com/ckan/ckan/pull/7417>`_)
+- ``IMiddleware`` implementations produce an error mentioning missing ``app.after_request`` attribute. (`#7426 <https://github.com/ckan/ckan/pull/7426>`_)
+- Application hangs during startup when using config chains. (`#7427 <https://github.com/ckan/ckan/pull/7427>`_)
+- Fix exception in ``license_list`` action (`#7454 <https://github.com/ckan/ckan/pull/7454>`_)
+- In tests, templates from ``ckan.plugins`` set by the config file are used even if these plugins are disabled for the test via ``pytest.mark.ckan_config("ckan.plugins", "")`` (`#7483 <https://github.com/ckan/ckan/pull/7483>`_)
+- Fix usage of ``defer_commit`` in context in create actions for users, datasets, organizations and groups.
+- ``model.Dashboard.get()`` no longer creates a dashboard object under the hood if it does not exist in the database (`#7487 <https://github.com/ckan/ckan/pull/7487>`_)
+- "Groups" link in the header is not translated. (`#7500 <https://github.com/ckan/ckan/pull/7500>`_)
+- Names are now quoted in From and To addresses in emails, meaning that site titles with commas no longer break email clients. (`#7508 <https://github.com/ckan/ckan/pull/7508>`_)
+- Pagination widget is not styled in Bootstrap 5 templates. (`#7528 <https://github.com/ckan/ckan/pull/7528>`_)
+- Fix missing resource URL on update resource with uploaded file (`#7449 <https://github.com/ckan/ckan/pull/7449>`_)
+- Fix custom macro styles (`#7461 <https://github.com/ckan/ckan/pull/7461>`_)
+- Fix mobile layout styles (`#7467 <https://github.com/ckan/ckan/pull/7467>`_)
+- Fix fontawesome icons, replace unavailable FA v3 icons (`#7474 <https://github.com/ckan/ckan/pull/7474>`_)
+- Fix promote sysadmin layout (`#7476 <https://github.com/ckan/ckan/pull/7476>`_)
+- Fix markdown macros regression (`#7485 <https://github.com/ckan/ckan/pull/7485>`_)
+- Set session scope for migrate_db_for fixture (`#7563 <https://github.com/ckan/ckan/pull/7563>`_)
+
+Migration notes
+---------------
+- The default storage backend for the session data used by the Beaker library
+  uses the Python ``pickle`` module, which is considered unsafe. While there is
+  no direct known vulnerability using this vector, a safer alternative is to
+  store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
+  This will probably be the default behaviour in future CKAN versions::
+
+    # ckan.ini
+
+    beaker.session.type = cookie
+    beaker.session.data_serializer = json
+    # Use a long, random string for this setting
+    beaker.session.validate_key = CHANGE_ME
+
+    beaker.session.httponly = True
+    beaker.session.secure = True
+    beaker.session.samesite = Lax
+    # or Strict, depending on your setup
+
+  .. note:: You might need to install an additional library that can provide AES encryption, e.g. ``pip install cryptography``
 
 v.2.10.0 2023-02-15
 ===================
@@ -520,6 +570,35 @@ Removals and deprecations
 - ``ckan.route_after_login`` renamed to ``ckan.auth.route_after_login`` (`#7350
   <https://github.com/ckan/ckan/pull/7350>`_)
 
+v.2.9.9 2023-05-24
+==================
+
+Bugfixes
+--------
+
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+  potential path traversal, remote code execution, information disclosure and
+  DOS vulnerabilities via crafted resource ids.
+- Names are now quoted in From and To addresses in emails, meaning that site titles with
+  commas no longer break email clients. (`#7508 <https://github.com/ckan/ckan/pull/7508>`_)
+
+Migration notes
+---------------
+- The default storage backend for the session data used by the Beaker library
+  uses the Python ``pickle`` module, which is considered unsafe. While there is
+  no direct known vulnerability using this vector, a safer alternative is to
+  store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
+  This will probably be the default behaviour in future CKAN versions::
+
+	# ckan.ini
+	beaker.session.type = cookie
+    beaker.session.data_serializer = json
+	beaker.session.validate_key = CHANGE_ME
+
+	beaker.session.httponly = True
+	beaker.session.secure = True
+	beaker.session.samesite = Lax
+    # or Strict, depending on your setup
 
 v.2.9.8 2023-02-15
 ==================
