@@ -712,10 +712,14 @@ def _check_read_only(context, resource_id):
     '''
     res = p.toolkit.get_action('resource_show')(
         context, {'id': resource_id})
-    if res.get('url_type') != 'datastore':
+    if res.get('url_type') not in (
+            p.toolkit.h.datastore_rw_resource_url_types()
+        ):
         raise p.toolkit.ValidationError({
-            'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url-type to "datastore"']
+            'read-only': ['Cannot edit read-only resource because changes '
+                          'made may be lost. Use a resource created for '
+                          'editing e.g. with datastore_create or use '
+                          '"force=True" to ignore this warning.']
         })
 
 
