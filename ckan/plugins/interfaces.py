@@ -878,7 +878,9 @@ class IValidators(Interface):
             of this methid::
 
                 validators = {}
-                use_fancy = tk.asbool(tk.config.get("my.ext.use_fancy_validator"))
+                use_fancy = tk.asbool(
+                    tk.config.get("my.ext.use_fancy_validator")
+                )
                 if use_fancy:
                     validators["fancy_validator"] = fancy_validator
                 return validators
