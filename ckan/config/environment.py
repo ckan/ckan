@@ -117,6 +117,8 @@ def update_config() -> None:
 
     config_declaration.setup()
     config_declaration.make_safe(config)
+    # clear validators cache to allow using custom validators in declarations.
+    logic.clear_validators_cache()
     config_declaration.normalize(config)
 
     webassets_init()
