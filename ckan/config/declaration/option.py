@@ -373,8 +373,10 @@ def _validators_from_string(s: str) -> list[Validator]:
             try:
                 parsed_args = ast.literal_eval(args)
                 if not isinstance(parsed_args, tuple) or not parsed_args:
-                    # it's a signle argument. `not parsed_args` means that this single
-                    # argument is an empty tuple, for example: "default(())"
+                    # it's a signle argument. `not parsed_args` means that this
+                    # single argument is an empty tuple,
+                    # for example: "default(())"
+
                     parsed_args = (parsed_args,)
 
             except (ValueError, TypeError, SyntaxError, MemoryError):
