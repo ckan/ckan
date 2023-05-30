@@ -36,6 +36,13 @@
   {{ super() }}
 {% endblock %}
 
+{% block action_manage_inner %}
+  {{ super() }}
+  {% if res.datastore_active %}
+    <li>{% link_for _('Data Dictionary'), named_route='datastore.dictionary', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='code' %}
+  {% endif %}
+{% endblock %}
+
 {% block scripts %}
   {{ super() }}
   {% asset "ckanext_datastore/datastore" %}
