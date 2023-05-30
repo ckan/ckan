@@ -1,5 +1,17 @@
 {% ckan_extends %}
 
+{% block register_examples %}
+  {% if h.resource_url_type(resource_id) == 'tabledesigner' %}
+    {% set examples = h.tabledesigner_data_api_examples(resource_id) %}
+
+    {% for clang in code_languages %}
+      {% include "/datastore/api_examples/" + clang + ".html" %}
+    {% endfor %}
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block query_examples %}
   {% if h.resource_url_type(resource_id) == 'tabledesigner' %}
     <div class="accordion-item">
@@ -10,19 +22,19 @@
         <div class="accordion-body">
           <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
           {% for clang in code_languages %}
-            {{ code_examples[clang]['request_limit'] }}
+            {{ code_examples[clang].request_limit }}
           {% endfor %}
 
 
-          <strong>{{ _('Get results with either "watershed" or "survey" as subject and "active" as its stage:') }}</strong>
+          <strong>{{ _('Get results filtered by the contents of specific fields:') }}</strong>
           {% for clang in code_languages %}
-            {{ code_examples[clang]['request_filter'] }}
+            {{ code_examples[clang].request_filter_custom }}
           {% endfor %}
 
           {% if h.datastore_search_sql_enabled() %}
             <strong>{{ _('SQL query example:') }}</strong>
             {% for clang in code_languages %}
-              {{ code_examples[clang]['request_sql'] }}
+              {{ code_examples[clang].request_sql_custom }}
             {% endfor %}
           {% endif %}
         </div>
@@ -34,7 +46,17 @@
       </h2>
       <div id="collapse-updating" class="accordion-collapse collapse" aria-labelledby="collapse-updating" data-bs-parent="#accordion2">
         <div class="accordion-body">
-          <!-- XXX -->
+          <strong>{{ _('Insert a new record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_insert }}
+          {% endfor %}
+          <strong>{{ _('Update an existing record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_update }}
+          {% endfor %}
+          <strong>{% trans method="method", upsert="upsert"
+            %}"{{ method }}" defaults to "{{ upsert }}" i.e. records will be inserted or updated based on the primary key values passed{%
+          endtrans %}</strong>
         </div>
       </div>
     </div>
@@ -44,7 +66,10 @@
       </h2>
       <div id="collapse-deleting" class="accordion-collapse collapse" aria-labelledby="collapse-deleting" data-bs-parent="#accordion2">
         <div class="accordion-body">
-          <!-- XXX -->
+          <strong>{{ _('Delete a record:') }}</strong>
+          {% for clang in code_languages %}
+            {{ code_examples[clang].request_delete }}
+          {% endfor %}
         </div>
       </div>
     </div>
