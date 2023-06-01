@@ -97,3 +97,16 @@ def datastore_run_triggers(
 
 def datastore_analyze(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': False}
+
+def datastore_alias_delete(
+        context: Context, data_dict: DataDict) -> AuthResult:
+    return datastore_auth(context, data_dict)
+
+
+def datastore_alias_create(
+        context: Context, data_dict: DataDict) -> AuthResult:
+    return datastore_auth(context, data_dict)
+
+
+def datastore_alias_update(context: Context, data_dict: DataDict) -> AuthResult:
+    return datastore_auth(context, data_dict)
