@@ -744,3 +744,118 @@ def datastore_function_delete(context: Context, data_dict: dict[str, Any]):
     p.toolkit.check_access('datastore_function_delete', context, data_dict)
     backend = DatastoreBackend.get_active_backend()
     backend.drop_function(data_dict['name'], data_dict['if_exists'])
+
+class DataStoreAliasActions:
+    def __init__(self, context, data_dict):
+        '''
+        The `DataStoreAliasActions` class includes the methods for validation
+        and execution of the `datastore_alias_create`, `datastore_alias_delete` 
+        and `datastore_alias_update` actions.
+        '''
+        self.context = context
+        self.backend = DatastoreBackend.get_active_backend()
+        schema = context.get('schema', dsschema.datastore_alias_action_schema())
+
+        self.data_dict, errors = _validate(data_dict, schema, self.context)
+        if errors:
+            raise p.toolkit.ValidationError(errors)
+        
+        res_id = self.data_dict['resource_id']
+
+        res_exists = self.backend.resource_exists(res_id)
+        if not res_exists:
+            raise p.toolkit.ObjectNotFound(p.toolkit._(
+                u'Resource "{0}" was not found.'.format(res_id)
+            ))
+
+        # validate aliases
+        aliases = datastore_helpers.get_list(self.data_dict.get('aliases', [])) or []
+        unique_aliases = []
+        for alias in aliases:
+            if alias in unique_aliases:
+                raise p.toolkit.ValidationError({
+                    'message': u'duplicate aliases found'})
+            else:
+                unique_aliases.append(alias)
+            if not datastore_helpers.is_valid_table_name(alias):
+                raise p.toolkit.ValidationError({
+                    'alias': [u'"{0}" is not a valid alias name'.format(alias)]
+                })
+
+    def create(self):
+        #  create the aliases
+        result = self.backend.datastore_create_aliases(self.context, self.data_dict)
+        return result
+
+    def delete(self):
+        # delete the aliases
+        result = self.backend.datastore_delete_aliases(self.context, self.data_dict)
+        return result
+
+    def update(self):
+        # update the aliases
+        result = self.backend.datastore_update_aliases(self.context, self.data_dict)
+        return result
+
+def datastore_alias_create(context: Context, data_dict: dict[str, Any]):
+    '''Creates new alias for an existing resource
+    The `datastore_alias_create` action allows you to create new aliases for
+    an existing resourse. If aliases for that resource are already present, 
+    it removes the existing aliases and creates new aliases.
+
+    :param resource_id: resource id for which alias will be created.
+    :type resource_id: string
+    :param aliases: string or list of comma separated values
+    :type aliases: string or list of strings
+
+    **Results:**
+
+    :returns: The created aliases and resource id.
+    :rtype: dictionary
+
+    '''
+    p.toolkit.check_access('datastore_alias_create', context, data_dict)
+    create_alias = DataStoreAliasActions(context, data_dict)
+    return create_alias.create()
+
+def datastore_alias_delete(context: Context, data_dict: dict[str, Any]):
+    '''Deletes alias from an existing resource
+    The `datastore_alias_delete` action allows you to delete aliases of
+    an existing resourse. 
+    
+    :param resource_id: resource id of which alias will be deleted.
+    :type resource_id: string
+    :param aliases: string or list of comma separated values
+    :type aliases: string or list of strings
+
+    **Results:**
+
+    :returns: The deleted aliases and resource id.
+    :rtype: dictionary
+
+    '''
+    p.toolkit.check_access('datastore_alias_delete', context, data_dict)
+    delete_alias = DataStoreAliasActions(context, data_dict)
+    return delete_alias.delete()
+
+def datastore_alias_update(context: Context, data_dict: dict[str, Any]):
+    '''Creates new alias for an existing resource
+    The `datastore_alias_update` action allows you to update new aliases for
+    an existing resourse. If aliases for that resource are already present, 
+    it creates new aliases for that resource, without deleting the 
+    existing aliases.
+
+    :param resource_id: resource id for which aliases will be updated.
+    :type resource_id: string
+    :param aliases: string or list of comma separated values
+    :type aliases: string or list of strings
+
+    **Results:**
+
+    :returns: The new aliases and resource id.
+    :rtype: dictionary
+
+    '''
+    p.toolkit.check_access('datastore_alias_update', context, data_dict)
+    update_alias = DataStoreAliasActions(context, data_dict)
+    return update_alias.update()
