@@ -2260,6 +2260,98 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         except sqlalchemy.exc.DatabaseError as err:
             raise DatastoreException(err)
 
+def datastore_delete_aliases(self, 
+            context: Context, data_dict: dict[str, Any]):
+
+        engine = self._get_write_engine()
+        context['connection'] = engine.connect()
+        _cache_types(context['connection'])
+
+        trans = context['connection'].begin()
+        try:
+            values = data_dict.get('aliases')
+            data_dict_aliases = datastore_helpers.get_list(values)
+            resource_aliases = _get_aliases(context, data_dict)
+            # Get unknown aliases
+            unknown_aliases = [alias for alias in  data_dict_aliases 
+                                    if alias not in resource_aliases]
+
+            if unknown_aliases == []:
+                    for alias in data_dict_aliases:
+                        sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
+                        context['connection'].execute(sql_alias_drop_string)
+            else:
+                raise ValidationError({
+                    u"wrong aliases ": u"Aborted!. No alias(es) named '{0}'  in resource". format(
+                        ', '.join(unknown_aliases)
+                    )
+                })
+
+            trans.commit()
+            return _unrename_json_field(data_dict)
+        except Exception:
+            trans.rollback()
+            raise
+        finally:
+            context['connection'].close()
+
+    def datastore_create_aliases(self, 
+            context: Context, data_dict: dict[str, Any]):
+        engine = self._get_write_engine()
+        context['connection'] = engine.connect()
+        _cache_types(context['connection'])
+
+        trans = context['connection'].begin()
+        try:
+            create_alias(context, data_dict)
+            trans.commit()
+            return _unrename_json_field(data_dict)
+        except Exception:
+            trans.rollback()
+            raise
+        finally:
+            context['connection'].close()
+    
+    def datastore_update_aliases(self,
+             context: Context, data_dict: dict[str, Any]):
+        engine = self._get_write_engine()
+        context['connection'] = engine.connect()
+        _cache_types(context['connection'])
+
+        values = data_dict.get('aliases')
+        aliases = datastore_helpers.get_list(values)
+        trans = context['connection'].begin()
+        try:
+            for alias in aliases:
+                sql_alias_string = u'''CREATE VIEW "{alias}"
+                    AS SELECT * FROM "{main}"'''.format(
+                    alias=alias,
+                    main=data_dict['resource_id']
+                )
+
+                res_ids = _get_resources(context, alias)
+                if res_ids:
+                    raise ValidationError({
+                        'alias': [(u'The alias "{0}" already exists.').format(
+                            alias)]
+                    })
+
+                context['connection'].execute(sql_alias_string)
+                
+            trans.commit()
+            return _unrename_json_field(data_dict)  
+        except DBAPIError as e:
+            if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
+                                 _PG_ERR_CODE['duplicate_alias']]:
+                raise ValidationError({
+                    'alias': [u'"{0}" already exists'.format(alias)]
+                })
+        except Exception:
+            trans.rollback()
+            raise
+        finally:
+            context['connection'].close()
+
 
 def create_function(name: str, arguments: Iterable[dict[str, Any]],
                     rettype: Any, definition: str, or_replace: bool):
