@@ -1043,7 +1043,7 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
     field_ids: set[str] = set(f['id'] for f in supplied_fields)
     current_ids: set[str] = set(f['id'] for f in current_fields)
 
-    for num, field in enumerate(supplied_fields):
+    for field in supplied_fields:
         # check to see if field definition is the same or and
         # extension of current fields
         if field['id'] in current_ids:
