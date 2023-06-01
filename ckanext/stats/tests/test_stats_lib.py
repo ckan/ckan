@@ -189,12 +189,11 @@ class TestStatsPlugin(object):
 
     def test_num_packages_by_week(self):
         num_packages_by_week = Stats.get_num_packages_by_week()
-        # only 3 shown because one of them is private
-        # private packages are not shown in activity table
-        data1 = ('2011-01-03', 3, 3)
-        data2 = ('2011-01-10', -1, 2)
-        data3 = ('2011-01-17', 0, 2)
-        data4 = ('2011-01-24', 0, 2)
+
+        data1 = ('2011-01-03', 4, 4)
+        data2 = ('2011-01-10', -1, 3)
+        data3 = ('2011-01-17', 0, 3)
+        data4 = ('2011-01-24', 0, 3)
         # e.g. [('2011-05-30', 3, 3)]
         assert len(num_packages_by_week[0]) == len(data1)
         assert all([a == b for a, b in zip(num_packages_by_week[0], data1)])

@@ -350,10 +350,9 @@ class TestPackageActivityList(object):
         assert [activity["activity_type"] for activity in activities] == []
 
     def _create_bulk_types_activities(self, types):
-        dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
+        dataset = factories.Dataset(user=user)
+        from ckan import model
 
         objs = [
             Activity(
@@ -366,7 +365,7 @@ class TestPackageActivityList(object):
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
-        return dataset["id"]
+        return dataset["id"], user
 
     def test_error_bad_search(self):
         with pytest.raises(tk.ValidationError):
@@ -385,37 +384,45 @@ class TestPackageActivityList(object):
             "changed package",
             "new package",
         ]
-        id = self._create_bulk_types_activities(types)
+        id, user = self._create_bulk_types_activities(types)
+        auth_user_obj = model.User.get(user["id"])
 
         activities_new = helpers.call_action(
-            "package_activity_list", id=id, activity_types=["new package"]
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            activity_types=["new package"]
         )
-        assert len(activities_new) == 2
+        assert len(activities_new) == 3
 
         activities_not_new = helpers.call_action(
             "package_activity_list",
             id=id,
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
             exclude_activity_types=["new package"],
         )
         assert len(activities_not_new) == 3
 
         activities_delete = helpers.call_action(
-            "package_activity_list", id=id, activity_types=["deleted package"]
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            activity_types=["deleted package"]
         )
         assert len(activities_delete) == 1
 
         activities_not_deleted = helpers.call_action(
             "package_activity_list",
             id=id,
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
             exclude_activity_types=["deleted package"],
         )
-        assert len(activities_not_deleted) == 4
+        assert len(activities_not_deleted) == 5
 
     def _create_bulk_package_activities(self, count):
-        dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
+        dataset = factories.Dataset(user=user)
+        from ckan import model
 
         objs = [
             Activity(
@@ -428,25 +435,42 @@ class TestPackageActivityList(object):
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
-        return dataset["id"]
+        return dataset["id"], user
 
     def test_limit_default(self):
-        id = self._create_bulk_package_activities(35)
-        results = helpers.call_action("package_activity_list", id=id)
+        id, user = self._create_bulk_package_activities(35)
+        auth_user_obj = model.User.get(user["id"])
+
+        results = helpers.call_action(
+            "package_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            id=id
+        )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
-        id = self._create_bulk_package_activities(7)
-        results = helpers.call_action("package_activity_list", id=id)
+        id, user = self._create_bulk_package_activities(7)
+        auth_user_obj = model.User.get(user["id"])
+
+        results = helpers.call_action(
+            "package_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            id=id
+        )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
-        id = self._create_bulk_package_activities(9)
+        id, user = self._create_bulk_package_activities(9)
+        auth_user_obj = model.User.get(user["id"])
+
         results = helpers.call_action(
-            "package_activity_list", id=id, limit="9"
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
