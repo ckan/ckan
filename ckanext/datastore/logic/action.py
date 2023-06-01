@@ -32,7 +32,7 @@ def datastore_create(context, data_dict):
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called
-    multiple times to initially insert more data, add fields, change the
+    multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
     To create an empty datastore resource and a CKAN resource at the same time,
@@ -79,8 +79,9 @@ def datastore_create(context, data_dict):
     :type calculate_record_count: bool (optional, default: False)
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
-    replaces the exising aliases or constraints. Setting ``records`` appends
-    the provided records to the resource.
+    replaces the existing aliases or constraints. Setting ``records`` appends
+    the provided records to the resource. Setting ``fields`` without including
+    all existing fields will remove the others and the data they contain.
 
     **Results:**
 
