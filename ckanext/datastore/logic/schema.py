@@ -213,6 +213,17 @@ def datastore_search_schema() -> Schema:
     return schema
 
 
+def datastore_alias_action_schema() -> Schema:
+    schema = {
+        'resource_id': [not_missing, not_empty, unicode_safe],
+        'aliases': [not_missing, not_empty, 
+                    list_of_strings_or_string],
+        '__junk': [empty],
+        '__before': [rename('id', 'resource_id')],
+    }
+    return schema
+
+
 def datastore_function_create_schema() -> Schema:
     return {
         'name': [unicode_only, not_empty],
