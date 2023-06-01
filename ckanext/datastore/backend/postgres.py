@@ -1136,7 +1136,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     value = first_field[0]['type']
     # check if value is nested
     if value == 'nested':
-        fields = first_to_last_field(fields)
+        fields = first_to_last_field(fields, first_field)
 
     field_names = _pluck('id', fields)
     records = data_dict['records']
