@@ -634,7 +634,8 @@ class TestPackage:
     def test_custom_activity(self, app):
         """Render a custom activity"""
 
-        user = factories.User()
+        user = factories.UserWithToken()
+        headers = {"Authorization": user["token"]}
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
@@ -659,7 +660,7 @@ class TestPackage:
         helpers.call_action("activity_create", **activity_dict)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url)
+        response = app.get(url, headers=headers)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response

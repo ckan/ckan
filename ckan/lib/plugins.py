@@ -670,7 +670,7 @@ class DefaultPermissionLabels(object):
         if not dataset:
             return labels
 
-        if dataset.state == u'active' and not dataset.private and not activity_obj.data['package']['private']:
+        if dataset.state == u'active' and not dataset.private and ('package' in activity_obj.data and not activity_obj.data['package']['private']):
             labels.append(u'public')
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):

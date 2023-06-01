@@ -127,13 +127,12 @@ class TestStatsPlugin(object):
 
     def test_new_packages_by_week(self):
         new_packages_by_week = Stats.get_by_week('new_packages')
-        # only 3 shown because one of them is private
-        # private packages are not shown in activity table
-        data1 = ('2011-01-03', set((u'test1', u'test2', u'test4')),
-                 3, 3)
-        data2 = ('2011-01-10', set([]), 0, 3)
-        data3 = ('2011-01-17', set([]), 0, 3)
-        data4 = ('2011-01-24', set([]), 0, 3)
+
+        data1 = ('2011-01-03', set((u'test1', u'test2', u'test3', u'test4')),
+                 4, 4)
+        data2 = ('2011-01-10', set([]), 0, 4)
+        data3 = ('2011-01-17', set([]), 0, 4)
+        data4 = ('2011-01-24', set([]), 0, 4)
 
         def get_results(week_number):
             date, ids, num, cumulative = new_packages_by_week[week_number]

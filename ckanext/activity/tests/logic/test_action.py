@@ -297,13 +297,17 @@ class TestPackageActivityList(object):
     def test_delete_dataset(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
+        auth_user_obj = model.User.get(user["id"])
         _clear_activities()
+
         helpers.call_action(
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
