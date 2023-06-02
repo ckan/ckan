@@ -29,9 +29,9 @@ Example:
                   <a href="#">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
               {% elif can_edit %}
-                <li class="nav-item position-relative">
-                  <a href="{{ url }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
-                  <div class="dropdown position-absolute top-50 end-0 translate-middle">
+                <li class="nav-item d-flex justify-content-between position-relative">
+                  <a class="flex-fill" href="{{ url }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                  <div class="dropdown position-absolute end-0 me-2">
                     <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
                       <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='pencil' %}</li>

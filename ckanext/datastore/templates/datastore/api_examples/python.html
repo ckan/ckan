@@ -13,8 +13,8 @@ Python
   <pre><code class="language-python"
 >from ckanapi import RemoteCKAN
 
-ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
-result = ck.action.datastore_search(
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search(
     resource_id="{{ resource_id }}",
     limit=5,
     q="jones",
@@ -27,8 +27,8 @@ print(result['records'])</code></pre></div>
 <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
 
-ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
-result = ck.action.datastore_search(
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search(
     resource_id="{{ resource_id }}",
     filters={
       "subject": ["watershed", "survey"],
@@ -43,8 +43,8 @@ print(result['records'])</code></pre>
 <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
 
-ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
-rresult = ck.action.datastore_search_sql(
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search_sql(
     sql="""SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'"""
 )
 print(result['records'])</code></pre>

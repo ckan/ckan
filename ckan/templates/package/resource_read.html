@@ -25,7 +25,7 @@
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
-            <ul>
+            <ul class="d-flex flex-wrap gap-1 justify-content-end">
               {% block resource_actions_inner %}
                 {% block action_manage %}
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
