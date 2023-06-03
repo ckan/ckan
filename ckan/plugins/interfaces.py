@@ -1918,11 +1918,6 @@ class IApiToken(Interface):
 
     """
 
-    # plugins from the beginning of the plugins list should be able to
-    # override/delete customizations to API Tokens that were done by other
-    # plugins.
-    _reverse_iteration_order = True
-
     def create_api_token_schema(self, schema: Schema) -> Schema:
         u'''Return the schema for validating new API tokens.
 
