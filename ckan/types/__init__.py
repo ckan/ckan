@@ -73,7 +73,7 @@ class Context(TypedDict, total=False):
 
     __auth_user_obj_checked: bool
     __auth_audit: list[tuple[str, int]]
-    auth_user_obj: Optional["Model.User"]
+    auth_user_obj: Union["Model.User", "Model.AnonymousUser", None]
     user_obj: "Model.User"
 
     schema_keys: list[Any]

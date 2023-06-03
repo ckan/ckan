@@ -314,7 +314,10 @@ def package_update(
     user_obj = context.get('auth_user_obj')
     if user_obj:
         plugin_data = data.get('plugin_data', False)
-        include_plugin_data = user_obj.sysadmin and plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and plugin_data
+        )
 
     pkg = model_save.package_dict_save(data, context, include_plugin_data)
 

@@ -26,13 +26,10 @@ def index() -> str:
     u'''display home page'''
     extra_vars: dict[str, Any] = {}
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-            }
-        )
+        }
 
         data_dict: dict[str, Any] = {
             u'q': u'*:*',

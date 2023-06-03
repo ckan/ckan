@@ -62,13 +62,10 @@ def _get_config_items() -> list[str]:
 @admin.before_request
 def before_request() -> None:
     try:
-        context = cast(
-            Context, {
-                "model": model,
-                "user": current_user.name,
-                "auth_user_obj": current_user
-            }
-        )
+        context: Context = {
+            "user": current_user.name,
+            "auth_user_obj": current_user
+        }
         logic.check_access(u'sysadmin', context)
     except logic.NotAuthorized:
         base.abort(403, _(u'Need to be system administrator to administer'))

@@ -242,13 +242,11 @@ def search(package_type: str) -> str:
     fq = details[u'fq']
     search_extras = details[u'search_extras']
 
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
-    })
+    }
 
     # Unless changed via config options, don't show other dataset
     # types any search page. Potential alternatives are do show them
@@ -379,13 +377,11 @@ def search(package_type: str) -> str:
 
 
 def resources(package_type: str, id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict: dict[str, Any] = {u'id': id, u'include_tracking': True}
 
     try:
@@ -421,13 +417,11 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
 
 
 def read(package_type: str, id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id, u'include_tracking': True}
 
     # check if package exists
@@ -508,13 +502,11 @@ class CreateView(MethodView):
 
     def _prepare(self) -> Context:  # noqa
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'save': self._is_save()
-        })
+        }
         try:
             check_access(u'package_create', context)
         except NotAuthorized:
@@ -701,13 +693,11 @@ class CreateView(MethodView):
 
 class EditView(MethodView):
     def _prepare(self) -> Context:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'save': u'save' in request.form
-        })
+        }
         return context
 
     def post(self, package_type: str, id: str) -> Union[Response, str]:
@@ -851,12 +841,10 @@ class EditView(MethodView):
 
 class DeleteView(MethodView):
     def _prepare(self) -> Context:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         return context
 
     def post(self, package_type: str, id: str) -> Response:
@@ -904,12 +892,10 @@ class DeleteView(MethodView):
 def follow(package_type: str, id: str) -> Response:
     """Start following this dataset.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id}
     try:
         get_action(u'follow_dataset')(context, data_dict)
@@ -931,12 +917,10 @@ def follow(package_type: str, id: str) -> Response:
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
     """Stop following this dataset.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id}
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
@@ -963,13 +947,11 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
 
 def followers(package_type: str,
               id: Optional[str] = None) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
-    })
+    }
 
     data_dict = {u'id': id}
     try:
@@ -1004,14 +986,12 @@ def followers(package_type: str,
 
 class GroupView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'for_view': True,
             u'auth_user_obj': current_user,
             u'use_cache': False
-        })
+        }
 
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})

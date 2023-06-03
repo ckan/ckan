@@ -999,7 +999,10 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
-        include_plugin_data = user_obj.sysadmin and include_plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and include_plugin_data
+        )
 
         if include_plugin_data:
             context['use_cache'] = False
