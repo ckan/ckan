@@ -60,7 +60,7 @@ class TestPluginsOrderInPluginImplementations:
         )
 
     def test_reverse_order_by_interface_attribute(self, monkeypatch):
-        monkeypatch.setattr(plugins.IDatasetForm, "ckan_reverse_iteration_order", True)
+        monkeypatch.setattr(plugins.IDatasetForm, "_reverse_iteration_order", True)
         assert (
             [plugin.name for plugin in plugins.PluginImplementations(plugins.IDatasetForm)] ==
             [

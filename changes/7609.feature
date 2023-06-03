@@ -1,5 +1,5 @@
 :py:class:`~ckan.plugins.interfaces.Interface` has
-`ckan_reverse_iteration_order` property. When it set to `True`,
+`_reverse_iteration_order` property. When it set to `True`,
 :py:class:`~ckan.plugins.core.PluginImplementations(interface)` will traverse
 plugins implementing the interface in reverse order.
 
