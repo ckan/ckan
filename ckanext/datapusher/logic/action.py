@@ -6,7 +6,7 @@ import logging
 import json
 import datetime
 import time
-from typing import Any, cast
+from typing import Any
 
 from urllib.parse import urljoin
 from dateutil.parser import parse as parse_date
@@ -126,8 +126,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
     # updats of dataset/resource/etc.
-    context['session'] = cast(
-        Any, context['model'].meta.create_local_session())
+    context['session'] = context['model'].meta.create_local_session()
     p.toolkit.get_action('task_status_update')(context, task)
 
     timeout = config.get('ckan.requests.timeout')
@@ -232,7 +231,7 @@ def datapusher_hook(context: Context, data_dict: dict[str, Any]):
             context, {'id': resource_dict['package_id']})
 
         for plugin in p.PluginImplementations(interfaces.IDataPusher):
-            plugin.after_upload(cast("dict[str, Any]", context),
+            plugin.after_upload(context,
                                 resource_dict, dataset_dict)
 
         logic.get_action('resource_create_default_resource_views')(

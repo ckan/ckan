@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from urllib.parse import urlencode
-from typing import Any, Optional, cast, List, Tuple
+from typing import Any, Optional, List, Tuple
 
 from flask import Blueprint, make_response, redirect, request
 
-import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.search as search

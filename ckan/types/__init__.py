@@ -83,7 +83,7 @@ class Context(TypedDict, total=False):
     connection: Any
     check_access: Callable[..., Any]
 
-    id: str
+    id: str | None
     user_id: str
     user_is_admin: bool
     search_query: bool
@@ -104,6 +104,10 @@ class Context(TypedDict, total=False):
     use_cache: bool
     include_plugin_extras: bool
     message: str
+    extras_as_string: bool
+    with_private: bool
+    group_type: str
+    parent: Optional[str]
 
     keep_email: bool
     keep_apikey: bool

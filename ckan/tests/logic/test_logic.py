@@ -2,7 +2,6 @@
 
 from unittest import mock
 import pytest
-from typing import cast
 from ckan import logic, model
 from ckan.types import Context
 import ckan.tests.factories as factories
@@ -76,13 +75,13 @@ def test_fresh_context():
         'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
         values (if they exists)."""
 
-    dirty_context = {
+    dirty_context: Context = {
         "user": "test",
         "ignore_auth": True,
         "to_be_cleaned": "test",
     }
-    dirty_Context = cast(Context, dirty_context)
-    cleaned_context = logic.fresh_context(dirty_Context)
+
+    cleaned_context = logic.fresh_context(dirty_context)
 
     assert "to_be_cleaned" not in cleaned_context
     assert cleaned_context["user"] == "test"

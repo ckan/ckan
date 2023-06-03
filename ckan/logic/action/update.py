@@ -514,7 +514,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     # on update or "nothing changed" status once possible
     rval = {
         'package': _get_action('package_update')(
-            cast(Context, dict(context, package=pkg)),
+            Context(context, package=pkg),
             orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])

@@ -7,7 +7,7 @@ import html
 import io
 import datetime
 
-from typing import Any, Callable, Optional, cast, Union
+from typing import Any, Callable, Optional, Union
 
 from flask import Blueprint, make_response
 
@@ -442,11 +442,8 @@ def group_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     group_list: ActionResult.GroupAutocomplete = []
 
     if q:
-        context = cast(
-            Context, {
-                u'user': current_user.name,
-                u'model': model}
-        )
+        context: Context = {'user': current_user.name}
+
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
     return _finish_ok(group_list)
@@ -458,9 +455,7 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     organization_list = []
 
     if q:
-        context = cast(Context, {
-            u'user': current_user.name,
-            u'model': model})
+        context: Context = {u'user': current_user.name}
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)

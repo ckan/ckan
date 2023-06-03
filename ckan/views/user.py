@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -225,7 +225,6 @@ class ApiTokenView(MethodView):
         return base.render(u'user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
-        context = cast(Context, {u'model': model})
 
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
@@ -234,7 +233,7 @@ class ApiTokenView(MethodView):
         data_dict[u'user'] = id
         try:
             token = logic.get_action(u'api_token_create')(
-                context,
+                {},
                 data_dict
             )[u'token']
         except logic.NotAuthorized:
@@ -265,9 +264,8 @@ class ApiTokenView(MethodView):
 
 
 def api_token_revoke(id: str, jti: str) -> Response:
-    context = cast(Context, {u'model': model})
     try:
-        logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
+        logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
     return h.redirect_to(u'user.api_tokens', id=id)
@@ -409,11 +407,11 @@ class EditView(MethodView):
             u'error_summary': error_summary
         }
 
-        extra_vars = _extra_template_variables(cast(Context, {
+        extra_vars = _extra_template_variables({
             u'model': model,
             u'session': model.Session,
             u'user': current_user.name
-        }), data_dict)
+        }, data_dict)
 
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
@@ -651,13 +649,11 @@ class RequestResetView(MethodView):
             return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
-        context = cast(
-            Context, {
-                u'model': model,
-                u'user': current_user.name,
-                u'ignore_auth': True
-            }
-        )
+        context: Context = {
+            'user': current_user.name,
+            'ignore_auth': True,
+        }
+
         user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
@@ -729,12 +725,10 @@ class RequestResetView(MethodView):
 class PerformResetView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
         # FIXME 403 error for invalid key is a non helpful page
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': id,
-            u'keep_email': True
-        })
+        context: Context = {
+            'user': id,
+            'keep_email': True,
+        }
 
         try:
             logic.check_access(u'user_reset', context)
@@ -783,10 +777,10 @@ class PerformResetView(MethodView):
             updated_user = logic.get_action("user_update")(context, user_dict)
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
-                patch_context = cast(Context, {
+                patch_context: Context = {
                     'user': logic.get_action("get_site_user")(
                         {"ignore_auth": True}, {})["name"]
-                })
+                }
                 logic.get_action("user_patch")(
                     patch_context,
                     {"id": user_dict['id'], "state": model.State.ACTIVE}

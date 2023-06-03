@@ -7,7 +7,7 @@ from collections import OrderedDict
 from functools import partial
 from typing_extensions import TypeAlias
 from urllib.parse import urlencode
-from typing import Any, Iterable, Optional, Union, cast
+from typing import Any, Iterable, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -348,7 +348,7 @@ def search(package_type: str) -> str:
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
     default_limit: int = config.get(u'search.facets.default')
-    for facet in cast(Iterable[str], extra_vars[u'search_facets'].keys()):
+    for facet in extra_vars[u'search_facets'].keys():
         try:
             limit = int(
                 request.args.get(
@@ -586,7 +586,7 @@ class CreateView(MethodView):
                     return h.redirect_to(url)
 
                 get_action(u'package_update')(
-                    cast(Context, dict(context, allow_state_change=True)),
+                    Context(context, allow_state_change=True),
                     dict(pkg_dict, state=u'active')
                 )
                 return h.redirect_to(
@@ -1085,7 +1085,7 @@ class GroupView(MethodView):
 
 
 def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # noqa
-    context = cast(Context, {u'model': model, u'user': current_user.name})
+    context: Context = {'user': current_user.name}
     data_dict = {u'id': id}
 
     try:
@@ -1103,7 +1103,7 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
 
 
 def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
-    context = cast(Context, {u'model': model, u'user': current_user.name})
+    context: Context = {'user': current_user.name}
 
     try:
         get_action(u'package_collaborator_delete')(context, {
@@ -1124,7 +1124,7 @@ def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  
 class CollaboratorEditView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:  # noqa
-        context = cast(Context, {u'model': model, u'user': current_user.name})
+        context: Context = {'user': current_user.name}
 
         try:
             form_dict = logic.clean_dict(
@@ -1162,7 +1162,7 @@ class CollaboratorEditView(MethodView):
         return h.redirect_to(u'dataset.collaborators_read', id=id)
 
     def get(self, package_type: str, id: str) -> Union[Response, str]:  # noqa
-        context = cast(Context, {u'model': model, u'user': current_user.name})
+        context: Context = {'user': current_user.name}
         data_dict = {u'id': id}
 
         try:

@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import json
 import unicodedata
-from typing import Optional, cast, Any
+from typing import Optional, Any
 
 
 from urllib.parse import urlparse
@@ -15,7 +15,6 @@ from feedgen.feed import FeedGenerator
 from ckan.common import _, config, request, current_user
 import ckan.lib.helpers as h
 import ckan.lib.base as base
-import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.types import Context, DataDict, PFeedFactory, Response
@@ -106,8 +105,8 @@ class CKANFeed(FeedGenerator):
                 continue
             self.link(href=href, rel=rel)
 
-    def writeString(self, encoding: str) -> str:  # noqa
-        return cast(str, self.atom_str(encoding=encoding))
+    def writeString(self, encoding: str) -> str:
+        return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs: Any) -> None:
         entry = self.add_entry()

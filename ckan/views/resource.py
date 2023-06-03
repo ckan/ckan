@@ -4,7 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
-from typing import Any, cast, Optional, Union
+from typing import Any, Optional, Union
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -239,7 +239,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
+                Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
@@ -269,7 +269,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
+                Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
