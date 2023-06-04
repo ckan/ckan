@@ -83,11 +83,11 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
 
         return meta.Session.query(cls).get(id)
 
+    @classmethod
     @deprecated(
         "Use `activity_create` instead of Activity.activity_stream_item",
         since="2.11.0"
     )
-    @classmethod
     def activity_stream_item(
         cls, pkg: model.Package, activity_type: str, user_id: str
     ) -> Optional["Activity"]:
