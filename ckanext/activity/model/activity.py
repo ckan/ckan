@@ -23,7 +23,7 @@ import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
 from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
-
+from ckan.lib.maintain import deprecated
 from ckan.types import Context, Query  # noqa
 
 
@@ -78,10 +78,18 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
 
         return meta.Session.query(cls).get(id)
 
+    @deprecated(
+        "Use `activity_create` instead of Activity.activity_stream_item",
+        since="2.11.0"
+    )
     @classmethod
     def activity_stream_item(
         cls, pkg: model.Package, activity_type: str, user_id: str
     ) -> Optional["Activity"]:
+        """DEPRECATED. Create an activity for a package.
+
+        Use `activity_create` API action instead.
+        """
         import ckan.model
         import ckan.logic
 
