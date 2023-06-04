@@ -3,11 +3,12 @@
 from __future__ import annotations
 import logging
 from typing import Any
+from typing_extensions import Literal
 
 import ckan.plugins.toolkit as tk
 import ckan.lib.dictization as dictization
 
-from ckan import types
+from ckan import types, model
 from .model import Activity
 
 log = logging.getLogger(__name__)
@@ -50,25 +51,77 @@ def bulk_changed(sender: str, **kwargs: Any):
             log.warning("Activity subscription ignored")
             return
 
-    context: types.Context = kwargs["context"]
-    datasets = kwargs["data_dict"].get("datasets")
-    model = context["model"]
+    datasets = kwargs["data_dict"].get("datasets", [])
 
-    user = context["user"]
-    user_obj = model.User.get(user)
+    for dataset in datasets:
+        _create_package_activity(
+            "changed",
+            dataset,
+            tk.fresh_context(kwargs["context"])
+        )
+
+
+def _create_package_activity(
+        activity_type: Literal["new", "changed", "deleted"],
+        pkg_id_or_name: str,
+        context: types.Context,
+):
+    user_obj = model.User.get(context["user"])
     if user_obj:
         user_id = user_obj.id
     else:
         user_id = "not logged in"
-    for dataset in datasets:
-        entity = model.Package.get(dataset)
-        assert entity
 
-        activity = Activity.activity_stream_item(entity, "changed", user_id)
-        model.Session.add(activity)
+    pkg = model.Package.get(pkg_id_or_name)
+    assert pkg
+    if pkg.private:
+        return
 
-    if not context.get("defer_commit"):
-        model.Session.commit()
+    # Handle 'deleted' objects.
+    # When the user marks a package as deleted this comes through here as
+    # a 'changed' package activity. We detect this and change it to a
+    # 'deleted' activity.
+    if activity_type == "changed" and pkg.state == "deleted":
+        q = context["session"].query(Activity).filter_by(
+            object_id=pkg.id, activity_type="deleted"
+        ).exists()
+        if context["session"].query(q).scalar():
+            # A 'deleted' activity for this object has already been emitted
+            # FIXME: What if the object was deleted and then activated
+            # again?
+            return None
+        # Emit a 'deleted' activity for this object.
+        activity_type = "deleted"
+
+    try:
+        # We save the entire rendered package dict so we can support
+        # viewing the past packages from the activity feed.
+        dictized_package = tk.get_action("package_show")(
+            {
+                # avoid ckanext-multilingual translating it
+                "for_view": False,
+                "ignore_auth": True,
+            },
+            {"id": pkg.id, "include_tracking": False},
+        )
+    except tk.ObjectNotFound:
+        # This happens if this package is being purged and therefore has no
+        # current revision.
+        # TODO: Purge all related activity stream items when a model object
+        # is purged.
+        return None
+
+    context["ignore_auth"] = True
+    activity_dict = {
+        "user_id": user_id,
+        "object_id": pkg.id,
+        "activity_type": f"{activity_type} package",
+        "data": {
+            "package": dictized_package,
+            "actor": user_obj.name if user_obj else None,
+        }
+    }
+    tk.get_action("activity_create")(context, activity_dict)
 
 
 # action, context, data_dict, result
@@ -78,9 +131,6 @@ def package_changed(sender: str, **kwargs: Any):
             log.warning("Activity subscription ignored")
             return
 
-    type_ = "new" if sender == "package_create" else "changed"
-
-    context: types.Context = kwargs["context"]
     result: types.ActionResult.PackageUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
 
@@ -91,6 +141,7 @@ def package_changed(sender: str, **kwargs: Any):
     else:
         id_ = result["id"]
 
+<<<<<<< HEAD
     pkg = context["model"].Package.get(id_)
     assert pkg
 
@@ -105,6 +156,13 @@ def package_changed(sender: str, **kwargs: Any):
     context["session"].add(activity)
     if not context.get("defer_commit"):
         context["session"].commit()
+=======
+    _create_package_activity(
+        "new" if sender == "package_create" else "changed",
+        id_,
+        tk.fresh_context(kwargs["context"])
+    )
+>>>>>>> 9595157e7... Create all activities using API, not model
 
 
 # action, context, data_dict, result
