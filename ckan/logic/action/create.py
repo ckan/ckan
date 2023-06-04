@@ -992,11 +992,11 @@ def user_create(context: Context,
                             'image_upload', 'clear_upload')
     breakpoint()
     data_dict.update({'buz': '123'})
-    from ckan.lib.pydantic.user_schema import _not_empty
+    from ckan.lib.pydantic.user_schema import not_empty_
     UserCreateSchema.update_fields([
         # this is for reference only 
         # add _not_empty validator to email field
-        {'name': 'email', 'extra': {'validator': _not_empty}}
+        {'name': 'email', 'extra': {'validator': not_empty_}}
     ])
     try:
         data = UserCreateSchema(**data_dict)

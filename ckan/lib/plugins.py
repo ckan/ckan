@@ -331,7 +331,8 @@ def plugin_validate(
     if hasattr(plugin, 'validate'):
         result = plugin.validate(context, data_dict, schema, pydantic_model, action)
         if result:
-            return result.dict(), None if isinstance(result, pydantic_model) else result
+            breakpoint()
+            return (result.dict(), None) if isinstance(result, pydantic_model) else result
 
     validator_model = config.get('ckan.validator_model', 'navl')
 

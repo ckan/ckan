@@ -54,8 +54,8 @@ def user_passwords_match(
         return value
 
 
-_not_empty = Validator(not_empty)
-_user_password_validator = Validator(user_password_validator)
+not_empty_ = Validator(not_empty)
+user_password_validator_ = Validator(user_password_validator)
 
 
 class CKANModel(pydantic.BaseModel):
@@ -114,7 +114,7 @@ class CKANModel(pydantic.BaseModel):
 
 
 class UserCreateSchema(CKANModel):
-    name: str = pydantic.Field(None, extra={'not_empty': _not_empty})
+    name: str = pydantic.Field(None, extra={'not_empty': not_empty_})
     email: str
     password: Optional[str]
     password1: pydantic.constr(strip_whitespace=True, min_length=8)  # type: ignore
@@ -142,6 +142,6 @@ UserCreateSchema.add_fields([
     # Elipsis means the field is Required!
     # it also can be None, this means the field is Optional[type]
     # or set it to default value e.g (str, 'defaul_value')
-    {'name': 'buz', 'type': (str, ...), 'title': 'Buz', 'extra': {'validator': _not_empty}},
-    {'name': 'foo', 'type': (str, None), 'title': 'Foo', 'extra': {'validator': _not_empty}}
+    {'name': 'buz', 'type': (str, ...), 'title': 'Buz', 'extra': {'validator': not_empty_}},
+    {'name': 'foo', 'type': (str, None), 'title': 'Foo', 'extra': {'validator': not_empty_}}
 ])

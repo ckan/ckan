@@ -806,6 +806,8 @@ def get_validator(
         _validators_cache.update(validators)
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
+        validators = _import_module_functions('ckan.lib.pydantic.validators')
+        _validators_cache.update(validators)
         converters = _import_module_functions('ckan.logic.converters')
         _validators_cache.update(converters)
         _validators_cache.update({'OneOf': _validators_cache['one_of']})
