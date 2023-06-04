@@ -316,8 +316,9 @@ class TestPackageActivityList(object):
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
 
-    def test_private_dataset_has_no_activity(self):
+    def test_private_dataset_has_activity(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(
@@ -329,12 +330,84 @@ class TestPackageActivityList(object):
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
         )
-        assert [activity["activity_type"] for activity in activities] == []
+        assert [activity["activity_type"]
+                for activity in activities] == ['changed package', 'new package']
 
-    def test_private_dataset_delete_has_no_activity(self):
+    def test_private_dataset_activities_not_visible_to_users_without_permission(self):
         user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+
+        user_without_permission = factories.User()
+        auth_user_obj = model.User.get(user_without_permission["id"])
+        activities = helpers.call_action(
+            "package_activity_list",
+            context={"user": user_without_permission["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ['changed package']
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visible_to_users_with_permission(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to organization members
+        auth_user_obj = model.User.get(org_user["id"])
+        activities = helpers.call_action(
+            "package_activity_list",
+            context={"user": org_user["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ['new package']
+        
+        # Visible to collaborators
+        auth_user_obj = model.User.get(collaborator_user["id"])
+        activities = helpers.call_action(
+            "package_activity_list",
+            context={"user": collaborator_user["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ['new package']
+
+    def test_private_dataset_delete_has_activity(self):
+        user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(
@@ -345,9 +418,12 @@ class TestPackageActivityList(object):
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            id=dataset["id"]
         )
-        assert [activity["activity_type"] for activity in activities] == []
+        assert [activity["activity_type"]
+                for activity in activities] == ['deleted package', 'new package']
 
     def _create_bulk_types_activities(self, types):
         user = factories.User()
