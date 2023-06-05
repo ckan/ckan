@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any
 from typing_extensions import Literal, TypedDict, assert_never
 
 from markupsafe import Markup
@@ -14,7 +14,7 @@ from ckan.common import config, g
 
 
 log = logging.getLogger(__name__)
-env: Optional[Environment] = None
+env: Environment
 
 AssetType = Literal["style", "script"]
 
@@ -28,10 +28,6 @@ class AssetCollection(TypedDict):
 def create_library(name: str, path: str) -> None:
     """Create WebAssets library(set of Bundles).
     """
-    if not env:
-        log.critical("Webassets environment is not initialized yet")
-        return
-
     config_path = os.path.join(path, "webassets.yaml")
     if not os.path.exists(config_path):
         config_path = os.path.join(path, "webassets.yml")
@@ -118,14 +114,11 @@ def _make_asset_collection() -> AssetCollection:
 def include_asset(name: str) -> None:
     from ckan.lib.helpers import url_for_static_or_external
 
-    if not env:
-        log.critical("Webassets environment is not initialized yet")
-        return
+    if not hasattr(g, "_webassets"):
+        log.debug("Initialize fresh assets collection")
+        g._webassets = _make_asset_collection()
 
-    if not hasattr(g, "webassets"):
-        g.webassets = _make_asset_collection()
-
-    if name in g.webassets["included"]:
+    if name in g._webassets["included"]:
         return
 
     if not is_registered(name):
@@ -137,7 +130,7 @@ def include_asset(name: str) -> None:
 
     # mark current asset as included in order to avoid recursion while loading
     # dependencies
-    g.webassets["included"].add(name)
+    g._webassets["included"].add(name)
     for dep in deps:
         include_asset(dep)
 
@@ -156,7 +149,7 @@ def include_asset(name: str) -> None:
         log.warn("Undefined asset type: %s", urls)
         return
 
-    g.webassets[type_].extend(urls)
+    g._webassets[type_].extend(urls)
 
 
 def _to_tag(url: str, type_: AssetType) -> str:
@@ -195,10 +188,10 @@ def render_assets(type_: AssetType) -> Markup:
 
         # style-cache is clean, nothing included since last render
         output = render_assets("style")
-        assert output ==""
+        assert output == ""
     """
     try:
-        assets: AssetCollection = g.webassets
+        assets: AssetCollection = g._webassets
     except AttributeError:
         return Markup()
 
@@ -229,16 +222,9 @@ def get_webassets_path() -> str:
 
 def add_public_path(path: str, url: str) -> None:
     """Add a public path that can be used by `cssrewrite` filter."""
-    if not env:
-        log.critical("Webassets environment is not initialized yet")
-        return
     env.append_path(path, url)
 
 
 def is_registered(asset: str) -> bool:
     """Check if asset is registered in current environment."""
-    if not env:
-        log.critical("Webassets environment is not initialized yet")
-        return False
-
     return asset in env
