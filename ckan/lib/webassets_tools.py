@@ -29,7 +29,7 @@ def create_library(name: str, path: str) -> None:
     """Create WebAssets library(set of Bundles).
     """
     if not env:
-        log.debug("Webassets environment is not initialized yet")
+        log.critical("Webassets environment is not initialized yet")
         return
 
     config_path = os.path.join(path, "webassets.yaml")
@@ -37,7 +37,7 @@ def create_library(name: str, path: str) -> None:
         config_path = os.path.join(path, "webassets.yml")
 
     if not os.path.exists(config_path):
-        log.debug(
+        log.warning(
             "Cannot create library %s at %s because webassets.yaml is missing",
             name,
             path,
@@ -83,7 +83,7 @@ def webassets_init() -> None:
 
     env = Environment()
     env.directory = static_path
-    env.debug = config["debug"] and False
+    env.debug = config["debug"]
     env.url = config["ckan.webassets.url"]
 
 
@@ -119,7 +119,7 @@ def include_asset(name: str) -> None:
     from ckan.lib.helpers import url_for_static_or_external
 
     if not env:
-        log.debug("Webassets environment is not initialized yet")
+        log.critical("Webassets environment is not initialized yet")
         return
 
     if not hasattr(g, "webassets"):
@@ -230,7 +230,7 @@ def get_webassets_path() -> str:
 def add_public_path(path: str, url: str) -> None:
     """Add a public path that can be used by `cssrewrite` filter."""
     if not env:
-        log.debug("Webassets environment is not initialized yet")
+        log.critical("Webassets environment is not initialized yet")
         return
     env.append_path(path, url)
 
@@ -238,7 +238,7 @@ def add_public_path(path: str, url: str) -> None:
 def is_registered(asset: str) -> bool:
     """Check if asset is registered in current environment."""
     if not env:
-        log.debug("Webassets environment is not initialized yet")
+        log.critical("Webassets environment is not initialized yet")
         return False
 
     return asset in env
