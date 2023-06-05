@@ -15,15 +15,15 @@ def create_table(resource_id, info):
     for colname, typ in primary_key:
         ct = column_types[typ]
         condition = ct.sql_is_empty.format(
-            column=f'NEW.{identifier(colname)}'
+            column='NEW.{0}'.format(identifier(colname))
         )
-        validate_rules.append(f'''
-IF {condition} THEN
+        validate_rules.append('''
+IF {0} THEN
     errors := errors || ARRAY[
-        {literal_string(colname)}, 'Primary key must not be empty'
+        {1}, 'Primary key must not be empty'
     ];
 END IF;
-''')
+'''.format(condition, literal_string(colname)))
 
     if validate_rules:
         validate_def = '''
@@ -42,7 +42,7 @@ END;
                 'ignore_auth': True,
             },
             {
-                'name': f'{resource_id}_tabledesigner_validate',
+                'name': '{0}_tabledesigner_validate'.format(resource_id),
                 'or_replace': True,
                 'rettype': 'trigger',
                 'definition': validate_def,
@@ -63,7 +63,7 @@ END;
                 },
             } for i in info],
             'triggers': [
-                {'function': f'{resource_id}_tabledesigner_validate'}
+                {'function': '{0}_tabledesigner_validate'.format(resource_id)}
             ] if validate_def else [],
         }
     )
