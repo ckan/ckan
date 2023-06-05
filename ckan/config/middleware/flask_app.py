@@ -210,7 +210,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         cast("tuple[str, str]", (_ckan_i18n_dir, u'ckan'))
     ] + [
         (p.i18n_directory(), p.i18n_domain())
-        for p in reversed(list(PluginImplementations(ITranslation)))
+        for p in PluginImplementations(ITranslation)
     ]
 
     i18n_dirs, i18n_domains = zip(*pairs)
