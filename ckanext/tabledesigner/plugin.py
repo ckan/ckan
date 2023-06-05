@@ -22,8 +22,8 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
 
     def get_actions(self):
         return {
-            'package_update': actions.package_update,
-            'package_create': actions.package_create,
+            'resource_update': actions.resource_update,
+            'resource_create': actions.resource_create,
         }
 
     # IBlueprint
