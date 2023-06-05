@@ -394,7 +394,7 @@ class TestPackageActivityList(object):
         )
         assert [activity["activity_type"]
                 for activity in activities] == ['new package']
-        
+
         # Visible to collaborators
         auth_user_obj = model.User.get(collaborator_user["id"])
         activities = helpers.call_action(
