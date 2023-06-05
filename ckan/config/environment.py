@@ -132,7 +132,8 @@ def update_config() -> None:
     # initialize webassets environment because plugins will register assets
     # inside IConfigured.update_config
     webassets_init()
-    for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
+
+    for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)

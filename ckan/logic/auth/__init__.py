@@ -46,24 +46,19 @@ def _get_object(context: Context,
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
                 class_name: str) -> Any:
-    # return the named item if in the context, or get it from model.class_name
-    try:
-        return context[name]
-    except KeyError:
-        model = context['model']
-        if not data_dict:
-            data_dict = {}
-        id = data_dict.get('id', None)
-        if not id:
-            raise logic.ValidationError({
-                "message": 'Missing id, can not get {0} object'.format(
-                    class_name)})
-        obj = getattr(model, class_name).get(id)
-        if not obj:
-            raise logic.NotFound
-        # Save in case we need this again during the request
-        context[name] = obj
-        return obj
+    # return the named item from model.class_name
+    model = context['model']
+    if not data_dict:
+        data_dict = {}
+    id = data_dict.get('id', None)
+    if not id:
+        raise logic.ValidationError({
+            "message": 'Missing id, can not get {0} object'.format(
+                class_name)})
+    obj = getattr(model, class_name).get(id)
+    if not obj:
+        raise logic.NotFound
+    return obj
 
 
 def get_package_object(

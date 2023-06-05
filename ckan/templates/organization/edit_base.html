@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-    {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil-square') }}
+    {{ h.build_nav_icon(group_type + '.edit', _('Edit'), id=group_dict.name, icon='pencil') }}
     {{ h.build_nav_icon(group_type + '.bulk_process', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=group_dict.name, icon='sitemap') }}
     {{ h.build_nav_icon(group_type + '.manage_members', _('Members'), id=group_dict.name, icon='users') }}
 {% endblock %}
