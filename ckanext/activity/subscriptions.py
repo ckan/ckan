@@ -66,14 +66,13 @@ def _create_package_activity(
         pkg_id_or_name: str,
         context: types.Context,
 ):
-    user_obj = model.User.get(context["user"])
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = "not logged in"
+    user_obj = _get_user_or_raise(context["user"])
+    user_id = user_obj.id
 
     pkg = model.Package.get(pkg_id_or_name)
-    assert pkg
+    if not pkg:
+        raise tk.ObjectNotFound("package")
+
     if pkg.private:
         return
 
@@ -122,6 +121,17 @@ def _create_package_activity(
         }
     }
     tk.get_action("activity_create")(context, activity_dict)
+
+
+def _get_user_or_raise(username: str) -> model.User:
+    """Get user by username or raise standard exception.
+    """
+    if user := model.User.get(username):
+        return user
+
+    raise tk.ValidationError({
+        "user_id": ["User not found"]
+    })
 
 
 # action, context, data_dict, result
@@ -179,12 +189,12 @@ def group_or_org_changed(sender: str, **kwargs: Any):
     group = context["model"].Group.get(
         result["id"] if result else data_dict["id"]
     )
-    assert group
+    if not group:
+        raise tk.ObjectNotFound("group")
 
     type_, action = sender.split("_")
 
-    user_obj = context["model"].User.get(context["user"])
-    assert user_obj
+    user_obj = _get_user_or_raise(context["user"])
 
     activity_dict: dict[str, Any] = {
         "user_id": user_obj.id,
