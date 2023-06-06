@@ -44,9 +44,9 @@ import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.lib.search as search
 import ckan.model as model
 from ckan.common import config, aslist
+from ckan.lib import redis, search
 
 
 @register
@@ -212,6 +212,34 @@ def reset_index():
     If possible use the ``clean_index`` fixture instead.
     """
     return search.clear_all
+
+
+@pytest.fixture(scope="session")
+def reset_redis():
+    """Callable for removing all keys from Redis.
+
+    Accepts redis key-pattern for narrowing down the list of items to
+    remove. By default removes everything.
+    """
+    def cleaner(pattern: str = "*") -> int:
+        """Remove keys matching pattern.
+
+        Return number of removed records.
+        """
+        conn = redis.connect_to_redis()
+        keys = conn.keys(pattern)
+        if keys:
+            return conn.delete(*keys)
+        return 0
+
+    return cleaner
+
+
+@pytest.fixture()
+def clean_redis(reset_redis):
+    """Remove all keys from Redis.
+    """
+    reset_redis()
 
 
 @pytest.fixture
