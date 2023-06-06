@@ -27,14 +27,19 @@ Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
+from __future__ import annotations
 
 import smtplib
 
 from io import BytesIO
 import copy
+import inspect
+from typing import Any, Type
+from typing_extensions import TypeGuard
 
 import pytest
 import rq
+import inflection
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 from pytest_factoryboy import register
@@ -49,61 +54,24 @@ import ckan.model as model
 from ckan.common import config, aslist
 
 
-@register
-class UserFactory(factories.User):
-    pass
+def _is_factory_class(m: Any) -> TypeGuard[Type[factories.CKANFactory]]:
+    """Select classes that can be used as factory fixtures.
+    """
+    return (
+        isinstance(m, type)
+        and issubclass(m, factories.CKANFactory)
+        and m is not factories.CKANFactory
+    )
 
 
-@register
-class ResourceFactory(factories.Resource):
-    pass
+for (name, factory) in inspect.getmembers(factories, _is_factory_class):
+    if not name.endswith("Factory"):
+        name += "Factory"
 
+    cls = type(name, (factory, ), {})
 
-@register
-class ResourceViewFactory(factories.ResourceView):
-    pass
-
-
-@register
-class GroupFactory(factories.Group):
-    pass
-
-
-@register
-class PackageFactory(factories.Dataset):
-    pass
-
-
-@register
-class VocabularyFactory(factories.Vocabulary):
-    pass
-
-
-@register
-class TagFactory(factories.Tag):
-    pass
-
-
-@register
-class SystemInfoFactory(factories.SystemInfo):
-    pass
-
-
-@register
-class APITokenFactory(factories.APIToken):
-    pass
-
-
-class SysadminFactory(factories.Sysadmin):
-    pass
-
-
-class OrganizationFactory(factories.Organization):
-    pass
-
-
-register(SysadminFactory, "sysadmin")
-register(OrganizationFactory, "organization")
+    # strip `Factory` suffix from instance name
+    register(cls, inflection.underscore(name[:-7]))
 
 
 @pytest.fixture
