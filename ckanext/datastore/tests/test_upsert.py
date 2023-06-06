@@ -129,7 +129,7 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][1]["book"] == u"The boy"
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")   
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_nested_data_at_last(self):
         resource = factories.Resource()
         data = {
