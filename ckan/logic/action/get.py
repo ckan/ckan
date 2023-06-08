@@ -55,6 +55,7 @@ _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
 _case = sqlalchemy.case
+_null = sqlalchemy.null
 
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
@@ -174,12 +175,13 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     # User must be able to update the group to remove a member from it
     _check_access('group_show', context, data_dict)
 
-    q = model.Session.query(model.Member).\
-        filter(model.Member.group_id == group.id).\
+    q = model.Session.query(model.Member)
+    if obj_type:
+        q = model.Member.all(obj_type)
+
+    q = q.filter(model.Member.group_id == group.id).\
         filter(model.Member.state == "active")
 
-    if obj_type:
-        q = q.filter(model.Member.table_name == obj_type)
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
