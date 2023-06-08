@@ -400,13 +400,13 @@ def _group_or_org_list(
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
-        sort_model_field = sqlalchemy.func.count(model.Group.id)
+        sort_model_field: Any = sqlalchemy.func.count(model.Group.id)
         if sort_field == 'package_count':
             query = query.group_by(model.Group.id, model.Group.name)
         elif sort_field == 'name':
             sort_model_field = model.Group.name
         elif sort_field == 'title':
-            sort_model_field = cast(Any, model.Group.title)
+            sort_model_field = model.Group.title
 
         if sort_direction == 'asc':
             query = query.order_by(sqlalchemy.asc(sort_model_field))
@@ -999,7 +999,10 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
-        include_plugin_data = user_obj.sysadmin and include_plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and include_plugin_data
+        )
 
         if include_plugin_data:
             context['use_cache'] = False
@@ -1104,11 +1107,10 @@ def resource_show(
     id = _get_or_bust(data_dict, 'id')
 
     resource = model.Resource.get(id)
-    resource_context = cast(Context, dict(context, resource=resource))
-
     if not resource:
         raise NotFound
 
+    resource_context = Context(context, resource=resource)
     _check_access('resource_show', resource_context, data_dict)
 
     pkg_dict = logic.get_action('package_show')(
