@@ -220,6 +220,30 @@ def reset_redis():
 
     Accepts redis key-pattern for narrowing down the list of items to
     remove. By default removes everything.
+
+    This fixture removes all the records from Redis on call::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("test", "test")
+
+            reset_redis()
+            assert not redis.get("test")
+
+    If only specific records require removal, pass a pattern to the fixture::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("AAA-1", 1)
+            redis.set("AAA-2", 2)
+            redis.set("BBB-3", 3)
+
+            reset_redis("AAA-*")
+            assert not redis.get("AAA-1")
+            assert not redis.get("AAA-2")
+
+            assert redis.get("BBB-3") is not None
+
     """
     def cleaner(pattern: str = "*") -> int:
         """Remove keys matching pattern.
@@ -238,6 +262,23 @@ def reset_redis():
 @pytest.fixture()
 def clean_redis(reset_redis):
     """Remove all keys from Redis.
+
+    This fixture removes all the records from Redis::
+
+        @pytest.mark.usefixtures("clean_redis")
+        def test_redis_is_empty():
+            assert redis.keys("*") == []
+
+    If test requires presence of some initial data in redis, make sure that
+    data producer applied **after** ``clean_redis``::
+
+        @pytest.mark.usefixtures(
+            "clean_redis",
+            "fixture_that_adds_xxx_key_to_redis"
+        )
+        def test_redis_has_one_record():
+            assert redis.keys("*") == [b"xxx"]
+
     """
     reset_redis()
 
