@@ -47,7 +47,6 @@ import ckan.cli
 import ckan.lib.search as search
 import ckan.model as model
 from ckan.common import config
-from .ckan_setup import unload_non_system_plugins
 
 
 @register
@@ -319,7 +318,7 @@ def with_plugins(ckan_config):
     """
     ckan.plugins.load_all()
     yield
-    unload_non_system_plugins()
+    ckan.plugins.unload_non_system_plugins()
 
 
 @pytest.fixture
