@@ -30,7 +30,7 @@ Major Releases
 
 Minor Releases
  Minor releases, such as CKAN 2.9 and CKAN 2.10, increment the minor version
- number. These releases are not as disruptive as major releases, but the will
+ number. These releases are not as disruptive as major releases, but they 
  *may* include some backwards-incompatible changes. The
  :doc:`/changelog` will document any breaking changes. We aim to release a minor
  version of CKAN roughly twice a year.
