@@ -268,23 +268,57 @@ def clean_index(reset_index):
 
 @pytest.fixture
 def with_plugins(ckan_config):
-    """Load all plugins specified by the ``ckan.plugins`` config option
-    at the beginning of the test. When the test ends (even it fails), it will
-    unload all the plugins in the reverse order.
+    """Load all plugins specified by the ``ckan.plugins`` config option at the
+    beginning of the test(and disable any plugin which is not listed inside
+    ``ckan.plugins``). When the test ends (including fail), it will unload all
+    the plugins.
 
     .. literalinclude:: /../ckan/tests/test_factories.py
        :start-after: # START-CONFIG-OVERRIDE
        :end-before: # END-CONFIG-OVERRIDE
 
+    Use this fixture if test relies on CKAN plugin infrastructure. For example,
+    if test calls an action or helper registered by plugin XXX::
+
+        @pytest.mark.ckan_config("ckan.plugins", "XXX")
+        @pytest.mark.usefixtures("with_plugin")
+        def test_action_and_helper():
+            assert call_action("xxx_action")
+            assert tk.h.xxx_helper()
+
+    It will not work without ``with_plugins``. If ``XXX`` plugin is not loaded,
+    ``xxx_action`` and ``xxx_helper`` do not exist in CKAN registries.
+
+    But if the test above use direct imports instead, ``with_plugins`` is
+    optional::
+
+        def test_action_and_helper():
+            from ckanext.xxx.logic.action import xxx_action
+            from ckanext.xxx.helpers import xxx_helper
+
+            assert xxx_action()
+            assert xxx_helper()
+
+    Keep in mind, that generally it's a bad idea to import helpers and actions
+    directly. If **every** test of extension requires standard set of plugins,
+    specify these plugins inside test config file(``test.ini``)::
+
+        ckan.plugins = essential_plugin another_plugin_required_by_every_test
+
+    And create an autouse-fixture that depends on ``with_plugins`` inside
+    the main ``conftest.py`` (``ckanext/ext/tests/conftest.py``)::
+
+        @pytest.fixture(autouse=True)
+        def load_standard_plugins(with_plugins):
+            ...
+
+    This will automatically enable ``with_plugins`` for every test, even if
+    it's not required explicitely.
+
     """
-    plugins = aslist(ckan_config["ckan.plugins"])
-    for plugin in plugins:
-        if not ckan.plugins.plugin_loaded(plugin):
-            ckan.plugins.load(plugin)
+    ckan.plugins.load_all()
     yield
-    for plugin in reversed(plugins):
-        if ckan.plugins.plugin_loaded(plugin):
-            ckan.plugins.unload(plugin)
+    ckan.plugins.unload_all()
 
 
 @pytest.fixture
