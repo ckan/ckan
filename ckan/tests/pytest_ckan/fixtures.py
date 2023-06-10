@@ -46,7 +46,7 @@ import ckan.plugins
 import ckan.cli
 import ckan.lib.search as search
 import ckan.model as model
-from ckan.common import config, aslist
+from ckan.common import config
 
 
 @register
