@@ -158,7 +158,6 @@ def package_create(
     '''
     model = context['model']
     user = context['user']
-    pydantic_model: PydanticModel = pydantic_schema.DefaultCreatePackageSchema
 
     if 'type' not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
@@ -173,13 +172,13 @@ def package_create(
     else:
         package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
 
-    schema: Schema = context.get(
+    schema: Union[Schema, PydanticModel] = context.get(
         'schema') or package_plugin.create_package_schema()
-
+   
     _check_access('package_create', context, data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, pydantic_model, 'package_create')
+        package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)

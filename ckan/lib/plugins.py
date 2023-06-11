@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
+from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast, Union
 
 from flask import Blueprint
 
@@ -323,24 +323,23 @@ def set_default_group_plugin() -> None:
 
 def plugin_validate(
         plugin: Any, context: Context,
-        data_dict: DataDict, schema: Schema, pydantic_model: PydanticModel, action: Any) -> Any:
+        data_dict: DataDict, schema: Union[Schema, PydanticModel], action: Any) -> Any:
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
     """
     if hasattr(plugin, 'validate'):
-        result = plugin.validate(context, data_dict, schema, pydantic_model, action)
-        if result:
-            breakpoint()
-            return (result.dict(), None) if isinstance(result, pydantic_model) else result
+        result = plugin.validate(context, data_dict, schema, action)
+        if result is not None:
+            return result
 
     validator_model = config.get('ckan.validator_model', 'navl')
-
-    return (
-        validate(data_dict, schema, context) 
-        if validator_model == 'navl'
-        else pydantic_model(**data_dict)
-    )
+    if validator_model == 'navl':
+        return validate(data_dict, schema, context)  # type: ignore
+    else:
+        result = schema(**data_dict, __context=context).dict() # type: ignore  
+        errors = result.pop('errors', None)
+        return result, errors
 
 
 def get_permission_labels() -> Any:
@@ -373,8 +372,13 @@ class DefaultDatasetForm(object):
        being registered.
 
     '''
-    def create_package_schema(self) -> Schema:
-        return schema.default_create_package_schema()
+    def create_package_schema(self) -> Union[Schema, PydanticModel]:
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultCreatePackageSchema  # type: ignore
 
     def update_package_schema(self) -> Schema:
         return schema.default_update_package_schema()

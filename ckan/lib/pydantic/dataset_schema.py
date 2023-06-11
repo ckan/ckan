@@ -1,12 +1,14 @@
 import pydantic
 from typing import Any, Dict, List, Optional
 
-from .resource_schema import DefaultResourceSchema
-from .tag_schema import DefaultTagSchema
-from .mixed_schema import DefaultExtrasSchema, DefaultRelationshipSchema
+from ckan.lib.pydantic.base import CKANBaseModel
+from ckan.lib.pydantic.resource_schema import DefaultResourceSchema
+from ckan.lib.pydantic.tag_schema import DefaultTagSchema
+from ckan.lib.pydantic.mixed_schema import DefaultExtrasSchema
+from ckan.lib.pydantic.mixed_schema import DefaultRelationshipSchema
 
 
-class DefaultCreatePackageSchema(pydantic.BaseModel):
+class DefaultCreatePackageSchema(CKANBaseModel):
     id: Optional[str]
     name: str
     title: str
@@ -33,14 +35,24 @@ class DefaultCreatePackageSchema(pydantic.BaseModel):
     relationships_as_subject: Optional[List[DefaultRelationshipSchema]]
     groups: Optional[Dict[str, Any]]
 
-    class Config:
-        extra = "allow"
+    _validators = {
+        'id': [
+            "pydantic_empty_if_not_sysadmin", "pydantic_ignore_missing", 
+            "unicode_safe", "package_id_does_not_exist"
+        ],
+        'name': [
+            "pydantic_not_empty", "unicode_safe", "name_validator", 
+            "pydantic_package_name_validator"
+        ],
+        'title': []
+    }
 
     @pydantic.root_validator(pre=False)
     def convert_to_extras(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         '''
         Convert given field into an extra field.
         '''
+
         all_required_field_names = (
             {
             field.alias for field in cls.__fields__.values() 
@@ -54,11 +66,10 @@ class DefaultCreatePackageSchema(pydantic.BaseModel):
 
         for field_name, field_value in values.items():
             if (
-                field_name not in ["_ckan_phase", "save", "pkg_name", "extras"] 
+                field_name not in ["_ckan_phase", "save", "pkg_name", "extras", "errors"]
                 and field_name not in all_required_field_names
             ):
                 extras.append({'key': field_name, 'value': field_value})
-
         values['extras'] = extras
         return values
 

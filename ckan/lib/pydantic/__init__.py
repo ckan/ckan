@@ -18,6 +18,7 @@ from ckan.lib.pydantic.tag_schema import (
 from ckan.lib.pydantic.user_schema import (
     UserCreateSchema
 )
+from ckan.lib.pydantic.base import CKANBaseModel
 
 
 __all__ = [
@@ -25,5 +26,5 @@ __all__ = [
     "DefaultGroupSchema", "GroupFormSchema", "DefaultUpdateGroupSchema",
     "DefaultExtrasSchema", "DefaultRelationshipSchema", "DefaultResourceSchema",
     "DefaultResourceUpdateSchema", "DefaultTagSchema", "DefaultCreateTagSchema",
-    "UserCreateSchema"
+    "UserCreateSchema", "CKANBaseModel",
 ]
