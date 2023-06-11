@@ -312,6 +312,42 @@ groups:
           Defaults to never expiring.
           Requires that save_accessed_time be true.
 
+      - key: beaker.session.type
+        required: True
+        default: cookie
+        description: |
+          The type of session to use. The default is cookie, which uses a cookie to store the session id.
+          Other options include file, which stores the session id in a file, and dbm, which stores the session id in a dbm file.
+          The dbm option is not recommended as it is not thread-safe.
+
+      - key: beaker.session.validate_key
+        validators: not_empty
+        required: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that is used to sign the local encrypted session.
+          `ckan generate config` generates a unique
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+
+      - key: beaker.session.httponly
+        type: bool
+        default: True
+        description: |
+          Whether or not the session cookie should be marked as http only. When marked as http only,
+          browsers are instructed to not allow javascript access to the cookie.
+
+      - key: beaker.session.samesite
+        default: Lax
+        required: True
+        validators: samesite_validator
+        description: |
+          Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
+          browsers are instructed to not send the cookie with cross-site requests.
+          The value can be "Strict", "Lax" or "None".
+
   - annotation: Database settings
     options:
       - key: sqlalchemy.url
