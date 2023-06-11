@@ -258,10 +258,12 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_helpers(self) -> dict[str, Callable[..., object]]:
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
+        rw_url_types = datastore_helpers.datastore_rw_resource_url_types
 
         return {
             'datastore_dictionary': conf_dictionary,
-            'datastore_search_sql_enabled': conf_sql_enabled
+            'datastore_search_sql_enabled': conf_sql_enabled,
+            'datastore_rw_resource_url_types': rw_url_types,
         }
 
     # IForkObserver

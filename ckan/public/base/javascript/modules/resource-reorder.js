@@ -17,7 +17,6 @@ this.ckan.module('resource-reorder', function($) {
       ].join('\n'),
       form_actions: [
         '<div class="form-actions">',
-        '<a href="javascript:;" class="cancel btn btn-danger pull-left"></a>',
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
@@ -83,6 +82,7 @@ this.ckan.module('resource-reorder', function($) {
         .sortable()
         .sortable('disable');
 
+      this._onHandleStartReorder();
     },
 
     _onHandleStartReorder: function() {

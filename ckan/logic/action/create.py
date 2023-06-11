@@ -1076,9 +1076,7 @@ def user_invite(context: Context,
 
     data['state'] = model.State.PENDING
     user_dict = _get_action('user_create')(
-        cast(
-            Context,
-            dict(context, schema=invite_schema, ignore_auth=True)),
+        Context(context, schema=invite_schema, ignore_auth=True),
         data)
     user = model.User.get(user_dict['id'])
     assert user
@@ -1357,11 +1355,10 @@ def _group_or_org_member_create(
         'object_type': 'user',
         'capacity': role,
     }
-    member_create_context = cast(Context, {
-        'model': model,
+    member_create_context: Context = {
         'user': user,
-        'ignore_auth': context.get('ignore_auth'),
-    })
+        'ignore_auth': context.get('ignore_auth', False),
+    }
     return logic.get_action('member_create')(member_create_context,
                                              member_dict)
 

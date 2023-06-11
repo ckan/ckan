@@ -1416,6 +1416,12 @@ groups:
           when the asset is used for the first time. All subsequent requests to the
           asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
 
+      - key: ckan.webassets.url
+        example: /serve/assets/from/here
+        default: /webassets
+        description: |
+          URL path for endpoint that serves webassets.
+
       - key: ckan.webassets.use_x_sendfile
         type: bool
         example: true

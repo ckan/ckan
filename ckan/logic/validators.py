@@ -535,7 +535,7 @@ def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
     pkg = context.get('package')
     if pkg:
         try:
-            logic.check_access('package_change_state',context)
+            logic.check_access('package_change_state',context, {"id": pkg.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False
@@ -575,7 +575,7 @@ def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
     group = context.get('group')
     if group:
         try:
-            logic.check_access('group_change_state',context)
+            logic.check_access('group_change_state',context, {"id": group.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import datetime
 import re
-from typing import Any, cast
+from typing import Any
 from jinja2 import Environment
 
 import ckan.model as model
@@ -146,10 +146,7 @@ def _notifications_from_dashboard_activity_list(
 
     """
     # Get the user's dashboard activity stream.
-    context = cast(
-        Context,
-        {"model": model, "session": model.Session, "user": user_dict["id"]},
-    )
+    context: Context = {"user": user_dict["id"]}
     activity_list = logic.get_action("dashboard_activity_list")(context, {})
 
     # Filter out the user's own activities., so they don't get an email every
@@ -264,15 +261,10 @@ def get_and_send_notifications_for_user(user: dict[str, Any]) -> None:
 
 
 def get_and_send_notifications_for_all_users() -> None:
-    context = cast(
-        Context,
-        {
-            "model": model,
-            "session": model.Session,
-            "ignore_auth": True,
-            "keep_email": True,
-        },
-    )
+    context: Context = {
+        "ignore_auth": True,
+        "keep_email": True,
+    }
     users = logic.get_action("user_list")(context, {})
     for user in users:
         get_and_send_notifications_for_user(user)

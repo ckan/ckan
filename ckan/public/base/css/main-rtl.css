@@ -11351,7 +11351,10 @@ a.tag:hover {
   position: relative;
   float: right;
   top: -10px;
-  right: -15px;
+  right: 0;
+}
+.module-resource .actions li {
+  margin-right: 0px;
 }
 
 .module .module-tags {

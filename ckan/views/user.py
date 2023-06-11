@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -86,11 +86,11 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
-    context = cast(Context, {
+    context: Context = {
         u'return_query': True,
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
 
     data_dict = {
         u'q': q,
@@ -122,13 +122,11 @@ def me() -> Response:
 
 
 def read(id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -144,13 +142,11 @@ def read(id: str) -> Union[Response, str]:
 
 
 def read_organizations(id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -166,13 +162,11 @@ def read_organizations(id: str) -> Union[Response, str]:
 
 
 def read_groups(id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -193,14 +187,12 @@ class ApiTokenView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None
             ) -> Union[Response, str]:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'for_view': True,
             u'include_plugin_extras': True
-        })
+        }
         try:
             tokens = logic.get_action(u'api_token_list')(
                 context, {u'user': id}
@@ -225,7 +217,6 @@ class ApiTokenView(MethodView):
         return base.render(u'user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
-        context = cast(Context, {u'model': model})
 
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
@@ -234,7 +225,7 @@ class ApiTokenView(MethodView):
         data_dict[u'user'] = id
         try:
             token = logic.get_action(u'api_token_create')(
-                context,
+                {},
                 data_dict
             )[u'token']
         except logic.NotAuthorized:
@@ -265,9 +256,8 @@ class ApiTokenView(MethodView):
 
 
 def api_token_revoke(id: str, jti: str) -> Response:
-    context = cast(Context, {u'model': model})
     try:
-        logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
+        logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
     return h.redirect_to(u'user.api_tokens', id=id)
@@ -275,14 +265,12 @@ def api_token_revoke(id: str, jti: str) -> Response:
 
 class EditView(MethodView):
     def _prepare(self, id: Optional[str]) -> tuple[Context, str]:
-        context = cast(Context, {
+        context: Context = {
             u'save': u'save' in request.form,
             u'schema': _edit_form_to_db_schema(),
-            u'model': model,
-            u'session': model.Session,
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         if id is None:
             if current_user.is_authenticated:
                 id = current_user.id  # type: ignore
@@ -409,11 +397,11 @@ class EditView(MethodView):
             u'error_summary': error_summary
         }
 
-        extra_vars = _extra_template_variables(cast(Context, {
+        extra_vars = _extra_template_variables({
             u'model': model,
             u'session': model.Session,
             u'user': current_user.name
-        }), data_dict)
+        }, data_dict)
 
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
@@ -423,14 +411,12 @@ class EditView(MethodView):
 
 class RegisterView(MethodView):
     def _prepare(self):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'schema': _new_form_to_db_schema(),
             u'save': u'save' in request.form
-        })
+        }
         try:
             logic.check_access(u'user_create', context)
         except logic.NotAuthorized:
@@ -608,12 +594,10 @@ def logged_out_page() -> str:
 
 def delete(id: str) -> Union[Response, Any]:
     u'''Delete user with id passed as parameter'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id}
 
     try:
@@ -632,12 +616,10 @@ def delete(id: str) -> Union[Response, Any]:
 
 class RequestResetView(MethodView):
     def _prepare(self):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         try:
             logic.check_access(u'request_reset', context)
         except logic.NotAuthorized:
@@ -651,13 +633,11 @@ class RequestResetView(MethodView):
             return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
-        context = cast(
-            Context, {
-                u'model': model,
-                u'user': current_user.name,
-                u'ignore_auth': True
-            }
-        )
+        context: Context = {
+            'user': current_user.name,
+            'ignore_auth': True,
+        }
+
         user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
@@ -729,12 +709,10 @@ class RequestResetView(MethodView):
 class PerformResetView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
         # FIXME 403 error for invalid key is a non helpful page
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': id,
-            u'keep_email': True
-        })
+        context: Context = {
+            'user': id,
+            'keep_email': True,
+        }
 
         try:
             logic.check_access(u'user_reset', context)
@@ -783,10 +761,10 @@ class PerformResetView(MethodView):
             updated_user = logic.get_action("user_update")(context, user_dict)
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
-                patch_context = cast(Context, {
+                patch_context: Context = {
                     'user': logic.get_action("get_site_user")(
                         {"ignore_auth": True}, {})["name"]
-                })
+                }
                 logic.get_action("user_patch")(
                     patch_context,
                     {"id": user_dict['id'], "state": model.State.ACTIVE}
@@ -823,12 +801,10 @@ class PerformResetView(MethodView):
 
 def follow(id: str) -> Response:
     u'''Start following this user.'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
         logic.get_action(u'follow_user')(context, data_dict)
@@ -845,12 +821,10 @@ def follow(id: str) -> Response:
 
 def unfollow(id: str) -> Response:
     u'''Stop following this user.'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
     try:
         logic.get_action(u'unfollow_user')(context, data_dict)
@@ -867,11 +841,11 @@ def unfollow(id: str) -> Response:
 
 
 def followers(id: str) -> str:
-    context = cast(Context, {
+    context: Context = {
         u'for_view': True,
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -893,12 +867,10 @@ def sysadmin() -> Response:
     status = asbool(request.form.get(u'status'))
 
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
-        })
+        }
         data_dict: dict[str, Any] = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
     except logic.NotAuthorized:
