@@ -313,7 +313,6 @@ groups:
           Requires that save_accessed_time be true.
 
       - key: beaker.session.type
-        required: True
         default: cookie
         description: |
           The type of session to use. The default is cookie, which uses a cookie to store the session id.
@@ -322,7 +321,6 @@ groups:
 
       - key: beaker.session.validate_key
         validators: not_empty
-        required: true
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
