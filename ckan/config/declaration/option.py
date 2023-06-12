@@ -366,6 +366,7 @@ def _validators_from_string(s: str) -> list[Validator]:
 
     out = []
     parts = s.split()
+
     for p in parts:
         if '(' in p and p[-1] == ')':
             name, args = p.split('(', 1)
