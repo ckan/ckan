@@ -64,6 +64,6 @@ END;
             } for i in info],
             'triggers': [
                 {'function': f'{resource_id}_tabledesigner_validate'}
-            ] if validate_def else [],
+            ] if validate_rules else [],
         }
     )
