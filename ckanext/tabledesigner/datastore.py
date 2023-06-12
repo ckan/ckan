@@ -26,7 +26,7 @@ END IF;
 '''.format(condition, literal_string(colname)))
 
     if validate_rules:
-        validate_def = '''
+        validate_def = u'''
 DECLARE
   errors text[] := '{}';
 BEGIN
@@ -42,9 +42,9 @@ END;
                 'ignore_auth': True,
             },
             {
-                'name': '{0}_tabledesigner_validate'.format(resource_id),
+                'name': u'{0}_tabledesigner_validate'.format(resource_id),
                 'or_replace': True,
-                'rettype': 'trigger',
+                'rettype': u'trigger',
                 'definition': validate_def,
             }
         )
@@ -63,7 +63,7 @@ END;
                 },
             } for i in info],
             'triggers': [
-                {'function': '{0}_tabledesigner_validate'.format(resource_id)}
+                {'function': u'{0}_tabledesigner_validate'.format(resource_id)}
             ] if validate_rules else [],
         }
     )
