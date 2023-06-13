@@ -29,3 +29,10 @@ def datapusher_status_description(status: dict[str, Any]):
         return captions.get(status['status'], status['status'].capitalize())
     else:
         return _('Not Uploaded Yet')
+
+
+def is_datapusher_format(resource_dict: dict[str, Any]):
+    supported_formats = toolkit.config.get('ckan.datapusher.formats')
+
+    return (resource_dict.get('format', '').lower() in supported_formats
+            and resource_dict.get('url_type') != u'datapusher')

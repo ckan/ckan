@@ -12,5 +12,7 @@
 
 {% block inner_primary_nav %}
   {{ super() }}
-  {{ h.build_nav_icon('datapusher.resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
+  {% if h.is_datapusher_format(res) or res.datastore_active %}
+    {{ h.build_nav_icon('datapusher.resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
+  {% endif %}
 {% endblock %}

@@ -151,6 +151,7 @@ class DatapusherPlugin(p.SingletonPlugin):
             u'datapusher_status': helpers.datapusher_status,
             u'datapusher_status_description': helpers.
             datapusher_status_description,
+            u'is_datapusher_format': helpers.is_datapusher_format,
         }
 
     # IBlueprint
