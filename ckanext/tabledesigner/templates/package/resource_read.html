@@ -2,7 +2,8 @@
 
 {% import 'macros/form.html' as form %}
 
-{% block resource_additional_information_inner %}
+{% block resource_additional_information %}
+  <section class="module">
   {% if res.url_type == 'tabledesigner' and res.datastore_active %}
     {% block resource_tabledesigner %}
       <div class="module-content">
@@ -26,5 +27,6 @@
       </div>
     {% endblock %}
   {% endif %}
+  </section>
   {{ super() }}
 {% endblock %}
