@@ -1,5 +1,4 @@
 # encoding: utf-8
-from __future__ import annotations
 
 from six.moves.urllib.parse import urlencode
 from typing import Any, List
