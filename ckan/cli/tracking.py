@@ -2,15 +2,13 @@
 
 import datetime
 import csv
-
+import re
 from typing import NamedTuple, Optional
-
 import click
-
 import ckan.model as model
 import ckan.logic as logic
 from ckan.cli import error_shout
-
+from ckan.common import config
 
 class ViewCount(NamedTuple):
     id: str
@@ -129,12 +127,14 @@ def export_tracking(engine: model.Engine, output_filename: str):
 
 def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
     package_url = u'/dataset/'
+    root_path = config.get(u'ckan.root_path', u'')
+    root_path = re.sub(u'/{{LANG}}', u'', root_path, flags=re.U)
     # clear out existing data before adding new
     sql = u'''DELETE FROM tracking_summary
                 WHERE tracking_date='%s'; ''' % summary_date
     engine.execute(sql)
 
-    sql = u'''SELECT DISTINCT url, user_key,
+    sql = '''SELECT DISTINCT REPLACE(url, %s, '') AS tracking_url, user_key,
                     CAST(access_timestamp AS Date) AS tracking_date,
                     tracking_type INTO tracking_tmp
                 FROM tracking_raw
@@ -142,14 +142,13 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
 
                 INSERT INTO tracking_summary
                 (url, count, tracking_date, tracking_type)
-                SELECT url, count(user_key), tracking_date, tracking_type
+                SELECT tracking_url, count(user_key), tracking_date, tracking_type
                 FROM tracking_tmp
-                GROUP BY url, tracking_date, tracking_type;
+                GROUP BY tracking_url, tracking_date, tracking_type;
 
                 DROP TABLE tracking_tmp;
                 COMMIT;'''
-    engine.execute(sql, summary_date)
-
+    engine.execute(sql, root_path, summary_date)
     # get ids for dataset urls
     sql = u'''UPDATE tracking_summary t
                 SET package_id = COALESCE(
