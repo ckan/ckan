@@ -12,7 +12,10 @@
 
 {% block inner_primary_nav %}
   {{ super() }}
-  {% if h.is_datapusher_format(res.format) or res.datastore_active %}
-    {{ h.build_nav_icon('datapusher.resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
+  {%
+    if (h.is_datapusher_format(res.format) or res.datastore_active)
+    and res.url_type not in h.datastore_rw_resource_url_types()
+  %}
+    {{ h.build_nav_icon('datapusher.resource_data', _('DataStore'), id=pkg.name, resource_id=res.id, icon='cloud-upload') }}
   {% endif %}
 {% endblock %}
