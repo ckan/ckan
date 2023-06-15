@@ -23,3 +23,19 @@ class TestDetails:
         assert option.normalize(option.default) is True
         assert option.normalize("no") is False
         assert option.normalize(False) is False
+
+        option.set_default("")
+        option.set_validators("default(xxx)")
+        assert option.normalize(option.default) == "xxx"
+
+        option.set_validators("default('yyy')")
+        assert option.normalize(option.default) == "yyy"
+
+        option.set_validators("default(10)")
+        assert option.normalize(option.default) == 10
+
+        option.set_validators("default('10')")
+        assert option.normalize(option.default) == "10"
+
+        option.set_validators("default([[],{():None}])")
+        assert option.normalize(option.default) == [[], {(): None}]

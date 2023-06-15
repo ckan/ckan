@@ -77,9 +77,7 @@ def get_ckan_i18n_dir() -> str:
 
 
 def get_js_translations_dir() -> str:
-    storage_path = config.get(
-        "ckan.storage_path"
-    ) or get_ckan_temp_directory()
+    storage_path = config["ckan.storage_path"] or get_ckan_temp_directory()
 
     js_translations_path = os.path.join(storage_path, "i18n", "js")
 

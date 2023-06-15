@@ -12,7 +12,7 @@ import ckan
 import ckan.model as model
 from ckan.logic.schema import update_configuration_schema
 from ckan.common import asbool, config, aslist
-
+from ckan.lib.webassets_tools import is_registered
 
 log = logging.getLogger(__name__)
 
@@ -81,10 +81,7 @@ def set_theme(asset: str) -> None:
 
     If asset is not registered, use default theme instead.
     '''
-    from ckan.lib.webassets_tools import env
-
-    assert env
-    if asset not in env:
+    if not is_registered(asset):
         log.error(
             "Asset '%s' does not exist. Fallback to '%s'",
             asset, DEFAULT_THEME_ASSET

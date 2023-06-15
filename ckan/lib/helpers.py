@@ -367,12 +367,6 @@ def url_for(*args: Any, **kw: Any) -> str:
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
 
-    # All API URLs generated should provide the version number
-    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
-        ver = kw.get('ver')
-        if not ver:
-            raise Exception('API URLs must specify the version (eg ver=3)')
-
     _auto_flask_context = _get_auto_flask_context()
     try:
         if _auto_flask_context:
@@ -1238,9 +1232,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {
-        'model': model,
-        'user': current_user.name})
+    context: Context = {'user': current_user.name}
     if not data_dict:
         data_dict = {}
     try:
@@ -1785,7 +1777,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context = cast(Context, {'model': model})
+    context: Context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1818,9 +1810,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     # If the user is logged in show the follow/unfollow button
     user = current_user.name
     if user:
-        context = cast(
-            Context,
-            {'model': model, 'session': model.Session, 'user': user})
+        context: Context = {'user': user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1846,13 +1836,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     return logic.get_action(action)(context, {'id': obj_id})
 
 

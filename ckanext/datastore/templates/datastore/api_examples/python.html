@@ -1,0 +1,52 @@
+{% call register_example('python', 'button_label') %}
+Python
+{% endcall %}
+
+
+{% call register_example('python', 'request_limit') %}
+<div class="example-python">
+  <p>
+    {% trans url='https://github.com/ckan/ckanapi/blob/master/README.md#remoteckan' -%}
+    (using the <a href="{{ url }}">ckanapi</a> client library)
+    {%- endtrans %}
+  </p>
+  <pre><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search(
+    resource_id="{{ resource_id }}",
+    limit=5,
+    q="jones",
+)
+print(result['records'])</code></pre></div>
+{% endcall %}
+
+
+{% call register_example('python', 'request_filter') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search(
+    resource_id="{{ resource_id }}",
+    filters={
+      "subject": ["watershed", "survey"],
+      "stage": "active",
+    },
+)
+print(result['records'])</code></pre>
+{% endcall %}
+
+
+{% call register_example('python', 'request_sql') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+rc = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = rc.action.datastore_search_sql(
+    sql="""SELECT * from "{{resource_id}}" WHERE title LIKE 'jones'"""
+)
+print(result['records'])</code></pre>
+{% endcall %}
+
