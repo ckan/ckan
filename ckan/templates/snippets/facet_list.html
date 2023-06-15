@@ -7,86 +7,54 @@ The field name identifying the facet field, eg. "tags"
 title
 The title of the facet, eg. "Tags", or "Tag Cloud"
 
-label_function
-Renders the human-readable label for each facet value.
-If defined, this should be a callable that accepts a `facet_item`.
-eg. lambda facet_item: facet_item.display_name.upper()
-By default it displays the facet item's display name, which should
-usually be good enough
+search_facet
+Dictionary with a search facet and all its items,
+eg. {
+	"title": "Tags",
+	"items": [
+	{"name": "tag1", "display_name": "Tag 1", "count": 1},
+	{"name": "tag2", "display_name": "Tag 2", "count": 2}
+	]
+}
 
-if_empty
-A string, which if defined, and the list of possible facet items is empty,
-is displayed in lieu of an empty list.
-
-count_label
-A callable which accepts an integer, and returns a string.  This controls
-how a facet-item's count is displayed.
-
-extras
-Extra info passed into the add/remove params to make the url
-
-alternative_url
-URL to use when building the necessary URLs, instead of the default
-ones returned by url_for. Useful eg for dataset types.
-
-hide_empty
-Do not show facet if there are none, Default: false.
-
-search_facets
-Dictionary with search facets
+facet_filter_length
+Maximum number of facet items to display before showing a "more" link.
 
 #}
-{% block facet_list %}
-    {% set hide_empty = hide_empty or false %}
-    {% with items = items or h.get_facet_items_dict(name, search_facets) %}
-	{% if items or not hide_empty %}
-	    {% block facet_list_item %}
-		<section class="module module-narrow module-shallow">
-		    {% block facet_list_heading %}
-			<h2 class="module-heading">
-			    <i class="fa fa-filter"></i>
-			    {{ title }}
-			</h2>
-		    {% endblock %}
-		    {% block facet_list_items %}
-			{% with items = items or h.get_facet_items_dict(name, search_facets) %}
-			    {% if items %}
-				<nav aria-label="{{ title }}">
-				    <ul class="list-unstyled nav nav-simple nav-facet">
-					{% for item in items %}
-					    {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
-					    {% set label = label_function(item) if label_function else item.display_name %}
-					    {% set label_truncated = label|truncate(22) if not label_function else label %}
-					    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
-					    <li class="nav-item {% if item.active %} active{% endif %}">
-						<a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
-						    <span class="item-label">{{ label_truncated }}</span>
-						    <span class="hidden separator"> - </span>
-						    <span class="item-count badge">{{ count }}</span>
-
-							{% if item.active %}<span class="facet-close"> <i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
-						</a>
-					    </li>
-					{% endfor %}
-				    </ul>
-				</nav>
-
-				<p class="module-footer">
-				    {% if h.get_param_int('_%s_limit' % name) %}
-					{% if h.has_more_facets(name, search_facets) %}
-					    <a href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
-					{% endif %}
-				    {% else %}
-					<a href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}" class="read-more">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
-				    {% endif %}
-				</p>
-			    {% else %}
-				<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
-			    {% endif %}
-			{% endwith %}
-		    {% endblock %}
-		</section>
-	    {% endblock %}
+{% macro item_link(item, facet_name) -%}
+	{% set active = item["name"] in request.args.getlist(facet_name) %}
+	{% set url_args = request.args.copy() %}
+	{% if not active %}
+		{% do url_args.add(facet_name, item["name"]) %}
+	{% else %}
+		{% set current_items_in_url = url_args.getlist(facet_name) %}
+		{% do current_items_in_url.remove(item["name"]) %}
+		{% do url_args.setlist(facet_name, current_items_in_url) %}
 	{% endif %}
-    {% endwith %}
-{% endblock %}
+	<a href="{{h.url_for('dataset.search', **url_args.to_dict(False))}}" class="list-group-item list-group-item-action align-middle{% if active%} active{%endif%}" {% if active%}aria-current="true"{%endif%}>
+		{{item["display_name"]|truncate(30)}}
+		<span class="badge {%if active%}bg-light text-dark{%else%}bg-primary{%endif%} rounded-pill">{{ item["count"] }}</span>
+		{% if active %}<span class="float-end"><i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
+	</a>
+{%- endmacro %}
+
+{% if search_facet %}
+	<div class="list-group list-group-flush">
+		<div class="list-group-item list-group-item-success">{{search_facet["title"]}} <i class="fa fa-filter"></i></div>
+		{% for item in search_facet["items"][:facet_filter_length]%}
+			{{ item_link(item, name) }}
+		{% endfor %}
+	</div>
+	<!-- Collapsable links -->
+	{% if search_facet["items"]|length > facet_filter_length %}
+		<div id="more-links-{{title}}" class="list-group list-group-flush collapse">
+		{% for item in search_facet["items"][facet_filter_length:]%}
+			{{ item_link(item, name) }}
+		{% endfor %}
+		</div>
+		<button class="list-group-item list-group-item-action list-group-item-light" data-bs-toggle="collapse"
+		data-bs-target="#more-links-{{title}}">
+			<strong>Show more...</strong>
+		</button>
+	{% endif %}
+{% endif %}
