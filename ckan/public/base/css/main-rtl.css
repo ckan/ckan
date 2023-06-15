@@ -14268,10 +14268,10 @@ td.diff_header {
   float: right;
 }
 
-.nav-facet, .nav-simple, .list-unstyled {
+.nav-simple, .list-unstyled {
   padding-right: 0;
 }
-.nav-facet .nav-item a span.item-label, .nav-simple .nav-item a span.item-label, .list-unstyled .nav-item a span.item-label {
+.nav-simple .nav-item a span.item-label, .list-unstyled .nav-item a span.item-label {
   padding-right: 15px;
 }
 
