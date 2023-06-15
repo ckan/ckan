@@ -55,6 +55,7 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 from ckan.types import Request
 from ckan.common import config
+from ckan.lib.io import get_ckan_temp_directory
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def get_ckan_i18n_dir() -> str:
 def get_js_translations_dir() -> str:
     storage_path = config.get(
         "ckan.storage_path"
-    ) or tempfile.gettempdir()
+    ) or get_ckan_temp_directory()
 
     js_translations_path = os.path.join(storage_path, "i18n", "js")
 

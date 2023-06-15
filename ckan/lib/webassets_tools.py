@@ -12,6 +12,7 @@ from webassets import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
+from ckan.lib.io import get_ckan_temp_directory
 
 
 logger = logging.getLogger(__name__)
@@ -154,7 +155,7 @@ def get_webassets_path() -> str:
     if not webassets_path:
         storage_path = config.get(
             u'ckan.storage_path'
-        ) or tempfile.gettempdir()
+        ) or get_ckan_temp_directory()
 
         if storage_path:
             webassets_path = os.path.join(storage_path, u'webassets')
