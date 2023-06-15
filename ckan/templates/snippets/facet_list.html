@@ -57,4 +57,6 @@ Maximum number of facet items to display before showing a "more" link.
 			<strong>Show more...</strong>
 		</button>
 	{% endif %}
+{% else %}
+	<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
 {% endif %}
