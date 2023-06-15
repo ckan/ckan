@@ -14264,9 +14264,6 @@ td.diff_header {
 .nav-simple, .list-unstyled {
   padding-right: 0;
 }
-.nav-simple .nav-item a span.item-label, .list-unstyled .nav-item a span.item-label {
-  padding-right: 15px;
-}
 
 @media (min-width: 768px) {
   .homepage.layout-1 .row1 .col2 {

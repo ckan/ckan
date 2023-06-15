@@ -120,9 +120,6 @@
 
 .nav-simple, .list-unstyled {
     padding-right: 0;
-    .nav-item a span.item-label {
-        padding-right: 15px;
-    }
 }
 
 @include media-breakpoint-up(md) {
