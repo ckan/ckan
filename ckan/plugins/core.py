@@ -97,10 +97,8 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins = config.get("ckan.plugins")
-        if plugins is None:
-            plugins = []
-        elif isinstance(plugins, str):
+        plugins = config.get("ckan.plugins", [])
+        if isinstance(plugins, str):
             # this happens when core declarations loaded and validated
             plugins = plugins.split()
 
