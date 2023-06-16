@@ -68,7 +68,7 @@ def describe(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
     "-m",
     "--minimal",
     is_flag=True,
-    help="Print only mandatory options",
+    help="Print only options with the `required` flag enabled",
 )
 def declaration(
     plugins: tuple[str, ...],
