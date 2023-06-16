@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 import ckan.plugins.toolkit as toolkit
 
 
@@ -31,7 +31,18 @@ def datapusher_status_description(status: dict[str, Any]):
         return _('Not Uploaded Yet')
 
 
-def is_datapusher_format(resource_format: str):
+def is_resource_supported_by_datapusher(res_dict: dict[str, Any],
+                                        check_access: Optional[bool] = True):
     supported_formats = toolkit.config.get('ckan.datapusher.formats')
-
-    return resource_format.lower() in supported_formats
+    is_supported_format = res_dict.get('format', u'').lower() \
+        in supported_formats
+    is_datastore_active = res_dict.get('datastore_active', False)
+    if check_access:
+        user_has_access = toolkit.h.check_access(
+            'package_update', {'id':res_dict.get('package_id')})
+    else:
+        user_has_access = True
+    is_supported_url_type = res_dict.get('url_type') \
+        not in toolkit.h.datastore_rw_resource_url_types()
+    return (is_supported_format or is_datastore_active) \
+        and user_has_access and is_supported_url_type

@@ -2,11 +2,7 @@
 
 {% block resources_list_edit_dropdown_inner %}
   {{ super() }}
-  {%
-    if (h.is_datapusher_format(resource.format) or resource.datastore_active)
-    and h.check_access('package_update', {'id':pkg.id })
-    and resource.url_type not in h.datastore_rw_resource_url_types()
-  %}
+  {% if h.is_resource_supported_by_datapusher(resource) %}
     <li>{% link_for _('DataStore'), named_route='datapusher.resource_data', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='cloud-upload' %}</li>
   {% endif %}
 {% endblock %}
