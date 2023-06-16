@@ -339,7 +339,6 @@ groups:
 
       - key: beaker.session.samesite
         default: Lax
-        required: True
         validators: OneOf(["Strict","Lax","None"])
         description: |
           Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
@@ -1014,7 +1013,6 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
-        required: true
         type: list
         placeholder: activity
         example: activity scheming_datasets datatables_view datastore xloader

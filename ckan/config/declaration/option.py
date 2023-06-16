@@ -43,7 +43,8 @@ class Flag(enum.Flag):
 
     required: this option cannot be missing/empty. Add such flag to the option
     only if CKAN application won't even start without them and there is no
-    sensible default.
+    sensible default. If option does not have ``not_empty`` validator, it will
+    be added before all other validators.
 
     editable: this option is runtime editable. Technically, every option can be
     modified. This flag means that there is an expectation that option will be
@@ -319,7 +320,11 @@ class Option(SectionMixin, Generic[T]):
     def get_validators(self) -> str:
         """Return the string with current validators.
         """
-        return self.validators
+        validators = self.validators
+        if self.has_flag(Flag.required) and "not_empty" not in validators:
+            validators = f"not_empty {validators}"
+
+        return validators
 
     def experimental(self) -> Self:
         """Enable experimental-flag for value.
