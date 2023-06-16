@@ -9,7 +9,7 @@ import pytz
 
 from typing import Union, cast
 
-import sqlalchemy
+from sqlalchemy import engine_from_config, inspect
 import sqlalchemy.exc
 
 import ckan.model as model
@@ -228,7 +228,7 @@ def update_config() -> None:
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config)
+    engine = engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
@@ -240,14 +240,18 @@ def update_config() -> None:
     authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
+    user_table_exists = False
     try:
-        logic.get_action('get_site_user')({'ignore_auth': True}, {})
-    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
-        # The database is not yet initialised. It happens in `ckan db init`
-        pass
-    except sqlalchemy.exc.IntegrityError:
-        # Race condition, user already exists.
-        pass
+        user_table_exists = inspect(engine).has_table("user")
+    except sqlalchemy.exc.OperationalError:
+        log.debug("DB user table does not exist")
+
+    if user_table_exists:
+        try:
+            logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        except sqlalchemy.exc.IntegrityError:
+            # Race condition, user already exists.
+            log.debug("Site user already exists")
 
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on
