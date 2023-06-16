@@ -39,7 +39,7 @@ def is_resource_supported_by_datapusher(res_dict: dict[str, Any],
     is_datastore_active = res_dict.get('datastore_active', False)
     if check_access:
         user_has_access = toolkit.h.check_access(
-            'package_update', {'id':res_dict.get('package_id')})
+            'package_update', {'id': res_dict.get('package_id')})
     else:
         user_has_access = True
     is_supported_url_type = res_dict.get('url_type') \
