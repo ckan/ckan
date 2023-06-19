@@ -40,7 +40,7 @@ Maximum number of facet items to display before showing a "more" link.
 
 {% if search_facet %}
 	<div class="list-group list-group-flush">
-		<div class="list-group-item list-group-item-success">{{search_facet["title"]}} <i class="fa fa-filter"></i></div>
+		<div class="list-group-item list-group-item-success">{{title}} <i class="fa fa-filter"></i></div>
 		{% for item in search_facet["items"][:facet_filter_length]%}
 			{{ item_link(item, name) }}
 		{% endfor %}
