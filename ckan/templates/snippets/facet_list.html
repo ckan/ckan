@@ -10,7 +10,7 @@ The title of the facet, eg. "Tags", or "Tag Cloud"
 search_facet
 Dictionary with a search facet and all its items,
 eg. {
-	"title": "Tags",
+	"title": "tags",
 	"items": [
 	{"name": "tag1", "display_name": "Tag 1", "count": 1},
 	{"name": "tag2", "display_name": "Tag 2", "count": 2}
@@ -40,7 +40,7 @@ Maximum number of facet items to display before showing a "more" link.
 
 {% if search_facet %}
 	<div class="list-group list-group-flush">
-		<div class="list-group-item list-group-item-success">{{title}} <i class="fa fa-filter"></i></div>
+		<div class="list-group-item list-group-item-dark">{{title}} <i class="fa fa-filter"></i></div>
 		{% for item in search_facet["items"][:facet_filter_length]%}
 			{{ item_link(item, name) }}
 		{% endfor %}
