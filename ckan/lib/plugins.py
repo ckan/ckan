@@ -12,7 +12,8 @@ import ckan.logic.schema as schema
 from ckan.common import g, config
 from ckan import logic, model, plugins
 import ckan.authz
-from ckan.types import Context, DataDict, Schema, PydanticModel
+from ckan.types import Context, DataDict, Schema
+from ckan.lib.pydantic.base import CKANBaseModel
 from . import signals
 from .navl.dictization_functions import validate
 if TYPE_CHECKING:
@@ -323,7 +324,7 @@ def set_default_group_plugin() -> None:
 
 def plugin_validate(
         plugin: Any, context: Context,
-        data_dict: DataDict, schema: Union[Schema, PydanticModel], action: Any) -> Any:
+        data_dict: DataDict, schema: Union[Schema, CKANBaseModel], action: Any) -> Any:
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
@@ -337,7 +338,11 @@ def plugin_validate(
     if validator_model == 'navl':
         return validate(data_dict, schema, context)  # type: ignore
     else:
-        result = schema(**data_dict, __context=context).dict() # type: ignore  
+        model_instance = schema(**data_dict, __context=context) # type: ignore
+        breakpoint()
+        result = model_instance.dict(
+            exclude_none=True, exclude={'_ckan_phase', 'pkg_name'}
+        )
         errors = result.pop('errors', None)
         return result, errors
 
@@ -372,7 +377,7 @@ class DefaultDatasetForm(object):
        being registered.
 
     '''
-    def create_package_schema(self) -> Union[Schema, PydanticModel]:
+    def create_package_schema(self) -> Union[Schema, CKANBaseModel]:
         validator_model = config.get('ckan.validator_model', 'navl')
         if 'navl' in validator_model:
             return schema.default_create_package_schema()
@@ -381,7 +386,12 @@ class DefaultDatasetForm(object):
         return pydantic_schema.DefaultCreatePackageSchema  # type: ignore
 
     def update_package_schema(self) -> Schema:
-        return schema.default_update_package_schema()
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultUpdatePackageSchema  # type: ignore
 
     def show_package_schema(self) -> Schema:
         return schema.default_show_package_schema()

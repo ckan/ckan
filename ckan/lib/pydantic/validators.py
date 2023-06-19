@@ -1,8 +1,10 @@
 from pydantic import BaseConfig
 from pydantic.fields import ModelField
-from typing import Any, Dict, Type, Union, Optional
+from typing import Any, Dict, Type, Union, Optional, Callable
 
 import ckan.lib.navl.dictization_functions as df
+import ckan.authz as authz
+import ckan.logic as logic
 from ckan.types import Context
 from ckan.model.core import State
 from ckan.common import _
@@ -15,7 +17,7 @@ Invalid = df.Invalid
 StopOnError = df.StopOnError
 
 
-def pydantic_not_empty(
+def p_not_empty(
     value: Any,
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -34,7 +36,7 @@ def pydantic_not_empty(
     return value
 
 
-def pydantic_user_password_validator(
+def p_user_password_validator(
     value: Any,
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -54,7 +56,7 @@ def pydantic_user_password_validator(
     return value
 
 
-def pydantic_user_passwords_match(
+def p_user_passwords_match(
     value: Any,
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -72,7 +74,7 @@ def pydantic_user_passwords_match(
         return value
 
 
-def pydantic_empty_if_not_sysadmin(
+def p_empty_if_not_sysadmin(
     value: Any,
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -91,7 +93,7 @@ def pydantic_empty_if_not_sysadmin(
         raise ValueError('The input field %(name)s was not expected.' % {"name": field.name})
 
 
-def pydantic_package_name_validator(
+def p_package_name_validator(
     value: Any, 
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -128,7 +130,7 @@ def pydantic_package_name_validator(
         )
 
 
-def pydantic_ignore_missing(
+def p_ignore_missing(
     value: Any, 
     values: Dict[str, Any],
     config: Type[BaseConfig],
@@ -151,5 +153,205 @@ def pydantic_ignore_missing(
     '''
 
     if value is missing or value is None:
-        values.pop(value, None)
+        values.pop(field.name, None)
+        raise StopOnError
+
+
+def p_if_empty_same_as(other_key: str) -> Callable[..., Any]:
+    """Copy value from other field when current field is missing or empty.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [], "world": [if_empty_same_as("hello")]}
+        )
+        assert data == {"hello": 1, "world": 1}
+
+    """
+    def callable(
+            value: Any, 
+            values: Dict[str, Any],
+            config: Type[BaseConfig],
+            field: Type[ModelField],
+            context: Context):
+
+        if not value or value is missing:
+            values[field.name] = values[other_key]
+
+    return callable
+
+
+def p_ignore_not_package_admin(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Ignore if the user is not allowed to administer the package specified.'''
+
+    user = context.get('user')
+
+    if 'ignore_auth' in context:
+        return
+
+    if user and authz.is_sysadmin(user):
+        return
+
+    authorized = False
+    pkg = context.get('package')
+    if pkg:
+        try:
+            logic.check_access('package_change_state',context)
+            authorized = True
+        except logic.NotAuthorized:
+            authorized = False
+
+    if (user and pkg and authorized):
+        return
+
+    # allow_state_change in the context will allow the state to be changed
+    # FIXME is this the best way to check for state only?
+    if 'state' in field.name and context.get('allow_state_change'):
+        return
+    values.pop(field.name)
+
+
+def p_owner_org_validator(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """Validate organization for the dataset.
+
+    Depending on the settings and user's permissions, this validator checks
+    whether organization is optional and ensures that specified organization
+    can be set as an owner of dataset.
+
+    """
+
+    if value is missing or value is None:
+        if not authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid(_('An organization must be provided'))
+        values.pop(field.name, None)
+        raise df.StopOnError
+
+    model = context['model']
+    user = model.User.get(context['user'])
+    package = context.get('package')
+
+    if value == '':
+        if not authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid(_('An organization must be provided'))
+        return
+
+    if (authz.check_config_permission('allow_dataset_collaborators')
+            and not authz.check_config_permission('allow_collaborators_to_change_owner_org')):
+
+        if package and user and not user.sysadmin:
+            is_collaborator = authz.user_is_collaborator_on_dataset(
+                user.id, package.id, ['admin', 'editor'])
+            if is_collaborator:
+                # User is a collaborator, check if it's also a member with
+                # edit rights of the current organization (redundant, but possible)
+                user_orgs = logic.get_action(
+                    'organization_list_for_user')(
+                        {'ignore_auth': True}, {'id': user.id, 'permission': 'update_dataset'})
+                user_is_org_member = package.owner_org in [org['id'] for org in user_orgs]
+                if value != package.owner_org and not user_is_org_member:
+                    raise Invalid(_('You cannot move this dataset to another organization'))
+
+    group = model.Group.get(value)
+    if not group:
+        raise Invalid(_('Organization does not exist'))
+    group_id = group.id
+
+    if not package or (package and package.owner_org != group_id):
+        # This is a new dataset or we are changing the organization
+        if not context.get(u'ignore_auth', False) and (not user or not(
+                user.sysadmin or authz.has_user_permission_for_group_or_org(
+                   group_id, user.name, 'create_dataset'))):
+            raise Invalid(_('You cannot add a dataset to this organization'))
+
+    values[field.name] = group_id
+
+
+def p_datasets_with_no_organization_cannot_be_private(value: Any,
+                                                    values: Dict[str, Any],
+                                                    config: Type[BaseConfig],
+                                                    field: Type[ModelField],
+                                                    context: Context) -> Any:
+
+    dataset_id = values.get('id')
+    owner_org = values.get('owner_org')
+    private = value is True
+
+    check_passed = True
+
+    if not dataset_id and private and not owner_org:
+        # When creating a dataset, enforce it directly
+        check_passed = False
+    elif dataset_id and private and not owner_org:
+        # Check if the dataset actually has an owner_org, even if not provided
+        try:
+            dataset_dict = logic.get_action('package_show')({},
+                            {'id': dataset_id})
+            if not dataset_dict.get('owner_org'):
+                check_passed = False
+
+        except logic.NotFound:
+            check_passed = False
+
+    if not check_passed:
+       raise Invalid(_("Datasets with no organization can't be private."))
+
+
+def p_ignore(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> None:
+    """Remove the value from the input and skip the rest of validators.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [ignore]}
+        )
+        assert data == {}
+
+    """
+    values.pop(field.name, None)
+    raise StopOnError
+
+
+def p_ignore_empty(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> None:
+    """Skip the rest of validators if the value is empty or missing.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": ""},
+            {"hello": [ignore_empty, isodate]}
+        )
+        assert data == {}
+        assert not errors
+
+    """
+    value = values.get(field.name)
+
+    if value is missing or not value:
+        values.pop(field.name, None)
         raise StopOnError

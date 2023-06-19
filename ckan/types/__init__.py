@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from pydantic import BaseModel
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -18,6 +17,7 @@ from typing_extensions import Protocol, TypeAlias, TypedDict
 from blinker import Signal
 from flask.wrappers import Response, Request
 
+# from ckan.lib.pydantic.base import CKANBaseModel
 from .logic import ActionResult
 from .model import (
     Model, AlchemySession,
@@ -42,6 +42,7 @@ __all__ = [
     "AuthResult",
     "Action", "ChainedAction", "AuthFunction", "ChainedAuthFunction",
     "PFeed", "PFeedFactory", "PResourceUploader", "PUploader",
+    # "CKANBaseModel"
 ]
 Config: TypeAlias = Dict[str, Union[str, Mapping[str, str]]]
 CKANApp = Any
@@ -150,7 +151,7 @@ Validator = Union[ValueValidator, ContextValidator, DataValidator]
 ValidatorFactory = Callable[..., Validator]
 
 Schema: TypeAlias = "dict[str, Union[list[Validator], Schema]]"
-PydanticModel = BaseModel
+# PydanticModel: TypeAlias = CKANBaseModel
 
 # Function that accepts arbitary number of validators(decorated by
 # ckan.logic.schema.validator_args) and returns Schema dictionary

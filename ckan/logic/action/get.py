@@ -1002,7 +1002,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
-
+    breakpoint()
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = user_obj.sysadmin and include_plugin_data
@@ -1082,10 +1082,8 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
         schema = context.get('schema') or package_plugin.show_package_schema()
 
         if bool(schema) and context.get('validate', True):
-            from ckan.lib.pydantic.schema import DefaultShowPackageSchema
             package_dict, _errors = lib_plugins.plugin_validate(
-                package_plugin, context, package_dict, schema,
-                DefaultShowPackageSchema, 'package_show')
+                package_plugin, context, package_dict, schema, 'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_dataset_show(context, package_dict)

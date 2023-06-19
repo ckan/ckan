@@ -300,7 +300,7 @@ def package_update(
         package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, user, context['package'].name, data)
-
+    breakpoint()
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)

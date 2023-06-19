@@ -1,10 +1,12 @@
+import inspect
 import pydantic
 from pydantic.fields import ModelField, FieldInfo
 from typing import Optional, Any, Dict, List
 
 import ckan.lib.navl.dictization_functions as df
-from ckan.types import Context, PydanticModel
+from ckan.types import Context
 from ckan.logic import get_validator
+from ckan.config.declaration.option import _validators_from_string
 
 
 Invalid = df.Invalid
@@ -82,8 +84,8 @@ class CKANBaseModel(pydantic.BaseModel):
         :Example:
 
             field_names = {
-                'name': [validate_name, pydantic_not_empty],
-                'email': [validate_email],
+                'name': ['validate_name', 'pydantic_not_empty'],
+                'email': ['validate_email'],
             }
             AnyPydanticModel.add_validators(field_names)
 
@@ -105,33 +107,57 @@ class CKANBaseModel(pydantic.BaseModel):
         common_types = (int, str, dict, list, tuple)
         errors = {}
 
-        for name, f in cls.__fields__.items():
-            errors[name] = []
+        def validate_recurisve(
+                pydantic_model: CKANBaseModel, 
+                _values: Dict[str, Any], 
+                _name: str = ''
+            ):
 
-            # constraints
-            # if cls.has_constraints(name):
-            #     field_info = cls.__fields__[name].field_info
-            #     _validate_constr(field_info, values, name, errors)
+            for name, f in pydantic_model.__fields__.items():
+                breakpoint()
+                err = {}
+                err[name] = []
+                # breakpoint()
+                # constraints
+                if pydantic_model.has_constraints(name):
+                    field_info = pydantic_model.__fields__[name].field_info
+                    _validate_constr(field_info, _values, name, err)
 
-            # skip custom classes like DefaultResourceSchema...
-            if f.type_ in common_types:
-                if not isinstance(values.get("name"), f.type_):
-                    errors[name].append(f"Must be of {f.type_} type")
+                # skip custom classes like DefaultResourceSchema...
+                if f.type_ in common_types:
+                    if _values.get(name) and not isinstance(_values.get(name), f.type_):
+                        err[name].append(f"Must be of {f.type_} type")
 
-            if f.required and not values.get("name"):
-                errors[name].append(f"Missing value")
+                if f.required and not _values.get("name"):
+                    err[name].append(f"Missing value")
 
-            extra_validators = cls._validators.get(name)
-            if extra_validators:
-                for validator_func in extra_validators:
-                    try:
-                        _validate(validator_func, name, values, cls, context)
-                    except (ValueError, Invalid) as e:
-                        errors[name].append(e.args[0])
-                    except StopOnError:
-                        break
-            if not errors[name]:
-                del errors[name]
+                extra_validators = pydantic_model._validators.get(name)
+                if extra_validators:
+                    for validator_func in extra_validators:
+                        if not isinstance(validator_func, str):
+                            sub_cls = validator_func
+                            if _values.get(name):
+                                for res in _values[name]:
+                                    validate_recurisve(sub_cls, res, name)
+                            continue
+
+                        try:
+                            _validate(validator_func, name, _values, pydantic_model, context)
+                        except (ValueError, Invalid) as e:
+                            err[name].append(e.args[0])
+                        except StopOnError:
+                            break
+
+                if not err[name]:
+                    del err[name]
+                else:
+                    if _name:
+                        err[_name] = []
+                        err[_name].append({name: err.pop(name)})
+
+                errors.update(err)
+
+        validate_recurisve(cls, values)
         values["errors"] = errors
         return values
 
@@ -165,33 +191,44 @@ def _validate(
     validator_func: str,
     field_name: str,
     values: Dict[str, Any],
-    model: PydanticModel,
+    model: CKANBaseModel,
     context: Context,
 ) -> Any:
-    import inspect
 
     value = {}
-    validator = get_validator(validator_func)
-    # get the function signature
-    signature = inspect.signature(validator)
-    # get the length
-    parameters_length = len(signature.parameters)
-
-    # functions like unicode_safe expect only one argument
-    # so there is no need to rewrite it as a pydantic_validator
-    if parameters_length == 1:
-        value = validator(values.get(field_name, ""))  # type: ignore
-    # functions like package_id_does_not_exist expect two arguments
-    # so there is no need to rewrite it as a pydantic_validator
-    elif parameters_length == 2:
-        value = validator(values.get(field_name, ""), context)  # type: ignore
-    # pydantic custom validators expect 5 arguments
-    elif parameters_length == 5:
-        value = validator(
-            values.get(field_name),
+    if '(' in validator_func:
+        v = _validators_from_string(validator_func)
+        if v:
+            v = v[0]
+            v(
+            values.get(field_name), 
             values,  # type: ignore
             model.__config__,  # type: ignore
-            model.__fields__[field_name],
-            context,  # type: ignore
-        )
+            model.__fields__[field_name], 
+            context)  # type: ignore
+
+    else:
+        validator = get_validator(validator_func)
+        # get the function signature
+        signature = inspect.signature(validator)
+        # get the length
+        parameters_length = len(signature.parameters)
+
+        # functions like unicode_safe expect only one argument
+        # so there is no need to rewrite it as a pydantic_validator
+        if parameters_length == 1:
+            value = validator(values.get(field_name, ""))  # type: ignore
+        # functions like package_id_does_not_exist expect two arguments
+        # so there is no need to rewrite it as a pydantic_validator
+        elif parameters_length == 2:
+            value = validator(values.get(field_name, ""), context)  # type: ignore
+        # pydantic custom validators expect 5 arguments
+        elif parameters_length == 5:
+            value = validator(
+                values.get(field_name),
+                values,  # type: ignore
+                model.__config__,  # type: ignore
+                model.__fields__[field_name],
+                context,  # type: ignore
+            )
     return value
