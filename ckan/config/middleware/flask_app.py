@@ -427,10 +427,10 @@ def helper_functions() -> dict[str, h.HelperAttributeDict]:
     class HelperFunctions:
         '''hide full dict to tidy flask debug template listing'''
         def __getitem__(self, k):
-            return helpers.helper_functions[k]
+            return h.helper_functions[k]
 
         def __hasitem__(self, k):
-            return k in helpers.helper_functions
+            return k in h.helper_functions
 
         def __repr__(self):
             return '<template helper functions>'
