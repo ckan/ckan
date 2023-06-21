@@ -423,7 +423,19 @@ def helper_functions() -> dict[str, h.HelperAttributeDict]:
     u'''Make helper functions (`h`) available to Flask templates'''
     if not h.helper_functions:
         h.load_plugin_helpers()
-    return dict(h=h.helper_functions)
+
+    class HelperFunctions:
+        '''hide full dict to tidy flask debug template listing'''
+        def __getitem__(self, k):
+            return helpers.helper_functions[k]
+
+        def __hasitem__(self, k):
+            return k in helpers.helper_functions
+
+        def __repr__(self):
+            return '<template helper functions>'
+
+    return {'h': HelperFunctions()}
 
 
 def c_object() -> dict[str, LocalProxy[Any]]:
