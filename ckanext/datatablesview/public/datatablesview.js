@@ -411,18 +411,18 @@ this.ckan.module('datatables_view', function (jQuery) {
         // initialize settings for responsive mode (list view)
         responsiveSettings = {
           details: {
-            display: $.fn.dataTable.Responsive.display.modal({
-              header: function (row) {
-                // add clipboard and print buttons to modal record display
-                var data = row.data();
-                return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
-                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
-                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
-                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
-                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
-                  '</div>&nbsp;'
-              }
-            }),
+//            display: $.fn.dataTable.Responsive.display.modal({
+//              header: function (row) {
+//                // add clipboard and print buttons to modal record display
+//                var data = row.data();
+//                return '<span style="font-size:150%;font-weight:bold;">Details:</span>&nbsp;&nbsp;<div class=" dt-buttons btn-group">' +
+//                  '<button id="modalcopy-button" class="btn btn-default" title="' + that._('Copy to clipboard') + '" onclick="copyModal(\'' +
+//                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-copy"></i></button>' +
+//                  '<button id="modalprint-button" class="btn btn-default" title="' + that._('Print') + '" onclick="printModal(\'' +
+//                  packagename + '&mdash;' + resourcename + '\')"><i class="fa fa-print"></i></button>' +
+//                  '</div>&nbsp;'
+//              }
+//            }),
             // render the Record Details in a modal dialog box
             // do not render the _colspacer column, which has the 'none' class
             // the none class in responsive mode forces the _colspacer column to be hidden
