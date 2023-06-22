@@ -125,6 +125,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions: dict[str, Callable[..., Any]] = {}
