@@ -103,7 +103,7 @@ class HelperAttributeDict(dict):
             )
         return value
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return '<template helper functions>'
 
 
