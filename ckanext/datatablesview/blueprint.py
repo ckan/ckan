@@ -122,7 +122,8 @@ def ajax(resource_view_id):
     else:
         data = []
         for row in response[u'records']:
-            record = {colname: text_type(row.get(colname, u''))
+            record = {colname: text_type(
+                      '' if row.get(colname) is None else row.get(colname))
                       for colname in cols}
             # the DT_RowId is used in DT to set an element id for each record
             record['DT_RowId'] = 'row' + text_type(row.get(u'_id', u''))
