@@ -103,6 +103,9 @@ class HelperAttributeDict(dict):
             )
         return value
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions = {}
