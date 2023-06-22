@@ -14,12 +14,12 @@
 
 {% block query_examples %}
   {% if h.resource_url_type(resource_id) == 'tabledesigner' %}
-    <div class="accordion-item">
-      <h2 class="accordion-heading">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-querying-post" aria-expanded="false" aria-controls="collapse-querying-post"> {{ _('Querying') }} &raquo;</button>
-      </h2>
-      <div id="collapse-querying-post" class="accordion-collapse collapse show" aria-labelledby="collapse-querying-post" data-bs-parent="#accordion2">
-        <div class="accordion-body">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-querying-post"> {{ _('Querying') }} &raquo;</a>
+      </div>
+      <div id="collapse-querying-post" class="in panel-collapse collapse">
+        <div class="panel-body">
           <strong>{{ _('Get 5 results containing "jones" in any field:') }}</strong>
           {% for clang in code_languages %}
             {{ code_examples[clang].request_limit }}
@@ -40,12 +40,12 @@
         </div>
       </div>
     </div>
-    <div class="accordion-item">
-      <h2 class="accordion-heading">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-updating" aria-expanded="false" aria-controls="collapse-updating"> {{ _('Inserting and Updating') }} &raquo;</button>
-      </h2>
-      <div id="collapse-updating" class="accordion-collapse collapse" aria-labelledby="collapse-updating" data-bs-parent="#accordion2">
-        <div class="accordion-body">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-updating"> {{ _('Inserting and Updating') }} &raquo;</a>
+      </div>
+      <div id="collapse-updating" class="panel-collapse collapse">
+        <div class="panel-body">
           <strong>{{ _('Insert a new record:') }}</strong>
           {% for clang in code_languages %}
             {{ code_examples[clang].request_insert }}
@@ -60,12 +60,12 @@
         </div>
       </div>
     </div>
-    <div class="accordion-item">
-      <h2 class="accordion-heading">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-deleting" aria-expanded="false" aria-controls="collapse-deleting"> {{ _('Deleting') }} &raquo;</button>
-      </h2>
-      <div id="collapse-deleting" class="accordion-collapse collapse" aria-labelledby="collapse-deleting" data-bs-parent="#accordion2">
-        <div class="accordion-body">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-deleting"> {{ _('Deleting') }} &raquo;</a>
+      </div>
+      <div id="collapse-deleting" class="panel-collapse collapse">
+        <div class="panel-body">
           <strong>{{ _('Delete a record:') }}</strong>
           {% for clang in code_languages %}
             {{ code_examples[clang].request_delete }}
