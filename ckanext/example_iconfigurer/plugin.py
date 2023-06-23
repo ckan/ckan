@@ -30,7 +30,6 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
         toolkit.add_template_directory(config, u'templates')
 
-
     def update_config_schema(self, schema: Schema):
 
         ignore_missing = toolkit.get_validator(u'ignore_missing')
