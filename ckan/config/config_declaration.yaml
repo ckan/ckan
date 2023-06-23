@@ -1126,23 +1126,6 @@ groups:
             is not a security measure. The keys will still be available via the
             API and in revision diffs.
 
-      - key: ckan.dumps_url
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the URL here, so that it can be advertised in the
-          web interface. For example::
-
-            ckan.dumps_url = http://ckan.net/dump/
-
-          For more information on using dumpfiles, see :ref:`datasets dump`.
-
-      - key: ckan.dumps_format
-        example: CSV/JSON
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the format here, so that it can be advertised in the
-          web interface. ``dumps_format`` is just a string for display.
-
       - key: ckan.recaptcha.publickey
         description: |
           The public key for your reCAPTCHA account, for example::
