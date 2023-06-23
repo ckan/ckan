@@ -75,8 +75,6 @@
     {% endblock %}
 
     {% block head_extras %}
-      {# defined in the config.ini under "ckan.template_head_end" #}
-      {{ g.template_head_end | safe }}
     {% endblock %}
 
     {# render all assets included in styles block #}
@@ -116,8 +114,6 @@
     {% endblock -%}
 
     {% block body_extras -%}
-      {# defined in the config.ini under "ckan.template_footer_end" #}
-      {{ g.template_footer_end | safe }}
     {%- endblock %}
 
     {# render all assets included in scripts block and everywhere else #}
