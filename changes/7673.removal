@@ -1,0 +1,1 @@
+`ckan.dumps_url` and `ckan.dumps_format` config options have been removed.
