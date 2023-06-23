@@ -4,8 +4,10 @@
  block in `ckan/templates/admin/base.html`.
 
 ```jinja2
+{% ckan_extends %}
+
 {% block content_primary_nav %}
-  {% super() %}
+  {{ super() }}
   {{ h.build_nav_icon('example_extension.endpoint', _('My Cool Feature'), icon='trophy') }}
 {% endblock %}
 ```

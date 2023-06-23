@@ -16,10 +16,15 @@ class TestExampleIConfigurer(object):
     def test_config_page_has_custom_tabs(self, app):
         """
         The admin base template should include our custom ckan-admin tabs
-        added using the toolkit.add_ckan_admin_tab method.
+        added by extending ckan/templates/admin/base.html.
         """
         response = app.get("/ckan-admin/myext_config_one", status=200)
         assert response.status_code == 200
+        # The default CKAN tabs
+        assert helpers.body_contains(response, "Sysadmins")
+        assert helpers.body_contains(response, "Config")
+        assert helpers.body_contains(response, "Trash")
+
         # The label text
         assert helpers.body_contains(response, "My First Custom Config Tab")
         assert helpers.body_contains(response, "My Second Custom Config Tab")
