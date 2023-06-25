@@ -334,17 +334,14 @@ def plugin_validate(
         if result is not None:
             return result
 
-    validator_model = config.get('ckan.validator_model', 'navl')
-    if validator_model == 'navl':
-        return validate(data_dict, schema, context)  # type: ignore
-    else:
-        model_instance = schema(**data_dict, __context=context) # type: ignore
-        breakpoint()
-        result = model_instance.dict(
-            exclude_none=True, exclude={'_ckan_phase', 'pkg_name'}
-        )
-        errors = result.pop('errors', None)
-        return result, errors
+    # Check if the schema is an actual class and a subclass of CKANBaseModel
+    # This helps avoid typing errors and ensures correct validation
+    if isinstance(schema, type) and issubclass(schema, CKANBaseModel):
+        from ckan.lib.pydantic.utils import validate_with_pydantic
+        return validate_with_pydantic(data_dict, schema, context)
+
+    if isinstance(schema, dict):
+        return validate(data_dict, schema, context)
 
 
 def get_permission_labels() -> Any:
@@ -385,7 +382,7 @@ class DefaultDatasetForm(object):
         import ckan.lib.pydantic as pydantic_schema
         return pydantic_schema.DefaultCreatePackageSchema  # type: ignore
 
-    def update_package_schema(self) -> Schema:
+    def update_package_schema(self) -> Union[Schema, CKANBaseModel]:
         validator_model = config.get('ckan.validator_model', 'navl')
         if 'navl' in validator_model:
             return schema.default_create_package_schema()
@@ -393,8 +390,13 @@ class DefaultDatasetForm(object):
         import ckan.lib.pydantic as pydantic_schema
         return pydantic_schema.DefaultUpdatePackageSchema  # type: ignore
 
-    def show_package_schema(self) -> Schema:
-        return schema.default_show_package_schema()
+    def show_package_schema(self) -> Union[Schema, CKANBaseModel]:
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultShowPackageSchema  # type: ignore
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
@@ -540,7 +542,12 @@ class DefaultGroupForm(object):
         return schema.default_update_group_schema()
 
     def form_to_db_schema(self) -> dict[str, Any]:
-        return schema.group_form_schema()
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.group_form_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.GroupFormSchema  # type: ignore
 
     def db_to_form_schema(self) -> dict[str, Any]:
         '''This is an interface to manipulate data from the database

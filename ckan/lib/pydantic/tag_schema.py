@@ -4,6 +4,9 @@ from typing_extensions import Literal
 
 
 class DefaultTagSchema(pydantic.BaseModel):
+
+    _validators = {}
+
     name: str
     vocabulary_id: Optional[str]
     _revision_timestamp: Optional[str]

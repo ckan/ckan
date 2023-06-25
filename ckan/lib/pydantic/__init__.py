@@ -1,7 +1,8 @@
 from ckan.lib.pydantic.dataset_schema import (
     DefaultCreatePackageSchema, 
     DefaultUpdatePackageSchema, 
-    DefaultShowPackageSchema
+    DefaultShowPackageSchema,
+    DefaultSearchPackageSchema
 )
 from ckan.lib.pydantic.group_schema import (
     DefaultGroupSchema, GroupFormSchema, DefaultUpdateGroupSchema
@@ -26,5 +27,5 @@ __all__ = [
     "DefaultGroupSchema", "GroupFormSchema", "DefaultUpdateGroupSchema",
     "DefaultExtrasSchema", "DefaultRelationshipSchema", "DefaultResourceSchema",
     "DefaultResourceUpdateSchema", "DefaultTagSchema", "DefaultCreateTagSchema",
-    "UserCreateSchema", "CKANBaseModel",
+    "UserCreateSchema", "CKANBaseModel", "DefaultSearchPackageSchema",
 ]

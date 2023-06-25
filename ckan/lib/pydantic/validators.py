@@ -1,3 +1,4 @@
+from sqlalchemy.orm.exc import NoResultFound
 from pydantic import BaseConfig
 from pydantic.fields import ModelField
 from typing import Any, Dict, Type, Union, Optional, Callable
@@ -32,7 +33,7 @@ def p_not_empty(
         return value
 
     if not value:
-        raise ValueError(f"Missing {field.name}")
+        raise ValueError(f"Missing value")
     return value
 
 
@@ -122,11 +123,11 @@ def p_package_name_validator(
 
     if len(value) < PACKAGE_NAME_MIN_LENGTH:
         raise Invalid(
-            _('Name "%s" length is less than minimum %s') % (value, PACKAGE_NAME_MIN_LENGTH)
+            _('Name "%s" length is less than minimum %s') % (field.name, PACKAGE_NAME_MIN_LENGTH)
         )
     if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(
-            _('Name "%s" length is more than maximum %s') % (value, PACKAGE_NAME_MAX_LENGTH)
+            _('Name "%s" length is more than maximum %s') % (field.name, PACKAGE_NAME_MAX_LENGTH)
         )
 
 
@@ -355,3 +356,124 @@ def p_ignore_empty(
     if value is missing or not value:
         values.pop(field.name, None)
         raise StopOnError
+
+
+def p_resource_id_does_not_exist(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    breakpoint()
+    session = context['session']
+    model = context['model']
+
+    if value is missing:
+        return
+    resource_id = value
+
+    package_id = values.get('package_id')
+    package_query = session.query(model.Package).filter(
+        model.Package.name == package_id,
+        model.Package.state != State.DELETED
+    )
+
+    query = session.query(model.Resource.package_id).filter(
+        model.Resource.id == resource_id,
+        model.Resource.state != State.DELETED,
+    )
+    try:
+        [parent_id] = query.one()
+        package = package_query.one()
+    except NoResultFound:
+        return
+    if parent_id != package.id:
+        raise Invalid(_('Resource id already exists.'))
+
+
+def p_keep_extras(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> None:
+    """Convert dictionary into simple fields.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"input": {"hello": 1, "world": 2}},
+            {"input": [keep_extras]}
+        )
+        assert data == {"hello": 1, "world": 2}
+
+    """
+    breakpoint()
+    extras = values.pop(field.name, {})
+    for extras_key, value in extras.items():
+        values[key[:-1] + (extras_key,)] = value
+
+
+def p_list_of_strings(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """Ensures that value is a list of strings.
+    """
+    if not isinstance(value, list):
+        raise Invalid(_('Not a list'))
+    for x in value:
+        if not isinstance(x, str):
+            raise Invalid('%s: %s' % (_('Not a string'), x))
+
+
+def p_default(default_value: Any):
+    """Convert missing or empty value to the default one.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {},
+            {"hello": [default("not empty")]}
+        )
+        assert data == {"hello": "not empty"}
+
+    """
+    def callable(value: Any, values: Dict[str, Any], config: Type[BaseConfig],
+                 field: Type[ModelField], context: Context):
+
+        if value is None or value == '' or value is missing:
+            value = default_value
+
+    return callable
+
+
+def p_group_name_validator(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """Ensures that value can be used as a group's name
+    """
+
+    model = context['model']
+    session = context['session']
+    group = context.get('group')
+    group_id = ''
+
+    query = session.query(model.Group.name).filter_by(name=value)
+    if group:
+        group_id: Union[Optional[str], Missing] = group.id
+
+    if group_id and group_id is not missing:
+        query = query.filter(model.Group.id != group_id)
+    result = query.first()
+    if result:
+       raise Invalid(_('Group name already exists in database'))

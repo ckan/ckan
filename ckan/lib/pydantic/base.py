@@ -1,9 +1,12 @@
 import inspect
 import pydantic
-from pydantic.fields import ModelField, FieldInfo
+
+from pydantic.fields import ModelField
 from typing import Optional, Any, Dict, List
 
 import ckan.lib.navl.dictization_functions as df
+import ckan.logic as logic
+
 from ckan.types import Context
 from ckan.logic import get_validator
 from ckan.config.declaration.option import _validators_from_string
@@ -11,6 +14,7 @@ from ckan.config.declaration.option import _validators_from_string
 
 Invalid = df.Invalid
 StopOnError = df.StopOnError
+ValidationError = logic.ValidationError
 
 
 class CKANBaseModel(pydantic.BaseModel):
@@ -21,8 +25,16 @@ class CKANBaseModel(pydantic.BaseModel):
     _validators = {}
 
     class Config:
+        # allow extra attributes during model initialisation.
         extra = "allow"
+        # allow arbitrary user types for fields
         arbitrary_types_allowed = True
+        # strip leading and trailing whitespace for str & byte types
+        anystr_strip_whitespace = True
+        # validate field defaults
+        validate_all = True
+
+        context: Context = {}
 
     @classmethod
     def add_fields(cls, field_definitions: List[Dict[str, Any]]) -> None:
@@ -103,88 +115,32 @@ class CKANBaseModel(pydantic.BaseModel):
 
     @pydantic.root_validator(pre=True)
     def validate_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        context: Context = values.pop("__context", None)
-        common_types = (int, str, dict, list, tuple)
+        context = cls.Config.context
         errors = {}
 
-        def validate_recurisve(
-                pydantic_model: CKANBaseModel, 
-                _values: Dict[str, Any], 
-                _name: str = ''
-            ):
+        for name, _ in cls.__fields__.items():
+            errors[name] = []
 
-            for name, f in pydantic_model.__fields__.items():
-                breakpoint()
-                err = {}
-                err[name] = []
-                # breakpoint()
-                # constraints
-                if pydantic_model.has_constraints(name):
-                    field_info = pydantic_model.__fields__[name].field_info
-                    _validate_constr(field_info, _values, name, err)
+            extra_validators = cls._validators.get(name)
+            if extra_validators:
+                for validator_func in extra_validators:
+                    if not isinstance(validator_func, str):
+                        continue
 
-                # skip custom classes like DefaultResourceSchema...
-                if f.type_ in common_types:
-                    if _values.get(name) and not isinstance(_values.get(name), f.type_):
-                        err[name].append(f"Must be of {f.type_} type")
+                    try:
+                        _validate(validator_func, name, values, cls, context)
+                    except (ValueError, Invalid) as e:
+                        errors[name].append(e.args[0])
+                        break
+                    except StopOnError:
+                        break
 
-                if f.required and not _values.get("name"):
-                    err[name].append(f"Missing value")
+            if not errors[name]:
+                del errors[name]
 
-                extra_validators = pydantic_model._validators.get(name)
-                if extra_validators:
-                    for validator_func in extra_validators:
-                        if not isinstance(validator_func, str):
-                            sub_cls = validator_func
-                            if _values.get(name):
-                                for res in _values[name]:
-                                    validate_recurisve(sub_cls, res, name)
-                            continue
-
-                        try:
-                            _validate(validator_func, name, _values, pydantic_model, context)
-                        except (ValueError, Invalid) as e:
-                            err[name].append(e.args[0])
-                        except StopOnError:
-                            break
-
-                if not err[name]:
-                    del err[name]
-                else:
-                    if _name:
-                        err[_name] = []
-                        err[_name].append({name: err.pop(name)})
-
-                errors.update(err)
-
-        validate_recurisve(cls, values)
-        values["errors"] = errors
+        if errors:
+            raise ValidationError(errors)
         return values
-
-    @classmethod
-    def has_constraints(cls, field_name: str) -> bool:
-        field = cls.__fields__[field_name]
-        return bool(field.field_info.get_constraints())
-
-
-def _validate_constr(
-    field_info: FieldInfo,
-    values: Dict[str, List[str]],
-    name: str,
-    errors: Dict[str, Any],
-):
-    value = values[name]
-    min_length = field_info.min_length
-    max_length = field_info.max_length
-
-    if min_length and max_length:
-        if min_length < len(value) or max_length > len(value):
-            errors[name].append(
-                f"{name.capitalize()} must have between {min_length} and"
-                f" {max_length} characters"
-            )
-
-    # TODO check and validate against all possible variants
 
 
 def _validate(

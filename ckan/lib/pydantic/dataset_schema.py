@@ -1,15 +1,33 @@
 import pydantic
 from typing import Any, Dict, List, Optional
 
+from ckan.lib.pydantic.resource_schema import (
+    DefaultResourceSchema, 
+    DefaultResourceUpdateSchema, 
+    DefaultResourceForPackageShow
+)
+
 from ckan.lib.pydantic.base import CKANBaseModel
-from ckan.lib.pydantic.resource_schema import DefaultResourceSchema, DefaultResourceUpdateSchema
 from ckan.lib.pydantic.tag_schema import DefaultTagSchema
 from ckan.lib.pydantic.mixed_schema import DefaultExtrasSchema
 from ckan.lib.pydantic.mixed_schema import DefaultRelationshipSchema
 
 
-class DefaultCreatePackageSchema(CKANBaseModel):
+class Groups(CKANBaseModel):
     id: Optional[str]
+    name: Optional[str]
+    title: Optional[str]
+
+    _validators = {
+        'id': ["p_ignore_missing", "unicode_safe"],
+        'name': ["p_ignore_missing", "unicode_safe"],
+        'title': ["p_ignore_missing", "unicode_safe"],
+        '__extras': ["p_ignore"],
+    }
+
+
+class DefaultCreatePackageSchema(CKANBaseModel):
+    id: Optional[str] 
     name: str
     title: str
     author: Optional[str]
@@ -23,17 +41,17 @@ class DefaultCreatePackageSchema(CKANBaseModel):
     state: Optional[str]
     type: Optional[str]
     owner_org: Optional[str]
-    private: Optional[str]
+    private: Optional[bool]
     resources: Optional[List[DefaultResourceSchema]]
     tags: Optional[List[DefaultTagSchema]]
     tag_string: Optional[str]
     plugin_data: Optional[Dict[str, Any]]
     extras: Optional[List[DefaultExtrasSchema]]
     save: Optional[str]
-    _return_to: Optional[str]
+    return_to: Optional[str]
     relationships_as_object: Optional[List[DefaultRelationshipSchema]]
     relationships_as_subject: Optional[List[DefaultRelationshipSchema]]
-    groups: Optional[Dict[str, Any]]
+    groups: Optional[List[Groups]]
 
     _validators = {
         'id': ["p_empty_if_not_sysadmin", "p_ignore_missing",  
@@ -67,39 +85,8 @@ class DefaultCreatePackageSchema(CKANBaseModel):
         'return_to': ["p_ignore"],
         'relationships_as_object': [DefaultRelationshipSchema],
         'relationships_as_subject': [DefaultRelationshipSchema],
-        # 'groups': {
-        #     'id': ["ignore_missing", "unicode_safe"],
-        #     'name': ["ignore_missing", "unicode_safe"],
-        #     'title': ["ignore_missing", "unicode_safe"],
-        #     '__extras': ["ignore"],
-        # }
+        'groups': [Groups]
     }
-
-    @pydantic.root_validator(pre=False)
-    def convert_to_extras(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        '''
-        Convert given field into an extra field.
-        '''
-
-        all_required_field_names = (
-            {
-            field.alias for field in cls.__fields__.values() 
-            if field.alias != 'extras'
-            }
-        )
-
-        extras = list()
-        if not 'extras' in values:
-            values['extras'] = list()
-
-        for field_name, field_value in values.items():
-            if (
-                field_name not in ["_ckan_phase", "save", "pkg_name", "extras", "errors"]
-                and field_name not in all_required_field_names
-            ):
-                extras.append({'key': field_name, 'value': field_value})
-        values['extras'] = extras
-        return values
 
 
 class DefaultUpdatePackageSchema(DefaultCreatePackageSchema):
@@ -116,7 +103,7 @@ class DefaultUpdatePackageSchema(DefaultCreatePackageSchema):
         # Supplying the package name when updating a package is optional (you can
         # supply the id to identify the package instead).
         "name": [
-            "p_ignore_missing", "name_validator", "p_package_name_validator", 
+            "p_ignore_missing", "name_validator", "p_package_name_validator",
             "unicode_safe"
         ],
         # Supplying the package title when updating a package is optional, if it's
@@ -127,10 +114,93 @@ class DefaultUpdatePackageSchema(DefaultCreatePackageSchema):
 
 
 class DefaultShowPackageSchema(DefaultCreatePackageSchema):
-    id: str
-    tags: List[DefaultTagSchema]
-    resources: List[DefaultResourceSchema]
-    state: Optional[str]
-    isopen: Optional[str]
+
+    organization: Optional[Dict[str, Any]]
+    resources: Optional[List[DefaultResourceForPackageShow]] # type: ignore
+    metadata_created: str
+    metadata_modified: str
+    creator_user_id: str
+    num_resources: int
+    num_tags: int
+    owner_org: Optional[str]
+    tracking_summary: Optional[Dict[str, Any]]
+    license_title: Optional[str]
+    isopen: Optional[bool]
     license_url: Optional[str]
-    tracking_summary: Optional[str]
+
+    _validators = {
+        **DefaultCreatePackageSchema._validators,
+
+        'id': [],
+        # 'tags': {'__extras': ['p_keep_extras']},
+        'name': ["p_not_empty", "unicode_safe", "name_validator"],
+
+        'resources': [DefaultResourceForPackageShow],
+
+        'state': ['p_ignore_missing'],
+        'isopen': ['p_ignore_missing'],
+        'license_url': ['p_ignore_missing'],
+
+        # 'groups': {
+        #     'description': ['p_ignore_missing'],
+        #     'display_name': ['p_ignore_missing'],
+        #     'image_display_url': ['p_ignore_missing'],
+        # },
+
+        # Remove validators for several keys from the schema so validation doesn't
+        # strip the keys from the package dicts if the values are 'missing' (i.e.
+        # None).
+        'author': [],
+        'author_email': [],
+        'maintainer': [],
+        'maintainer_email': [],
+        'license_id': [],
+        'notes': [],
+        'url': [],
+        'version': [],
+
+        # Add several keys that are missing from default_create_package_schema(),
+        # so validation doesn't strip the keys from the package dicts.
+        'metadata_created': [],
+        'metadata_modified': [],
+        'creator_user_id': [],
+        'num_resources': [],
+        'num_tags': [],
+        'organization': [],
+        'owner_org': [],
+        'private': [],
+        'tracking_summary': ['p_ignore_missing'],
+        'license_title': []
+    }
+
+
+class DefaultSearchPackageSchema(CKANBaseModel):
+
+    q: Optional[str]
+    fl: Optional[str]
+    fq: Optional[str]
+    rows: Optional[int]
+    sort: Optional[str]
+    start: Optional[int]
+    qf: Optional[str]
+    facet: Optional[str]
+    facet_mincount: Optional[int] = pydantic.Field(None, alias='facet.mincount')
+    facet_limit: Optional[int] = pydantic.Field(None, alias='facet.limit')
+    facet_field: Optional[List[str]] = pydantic.Field(None, alias='facet.field')
+    extras: Optional[DefaultExtrasSchema]
+
+    _validators = {
+        'q': ['p_ignore_missing', 'unicode_safe'],
+        'fl': ['p_ignore_missing', 'convert_to_list_if_string'],
+        'fq': ['p_ignore_missing', 'unicode_safe'],
+        'rows': ['p_default(10)', 'natural_number_validator'], # 'limit_to_configured_maximum(ckan.search.rows_max)'
+        'sort': ['p_ignore_missing', 'unicode_safe'],
+        'start': ['p_ignore_missing', 'natural_number_validator'],
+        'qf': ['p_ignore_missing', 'unicode_safe'],
+        'facet': ['p_ignore_missing', 'unicode_safe'],
+        'facet.mincount': ['p_ignore_missing', 'natural_number_validator'],
+        'facet.limit': ['p_ignore_missing', 'int_validator'],
+        'facet.field': ['p_ignore_missing', 'convert_to_json_if_string',
+                        'p_list_of_strings'],
+        'extras': ['p_ignore_missing', DefaultExtrasSchema]
+    }
