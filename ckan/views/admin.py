@@ -76,13 +76,12 @@ class ResetConfigView(MethodView):
 
 class ConfigView(MethodView):
     def get(self) -> str:
-        items = _get_config_options()
         schema = ckan.logic.schema.update_configuration_schema()
         data = {}
         for key in schema:
             data[key] = config.get(key)
 
-        vars: dict[str, Any] = dict(data=data, errors={}, **items)
+        vars: dict[str, Any] = dict(data=data, errors={})
 
         return base.render(u'admin/config.html', extra_vars=vars)
 
@@ -102,15 +101,12 @@ class ConfigView(MethodView):
             }, data_dict)
 
         except logic.ValidationError as e:
-            items = _get_config_options()
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
             vars = dict(data=data,
                         errors=errors,
-                        error_summary=error_summary,
-                        form_items=items,
-                        **items)
+                        error_summary=error_summary)
             return base.render(u'admin/config.html', extra_vars=vars)
 
         return h.redirect_to(u'admin.config')
