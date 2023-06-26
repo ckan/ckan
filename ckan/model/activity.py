@@ -13,7 +13,6 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
-    func
 )
 
 from ckan.common import config

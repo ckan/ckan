@@ -15,6 +15,7 @@ import tzlocal
 import pprint
 import copy
 import uuid
+import unicodedata
 
 import dominate.tags as dom_tags
 from markdown import markdown
@@ -658,6 +659,16 @@ def current_url():
 def lang():
     ''' Return the language code for the current locale eg `en` '''
     return request.environ.get('CKAN_LANG')
+
+
+@core_helper
+def strxfrm(s):
+    # type: (str) -> str
+    '''
+    Transform a string to one that can be used in locale-aware comparisons.
+    Override this helper if you have different text sorting needs.
+    '''
+    return unicodedata.normalize('NFD', s).lower()
 
 
 @core_helper

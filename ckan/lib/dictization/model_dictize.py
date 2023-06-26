@@ -29,7 +29,7 @@ import ckan.lib.munge as munge
 ## package save
 
 def group_list_dictize(obj_list, context,
-                       sort_key=lambda x: x['display_name'], reverse=False,
+                       sort_key=lambda x: h.strxfrm(x['display_name']), reverse=False,
                        with_package_counts=True,
                        include_groups=False,
                        include_tags=False,
@@ -467,7 +467,7 @@ def tag_dictize(tag, context, include_datasets=True):
     return tag_dict
 
 def user_list_dictize(obj_list, context,
-                      sort_key=lambda x:x['name'], reverse=False):
+                      sort_key=lambda x: h.strxfrm(x['name']), reverse=False):
 
     result_list = []
 
