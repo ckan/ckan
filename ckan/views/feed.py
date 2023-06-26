@@ -216,6 +216,12 @@ def output_feed(
                 additional_fields = plugin.get_item_additional_fields(pkg)
 
         if 'package_id' in pkg:  # Resource
+            modified_date = pkg.get(u'metadata_modified', u'')
+            if modified_date:
+                modified_date = h.date_str_to_datetime(modified_date)
+            created_date = pkg.get(u'created', u'')
+            if created_date:
+                created_date = h.date_str_to_datetime(created_date)
             feed.add_item(
                 title=h.get_translated(pkg, u'name'),
                 alternate_link=h.url_for(
@@ -226,10 +232,8 @@ def output_feed(
                     _external=True),
                 description=remove_control_characters(
                                 h.get_translated(pkg, 'description')),
-                updated=h.date_str_to_datetime(
-                            pkg.get(u'metadata_modified', '')),
-                published=h.date_str_to_datetime(
-                            pkg.get(u'created', '')),
+                updated=modified_date,
+                published=created_date,
                 unique_id=_create_atom_id(u'/dataset/%s/resource/%s' %
                                           (pkg['package_id'], pkg['id'])),
                 author_name=pkg.get(u'author', u''),
@@ -238,6 +242,12 @@ def output_feed(
                 enclosure=_enclosure(pkg, u'resource_show', id=pkg['id']),
                 **additional_fields)
         else:  # Dataset
+            modified_date = pkg.get(u'metadata_modified', u'')
+            if modified_date:
+                modified_date = h.date_str_to_datetime(modified_date)
+            created_date = pkg.get(u'metadata_created', u'')
+            if created_date:
+                created_date = h.date_str_to_datetime(created_date)
             feed.add_item(
                 title=h.get_translated(pkg, u'title'),
                 self_link=h.url_for(
@@ -250,10 +260,8 @@ def output_feed(
                     _external=True),
                 description=remove_control_characters(
                                 h.get_translated(pkg, 'notes')),
-                updated=h.date_str_to_datetime(
-                            pkg.get(u'metadata_modified', '')),
-                published=h.date_str_to_datetime(
-                            pkg.get(u'metadata_created', '')),
+                updated=modified_date,
+                published=created_date,
                 unique_id=_create_atom_id(u'/dataset/%s' % pkg['id']),
                 author_name=pkg.get(u'author', u''),
                 author_email=pkg.get(u'author_email', u''),
