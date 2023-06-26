@@ -53,9 +53,9 @@ def _get_config_options() -> dict[str, list[dict[str, str]]]:
 
 def _get_config_items() -> list[str]:
     return [
-        u'ckan.site_title', u'ckan.theme', u'ckan.site_description',
-        u'ckan.site_logo', u'ckan.site_about', u'ckan.site_intro_text',
-        u'ckan.site_custom_css', u'ckan.homepage_style'
+        'ckan.site_title', 'ckan.theme', 'ckan.site_description',
+        'ckan.site_logo', 'ckan.site_about', 'ckan.site_intro_text',
+        'ckan.site_custom_css'
     ]
 
 
