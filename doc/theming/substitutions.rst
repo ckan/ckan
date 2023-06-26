@@ -8,6 +8,6 @@
 .. |templates_dir| replace:: ``ckanext-example_theme/ckanext/example_theme/templates``
 .. |index.html| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/home/index.html``
 .. |snippets_dir| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/snippets``
-.. |layout1.html| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/home/layout1.html``
+.. |layout.html| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/home/layout.html``
 
 .. _Jinja2 docs: http://jinja.pocoo.org/docs/templates
