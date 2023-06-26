@@ -34,23 +34,6 @@ def _get_sysadmins() -> "Query[model.User]":
     return q
 
 
-def _get_config_options() -> dict[str, list[dict[str, str]]]:
-    homepages = [{
-        u'value': u'1',
-        u'text': (u'Introductory area, search, featured'
-                  u' group and featured organization')
-    }, {
-        u'value': u'2',
-        u'text': (u'Search, stats, introductory area, '
-                  u'featured organization and featured group')
-    }, {
-        u'value': u'3',
-        u'text': u'Search, introductory area and stats'
-    }]
-
-    return dict(homepages=homepages)
-
-
 def _get_config_items() -> list[str]:
     return [
         'ckan.site_title', 'ckan.theme', 'ckan.site_description',
