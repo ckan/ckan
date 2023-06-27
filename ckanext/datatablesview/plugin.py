@@ -3,6 +3,7 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 from ckanext.datatablesview import blueprint
+from ckanext.datatablesview import helpers
 
 default = toolkit.get_validator(u'default')
 boolean_validator = toolkit.get_validator(u'boolean_validator')
@@ -17,7 +18,6 @@ DEFAULT_ELLIPSIS_LENGTH = 100
 DEFAULT_DATE_FORMAT = 'llll'
 
 
-@toolkit.blanket.helpers
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
@@ -25,6 +25,7 @@ class DataTablesView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.ITemplateHelpers)
 
     # IBlueprint
 
@@ -102,3 +103,9 @@ class DataTablesView(p.SingletonPlugin):
                 u'filterable': [default(True), boolean_validator],
             }
         }
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {'datatablesview_null_label':
+                    helpers.datatablesview_null_label}
