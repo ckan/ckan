@@ -17,8 +17,7 @@ import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
-from ckan.common import OrderedDict, c, config, request, response, _
-from ckanext.datastore.writer import csv_writer
+from ckan.common import OrderedDict, c, config, request, _
 
 log = logging.getLogger(__name__)
 
@@ -703,72 +702,6 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
 
         return self._render_template('group/members.html', group_type)
-
-    def member_dump(self, id):
-        group_type = self._ensure_controller_matches_group_type(id)
-        is_organization = group_type == 'organization'
-
-        writer_factory = csv_writer
-        records_format = u'csv'
-
-        group_obj = model.Group.get(id)
-        if not group_obj:
-            base.abort(404,
-                    _(u'Organization not found')
-                    if is_organization
-                    else _(u'Group not found'))
-
-        context = {u'model': model,
-                   u'session': model.Session,
-                   u'user': c.user}
-
-        try:
-            action_name = u'group_member_create'
-            if is_organization:
-                action_name = u'organization_member_create'
-            check_access(action_name, context, {u'id': id})
-        except NotAuthorized:
-            base.abort(404,
-                    _(u'Not authorized to access {group} members download'
-                        .format(group=group_obj.title)))
-
-        try:
-            members = get_action(u'member_list')(context, {
-                u'id': id,
-                u'object_type': u'user',
-                u'records_format': records_format,
-                u'include_total': False,
-            })
-        except NotFound:
-            base.abort(404, _('Members not found'))
-
-        results = ''
-        for uid, _user, role in members:
-            user_obj = model.User.get(uid)
-            if not user_obj:
-                continue
-            results += '{name},{email},{fullname},{role}\n'.format(
-                name=user_obj.name.encode('utf8'),
-                email=user_obj.email.encode('utf8'),
-                fullname=user_obj.fullname.encode('utf8') if user_obj.fullname else _('N/A'),
-                role=role.encode('utf8'))
-
-        fields = [
-            {'id': _('Username').encode('utf8')},
-            {'id': _('Email').encode('utf8')},
-            {'id': _('Name').encode('utf8')},
-            {'id': _('Role').encode('utf8')}]
-
-        def start_writer(fields):
-            file_name = u'{group_id}-{members}'.format(
-                group_id=group_obj.name,
-                members=_(u'members'))
-            return writer_factory(response, fields, file_name, bom=True)
-
-        with start_writer(fields) as wr:
-            wr.write_records(results) # type: ignore
-
-        return response
 
     def member_new(self, id):
         group_type = self._ensure_controller_matches_group_type(id)

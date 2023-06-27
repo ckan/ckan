@@ -6,7 +6,6 @@
   {% if h.check_access('organization_update', {'id': organization.id}) %}
 
     {% link_for _('Add Member'), named_route=group_type+'.member_new', id=group_dict.id, class_='btn btn-primary', icon='plus-square' %}
-    {% link_for _('CSV'), controller='organization', action='member_dump', id=c.group_dict.id, class_='btn btn-primary', icon='download' %}
   {% endif %}
 {% endblock %}
 
