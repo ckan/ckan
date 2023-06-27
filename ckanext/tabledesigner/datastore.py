@@ -56,7 +56,7 @@ END;
             'primary_key': [f for f, typ in primary_key],
             'fields': [{
                 'id': i['id'],
-                'type': i['type'],
+                'type': column_types[i['type']].datastore_type,
                 'info': {
                     k:v for (k, v) in i.items()
                     if k != 'id' and k != 'type'
