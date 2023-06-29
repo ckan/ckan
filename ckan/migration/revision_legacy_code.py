@@ -322,9 +322,8 @@ def make_revision_table(metadata):
 
 
 # Copied from vdm
-def make_Revision(mapper, revision_table):
-    mapper(Revision, revision_table, properties={},
-           order_by=revision_table.c.timestamp.desc())
+def make_Revision(mapper, revision_table):  # noqa
+    mapper(Revision, revision_table, properties={})
     return Revision
 
 
