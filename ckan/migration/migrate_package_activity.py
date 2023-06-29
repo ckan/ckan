@@ -296,7 +296,8 @@ if __name__ == u'__main__':
         load_config(args.config)
 
     if not plugin_loaded("activity"):
-        print("Please add the `activity` plugin to your `ckan.plugins` setting")
+        print(
+            "Please add the `activity` plugin to your `ckan.plugins` setting")
         sys.exit(1)
 
     if not args.dataset:
