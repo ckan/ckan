@@ -231,40 +231,22 @@
     }
     .nums {
         @include clearfix;
-        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
         padding-top: 10px;
-        padding-bottom: 0;
         border-top: 1px dotted #DDD;
         dl {
-            float: left;
-            width: 50%;
-            margin: 5px 0 0 0;
             color: $layoutTextColor;
             dt {
-                display: block;
                 font-size: 13px;
                 font-weight: 300;
             }
             dd {
-                display: block;
                 font-size: 30px;
                 font-weight: 700;
                 line-height: 36px;
-                margin-left: 0;
-                .smallest {
-                    font-size: 13px;
-                }
-                .smaller {
-                    font-size: 16px;
-                }
-                .small {
-                    font-size: 21px;
-                }
             }
         }
-    }
-    .follow_button {
-        margin: math.div($grid-gutter-width,2) 0;
     }
     &.editing {
         .module-content {
