@@ -454,8 +454,13 @@ def read(group_type: str,
 
     extra_vars = _read(id, limit, group_type)
 
+    am_following = logic.get_action(f'am_following_group')(
+        context.copy(), {'id': id}
+    )
+
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["am_following"] = am_following
 
     return base.render(
         _get_group_template(u'read_template', g.group_dict['type']),
@@ -671,47 +676,75 @@ def member_delete(id: str, group_type: str,
 
 
 def follow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Start following this group.'''
+    '''Start following this group.'''
     set_org(is_organization)
     context: Context = {'user': current_user.name}
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
+        'include_followers': True
+        }
 
-    data_dict = {u'id': id}
+    try:
+        group_dict = get_action(u'group_show')(context, data_dict)
+    except NotFound:
+        h.flash_error(_(u'Group not found'))
+        return h.redirect_to(f'{group_type}.index')
+
     try:
         get_action(u'follow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are now following {0}").format(group_dict['title']))
-
-        id = group_dict['name']
+        am_following = True
+        error_message = ""
     except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotAuthorized as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'group.read', id=id)
+        error_message = e.error_dict['message']
+        am_following = False
+
+    extra_vars: dict = {
+        'group': group_dict,
+        'current_user': current_user,
+        'error_message': error_message,
+        'am_following': am_following,
+        'show_nums': True,
+        }
+
+    return base.render('group/snippets/info.html', extra_vars)
 
 
 def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Stop following this group.'''
+    '''Stop following this group.'''
     set_org(is_organization)
     context: Context = {'user': current_user.name}
-    data_dict = {u'id': id}
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
+        'include_followers': True
+        }
+
+    try:
+        group_dict = get_action(u'group_show')(context, data_dict)
+    except NotFound:
+        h.flash_error(_(u'Group not found'))
+        return h.redirect_to(f'{group_type}.index')
+
     try:
         get_action(u'unfollow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are no longer following {0}").format(group_dict['title']))
-        id = group_dict['name']
-    except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotFound as e:
-        error_message = e.message or ''
-        base.abort(404, _(error_message))
-    except NotAuthorized as e:
-        error_message = e.message or ''
-        base.abort(403, _(error_message))
-    return h.redirect_to(u'group.read', id=id)
+        am_following = False
+        error_message = ""
+    except (ValidationError) as e:
+        error_message = e.error_dict['message']
+        am_following = True
+
+    extra_vars: dict = {
+        'group': group_dict,
+        'current_user': current_user,
+        'error_message': error_message,
+        'am_following': am_following,
+        'show_nums': True,
+        }
+
+    return base.render('group/snippets/info.html', extra_vars)
 
 
 def followers(id: str, group_type: str, is_organization: bool) -> str:

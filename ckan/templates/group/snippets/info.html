@@ -1,8 +1,9 @@
 {% set dataset_type = h.default_package_type() %}
 
 {% block info %}
-<div class="module context-info">
-  <section class="module-content">
+<section id="group-info" class="module module-narrow">
+  <div class="module context-info">
+    <div class="module-content">
     {% block inner %}
     {% block image %}
     <div class="image">
@@ -47,12 +48,19 @@
       </div>
       {% endblock %}
       {% block follow %}
-      <div class="follow_button">
-        {{ h.follow_button('group', group.id) }}
-      </div>
+        {% if current_user %}
+          {% if error_message %}
+            <div class="alert alert-error">{{ error_message }}</div>
+          {% elif am_following %}
+            <a class="btn btn-danger" hx-post="{{ h.url_for('group.unfollow', id=group.id) }}" hx-target="#group-info">Unfollow</a>
+          {% else %}
+            <a class="btn btn-success" hx-post="{{ h.url_for('group.follow', id=group.id) }}" hx-target="#group-info">Follow</a>
+          {% endif %}
+        {% endif %}
       {% endblock %}
     {% endif %}
     {% endblock %}
-  </section>
-</div>
+    </div>
+  </div>
+</section>
 {% endblock %}
