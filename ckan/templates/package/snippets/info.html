@@ -23,7 +23,7 @@ Example:
               <div class="nums">
                 <dl>
                   <dt>{{ _('Followers') }}</dt>
-                  <dd data-module="followers-counter" data-module-id="{{ pkg.id }}" data-module-num_followers="{{ num_followers }}">{{ h.SI_number_span(num_followers) }}</dd>
+                  <dd>{{ h.SI_number_span(num_followers) }}</dd>
                 </dl>
               </div>
             {% endblock %}
