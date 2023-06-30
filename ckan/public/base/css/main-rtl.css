@@ -13308,6 +13308,7 @@ td.diff_header {
 }
 .context-info .nums {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 10px;
   border-top: 1px dotted #DDD;

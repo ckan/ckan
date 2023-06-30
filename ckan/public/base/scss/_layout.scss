@@ -232,6 +232,7 @@
     .nums {
         @include clearfix;
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         padding-top: 10px;
         border-top: 1px dotted #DDD;

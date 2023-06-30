@@ -138,6 +138,13 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
+
+    am_following: bool = False
+    if not extra_vars['is_myself']:
+        am_following = logic.get_action('am_following_user')(
+            context.copy(), {"id": id})
+
+    extra_vars["am_following"] = am_following
     return base.render(u'user/read.html', extra_vars)
 
 
@@ -806,17 +813,26 @@ def follow(id: str) -> Response:
         u'auth_user_obj': current_user
     }
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+    error_message: str = ''
+    am_following: bool = False
+
     try:
-        logic.get_action(u'follow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are now following {0}').format(user_dict[u'display_name']))
+        logic.get_action('follow_user')(context, data_dict)
+        am_following = True
     except logic.ValidationError as e:
-        error_message: Any = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
+        error_message = e.error_dict["message"]
     except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = str(e)
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+    return base.render('user/snippets/info.html', extra_vars)
 
 
 def unfollow(id: str) -> Response:
@@ -826,18 +842,27 @@ def unfollow(id: str) -> Response:
         u'auth_user_obj': current_user
     }
     data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+    error_message: str = ''
+    am_following: bool = True
+
     try:
-        logic.get_action(u'unfollow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are no longer following {0}').format(
-                user_dict[u'display_name']))
+        logic.get_action('unfollow_user')(context, data_dict)
+        am_following = False
     except logic.ValidationError as e:
-        error_message: Any = (e.error_summary or e.message or e.error_dict)
-        h.flash_error(error_message)
+        error_message = e.error_dict["message"]
     except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = str(e)
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+
+    return base.render('user/snippets/info.html', extra_vars)
 
 
 def followers(id: str) -> str:
