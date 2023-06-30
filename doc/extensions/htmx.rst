@@ -17,7 +17,7 @@ of it in future versions.
 1. Usage
 ---------
 
-CKAN adds a new property to the CKANRequest class called `htmx` that you can
+CKAN adds a new property to the CKANRequest class called ``htmx`` that you can
 use to access the htmx request headers. For example::
 
     from ckan.common import request
@@ -26,7 +26,46 @@ use to access the htmx request headers. For example::
         # do something
 
 
-`request.htmx` will return a HtmxDetails object:
+``request.htmx`` will return a ``HtmxDetails`` object:
 
 .. literalinclude:: ../../ckan/common.py
     :pyobject: HtmxDetails
+
+To make a request using htmx, you can use the ``hx-*`` html properties defined by
+the library. Check the `htmx examples <https://htmx.org/examples/>`_ for an
+overview of patterns and uses.
+
+----------------
+2. htmx in CKAN
+----------------
+
+For an exaple of how we are using htmx in CKAN, check the **Follow** / **Unfollow**
+logic.
+
+The **Follow** button is a simple link that makes a POST request to the
+``/dataset/follow/<dataset-id>`` and then replaces the section ``package-info`` with
+all the HTML returned by the endpoint.
+
+
+.. code-block:: jinja
+
+    <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=group.id) }}" hx-target="#package-info">
+      <i class="fa-solid fa-circle-minus"></i>
+      Unfollow
+    </a>
+
+
+This endpoint is reusing the ``package/snippets/info.html`` that is called in
+``package/read_base.html`` to render the dataset info in the dataset page when calling
+``/dataset/<dataset-id>``.
+
+Snippet:
+
+.. literalinclude:: ../../ckan/templates/package/snippets/info.html
+    :language: html
+
+View:
+
+.. literalinclude:: ../../ckan/views/dataset.py
+    :pyobject: follow
+
