@@ -448,9 +448,6 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             _(u'Dataset not found or you have no permission to view it')
         )
 
-    g.pkg_dict = pkg_dict
-    g.pkg = pkg
-
     if plugins.plugin_loaded("activity"):
         activity_id = request.args.get("activity_id")
         if activity_id:
@@ -474,6 +471,10 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         )
         resource[u'has_views'] = len(resource_views) > 0
 
+    am_following = logic.get_action('am_following_dataset')(
+        context.copy(), {'id': id}
+    )
+
     package_type = pkg_dict[u'type'] or package_type
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
 
@@ -481,9 +482,9 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     try:
         return base.render(
             template, {
-                u'dataset_type': package_type,
-                u'pkg_dict': pkg_dict,
-                u'pkg': pkg,
+                'dataset_type': package_type,
+                'pkg_dict': pkg_dict,
+                'am_following': am_following
             }
         )
     except TemplateNotFound as e:
@@ -904,18 +905,21 @@ def follow(package_type: str, id: str) -> Response:
     try:
         get_action(u'follow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
-        id = package_dict['name']
-    except ValidationError as e:
+    except (ValidationError, NotFound, NotAuthorized) as e:
         error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotAuthorized as e:
-        h.flash_error(e.message)
+        am_following = False
     else:
-        h.flash_success(
-            _(u"You are now following {0}").format(package_dict[u'title'])
-        )
+        error_message = ""
+        am_following = True
 
-    return h.redirect_to(u'{}.read'.format(package_type), id=id)
+    context = {
+        'pkg': package_dict,
+        'am_following': am_following,
+        "current_user": current_user,
+        "error_message": error_message
+        }
+
+    return base.render('package/snippets/info.html', context)
 
 
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
@@ -929,24 +933,21 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
         package_dict = get_action(u'package_show')(context, data_dict)
-        id = package_dict['name']
-    except ValidationError as e:
+    except (ValidationError, NotFound, NotAuthorized) as e:
         error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotFound as e:
-        error_message = e.message or ''
-        base.abort(404, _(error_message))
-    except NotAuthorized as e:
-        error_message = e.message or ''
-        base.abort(403, _(error_message))
+        am_following = True
     else:
-        h.flash_success(
-            _(u"You are no longer following {0}").format(
-                package_dict[u'title']
-            )
-        )
+        error_message = ""
+        am_following = False
 
-    return h.redirect_to(u'{}.read'.format(package_type), id=id)
+    context = {
+        'pkg': package_dict,
+        'am_following': am_following,
+        "current_user": current_user,
+        "error_message": error_message
+        }
+
+    return base.render('package/snippets/info.html', context)
 
 
 def followers(package_type: str,

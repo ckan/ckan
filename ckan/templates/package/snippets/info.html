@@ -1,16 +1,17 @@
 {#
 Displays a sidebar module with information for given package
 
-pkg    - The package dict that owns the resources.
+pkg          - The package dict that owns the resources.
+am_following - True if the user is following the package.
 
 Example:
 
-  {% snippet "package/snippets/info.html", pkg=pkg %}
+  {% snippet "package/snippets/info.html", pkg=pkg, am_following=am_following %}
 
 #}
 {% block package_info %}
   {% if pkg %}
-    <section class="module module-narrow">
+    <section id="package-info" class="module module-narrow">
       <div class="module context-info">
         <div class="module-content">
           {% block package_info_inner %}
@@ -27,10 +28,14 @@ Example:
               </div>
             {% endblock %}
             {% block follow_button %}
-              {% if not hide_follow_button %}
-                <div class="follow_button">
-                  {{ h.follow_button('dataset', pkg.id) }}
-                </div>
+              {% if current_user %}
+               {% if error_message %}
+                  <div class="alert alert-error">{{ error_message }}</div>
+               {% elif am_following %}
+                  <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info">Unfollow</a>
+                {% else %}
+                <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info">Follow</a>
+                {% endif %}
               {% endif %}
             {% endblock %}
           {% endblock %}

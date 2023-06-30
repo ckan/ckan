@@ -27,7 +27,7 @@
   {% block secondary_help_content %}{% endblock %}
 
   {% block package_info %}
-    {% snippet 'package/snippets/info.html', pkg=pkg %}
+    {% snippet 'package/snippets/info.html', pkg=pkg, am_following=am_following %}
   {% endblock %}
 
   {% block package_organization %}
