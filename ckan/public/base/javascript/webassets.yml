@@ -5,6 +5,7 @@ main:
     preload:
       - vendor/vendor
       - vendor/bootstrap
+      - vendor/htmx
   contents:
     - apply-html-class.js
     - plugins/jquery.inherit.js
@@ -24,6 +25,7 @@ main:
     - notify.js
     - i18n.js
     - main.js
+    - htmx-csrf.js
 
 ckan:
   filters: rjsmin
