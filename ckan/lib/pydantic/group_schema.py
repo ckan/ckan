@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from typing_extensions import Literal
 
 from .base import CKANBaseModel
@@ -8,7 +8,7 @@ class Packages(CKANBaseModel):
     id: str
     title: Optional[str]
     name: Optional[str]
-    _extras: Literal[None]
+    _extras: Optional[Dict[str, Any]]
 
     _validators = {
         "id": ['p_not_empty', 'unicode_safe', 'package_id_or_name_exists'],
@@ -21,7 +21,7 @@ class Packages(CKANBaseModel):
 class Users(CKANBaseModel):
     name: str
     capacity: Optional[str]
-    _extras: Literal[None]
+    _extras: Optional[Dict[str, Any]]
 
     _validators = {
         "name": ['p_not_empty', 'unicode_safe'],
@@ -33,7 +33,7 @@ class Users(CKANBaseModel):
 class Groups(CKANBaseModel):
     name: str
     capacity: Optional[str]
-    _extras: Literal[None]
+    _extras: Optional[Dict[str, Any]]
 
     _validators = {
         "name": ['p_not_empty', 'unicode_safe'],
@@ -67,22 +67,39 @@ class DefaultGroupSchema(CKANBaseModel):
         'name': ['p_not_empty', 'unicode_safe', 'name_validator', 
                  'p_group_name_validator'],
         'title': ['p_ignore_missing', 'unicode_safe'],
-        'description': ['ignore_missing', 'unicode_safe'],
+        'description': ['p_ignore_missing', 'unicode_safe'],
         'image_url': ['p_ignore_missing', 'unicode_safe'],
         'image_display_url': ['p_ignore_missing', 'unicode_safe'],
         'type': ['p_ignore_missing', 'unicode_safe'],
-        'state': ['ignore_not_group_admin', 'p_ignore_missing'],
+        'state': ['p_ignore_not_group_admin', 'p_ignore_missing'],
         'created': ['p_ignore'],
         'is_organization': ['p_ignore_missing'],
         'approval_status': ['p_ignore_missing', 'unicode_safe'],
         'extras': [DefaultExtrasSchema],
         '_extras': ['p_ignore'],
         '_junk': ['p_ignore'],
+        'packages': [Packages],
+        'users': [Users],
+        'groups': [Groups]
     }
 
 
 class GroupFormSchema(DefaultGroupSchema):
-    pass
+    _validators = {
+        **DefaultGroupSchema._validators,
+
+        'packages': [Packages._validators.update({
+            "name": ['p_not_empty', 'unicode_safe'],
+            "title": ['p_ignore_missing'],
+            "__extras": ['p_ignore']
+        }), Packages],
+
+        'users': [Users._validators.update({
+            "name": ['p_not_empty', 'unicode_safe'],
+            "capacity": ['p_ignore_missing'],
+            "__extras": ['p_ignore']
+        })]
+    }
 
 
 class DefaultUpdateGroupSchema(DefaultGroupSchema):
@@ -107,7 +124,21 @@ class DefaultShowGroupSchema(DefaultGroupSchema):
         'num_followers': [],
         'created': [],
         'display_name': [],
+
+        'extras': [DefaultExtrasSchema._validators.update({
+            '_extras': ['p_keep_extras']
+        }), DefaultExtrasSchema],
+
         'package_count': ['p_ignore_missing'],
         'member_count': ['p_ignore_missing'],
+
+        'packages': [Packages._validators.update({
+            '_extras': ['p_keep_extras']
+        }), Packages],
+
         'state': [],
+
+        'users': [Users._validators.update({
+            '_extras': ['p_keep_extras']
+        }), Users]
     }

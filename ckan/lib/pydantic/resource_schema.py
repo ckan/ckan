@@ -31,9 +31,9 @@ class DefaultResourceSchema(CKANBaseModel):
     _validators = {
         'id': ["p_ignore_empty", "p_resource_id_does_not_exist", "unicode_safe"],
         'package_id': ["p_ignore"],
-        'url': ["p_ignore_missing", "unicode_safe", "remove_whitespace"],
+        'url': ["p_ignore_missing", "unicode_safe"],
         'description': ["p_ignore_missing", "unicode_safe"],
-        'format': ["if_empty_guess_format", "p_ignore_missing", "clean_format",
+        'format': ["p_if_empty_guess_format", "p_ignore_missing", "clean_format",
                    "unicode_safe"],
         'hash': ["p_ignore_missing", "unicode_safe"],
         'state': ["p_ignore"],

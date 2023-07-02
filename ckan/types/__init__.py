@@ -128,6 +128,7 @@ class Context(TypedDict, total=False):
     limits: dict[str, Any]
     metadata_modified: str
     with_capacity: bool
+    resource_to_validate: tuple[DataDict, int]
 
     table_names: list[str]
 

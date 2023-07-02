@@ -17,6 +17,9 @@ class Groups(CKANBaseModel):
     id: Optional[str]
     name: Optional[str]
     title: Optional[str]
+    description: Optional[str]
+    display_name: Optional[str]
+    image_display_url: Optional[str]
 
     _validators = {
         'id': ["p_ignore_missing", "unicode_safe"],
@@ -60,11 +63,10 @@ class DefaultCreatePackageSchema(CKANBaseModel):
                  "p_package_name_validator"],
         'title': ["p_if_empty_same_as(name)", "unicode_safe"],
         'author': ["p_ignore_missing", "unicode_safe"],
-        'author_email': ["p_ignore_missing", "unicode_safe", 
-                         "strip_value", "email_validator"],
+        'author_email': ["p_ignore_missing", "unicode_safe", "email_validator"],
         'maintainer': ["p_ignore_missing", "unicode_safe"],
         'maintainer_email': ["p_ignore_missing", "unicode_safe", 
-                             "strip_value", "email_validator"],
+                            "email_validator"],
         'license_id': ["p_ignore_missing", "unicode_safe"],
         'notes': ["p_ignore_missing", "unicode_safe"],
         'url': ["p_ignore_missing", "unicode_safe"],
@@ -76,10 +78,11 @@ class DefaultCreatePackageSchema(CKANBaseModel):
         'private': ["p_ignore_missing", "boolean_validator",
                     "p_datasets_with_no_organization_cannot_be_private"],
         '__extras': ["p_ignore"],
+        '__junk': ['p_empty'],
         'resources': [DefaultResourceSchema],
         'tags': [DefaultTagSchema],
-        'tag_string': ["p_ignore_missing", "tag_string_convert"],
-        'plugin_data': ["p_ignore_missing", "json_object", "ignore_not_sysadmin"],
+        'tag_string': ["p_ignore_missing", "p_tag_string_convert"],
+        'plugin_data': ["p_ignore_missing", "json_object", "p_ignore_not_sysadmin"],
         'extras': [DefaultExtrasSchema],
         'save': ["p_ignore"],
         'return_to': ["p_ignore"],
@@ -132,8 +135,9 @@ class DefaultShowPackageSchema(DefaultCreatePackageSchema):
         **DefaultCreatePackageSchema._validators,
 
         'id': [],
-        # 'tags': {'__extras': ['p_keep_extras']},
-        'name': ["p_not_empty", "unicode_safe", "name_validator"],
+
+        'tags': {DefaultTagSchema._validators.update({
+            '_extras': ['p_keep_extras']}), DefaultTagSchema},
 
         'resources': [DefaultResourceForPackageShow],
 
@@ -141,11 +145,11 @@ class DefaultShowPackageSchema(DefaultCreatePackageSchema):
         'isopen': ['p_ignore_missing'],
         'license_url': ['p_ignore_missing'],
 
-        # 'groups': {
-        #     'description': ['p_ignore_missing'],
-        #     'display_name': ['p_ignore_missing'],
-        #     'image_display_url': ['p_ignore_missing'],
-        # },
+        'groups': [Groups._validators.update({
+            'description': ['p_ignore_missing'],
+            'display_name': ['p_ignore_missing'],
+            'image_display_url': ['p_ignore_missing']
+        }), Groups],
 
         # Remove validators for several keys from the schema so validation doesn't
         # strip the keys from the package dicts if the values are 'missing' (i.e.
@@ -193,14 +197,14 @@ class DefaultSearchPackageSchema(CKANBaseModel):
         'q': ['p_ignore_missing', 'unicode_safe'],
         'fl': ['p_ignore_missing', 'convert_to_list_if_string'],
         'fq': ['p_ignore_missing', 'unicode_safe'],
-        'rows': ['p_default(10)', 'natural_number_validator'], # 'limit_to_configured_maximum(ckan.search.rows_max)'
+        'rows': ['p_default(10)', 'natural_number_validator'], # 'limit_to_configured_maximum(ckan.search.rows_max, 1000)'
         'sort': ['p_ignore_missing', 'unicode_safe'],
         'start': ['p_ignore_missing', 'natural_number_validator'],
         'qf': ['p_ignore_missing', 'unicode_safe'],
         'facet': ['p_ignore_missing', 'unicode_safe'],
-        'facet.mincount': ['p_ignore_missing', 'natural_number_validator'],
-        'facet.limit': ['p_ignore_missing', 'int_validator'],
-        'facet.field': ['p_ignore_missing', 'convert_to_json_if_string',
+        'facet_mincount': ['p_ignore_missing', 'natural_number_validator'],
+        'facet_limit': ['p_ignore_missing', 'int_validator'],
+        'facet_field': ['p_ignore_missing', 'convert_to_json_if_string',
                         'p_list_of_strings'],
         'extras': ['p_ignore_missing', DefaultExtrasSchema]
     }

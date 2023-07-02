@@ -113,7 +113,7 @@ class CKANBaseModel(pydantic.BaseModel):
                     f"Field name {f_name} not found in {cls.__name__}"
                 )
 
-    @pydantic.root_validator(pre=True)
+    @pydantic.root_validator(pre=True, skip_on_failure=True)
     def validate_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         context = cls.Config.context
         errors = {}
@@ -187,4 +187,7 @@ def _validate(
                 model.__fields__[field_name],
                 context,  # type: ignore
             )
+
+    if value:
+        values[field_name] = value
     return value

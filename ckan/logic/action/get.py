@@ -1866,15 +1866,13 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     # sometimes context['schema'] is None
     schema = context.get('schema') or schema_
-    errors = {}
-
-    if isinstance(schema, dict):
-        data_dict, errors = _validate(data_dict, schema, context)
 
     if isinstance(schema, type):
         from ckan.lib.pydantic.utils import validate_with_pydantic
         data_dict, errors = validate_with_pydantic(
             data_dict, schema, context, by_alias=True)
+    else:
+        data_dict, errors = _validate(data_dict, schema, context)
 
     # put the extras back into the data_dict so that the search can
     # report needless parameters

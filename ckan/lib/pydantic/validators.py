@@ -365,7 +365,7 @@ def p_resource_id_does_not_exist(
     field: Type[ModelField],
     context: Context
 ) -> Any:
-    breakpoint()
+
     session = context['session']
     model = context['model']
 
@@ -410,7 +410,7 @@ def p_keep_extras(
         assert data == {"hello": 1, "world": 2}
 
     """
-    breakpoint()
+    # breakpoint()
     extras = values.pop(field.name, {})
     for extras_key, value in extras.items():
         values[key[:-1] + (extras_key,)] = value
@@ -477,3 +477,269 @@ def p_group_name_validator(
     result = query.first()
     if result:
        raise Invalid(_('Group name already exists in database'))
+
+
+def p_if_empty_guess_format(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """
+    Make an attempt to guess resource's format on creation using URL, otherwise
+    If the resource exists and its format changes, refresh it with the new one.
+    (Since CKAN 2.10)
+    """
+    import mimetypes
+    from urllib.parse import urlparse
+
+    url = values.get('url')
+    if not url:
+        return
+
+    # Uploaded files have only the filename as url, so check scheme to
+    # determine if it's an actual url
+    parsed = urlparse(url)
+    if parsed.scheme and not parsed.path:
+        return
+
+    mimetype, _ = mimetypes.guess_type(url)
+    if mimetype:
+        values[field.name] = mimetype
+
+
+def p_tag_not_in_vocabulary(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """Ensures that the tag does not belong to the vocabulary.
+    """
+    breakpoint()
+    tag_name = values[field.name]
+    if not tag_name:
+        raise Invalid(_('No tag name'))
+    if 'vocabulary_id' in values:
+        vocabulary_id = values[tag_name]
+    else:
+        vocabulary_id = None
+    model = context['model']
+    session = context['session']
+
+    query = session.query(model.Tag)
+    query = query.filter(model.Tag.vocabulary_id==vocabulary_id)
+    query = query.filter(model.Tag.name==tag_name)
+    count = query.count()
+    if count > 0:
+        raise Invalid(_('Tag %s already belongs to vocabulary %s') %
+                (tag_name, vocabulary_id))
+    else:
+        return
+
+
+def p_empty(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> None:
+    """Ensure that value is not present in the input.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {"hello": 1},
+            {"hello": [empty]}
+        )
+        assert errors == {"hello": [error_message]}
+
+    """
+    breakpoint()
+    if value and value is not missing:
+        key_name = field.name
+        if key_name == '__junk':
+            # for junked fields, the field name is contained in the value
+            key_name = list(value.keys())
+        raise Invalid(_(
+            'The input field %(name)s was not expected.') % {"name": key_name})
+
+
+def p_not_missing(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> None:
+    """Ensure value is not missing from the input, but may be empty.
+
+    .. code-block::
+
+        data, errors = tk.navl_validate(
+            {},
+            {"hello": [not_missing]}
+        )
+        assert errors == {"hello": [error_message]}
+
+    """
+    if value is missing:
+        raise Invalid(_('Missing value'))
+
+
+def p_tag_string_convert(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Takes a list of tags that is a comma-separated string (in data[key])
+    and parses tag names. These are added to the data dict, enumerated. They
+    are also validated.'''
+    from itertools import count
+    import ckan.logic.validators as valdators_
+
+    if isinstance(value, str):
+        tags = [tag.strip() \
+                for tag in value.split(',') \
+                if tag.strip()]
+    else:
+        tags = value
+
+    current_index = max( [int(k[1]) for k in values.keys() if len(k) == 3 and k[0] == 'tags'] + [-1] )
+    breakpoint()
+    for num, tag in zip(count(current_index+1), tags):
+        values[field.name][('tags', num, 'name')] = tag
+
+    for tag in tags:
+        valdators_.tag_length_validator(tag, context)
+        valdators_.tag_name_validator(tag, context)
+
+
+def p_ignore_not_sysadmin(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Ignore the field if user not sysadmin or ignore_auth in context.'''
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+    if ignore_auth or (user and authz.is_sysadmin(user)):
+        return
+
+    values.pop(field.name)
+
+
+def p_ignore_not_group_admin(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Ignore if the user is not allowed to administer for the group specified.'''
+
+    user = context.get('user')
+
+    if user and authz.is_sysadmin(user):
+        return
+
+    authorized = False
+    group = context.get('group')
+    if group:
+        try:
+            logic.check_access('group_change_state',context)
+            authorized = True
+        except logic.NotAuthorized:
+            authorized = False
+
+    if (user and group and authorized):
+        return
+
+    values.pop(field.name)
+
+
+def p_extra_key_not_in_root_schema(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    """Ensures that extras are not duplicating base fields
+    """
+    for schema_key in context.get('schema_keys', []):
+        if schema_key == values[field.name]:
+            raise Invalid(_('There is a schema field with the same name'))
+
+
+def p_user_name_validator(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Validate a new user name.
+
+    Append an error message to ``errors[key]`` if a user named ``data[key]``
+    already exists. Otherwise, do nothing.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``data[key]`` is
+        not a string
+    :rtype: None
+
+    '''
+    model = context['model']
+    new_user_name = value
+
+    if not isinstance(new_user_name, str):
+        raise Invalid(_('User names must be strings'))
+
+    user = model.User.get(new_user_name)
+    user_obj_from_context = context.get('user_obj')
+    if user is not None:
+        # A user with new_user_name already exists in the database.
+        if user_obj_from_context and user_obj_from_context.id == user.id:
+            # If there's a user_obj in context with the same id as the user
+            # found in the db, then we must be doing a user_update and not
+            # updating the user name, so don't return an error.
+            return
+        else:
+            # Otherwise return an error: there's already another user with that
+            # name, so you can create a new user with that name or update an
+            # existing user's name to that name.
+            raise Invalid(_('That login name is not available.'))
+    elif user_obj_from_context:
+        old_user = model.User.get(user_obj_from_context.id)
+        if old_user is not None and old_user.state != model.State.PENDING:
+            raise Invalid(_('That login name can not be modified.'))
+        else:
+            return
+
+
+def p_user_password_not_empty(
+    value: Any, 
+    values: Dict[str, Any],
+    config: Type[BaseConfig],
+    field: Type[ModelField],
+    context: Context
+) -> Any:
+    '''Only check if password is present if the user is created via action API.
+       If not, user_both_passwords_entered will handle the validation'''
+    # sysadmin may provide password_hash directly for importing users
+    if (values.get('password_hash', missing) is not missing and
+            authz.is_sysadmin(context.get('user'))):
+        return
+
+    if not 'password1' in values and not 'password2' in values:
+        password = values.get('password', None)
+        if not password:
+            raise Invalid(_('Missing value'))

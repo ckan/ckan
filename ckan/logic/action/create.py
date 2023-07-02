@@ -175,13 +175,13 @@ def package_create(
         'schema') or package_plugin.create_package_schema()
    
     _check_access('package_create', context, data_dict)
-    breakpoint()
+    # breakpoint()
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
-    breakpoint()
+    # breakpoint()
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -313,6 +313,7 @@ def resource_create(context: Context,
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
+        context['resource_to_validate'] = data_dict, -1
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError as e:

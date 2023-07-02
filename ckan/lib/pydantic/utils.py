@@ -21,6 +21,17 @@ def validate_with_pydantic(  # type: ignore
 ):
     schema.Config.context = context
 
+    position = None
+    old_data_dict = data_dict
+    breakpoint()
+    if context.get('resource_to_validate', None):
+        validators = schema._validators['resources']
+        for val in validators:
+            if isinstance(val, type) and issubclass(val, CKANBaseModel):
+                schema = val
+                break
+        data_dict, position = context.pop('resource_to_validate')
+
     if exclude is None:
         exclude = {'_ckan_phase', 'pkg_name'}
 
@@ -40,4 +51,9 @@ def validate_with_pydantic(  # type: ignore
         exclude_defaults=exclude_defaults,
         exclude_none=exclude_none,
     )
+
+    if position:
+        old_data_dict['resources'][position] = result
+        result = old_data_dict
+
     return result, {}
