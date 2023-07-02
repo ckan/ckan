@@ -4,7 +4,7 @@ from __future__ import annotations
 import cgi
 import json
 import logging
-from typing import Any, cast, Optional, Union
+from typing import Any, Optional, Union
 
 from werkzeug.wrappers.response import Response as WerkzeugResponse
 import flask
@@ -55,13 +55,11 @@ prefixed_resource = Blueprint(
 
 
 def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
@@ -75,9 +73,9 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
             else:
                 return h.redirect_to(
                     "user.login",
-                    came_from=h.url_for('resource.read',
-                                        id=id, resource_id=resource_id)
-                )
+                    came_from=h.url_for(
+                        '{}_resource.read'.format(package_type),
+                        id=id, resource_id=resource_id))
         return base.abort(
             404,
             _(u'Dataset not found')
@@ -153,12 +151,10 @@ def download(package_type: str,
     Provides a direct download by either redirecting the user to the url
     stored or downloading an uploaded file directly.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
 
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
@@ -197,12 +193,10 @@ class CreateView(MethodView):
         del data[u'save']
         resource_id = data.pop(u'id')
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
 
         # see if we have any data that we are trying to save
         data_provided = False
@@ -239,7 +233,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
+                Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
@@ -269,7 +263,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                cast(Context, dict(context, allow_state_change=True)),
+                Context(context, allow_state_change=True),
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
@@ -293,12 +287,10 @@ class CreateView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         # get resources for sidebar
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})
         except NotFound:
@@ -340,14 +332,12 @@ class CreateView(MethodView):
 class EditView(MethodView):
     def _prepare(self, id: str):
         user = current_user.name
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'api_version': 3,
             u'for_edit': True,
             u'user': user,
             u'auth_user_obj': current_user
-        })
+        }
         try:
             check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
@@ -443,20 +433,20 @@ class EditView(MethodView):
 
 
 class DeleteView(MethodView):
-    def _prepare(self, id: str):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+    def _prepare(self, resource_id: str):
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         try:
-            check_access(u'package_delete', context, {u'id': id})
+            check_access(u'resource_delete', context, {u'id': resource_id})
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'Unauthorized to delete package %s') % u''
+                _(u'Unauthorized to delete resource %s') % u''
             )
+        except NotFound:
+            return base.abort(404, _(u'Resource not found'))
         return context
 
     def post(self, package_type: str, id: str, resource_id: str) -> Response:
@@ -465,7 +455,7 @@ class DeleteView(MethodView):
                 u'{}_resource.edit'.format(package_type),
                 resource_id=resource_id, id=id
             )
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
 
         try:
             get_action(u'resource_delete')(context, {u'id': resource_id})
@@ -487,7 +477,7 @@ class DeleteView(MethodView):
             return base.abort(404, _(u'Resource not found'))
 
     def get(self, package_type: str, id: str, resource_id: str) -> str:
-        context = self._prepare(id)
+        context = self._prepare(resource_id)
         try:
             resource_dict = get_action(u'resource_show')(
                 context, {
@@ -518,13 +508,11 @@ class DeleteView(MethodView):
 
 def views(package_type: str, id: str, resource_id: str) -> str:
     package_type = _get_package_type(id)
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id}
 
     try:
@@ -583,12 +571,10 @@ def view(package_type: str,
     img tag where the image is loaded directly or an iframe that embeds a
     webpage or another preview.
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
 
     try:
         package = get_action(u'package_show')(context, {u'id': id})
@@ -623,13 +609,11 @@ class EditResourceViewView(MethodView):
     def _prepare(
             self, id: str, resource_id: str) -> tuple[Context, dict[str, Any]]:
         user = current_user.name
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': user,
             u'for_view': True,
             u'auth_user_obj': current_user
-        })
+        }
 
         # update resource should tell us early if the user has privilages.
         try:

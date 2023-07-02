@@ -125,6 +125,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions: dict[str, Callable[..., Any]] = {}
@@ -366,12 +369,6 @@ def url_for(*args: Any, **kw: Any) -> str:
 
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
-
-    # All API URLs generated should provide the version number
-    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
-        ver = kw.get('ver')
-        if not ver:
-            raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
     try:
@@ -797,7 +794,7 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
 
 
 @core_helper
-def link_to(label: str, url: str, **attrs: Any) -> Markup:
+def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
     attrs['href'] = url
     if label == '' or label is None:
@@ -1238,9 +1235,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {
-        'model': model,
-        'user': current_user.name})
+    context: Context = {'user': current_user.name}
     if not data_dict:
         data_dict = {}
     try:
@@ -1785,7 +1780,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context = cast(Context, {'model': model})
+    context: Context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1818,9 +1813,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     # If the user is logged in show the follow/unfollow button
     user = current_user.name
     if user:
-        context = cast(
-            Context,
-            {'model': model, 'session': model.Session, 'user': user})
+        context: Context = {'user': user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1846,13 +1839,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     return logic.get_action(action)(context, {'id': obj_id})
 
 
@@ -1988,7 +1975,10 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False,
+                     include_dataset_count: bool = False,
+                     include_member_count: bool = False,
+                     user: Union[str, None] = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1998,23 +1988,44 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
     :type am-member: bool
 
     '''
-    context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
+    data_dict = {'available_only': True,
+                 'am_member': am_member,
+                 'include_dataset_count': include_dataset_count,
+                 'include_member_count': include_member_count}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False
+                            include_dataset_count: bool = False,
+                            include_member_count: bool = False,
+                            user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': current_user.name}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
+        'include_dataset_count': include_dataset_count,
+        'include_member_count': include_member_count}
     return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+@core_helper
+def member_count(group: str) -> int:
+    '''Return the number of members belonging to the group'''
+    context: Context = {}
+    data_dict = {
+        u'id': group,
+        u'object_type': u'user'
+    }
+    return len(logic.get_action(u'member_list')(context, data_dict))
 
 
 @core_helper
@@ -2796,11 +2807,12 @@ def make_login_url(
 
     if url_is_local(next_url):
         md = {}
+
         md[next_field] = urlparse(next_url).path
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
+        return cast(str, urlunparse(parsed_base))
     return base
 
 

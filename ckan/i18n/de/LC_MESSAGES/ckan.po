@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2022
-# Ondics Githubler, 2022
+# Ondics Githubler, 2023
 # 
 #, fuzzy
 msgid ""
@@ -14,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-16 11:30+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Ondics Githubler, 2022\n"
-"Language-Team: German (https://www.transifex.com/okfn/teams/11162/de/)\n"
+"Last-Translator: Ondics Githubler, 2023\n"
+"Language-Team: German (https://app.transifex.com/okfn/teams/11162/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -4129,6 +4129,9 @@ msgid ""
 "match the old version of the metadata. <a href=\"%(url)s\">View the current "
 "version</a>."
 msgstr ""
+"Sie sehen hier eine alte Version dieses Datensatzes. Datendateien können von"
+" der alten Version der Metadaten abweichen. <a href=\"%(url)s\">Aktuellen "
+"Version angezeigen</a>."
 
 #: ckanext/activity/templates/snippets/activity_type_selector.html:16
 msgid "All activity types"
@@ -4667,16 +4670,21 @@ msgid ""
 "height2\"><blockquote>{old_description}</blockquote> to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Beschreibung von {org_link} aktualisiert von <br class=\"line-"
+"height2\"><blockquote>{old_description}</blockquote> auf <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/organization_changes/description.html:13
 msgid ""
 "Updated description of {org_link} to <br class=\"line-"
 "height2\"><blockquote>{new_description}</blockquote>"
 msgstr ""
+"Beschreibung von {org_link} aktualisiert auf <br class=\"line-"
+"height2\"><blockquote>{new_description}</blockquote>"
 
 #: ckanext/activity/templates/snippets/organization_changes/description.html:20
 msgid "Removed description from {org_link}"
-msgstr ""
+msgstr "Beschreibung entfernt von {org_link}"
 
 #: ckanext/activity/templates/user/dashboard.html:8
 #: ckanext/activity/templates/user/dashboard.html:18
@@ -4811,7 +4819,7 @@ msgstr "Ressource \"{0}\" wurde nicht gefunden."
 
 #: ckanext/datastore/logic/action.py:334
 msgid "Resource/Alias \"{0}\" was not found."
-msgstr ""
+msgstr "Ressource/Alias \"{0}\" wurde nicht gefunden."
 
 #: ckanext/datastore/logic/auth.py:21
 msgid "User {0} not authorized to update resource {1}"
@@ -4993,6 +5001,8 @@ msgid ""
 "Press SHIFT key while clicking on\n"
 "sort control for multi-column sort"
 msgstr ""
+"Mit der SHIFT-Taste beim Klicken auf die Spaltensortierung kann die "
+"Mehrspalten-Sortierung aktiviert werden"
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:6
 msgid "List view/Responsive display"
@@ -5008,6 +5018,8 @@ msgid ""
 "zero for no truncation, and for data to be wrapped at column name width "
 "instead."
 msgstr ""
+"Länge, ab der ein Fortsetzungszeichen \"...\" angezeigt wird. Auf 0 setzen, "
+"um Daten in voller Länge anzuzeigen und mit der Spaltenbreite umzubrechen."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:22
 msgid "Date format"
@@ -5019,6 +5031,9 @@ msgid ""
 "href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
 " cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown."
 msgstr ""
+"Moment.js Datumsformat um Datumswerte anzuzeigen (siehe \"Moment.js "
+"Cheatsheet\").  Mit \"NONE\" wird der unformatierte Timestamp-Wert "
+"angezeigt."
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:29
 msgid "Show Columns"

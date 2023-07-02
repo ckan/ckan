@@ -6,6 +6,7 @@ from unittest import mock
 
 from ckan.tests import helpers, factories
 from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic import ValidationError
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -25,6 +26,23 @@ class TestPatch(object):
 
         assert dataset2["name"] == stub.name
         assert dataset2["notes"] == "some test now"
+
+    def test_package_patch_invalid_characters_in_resource_id(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "package_patch",
+                id=dataset["id"],
+                resources=[
+                    {
+                        "id": "../../nope.txt",
+                        "url": "http://data",
+                        "name": "A nice resource",
+                    },
+                ],
+            )
 
     def test_resource_patch_updating_single_field(self):
         user = factories.User()

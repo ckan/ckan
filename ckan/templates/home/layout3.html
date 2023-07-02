@@ -1,7 +1,7 @@
 <div role="main" class="hero">
   <div class="container">
     {% block search %}
-      {% snippet 'home/snippets/search.html' %}
+      {% snippet 'home/snippets/search.html', search_facets=search_facets %}
     {% endblock %}
   </div>
 </div>

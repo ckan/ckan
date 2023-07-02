@@ -62,9 +62,7 @@ def format_function(name: str,
 
     # Get the arguments of the function, as a string like:
     # "(foo, bar=None, ...)"
-    argstring = inspect.formatargspec(
-        inspect.getfullargspec(function).args
-    )
+    argstring = str(inspect.signature(function))
 
     docstring = docstring or inspect.getdoc(function)
     if docstring is None:

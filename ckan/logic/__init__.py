@@ -15,9 +15,6 @@ from typing_extensions import Literal
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import exc
 
-import six
-
-
 import ckan.model as model
 import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
@@ -26,7 +23,7 @@ import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
-    Action, ChainedAction, Model,
+    Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
     Schema, Validator, ValidatorFactory)
 
@@ -57,7 +54,7 @@ class ActionError(Exception):
         msg = self.message
         if not isinstance(msg, str):
             msg = str(msg)
-        return six.ensure_text(msg)
+        return msg
 
 
 class NotFound(ActionError):
@@ -279,7 +276,7 @@ def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', cast(Model, model))
+    context.setdefault('model', model)
     context.setdefault('session', model.Session)
 
     try:
@@ -812,7 +809,7 @@ def get_validator(
         _validators_cache.update(converters)
         _validators_cache.update({'OneOf': _validators_cache['one_of']})
 
-        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
+        for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
@@ -854,17 +851,12 @@ def guard_against_duplicated_email(email: str):
     except exc.IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
-            raise ValidationError(
-                cast(
-                    ErrorDict,
-                    {
-                        "email": [
-                            "The email address '{email}' belongs to "
-                            "a registered user.".format(email=email)
-                        ]
-                    },
-                )
-            )
+            raise ValidationError({
+                "email": [
+                    "The email address '{email}' belongs to "
+                    "a registered user.".format(email=email)
+                ]
+            })
         raise
 
 
@@ -876,7 +868,8 @@ def fresh_context(
         we want a clean version with minimum fields """
     new_context = {
         k: context[k] for k in (
-            'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
+            'model', 'session', 'user', 'auth_user_obj',
+            'ignore_auth', 'defer_commit',
         ) if k in context
     }
     new_context = cast(Context, new_context)

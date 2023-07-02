@@ -3,16 +3,15 @@ from __future__ import annotations
 
 from ckan.types import Context
 import logging
-from typing import Any, cast
+from typing import Any
 
 import sqlalchemy
 import sqlalchemy.exc
-import six
-
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
@@ -165,9 +164,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
-    if resobj.extras.get('datastore_active') is not True:
+    if resobj and resobj.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
@@ -204,7 +202,7 @@ def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
     try:
         results: Any = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = six.ensure_text(err.args[0].split('\n')[0])
+        message = str(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount
@@ -415,7 +413,6 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (data_dict.get('filters', None) is None and
@@ -645,11 +642,11 @@ def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
         '''
         p.toolkit.check_access(
             'datastore_search_sql',
-            cast(Context, dict(context, table_names=table_names)),
+            Context(context, table_names=table_names),
             data_dict)
 
     result = backend.search_sql(
-        cast(Context, dict(context, check_access=check_access)),
+        Context(context, check_access=check_access),
         data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -702,10 +699,14 @@ def _check_read_only(context: Context, resource_id: str):
     '''
     res = p.toolkit.get_action('resource_show')(
         context, {'id': resource_id})
-    if res.get('url_type') != 'datastore':
+    if res.get('url_type') not in (
+            p.toolkit.h.datastore_rw_resource_url_types()
+        ):
         raise p.toolkit.ValidationError({
-            'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url_type to "datastore"']
+            'read-only': ['Cannot edit read-only resource because changes '
+                          'made may be lost. Use a resource created for '
+                          'editing e.g. with datastore_create or use '
+                          '"force=True" to ignore this warning.']
         })
 
 

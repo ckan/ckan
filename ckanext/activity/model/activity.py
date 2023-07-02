@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Optional, Type, TypeVar, cast
+from typing import Any, Iterable, Optional, Type, TypeVar
 from typing_extensions import TypeAlias
 
 from sqlalchemy.orm import relationship, backref
@@ -109,16 +109,11 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
             # We save the entire rendered package dict so we can support
             # viewing the past packages from the activity feed.
             dictized_package = ckan.logic.get_action("package_show")(
-                cast(
-                    Context,
-                    {
-                        "model": ckan.model,
-                        "session": ckan.model.Session,
-                        # avoid ckanext-multilingual translating it
-                        "for_view": False,
-                        "ignore_auth": True,
-                    },
-                ),
+                {
+                    # avoid ckanext-multilingual translating it
+                    "for_view": False,
+                    "ignore_auth": True,
+                },
                 {"id": pkg.id, "include_tracking": False},
             )
         except ckan.logic.NotFound:
@@ -148,7 +143,7 @@ def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
 
 
 def activity_list_dictize(
-    activity_list: list[Activity], context: Context
+    activity_list: Iterable[Activity], context: Context
 ) -> list[dict[str, Any]]:
     return [activity_dictize(activity, context) for activity in activity_list]
 
@@ -761,7 +756,7 @@ def _filter_activitites_from_users(q: QActivity) -> QActivity:
 
 
 def _filter_activitites_from_type(
-    q: QActivity, types: list[str], include: bool = True
+    q: QActivity, types: Iterable[str], include: bool = True
 ):
     """Adds a filter to an existing query object to include or exclude
     (include=False) activities based on a list of types.

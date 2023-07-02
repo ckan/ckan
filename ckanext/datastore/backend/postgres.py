@@ -18,9 +18,9 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
+import decimal
 from collections import OrderedDict
 
-import six
 from urllib.parse import (
     urlencode, urlunparse, parse_qsl, urlparse
 )
@@ -301,7 +301,7 @@ def _get_fields(connection: Any, resource_id: str):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'id': six.ensure_text(field[0]),
+                'id': str(field[0]),
                 'type': _get_type(connection, field[1])
             })
     return fields
@@ -828,10 +828,10 @@ def convert(data: Any, type_name: str) -> Any:
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return six.ensure_text(data)
+        return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
-    if isinstance(data, (int, float)):
+    if isinstance(data, (int, float, decimal.Decimal)):
         return data
     return str(data)
 
@@ -1499,7 +1499,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     result_fields: list[dict[str, Any]] = []
     for field in results.cursor.description:
         result_fields.append({
-            'id': six.ensure_text(field[0]),
+            'id': str(field[0]),
             'type': _get_type(context['connection'], field[1])
         })
 
@@ -1934,26 +1934,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
         select_cols = []
-        records_format = data_dict.get(u'records_format')
+        records_format = data_dict.get('records_format')
         for field_id in field_ids:
-            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
+            fmt = '{0}'
+            if records_format == 'lists':
+                fmt = "coalesce(to_json({0}),'null')"
             typ = fields_types.get(field_id, '')
-            if typ == u'nested':
-                fmt = u'({0}).json'
-            elif typ == u'timestamp':
-                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
-                if records_format == u'lists':
-                    fmt = u"to_json({0})".format(fmt)
-            elif typ.startswith(u'_') or typ.endswith(u'[]'):
-                fmt = u'array_to_json({0})'
+            if typ == 'nested':
+                fmt = "coalesce(({0}).json,'null')"
+            elif typ == 'timestamp':
+                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if records_format == 'lists':
+                    fmt = f"coalesce(to_json({fmt}), 'null')"
+            elif typ.startswith('_') or typ.endswith('[]'):
+                fmt = "coalesce(array_to_json({0}),'null')"
 
             if field_id in rank_columns:
                 select_cols.append((fmt + ' as {1}').format(
                     rank_columns[field_id], identifier(field_id)))
                 continue
 
-            if records_format == u'objects':
-                fmt += u' as {0}'
+            if records_format == 'objects':
+                fmt += ' as {0}'
             select_cols.append(fmt.format(identifier(field_id)))
 
         query_dict['distinct'] = data_dict.get('distinct', False)
@@ -2321,5 +2323,5 @@ def _programming_error_summary(pe: Any):
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
-    message = six.ensure_text(pe.args[0].split('\n')[0])
-    return message.split(u') ', 1)[-1]
+    message = str(pe.args[0].split('\n')[0])
+    return message.split(') ', 1)[-1]
