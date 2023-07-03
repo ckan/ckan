@@ -83,17 +83,6 @@ const qs = () =>
     dest(__dirname + "/ckan/public/base/vendor/")
   )
 
-const highlightJs = () =>
-  src(__dirname + "/node_modules/@highlightjs/cdn-assets/highlight.js").pipe(
-    dest(__dirname + "/ckanext/textview/theme/public/vendor/")
-  )
-
-const highlightJsStyles = () =>
-  src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css").pipe(
-    rename("a11y-light.css")).pipe(
-    dest(__dirname + "/ckanext/textview/theme/public/styles/")
-  )
-
 const htmx = () =>
 src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
   dest(__dirname + "/ckan/public/base/vendor/")
