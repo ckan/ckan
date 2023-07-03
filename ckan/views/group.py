@@ -455,7 +455,7 @@ def read(group_type: str,
     extra_vars = _read(id, limit, group_type)
 
     am_following = logic.get_action(f'am_following_group')(
-        context.copy(), {'id': id}
+        {'user': current_user.name}, {'id': id}
     )
 
     extra_vars["group_type"] = group_type

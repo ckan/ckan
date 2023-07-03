@@ -472,7 +472,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         resource[u'has_views'] = len(resource_views) > 0
 
     am_following = logic.get_action('am_following_dataset')(
-        context.copy(), {'id': id}
+        {"user": current_user.name}, {'id': id}
     )
 
     package_type = pkg_dict[u'type'] or package_type
