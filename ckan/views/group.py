@@ -454,7 +454,7 @@ def read(group_type: str,
 
     extra_vars = _read(id, limit, group_type)
 
-    am_following = logic.get_action(f'am_following_group')(
+    am_following = logic.get_action('am_following_group')(
         {'user': current_user.name}, {'id': id}
     )
 
@@ -711,11 +711,9 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
         group_dict = get_action('group_show')(context, data_dict)
         extra_vars['group'] = group_dict
 
-
     if is_org:
         return base.render('organization/snippets/info.html', extra_vars)
     return base.render('group/snippets/info.html', extra_vars)
-
 
 
 def unfollow(id: str, group_type: str, is_organization: bool) -> Response:

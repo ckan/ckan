@@ -427,7 +427,6 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     # check if package exists
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
-        pkg = context[u'package']
     except NotFound:
         return base.abort(
             404,
