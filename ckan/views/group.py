@@ -687,28 +687,35 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
         }
 
     try:
-        group_dict = get_action(u'group_show')(context, data_dict)
-    except NotFound:
-        h.flash_error(_(u'Group not found'))
-        return h.redirect_to(f'{group_type}.index')
-
-    try:
         get_action(u'follow_group')(context, data_dict)
         am_following = True
         error_message = ""
     except ValidationError as e:
         error_message = e.error_dict['message']
         am_following = False
+    except NotFound:
+        h.flash_error(_(u'Group not found'))
+        return h.redirect_to(f'{group_type}.index')
 
     extra_vars: dict = {
-        'group': group_dict,
         'current_user': current_user,
         'error_message': error_message,
         'am_following': am_following,
         'show_nums': True,
         }
 
+    if is_org:
+        group_dict = get_action('organization_show')(context, data_dict)
+        extra_vars['organization'] = group_dict
+    else:
+        group_dict = get_action('group_show')(context, data_dict)
+        extra_vars['group'] = group_dict
+
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
     return base.render('group/snippets/info.html', extra_vars)
+
 
 
 def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
@@ -723,27 +730,32 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
         }
 
     try:
-        group_dict = get_action(u'group_show')(context, data_dict)
-    except NotFound:
-        h.flash_error(_(u'Group not found'))
-        return h.redirect_to(f'{group_type}.index')
-
-    try:
         get_action(u'unfollow_group')(context, data_dict)
         am_following = False
         error_message = ""
     except (ValidationError) as e:
         error_message = e.error_dict['message']
         am_following = True
+    except NotFound:
+        h.flash_error(_(u'Group not found'))
+        return h.redirect_to(f'{group_type}.index')
 
     extra_vars: dict = {
-        'group': group_dict,
         'current_user': current_user,
         'error_message': error_message,
         'am_following': am_following,
         'show_nums': True,
         }
 
+    if is_org:
+        group_dict = get_action('organization_show')(context, data_dict)
+        extra_vars['organization'] = group_dict
+    else:
+        group_dict = get_action('group_show')(context, data_dict)
+        extra_vars['group'] = group_dict
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
     return base.render('group/snippets/info.html', extra_vars)
 
 

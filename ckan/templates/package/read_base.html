@@ -33,7 +33,7 @@
   {% block package_organization %}
     {% if pkg.organization %}
       {% set org = h.get_organization(pkg.organization.id) %}
-      {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
+      {% snippet "organization/snippets/info.html", organization=org, show_nums=false, am_following=am_following %}
     {% endif %}
   {% endblock %}
 
