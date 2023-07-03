@@ -101,7 +101,5 @@ exports.updateVendorLibs = parallel(
   qs,
   DOMPurify,
   popOver,
-  highlightJs,
-  highlightJsStyles,
   htmx
 );
