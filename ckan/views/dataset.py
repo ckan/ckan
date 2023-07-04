@@ -469,10 +469,13 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             }
         )
         resource[u'has_views'] = len(resource_views) > 0
-
-    am_following = logic.get_action('am_following_dataset')(
-        {"user": current_user.name}, {'id': id}
-    )
+    try:
+        am_following = logic.get_action('am_following_dataset')(
+            {"user": current_user.name}, {'id': id}
+        )
+    except NotAuthorized:
+        # AnonymousUser
+        am_following = False
 
     package_type = pkg_dict[u'type'] or package_type
     _setup_template_variables(context, {u'id': id}, package_type=package_type)

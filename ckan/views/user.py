@@ -141,8 +141,11 @@ def read(id: str) -> Union[Response, str]:
 
     am_following: bool = False
     if not extra_vars['is_myself']:
-        am_following = logic.get_action('am_following_user')(
-            {'user': current_user.name}, {"id": id})
+        try:
+            am_following = logic.get_action('am_following_user')(
+                {'user': current_user.name}, {"id": id})
+        except logic.NotAuthorized:
+            am_following = False
 
     extra_vars["am_following"] = am_following
     return base.render(u'user/read.html', extra_vars)

@@ -453,10 +453,13 @@ def read(group_type: str,
     g.group_dict = group_dict
 
     extra_vars = _read(id, limit, group_type)
-
-    am_following = logic.get_action('am_following_group')(
+    try:
+        am_following = logic.get_action('am_following_group')(
         {'user': current_user.name}, {'id': id}
-    )
+        )
+    except NotAuthorized:
+        # AnonymousUser
+        am_following = False
 
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
