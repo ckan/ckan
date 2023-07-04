@@ -85,13 +85,13 @@ const qs = () =>
 
 const highlightJs = () =>
   src(__dirname + "/node_modules/@highlightjs/cdn-assets/highlight.js").pipe(
-    dest(__dirname + "/ckanext/textview/theme/public/vendor/")
+    dest(__dirname + "/ckanext/textview/assets/vendor/")
   )
 
 const highlightJsStyles = () =>
   src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css").pipe(
     rename("a11y-light.css")).pipe(
-    dest(__dirname + "/ckanext/textview/theme/public/styles/")
+    dest(__dirname + "/ckanext/textview/assets/styles/")
   )
 
 
