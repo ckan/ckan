@@ -99,7 +99,7 @@ __all__ = [
     "error_shout",
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
-    "add_resource", "add_ckan_admin_tab",
+    "add_resource",
     "check_ckan_version", "requires_ckan_version", "get_endpoint",
     "fresh_context", "BaseModel",
 ]
@@ -188,21 +188,6 @@ def add_resource(path: str, name: str):
     this_dir = os.path.dirname(filename)
     absolute_path = os.path.join(this_dir, path)
     create_library(name, absolute_path)
-
-
-def add_ckan_admin_tab(
-        config_: CKANConfig, route_name: str, tab_label: str,
-        config_var: str = "ckan.admin_tabs", icon: Optional[str] = None
-):
-    """
-    Update 'ckan.admin_tabs' dict the passed config dict.
-    """
-    # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get(config_var)
-    # update the admin_tabs dict with the new values
-    admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
-    # update the config with the updated admin_tabs dict
-    config_.update({config_var: admin_tabs_dict})
 
 
 def _version_str_2_list(v_str: str):

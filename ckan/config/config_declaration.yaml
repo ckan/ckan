@@ -1354,12 +1354,6 @@ groups:
 
           Same as :ref:`ckan.default.package_type`, but for organizations.
 
-      - key: ckan.admin_tabs
-        default: {}
-        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
-        validators: convert_to_json_if_string dict_only
-        description: Extra navigation items for Sysadmin Settings.
-
   - annotation: Storage Settings
     options:
       - key: ckan.storage_path
