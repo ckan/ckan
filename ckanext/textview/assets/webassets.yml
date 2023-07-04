@@ -6,6 +6,7 @@ main-css:
 
 main:
   output: ckanext-textview/%(version)s_textview.js
+  filter: rjsmin
   extra:
     preload:
       - base/main

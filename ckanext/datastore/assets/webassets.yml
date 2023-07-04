@@ -6,10 +6,11 @@ datastore_css:
 
 datastore:
   output: ckanext_datastore/%(version)s_datastore.js
+  filter: rjsmin
   extra:
     preload:
       - base/main
       - ckanext_datastore/datastore_css
   contents:
       - js/api-info.js
-      - vendor/highlight.min.js
+      - vendor/highlight.js

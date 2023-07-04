@@ -15,9 +15,9 @@ Frontend development guidelines
 Install frontend dependencies
 -----------------------------
 
-The front end stylesheets are written using
-`Sass <https://sass-lang.com/>`_ (this depends on
-`node.js <http://nodejs.org/>`_ being installed on the system)
+The front end stylesheets are written using `Sass <https://sass-lang.com/>`_
+(this depends on `node.js <http://nodejs.org/>`_ being installed on the system)
+and compiled using `Gulp <https://gulpjs.com/>`_.
 
 Instructions for installing |nodejs| can be found on the |nodejs| `website
 <http://nodejs.org/>`_. Please check the ones relevant to your own distribution
@@ -25,7 +25,7 @@ Instructions for installing |nodejs| can be found on the |nodejs| `website
 On Ubuntu, run the following to install |nodejs| official repository and the node
 package::
 
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
 .. note:: If you use the package on the default Ubuntu repositories (eg ``sudo apt-get install nodejs``),
@@ -37,18 +37,37 @@ package::
     For more information, refer to the |nodejs| `instructions
     <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
 
+Latest instructions for installing Gulp can be found on the `Gulp website
+<https://gulpjs.com/>`_. In most scenarios, it can be installed globally::
+
+  npm install --global gulp-cli
+
 Dependencies can then be installed via the node package manager (npm).
-We use ``gulp`` to make our Sass compiler a watcher
-style script.
+``cd`` into the CKAN source folder (eg |virtualenv|/src/ckan ) and run::
 
-``cd`` into the CKAN source folder (eg |virtualenv|/src/ckan ) and run:
+  npm ci
 
-::
+.. note:: If Gulp is missing, you'll see the following output::
 
-    $ npm install
+       $ npm ci
 
+       > ckan@1.0.0 postinstall
+       > gulp updateVendorLibs
 
-You may need to use ``sudo`` depending on your CKAN install type.
+       sh: line 1: gulp: command not found
+       ...
+
+   Install Gulp using `official documentation <https://gulpjs.com/>`_ and run
+   ``npm ci`` again.
+
+.. note:: Prefer using ``npm ci`` instead of ``npm install``. The former
+          command always installs exact versions of dependencies from the
+          `package-lock.json`, produces predictable state of application and
+          does not change `package.json` or `package-lock.json`. ``npm
+          install`` may override `package-lock.json`, producing undesirable
+          changes and does not guarantee that all the dependencies will be
+          exactly the same as ones, specified in `package-lock.json`.
+
 
 --------------
 File structure
@@ -373,3 +392,48 @@ available in all test contexts. Tests can be made asynchronous by using promises
             win.jQuery('#fixture').html(this.template).children();
         });
       });
+
+
+-----------------------
+Update vendor libraries
+-----------------------
+
+3rd-party libraries are installed via ``npm`` and copied into public folder via
+``npm``'s post-install script. This script is executed only when all the
+dependencies are installed(i.e after ``npm install`` or ``npm ci``), so extra
+steps are be required when a single vendor library is updated.
+
+For example, when ``jQuery`` is updated, it must be installed from NPM registry
+first::
+
+  npm up jquery
+
+This command overrides `package-lock.json` and downloads a new version of
+``jQuery`` into `node_modules/`. But public `jquery.js` used by CKAN is not
+changed yet. It must be updated using one of the following options:
+
+* Re-install all the dependencies and trigger the hook as a side-effect: ``npm
+  ci``. This command will take some time but it will clean up any mess inside
+  `node_modules/`, which may come in handy if you experimenting with ``npm``.
+* Run post-install hook directly: ``npm run postinstall``. It's fast and only
+  updates local files, so it works even without an internet connection.
+* Copy updated version manually: ``cp node_modules/jquery/dist/jquery.js
+  ckan/public/base/vendor/``. Even thought this command is instant, it's not
+  recommended, because every vendor library must be copied into a different
+  folder. Copying them manually is too error-prone.
+
+
+----
+Gulp
+----
+
+`Gulp <https://gulpjs.com/>`_ is used for:
+
+* Compiling SCSS into CSS: ``npm run watch`` (``watch`` task) and ``npm run
+  build`` (``build`` task)
+* Copying vendor libraries into publicly available folders: ``npm run
+  postinstall`` (``updateVendorLibs`` task)
+
+New tasks can be added to ``gulpfile.js`` in the project root. Check `gulp
+documentation <https://gulpjs.com/docs/en/getting-started/creating-tasks>`_ for
+additional information.
