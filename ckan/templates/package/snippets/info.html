@@ -28,7 +28,7 @@ Example:
               </div>
             {% endblock %}
             {% block follow_button %}
-              {% if current_user %}
+              {% if current_user.is_authenticated %}
                {% if error_message %}
                   <div class="alert alert-error">{{ error_message }}</div>
                {% elif am_following %}
