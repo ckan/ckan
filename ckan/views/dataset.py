@@ -914,14 +914,14 @@ def follow(package_type: str, id: str) -> Response:
         error_message = ""
         am_following = True
 
-    context = {
+    extra_vars = {
         'pkg': package_dict,
         'am_following': am_following,
         "current_user": current_user,
         "error_message": error_message
         }
 
-    return base.render('package/snippets/info.html', context)
+    return base.render('package/snippets/info.html', extra_vars)
 
 
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
@@ -942,14 +942,14 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         error_message = ""
         am_following = False
 
-    context = {
+    extra_vars = {
         'pkg': package_dict,
         'am_following': am_following,
         "current_user": current_user,
         "error_message": error_message
         }
 
-    return base.render('package/snippets/info.html', context)
+    return base.render('package/snippets/info.html', extra_vars)
 
 
 def followers(package_type: str,
