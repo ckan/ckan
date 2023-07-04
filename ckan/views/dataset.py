@@ -904,15 +904,16 @@ def follow(package_type: str, id: str) -> Response:
         u'auth_user_obj': current_user
     }
     data_dict = {u'id': id}
+    am_following: bool = False
+    error_message: str = ""
     try:
         get_action(u'follow_dataset')(context, data_dict)
-        package_dict = get_action(u'package_show')(context, data_dict)
-    except (ValidationError, NotFound, NotAuthorized) as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        am_following = False
-    else:
-        error_message = ""
         am_following = True
+        package_dict = get_action(u'package_show')(context, data_dict)
+    except (NotFound, NotAuthorized) as e:
+        error_message = e.message
+    except ValidationError as e:
+        error_message = e.error_summary
 
     extra_vars = {
         'pkg': package_dict,
@@ -932,15 +933,16 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
         u'auth_user_obj': current_user
     }
     data_dict = {u'id': id}
+    am_following: bool = False
+    error_message: str = ""
     try:
         get_action(u'unfollow_dataset')(context, data_dict)
-        package_dict = get_action(u'package_show')(context, data_dict)
-    except (ValidationError, NotFound, NotAuthorized) as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        am_following = True
-    else:
-        error_message = ""
         am_following = False
+        package_dict = get_action(u'package_show')(context, data_dict)
+    except (NotFound, NotAuthorized) as e:
+        error_message = (e.message)
+    except ValidationError as e:
+        error_message = e.error_summary
 
     extra_vars = {
         'pkg': package_dict,

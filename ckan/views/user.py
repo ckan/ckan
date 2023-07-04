@@ -823,7 +823,7 @@ def follow(id: str) -> Response:
         logic.get_action('follow_user')(context, data_dict)
         am_following = True
     except logic.ValidationError as e:
-        error_message = e.error_dict["message"]
+        error_message = e.error_summary
     except (logic.NotFound, logic.NotAuthorized) as e:
         error_message = str(e)
 
@@ -852,7 +852,7 @@ def unfollow(id: str) -> Response:
         logic.get_action('unfollow_user')(context, data_dict)
         am_following = False
     except logic.ValidationError as e:
-        error_message = e.error_dict["message"]
+        error_message = e.error_summary
     except (logic.NotFound, logic.NotAuthorized) as e:
         error_message = str(e)
 

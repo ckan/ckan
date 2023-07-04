@@ -689,13 +689,13 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
         'include_followers': True
         }
 
+    am_following: bool = False
+    error_message: str = ""
     try:
         get_action(u'follow_group')(context, data_dict)
         am_following = True
-        error_message = ""
     except ValidationError as e:
-        error_message = e.error_dict['message']
-        am_following = False
+        error_message = e.error_summary
     except NotFound:
         h.flash_error(_(u'Group not found'))
         return h.redirect_to(f'{group_type}.index')
@@ -730,13 +730,13 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
         'include_followers': True
         }
 
+    am_following: bool = True
+    error_message: str = ""
     try:
         get_action(u'unfollow_group')(context, data_dict)
         am_following = False
-        error_message = ""
     except (ValidationError) as e:
-        error_message = e.error_dict['message']
-        am_following = True
+        error_message = e.error_summary
     except NotFound:
         h.flash_error(_(u'Group not found'))
         return h.redirect_to(f'{group_type}.index')
