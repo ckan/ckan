@@ -455,7 +455,7 @@ def read(group_type: str,
     extra_vars = _read(id, limit, group_type)
     try:
         am_following = logic.get_action('am_following_group')(
-        {'user': current_user.name}, {'id': id}
+            {'user': current_user.name}, {'id': id}
         )
     except NotAuthorized:
         # AnonymousUser
