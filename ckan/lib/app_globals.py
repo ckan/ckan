@@ -41,8 +41,6 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
     'ckan.homepage_style': {'default': '1'},
 
     # split string
