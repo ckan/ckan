@@ -1217,40 +1217,6 @@ groups:
 
   - annotation: Theming Settings
     options:
-      - key: ckan.template_head_end
-        example: <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
-        description: |
-          HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
-
-          You can also have multiline strings. Just indent following lines. e.g.::
-
-           ckan.template_head_end =
-            <link rel="stylesheet" href="/css/extra1.css" type="text/css">
-            <link rel="stylesheet" href="/css/extra2.css" type="text/css">
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
-      - key: ckan.template_footer_end
-        description: |
-          HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
-
-          .. note:: you can have multiline strings (just indent following lines)
-
-          Example (showing insertion of Google Analytics code)::
-
-            ckan.template_footer_end = <!-- Google Analytics -->
-              <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-              <script type="text/javascript">
-              try {
-              var pageTracker = _gat._getTracker("XXXXXXXXX");
-              pageTracker._setDomainName(".ckan.net");
-              pageTracker._trackPageview();
-              } catch(err) {}
-              </script>
-              <!-- /Google Analytics -->
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
       - key: ckan.template_title_delimiter
         default: '-'
         example: '|'
@@ -1336,12 +1302,6 @@ groups:
           Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
 
           Same as :ref:`ckan.default.package_type`, but for organizations.
-
-      - key: ckan.admin_tabs
-        default: {}
-        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
-        validators: convert_to_json_if_string dict_only
-        description: Extra navigation items for Sysadmin Settings.
 
   - annotation: Storage Settings
     options:
