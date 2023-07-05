@@ -13,8 +13,6 @@ from typing import Any, Union, cast
 
 import six
 
-import ckan.common
-
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.plugins as plugins
@@ -33,7 +31,7 @@ import ckan.lib.api_token as api_token
 import ckan.authz as authz
 import ckan.model
 
-from ckan.common import _
+from ckan.common import _, current_user
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
@@ -1276,41 +1274,25 @@ def follow_dataset(context: Context,
     :rtype: dictionary
 
     '''
+    if current_user.is_anonymous:
+        raise NotAuthorized(_("You must be logged in to follow a dataset."))
 
-    if not context.get('user'):
-        raise NotAuthorized(
-            _("You must be logged in to follow a dataset."))
-
-    model = context['model']
-
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(
-            _("You must be logged in to follow a dataset."))
-
-    schema = context.get(
-        'schema') or ckan.logic.schema.default_follow_dataset_schema()
-
+    schema = (context.get('schema') or
+              ckan.logic.schema.default_follow_dataset_schema())
     validated_data_dict, errors = _validate(data_dict, schema, context)
-
     if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-
-    # Don't let a user follow a dataset she is already following.
-    if model.UserFollowingDataset.is_following(userobj.id,
-                                               validated_data_dict['id']):
-        # FIXME really package model should have this logic and provide
-        # 'display_name' like users and groups
-        pkgobj = model.Package.get(validated_data_dict['id'])
-        assert pkgobj
-        name = pkgobj.title or pkgobj.name or pkgobj.id
-        message = _(
-            'You are already following {0}').format(name)
+        message = _('Error validating the schema of the dataset to follow.')
         raise ValidationError({'message': message})
 
-    follower = model_save.follower_dict_save(validated_data_dict, context,
-                                             model.UserFollowingDataset)
+    # If the user is already following, return the existing follower object.
+    model = context['model']
+    follower = model.UserFollowingDataset.get(current_user.id, data_dict['id'])
+    if follower:
+        return model_dictize.user_following_dataset_dictize(follower, context)
+
+    follower = model_save.follower_dict_save(
+        validated_data_dict, context, model.UserFollowingDataset
+        )
 
     if not context.get('defer_commit'):
         model.repo.commit()

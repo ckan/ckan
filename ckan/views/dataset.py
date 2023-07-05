@@ -897,23 +897,21 @@ class DeleteView(MethodView):
 
 
 def follow(package_type: str, id: str) -> Response:
-    """Start following this dataset.
-    """
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict = {u'id': id}
+    """Start following this dataset."""
     am_following: bool = False
     error_message: str = ""
+
     try:
-        get_action(u'follow_dataset')(context, data_dict)
-        am_following = True
-        package_dict = get_action(u'package_show')(context, data_dict)
+        package_dict = get_action('package_show')({}, {'id': id})
     except (NotFound, NotAuthorized) as e:
-        error_message = e.message
+        msg = _('Dataset not found or you have no permission to view it')
+        return base.abort(404, msg)
+
+    try:
+        get_action('follow_dataset')({}, {'id': id})
+        am_following = True
     except ValidationError as e:
-        error_message = e.error_summary
+        error_message = e.error_dict['message']
 
     extra_vars = {
         'pkg': package_dict,
@@ -926,23 +924,21 @@ def follow(package_type: str, id: str) -> Response:
 
 
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
-    """Stop following this dataset.
-    """
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict = {u'id': id}
-    am_following: bool = False
+    """Stop following this dataset."""
+    am_following: bool = True
     error_message: str = ""
+
     try:
-        get_action(u'unfollow_dataset')(context, data_dict)
-        am_following = False
-        package_dict = get_action(u'package_show')(context, data_dict)
+        package_dict = get_action('package_show')({}, {'id': id})
     except (NotFound, NotAuthorized) as e:
-        error_message = (e.message)
+        msg = _('Dataset not found or you have no permission to view it')
+        return base.abort(404, msg)
+
+    try:
+        get_action('unfollow_dataset')({}, {'id': id})
+        am_following = False
     except ValidationError as e:
-        error_message = e.error_summary
+        error_message = e.error_dict['message']
 
     extra_vars = {
         'pkg': package_dict,

@@ -31,7 +31,8 @@ Example:
               {% if current_user.is_authenticated %}
                {% if error_message %}
                   <div class="alert alert-error">{{ error_message }}</div>
-               {% elif am_following %}
+                {% endif %}
+               {% if am_following %}
                   <a class="btn btn-danger" hx-post="{{ h.url_for('dataset.unfollow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-minus"></i>Unfollow</a>
                 {% else %}
                 <a class="btn btn-success" hx-post="{{ h.url_for('dataset.follow', id=pkg.id) }}" hx-target="#package-info"><i class="fa-solid fa-circle-plus"></i></i>Follow</a>
