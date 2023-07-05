@@ -809,7 +809,7 @@ class PerformResetView(MethodView):
         })
 
 
-def follow(id: str) -> Response:
+def follow(id: str) -> str:
     '''Start following this user.'''
     error_message: str = ''
     am_following: bool = False
@@ -831,7 +831,7 @@ def follow(id: str) -> Response:
     return base.render('user/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str) -> Response:
+def unfollow(id: str) -> str:
     '''Stop following this user.'''
     error_message: str = ''
     am_following: bool = True

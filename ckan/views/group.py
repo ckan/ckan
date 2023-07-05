@@ -678,7 +678,7 @@ def member_delete(id: str, group_type: str,
                        extra_vars)
 
 
-def follow(id: str, group_type: str, is_organization: bool) -> Response:
+def follow(id: str, group_type: str, is_organization: bool) -> str:
     '''Start following this group.'''
     set_org(is_organization)
     data_dict = {
@@ -718,7 +718,7 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
     return base.render('group/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
+def unfollow(id: str, group_type: str, is_organization: bool) -> str:
     '''Stop following this group.'''
     set_org(is_organization)
     data_dict = {
