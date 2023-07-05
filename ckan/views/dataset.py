@@ -903,7 +903,7 @@ def follow(package_type: str, id: str) -> Response:
 
     try:
         package_dict = get_action('package_show')({}, {'id': id})
-    except (NotFound, NotAuthorized) as e:
+    except (NotFound, NotAuthorized):
         msg = _('Dataset not found or you have no permission to view it')
         return base.abort(404, msg)
 
@@ -930,7 +930,7 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
 
     try:
         package_dict = get_action('package_show')({}, {'id': id})
-    except (NotFound, NotAuthorized) as e:
+    except (NotFound, NotAuthorized):
         msg = _('Dataset not found or you have no permission to view it')
         return base.abort(404, msg)
 

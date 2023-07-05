@@ -622,7 +622,6 @@ class TestOrganizationMembership(object):
             assert user["id"] not in org["users"][0]["id"]
 
 
-
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationFollow:
     def test_organization_follow_and_unfollow(self, app, user):
