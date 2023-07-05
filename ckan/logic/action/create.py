@@ -1227,7 +1227,6 @@ def follow_user(context: Context,
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
-        model.Session.rollback()
         msg = _('Error validating the schema of the user to follow.')
         raise ValidationError(msg)
 
