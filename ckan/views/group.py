@@ -681,38 +681,37 @@ def member_delete(id: str, group_type: str,
 def follow(id: str, group_type: str, is_organization: bool) -> Response:
     '''Start following this group.'''
     set_org(is_organization)
-    context: Context = {'user': current_user.name}
     data_dict = {
         'id': id,
         'include_datasets': True,
         'include_users': True,
-        'include_followers': True
         }
+    extra_vars: dict = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
+
+    try:
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
 
     am_following: bool = False
     error_message: str = ""
     try:
-        get_action(u'follow_group')(context, data_dict)
+        get_action(u'follow_group')({}, data_dict)
         am_following = True
     except ValidationError as e:
-        error_message = e.error_summary
-    except NotFound:
-        h.flash_error(_(u'Group not found'))
-        return h.redirect_to(f'{group_type}.index')
+        error_message = e.error_dict.get('message')
 
-    extra_vars: dict = {
-        'current_user': current_user,
-        'error_message': error_message,
-        'am_following': am_following,
-        'show_nums': True,
-        }
-
-    if is_org:
-        group_dict = get_action('organization_show')(context, data_dict)
-        extra_vars['organization'] = group_dict
-    else:
-        group_dict = get_action('group_show')(context, data_dict)
-        extra_vars['group'] = group_dict
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
 
     if is_org:
         return base.render('organization/snippets/info.html', extra_vars)
@@ -722,38 +721,37 @@ def follow(id: str, group_type: str, is_organization: bool) -> Response:
 def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
     '''Stop following this group.'''
     set_org(is_organization)
-    context: Context = {'user': current_user.name}
     data_dict = {
         'id': id,
         'include_datasets': True,
         'include_users': True,
         'include_followers': True
         }
+    extra_vars: dict = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
+    try:
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
 
     am_following: bool = True
     error_message: str = ""
     try:
-        get_action(u'unfollow_group')(context, data_dict)
+        get_action(u'unfollow_group')({}, data_dict)
         am_following = False
     except (ValidationError) as e:
         error_message = e.error_summary
-    except NotFound:
-        h.flash_error(_(u'Group not found'))
-        return h.redirect_to(f'{group_type}.index')
 
-    extra_vars: dict = {
-        'current_user': current_user,
-        'error_message': error_message,
-        'am_following': am_following,
-        'show_nums': True,
-        }
-
-    if is_org:
-        group_dict = get_action('organization_show')(context, data_dict)
-        extra_vars['organization'] = group_dict
-    else:
-        group_dict = get_action('group_show')(context, data_dict)
-        extra_vars['group'] = group_dict
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
 
     if is_org:
         return base.render('organization/snippets/info.html', extra_vars)
@@ -1293,10 +1291,6 @@ organization = Blueprint(u'organization', __name__,
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
-    actions = [
-        u'member_delete', u'followers', u'follow',
-        u'unfollow', u'admins',
-    ]
     blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
     blueprint.add_url_rule(
         u'/new',
@@ -1325,6 +1319,15 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/delete/<id>',
         methods=[u'GET', u'POST'],
         view_func=DeleteGroupView.as_view(str(u'delete')))
+    blueprint.add_url_rule(
+        '/follow/<id>',
+        methods=[u'POST'],
+        view_func=follow)
+    blueprint.add_url_rule(
+        '/unfollow/<id>',
+        methods=[u'POST'],
+        view_func=unfollow)
+    actions = ['member_delete', 'followers', 'admins']
     for action in actions:
         blueprint.add_url_rule(
             u'/{0}/<id>'.format(action),

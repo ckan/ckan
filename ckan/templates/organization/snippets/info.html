@@ -43,10 +43,11 @@
       {% endblock %}
       {% if show_nums %}
         {% block nums %}
+        {% set num_followers = h.follow_count('organization', organization.id) %}
         <div class="nums">
           <dl>
             <dt>{{ _('Followers') }}</dt>
-            <dd>{{ h.SI_number_span(organization.num_followers) }}</dd>
+            <dd>{{ h.SI_number_span(num_followers) }}</dd>
           </dl>
           <dl>
             <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>

@@ -1404,35 +1404,25 @@ def follow_group(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(
-            _("You must be logged in to follow a group."))
+    if current_user.is_anonymous:
+        raise NotAuthorized(_("You must be logged in to follow a group."))
 
     model = context['model']
 
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(
-            _("You must be logged in to follow a group."))
-
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
-
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-
-    # Don't let a user follow a group she is already following.
-    if model.UserFollowingGroup.is_following(userobj.id,
-                                             validated_data_dict['id']):
-        groupobj = model.Group.get(validated_data_dict['id'])
-        assert groupobj
-        name = groupobj.display_name
-        message = _(
-            'You are already following {0}').format(name)
+        message = _('Error validating the schema of the group to follow.')
         raise ValidationError({'message': message})
+
+    # If it's already following, return the existing follower object.
+    follower = model.UserFollowingGroup.get(
+        current_user.id, validated_data_dict['id']
+        )
+    if follower:
+        return model_dictize.user_following_group_dictize(follower, context)
 
     follower = model_save.follower_dict_save(validated_data_dict, context,
                                              model.UserFollowingGroup)
@@ -1440,7 +1430,7 @@ def follow_group(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following group {object}'.format(
+    log.debug('User {follower} started following group {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
