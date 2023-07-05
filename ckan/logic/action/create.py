@@ -1216,37 +1216,32 @@ def follow_user(context: Context,
     :rtype: dictionary
 
     '''
-    if not context.get('user'):
-        raise NotAuthorized(_("You must be logged in to follow users"))
+    if current_user.is_anonymous:
+        raise NotAuthorized(_("You must be logged in to follow a group."))
 
     model = context['model']
 
-    userobj = model.User.get(context['user'])
-    if not userobj:
-        raise NotAuthorized(_("You must be logged in to follow users"))
-
-    schema = context.get(
-        'schema') or ckan.logic.schema.default_follow_user_schema()
+    schema = context.get('schema',
+                         ckan.logic.schema.default_follow_user_schema())
 
     validated_data_dict, errors = _validate(data_dict, schema, context)
 
     if errors:
         model.Session.rollback()
-        raise ValidationError(errors)
+        msg = _('Error validating the schema of the user to follow.')
+        raise ValidationError(msg)
 
     # Don't let a user follow herself.
-    if userobj.id == validated_data_dict['id']:
+    if current_user.id == validated_data_dict['id']:
         message = _('You cannot follow yourself')
         raise ValidationError({'message': message})
 
-    # Don't let a user follow someone she is already following.
-    if model.UserFollowingUser.is_following(userobj.id,
-                                            validated_data_dict['id']):
-        followeduserobj = model.User.get(validated_data_dict['id'])
-        assert followeduserobj
-        name = followeduserobj.display_name
-        message = _('You are already following {0}').format(name)
-        raise ValidationError({'message': message})
+    # If the user is already following, return the existing follower object
+    follower = model.UserFollowingUser.get(
+        current_user.id, validated_data_dict['id']
+        )
+    if follower:
+        return model_dictize.user_following_user_dictize(follower, context)
 
     follower = model_save.follower_dict_save(
         validated_data_dict, context, model.UserFollowingUser)
@@ -1254,7 +1249,7 @@ def follow_user(context: Context,
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug(u'User {follower} started following user {object}'.format(
+    log.debug('User {follower} started following user {object}'.format(
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_user_dictize(follower, context)

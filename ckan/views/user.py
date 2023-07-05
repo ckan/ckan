@@ -810,24 +810,17 @@ class PerformResetView(MethodView):
 
 
 def follow(id: str) -> Response:
-    u'''Start following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+    '''Start following this user.'''
     error_message: str = ''
     am_following: bool = False
+    extra_vars = _extra_template_variables({}, {'id': id})
 
     try:
-        logic.get_action('follow_user')(context, data_dict)
+        logic.get_action('follow_user')({}, {'id': id})
         am_following = True
     except logic.ValidationError as e:
-        error_message = e.error_summary
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        error_message = str(e)
+        error_message = e.error_dict['message']
 
-    extra_vars = _extra_template_variables(context, data_dict)
     extra_vars.update({
         'am_following': am_following,
         'error_message': error_message,
@@ -839,24 +832,17 @@ def follow(id: str) -> Response:
 
 
 def unfollow(id: str) -> Response:
-    u'''Stop following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+    '''Stop following this user.'''
     error_message: str = ''
     am_following: bool = True
+    extra_vars = _extra_template_variables({}, {'id': id})
 
     try:
-        logic.get_action('unfollow_user')(context, data_dict)
+        logic.get_action('unfollow_user')({}, {'id': id})
         am_following = False
     except logic.ValidationError as e:
         error_message = e.error_summary
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        error_message = str(e)
 
-    extra_vars = _extra_template_variables(context, data_dict)
     extra_vars.update({
         'am_following': am_following,
         'error_message': error_message,
@@ -945,8 +931,8 @@ user.add_url_rule(
 user.add_url_rule(
     u'/reset/<id>', view_func=PerformResetView.as_view(str(u'perform_reset')))
 
-user.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
-user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
+user.add_url_rule(u'/follow/<id>', view_func=follow, methods=('POST', ))
+user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=('POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
