@@ -1821,15 +1821,19 @@ class TestPackageFollow(object):
         follow_url = url_for("dataset.follow", id=package["id"])
         headers = {"Authorization": user["token"]}
         response = app.post(follow_url, headers=headers)
-        assert "You are now following {0}".format(package["title"]) in response
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>1</span></dd>
+                ''' in response
 
     def test_package_follow_not_exist(self, app, user):
         """Pass an id for a package that doesn't exist"""
         headers = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id="not-here")
-        response = app.post(follow_url, headers=headers)
-
-        assert "Dataset not found" in response
+        app.post(follow_url, headers=headers, status=404)
 
     def test_package_unfollow(self, app, user):
 
@@ -1839,12 +1843,14 @@ class TestPackageFollow(object):
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(package["title"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_following(self, app, user):
         """Unfollow a package not currently following"""
@@ -1852,19 +1858,20 @@ class TestPackageFollow(object):
         package = factories.Dataset()
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(package["id"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_exist(self, app, user):
         """Unfollow a package that doesn't exist."""
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url, headers=headers)
-        assert "Dataset not found" in unfollow_response
+        app.post(unfollow_url, headers=headers, status=404)
 
     def test_package_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""
