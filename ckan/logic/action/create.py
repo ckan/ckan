@@ -1280,7 +1280,9 @@ def follow_dataset(context: Context,
 
     # If the user is already following, return the existing follower object.
     model = context['model']
-    follower = model.UserFollowingDataset.get(current_user.id, data_dict['id'])
+    follower = model.UserFollowingDataset.get(
+        current_user.id, validated_data_dict['id']
+        )
     if follower:
         return model_dictize.user_following_dataset_dictize(follower, context)
 
