@@ -9,7 +9,6 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckanext.datastore.backend as backend
 import ckanext.datastore.backend.postgres as db
-from ckan.logic import ValidationError
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
