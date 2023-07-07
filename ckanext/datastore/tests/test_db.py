@@ -2,7 +2,6 @@
 
 import unittest.mock as mock
 import pytest
-import sqlalchemy.exc
 
 import ckan.lib.jobs as jobs
 import ckan.plugins as p
