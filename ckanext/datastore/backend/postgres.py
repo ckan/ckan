@@ -36,7 +36,7 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, DatabaseError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -1156,11 +1156,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError as err:
-            raise InvalidDataError(
-                toolkit._("The data was invalid: {}"
-                          ).format(_programming_error_summary(err)))
-        except sqlalchemy.exc.DatabaseError as err:
+        except (DatabaseError, DataError) as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
 
