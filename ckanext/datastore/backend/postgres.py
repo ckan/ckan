@@ -46,7 +46,6 @@ from ckanext.datastore.backend import (
     DatastoreException,
     _parse_sort_clause
 )
-from ckanext.datastore.backend import InvalidDataError
 
 log = logging.getLogger(__name__)
 
@@ -1108,11 +1107,6 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
-    """
-
-    :raises InvalidDataError: if there is an invalid value in the given data
-
-    """
     data_dict['method'] = _INSERT
     result = upsert_data(context, data_dict)
     return result
@@ -2003,8 +1997,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         nor can the ordering of them be changed. They can be extended though.
         Any error results in total failure! For now pass back the actual error.
         Should be transactional.
-        :raises InvalidDataError: if there is an invalid value in the given
-                                  data
         '''
         engine = get_write_engine()
         context['connection'] = engine.connect()
