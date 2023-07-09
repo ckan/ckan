@@ -98,7 +98,7 @@ class GroupFormSchema(DefaultGroupSchema):
             "name": ['p_not_empty', 'unicode_safe'],
             "capacity": ['p_ignore_missing'],
             "__extras": ['p_ignore']
-        })]
+        }), Users]
     }
 
 

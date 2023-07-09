@@ -3,8 +3,11 @@ import pydantic
 import ckan.logic as logic
 
 from typing import Type, Set, Optional
-from ckan.types import Context, DataDict, Union
+from ckan.types import Context, DataDict, Union, ErrorDict
 from ckan.lib.pydantic.base import CKANBaseModel
+
+
+_ErrorList = pydantic.error_wrappers.ErrorList
 
 
 def validate_with_pydantic(  # type: ignore
@@ -40,7 +43,7 @@ def validate_with_pydantic(  # type: ignore
     except logic.ValidationError as e:
         return {}, e.error_dict
     except pydantic.error_wrappers.ValidationError as e:
-        return {}, e.errors()
+        return {}, extract_validation_errors(e.errors())
 
     result = model_instance.dict(
         include=include,
@@ -57,3 +60,16 @@ def validate_with_pydantic(  # type: ignore
         result = old_data_dict
 
     return result, {}
+
+
+def extract_validation_errors(validation_errors: _ErrorList) -> ErrorDict:
+    error_dict = {}
+
+    for error in validation_errors:  # type: ignore
+        field_name = (".".join(error["loc"]) if isinstance(error["loc"], tuple) else error["loc"])
+        error_msg = error["msg"]
+        if field_name in error_dict:
+            error_dict[field_name].append(error_msg)
+        else:
+            error_dict[field_name] = [error_msg]
+    return error_dict

@@ -66,8 +66,8 @@ def p_user_passwords_match(
 ):
     """Ensures that password and password confirmation match."""
 
-    if field.name == "password2":
-        if not value == values["password1"]:
+    if field.name == "password1":
+        if not value == values["password2"]:
             raise ValueError("The passwords you entered do not match")
         else:
             # Set correct password

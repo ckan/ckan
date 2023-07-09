@@ -3,13 +3,13 @@ from typing import Optional, Dict, Any
 from ckan.lib.pydantic.base import CKANBaseModel
 
 
-class UserCreateSchema(CKANBaseModel):
+class DefaultUserSchema(CKANBaseModel):
     id: Optional[str]
     name: str
     fullname: Optional[str]
     password: str = pydantic.Field(..., min_length=8)
     password_hash: Optional[str]
-    email: str
+    email: pydantic.EmailStr
     about: Optional[str]
     created: Optional[str]
     sysadmin: Optional[bool]
@@ -28,7 +28,7 @@ class UserCreateSchema(CKANBaseModel):
         'password': ['p_user_password_not_empty', 'p_ignore_missing', 
                      'unicode_safe'],
         'password_hash': ['p_ignore_missing', 'p_ignore_not_sysadmin', 'unicode_safe'],
-        'email': ['p_not_empty', 'email_validator', 'unicode_safe'],
+        'email': ['unicode_safe'],
         'about': ['ignore_missing', 'user_about_validator', 'unicode_safe'],
         'created': ['p_ignore'],
         'sysadmin': ['p_ignore_missing', 'p_ignore_not_sysadmin'],
@@ -39,4 +39,36 @@ class UserCreateSchema(CKANBaseModel):
         'image_url': ['p_ignore_missing', 'unicode_safe'],
         'image_display_url': ['p_ignore_missing', 'unicode_safe'],
         'plugin_extras': ['p_ignore_missing', 'json_object', 'p_ignore_not_sysadmin'],
+    }
+
+
+class CreateUserForUserInviteSchema(DefaultUserSchema):
+    _validators = {
+        **DefaultUserSchema._validators,
+
+        'password': ['p_ignore_missing']
+    }
+
+
+class UserNewFormSchema(DefaultUserSchema):
+    password: Optional[str]  # type: ignore
+    password1: str
+    password2: str
+
+    _validators = {
+        **DefaultUserSchema._validators,
+
+        'password1': ['unicode_safe', 'p_user_password_validator', 'p_user_passwords_match'],
+        'password2': ['unicode_safe']
+    }
+
+
+class UserEditFormSchema(DefaultUserSchema):
+    _validators = {
+        **DefaultUserSchema._validators,
+
+        'password': ['p_ignore_missing'],
+        'password1': ['p_ignore_missing', 'unicode_safe',
+                           'p_user_password_validator', 'p_user_passwords_match'],
+        'password2': ['p_ignore_missing', 'unicode_safe']
     }

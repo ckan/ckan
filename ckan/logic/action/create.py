@@ -970,10 +970,18 @@ def user_create(context: Context,
     :rtype: dictionary
 
     '''
+    import ckan.lib.pydantic as p_schema
+    model_schema = ckan.common.config.get('ckan.validator_model', 'navl')
+
+    schema_ = (
+        ckan.logic.schema.default_user_schema()
+        if model_schema == 'navl'
+        else p_schema.DefaultUserSchema
+    )
+
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_user_schema()
+    schema = context.get('schema') or schema_
     session = context['session']
-    # UserCreateSchema = pydantic_schema.UserCreateSchema
 
     _check_access('user_create', context, data_dict)
 
@@ -987,27 +995,19 @@ def user_create(context: Context,
     upload = uploader.get_uploader('user')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
-    breakpoint()
-    # data_dict.update({'buz': '123'})
-    # from ckan.lib.pydantic.user_schema import not_empty_
-    # UserCreateSchema.update_fields([
-    #     # this is for reference only 
-    #     # add _not_empty validator to email field
-    #     {'name': 'email', 'extra': {'validator': not_empty_}}
-    # ])
-    # try:
-    #     data = UserCreateSchema(**data_dict)
-    #     data = data.dict()
-    # except pydantic.ValidationError as e:
-    #     breakpoint()
-    #     session.rollback()
-    #     raise ValidationError(e.errors())
-    data, errors = _validate(data_dict, schema, context)
 
+    breakpoint()
+    if isinstance(schema, type):
+        from ckan.lib.pydantic.utils import validate_with_pydantic
+        data, errors = validate_with_pydantic(data_dict, schema, context)
+    else:
+        data, errors = _validate(data_dict, schema, context)
+
+    breakpoint()
     if errors:
         session.rollback()
         raise ValidationError(errors)
-    breakpoint()
+
     # user schema prevents non-sysadmins from providing password_hash
     if 'password_hash' in data:
         data['_password'] = data.pop('password_hash')

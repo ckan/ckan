@@ -118,6 +118,15 @@ class CKANBaseModel(pydantic.BaseModel):
         context = cls.Config.context
         errors = {}
 
+        # Pydantic calls the Subschema field (e.g., extras: Optional[DefaultExtrasSchema])
+        # only if `extras` is present in the `data_dict`, even if it's empty.
+        # To skip our custom validation on the `DefaultExtrasSchema` field,
+        # we check if `values` is empty and return it as is.
+        # This ensures that any custom validators associated with the `DefaultExtrasSchema` are bypassed.
+        if not values:
+            # return the empty dict
+            return values
+
         for name, _ in cls.__fields__.items():
             errors[name] = []
 
