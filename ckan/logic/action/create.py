@@ -31,7 +31,7 @@ import ckan.lib.api_token as api_token
 import ckan.authz as authz
 import ckan.model
 
-from ckan.common import _, current_user
+from ckan.common import _
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
@@ -1216,10 +1216,14 @@ def follow_user(context: Context,
     :rtype: dictionary
 
     '''
-    if current_user.is_anonymous:
-        raise NotAuthorized(_("You must be logged in to follow a group."))
+    if not context.get('user'):
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_user_schema())
@@ -1231,13 +1235,13 @@ def follow_user(context: Context,
         raise ValidationError(msg)
 
     # Don't let a user follow herself.
-    if current_user.id == validated_data_dict['id']:
+    if userobj.id == validated_data_dict['id']:
         message = _('You cannot follow yourself')
         raise ValidationError({'message': message})
 
     # If the user is already following, return the existing follower object
     follower = model.UserFollowingUser.get(
-        current_user.id, validated_data_dict['id']
+        userobj.id, validated_data_dict['id']
         )
     if follower:
         return model_dictize.user_following_user_dictize(follower, context)
@@ -1268,8 +1272,14 @@ def follow_dataset(context: Context,
     :rtype: dictionary
 
     '''
-    if current_user.is_anonymous:
-        raise NotAuthorized(_("You must be logged in to follow a dataset."))
+    if not context.get('user'):
+        raise NotAuthorized(_("You must be logged in to follow users"))
+
+    model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = (context.get('schema') or
               ckan.logic.schema.default_follow_dataset_schema())
@@ -1279,9 +1289,8 @@ def follow_dataset(context: Context,
         raise ValidationError({'message': message})
 
     # If the user is already following, return the existing follower object.
-    model = context['model']
     follower = model.UserFollowingDataset.get(
-        current_user.id, validated_data_dict['id']
+        userobj.id, validated_data_dict['id']
         )
     if follower:
         return model_dictize.user_following_dataset_dictize(follower, context)
@@ -1400,10 +1409,14 @@ def follow_group(context: Context,
     :rtype: dictionary
 
     '''
-    if current_user.is_anonymous:
-        raise NotAuthorized(_("You must be logged in to follow a group."))
+    if not context.get('user'):
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     model = context['model']
+
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise NotAuthorized(_("You must be logged in to follow users"))
 
     schema = context.get('schema',
                          ckan.logic.schema.default_follow_group_schema())
@@ -1415,7 +1428,7 @@ def follow_group(context: Context,
 
     # If it's already following, return the existing follower object.
     follower = model.UserFollowingGroup.get(
-        current_user.id, validated_data_dict['id']
+        userobj.id, validated_data_dict['id']
         )
     if follower:
         return model_dictize.user_following_group_dictize(follower, context)
