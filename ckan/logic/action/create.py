@@ -31,7 +31,7 @@ import ckan.lib.api_token as api_token
 import ckan.authz as authz
 import ckan.model
 
-from ckan.common import _
+from ckan.common import _, asbool
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 # FIXME this looks nasty and should be shared better
@@ -456,7 +456,7 @@ def resource_create_default_resource_views(
 
     dataset_dict = data_dict.get('package')
 
-    create_datastore_views = ckan.common.asbool(
+    create_datastore_views = asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_resource(
@@ -495,7 +495,7 @@ def package_create_default_resource_views(
 
     _check_access('package_create_default_resource_views', context, data_dict)
 
-    create_datastore_views = ckan.common.asbool(
+    create_datastore_views = asbool(
         data_dict.get('create_datastore_views', False))
 
     return ckan.lib.datapreview.add_views_to_dataset_resources(
