@@ -899,7 +899,7 @@ class DeleteView(MethodView):
 def follow(package_type: str, id: str) -> str:
     """Start following this dataset."""
     am_following: bool = False
-    error_message: Union[str, ErrorDict] = ""
+    error_message: str = ""
 
     try:
         package_dict = get_action('package_show')({}, {'id': id})
@@ -911,7 +911,7 @@ def follow(package_type: str, id: str) -> str:
         get_action('follow_dataset')({}, {'id': id})
         am_following = True
     except ValidationError as e:
-        error_message = e.error_dict['message']
+        error_message = str(e.error_dict['message'])
 
     extra_vars = {
         'pkg': package_dict,
@@ -925,8 +925,8 @@ def follow(package_type: str, id: str) -> str:
 
 def unfollow(package_type: str, id: str) -> Union[Response, str]:
     """Stop following this dataset."""
-    am_following: bool = True
-    error_message: str = ""
+    am_following = True
+    error_message = ""
 
     try:
         package_dict = get_action('package_show')({}, {'id': id})

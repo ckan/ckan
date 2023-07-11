@@ -524,7 +524,6 @@ class TestUser(object):
         assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
         assert 'Follow</a>' in unfollow_response
 
-
     def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
         headers = {"Authorization": user["token"]}

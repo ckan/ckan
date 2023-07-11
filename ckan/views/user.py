@@ -811,8 +811,8 @@ class PerformResetView(MethodView):
 
 def follow(id: str) -> str:
     '''Start following this user.'''
-    error_message: str = ''
-    am_following: bool = False
+    error_message = ''
+    am_following = False
     extra_vars = _extra_template_variables({}, {'id': id})
 
     try:
@@ -833,8 +833,8 @@ def follow(id: str) -> str:
 
 def unfollow(id: str) -> str:
     '''Stop following this user.'''
-    error_message: str = ''
-    am_following: bool = True
+    error_message = ''
+    am_following = True
     extra_vars = _extra_template_variables({}, {'id': id})
 
     try:

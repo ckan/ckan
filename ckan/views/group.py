@@ -702,13 +702,13 @@ def follow(id: str, group_type: str, is_organization: bool) -> str:
         msg = _(f'{group_type} not found or you have no permission to view it')
         base.abort(404, msg)
 
-    am_following: bool = False
-    error_message: Union[str, ErrorDict] = ""
+    am_following = False
+    error_message = ""
     try:
-        get_action(u'follow_group')({}, data_dict)
+        get_action('follow_group')({}, data_dict)
         am_following = True
     except ValidationError as e:
-        error_message = e.error_dict.get('message')
+        error_message = str(e.error_dict.get('message'))
 
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
@@ -727,7 +727,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
         'include_users': True,
         'include_followers': True
         }
-    extra_vars: dict = {
+    extra_vars = {
         'current_user': current_user,
         'show_nums': True,
     }
@@ -742,10 +742,10 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
         msg = _(f'{group_type} not found or you have no permission to view it')
         base.abort(404, msg)
 
-    am_following: bool = True
-    error_message: str = ""
+    am_following = True
+    error_message = ""
     try:
-        get_action(u'unfollow_group')({}, data_dict)
+        get_action('unfollow_group')({}, data_dict)
         am_following = False
     except (ValidationError) as e:
         error_message = e.error_summary
