@@ -19,7 +19,7 @@ from ckan import authz
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
 
-from ckan.common import _, current_user
+from ckan.common import _
 from ckan.types import Context, DataDict, ErrorDict, Schema
 
 log = logging.getLogger('ckan.logic')
@@ -649,24 +649,30 @@ def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
 
-    if current_user.is_anonymous:
-        msg = _("You must be logged in to unfollow something.")
-        raise ckan.logic.NotAuthorized(msg)
+    model = context['model']
+
+    if not context.get('user'):
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
+    userobj = model.User.get(context['user'])
+    if not userobj:
+        raise ckan.logic.NotAuthorized(
+                _("You must be logged in to unfollow something."))
+    follower_id = userobj.id
 
     validated_data_dict, errors = validate(data_dict, schema, context)
     if errors:
         msg = _("Error validating the schema of the object to unfollow.")
-        raise ValidationError(errors)
+        raise ValidationError(msg)
 
     object_id = validated_data_dict.get('id')
-    follower_id = current_user.id
+    follower_id = userobj.id
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
         return
 
     follower_obj.delete()
 
-    model = context['model']
     model.repo.commit()
 
 def unfollow_user(context: Context, data_dict: DataDict) -> None:
