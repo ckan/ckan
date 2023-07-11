@@ -1821,7 +1821,7 @@ class TestPackageFollow(object):
         follow_url = url_for("dataset.follow", id=package["id"])
         headers = {"Authorization": user["token"]}
         response = app.post(follow_url, headers=headers)
-        assert '<a class="btn btn-danger"' in response
+        assert 'Unfollow</a>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-minus"></i> Unfollow' in response
         assert '''
@@ -1844,7 +1844,7 @@ class TestPackageFollow(object):
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert 'Follow</a>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
@@ -1859,7 +1859,7 @@ class TestPackageFollow(object):
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
         response = app.post(unfollow_url, headers=headers)
-        assert '<a class="btn btn-success"' in response
+        assert 'Follow</a>' in response
         assert 'hx-target="#package-info"' in response
         assert 'fa-circle-plus"></i> Follow' in response
         assert '''
