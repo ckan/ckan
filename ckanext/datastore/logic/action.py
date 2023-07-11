@@ -678,20 +678,26 @@ def set_datastore_active_flag(
 
     model.Session.commit()
 
+    # copied from ckan.lib.search.rebuild
+    # using validated packages can cause solr errors.
+    context = cast(Context, {
+        'model': model,
+        'ignore_auth': True,
+        'validate': False,
+        'use_cache': False
+    })
+
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    try:
-        _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': resource.package_id
-        })
-        for resource in _data_dict['resources']:
-            if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
-                psi.index_package(_data_dict)
-                break
-    except (logic.NotAuthorized, logic.NotFound) as e:
-        log.error(e.message)
+    _data_dict = p.toolkit.get_action('package_show')(context, {
+        'id': resource.package_id
+    })
+    for resource in _data_dict['resources']:
+        if resource['id'] == data_dict['resource_id']:
+            resource.update(update_dict)
+            psi.index_package(_data_dict)
+            break
 
 
 def _check_read_only(context: Context, resource_id: str):
