@@ -26,7 +26,7 @@ from ckanext.datastore.writer import csv_writer
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
-from ckan.types import Action, Context, DataDict, Schema, ErrorDict
+from ckan.types import Action, Context, DataDict, Schema
 
 
 NotFound = logic.NotFound
