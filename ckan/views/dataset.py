@@ -26,7 +26,7 @@ from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-from ckan.types import Context, Response
+from ckan.types import Context, Response, ErrorDict
 
 
 NotFound = logic.NotFound
@@ -899,7 +899,7 @@ class DeleteView(MethodView):
 def follow(package_type: str, id: str) -> str:
     """Start following this dataset."""
     am_following: bool = False
-    error_message: str = ""
+    error_message: Union[str, ErrorDict] = ""
 
     try:
         package_dict = get_action('package_show')({}, {'id': id})

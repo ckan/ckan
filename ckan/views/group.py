@@ -26,7 +26,7 @@ from ckanext.datastore.writer import csv_writer
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
-from ckan.types import Action, Context, DataDict, Schema
+from ckan.types import Action, Context, DataDict, Schema, ErrorDict
 
 
 NotFound = logic.NotFound
@@ -686,7 +686,7 @@ def follow(id: str, group_type: str, is_organization: bool) -> str:
         'include_datasets': True,
         'include_users': True,
         }
-    extra_vars: dict = {
+    extra_vars = {
         'current_user': current_user,
         'show_nums': True,
     }
@@ -703,7 +703,7 @@ def follow(id: str, group_type: str, is_organization: bool) -> str:
         base.abort(404, msg)
 
     am_following: bool = False
-    error_message: str = ""
+    error_message: Union[str, ErrorDict] = ""
     try:
         get_action(u'follow_group')({}, data_dict)
         am_following = True
