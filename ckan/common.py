@@ -156,7 +156,7 @@ class HtmxDetails(object):
     https://htmx.org/reference/#headers.
     """
 
-    def __init__(self, request):
+    def __init__(self, request: Any):
         self.request = request
 
     def __bool__(self) -> bool:
