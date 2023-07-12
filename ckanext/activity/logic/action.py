@@ -247,17 +247,10 @@ def package_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
-    # Get activity permission labels
-    labels = get_permission_labels()
-    activities = model.Session.query(
-        model_activity.Activity).filter_by(object_id=package.id)
-    for activity in activities:
-        activity.permission_labels = labels.get_activity_labels(activity)
-    model.Session.commit()
-
+    # Get user permission labels
     user_permission_labels = []
     if not authz.is_sysadmin(context.get('user')):
-        user_permission_labels = labels.get_user_activity_labels(
+        user_permission_labels = get_permission_labels().get_user_activity_labels(
             context['auth_user_obj'])
 
     activity_objects = model_activity.package_activity_list(

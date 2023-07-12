@@ -6,6 +6,7 @@ from typing import Any
 
 import ckan.plugins.toolkit as tk
 import ckan.lib.dictization as dictization
+from ckan.lib.plugins import get_permission_labels
 
 from ckan import types
 from .model import Activity
@@ -101,6 +102,10 @@ def package_changed(sender: str, **kwargs: Any):
         user_id = "not logged in"
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
+
+    # Set activity permission labels
+    activity.permission_labels = get_permission_labels().get_activity_labels(activity)
+
     context["session"].add(activity)
     if not context.get("defer_commit"):
         context["session"].commit()
