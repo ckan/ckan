@@ -9,7 +9,7 @@ import json
 import datetime
 import re
 from dateutil.parser import parse
-from typing import Any, NoReturn, Optional, cast
+from typing import Any, NoReturn, Optional
 
 import six
 import pysolr
@@ -122,7 +122,7 @@ class PackageSearchIndex(SearchIndex):
         schema = package_plugin.show_package_schema()
         validated_pkg_dict, _errors = lib_plugins.plugin_validate(
             package_plugin,
-            cast(Context, {'model': model, 'session': model.Session}),
+            {'model': model, 'session': model.Session},
             pkg_dict, schema, 'package_show')
         pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
             cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
@@ -158,7 +158,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context = cast(Context, {'model': model})
+        context: Context = {'model': model}
 
         for tag in tags:
             if tag.get('vocabulary_id'):

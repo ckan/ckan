@@ -1018,7 +1018,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
-    '''Adds new columns and updates column info (stored as comments).
+    '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
     :type resource_id: string
@@ -1038,20 +1038,15 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
-    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
     new_fields: list[dict[str, Any]] = []
+    field_ids: set[str] = set(f['id'] for f in supplied_fields)
+    current_ids: set[str] = set(f['id'] for f in current_fields)
 
-    for num, field in enumerate(supplied_fields):
+    for field in supplied_fields:
         # check to see if field definition is the same or and
         # extension of current fields
-        if num < len(current_fields):
-            if field['id'] != current_fields[num]['id']:
-                raise ValidationError({
-                    'fields': [(u'Supplied field "{0}" not '
-                                u'present or in wrong order').format(
-                        field['id'])]
-                })
+        if field['id'] in current_ids:
             # no need to check type as field already defined.
             continue
 
@@ -1101,6 +1096,11 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
                 info_sql))
+
+    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+            identifier(data_dict['resource_id']),
+            identifier(id_)))
 
     if alter_sql:
         context['connection'].execute(
@@ -1934,26 +1934,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
         select_cols = []
-        records_format = data_dict.get(u'records_format')
+        records_format = data_dict.get('records_format')
         for field_id in field_ids:
-            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
+            fmt = '{0}'
+            if records_format == 'lists':
+                fmt = "coalesce(to_json({0}),'null')"
             typ = fields_types.get(field_id, '')
-            if typ == u'nested':
-                fmt = u'({0}).json'
-            elif typ == u'timestamp':
-                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
-                if records_format == u'lists':
-                    fmt = u"to_json({0})".format(fmt)
-            elif typ.startswith(u'_') or typ.endswith(u'[]'):
-                fmt = u'array_to_json({0})'
+            if typ == 'nested':
+                fmt = "coalesce(({0}).json,'null')"
+            elif typ == 'timestamp':
+                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if records_format == 'lists':
+                    fmt = f"coalesce(to_json({fmt}), 'null')"
+            elif typ.startswith('_') or typ.endswith('[]'):
+                fmt = "coalesce(array_to_json({0}),'null')"
 
             if field_id in rank_columns:
                 select_cols.append((fmt + ' as {1}').format(
                     rank_columns[field_id], identifier(field_id)))
                 continue
 
-            if records_format == u'objects':
-                fmt += u' as {0}'
+            if records_format == 'objects':
+                fmt += ' as {0}'
             select_cols.append(fmt.format(identifier(field_id)))
 
         query_dict['distinct'] = data_dict.get('distinct', False)

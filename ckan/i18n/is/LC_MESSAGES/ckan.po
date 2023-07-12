@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2022
+# Stefan Norda, 2023
 # 
 #, fuzzy
 msgid ""
@@ -13,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-16 11:30+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
-"Language-Team: Icelandic (https://www.transifex.com/okfn/teams/11162/is/)\n"
+"Last-Translator: Stefan Norda, 2023\n"
+"Language-Team: Icelandic (https://app.transifex.com/okfn/teams/11162/is/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -336,7 +337,7 @@ msgstr "Þarf að vera náttúruleg tala"
 
 #: ckan/logic/validators.py:147
 msgid "Must be a positive integer"
-msgstr ""
+msgstr "Þarf að vera jákvæð heiltala"
 
 #: ckan/logic/validators.py:156
 msgid "Must be a float timestamp"
@@ -456,7 +457,7 @@ msgstr "Aðgangsorð þurfa að vera strengir"
 
 #: ckan/logic/validators.py:621
 msgid "Your password must be 8 characters or longer"
-msgstr ""
+msgstr "Aðgangsorðið þitt verður að vera 8 stafir eða lengra"
 
 #: ckan/logic/validators.py:633
 msgid "The passwords you entered do not match"
@@ -1257,7 +1258,7 @@ msgstr "CKAN API"
 
 #: ckan/templates/footer.html:16
 msgid "CKAN Association"
-msgstr ""
+msgstr "CKAN samtökin"
 
 #: ckan/templates/footer.html:24
 msgid ""

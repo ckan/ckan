@@ -125,6 +125,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions: dict[str, Callable[..., Any]] = {}
@@ -366,12 +369,6 @@ def url_for(*args: Any, **kw: Any) -> str:
 
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
-
-    # All API URLs generated should provide the version number
-    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
-        ver = kw.get('ver')
-        if not ver:
-            raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
     try:
@@ -915,26 +912,6 @@ def map_pylons_to_flask_route_name(menu_item: str):
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
-@core_helper
-def build_extra_admin_nav() -> Markup:
-    '''Build extra navigation items used in ``admin/base.html`` for values
-    defined in the config option ``ckan.admin_tabs``. Typically this is
-    populated by extensions.
-
-    :rtype: HTML literal
-
-    '''
-    admin_tabs_dict = config.get('ckan.admin_tabs')
-    output: Markup = literal('')
-    if admin_tabs_dict:
-        for k, v in admin_tabs_dict.items():
-            if v['icon']:
-                output += build_nav_icon(k, v['label'], icon=v['icon'])
-            else:
-                output += build_nav(k, v['label'])
-    return output
-
-
 def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
     ''' build a navigation item used for example breadcrumbs
 
@@ -1238,9 +1215,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {
-        'model': model,
-        'user': current_user.name})
+    context: Context = {'user': current_user.name}
     if not data_dict:
         data_dict = {}
     try:
@@ -1785,7 +1760,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context = cast(Context, {'model': model})
+    context: Context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1818,9 +1793,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     # If the user is logged in show the follow/unfollow button
     user = current_user.name
     if user:
-        context = cast(
-            Context,
-            {'model': model, 'session': model.Session, 'user': user})
+        context: Context = {'user': user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1846,13 +1819,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     return logic.get_action(action)(context, {'id': obj_id})
 
 

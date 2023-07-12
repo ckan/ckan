@@ -12,7 +12,7 @@ import ckan
 import ckan.model as model
 from ckan.logic.schema import update_configuration_schema
 from ckan.common import asbool, config, aslist
-
+from ckan.lib.webassets_tools import is_registered
 
 log = logging.getLogger(__name__)
 
@@ -37,16 +37,10 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_intro_text': {},
     'ckan.site_custom_css': {},
     'ckan.favicon': {}, # default gets set in config.environment.py
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-        # has been setup in load_environment():
+    # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
     'ckan.homepage_style': {'default': '1'},
 
     # split string
@@ -81,10 +75,7 @@ def set_theme(asset: str) -> None:
 
     If asset is not registered, use default theme instead.
     '''
-    from ckan.lib.webassets_tools import env
-
-    assert env
-    if asset not in env:
+    if not is_registered(asset):
         log.error(
             "Asset '%s' does not exist. Fallback to '%s'",
             asset, DEFAULT_THEME_ASSET
