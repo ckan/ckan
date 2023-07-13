@@ -355,7 +355,8 @@ class TestPackageActivityList(object):
         auth_user_obj = model.User.get(user_without_permission["id"])
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": user_without_permission["name"], "auth_user_obj": auth_user_obj},
+            context={
+                "user": user_without_permission["name"], "auth_user_obj": auth_user_obj},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -399,7 +400,8 @@ class TestPackageActivityList(object):
         auth_user_obj = model.User.get(collaborator_user["id"])
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": collaborator_user["name"], "auth_user_obj": auth_user_obj},
+            context={
+                "user": collaborator_user["name"], "auth_user_obj": auth_user_obj},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -1062,6 +1064,7 @@ class TestGroupActivityList(object):
 
     def test_delete_dataset(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         _clear_activities()
@@ -1069,7 +1072,11 @@ class TestGroupActivityList(object):
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        activities = helpers.call_action("group_activity_list", id=group["id"])
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+        )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
         ]
@@ -1099,6 +1106,7 @@ class TestGroupActivityList(object):
 
     def test_delete_dataset_that_used_to_be_in_the_group(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         # remove the dataset from the group
@@ -1116,7 +1124,11 @@ class TestGroupActivityList(object):
         # ideally the dataset's deletion would not show up in its old group
         # but it can't be helped without _group_activity_query getting very
         # complicated
-        activities = helpers.call_action("group_activity_list", id=group["id"])
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+        )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
         ]
@@ -1208,8 +1220,9 @@ class TestOrganizationActivityList(object):
         assert activities[0]["activity_type"] == "changed package"
 
     def test_bulk_delete(self):
-        org = factories.Organization()
-
+        user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
+        org = factories.Organization(user=user)
         dataset1 = factories.Dataset(owner_org=org["id"])
         dataset2 = factories.Dataset(owner_org=org["id"])
 
@@ -1221,7 +1234,9 @@ class TestOrganizationActivityList(object):
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
         )
         assert activities[0]["activity_type"] == "deleted package"
 
@@ -1331,6 +1346,7 @@ class TestOrganizationActivityList(object):
 
     def test_delete_dataset(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1339,7 +1355,9 @@ class TestOrganizationActivityList(object):
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -2255,12 +2273,14 @@ class TestDeferCommitOnCreate(object):
             "user": factories.User()["name"],
         }
 
-        helpers.call_action("organization_create", context=context, **organization_dict)
+        helpers.call_action("organization_create",
+                            context=context, **organization_dict)
 
         model.Session.close()
 
         with pytest.raises(tk.ObjectNotFound):
-            helpers.call_action("organization_show", id=organization_dict["name"])
+            helpers.call_action("organization_show",
+                                id=organization_dict["name"])
 
         assert model.Session.query(Activity).filter(
             Activity.activity_type != "new user").count() == 0
