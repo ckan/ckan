@@ -504,7 +504,7 @@ class TestPackageActivityList(object):
             Activity(
                 user_id=user["id"],
                 object_id=dataset["id"],
-                activity_type=None,
+                activity_type="package",
                 data=None,
             )
             for _ in range(count)

@@ -25,6 +25,7 @@ import ckan.model.types as _types
 from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
 from ckan.types import Context, Query  # noqa
+from ckan.lib.plugins import get_permission_labels
 
 
 __all__ = ["Activity", "ActivityDetail"]
@@ -66,6 +67,9 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         self.user_id = user_id
         self.object_id = object_id
         self.activity_type = activity_type
+        if activity_type and "package" in activity_type:
+            self.permission_labels = get_permission_labels(
+            ).get_dataset_labels(model.Package.get(object_id))
         if data is None:
             self.data = {}
         else:
@@ -812,15 +816,22 @@ def _filter_activities_by_permission_labels(
     """Adds a filter to an existing query object to 
     exclude package activities based on user permissions.
     """
+    print(user_permission_labels)
+    print()
 
     # `user_permission_labels` is None when user is sysadmin
     if user_permission_labels:
+        print(q.all())
+        print()
         # User can access non-package activities since they don't have labels
         q = q.filter(
             or_(
-                not_(Activity.activity_type.endswith("package")),
+                or_(Activity.activity_type == None,
+                    not_(Activity.activity_type.endswith("package"))),
                 Activity.permission_labels.op('&&')(user_permission_labels)
             )
         )
+
+    print(q.all())
 
     return q
