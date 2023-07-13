@@ -20,6 +20,15 @@ from ..model import activity as model_activity, activity_dict_save
 log = logging.getLogger(__name__)
 
 
+def _get_user_permission_labels(
+    context: Context
+):
+    if not authz.is_sysadmin(context.get('user')):
+        return get_permission_labels().get_user_activity_labels(context['auth_user_obj'])
+    else:
+        return None
+
+
 def send_email_notifications(
     context: Context, data_dict: DataDict
 ) -> ActionResult.SendEmailNotifications:
@@ -170,6 +179,7 @@ def user_activity_list(
         offset=offset,
         after=after,
         before=before,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -247,12 +257,6 @@ def package_activity_list(
     after = data_dict.get("after")
     before = data_dict.get("before")
 
-    # Get user permission labels
-    user_permission_labels = []
-    if not authz.is_sysadmin(context.get('user')):
-        user_permission_labels = get_permission_labels().get_user_activity_labels(
-            context['auth_user_obj'])
-
     activity_objects = model_activity.package_activity_list(
         package.id,
         limit=limit,
@@ -262,7 +266,7 @@ def package_activity_list(
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
-        user_permission_labels=user_permission_labels,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -324,7 +328,8 @@ def group_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
-        activity_types=activity_types
+        activity_types=activity_types,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -383,7 +388,8 @@ def organization_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
-        activity_types=activity_types
+        activity_types=activity_types,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -414,7 +420,9 @@ def recently_changed_packages_activity_list(
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
 
     activity_objects = model_activity.recently_changed_packages_activity_list(
-        limit=limit, offset=offset
+        limit=limit,
+        offset=offset,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -460,7 +468,12 @@ def dashboard_activity_list(
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     activity_objects = model_activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset, before=before, after=after
+        user_id,
+        limit=limit,
+        offset=offset,
+        before=before,
+        after=after,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     activity_dicts = model_activity.activity_list_dictize(
