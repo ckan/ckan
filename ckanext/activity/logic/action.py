@@ -24,7 +24,7 @@ def _get_user_permission_labels(
     context: Context
 ):
     if not authz.is_sysadmin(context.get('user')):
-        return get_permission_labels().get_user_activity_labels(
+        return get_permission_labels().get_user_dataset_labels(
             context['auth_user_obj'])
     else:
         return None

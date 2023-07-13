@@ -17,7 +17,6 @@ from . import signals
 from .navl.dictization_functions import validate
 if TYPE_CHECKING:
     from ckan.config.middleware.flask_app import CKANFlask
-from ckanext.activity.model.activity import Activity
 
 log = logging.getLogger(__name__)
 
@@ -657,44 +656,6 @@ class DefaultPermissionLabels(object):
 
         if ckan.authz.check_config_permission('allow_dataset_collaborators'):
             # Add a label for each dataset this user is a collaborator of
-            datasets = logic.get_action('package_collaborator_list_for_user')(
-                {'ignore_auth': True}, {'id': user_obj.id})
-
-            labels.extend('collaborator-%s' % d['package_id'] for d in datasets)
-
-        return labels
-
-    def get_activity_labels(self, activity_obj: Activity) -> list[str]:
-        dataset = model.Package.get(activity_obj.object_id)
-        labels = []
-        if not dataset:
-            return labels
-
-        if dataset.state == u'active' and not dataset.private and ('package' in activity_obj.data and not activity_obj.data['package']['private']):
-            labels.append(u'public')
-
-        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
-            labels.append(u'collaborator-%s' % dataset.id)
-
-        if dataset.owner_org:
-            labels.append(u'member-%s' % dataset.owner_org)
-        else:
-            labels.append(u'creator-%s' % dataset.creator_user_id)
-
-        return labels
-
-    def get_user_activity_labels(self, user_obj: model.User) -> list[str]:
-        labels = [u'public']
-        if not user_obj or user_obj.is_anonymous:
-            return labels
-
-        labels.append(u'creator-%s' % user_obj.id)
-
-        orgs = logic.get_action(u'organization_list_for_user')(
-            {u'user': user_obj.id}, {u'permission': u'read'})
-        labels.extend(u'member-%s' % o[u'id'] for o in orgs)
-
-        if ckan.authz.check_config_permission('allow_dataset_collaborators'):
             datasets = logic.get_action('package_collaborator_list_for_user')(
                 {'ignore_auth': True}, {'id': user_obj.id})
 

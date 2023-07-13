@@ -151,10 +151,8 @@ def activity_show(context: Context, data_dict: DataDict) -> AuthResult:
         # Check permission labels
         user = context.get('user')
         if not authz.is_sysadmin(user):
-            labels = get_permission_labels()
-            user_permission_labels = labels.get_user_activity_labels(
-                context['auth_user_obj'])
-            activity.permission_labels = labels.get_activity_labels(activity)
+            user_permission_labels = get_permission_labels(
+            ).get_user_dataset_labels(context['auth_user_obj'])
 
             if not any(permission in activity.permission_labels
                        for permission in user_permission_labels):
