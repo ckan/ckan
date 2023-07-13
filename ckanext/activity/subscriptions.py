@@ -104,7 +104,9 @@ def package_changed(sender: str, **kwargs: Any):
     activity = Activity.activity_stream_item(pkg, type_, user_id)
 
     # Set activity permission labels
-    activity.permission_labels = get_permission_labels().get_activity_labels(activity)
+    if activity:
+        activity.permission_labels = get_permission_labels(
+        ).get_activity_labels(activity)
 
     context["session"].add(activity)
     if not context.get("defer_commit"):
