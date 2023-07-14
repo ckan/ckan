@@ -1838,7 +1838,7 @@ class TestDashboardNewActivities(object):
             "changed group",
             "deleted group",
         ]
-        assert [activity["is_new"] for activity in activities] == [True] * 6
+        assert [activity["is_new"] for activity in activities] == [True] * 5
         assert (
             helpers.call_action(
                 "dashboard_new_activities_count", context={"user": user["id"]}
