@@ -1487,10 +1487,13 @@ class TestOrganizationActivityList(object):
 class TestRecentlyChangedPackagesActivityList:
     def test_create_dataset(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Dataset(user=user)
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
@@ -1501,6 +1504,7 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
@@ -1511,7 +1515,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package",
@@ -1527,6 +1533,7 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset_add_extra(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1536,7 +1543,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1547,6 +1556,7 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1556,7 +1566,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1567,6 +1579,7 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_delete_dataset(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1575,7 +1588,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1588,11 +1603,12 @@ class TestRecentlyChangedPackagesActivityList:
         from ckan import model
 
         user = factories.User()
+        dataset = factories.Dataset(user=user)
 
         objs = [
             Activity(
                 user_id=user["id"],
-                object_id=None,
+                object_id=dataset["id"],
                 activity_type="new_package",
                 data=None,
             )
@@ -1600,28 +1616,36 @@ class TestRecentlyChangedPackagesActivityList:
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
+        return user
 
     def test_limit_default(self):
-        self._create_bulk_package_activities(35)
+        user = self._create_bulk_package_activities(35)
+        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
-            "recently_changed_packages_activity_list"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
-        self._create_bulk_package_activities(7)
+        user = self._create_bulk_package_activities(7)
+        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
-            "recently_changed_packages_activity_list"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
-        self._create_bulk_package_activities(9)
+        user = self._create_bulk_package_activities(9)
+        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
-            "recently_changed_packages_activity_list", limit="9"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
@@ -1742,6 +1766,7 @@ class TestDashboardNewActivities(object):
     def test_users_own_activities(self):
         # a user's own activities are not shown as "new"
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
@@ -1760,7 +1785,8 @@ class TestDashboardNewActivities(object):
         )
 
         new_activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
+            "dashboard_activity_list",
+            context={"user": user["id"], "auth_user_obj": auth_user_obj}
         )
         assert [activity["is_new"] for activity in new_activities] == [
             False
@@ -1772,12 +1798,13 @@ class TestDashboardNewActivities(object):
 
     def test_activities_by_a_followed_user(self):
         user = factories.User()
+        auth_user_obj = model.User.get(user["id"])
         followed_user = factories.User()
         helpers.call_action(
             "follow_user", context={"user": user["name"]}, **followed_user
         )
         _clear_activities()
-        dataset = factories.Dataset(user=followed_user)
+        dataset = factories.Dataset(user=followed_user, private=False)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
             "package_update",
@@ -1799,14 +1826,14 @@ class TestDashboardNewActivities(object):
         )
 
         activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
+            "dashboard_activity_list",
+            context={"user": user["id"], "auth_user_obj": auth_user_obj}
         )
         assert [
             activity["activity_type"] for activity in activities[::-1]
         ] == [
             "new package",
             "changed package",
-            "deleted package",
             "new group",
             "changed group",
             "deleted group",
@@ -1816,7 +1843,7 @@ class TestDashboardNewActivities(object):
             helpers.call_action(
                 "dashboard_new_activities_count", context={"user": user["id"]}
             )
-            == 6
+            == 5
         )
 
     def test_activities_on_a_followed_dataset(self):
