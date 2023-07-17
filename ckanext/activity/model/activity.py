@@ -61,15 +61,14 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         object_id: str,
         activity_type: str,
         data: Optional[dict[str, Any]] = None,
+        permission_labels: Optional[list[str]] = None
     ) -> None:
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
         self.object_id = object_id
         self.activity_type = activity_type
-        if activity_type and "package" in activity_type:
-            self.permission_labels = get_permission_labels(
-            ).get_dataset_labels(model.Package.get(object_id))
+        self.permission_labels = permission_labels
         if data is None:
             self.data = {}
         else:
@@ -110,6 +109,9 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
                 # Emit a 'deleted' activity for this object.
                 activity_type = "deleted"
 
+        # Set activity permission labels
+        permission_labels = get_permission_labels().get_dataset_labels(pkg)
+
         try:
             # We save the entire rendered package dict so we can support
             # viewing the past packages from the activity feed.
@@ -140,6 +142,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
                 # properly displayed even if the user is deleted in the future.
                 "actor": actor.name if actor else None,
             },
+            permission_labels
         )
 
 

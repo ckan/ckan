@@ -18,6 +18,7 @@ from .navl.dictization_functions import validate
 if TYPE_CHECKING:
     from ckan.config.middleware.flask_app import CKANFlask
 
+
 log = logging.getLogger(__name__)
 
 PackagePlugin = TypeVar('PackagePlugin')
