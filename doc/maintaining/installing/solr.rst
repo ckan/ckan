@@ -36,7 +36,7 @@ follow the `official Solr documentation <https://solr.apache.org/guide/solr/late
 
 #. Install the OS dependencies::
 
-      sudo apt-get install openjdk-8-jdk
+      sudo apt-get install openjdk-11-jdk
 
 #. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 9.x (recommended) and 8.x.
 
