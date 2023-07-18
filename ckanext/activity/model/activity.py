@@ -825,9 +825,10 @@ def _filter_activities_by_permission_labels(
         # User can access non-package activities since they don't have labels
         q = q.filter(
             or_(
-                or_(Activity.activity_type.is_(None), # type: ignore
+                or_(Activity.activity_type.is_(None),  # type: ignore
                     not_(Activity.activity_type.endswith("package"))),
-                Activity.permission_labels.op('&&')(user_permission_labels) # type: ignore
+                Activity.permission_labels.op('&&')(  # type: ignore
+                    user_permission_labels)
             )
         )
 
