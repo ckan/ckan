@@ -821,7 +821,7 @@ def _filter_activities_by_permission_labels(
     """
 
     # `user_permission_labels` is None when user is sysadmin
-    if user_permission_labels:
+    if user_permission_labels is not None:
         # User can access non-package activities since they don't have labels
         q = q.filter(
             or_(
