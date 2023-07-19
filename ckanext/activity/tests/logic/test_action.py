@@ -2131,6 +2131,98 @@ class TestDashboardNewActivities(object):
             == 5
         )
 
+    def test_private_dataset_activities_not_visible_to_users_without_permission(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        another_user = factories.User()
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            "follow_dataset", context={"user": another_user["name"]}, **dataset
+        )
+
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": another_user["id"]}
+        )
+        assert dashboard_count == 1
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visible_to_users_with_permission(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["notes"] = "notes"
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to organization members
+        helpers.call_action(
+            "follow_dataset", context={"user": org_user["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": org_user["id"]}
+        )
+        assert dashboard_count == 2
+
+        # Visible to collaborators
+        helpers.call_action(
+            "follow_dataset", context={"user": collaborator_user["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": collaborator_user["id"]}
+        )
+        assert dashboard_count == 2
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
