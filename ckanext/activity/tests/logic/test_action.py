@@ -356,7 +356,7 @@ class TestPackageActivityList(object):
             id=dataset["id"]
         )
         assert [activity["activity_type"]
-                for activity in activities] == ['changed package']
+                for activity in activities] == ["changed package"]
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
     def test_private_dataset_activities_visible_to_users_with_permission(self):
@@ -389,7 +389,7 @@ class TestPackageActivityList(object):
             id=dataset["id"]
         )
         assert [activity["activity_type"]
-                for activity in activities] == ['new package']
+                for activity in activities] == ["new package"]
 
         # Visible to collaborators
         activities = helpers.call_action(
@@ -399,7 +399,7 @@ class TestPackageActivityList(object):
             id=dataset["id"]
         )
         assert [activity["activity_type"]
-                for activity in activities] == ['new package']
+                for activity in activities] == ["new package"]
 
     def test_private_dataset_delete_has_activity(self):
         user = factories.User()
@@ -1694,6 +1694,74 @@ class TestRecentlyChangedPackagesActivityList:
             limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
+
+    def test_private_dataset_activities_not_visible_to_users_without_permission(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+
+        another_user = factories.User()
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visible_to_users_with_permission(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["notes"] = "notes"
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
