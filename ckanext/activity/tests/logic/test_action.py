@@ -297,7 +297,6 @@ class TestPackageActivityList(object):
     def test_delete_dataset(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
-        auth_user_obj = model.User.get(user["id"])
         _clear_activities()
 
         helpers.call_action(
@@ -306,7 +305,7 @@ class TestPackageActivityList(object):
 
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"] for activity in activities] == [
@@ -318,7 +317,6 @@ class TestPackageActivityList(object):
 
     def test_private_dataset_has_activity(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(
@@ -331,7 +329,7 @@ class TestPackageActivityList(object):
 
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -352,11 +350,9 @@ class TestPackageActivityList(object):
         )
 
         user_without_permission = factories.User()
-        auth_user_obj = model.User.get(user_without_permission["id"])
         activities = helpers.call_action(
             "package_activity_list",
-            context={
-                "user": user_without_permission["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user_without_permission["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -387,21 +383,19 @@ class TestPackageActivityList(object):
         )
 
         # Visible to organization members
-        auth_user_obj = model.User.get(org_user["id"])
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": org_user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": org_user["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
                 for activity in activities] == ['new package']
 
         # Visible to collaborators
-        auth_user_obj = model.User.get(collaborator_user["id"])
         activities = helpers.call_action(
             "package_activity_list",
             context={
-                "user": collaborator_user["name"], "auth_user_obj": auth_user_obj},
+                "user": collaborator_user["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -409,7 +403,6 @@ class TestPackageActivityList(object):
 
     def test_private_dataset_delete_has_activity(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(
@@ -421,7 +414,7 @@ class TestPackageActivityList(object):
 
         activities = helpers.call_action(
             "package_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             id=dataset["id"]
         )
         assert [activity["activity_type"]
@@ -464,12 +457,11 @@ class TestPackageActivityList(object):
             "new package",
         ]
         id, user = self._create_bulk_types_activities(types)
-        auth_user_obj = model.User.get(user["id"])
 
         activities_new = helpers.call_action(
             "package_activity_list",
             id=id,
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             activity_types=["new package"]
         )
         assert len(activities_new) == 3
@@ -477,7 +469,7 @@ class TestPackageActivityList(object):
         activities_not_new = helpers.call_action(
             "package_activity_list",
             id=id,
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             exclude_activity_types=["new package"],
         )
         assert len(activities_not_new) == 3
@@ -485,7 +477,7 @@ class TestPackageActivityList(object):
         activities_delete = helpers.call_action(
             "package_activity_list",
             id=id,
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             activity_types=["deleted package"]
         )
         assert len(activities_delete) == 1
@@ -493,7 +485,7 @@ class TestPackageActivityList(object):
         activities_not_deleted = helpers.call_action(
             "package_activity_list",
             id=id,
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             exclude_activity_types=["deleted package"],
         )
         assert len(activities_not_deleted) == 5
@@ -519,11 +511,10 @@ class TestPackageActivityList(object):
 
     def test_limit_default(self):
         id, user = self._create_bulk_package_activities(35)
-        auth_user_obj = model.User.get(user["id"])
 
         results = helpers.call_action(
             "package_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             id=id
         )
         assert len(results) == 31  # i.e. default value
@@ -531,11 +522,10 @@ class TestPackageActivityList(object):
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
         id, user = self._create_bulk_package_activities(7)
-        auth_user_obj = model.User.get(user["id"])
 
         results = helpers.call_action(
             "package_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             id=id
         )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
@@ -544,12 +534,11 @@ class TestPackageActivityList(object):
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
         id, user = self._create_bulk_package_activities(9)
-        auth_user_obj = model.User.get(user["id"])
 
         results = helpers.call_action(
             "package_activity_list",
             id=id,
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
@@ -950,7 +939,6 @@ class TestUserActivityList(object):
 
     def test_private_dataset_activities_not_visible_to_users_without_permission(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         another_user = factories.User()
         org = factories.Organization(user=another_user)
         _clear_activities()
@@ -963,7 +951,7 @@ class TestUserActivityList(object):
         activities = helpers.call_action(
             "user_activity_list",
             id=another_user["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
 
         assert [activity["activity_type"]
@@ -998,22 +986,19 @@ class TestUserActivityList(object):
         )
 
         # Visible to organization members
-        auth_user_obj = model.User.get(org_user["id"])
         activities = helpers.call_action(
             "user_activity_list",
             id=user["id"],
-            context={"user": org_user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": org_user["name"]}
         )
         assert [activity["activity_type"]
                 for activity in activities] == ["changed package", "new package"]
 
         # Visible to collaborators
-        auth_user_obj = model.User.get(collaborator_user["id"])
         activities = helpers.call_action(
             "user_activity_list",
             id=user["id"],
-            context={
-                "user": collaborator_user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": collaborator_user["name"]}
         )
         assert [activity["activity_type"]
                 for activity in activities] == ["changed package", "new package"]
@@ -1136,7 +1121,6 @@ class TestGroupActivityList(object):
 
     def test_delete_dataset(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         _clear_activities()
@@ -1147,7 +1131,7 @@ class TestGroupActivityList(object):
         activities = helpers.call_action(
             "group_activity_list",
             id=group["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1178,7 +1162,6 @@ class TestGroupActivityList(object):
 
     def test_delete_dataset_that_used_to_be_in_the_group(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         # remove the dataset from the group
@@ -1199,7 +1182,7 @@ class TestGroupActivityList(object):
         activities = helpers.call_action(
             "group_activity_list",
             id=group["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1293,7 +1276,6 @@ class TestOrganizationActivityList(object):
 
     def test_bulk_delete(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset1 = factories.Dataset(owner_org=org["id"])
         dataset2 = factories.Dataset(owner_org=org["id"])
@@ -1308,7 +1290,7 @@ class TestOrganizationActivityList(object):
         activities = helpers.call_action(
             "organization_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
         )
         assert activities[0]["activity_type"] == "deleted package"
 
@@ -1418,7 +1400,6 @@ class TestOrganizationActivityList(object):
 
     def test_delete_dataset(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1429,7 +1410,7 @@ class TestOrganizationActivityList(object):
         activities = helpers.call_action(
             "organization_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1559,13 +1540,12 @@ class TestOrganizationActivityList(object):
 class TestRecentlyChangedPackagesActivityList:
     def test_create_dataset(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Dataset(user=user)
 
         activities = helpers.call_action(
             "recently_changed_packages_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
@@ -1576,7 +1556,6 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         _clear_activities()
         dataset = factories.Dataset(owner_org=org["id"], user=user)
@@ -1589,7 +1568,7 @@ class TestRecentlyChangedPackagesActivityList:
         activities = helpers.call_action(
             "recently_changed_packages_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package",
@@ -1605,7 +1584,6 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset_add_extra(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1617,7 +1595,7 @@ class TestRecentlyChangedPackagesActivityList:
         activities = helpers.call_action(
             "recently_changed_packages_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1628,7 +1606,6 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_change_dataset_add_tag(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1640,7 +1617,7 @@ class TestRecentlyChangedPackagesActivityList:
         activities = helpers.call_action(
             "recently_changed_packages_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1651,7 +1628,6 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_delete_dataset(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
@@ -1662,7 +1638,7 @@ class TestRecentlyChangedPackagesActivityList:
         activities = helpers.call_action(
             "organization_activity_list",
             id=org["id"],
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1693,20 +1669,18 @@ class TestRecentlyChangedPackagesActivityList:
 
     def test_limit_default(self):
         user = self._create_bulk_package_activities(35)
-        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
             "recently_changed_packages_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
         user = self._create_bulk_package_activities(7)
-        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
             "recently_changed_packages_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj}
+            context={"user": user["name"]}
         )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
@@ -1714,10 +1688,9 @@ class TestRecentlyChangedPackagesActivityList:
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
         user = self._create_bulk_package_activities(9)
-        auth_user_obj = model.User.get(user["id"])
         results = helpers.call_action(
             "recently_changed_packages_activity_list",
-            context={"user": user["name"], "auth_user_obj": auth_user_obj},
+            context={"user": user["name"]},
             limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
@@ -1839,7 +1812,6 @@ class TestDashboardNewActivities(object):
     def test_users_own_activities(self):
         # a user's own activities are not shown as "new"
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         dataset = factories.Dataset(user=user)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
@@ -1859,7 +1831,7 @@ class TestDashboardNewActivities(object):
 
         new_activities = helpers.call_action(
             "dashboard_activity_list",
-            context={"user": user["id"], "auth_user_obj": auth_user_obj}
+            context={"user": user["id"]}
         )
         assert [activity["is_new"] for activity in new_activities] == [
             False
@@ -1871,7 +1843,6 @@ class TestDashboardNewActivities(object):
 
     def test_activities_by_a_followed_user(self):
         user = factories.User()
-        auth_user_obj = model.User.get(user["id"])
         followed_user = factories.User()
         helpers.call_action(
             "follow_user", context={"user": user["name"]}, **followed_user
@@ -1900,7 +1871,7 @@ class TestDashboardNewActivities(object):
 
         activities = helpers.call_action(
             "dashboard_activity_list",
-            context={"user": user["id"], "auth_user_obj": auth_user_obj}
+            context={"user": user["id"]}
         )
         assert [
             activity["activity_type"] for activity in activities[::-1]

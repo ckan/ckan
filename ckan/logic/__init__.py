@@ -347,11 +347,12 @@ def check_access(action: str,
         context['auth_user_obj'] = None
 
     context = _prepopulate_context(context)
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.get(context['user'])
-            context['__auth_user_obj_checked'] = True
+
+    if not context.get('__auth_user_obj_checked'):
+        if context["user"] and not context["auth_user_obj"]:
+            context['auth_user_obj'] = model.User.get(context['user'])
+        context['__auth_user_obj_checked'] = True
+
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
