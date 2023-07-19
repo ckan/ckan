@@ -418,7 +418,11 @@ def recently_changed_packages_activity_list(
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
 
-    tk.check_access("recently_changed_packages_activity_list", context, data_dict)
+    tk.check_access(
+        "recently_changed_packages_activity_list",
+        context,
+        data_dict
+    )
 
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
