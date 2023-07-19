@@ -1253,6 +1253,81 @@ class TestGroupActivityList(object):
             "new group"
         ]
 
+    def test_private_dataset_activities_not_visible_to_users_without_permission(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+        org = factories.Organization(user=user)
+        another_user = factories.User()
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True,
+            groups=[{"id": group["id"]}]
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visible_to_users_with_permission(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        group = factories.Group(user=user)
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True,
+            groups=[{"id": group["id"]}]
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("clean_db", "with_plugins")
