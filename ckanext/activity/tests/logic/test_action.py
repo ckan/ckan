@@ -966,8 +966,8 @@ class TestUserActivityList(object):
             context={"user": user["name"], "auth_user_obj": auth_user_obj}
         )
 
-        assert len(activities) == 1
-        assert activities[0]["activity_type"] == "changed package"
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
 
     @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
     def test_private_dataset_activities_visible_to_users_with_permission(self):
@@ -1004,7 +1004,6 @@ class TestUserActivityList(object):
             id=user["id"],
             context={"user": org_user["name"], "auth_user_obj": auth_user_obj}
         )
-        assert len(activities) == 2
         assert [activity["activity_type"]
                 for activity in activities] == ["changed package", "new package"]
 
@@ -1016,7 +1015,6 @@ class TestUserActivityList(object):
             context={
                 "user": collaborator_user["name"], "auth_user_obj": auth_user_obj}
         )
-        assert len(activities) == 2
         assert [activity["activity_type"]
                 for activity in activities] == ["changed package", "new package"]
 
