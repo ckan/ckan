@@ -307,6 +307,30 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    def test_remove_columns(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_b", "type": "text"},
+                {"id": "col_c", "type": "text"},
+                {"id": "col_d", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == ['col_a', 'col_c']
 
 
 class TestDatastoreCreate(object):
@@ -1124,43 +1148,6 @@ class TestDatastoreCreate(object):
             u"timestamp",  # date2
             u"nested",  # count3
         ], types
-
-        ### fields resupplied in wrong order
-
-        data = {
-            "resource_id": resource.id,
-            "fields": [
-                {"id": "author", "type": "text"},
-                {"id": "count"},
-                {"id": "date"},  # date and book in wrong order
-                {"id": "book"},
-                {"id": "count2"},
-                {"id": "extra", "type": "text"},
-                {"id": "date2"},
-            ],
-            "records": [
-                {
-                    "book": "annakarenina",
-                    "author": "tolstoy",
-                    "count": 1,
-                    "date": "2005-12-01",
-                    "count2": 2,
-                    "count3": 432,
-                    "date2": "2005-12-01",
-                }
-            ],
-        }
-
-        headers = {"Authorization": self.sysadmin_token}
-        res = app.post(
-            "/api/action/datastore_create",
-            json=data,
-            headers=headers,
-            status=409,
-        )
-        res_dict = json.loads(res.data)
-
-        assert res_dict["success"] is False
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
