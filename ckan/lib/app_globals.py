@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import logging
-import re
 from threading import Lock
 from typing import Any, Union
 from packaging.version import parse as parse_version
