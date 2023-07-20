@@ -680,12 +680,12 @@ def set_datastore_active_flag(
 
     # copied from ckan.lib.search.rebuild
     # using validated packages can cause solr errors.
-    context = cast(Context, {
+    context = {
         'model': model,
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
-    })
+    }
 
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
