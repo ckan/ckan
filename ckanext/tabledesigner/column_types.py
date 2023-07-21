@@ -74,7 +74,7 @@ class IntegerColumn(ColumnType):
     label = _('Integer')
     description = _('Whole numbers with no decimal')
     example = '21'
-    datastore_type = 'int8'
+    datastore_type = 'int4'
     table_scema_type = 'integer'
 
 
@@ -94,3 +94,6 @@ class JSONColumn(ColumnType):
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
+
+
+_standard_column_types['int4'] = _standard_column_types['integer']
