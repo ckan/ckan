@@ -180,3 +180,45 @@ tabledesigner.add_url_rule(
     '/dataset/<id>/tabledesigner/<resource_id>/edit-row',
     view_func=_TableDesignerEditRow.as_view('edit_row'),
 )
+
+class _TableDesignerDeleteRows(MethodView):
+    def get(self, id, resource_id):
+        _datastore_view = DictionaryView()
+        data_dict = _datastore_view._prepare(id, resource_id)
+        _ids = request.params.getlist('_id')
+
+        try:
+            r = get_action('datastore_search')(
+                None, {
+                    'resource_id': resource_id,
+                    'filters': {'_id': _ids},
+                }
+            )
+        except NotAuthorized:
+            return base.abort(403, _('Not authorized to see this page'))
+        if len(r['records']) != len(_ids):
+            return base.abort(404, _('Row(s) not found'))
+        data_dict['records'] = r['records']
+        return render('tabledesigner/delete_rows.html', data_dict)
+
+    def post(self, id, resource_id):
+        _datastore_view = DictionaryView()
+        data_dict = _datastore_view._prepare(id, resource_id)
+        _ids = request.params.getlist('_id')
+
+        try:
+            r = get_action('datastore_delete')(
+                None, {
+                    'resource_id': resource_id,
+                    'filters': {'_id': _ids},
+                    'force': True,  # FIXME: don't require this for tabledesigner tables
+                }
+            )
+        except NotAuthorized:
+            return base.abort(403, _('Not authorized to see this page'))
+        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+
+tabledesigner.add_url_rule(
+    '/dataset/<id>/tabledesigner/<resource_id>/delete-rows',
+    view_func=_TableDesignerDeleteRows.as_view('delete_rows'),
+)
