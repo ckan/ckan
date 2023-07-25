@@ -1180,7 +1180,7 @@ class TestDatastoreCreate(object):
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"
-        assert res_dict["error"]["message"].startswith("The data was invalid")
+        assert 'invalid input syntax for type numeric' in str(res_dict["error"])
 
 
 
