@@ -1185,11 +1185,6 @@ groups:
 
           .. note:: This info only shows if debug is set to True.
 
-      - key: ckan.homepage_style
-        default: "1"
-        description: Pre-configured homepage style to use. Allowed values are 1, 2 or 3.
-        editable: true
-
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true

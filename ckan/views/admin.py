@@ -34,28 +34,11 @@ def _get_sysadmins() -> "Query[model.User]":
     return q
 
 
-def _get_config_options() -> dict[str, list[dict[str, str]]]:
-    homepages = [{
-        u'value': u'1',
-        u'text': (u'Introductory area, search, featured'
-                  u' group and featured organization')
-    }, {
-        u'value': u'2',
-        u'text': (u'Search, stats, introductory area, '
-                  u'featured organization and featured group')
-    }, {
-        u'value': u'3',
-        u'text': u'Search, introductory area and stats'
-    }]
-
-    return dict(homepages=homepages)
-
-
 def _get_config_items() -> list[str]:
     return [
-        u'ckan.site_title', u'ckan.theme', u'ckan.site_description',
-        u'ckan.site_logo', u'ckan.site_about', u'ckan.site_intro_text',
-        u'ckan.site_custom_css', u'ckan.homepage_style'
+        'ckan.site_title', 'ckan.theme', 'ckan.site_description',
+        'ckan.site_logo', 'ckan.site_about', 'ckan.site_intro_text',
+        'ckan.site_custom_css'
     ]
 
 
@@ -93,13 +76,12 @@ class ResetConfigView(MethodView):
 
 class ConfigView(MethodView):
     def get(self) -> str:
-        items = _get_config_options()
         schema = ckan.logic.schema.update_configuration_schema()
         data = {}
         for key in schema:
             data[key] = config.get(key)
 
-        vars: dict[str, Any] = dict(data=data, errors={}, **items)
+        vars: dict[str, Any] = dict(data=data, errors={})
 
         return base.render(u'admin/config.html', extra_vars=vars)
 
@@ -119,15 +101,12 @@ class ConfigView(MethodView):
             }, data_dict)
 
         except logic.ValidationError as e:
-            items = _get_config_options()
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
             vars = dict(data=data,
                         errors=errors,
-                        error_summary=error_summary,
-                        form_items=items,
-                        **items)
+                        error_summary=error_summary)
             return base.render(u'admin/config.html', extra_vars=vars)
 
         return h.redirect_to(u'admin.config')
