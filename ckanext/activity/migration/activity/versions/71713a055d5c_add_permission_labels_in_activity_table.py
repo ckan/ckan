@@ -2,9 +2,9 @@
 
 """Add permission labels in activity table
 
-Revision ID: 21d03ed1e1ca
-Revises: 9f33a0280c51
-Create Date: 2023-04-26 14:06:05.086247
+Revision ID: 71713a055d5c
+Revises: 
+Create Date: 2023-07-26 05:35:58.228599
 
 """
 from alembic import op
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '21d03ed1e1ca'
-down_revision = '9f33a0280c51'
+revision = '71713a055d5c'
+down_revision = None
 branch_labels = None
 depends_on = None
 
