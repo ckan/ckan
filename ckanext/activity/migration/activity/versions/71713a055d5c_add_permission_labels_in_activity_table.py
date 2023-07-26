@@ -3,7 +3,7 @@
 """Add permission labels in activity table
 
 Revision ID: 71713a055d5c
-Revises: 
+Revises:
 Create Date: 2023-07-26 05:35:58.228599
 
 """
