@@ -264,7 +264,7 @@ class TestGroupDictize:
         context = {
             "model": model,
             "session": model.Session,
-            "dataset_counts": model_dictize.get_group_dataset_counts(),
+            "dataset_counts": model_dictize.get_group_dataset_counts({}),
         }
 
         group = model_dictize.group_dictize(
@@ -308,7 +308,7 @@ class TestGroupDictize:
         context = {
             "model": model,
             "session": model.Session,
-            "dataset_counts": model_dictize.get_group_dataset_counts(),
+            "dataset_counts": model_dictize.get_group_dataset_counts({}),
         }
 
         org = model_dictize.group_dictize(
