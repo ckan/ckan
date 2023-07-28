@@ -14,6 +14,8 @@ import ckan.tests.factories as factories
 
 from ckanext.activity.model.activity import Activity, package_activity_list
 
+from sqlalchemy import inspect
+
 
 def _clear_activities():
     from ckan import model
@@ -27,6 +29,14 @@ def _seconds_since_timestamp(timestamp, format_):
     now = datetime.datetime.utcnow()
     assert now > dt  # we assume timestamp is not in the future
     return (now - dt).total_seconds()
+
+
+@pytest.fixture(autouse=True, scope="function")
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+def apply_migrations(clean_db, with_plugins, migrate_db_for):
+    migrate_db_for("activity")
+    columns = inspect(model.Session.bind).get_columns("activity")
+    assert "permission_labels" in [c["name"] for c in columns]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")

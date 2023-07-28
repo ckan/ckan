@@ -14,10 +14,20 @@ from ckan.tests import factories, helpers
 from ckanext.activity.model import Activity, activity as activity_model
 from ckanext.activity.logic.validators import object_id_validators
 
+from sqlalchemy import inspect
+
 
 def _clear_activities():
     model.Session.query(Activity).delete()
     model.Session.flush()
+
+
+@pytest.fixture(autouse=True, scope="function")
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+def apply_migrations(clean_db, with_plugins, migrate_db_for):
+    migrate_db_for("activity")
+    columns = inspect(model.Session.bind).get_columns("activity")
+    assert "permission_labels" in [c["name"] for c in columns]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
@@ -151,8 +161,8 @@ class TestOrganization(object):
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -160,7 +170,8 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
@@ -256,7 +267,6 @@ class TestUser:
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-
         user = factories.UserWithToken()
         dataset = factories.Dataset(user=user)
         _clear_activities()
@@ -560,8 +570,8 @@ class TestPackage:
         assert len(activities) == 1
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -569,7 +579,8 @@ class TestPackage:
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
@@ -821,7 +832,8 @@ class TestPackage:
         assert older_activities_url_url in response.body
 
         # Prev page button is not in the first page
-        newer_activities_url_url = "/dataset/activity/{}?after=".format(dataset["id"])
+        newer_activities_url_url = "/dataset/activity/{}?after=".format(
+            dataset["id"])
         assert newer_activities_url_url not in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
@@ -894,7 +906,8 @@ class TestPackage:
         )
 
         # There's not a third page
-        older_activities_url_url = "/dataset/activity/{}?before=".format(dataset["name"])
+        older_activities_url_url = "/dataset/activity/{}?before=".format(
+            dataset["name"])
         assert older_activities_url_url not in response.body
 
         # previous page exists
@@ -1036,7 +1049,7 @@ class TestGroup:
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         _clear_activities()
@@ -1045,7 +1058,8 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
