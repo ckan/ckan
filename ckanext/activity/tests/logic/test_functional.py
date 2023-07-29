@@ -4,9 +4,20 @@ import pytest
 
 from bs4 import BeautifulSoup
 
+from ckan import model
 import ckan.plugins.toolkit as tk
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+
+from sqlalchemy import inspect
+
+
+@pytest.fixture(autouse=True, scope="function")
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+def apply_activity_migrations(clean_db, with_plugins, migrate_db_for):
+    migrate_db_for("activity")
+    columns = inspect(model.Session.bind).get_columns("activity")
+    assert "permission_labels" in [c["name"] for c in columns]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
