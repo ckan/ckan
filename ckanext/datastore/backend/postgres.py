@@ -36,7 +36,7 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, DatabaseError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -46,7 +46,6 @@ from ckanext.datastore.backend import (
     DatastoreException,
     _parse_sort_clause
 )
-from ckanext.datastore.backend import InvalidDataError
 
 log = logging.getLogger(__name__)
 
@@ -1108,11 +1107,6 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
-    """
-
-    :raises InvalidDataError: if there is an invalid value in the given data
-
-    """
     data_dict['method'] = _INSERT
     result = upsert_data(context, data_dict)
     return result
@@ -1156,11 +1150,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError as err:
-            raise InvalidDataError(
-                toolkit._("The data was invalid: {}"
-                          ).format(_programming_error_summary(err)))
-        except sqlalchemy.exc.DatabaseError as err:
+        except (DatabaseError, DataError) as err:
             raise ValidationError(
                 {u'records': [_programming_error_summary(err)]})
 
@@ -2007,8 +1997,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         nor can the ordering of them be changed. They can be extended though.
         Any error results in total failure! For now pass back the actual error.
         Should be transactional.
-        :raises InvalidDataError: if there is an invalid value in the given
-                                  data
         '''
         engine = get_write_engine()
         context['connection'] = engine.connect()

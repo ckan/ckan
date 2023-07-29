@@ -13409,54 +13409,14 @@ td.diff_header {
   float: left;
   margin: 5px 10px 0 0;
 }
-.homepage .module-stats {
-  margin-top: 1rem;
-  color: #444;
-}
-.homepage .module-stats .card {
-  padding: 1.5rem 1.75rem;
-}
-.homepage .module-stats .card ul {
-  margin: 0;
-  list-style: none;
-  padding: 0;
-}
-.homepage .module-stats .card ul::after {
-  display: block;
-  clear: both;
-  content: "";
-}
-.homepage .module-stats .card ul li {
-  float: left;
-  width: 25%;
-  font-weight: 300;
-}
-.homepage .module-stats .card ul li a {
-  display: block;
-}
-.homepage .module-stats .card ul li a b {
-  display: block;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-.homepage .module-stats .card ul li a:hover {
-  text-decoration: none;
-}
 .homepage .module-feeds {
   padding: 2rem 0;
   background: #eee url("../../../base/images/bg.png");
-}
-.homepage .module-feeds .module-stats {
-  margin-top: 0;
 }
 
 @media (max-width: 767.98px) {
   .homepage .module-search {
     margin-top: 0.5rem;
-  }
-  .homepage .module-stats {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
   }
   .homepage .module-feeds .card {
     margin-top: 1rem;

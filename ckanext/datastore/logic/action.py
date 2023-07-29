@@ -15,9 +15,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.backend import (
-    DatastoreBackend, InvalidDataError
-)
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.backend.postgres import identifier
 
 log = logging.getLogger(__name__)
@@ -156,10 +154,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    try:
-        result = backend.create(context, data_dict)
-    except InvalidDataError as err:
-        raise p.toolkit.ValidationError({'message': str(err)})
+    result = backend.create(context, data_dict)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
@@ -680,12 +675,12 @@ def set_datastore_active_flag(
 
     # copied from ckan.lib.search.rebuild
     # using validated packages can cause solr errors.
-    context = cast(Context, {
+    context = {
         'model': model,
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
-    })
+    }
 
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
