@@ -14,6 +14,16 @@ import ckan.tests.helpers as helpers
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
 
+from sqlalchemy import inspect
+
+
+@pytest.fixture(autouse=True, scope="function")
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+def apply_activity_migrations(clean_db, with_plugins, migrate_db_for):
+    migrate_db_for("activity")
+    columns = inspect(model.Session.bind).get_columns("activity")
+    assert "permission_labels" in [c["name"] for c in columns]
+
 
 class TestDatastoreSearch(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
