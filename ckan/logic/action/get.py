@@ -1942,7 +1942,8 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
-
+        # get tracking_enabled bool value
+        tracking_enabled = config.get('ckan.tracking_enabled',False)
         if result_fl:
             for package in query.results:
                 if isinstance(package, str):
@@ -1958,6 +1959,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
+                    # add tracking summary in package_dict
+                    if tracking_enabled:
+                       # add page-view tracking summary data
+                       package_dict['tracking_summary'] = (model.TrackingSummary.get_for_package(package_dict['id']))
                     if context.get('for_view'):
                         for item in plugins.PluginImplementations(
                                 plugins.IPackageController):
