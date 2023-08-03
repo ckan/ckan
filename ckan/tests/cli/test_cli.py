@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from configparser import InterpolationMissingOptionError
+from configparser import (
+    InterpolationMissingOptionError,
+    InterpolationSyntaxError,
+)
 import pytest
 import os
 
@@ -130,6 +133,16 @@ def test_other_env_vars_ignored(monkeypatch):
         os.path.dirname(__file__), u'data', u'test-no-env-var.ini')
     monkeypatch.setenv("TEST_ENV_VAR", "value")
     with pytest.raises(InterpolationMissingOptionError):
+        CKANConfigLoader(filename).get_config()
+
+
+def test_parser_syntax_error():
+    """ConfigParser do not expected "%" in the value.
+    You should use "%%" to escape "%" in the value.
+    """
+    filename = os.path.join(
+        os.path.dirname(__file__), u'data', u'test-parser-syntax-error.ini')
+    with pytest.raises(InterpolationSyntaxError):
         CKANConfigLoader(filename).get_config()
 
 

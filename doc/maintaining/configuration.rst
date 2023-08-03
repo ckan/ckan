@@ -333,6 +333,16 @@ This will ensure that:
           will print a warning to the logs and return the option value or ``None`` as default.
 
 
+Bad config options
+------------------
+
+CKAN uses the Python `configparser` module.
+If you try to use the "%" symbol in a config option
+(% is the only character that needs to be escaped)
+you will get a
+`InterpolationSyntaxError <https://docs.python.org/3.10/library/configparser.html#configparser.InterpolationSyntaxError>`_.
+
+
 Command line interface
 ----------------------
 
