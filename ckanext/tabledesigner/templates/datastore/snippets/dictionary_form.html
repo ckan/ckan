@@ -1,10 +1,14 @@
 {% ckan_extends %}
 
 {% block field_heading %}
-  {% if res.url_type != 'tabledesigner' or field.id %}
+  {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% else %}
-    <h3>{{ _("Field {num}.").format(num=position) }}</h3>
+    <h3>{{ _("Field {num}.").format(num=position) }}
+      {{ field.id or '' }}
+      {{ 0/0 }}
+      ({{ h.tabledesigner_column_type(field.tdtype or field.type).label }})
+    </h3>
     {% if is_new %}
       <label for="{{ prefix }}__{{ position }}__pk">
         {{ _("Primary Key") }}
@@ -13,14 +17,16 @@
           type="checkbox"
           name="{{ prefix }}__{{ position }}__pk">
     {% endif %}
-    {{ form.input(prefix ~ '__' ~ position ~ '__id',
-      is_required=true,
-      label=_('ID'), classes=['control-full']) }}
-    {{ form.select(prefix ~ '__' ~ position ~ '__type',
-      is_required=true,
-      label=_('Type'),
-      options=h.tabledesigner_column_type_options(),
-      selected='text') }}
+    {% if not field.id %}
+      {{ form.input(prefix ~ '__' ~ position ~ '__id',
+        is_required=true,
+        label=_('ID'), classes=['control-full']) }}
+    {% endif %}
+  {% endif %}
+  {% if field.tdtype %}
+    <input type="hidden" name="{{ prefix }}__{{ position }}__tdtype" value="{{
+      field.tdtype
+    }}">
   {% endif %}
 {% endblock %}
 

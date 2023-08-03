@@ -4,6 +4,7 @@
       <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
         >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
     {% endblock %}
+    <input type="hidden" name="{{ prefix }}__{{ index }}__tdtype" value="{{ tdtype }}">
     <div class="field-content">
       {% snippet "datastore/snippets/dictionary_form.html",
         field=field,
@@ -25,11 +26,22 @@
       {{ tabledesigner_field(field, loop.index, loop.index + 1) }}
     {% endfor %}
   </div>
-  <div class="control-medium">
-    <a href="javascript:;" name="tabledesigner-add" class="btn btn-link"
+  <div class="control-medium dropdown">
+    <a href="#" class="btn btn-secondary dropdown-toggle" id="tabledesigner-add"
+      data-bs-toggle="dropdown" aria-expanded="false"
       >{% block add_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add Field') }}{% endblock %}</a>
+      <ul class="dropdown-menu" aria-labelledby="tabledesigner-add">
+        {% for opt in h.tabledesigner_column_type_options() %}
+          <li><a class="dropdown-item" name="tabledesigner-add" data-tdtype="{{ opt.value }}"
+            href="javascript:;">{{ opt.text }}</a></li>
+        {% endfor %}
+      </ul>
   </div>
-  <div name="tabledesigner-template" style="display:none">{{
-    tabledesigner_field({}, 'TABLEDESIGNER-INDEX0', 'TABLEDESIGNER-INDEX1') }}
-  </div>
+  {% for opt in h.tabledesigner_column_type_options() %}
+    <div name="tabledesigner-template" data-tdtype="{{ opt.value }}" style="display:none">
+      {{ tabledesigner_field(
+        {'tdtype': opt.value}, 'TABLEDESIGNER-INDEX0', 'TABLEDESIGNER-INDEX1')
+      }}
+    </div>
+  {% endfor %}
 </fieldset>

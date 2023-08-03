@@ -9,11 +9,11 @@ def create_table(resource_id, info):
     '''
     Set up datastore table + validation
     '''
-    primary_key = [(f['id'], f['type']) for f in info if f.get('pk')]
+    primary_key = [(f['id'], f['tdtype']) for f in info if f.get('pk')]
 
     validate_rules = []
-    for colname, typ in primary_key:
-        ct = column_types[typ]
+    for colname, tdtype in primary_key:
+        ct = column_types[tdtype]
         condition = ct.sql_is_empty.format(
             column='NEW.{0}'.format(identifier(colname))
         )
@@ -56,10 +56,10 @@ END;
             'primary_key': [f for f, typ in primary_key],
             'fields': [{
                 'id': i['id'],
-                'type': i['type'],
+                'type': column_types[i['tdtype']].datastore_type,
                 'info': {
                     k:v for (k, v) in i.items()
-                    if k != 'id' and k != 'type'
+                    if k != 'id'
                 },
             } for i in info],
             'triggers': [
