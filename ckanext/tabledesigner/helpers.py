@@ -10,6 +10,11 @@ def tabledesigner_column_type_options():
     """
     return [{"value": k, "text": _(v.label)} for k, v in column_types.items()]
 
+def tabledesigner_column_type(tdtype):
+    """
+    return column type object (fall back to text if not found)
+    """
+    return column_types.get(tdtype, column_types['text'])
 
 def tabledesigner_data_api_examples(resource_id):
     resp = None
