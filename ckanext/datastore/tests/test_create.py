@@ -19,6 +19,77 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreAliasCreate(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_alias_create_basic(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force":True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+        helpers.call_action('datastore_create', **data)
+        data ={"resource_id": resource["id"], "aliases": "alias_1"}
+        results = helpers.call_action('datastore_alias_create', **data)
+        assert results["aliases"] is not None
+        assert results["resource_id"] is not None
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_create_alias_with_duplicate_aliases(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "aliases": "alias_1",
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        data = {"resource_id": resource["id"], "aliases": ["alias_1", "alias_1"]}
+        with pytest.raises(ValidationError):
+            helpers.call_action('datastore_alias_create', **data)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_create_alias_with_missing_alias_value(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        data = {"resource_id": resource["id"], "aliases": "" or [] }
+        with pytest.raises(ValidationError):
+            helpers.call_action('datastore_alias_create', **data)
+
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
 @pytest.mark.usefixtures("clean_datastore", "with_plugins", "with_request_context")
 class TestDatastoreCreateNewTests(object):
