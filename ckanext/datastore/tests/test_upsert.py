@@ -12,6 +12,106 @@ def _search(resource_id):
     return helpers.call_action(u"datastore_search", resource_id=resource_id)
 
 
+@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreAliasUpdate(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_alias_update_with_missing_alias_value(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+
+        helpers.call_action('datastore_create', **data)
+        data = {
+            "resource_id": resource["id"],
+            "aliases": "" or []
+        }
+        with pytest.raises(ValidationError):
+            helpers.call_action('datastore_alias_update' , **data)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")    
+    def test_datastore_alias_update_basic(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+
+        helpers.call_action('datastore_create', **data)
+        data ={"resource_id": resource["id"], 'aliases':"person"}
+        results = helpers.call_action('datastore_alias_update', **data)
+        assert results['aliases'] is not None
+        assert results['resource_id'] is not None
+
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_alias_update_already_existing_alias(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "aliases": u"person",
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        data = {"resource_id": resource["id"], "aliases":"person"}
+
+        with pytest.raises(ValidationError):
+            helpers.call_action('datastore_alias_update', **data)
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_datastore_update_an_existing_alias_with_duplicate_values(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "aliases": "alias_1",
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+  
+        helpers.call_action('datastore_create', **data)
+
+        data = {"resource_id": resource["id"], "aliases": ["alias_1", "alias_1"]}
+        with pytest.raises(ValidationError):
+            helpers.call_action('datastore_alias_update', **data)
+
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'
 
