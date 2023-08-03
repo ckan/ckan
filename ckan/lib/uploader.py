@@ -93,7 +93,7 @@ def get_max_image_size() -> int:
 
 
 def get_max_resource_size() -> int:
-    return config.get('ckan.max_resource_size')
+    return int(config.get('ckan.max_resource_size') or 10)
 
 
 class Upload(object):
