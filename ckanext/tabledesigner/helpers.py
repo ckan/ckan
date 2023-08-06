@@ -16,6 +16,12 @@ def tabledesigner_column_type(tdtype):
     """
     return column_types.get(tdtype, column_types['text'])
 
+def tabledesigner_choice_list(choices):
+    """
+    convert choices string to choice list, ignoring surrounding whitespace
+    """
+    return [c.strip() for c in choices.split(',')]
+
 def tabledesigner_data_api_examples(resource_id):
     return {
         "text_column_filters_object": {

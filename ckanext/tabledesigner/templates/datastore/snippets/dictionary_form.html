@@ -6,8 +6,7 @@
   {% else %}
     <h3>{{ _("Field {num}.").format(num=position) }}
       {{ field.id or '' }}
-      {{ 0/0 }}
-      ({{ h.tabledesigner_column_type(field.tdtype or field.type).label }})
+      ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
     </h3>
     {% if is_new %}
       <label for="{{ prefix }}__{{ position }}__pk">
@@ -18,15 +17,14 @@
           name="{{ prefix }}__{{ position }}__pk">
     {% endif %}
     {% if not field.id %}
-      {{ form.input(prefix ~ '__' ~ position ~ '__id',
+      {% call form.input(prefix ~ '__' ~ position ~ '__id',
         is_required=true,
-        label=_('ID'), classes=['control-full']) }}
+        label=_('ID'), classes=['control-full']) %}
+        {{ form.info(
+          text=_('Field identifier or column heading when exported to CSV')
+        )}}
+      {% endcall %}
     {% endif %}
-  {% endif %}
-  {% if field.tdtype %}
-    <input type="hidden" name="{{ prefix }}__{{ position }}__tdtype" value="{{
-      field.tdtype
-    }}">
   {% endif %}
 {% endblock %}
 
@@ -35,4 +33,18 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% endif %}
+{% endblock %}
+
+{% block standard_fields %}
+  {% if field.info.tdtype == 'choice' %}
+    {% call form.input(prefix ~ '__' ~ position ~ '__choices',
+      label=_('Choices'), id='field-f' ~ position ~ 'choices',
+      value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
+      {{ form.info(
+        text=_('Comma-separated list of options, e.g. <code>aa,b1,b2</code>')
+      )}}
+    {% endcall %}
+  {% endif %}
+
+  {{ super() }}
 {% endblock %}
