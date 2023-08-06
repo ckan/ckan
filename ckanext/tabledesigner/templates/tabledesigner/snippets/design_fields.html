@@ -4,11 +4,11 @@
       <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
         >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
     {% endblock %}
-    <input type="hidden" name="{{ prefix }}__{{ index }}__tdtype" value="{{ tdtype }}">
+    <input type="hidden" name="{{ prefix }}__{{ index }}__tdtype" value="{{ field.info.tdtype or field.type }}">
     <div class="field-content">
       {% snippet "datastore/snippets/dictionary_form.html",
         field=field,
-        position=index1,
+        position=index,
         res=res,
         prefix=prefix,
         is_new=not fields
@@ -40,8 +40,10 @@
   {% for opt in h.tabledesigner_column_type_options() %}
     <div name="tabledesigner-template" data-tdtype="{{ opt.value }}" style="display:none">
       {{ tabledesigner_field(
-        {'tdtype': opt.value}, 'TABLEDESIGNER-INDEX0', 'TABLEDESIGNER-INDEX1')
-      }}
+        {'info': {'tdtype': opt.value}},
+        'TABLEDESIGNER-INDEX0',
+        'TABLEDESIGNER-INDEX1'
+      )}}
     </div>
   {% endfor %}
 </fieldset>
