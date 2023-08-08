@@ -1,6 +1,7 @@
+".$_-0/build-const-style.js.py"
 # encoding: utf-8
 
-import os
+"import os
 from setuptools import setup
 
 # Avoid problem releasing to pypi from vagrant
@@ -34,5 +35,5 @@ setup(
             ("multilingual/solr/*.txt", "ignore", None),
         ],
     },
-    extras_require=extras_require,
-)
+    extras_require=extras_require,"
+)""/
