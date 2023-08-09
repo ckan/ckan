@@ -57,8 +57,7 @@ def num_unmigrated(engine):
     num_unmigrated = engine.execute('''
         SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
         WHERE a.activity_type IN ('new package', 'changed package')
-        AND a.data NOT LIKE '%%{"actor"%%'
-        AND p.private = false;
+        AND a.data NOT LIKE '%%{"actor"%%';
     ''').fetchone()[0]
     return num_unmigrated
 
@@ -67,14 +66,14 @@ def num_activities_migratable():
     from ckan import model
     num_activities = model.Session.execute(u'''
     SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
-    WHERE a.activity_type IN ('new package', 'changed package')
-    AND p.private = false;
+    WHERE a.activity_type IN ('new package', 'changed package');
     ''').fetchall()[0][0]
     return num_activities
 
 
 def migrate_all_datasets():
     import ckan.logic as logic
+    #TODO: change package_list to package_search with fl=id and include_private=True and paging by 1000
     dataset_names = logic.get_action(u'package_list')(get_context(), {})
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
