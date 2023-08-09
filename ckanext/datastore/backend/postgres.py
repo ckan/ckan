@@ -2283,7 +2283,7 @@ def datastore_delete_aliases(self,
             else:
                 raise ValidationError({
                     u"wrong aliases ": u"Aborted!. No alias(es) named '{0}'  in resource". format(
-                        ', '.join(unknown_aliases)
+                          ', '.join(unknown_aliases)
                     )
                 })
 
@@ -2296,7 +2296,7 @@ def datastore_delete_aliases(self,
             context['connection'].close()
 
     def datastore_create_aliases(self, 
-            context: Context, data_dict: dict[str, Any]):
+                context: Context, data_dict: dict[str, Any]):
         engine = self._get_write_engine()
         context['connection'] = engine.connect()
         _cache_types(context['connection'])

@@ -37,10 +37,10 @@ class TestDatastoreAliasUpdate(object):
             "aliases": "" or []
         }
         with pytest.raises(ValidationError):
-            helpers.call_action('datastore_alias_update' , **data)
+            helpers.call_action('datastore_alias_update', **data)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")    
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_datastore_alias_update_basic(self):
         resource = factories.Resource()
         data = {
@@ -57,11 +57,10 @@ class TestDatastoreAliasUpdate(object):
         }
 
         helpers.call_action('datastore_create', **data)
-        data ={"resource_id": resource["id"], 'aliases':"person"}
+        data = {"resource_id": resource["id"], 'aliases': "person"}
         results = helpers.call_action('datastore_alias_update', **data)
         assert results['aliases'] is not None
         assert results['resource_id'] is not None
-
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -83,7 +82,7 @@ class TestDatastoreAliasUpdate(object):
 
         helpers.call_action('datastore_create', **data)
 
-        data = {"resource_id": resource["id"], "aliases":"person"}
+        data = {"resource_id": resource["id"], "aliases": "person"}
 
         with pytest.raises(ValidationError):
             helpers.call_action('datastore_alias_update', **data)
@@ -105,12 +104,13 @@ class TestDatastoreAliasUpdate(object):
                 {"name": "Bowan", "age": "68"},
             ],
         }
-  
+
         helpers.call_action('datastore_create', **data)
 
         data = {"resource_id": resource["id"], "aliases": ["alias_1", "alias_1"]}
         with pytest.raises(ValidationError):
             helpers.call_action('datastore_alias_update', **data)
+
 
 class TestDatastoreUpsert(object):
     # Test action 'datastore_upsert' with 'method': 'upsert'

@@ -45,10 +45,10 @@ class TestDatastoreAliasDelete(object):
             "aliases": "" or []
         }
         with pytest.raises(ValidationError):
-            helpers.call_action('datastore_alias_delete' , **data)
+            helpers.call_action('datastore_alias_delete', **data)
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("clean_datastore", "with_plugins")    
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_datastore_alias_delete_basic(self):
         resource = factories.Resource()
         data = {
@@ -66,11 +66,11 @@ class TestDatastoreAliasDelete(object):
         }
 
         helpers.call_action('datastore_create', **data)
-        data ={"resource_id": resource["id"], 'aliases':"person"}
+        data = {"resource_id": resource["id"], 'aliases': "person"}
         # delete alias
         helpers.call_action('datastore_alias_delete', **data)
 
-        data ={"resource_id": resource["id"], 'aliases':"person"}
+        data = {"resource_id": resource["id"], 'aliases': "person"}
         # deleting same alias raises an error
         with pytest.raises(ValidationError):
             helpers.call_action('datastore_alias_delete', **data)
@@ -95,7 +95,7 @@ class TestDatastoreAliasDelete(object):
 
         helpers.call_action('datastore_create', **data)
 
-        data = {"resource_id": resource["id"], "aliases":"person_1"}
+        data = {"resource_id": resource["id"], "aliases": "person_1"}
 
         with pytest.raises(ValidationError):
             helpers.call_action('datastore_alias_delete', **data)
@@ -123,6 +123,7 @@ class TestDatastoreAliasDelete(object):
         data = {"resource_id": resource["id"], "aliases": ["alias_1", "alias_1"]}
         with pytest.raises(ValidationError):
             helpers.call_action('datastore_alias_delete', **data)
+
 
 class TestDatastoreDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
