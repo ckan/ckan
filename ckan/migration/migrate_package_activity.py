@@ -82,7 +82,7 @@ def migrate_all_datasets():
                                                 'fl': ['id'],
                                                 'rows': 5000,
                                                 'start': offset})
-        offset += 5000
+        offset += len(dn['results'])
         count = dn.get('count')
         dataset_names += [result.get('id') for result in dn.get('results')]
     num_datasets = len(dataset_names)
