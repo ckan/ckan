@@ -84,7 +84,7 @@ def migrate_all_datasets():
                                                 'start': offset})
         offset += len(dn['results'])
         count = dn.get('count')
-        dataset_names += [result.get('id') for result in dn.get('results')]
+        dataset_names += [result['id'] for result in dn['results']]
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
     with PackageDictizeMonkeyPatch():
