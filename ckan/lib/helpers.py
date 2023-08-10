@@ -775,10 +775,12 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
+    title = kwargs.pop('title', kwargs.pop('title_', None))
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        cls=cls
+        cls=cls,
+        title=title
     )
 
 
