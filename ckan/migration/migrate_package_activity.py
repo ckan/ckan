@@ -73,8 +73,18 @@ def num_activities_migratable():
 
 def migrate_all_datasets():
     import ckan.logic as logic
-    #TODO: change package_list to package_search with fl=id and include_private=True and paging by 1000
-    dataset_names = logic.get_action(u'package_list')(get_context(), {})
+    dataset_names = []
+    offset = 0
+    count = 1
+    while len(dataset_names) < count:
+        dn = logic.get_action(u'package_search')(get_context(),
+                                                {'include_private': True,
+                                                'fl': ['id'],
+                                                'rows': 5000,
+                                                'start': offset})
+        offset += 5000
+        count = dn.get('count')
+        dataset_names += [result.get('id') for result in dn.get('results')]
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
     with PackageDictizeMonkeyPatch():
