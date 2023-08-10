@@ -28,7 +28,7 @@ Example:
               {% endif %}
             {% endblock %}
             {% block heading_title %}
-    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}">
+    <a href="{{ h.url_for('%s.read' % package.type, id=package.name) }}" title="{{ title }}">
       {{title|truncate(80)}}
     </a>
             {% endblock %}
