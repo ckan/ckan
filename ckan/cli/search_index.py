@@ -77,7 +77,7 @@ def clear(dataset_name):
         clear_all()
 
 
-def get_orphans():
+def get_orphans(private = False):
     search = None
     indexed_package_ids = []
     while search is None or len(indexed_package_ids) < search['count']:
@@ -85,7 +85,8 @@ def get_orphans():
                 'q': '*:*',
                 'fl': 'id',
                 'start': len(indexed_package_ids),
-                'rows': 1000})
+                'rows': 1000,
+                'include_private': private})
         indexed_package_ids += search['results']
 
     package_ids = {r[0] for r in model.Session.query(model.Package.id)}
@@ -103,8 +104,10 @@ def get_orphans():
     name=u'list-orphans',
     short_help=u'Lists any non-existant packages in the search index'
 )
-def list_orphans_command():
-    orphaned_package_ids = get_orphans()
+@click.option(u'-p', u'--private', help=u'Include private packages',
+              is_flag=True)
+def list_orphans_command(private = False):
+    orphaned_package_ids = get_orphans(private)
     if len(orphaned_package_ids):
         click.echo(orphaned_package_ids)
     click.echo("Found {} orphaned package(s).".format(
@@ -116,9 +119,11 @@ def list_orphans_command():
     name=u'clear-orphans',
     short_help=u'Clear any non-existant packages in the search index'
 )
+@click.option(u'-p', u'--private', help=u'Include private packages',
+              is_flag=True)
 @click.option(u'-v', u'--verbose', is_flag=True)
-def clear_orphans(verbose = False):
-    for orphaned_package_id in get_orphans():
+def clear_orphans(private = False, verbose = False):
+    for orphaned_package_id in get_orphans(private):
         if verbose:
             click.echo("Clearing search index for dataset {}...".format(
                 orphaned_package_id
