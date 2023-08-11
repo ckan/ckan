@@ -1151,8 +1151,10 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         try:
             context['connection'].execute(sql_string, rows)
         except (DatabaseError, DataError) as err:
-            raise ValidationError(
-                {u'records': [_programming_error_summary(err)]})
+            raise ValidationError({
+                'records': [_programming_error_summary(err)],
+                'records_row': num,
+            })
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1228,8 +1230,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         sql_string, used_values + unique_values)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -1263,8 +1266,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         (used_values + unique_values) * 2)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
 
 def validate(context: Context, data_dict: dict[str, Any]):
