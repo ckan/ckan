@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-
+from sqlalchemy import text
 import ckan.model as model
 from ckan.tests import factories
 
@@ -73,6 +73,63 @@ class TestGroup(object):
     def _search_results(self, query):
         results = model.Group.search_by_name_or_title(query, is_org=False)
         return set([group.name for group in results])
+
+    def test_group_purge_deletes_extras(self):
+        group = model.Group(
+            name=factories.Group.stub().name,
+            title=u"Test Group",
+            description=u"This is a test group",
+        )
+        model.Session.add(group)
+        # get the group id
+        model.Session.flush()
+        model.Session.refresh(group)
+        group_id = group.id
+
+        # Add an extra
+        extra = model.GroupExtra(group=group, key="test", value="test")
+        model.Session.add(extra)
+
+        add_group_extra_revision_query = (
+            "INSERT INTO public.revision (id) "
+            "VALUES (:rev_id);"
+            "INSERT INTO public.group_extra_revision ("
+            "id, revision_id, group_id) "
+            "values (:grev_id, :rev_id, :group_id)"
+        )
+        model.Session.query(
+            model.Group
+        ).from_statement(
+            text(add_group_extra_revision_query)
+        ).params(
+            rev_id='rev_id',
+            grev_id='grev_id',
+            group_id=group_id
+        )
+        model.repo.commit_and_remove()
+
+        # Purge the group
+        group.purge()
+        model.repo.commit_and_remove()
+
+        extras = model.Session.query(
+            model.GroupExtra
+        ).filter(
+            model.GroupExtra.group_id == group_id
+        )
+        assert extras.count() == 0
+
+        # Check that the group_extra_revision has been deleted
+        get_group_extra_revision_query = (
+            'SELECT count(*) as total '
+            'from public.group_extra_revision '
+            'WHERE group_id=:gid'
+        )
+        extra_revs = model.Session.execute(
+            get_group_extra_revision_query,
+            {"gid": group_id}
+        ).one()
+        assert extra_revs.total == 0
 
 
 def name_set_from_dicts(groups):

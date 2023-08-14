@@ -432,8 +432,25 @@ class Group(core.StatefulObjectMixin,
                             table_name='package')
             meta.Session.add(member)
 
+    def clean_extra_revisions(self) -> None:
+        ''' Ensure clean extra revisions before purging a group. '''
+
+        clean_extra_revision_query = (
+            "DELETE FROM public.group_extra_revision "
+            "WHERE group_id = :group_id"
+        )
+        meta.Session.query(
+            Group
+        ).from_statement(
+            text(clean_extra_revision_query)
+        ).params(
+            group_id=self.id
+        )
+        meta.Session.commit()
+
     def __repr__(self):
         return '<Group %s>' % self.name
+
 
 meta.mapper(Group, group_table)
 

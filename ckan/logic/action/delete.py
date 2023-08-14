@@ -524,6 +524,9 @@ def _group_or_org_purge(
             m.purge()
         model.repo.commit_and_remove()
 
+    # Purge group_extra_revisions
+    group.clean_extra_revisions()
+
     group = model.Group.get(id)
     assert group
     group.purge()
