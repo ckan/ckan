@@ -13,7 +13,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckanext.datastore.backend.postgres as db
 from ckanext.datastore.tests.helpers import extract
-from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
+from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 
 
 class TestDatastoreSearch(object):

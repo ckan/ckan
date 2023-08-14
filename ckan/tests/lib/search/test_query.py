@@ -4,7 +4,7 @@ import pytest
 import ckan.model as model
 import ckan.lib.search as search
 import ckan.tests.factories as factories
-from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
+from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 from ckan.lib.create_test_data import CreateTestData
 
 

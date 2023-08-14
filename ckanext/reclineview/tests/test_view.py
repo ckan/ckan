@@ -6,7 +6,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckanext.reclineview.plugin as plugin
-from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
+from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 import ckan.lib.create_test_data as create_test_data
 
 from ckan.tests import helpers, factories
