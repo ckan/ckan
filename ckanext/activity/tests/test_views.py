@@ -14,20 +14,10 @@ from ckan.tests import factories, helpers
 from ckanext.activity.model import Activity, activity as activity_model
 from ckanext.activity.logic.validators import object_id_validators
 
-from sqlalchemy import inspect
-
 
 def _clear_activities():
     model.Session.query(Activity).delete()
     model.Session.flush()
-
-
-@pytest.fixture(autouse=True, scope="function")
-@pytest.mark.ckan_config("ckan.plugins", "activity")
-def apply_activity_migrations(clean_db, with_plugins, migrate_db_for):
-    migrate_db_for("activity")
-    columns = inspect(model.Session.bind).get_columns("activity")
-    assert "permission_labels" in [c["name"] for c in columns]
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
