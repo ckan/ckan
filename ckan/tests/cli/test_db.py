@@ -35,11 +35,6 @@ class TestMigrations:
             os.path.dirname(example_plugin.__file__),
             "migration/example_database_migrations/alembic.ini")
 
-        config = db._resolve_alembic_config("activity")
-        assert config == os.path.join(
-            os.path.dirname(example_plugin.__file__),
-            "migration/activity/alembic.ini")
-
     def test_current_migration_version(self):
         """CKAN migration applied because of clean_db fixture.
 
