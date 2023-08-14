@@ -15,6 +15,7 @@ from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
+from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
 
 CkanUrlException = ckan.exceptions.CkanUrlException
 

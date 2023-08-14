@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
+from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException

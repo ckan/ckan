@@ -8,7 +8,7 @@ from ckan.tests import factories
 
 from ckanext.stats.stats import Stats
 from ckanext.activity.tests.conftest import ActivityFactory
-from ckanext.activity.tests.conftest import apply_activity_migrations
+from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')

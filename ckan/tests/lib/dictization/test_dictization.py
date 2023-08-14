@@ -22,7 +22,7 @@ from ckan.lib.dictization.model_save import (
     package_tag_list_save,
 )
 
-from ckanext.activity.tests.conftest import apply_activity_migrations
+from ckanext.activity.tests.conftest import apply_activity_migrations # pylint: disable=unused-import
 
 
 @pytest.mark.usefixtures("clean_db")
