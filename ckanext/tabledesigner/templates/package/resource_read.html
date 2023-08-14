@@ -8,15 +8,6 @@
     {% block resource_tabledesigner %}
       <div class="module-content">
         <h2>{{ _('Table Designer') }}</h2>
-        {% block resource_tabledesigner_edit %}
-          <form method="get" action="{{
-            h.url_for('tabledesigner.edit_row', id=pkg.name, resource_id=res.id) }}"
-            >{{ form.input('_id', label='_id', classes=['control-full'], id='_id', is_required=true) }}
-            <button class="btn btn-primary" type="submit">
-              {%- block edit_row_button_text %}<i class="fa fa-edit"></i>{{ _('Edit Row') }}{% endblock -%}
-            </button>
-          </form>
-        {% endblock %}
         {% block resource_tabledesigner_add %}
           <p>
             <a class="btn" name="tabledesigner-add-row" href="{{
