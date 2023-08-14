@@ -8,16 +8,7 @@ from ckan.tests import factories
 
 from ckanext.stats.stats import Stats
 from ckanext.activity.tests.conftest import ActivityFactory
-
-from sqlalchemy import inspect
-
-
-@pytest.fixture(autouse=True, scope="function")
-@pytest.mark.ckan_config("ckan.plugins", "activity")
-def apply_activity_migrations(clean_db, with_plugins, migrate_db_for):
-    migrate_db_for("activity")
-    columns = inspect(model.Session.bind).get_columns("activity")
-    assert "permission_labels" in [c["name"] for c in columns]
+from ckanext.activity.tests.conftest import apply_activity_migrations
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')

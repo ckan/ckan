@@ -22,15 +22,7 @@ from ckan.lib.dictization.model_save import (
     package_tag_list_save,
 )
 
-from sqlalchemy import inspect
-
-
-@pytest.fixture(autouse=True, scope="function")
-@pytest.mark.ckan_config("ckan.plugins", "activity")
-def apply_activity_migrations(clean_db, with_plugins, migrate_db_for):
-    migrate_db_for("activity")
-    columns = inspect(model.Session.bind).get_columns("activity")
-    assert "permission_labels" in [c["name"] for c in columns]
+from ckanext.activity.tests.conftest import apply_activity_migrations
 
 
 @pytest.mark.usefixtures("clean_db")
