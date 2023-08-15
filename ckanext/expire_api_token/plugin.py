@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-
+import logging
 from typing import Any
 from ckan.types import Schema
 from ckan.common import CKANConfig
@@ -10,6 +10,9 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.api_token as api_token
 from ckan.config.declaration import Declaration, Key
+
+
+log = logging.getLogger(__name__)
 
 
 def default_token_lifetime() -> int:
@@ -49,7 +52,22 @@ class ExpireApiTokenPlugin(p.SingletonPlugin):
 
     def postprocess_api_token(self, data: dict[str, Any],
                               jti: str, data_dict: dict[str, Any]):
-        seconds = data_dict.get(u"expires_in", 0) * data_dict.get(u"unit", 0)
+        unit = data_dict.get(u"unit", 0)
+        if unit == 1:  # Seconds
+            unit_factor = 1
+        elif unit == 2:  # Minutes
+            unit_factor = 60
+        elif unit == 3:  # Hours
+            unit_factor = 3600
+        elif unit == 4:  # Days
+            unit_factor = 86400
+        else:
+            log.warning(
+                "Unknown token expire unit %s, using default token lifetime",
+                unit
+            )
+            unit_factor = 1
+        seconds = data_dict.get(u"expires_in", 0) * unit_factor
         if not seconds:
             seconds = default_token_lifetime()
         expire_at = datetime.utcnow() + timedelta(seconds=seconds)
