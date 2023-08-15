@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
-from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 from ckan import model
 from ckan.lib.helpers import url_for
 from ckan.lib.mailer import create_reset_key, MailerException
@@ -108,7 +107,7 @@ def sysadmin():
     return user
 
 
-@pytest.mark.usefixtures("clean_db", "apply_activity_migrations")
+@pytest.mark.usefixtures("clean_db")
 class TestUser(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)

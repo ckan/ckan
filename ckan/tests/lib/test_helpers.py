@@ -15,7 +15,6 @@ from ckan.config.middleware import flask_app
 import ckan.lib.helpers as h
 import ckan.exceptions
 from ckan.tests import helpers, factories
-from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 
 CkanUrlException = ckan.exceptions.CkanUrlException
 
@@ -841,7 +840,7 @@ def test_escape_js():
     assert output_str == expected_str
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context", "apply_activity_migrations")
+@pytest.mark.usefixtures("clean_db", "with_request_context")
 def test_get_pkg_dict_extra():
 
     from ckan.lib.create_test_data import CreateTestData

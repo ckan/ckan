@@ -4,7 +4,6 @@ import pytest
 import ckan.model as model
 import ckan.lib.search as search
 import ckan.tests.factories as factories
-from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 from ckan.lib.create_test_data import CreateTestData
 
 
@@ -333,7 +332,7 @@ def test_convert_legacy_params_to_solr():
         convert({"tags": {"tolstoy": 1}})
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index", "apply_activity_migrations")
+@pytest.mark.usefixtures("clean_db", "clean_index")
 class TestPackageQuery:
     def test_all_records_by_shared_notes(self):
         pkg1 = factories.Dataset(notes="shared")

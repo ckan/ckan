@@ -22,10 +22,8 @@ from ckan.lib.dictization.model_save import (
     package_tag_list_save,
 )
 
-from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 
-
-@pytest.mark.usefixtures("clean_db", "apply_activity_migrations")
+@pytest.mark.usefixtures("clean_db")
 class TestBasicDictize:
     def test_group_apis_to_dict(self):
         context = {"model": model, "session": model.Session}
@@ -161,7 +159,7 @@ class TestBasicDictize:
         assert "password" not in user_dict
 
 
-@pytest.mark.usefixtures("clean_db", "apply_activity_migrations")
+@pytest.mark.usefixtures("clean_db")
 class TestDictizeWithRemoveColumns:
     def remove_changable_columns(self, dict, remove_package_id=False):
         ids_to_keep = ["license_id", "creator_user_id"]

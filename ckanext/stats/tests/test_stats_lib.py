@@ -8,11 +8,10 @@ from ckan.tests import factories
 
 from ckanext.stats.stats import Stats
 from ckanext.activity.tests.conftest import ActivityFactory
-from ckanext.activity.tests.conftest import apply_activity_migrations # noqa # pylint: disable=unused-import
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')
-@pytest.mark.usefixtures("with_plugins", "apply_activity_migrations")
+@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.freeze_time
 class TestStatsPlugin(object):
     @pytest.fixture(autouse=True)

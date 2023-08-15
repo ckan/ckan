@@ -22,22 +22,13 @@ class ActivityFactory(CKANFactory):
         action = "activity_create"
 
 
-@pytest.fixture(autouse=False, scope="class")
-def apply_activity_migrations():
-    plugin = "activity"
+@pytest.fixture()
+def clean_db(reset_db, migrate_db_for):
+    reset_db()
+    migrate_db_for("activity")
 
-    factories.fake.unique.clear()
-    helpers.reset_db()
 
-    if not ckan.plugins.plugin_loaded(plugin):
-        ckan.plugins.load(plugin)
-
-    _run_migrations(plugin, version="head", forward=True)
-
-    columns = inspect(model.Session.bind).get_columns("activity")
-    assert "permission_labels" in [c["name"] for c in columns]
-
-    yield
-
-    if ckan.plugins.plugin_loaded(plugin):
-        ckan.plugins.unload(plugin)
+@pytest.fixture(scope="session")
+def reset_db_once(reset_db, migrate_db_for):
+    reset_db()
+    migrate_db_for("activity")

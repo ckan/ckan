@@ -21,7 +21,7 @@ def _clear_activities():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestOrganization(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -174,7 +174,7 @@ class TestOrganization(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestUser:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -363,7 +363,7 @@ class TestUser:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestPackage:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -909,7 +909,7 @@ class TestPackage:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
+@pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestGroup:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
