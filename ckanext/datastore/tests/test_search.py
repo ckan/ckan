@@ -480,6 +480,7 @@ class TestDatastoreSearch(object):
         assert result["records"][0]['b'] == 'Z'
 
 
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestDatastoreSearchLegacyTests(object):
     sysadmin_user = None
     normal_user = None
@@ -1164,6 +1165,7 @@ class TestDatastoreSearchLegacyTests(object):
         assert res_dict["error"].get("fields") is not None, res_dict["error"]
 
 
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestDatastoreFullTextSearchLegacyTests(object):
     @pytest.fixture(autouse=True)
     def initial_data(self, clean_datastore, app):
@@ -1366,6 +1368,7 @@ class TestDatastoreFullTextSearchLegacyTests(object):
         assert res_dict["success"]
 
 
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestDatastoreSQLLegacyTests(object):
     sysadmin_user = None
     normal_user = None
@@ -1572,6 +1575,7 @@ class TestDatastoreSQLLegacyTests(object):
             assert res_dict["error"]["__type"] == "Authorization Error"
 
 
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestDatastoreSQLFunctional(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures(

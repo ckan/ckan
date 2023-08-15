@@ -56,7 +56,7 @@ class TestLimits:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
 class TestActivityShow:
     def test_simple_with_data(self, package, user, activity_factory):
         activity = activity_factory(
@@ -84,7 +84,7 @@ class TestActivityShow:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestPackageActivityList(object):
     def test_create_dataset(self):
         user = factories.User()
@@ -705,7 +705,7 @@ class TestPackageActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestUserActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -1007,7 +1007,7 @@ class TestUserActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestGroupActivityList(object):
     def test_create_group(self):
         user = factories.User()
@@ -1326,7 +1326,7 @@ class TestGroupActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestOrganizationActivityList(object):
     def test_bulk_make_public(self):
         org = factories.Organization()
@@ -1674,7 +1674,7 @@ class TestOrganizationActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestRecentlyChangedPackagesActivityList:
     def test_create_dataset(self):
         user = factories.User()
@@ -1898,7 +1898,7 @@ class TestRecentlyChangedPackagesActivityList:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestDashboardActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -2008,7 +2008,7 @@ class TestDashboardActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestDashboardNewActivities(object):
     def test_users_own_activities(self):
         # a user's own activities are not shown as "new"
@@ -2361,7 +2361,7 @@ class TestDashboardNewActivities(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestSendEmailNotifications(object):
     # TODO: this action doesn't do much. Maybe it well be better to move tests
     # into lib.email_notifications eventually
@@ -2485,7 +2485,7 @@ class TestSendEmailNotifications(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -2546,7 +2546,7 @@ class TestDashboardMarkActivitiesOld(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins", "apply_activity_migrations")
 class TestFollow:
     @pytest.mark.usefixtures("app")
     def test_follow_dataset_no_activity(self):
@@ -2590,7 +2590,7 @@ class TestFollow:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "apply_activity_migrations")
 class TestDeferCommitOnCreate(object):
 
     def test_package_create_defer_commit(self):

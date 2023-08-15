@@ -108,7 +108,7 @@ def sysadmin():
     return user
 
 
-@pytest.mark.usefixtures("clean_db")
+@pytest.mark.usefixtures("clean_db", "apply_activity_migrations")
 class TestUser(object):
 
     @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)

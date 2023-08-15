@@ -333,7 +333,7 @@ def test_convert_legacy_params_to_solr():
         convert({"tags": {"tolstoy": 1}})
 
 
-@pytest.mark.usefixtures("clean_db", "clean_index")
+@pytest.mark.usefixtures("clean_db", "clean_index", "apply_activity_migrations")
 class TestPackageQuery:
     def test_all_records_by_shared_notes(self):
         pkg1 = factories.Dataset(notes="shared")

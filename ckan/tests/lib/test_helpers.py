@@ -841,7 +841,7 @@ def test_escape_js():
     assert output_str == expected_str
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.usefixtures("clean_db", "with_request_context", "apply_activity_migrations")
 def test_get_pkg_dict_extra():
 
     from ckan.lib.create_test_data import CreateTestData

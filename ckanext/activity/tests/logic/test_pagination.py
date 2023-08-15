@@ -61,7 +61,7 @@ def activities():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "activities")
+@pytest.mark.usefixtures("clean_db", "with_plugins", "activities", "apply_activity_migrations")
 class TestActivityPagination(object):
     def test_default_returns_ordered_by_time_desc(self, activities):
         """

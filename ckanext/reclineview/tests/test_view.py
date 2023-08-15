@@ -39,6 +39,7 @@ class BaseTestReclineViewBase(object):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'recline_view')
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestReclineView(BaseTestReclineViewBase):
     view_type = 'recline_view'
     view_class = plugin.ReclineView
@@ -94,6 +95,7 @@ class TestReclineViewDatastoreOnly(object):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'recline_grid_view')
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestReclineGridView(BaseTestReclineViewBase):
     view_type = 'recline_grid_view'
     view_class = plugin.ReclineGridView
@@ -104,6 +106,7 @@ class TestReclineGridView(BaseTestReclineViewBase):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'recline_graph_view')
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestReclineGraphView(BaseTestReclineViewBase):
     view_type = 'recline_graph_view'
     view_class = plugin.ReclineGraphView
@@ -115,6 +118,7 @@ class TestReclineGraphView(BaseTestReclineViewBase):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'recline_map_view')
+@pytest.mark.usefixtures("apply_activity_migrations")
 class TestReclineMapView(BaseTestReclineViewBase):
     view_type = 'recline_map_view'
     view_class = plugin.ReclineMapView

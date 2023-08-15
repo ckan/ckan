@@ -8,7 +8,7 @@ import ckan.model as model
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("with_plugins")
+@pytest.mark.usefixtures("with_plugins", "apply_activity_migrations")
 class TestAuth:
     @pytest.mark.ckan_config(
         "ckan.auth.public_activity_stream_detail", False
