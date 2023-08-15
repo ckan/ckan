@@ -42,3 +42,38 @@ class TestExpireApiTokenPlugin(object):
                 headers={u"authorization": data["token"]},
                 status=403,
             )
+
+    def test_token_expire(self):
+        """ Create a 10 days token and test expiration """
+        user = factories.User()
+        tests = (
+            (90, 1),  # 90 seconds
+            (10, 2),  # 10 minutes
+            (20, 3),  # 20 hours
+            (10, 4),  # 10 days
+        )
+        for expires_in, unit in tests:
+            now = datetime.now()
+            now_timestamp = now.timestamp()
+            data = helpers.call_action(
+                u"api_token_create",
+                context={u"model": model, u"user": user[u"name"]},
+                user=user[u"name"],
+                name=u"token-name",
+                expires_in=expires_in,
+                unit=unit,
+            )
+            decoded = api_token.decode(data["token"])
+            # Get the timestamp
+            expire = decoded["exp"]
+            if unit == 1:  # Seconds
+                unit_factor = 1
+            elif unit == 2:  # Minutes
+                unit_factor = 60
+            elif unit == 3:  # Hours
+                unit_factor = 3600
+            elif unit == 4:  # Days
+                unit_factor = 86400
+            expected = now_timestamp + (expires_in * unit_factor)
+            # This won't be exact
+            assert abs(expire - expected) < 5
