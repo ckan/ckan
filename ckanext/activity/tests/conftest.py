@@ -22,7 +22,7 @@ class ActivityFactory(CKANFactory):
         action = "activity_create"
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(autouse=False, scope="class")
 def apply_activity_migrations():
     plugin = "activity"
 
