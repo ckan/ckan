@@ -72,19 +72,14 @@ def num_activities_migratable():
 
 
 def migrate_all_datasets():
-    import ckan.logic as logic
-    dataset_names = []
-    offset = 0
-    count = 1
-    while len(dataset_names) < count:
-        dn = logic.get_action(u'package_search')(get_context(),
-                                                {'include_private': True,
-                                                'fl': ['id'],
-                                                'rows': 5000,
-                                                'start': offset})
-        offset += len(dn['results'])
-        count = dn.get('count')
-        dataset_names += [result['id'] for result in dn['results']]
+    from ckan.model.package import package_table
+    from sqlalchemy.sql import select as _select
+    # we want private and public datasets, and
+    # to not deal with any index discrepancies
+    # from package_search (canada fork only)
+    dataset_names = [r[0] for r in _select([package_table.c.id]).\
+                                    where(package_table.c.state == 'active').\
+                                    execute()]
     num_datasets = len(dataset_names)
     errors = defaultdict(int)
     with PackageDictizeMonkeyPatch():
