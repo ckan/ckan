@@ -379,9 +379,18 @@ def _update_facet_titles(
         facets: 'OrderedDict[str, str]',
         group_type: str) -> 'OrderedDict[str, str]':
     for plugin in plugins.PluginImplementations(plugins.IFacets):
+        registered_groups = [h.default_group_type("group")]
+        registered_groups.extend(
+            [
+                group_type
+                for plugin in plugins.PluginImplementations(plugins.IGroupForm)
+                for group_type in plugin.group_types()
+                if not hasattr(plugin, "is_organization")
+            ]
+        )
         facets = (
             plugin.group_facets(facets, group_type, None)
-            if group_type == "group"
+            if group_type in registered_groups
             else plugin.organization_facets(facets, group_type, None)
         )
     return facets
