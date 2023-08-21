@@ -54,8 +54,6 @@ groups:
         ignored: true
       - key: BABEL_DOMAIN
         ignored: true
-      - key: BABEL_MULTIPLE_DOMAINS
-        ignored: true
       - key: BABEL_TRANSLATION_DIRECTORIES
         ignored: true
       - key: CKAN_INI
@@ -313,6 +311,40 @@ groups:
           This number is based on the time since the session was last accessed, not from when the session was created.
           Defaults to never expiring.
           Requires that save_accessed_time be true.
+
+      - key: beaker.session.type
+        default: cookie
+        description: |
+          The type of session to use. The default is cookie, which uses a cookie to store the session id.
+          Other options include file, which stores the session id in a file, and dbm, which stores the session id in a dbm file.
+          The dbm option is not recommended as it is not thread-safe.
+
+      - key: beaker.session.validate_key
+        validators: not_empty
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that is used to sign the local encrypted session.
+          `ckan generate config` generates a unique
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+
+      - key: beaker.session.httponly
+        type: bool
+        default: True
+        description: |
+          Whether or not the session cookie should be marked as http only. When marked as http only,
+          browsers are instructed to not allow javascript access to the cookie.
+
+      - key: beaker.session.samesite
+        default: Lax
+        required: True
+        validators: OneOf(["Strict","Lax","None"])
+        description: |
+          Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
+          browsers are instructed to not send the cookie with cross-site requests.
+          The value can be "Strict", "Lax" or "None".
 
   - annotation: Database settings
     options:
@@ -1094,23 +1126,6 @@ groups:
             is not a security measure. The keys will still be available via the
             API and in revision diffs.
 
-      - key: ckan.dumps_url
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the URL here, so that it can be advertised in the
-          web interface. For example::
-
-            ckan.dumps_url = http://ckan.net/dump/
-
-          For more information on using dumpfiles, see :ref:`datasets dump`.
-
-      - key: ckan.dumps_format
-        example: CSV/JSON
-        description: |
-          If there is a page which allows you to download a dump of the entire catalogue
-          then specify the format here, so that it can be advertised in the
-          web interface. ``dumps_format`` is just a string for display.
-
       - key: ckan.recaptcha.publickey
         description: |
           The public key for your reCAPTCHA account, for example::
@@ -1170,11 +1185,6 @@ groups:
 
           .. note:: This info only shows if debug is set to True.
 
-      - key: ckan.homepage_style
-        default: "1"
-        description: Pre-configured homepage style to use. Allowed values are 1, 2 or 3.
-        editable: true
-
       - key: ckan.site_custom_css
         description: Custom CSS directives to include on all CKAN pages.
         editable: true
@@ -1202,40 +1212,6 @@ groups:
 
   - annotation: Theming Settings
     options:
-      - key: ckan.template_head_end
-        example: <link rel="stylesheet" href="http://mysite.org/css/custom.css" type="text/css">
-        description: |
-          HTML content to be inserted just before ``</head>`` tag (e.g. extra stylesheet)
-
-          You can also have multiline strings. Just indent following lines. e.g.::
-
-           ckan.template_head_end =
-            <link rel="stylesheet" href="/css/extra1.css" type="text/css">
-            <link rel="stylesheet" href="/css/extra2.css" type="text/css">
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
-      - key: ckan.template_footer_end
-        description: |
-          HTML content to be inserted just before ``</body>`` tag (e.g. Google Analytics code).
-
-          .. note:: you can have multiline strings (just indent following lines)
-
-          Example (showing insertion of Google Analytics code)::
-
-            ckan.template_footer_end = <!-- Google Analytics -->
-              <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script>
-              <script type="text/javascript">
-              try {
-              var pageTracker = _gat._getTracker("XXXXXXXXX");
-              pageTracker._setDomainName(".ckan.net");
-              pageTracker._trackPageview();
-              } catch(err) {}
-              </script>
-              <!-- /Google Analytics -->
-
-          .. note:: This is only for legacy code, and shouldn't be used anymore.
-
       - key: ckan.template_title_delimiter
         default: '-'
         example: '|'
@@ -1268,18 +1244,18 @@ groups:
         example: public
         description: |
           This config option is used to configure the base folder for static files used
-          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
-          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
-          will be dropped in next major release.)
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
 
       - key: ckan.base_templates_folder
         default: templates
-        example: templates-bs3
+        example: templates
         description: |
           This config option is used to configure the base folder for templates used
-          by CKAN core. Starting CKAN 2.10 it accepts two values: ``public`` and
-          ``public-bs3`` for Bootstrap 5 and 3 respectively. (Bootstrap 3 support
-          will be dropped in next major release.)
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``templates`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
 
       - key: ckan.default.package_type
         default: dataset
@@ -1321,12 +1297,6 @@ groups:
           Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
 
           Same as :ref:`ckan.default.package_type`, but for organizations.
-
-      - key: ckan.admin_tabs
-        default: {}
-        example: '{"home.about": {"icon": "hammer", "label": "Hammer!"}}'
-        validators: convert_to_json_if_string dict_only
-        description: Extra navigation items for Sysadmin Settings.
 
   - annotation: Storage Settings
     options:
@@ -1381,6 +1351,12 @@ groups:
           In order to increase performance, static assets (CSS and JS files) included via an ``asset`` tag inside templates are compiled only once,
           when the asset is used for the first time. All subsequent requests to the
           asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
+
+      - key: ckan.webassets.url
+        example: /serve/assets/from/here
+        default: /webassets
+        description: |
+          URL path for endpoint that serves webassets.
 
       - key: ckan.webassets.use_x_sendfile
         type: bool

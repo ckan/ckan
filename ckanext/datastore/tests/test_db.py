@@ -2,7 +2,6 @@
 
 import unittest.mock as mock
 import pytest
-import sqlalchemy.exc
 
 import ckan.lib.jobs as jobs
 import ckan.plugins as p
@@ -128,44 +127,6 @@ class TestCreateIndexes(object):
         )
 
 
-@mock.patch("ckanext.datastore.backend.postgres._get_fields")
-def test_upsert_with_insert_method_and_invalid_data(mock_get_fields_function):
-    """upsert_data() should raise InvalidDataError if given invalid data.
-
-    If the type of a field is numeric and upsert_data() is given a whitespace
-    value like "   ", it should raise DataError.
-
-    In this case we're testing with "method": "insert" in the data_dict.
-
-    """
-    mock_connection = mock.Mock()
-    mock_connection.execute.side_effect = sqlalchemy.exc.DataError(
-        "statement", "params", "orig", connection_invalidated=False
-    )
-
-    context = {"connection": mock_connection}
-    data_dict = {
-        "fields": [{"id": "value", "type": "numeric"}],
-        "records": [
-            {"value": 0},
-            {"value": 1},
-            {"value": 2},
-            {"value": 3},
-            {"value": "   "},  # Invalid numeric value.
-            {"value": 5},
-            {"value": 6},
-            {"value": 7},
-        ],
-        "method": "insert",
-        "resource_id": "fake-resource-id",
-    }
-
-    mock_get_fields_function.return_value = data_dict["fields"]
-
-    with pytest.raises(backend.InvalidDataError):
-        db.upsert_data(context, data_dict)
-
-
 class TestGetAllResourcesIdsInDatastore(object):
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
     @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
@@ -203,7 +164,7 @@ class TestBackgroundJobs(helpers.RQTestBase):
     Test correct interaction with the background jobs system.
     """
     @pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
-    @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
+    @pytest.mark.usefixtures(u"with_plugins", u"clean_db")
     def test_worker_datastore_access(self, app):
         """
         Test DataStore access from within a worker.

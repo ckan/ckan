@@ -29,12 +29,10 @@ from flask_babel import (gettext as flask_ugettext,
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
-from ckan.types import Model
+from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
-    # starting from python 3.7 the following line can be used without any
-    # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
 
 SENTINEL = {}
@@ -68,14 +66,14 @@ def streaming_response(data: Iterable[Any],
 
 
 def ugettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ugettext(*args, **kwargs))
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
 
 
 def ungettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ungettext(*args, **kwargs))
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -149,7 +147,7 @@ def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy):
+class CKANRequest(LocalProxy[Request]):
     u'''Common request object
 
     This is just a wrapper around LocalProxy so we can handle some special

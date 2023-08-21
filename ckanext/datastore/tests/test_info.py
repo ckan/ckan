@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.lib import helpers as template_helpers
@@ -74,15 +73,14 @@ def test_api_info(app):
 
     page = app.get(url, status=200)
 
-    # check we built all the urls ok
-    expected_urls = (
-        "http://test.ckan.net/api/3/action/datastore_create",
-        "http://test.ckan.net/api/3/action/datastore_upsert",
-        "<code>http://test.ckan.net/api/3/action/datastore_search",
-        "http://test.ckan.net/api/3/action/datastore_search_sql",
-        "url: 'http://test.ckan.net/api/3/action/datastore_search'",
-        "http://test.ckan.net/api/3/action/datastore_search"
+    # check we built some urls, examples properly
+    expected_html = (
+        "http://test.ckan.net/api/action/datastore_search",
+        "http://test.ckan.net/api/action/datastore_search_sql",
+        '<pre class="example-curl"><code class="language-bash"',
+        f'"sql": "SELECT * FROM \\"{resource["id"]}\\" WHERE',
+        "RemoteCKAN('http://test.ckan.net/', apikey=API_TOKEN)",
     )
-    content = six.ensure_text(page.data)
-    for url in expected_urls:
-        assert url in content
+    content = page.get_data(as_text=True)
+    for html in expected_html:
+        assert html in content

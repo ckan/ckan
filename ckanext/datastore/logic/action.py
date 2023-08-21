@@ -3,22 +3,19 @@ from __future__ import annotations
 
 from ckan.types import Context
 import logging
-from typing import Any, cast
+from typing import Any
 
 import sqlalchemy
 import sqlalchemy.exc
-import six
-
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.backend import (
-    DatastoreBackend, InvalidDataError
-)
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.backend.postgres import identifier
 
 log = logging.getLogger(__name__)
@@ -34,7 +31,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called
-    multiple times to initially insert more data, add fields, change the
+    multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
     To create an empty datastore resource and a CKAN resource at the same time,
@@ -82,7 +79,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
-    the provided records to the resource.
+    the provided records to the resource. Setting ``fields`` without including
+    all existing fields will remove the others and the data they contain.
 
     **Results:**
 
@@ -156,18 +154,14 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    try:
-        result = backend.create(context, data_dict)
-    except InvalidDataError as err:
-        raise p.toolkit.ValidationError({'message': str(err)})
+    result = backend.create(context, data_dict)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
-    if resobj.extras.get('datastore_active') is not True:
+    if resobj and resobj.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resobj.id)
         )
@@ -204,7 +198,7 @@ def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:
     try:
         results: Any = connection.execute(sql)
     except sqlalchemy.exc.DatabaseError as err:
-        message = six.ensure_text(err.args[0].split('\n')[0])
+        message = str(err.args[0].split('\n')[0])
         raise p.toolkit.ValidationError({
                 u'records': [message.split(u') ', 1)[-1]]})
     return results.rowcount
@@ -415,7 +409,6 @@ def datastore_delete(context: Context, data_dict: dict[str, Any]):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(cast("dict[str, Any]", context), 'model')
     resource = model.Resource.get(data_dict['resource_id'])
 
     if (data_dict.get('filters', None) is None and
@@ -506,7 +499,7 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
                    (optional, default: all fields in original order)
     :type fields: list or comma separated string
     :param sort: comma separated field names with ordering
-                 e.g.: "fieldname1, fieldname2 desc"
+                 e.g.: "fieldname1, fieldname2 desc nulls last"
     :type sort: string
     :param include_total: True to return total matching record count
                           (optional, default: true)
@@ -645,11 +638,11 @@ def datastore_search_sql(context: Context, data_dict: dict[str, Any]):
         '''
         p.toolkit.check_access(
             'datastore_search_sql',
-            cast(Context, dict(context, table_names=table_names)),
+            Context(context, table_names=table_names),
             data_dict)
 
     result = backend.search_sql(
-        cast(Context, dict(context, check_access=check_access)),
+        Context(context, check_access=check_access),
         data_dict)
     result.pop('id', None)
     result.pop('connection_url', None)
@@ -680,20 +673,26 @@ def set_datastore_active_flag(
 
     model.Session.commit()
 
+    # copied from ckan.lib.search.rebuild
+    # using validated packages can cause solr errors.
+    context = {
+        'model': model,
+        'ignore_auth': True,
+        'validate': False,
+        'use_cache': False
+    }
+
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    try:
-        _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': resource.package_id
-        })
-        for resource in _data_dict['resources']:
-            if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
-                psi.index_package(_data_dict)
-                break
-    except (logic.NotAuthorized, logic.NotFound) as e:
-        log.error(e.message)
+    _data_dict = p.toolkit.get_action('package_show')(context, {
+        'id': resource.package_id
+    })
+    for resource in _data_dict['resources']:
+        if resource['id'] == data_dict['resource_id']:
+            resource.update(update_dict)
+            psi.index_package(_data_dict)
+            break
 
 
 def _check_read_only(context: Context, resource_id: str):
@@ -702,10 +701,14 @@ def _check_read_only(context: Context, resource_id: str):
     '''
     res = p.toolkit.get_action('resource_show')(
         context, {'id': resource_id})
-    if res.get('url_type') != 'datastore':
+    if res.get('url_type') not in (
+            p.toolkit.h.datastore_rw_resource_url_types()
+        ):
         raise p.toolkit.ValidationError({
-            'read-only': ['Cannot edit read-only resource. Either pass'
-                          '"force=True" or change url_type to "datastore"']
+            'read-only': ['Cannot edit read-only resource because changes '
+                          'made may be lost. Use a resource created for '
+                          'editing e.g. with datastore_create or use '
+                          '"force=True" to ignore this warning.']
         })
 
 

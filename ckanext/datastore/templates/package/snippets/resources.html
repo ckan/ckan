@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block resources_list_edit_dropdown_inner %}
+  {{ super() }}
+  {% if resource.datastore_active %}
+    <li>{% link_for _('Data Dictionary'), named_route='datastore.dictionary', id=pkg.name, resource_id=resource.id, class_='dropdown-item', icon='code' %}
+  {% endif %}
+{% endblock %}

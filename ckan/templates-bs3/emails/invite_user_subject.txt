@@ -1,3 +1,0 @@
-{% trans %}
-Invite for {{ site_title }}
-{% endtrans %}

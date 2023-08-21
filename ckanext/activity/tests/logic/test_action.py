@@ -6,6 +6,7 @@ import time
 
 import pytest
 
+from ckan import model
 import ckan.plugins.toolkit as tk
 
 import ckan.tests.helpers as helpers
@@ -1871,7 +1872,7 @@ class TestDashboardNewActivities(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_request_context", "with_plugins")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
 class TestSendEmailNotifications(object):
     # TODO: this action doesn't do much. Maybe it well be better to move tests
     # into lib.email_notifications eventually
@@ -1888,6 +1889,7 @@ class TestSendEmailNotifications(object):
             len(mail_server.get_smtp_messages()) == 0
         ), "Notification came out of nowhere"
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_single_notification(self, mail_server):
         pkg = factories.Dataset()
         user = factories.User(activity_streams_email_notifications=True)
@@ -1905,6 +1907,7 @@ class TestSendEmailNotifications(object):
             "1 new activity from CKAN",
         )
 
+    @pytest.mark.usefixtures("with_request_context")
     def test_multiple_notifications(self, mail_server):
         pkg = factories.Dataset()
         user = factories.User(activity_streams_email_notifications=True)
@@ -2095,3 +2098,83 @@ class TestFollow:
             "follow_user", context={"user": user["name"]}, **user2
         )
         assert not helpers.call_action("user_activity_list", id=user["id"])
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("clean_db", "with_plugins")
+class TestDeferCommitOnCreate(object):
+
+    def test_package_create_defer_commit(self):
+        dataset_dict = {
+            "name": "test_dataset",
+        }
+        context = {
+            "defer_commit": True,
+            "user": factories.User()["name"],
+        }
+
+        helpers.call_action("package_create", context=context, **dataset_dict)
+
+        model.Session.close()
+
+        with pytest.raises(tk.ObjectNotFound):
+            helpers.call_action("package_show", id=dataset_dict["name"])
+
+        assert model.Session.query(Activity).filter(
+            Activity.activity_type != "new user").count() == 0
+
+    def test_group_create_defer_commit(self):
+        group_dict = {
+            "name": "test_group",
+        }
+        context = {
+            "defer_commit": True,
+            "user": factories.User()["name"],
+        }
+
+        helpers.call_action("group_create", context=context, **group_dict)
+
+        model.Session.close()
+
+        with pytest.raises(tk.ObjectNotFound):
+            helpers.call_action("group_show", id=group_dict["name"])
+
+        assert model.Session.query(Activity).filter(
+            Activity.activity_type != "new user").count() == 0
+
+    def test_organization_create_defer_commit(self):
+        organization_dict = {
+            "name": "test_org",
+        }
+        context = {
+            "defer_commit": True,
+            "user": factories.User()["name"],
+        }
+
+        helpers.call_action("organization_create", context=context, **organization_dict)
+
+        model.Session.close()
+
+        with pytest.raises(tk.ObjectNotFound):
+            helpers.call_action("organization_show", id=organization_dict["name"])
+
+        assert model.Session.query(Activity).filter(
+            Activity.activity_type != "new user").count() == 0
+
+    def test_user_create_defer_commit(self):
+        stub = factories.User.stub()
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        context = {"defer_commit": True}
+
+        helpers.call_action("user_create", context=context, **user_dict)
+
+        model.Session.close()
+
+        with pytest.raises(tk.ObjectNotFound):
+            helpers.call_action("user_show", id=user_dict["name"])
+
+        assert model.Session.query(Activity).count() == 0

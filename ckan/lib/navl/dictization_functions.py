@@ -4,9 +4,7 @@ from __future__ import annotations
 import copy
 import json
 from typing import (Any, Callable, Iterable, Optional,
-                    Sequence, Union, cast)
-
-import six
+                    Sequence, Union)
 
 from ckan.common import _
 from ckan.types import (
@@ -14,9 +12,6 @@ from ckan.types import (
 
 
 class Missing(object):
-    def __unicode__(self):
-        raise Invalid(_('Missing value'))
-
     def __str__(self):
         raise Invalid(_('Missing value'))
 
@@ -53,11 +48,8 @@ class DictizationError(Exception):
     error: Optional[str]
 
     def __str__(self):
-        return six.ensure_str(self.__unicode__())
-
-    def __unicode__(self):
         if hasattr(self, 'error') and self.error:
-            return u'{}: {}'.format(self.__class__.__name__, repr(self.error))
+            return '{}: {}'.format(self.__class__.__name__, repr(self.error))
         return self.__class__.__name__
 
     def __repr__(self):
@@ -298,8 +290,7 @@ def validate(
 
     # create a copy of the context which also includes the schema keys so
     # they can be used by the validators
-    validators_context = cast(Context,
-                              dict(context, schema_keys=list(schema.keys())))
+    validators_context = Context(context, schema_keys=list(schema.keys()))
 
     flattened = flatten_dict(data)
     flat_data, errors = _validate(flattened, schema, validators_context)

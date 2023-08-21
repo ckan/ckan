@@ -26,7 +26,7 @@ class AudioView(p.SingletonPlugin):
     def info(self) -> dict[str, Any]:
         return {'name': 'audio_view',
                 'title': p.toolkit._('Audio'),
-                'icon': 'file-audio-o',
+                'icon': 'file-audio',
                 'schema': {'audio_url': [ignore_empty, unicode_safe]},
                 'iframed': False,
                 'always_available': True,

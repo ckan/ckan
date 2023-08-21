@@ -1,0 +1,5 @@
+Blueprint `resource` will be removed in the future.
+
+The blueprint `<package_type>_resource` is preferred.
+
+E.g. use `dataset_resource.read` instead of `resource.read`

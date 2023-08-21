@@ -14,12 +14,18 @@ from ckan.tests.helpers import call_action
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestPluggablePreviews:
     def test_hook(self, app):
-        res = factories.Resource()
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{"name": user["name"], "capacity": "admin"}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org["id"])
+        res = factories.Resource(package_id=dataset["id"])
         plugin = plugins.get_plugin("test_resource_view")
         plugin.calls.clear()
 
         url = h.url_for(
-            "resource.read", id=res["package_id"], resource_id=res["id"]
+            "{}_resource.read".format(dataset["type"]),
+            id=res["package_id"], resource_id=res["id"]
         )
         result = app.get(url)
         assert "There are no views created" in result
@@ -46,7 +52,7 @@ class TestPluggablePreviews:
         assert views[0]["view_type"] == "test_resource_view"
 
         view_url = h.url_for(
-            "resource.view",
+            "{}_resource.view".format(dataset["type"]),
             id=res["package_id"], resource_id=res["id"], view_id=views[0]["id"]
         )
 
@@ -93,14 +99,14 @@ def track(app):
 
     def func(url, type_="page", ip="199.204.138.90", browser="firefox"):
         params = {"url": url, "type": type_}
-        extra_environ = {
+        environ_overrides = {
             # The tracking middleware crashes if these aren't present.
             "HTTP_USER_AGENT": browser,
             "REMOTE_ADDR": ip,
             "HTTP_ACCEPT_LANGUAGE": "en",
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
-        app.post("/_tracking", params=params, extra_environ=extra_environ)
+        app.post("/_tracking", params=params, environ_overrides=environ_overrides)
 
     return func
 
@@ -228,7 +234,8 @@ class TestTracking(object):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
         url = h.url_for(
-            "resource.read", id=package["name"], resource_id=resource["id"]
+            "{}_resource.read".format(package["type"]),
+            id=package["name"], resource_id=resource["id"]
         )
         track(url)
 

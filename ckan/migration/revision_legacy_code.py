@@ -26,7 +26,7 @@ from ckanext.activity.model import Activity
 # This is based on ckan.lib.dictization.model_dictize:package_dictize
 # BUT you can ask for a old revision to the package by specifying 'revision_id'
 # in the context
-def package_dictize_with_revisions(pkg, context):
+def package_dictize_with_revisions(pkg, context, include_plugin_data=False):
     '''
     Given a Package object, returns an equivalent dictionary.
 
@@ -306,7 +306,8 @@ def copy_table_columns(table):
 # Copied from vdm
 def copy_table(table, newtable):
     for key in table.c.keys():
-        copy_column(key, table, newtable)
+        if key != "plugin_data":
+            copy_column(key, table, newtable)
 
 
 # Copied from vdm
@@ -325,8 +326,7 @@ def make_revision_table(metadata):
 
 # Copied from vdm
 def make_Revision(mapper, revision_table):  # noqa
-    mapper(Revision, revision_table, properties={},
-           order_by=revision_table.c.timestamp.desc())
+    mapper(Revision, revision_table, properties={})
     return Revision
 
 
