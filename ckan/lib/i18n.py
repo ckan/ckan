@@ -230,6 +230,8 @@ def _set_lang(lang):
     sets the Pylons root path to desired i18n_directory.
     This is needed as Pylons will only look for an i18n directory in
     the application root.'''
+    if is_flask_request():
+        return
     i18n_dir = get_ckan_i18n_dir()
     if i18n_dir:
         fake_config = {'pylons.paths': {
