@@ -132,7 +132,7 @@ ckan.scss:
 .. Note::
     Whenever a CSS change effects ``main.scss`` it's important than after
     the merge into master that a ``$ npm run build`` should be
-    run and commited.
+    run and committed.
 
 There is a basic pattern primer available at:
 http://localhost:5000/testing/primer/ that shows all the main page
