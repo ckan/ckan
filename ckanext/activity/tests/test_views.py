@@ -66,7 +66,8 @@ class TestOrganization(object):
         )
         assert "updated the organization" in response
         assert (
-            '<a href="/organization/{}">Organization with changed title'
+            '<a href="/organization/{}" title="Organization with changed title"'
+            '>Organization with changed title'
             .format(org["name"])
             in response
         )
