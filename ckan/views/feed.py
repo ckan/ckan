@@ -140,8 +140,11 @@ class CKANFeed(FeedGenerator):
     def add_item(self, **kwargs):
         entry = self.add_entry()
         for key, value in kwargs.items():
-            if key in {u"published", u"updated"} and not value.tzinfo:
-                value = value.replace(tzinfo=tzutc())
+            if key in {u"published", u"updated"} and not hasattr(entry, 'tzinfo'):
+                try:
+                    value = value.replace(tzinfo=tzutc())
+                except:
+                    value = None
             elif key == u'unique_id':
                 key = u'id'
             elif key == u'categories':
