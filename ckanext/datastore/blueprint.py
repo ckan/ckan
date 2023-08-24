@@ -29,9 +29,6 @@ from ckanext.datastore.writer import (
     tsv_writer,
     json_writer,
     xml_writer,
-    TextWriter,
-    JSONWriter,
-    XMLWriter,
 )
 if six.PY2:
     from StringIO import StringIO
@@ -76,6 +73,22 @@ def dump(resource_id):
             )
         )
 
+    # Setup variables
+
+    fmt = data[u'format']
+    offset = data[u'offset']
+    limit = data.get(u'limit')
+    options = {u'bom': data[u'bom']}
+    sort = data[u'sort']
+    search_params = {
+        k: v
+        for k, v in data.items()
+        if k in [
+            u'filters', u'q', u'distinct', u'plain', u'language',
+            u'fields'
+        ]
+    }
+
     # Pylons request
 
     if not is_flask_request():
@@ -86,19 +99,12 @@ def dump(resource_id):
             dump_to(
                 resource_id,
                 response,
-                fmt=data[u'format'],
-                offset=data[u'offset'],
-                limit=data.get(u'limit'),
-                options={u'bom': data[u'bom']},
-                sort=data[u'sort'],
-                search_params={
-                    k: v
-                    for k, v in data.items()
-                    if k in [
-                        u'filters', u'q', u'distinct', u'plain', u'language',
-                        u'fields'
-                    ]
-                },
+                fmt=fmt,
+                offset=offset,
+                limit=limit,
+                options=options,
+                sort=sort,
+                search_params=search_params,
             )
         except ObjectNotFound:
             abort(404, _(u'DataStore resource not found'))
@@ -106,99 +112,61 @@ def dump(resource_id):
 
     # Flask request
 
-    if data[u'format'] == u'csv':
+    if fmt == u'csv':
+        writer_factory = csv_writer
+        records_format = u'csv'
         content_disposition = u'attachment; filename="{name}.csv"'.format(
                                     name=encode_rfc2231(resource_id))
         content_type = b'text/csv; charset=utf-8'
-    elif data[u'format'] == u'tsv':
+    elif fmt == u'tsv':
+        writer_factory = tsv_writer
+        records_format = u'tsv'
         content_disposition = u'attachment; filename="{name}.tsv"'.format(
                                     name=encode_rfc2231(resource_id))
         content_type = b'text/tab-separated-values; charset=utf-8'
-    elif data[u'format'] == u'json':
+    elif fmt == u'json':
+        writer_factory = json_writer
+        records_format = u'lists'
         content_disposition = u'attachment; filename="{name}.json"'.format(
                                     name=encode_rfc2231(resource_id))
         content_type = b'application/json; charset=utf-8'
-    elif data[u'format'] == u'xml':
+    elif fmt == u'xml':
+        writer_factory = xml_writer
+        records_format = u'objects'
         content_disposition = u'attachment; filename="{name}.xml"'.format(
                                     name=encode_rfc2231(resource_id))
         content_type = b'text/xml; charset=utf-8'
 
-    def stream_dump(data):
-        fmt = data[u'format']
-        offset = data[u'offset']
-        limit = data.get(u'limit')
-        options = {u'bom': data[u'bom']}
-        sort = data[u'sort']
-        search_params = {
-            k: v
-            for k, v in data.items()
-            if k in [
-                u'filters', u'q', u'distinct', u'plain', u'language',
-                u'fields'
-            ]
-        }
-        if fmt == u'csv':
-            records_format = u'csv'
-        elif fmt == u'tsv':
-            records_format = u'tsv'
-        elif fmt == u'json':
-            records_format = u'lists'
-        elif fmt == u'xml':
-            records_format = u'objects'
+    bom = options.get(u'bom', False)
 
-        bom = options.get(u'bom', False)
+    output_stream = StringIO()
 
-        def result_page(offs, lim):
-            return get_action(u'datastore_search')(
-                None,
-                dict({
-                    u'resource_id': resource_id,
-                    u'limit': PAGINATE_BY
-                    if limit is None else min(PAGINATE_BY, lim),
-                    u'offset': offs,
-                    u'sort': sort,
-                    u'records_format': records_format,
-                    u'include_total': False,
-                }, **search_params)
-            )
+    def start_stream_writer(fields):
+        return writer_factory(output_stream, fields, name=resource_id, bom=bom, is_stream=True)
 
-        result = result_page(offset, limit)
+    def stream_result_page(offs, lim):
+        return get_action(u'datastore_search')(
+            None,
+            dict({
+                u'resource_id': resource_id,
+                u'limit': PAGINATE_BY
+                if limit is None else min(PAGINATE_BY, lim),
+                u'offset': offs,
+                u'sort': sort,
+                u'records_format': records_format,
+                u'include_total': False,
+            }, **search_params)
+        )
 
-        if result[u'limit'] != limit:
-            # `limit` (from PAGINATE_BY) must have been more than
-            # ckan.datastore.search.rows_max, so datastore_search responded with a
-            # limit matching ckan.datastore.search.rows_max. So we need to paginate
-            # by that amount instead, otherwise we'll have gaps in the records.
-            paginate_by = result[u'limit']
-        else:
-            paginate_by = PAGINATE_BY
-
-        output_stream = StringIO()
-
-        if fmt == u'csv':
-            unicodecsv.writer(output_stream, encoding=u'utf-8').writerow(
-                                f['id'] for f in result[u'fields'])
-            writer = TextWriter(output_stream)
-        elif fmt == u'tsv':
-            unicodecsv.writer(output_stream, encoding=u'utf-8', dialect=unicodecsv.excel_tab).writerow(
-                                f['id'] for f in result[u'fields'])
-            writer = TextWriter(output_stream)
-        elif fmt == u'json':
-            output_stream.write(six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-                                    result[u'fields'], ensure_ascii=False, separators=(u',', u':'))))
-            writer = JSONWriter(output_stream)
-        elif fmt == u'xml':
-            output_stream.write(b'<data>\n')
-            writer = XMLWriter(output_stream, [f[u'id'] for f in result[u'fields']])
-            output_stream.write(b'</data>\n')
-
+    def stream_dump(offset, limit, paginate_by, result, stream_writer):
         while True:
             if limit is not None and limit <= 0:
                 break
 
             records = result[u'records']
 
-            writer.write_records(records)
+            stream_writer.write_records(records)
+            yield output_stream.read()
 
             if records_format == u'objects' or records_format == u'lists':
                 if len(records) < paginate_by:
@@ -212,16 +180,25 @@ def dump(resource_id):
                 if limit <= 0:
                     break
 
-            result = result_page(offset, limit)
-
-            output_stream.seek(0)
-            yield output_stream.read()
+            result = stream_result_page(offset, limit)
 
     try:
-        return Response(stream_dump(data),
-                        mimetype=u'application/octet-stream',
-                        headers={'Content-Type': content_type,
-                                 'Content-disposition': content_disposition,})
+        result = stream_result_page(offset, limit)
+
+        if result[u'limit'] != limit:
+            # `limit` (from PAGINATE_BY) must have been more than
+            # ckan.datastore.search.rows_max, so datastore_search responded with a
+            # limit matching ckan.datastore.search.rows_max. So we need to paginate
+            # by that amount instead, otherwise we'll have gaps in the records.
+            paginate_by = result[u'limit']
+        else:
+            paginate_by = PAGINATE_BY
+
+        with start_stream_writer(result[u'fields']) as wr:
+            return Response(stream_dump(offset, limit, paginate_by, result, wr),
+                            mimetype=u'application/octet-stream',
+                            headers={'Content-Type': content_type,
+                                    'Content-disposition': content_disposition,})
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 
