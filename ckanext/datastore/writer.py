@@ -13,7 +13,7 @@ from codecs import BOM_UTF8
 
 
 @contextmanager
-def csv_writer(response, fields, name=None, bom=False, is_stream=False):
+def csv_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 CSV data to response
 
     :param response: file-like or response-like object for writing
@@ -23,27 +23,22 @@ def csv_writer(response, fields, name=None, bom=False, is_stream=False):
     :param bom: True to include a UTF-8 BOM at the start of the file
     :param is_stream: True to treat the writer output as a String or Byte steam
     '''
-    if not is_stream:
-        output = response.stream
-    else:
-        output = response
-
-    if not is_stream and hasattr(response, u'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = b'text/csv; charset=utf-8'
         if name:
             response.headers['Content-disposition'] = (
                 u'attachment; filename="{name}.csv"'.format(
                     name=encode_rfc2231(name)))
     if bom:
-        output.write(BOM_UTF8)
+        response.stream.write(BOM_UTF8)
 
-    unicodecsv.writer(output, encoding=u'utf-8').writerow(
+    unicodecsv.writer(response.stream, encoding=u'utf-8').writerow(
         f['id'] for f in fields)
-    yield TextWriter(output)
+    yield TextWriter(response.stream)
 
 
 @contextmanager
-def tsv_writer(response, fields, name=None, bom=False, is_stream=False):
+def tsv_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 TSV data to response
 
     :param response: file-like or response-like object for writing
@@ -53,12 +48,7 @@ def tsv_writer(response, fields, name=None, bom=False, is_stream=False):
     :param bom: True to include a UTF-8 BOM at the start of the file
     :param is_stream: True to treat the writer output as a String or Byte steam
     '''
-    if not is_stream:
-        output = response.stream
-    else:
-        output = response
-
-    if not is_stream and hasattr(response, u'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = (
             b'text/tab-separated-values; charset=utf-8')
         if name:
@@ -66,14 +56,14 @@ def tsv_writer(response, fields, name=None, bom=False, is_stream=False):
                 u'attachment; filename="{name}.tsv"'.format(
                     name=encode_rfc2231(name)))
     if bom:
-        output.write(BOM_UTF8)
+        response.stream.write(BOM_UTF8)
 
     unicodecsv.writer(
-        output,
+        response.stream,
         encoding=u'utf-8',
         dialect=unicodecsv.excel_tab).writerow(
             f['id'] for f in fields)
-    yield TextWriter(output)
+    yield TextWriter(response.stream)
 
 
 class TextWriter(object):
@@ -86,7 +76,7 @@ class TextWriter(object):
 
 
 @contextmanager
-def json_writer(response, fields, name=None, bom=False, is_stream=False):
+def json_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 JSON data to response
 
     :param response: file-like or response-like object for writing
@@ -96,12 +86,7 @@ def json_writer(response, fields, name=None, bom=False, is_stream=False):
     :param bom: True to include a UTF-8 BOM at the start of the file
     :param is_stream: True to treat the writer output as a String or Byte steam
     '''
-    if not is_stream:
-        output = response.stream
-    else:
-        output = response
-
-    if not is_stream and hasattr(response, u'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = (
             b'application/json; charset=utf-8')
         if name:
@@ -109,12 +94,12 @@ def json_writer(response, fields, name=None, bom=False, is_stream=False):
                 u'attachment; filename="{name}.json"'.format(
                     name=encode_rfc2231(name)))
     if bom:
-        output.write(BOM_UTF8)
-    output.write(
+        response.stream.write(BOM_UTF8)
+    response.stream.write(
         six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
             fields, ensure_ascii=False, separators=(u',', u':'))))
-    yield JSONWriter(output)
-    output.write(b'\n]}\n')
+    yield JSONWriter(response.stream)
+    response.stream.write(b'\n]}\n')
 
 
 class JSONWriter(object):
@@ -135,7 +120,7 @@ class JSONWriter(object):
 
 
 @contextmanager
-def xml_writer(response, fields, name=None, bom=False, is_stream=False):
+def xml_writer(response, fields, name=None, bom=False):
     u'''Context manager for writing UTF-8 XML data to response
 
     :param response: file-like or response-like object for writing
@@ -145,12 +130,7 @@ def xml_writer(response, fields, name=None, bom=False, is_stream=False):
     :param bom: True to include a UTF-8 BOM at the start of the file
     :param is_stream: True to treat the writer output as a String or Byte steam
     '''
-    if not is_stream:
-        output = response.stream
-    else:
-        output = response
-
-    if not is_stream and hasattr(response, u'headers'):
+    if hasattr(response, u'headers'):
         response.headers['Content-Type'] = (
             b'text/xml; charset=utf-8')
         if name:
@@ -158,10 +138,10 @@ def xml_writer(response, fields, name=None, bom=False, is_stream=False):
                 u'attachment; filename="{name}.xml"'.format(
                     name=encode_rfc2231(name)))
     if bom:
-        output.write(BOM_UTF8)
-    output.write(b'<data>\n')
-    yield XMLWriter(output, [f[u'id'] for f in fields])
-    output.write(b'</data>\n')
+        response.stream.write(BOM_UTF8)
+    response.stream.write(b'<data>\n')
+    yield XMLWriter(response.stream, [f[u'id'] for f in fields])
+    response.stream.write(b'</data>\n')
 
 
 class XMLWriter(object):

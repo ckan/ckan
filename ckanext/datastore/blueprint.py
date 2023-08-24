@@ -3,12 +3,9 @@
 from six.moves import zip_longest
 import six
 from email.utils import encode_rfc2231
-import unicodecsv
-from simplejson import dumps
 
-from flask import Blueprint, Response, make_response
+from flask import Blueprint, Response
 from flask.views import MethodView
-from ckan.common import is_flask_request
 
 import ckan.lib.navl.dictization_functions as dict_fns
 from ckan.logic import (
@@ -73,8 +70,6 @@ def dump(resource_id):
             )
         )
 
-    # Setup variables
-
     fmt = data[u'format']
     offset = data[u'offset']
     limit = data.get(u'limit')
@@ -88,29 +83,6 @@ def dump(resource_id):
             u'fields'
         ]
     }
-
-    # Pylons request
-
-    if not is_flask_request():
-        response = make_response()
-        response.headers[u'content-type'] = u'application/octet-stream'
-
-        try:
-            dump_to(
-                resource_id,
-                response,
-                fmt=fmt,
-                offset=offset,
-                limit=limit,
-                options=options,
-                sort=sort,
-                search_params=search_params,
-            )
-        except ObjectNotFound:
-            abort(404, _(u'DataStore resource not found'))
-        return response
-
-    # Flask request
 
     if fmt == u'csv':
         writer_factory = csv_writer
@@ -139,10 +111,8 @@ def dump(resource_id):
 
     bom = options.get(u'bom', False)
 
-    output_stream = StringIO()
-
-    def start_stream_writer(fields):
-        return writer_factory(output_stream, fields, name=resource_id, bom=bom, is_stream=True)
+    def start_stream_writer(output_stream, fields):
+        return writer_factory(output_stream, fields, name=resource_id, bom=bom)
 
     def stream_result_page(offs, lim):
         return get_action(u'datastore_search')(
@@ -158,29 +128,32 @@ def dump(resource_id):
             }, **search_params)
         )
 
-    def stream_dump(offset, limit, paginate_by, result, stream_writer):
-        while True:
-            if limit is not None and limit <= 0:
-                break
-
-            records = result[u'records']
-
-            stream_writer.write_records(records)
-            yield output_stream.read()
-
-            if records_format == u'objects' or records_format == u'lists':
-                if len(records) < paginate_by:
-                    break
-            elif not records:
-                break
-
-            offset += paginate_by
-            if limit is not None:
-                limit -= paginate_by
-                if limit <= 0:
+    def stream_dump(offset, limit, paginate_by, result):
+        output_stream = StringIO()
+        with start_stream_writer(output_stream, result[u'fields']) as wr:
+            while True:
+                if limit is not None and limit <= 0:
                     break
 
-            result = stream_result_page(offset, limit)
+                records = result[u'records']
+
+                wr.write_records(records)
+                output_stream.seek(0)
+                yield output_stream.read()
+
+                if records_format == u'objects' or records_format == u'lists':
+                    if len(records) < paginate_by:
+                        break
+                elif not records:
+                    break
+
+                offset += paginate_by
+                if limit is not None:
+                    limit -= paginate_by
+                    if limit <= 0:
+                        break
+
+                result = stream_result_page(offset, limit)
 
     try:
         result = stream_result_page(offset, limit)
@@ -194,11 +167,10 @@ def dump(resource_id):
         else:
             paginate_by = PAGINATE_BY
 
-        with start_stream_writer(result[u'fields']) as wr:
-            return Response(stream_dump(offset, limit, paginate_by, result, wr),
-                            mimetype=u'application/octet-stream',
-                            headers={'Content-Type': content_type,
-                                    'Content-disposition': content_disposition,})
+        return Response(stream_dump(offset, limit, paginate_by, result),
+                        mimetype=u'application/octet-stream',
+                        headers={'Content-Type': content_type,
+                                'Content-disposition': content_disposition,})
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 
