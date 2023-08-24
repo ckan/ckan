@@ -28,7 +28,7 @@ from ckanext.datastore.writer import (
     xml_writer,
 )
 if six.PY2:
-    from StringIO import StringIO
+    from cStringIO import StringIO
 else:
     from io import StringIO
 
@@ -111,12 +111,16 @@ def dump(resource_id):
 
     bom = options.get(u'bom', False)
 
+    output_stream = StringIO()
+
+    user_context = c.user
+
     def start_stream_writer(output_stream, fields):
-        return writer_factory(output_stream, fields, name=resource_id, bom=bom)
+        return writer_factory(output_stream, fields, bom=bom)
 
     def stream_result_page(offs, lim):
         return get_action(u'datastore_search')(
-            None,
+            {u'user': user_context},
             dict({
                 u'resource_id': resource_id,
                 u'limit': PAGINATE_BY
@@ -129,17 +133,18 @@ def dump(resource_id):
         )
 
     def stream_dump(offset, limit, paginate_by, result):
-        output_stream = StringIO()
-        with start_stream_writer(output_stream, result[u'fields']) as wr:
+        with start_stream_writer(output_stream, result[u'fields']) as output:
             while True:
                 if limit is not None and limit <= 0:
                     break
 
                 records = result[u'records']
 
-                wr.write_records(records)
+                output.write_records(records)
                 output_stream.seek(0)
                 yield output_stream.read()
+                output_stream.truncate(0)
+                output_stream.seek(0)
 
                 if records_format == u'objects' or records_format == u'lists':
                     if len(records) < paginate_by:
@@ -154,6 +159,8 @@ def dump(resource_id):
                         break
 
                 result = stream_result_page(offset, limit)
+        output_stream.seek(0)
+        yield output_stream.read()
 
     try:
         result = stream_result_page(offset, limit)
@@ -258,7 +265,7 @@ def dump_to(
 
     def start_writer(fields):
         bom = options.get(u'bom', False)
-        return writer_factory(output, fields, resource_id, bom)
+        return writer_factory(output, fields, bom)
 
     def result_page(offs, lim):
         return get_action(u'datastore_search')(
