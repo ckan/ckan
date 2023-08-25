@@ -1327,7 +1327,7 @@ def search_data(context, data_dict):
     else:
         v = list(_execute_single_statement(
             context, sql_string, where_values))[0][0]
-        if v is None:
+        if v is None or v == '[]':
             records = []
         else:
             records = LazyJSONObject(v)

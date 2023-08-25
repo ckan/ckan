@@ -86,7 +86,7 @@ class JSONWriter(object):
                 self.output.write(b',\n    ')
 
             self.output.write(dumps(
-                r, ensure_ascii=False, separators=(u',', u':')))
+                r, ensure_ascii=False, separators=(u',', u':')).encode('utf-8'))
 
 
 @contextmanager
