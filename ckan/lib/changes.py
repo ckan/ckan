@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 '''
 Functions for generating a list of differences between two versions of a
 dataset
@@ -67,12 +66,12 @@ def check_resource_changes(change_list, old, new, old_activity_id):
     new_resource_set = set()
     new_resource_dict = {}
 
-    for resource in old.get(u'resources'):
+    for resource in old.get(u'resources', []):
         old_resource_set.add(resource['id'])
         old_resource_dict[resource['id']] = {
             key: value for (key, value) in resource.items() if key != u'id'}
 
-    for resource in new.get(u'resources'):
+    for resource in new.get(u'resources', []):
         new_resource_set.add(resource['id'])
         new_resource_dict[resource['id']] = {
             key: value for (key, value) in resource.items() if key != u'id'}
@@ -129,7 +128,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id].get(u'name'),
-                                u'org_id': new.get(u'organization')['id']
+                                u'org_id': new[u'organization']['id']
                                     if new.get(u'organization') else u'',
                                 u'format': new_metadata.get(u'format')})
 
@@ -142,7 +141,7 @@ def check_resource_changes(change_list, old, new, old_activity_id):
                                 u'resource_id': resource_id,
                                 u'resource_name':
                                 new_resource_dict[resource_id].get(u'name'),
-                                u'org_id': new.get(u'organization')['id']
+                                u'org_id': new[u'organization']['id']
                                     if new.get(u'organization') else u'',
                                 u'old_format': old_metadata.get(u'format'),
                                 u'new_format': new_metadata.get(u'format')})
@@ -392,30 +391,30 @@ def _org_change(change_list, old, new):
                             u'method': u'change',
                             u'pkg_id': new.get(u'id'),
                             u'title': new.get(u'title'),
-                            u'old_org_id': old.get(u'organization').get(u'id'),
+                            u'old_org_id': old[u'organization'].get(u'id'),
                             u'old_org_title':
-                            old.get(u'organization').get(u'title'),
-                            u'new_org_id': new.get(u'organization').get(u'id'),
+                            old[u'organization'].get(u'title'),
+                            u'new_org_id': new[u'organization'].get(u'id'),
                             u'new_org_title':
-                                new.get(u'organization').get(u'title')})
+                                new[u'organization'].get(u'title')})
     # if the dataset was not in an organization before and it is now
     elif not old.get(u'owner_org') and new.get(u'owner_org'):
         change_list.append({u'type': u'org',
                             u'method': u'add',
                             u'pkg_id': new.get(u'id'),
                             u'title': new.get(u'title'),
-                            u'new_org_id': new.get(u'organization').get(u'id'),
+                            u'new_org_id': new[u'organization'].get(u'id'),
                             u'new_org_title':
-                            new.get(u'organization').get(u'title')})
+                            new[u'organization'].get(u'title')})
     # if the user removed the organization
     else:
         change_list.append({u'type': u'org',
                             u'method': u'remove',
                             u'pkg_id': new.get(u'id'),
                             u'title': new.get(u'title'),
-                            u'old_org_id': old.get(u'organization').get(u'id'),
+                            u'old_org_id': old[u'organization'].get(u'id'),
                             u'old_org_title':
-                            old.get(u'organization').get(u'title')})
+                            old[u'organization'].get(u'title')})
 
 
 def _maintainer_change(change_list, old, new):
@@ -716,13 +715,13 @@ def _extra_fields(change_list, old, new):
     change_list.
     '''
     if u'extras' in new:
-        extra_fields_new = _extras_to_dict(new.get(u'extras'))
+        extra_fields_new = _extras_to_dict(new.get(u'extras', []))
         extra_new_set = set(extra_fields_new.keys())
 
         # if the old version has extra fields, we need
         # to compare the new version's extras to the old ones
         if u'extras' in old:
-            extra_fields_old = _extras_to_dict(old.get(u'extras'))
+            extra_fields_old = _extras_to_dict(old.get(u'extras', []))
             extra_old_set = set(extra_fields_old.keys())
 
             # if some fields were added
@@ -819,7 +818,7 @@ def _extra_fields(change_list, old, new):
                                     u'value_list': extra_fields_new})
 
     elif u'extras' in old:
-        deleted_fields = _extras_to_dict(old['extras']).keys()
+        deleted_fields = list(_extras_to_dict(old['extras']).keys())
         if len(deleted_fields) == 1:
             change_list.append({u'type': u'extra_fields',
                                 u'method': u'remove_one',

@@ -21,6 +21,7 @@ from ckan.cli import (
     asset,
     sysadmin,
     translation,
+    clean,
     dataset,
     views,
     plugin_info,
@@ -221,3 +222,4 @@ ckan.add_command(minify.minify)
 ckan.add_command(less.less)
 ckan.add_command(generate.generate)
 ckan.add_command(user.user)
+ckan.add_command(clean.clean)

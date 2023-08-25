@@ -861,8 +861,7 @@ class TestUserList(object):
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["id"] == user["id"]
         assert got_user["name"] == user["name"]
@@ -889,10 +888,18 @@ class TestUserList(object):
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user["number_created_packages"] == 1
+
+    def test_include_site_user(self, ckan_config):
+        factories.User()
+
+        users = helpers.call_action("user_list")
+        assert len(users) == 1
+
+        users = helpers.call_action("user_list", include_site_user=True)
+        assert len(users) == 2
 
     def test_user_list_excludes_deleted_users(self):
 
@@ -901,8 +908,7 @@ class TestUserList(object):
 
         got_users = helpers.call_action("user_list")
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         assert got_users[0]["name"] == user["name"]
 
     def test_user_list_not_all_fields(self):
@@ -911,8 +917,7 @@ class TestUserList(object):
 
         got_users = helpers.call_action("user_list", all_fields=False)
 
-        # There is one default user
-        assert len(got_users) == 2
+        assert len(got_users) == 1
         got_user = got_users[0]
         assert got_user == user["name"]
 
@@ -948,15 +953,15 @@ class TestUserList(object):
         users = [
             factories.User(fullname="Xander Bird", name="bird_x"),
             factories.User(fullname="Max Hankins", name="hankins_m"),
-            factories.User(fullname="", name="morgan_w"),
+            factories.User(fullname="", name="zoe_w"),
             factories.User(fullname="Kathy Tillman", name="tillman_k"),
         ]
         expected_names = [
             u['name'] for u in [
                 users[3],  # Kathy Tillman
                 users[1],  # Max Hankins
-                users[2],  # morgan_w
                 users[0],  # Xander Bird
+                users[2],  # zoe_w
             ]
         ]
 

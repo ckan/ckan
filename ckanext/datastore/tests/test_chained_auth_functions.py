@@ -92,6 +92,8 @@ class ExampleExternalProviderPlugin(p.SingletonPlugin):
 )
 @pytest.mark.usefixtures(u"with_plugins", u"clean_db", u"with_request_context")
 class TestChainedAuthBuiltInFallback(object):
+
+    @pytest.mark.ckan_config(u"ckan.auth.create_user_via_web", True)
     def test_user_create_chained_auth(self):
         ctd.CreateTestData.create()
         # check if chained auth fallbacks to built-in user_create

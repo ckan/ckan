@@ -27,6 +27,9 @@ class UsernamePasswordAuthenticator(object):
         elif not user.validate_password(identity['password']):
             log.debug('Login as %r failed - password not valid', login)
         else:
-            return user.name
+            return '{},{}'.format(
+                user.id,
+                1
+            )
 
         return None

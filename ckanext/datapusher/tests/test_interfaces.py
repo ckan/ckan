@@ -41,8 +41,10 @@ class TestInterace(object):
         if not tests.is_datastore_supported():
             pytest.skip("Datastore not supported")
 
-        resource = factories.Resource(url_type="datastore")
-        self.dataset = factories.Dataset(resources=[resource])
+        self.dataset = factories.Dataset(
+            resources=[
+                {"url_type": "datastore"}
+            ])
         with test_request_context():
             self.sysadmin_user = factories.User(
                 name="testsysadmin", sysadmin=True

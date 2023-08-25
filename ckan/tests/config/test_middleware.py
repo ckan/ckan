@@ -13,7 +13,7 @@ import ckan.plugins as p
 import ckan.tests.factories as factories
 from ckan.common import config, _
 from ckan.config.middleware import AskAppDispatcherMiddleware
-from ckan.config.middleware.flask_app import CKANFlask
+from ckan.config.middleware.flask_app import CKANFlask, BeakerSessionInterface
 if six.PY2:
     from ckan.config.middleware.pylons_app import CKANPylonsApp
 else:
@@ -393,3 +393,20 @@ def test_ask_around_flask_core_route_post(app):
         (True, u"flask_app", u"core"),
         (False, u"pylons_app"),
     ]
+
+
+def test_no_session_stored_by_default(app, monkeypatch, test_request_context):
+
+    save_session_mock = mock.Mock()
+
+    class CustomBeakerSessionInterface(BeakerSessionInterface):
+
+        save_session = save_session_mock
+
+    monkeypatch.setattr(
+        app.flask_app, u"session_interface", CustomBeakerSessionInterface())
+
+    with test_request_context():
+        app.get(u"/")
+
+    save_session_mock.assert_not_called()

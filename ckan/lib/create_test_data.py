@@ -1,14 +1,15 @@
 # encoding: utf-8
 
 import logging
-from collections import defaultdict
 import datetime
 
 from six import string_types, text_type
 
 import ckan.model as model
+import ckan.logic as logic
 
 log = logging.getLogger(__name__)
+
 
 class CreateTestData(object):
     # keep track of the objects created by this class so that
@@ -62,18 +63,18 @@ class CreateTestData(object):
 
     @classmethod
     def create_translations_test_data(cls):
-        import ckan.model
-        CreateTestData.create()
+        package = model.Package.get('annakarenina')
+        if not package:
+            CreateTestData.create()
+            package = model.Package.get('annakarenina')
 
-        sysadmin_user = ckan.model.User.get('testsysadmin')
-        package = ckan.model.Package.get('annakarenina')
-
+        sysadmin_user = model.User.get('testsysadmin')
         # Add some new tags to the package.
         # These tags are codes that are meant to be always translated before
         # display, if not into the user's current language then into the
         # fallback language.
-        package.add_tags([ckan.model.Tag('123'), ckan.model.Tag('456'),
-                ckan.model.Tag('789')])
+        package.add_tags([model.Tag('123'), model.Tag('456'),
+                model.Tag('789')])
 
         # Add the above translations to CKAN.
         for (lang_code, translations) in (('de', german_translations),
@@ -86,27 +87,29 @@ class CreateTestData(object):
                             'lang_code': lang_code,
                             }
                     context = {
-                        'model': ckan.model,
-                        'session': ckan.model.Session,
+                        'model': model,
+                        'session': model.Session,
                         'user': sysadmin_user.name,
                     }
-                    ckan.logic.action.update.term_translation_update(context,
+                    logic.action.update.term_translation_update(context,
                             data_dict)
 
-        ckan.model.Session.commit()
+        model.Session.commit()
 
     @classmethod
     def create_vocabs_test_data(cls):
-        import ckan.model
-        CreateTestData.create()
-        sysadmin_user = ckan.model.User.get('testsysadmin')
-        annakarenina = ckan.model.Package.get('annakarenina')
-        warandpeace = ckan.model.Package.get('warandpeace')
+        warandpeace = model.Package.get('warandpeace')
+        if not warandpeace:
+            CreateTestData.create()
+            warandpeace = model.Package.get('warandpeace')
+        
+        sysadmin_user = model.User.get('testsysadmin')
+        annakarenina = model.Package.get('annakarenina')
 
         # Create a couple of vocabularies.
         context = {
-                'model': ckan.model,
-                'session': ckan.model.Session,
+                'model': model,
+                'session': model.Session,
                 'user': sysadmin_user.name
                 }
         data_dict = {
@@ -114,18 +117,18 @@ class CreateTestData(object):
                 'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
                     {'name': 'Mystery'}],
                 }
-        ckan.logic.action.create.vocabulary_create(context, data_dict)
+        logic.action.create.vocabulary_create(context, data_dict)
 
         data_dict = {
                 'name': 'Actors',
                 'tags': [{'name': 'keira-knightley'}, {'name': 'jude-law'},
                     {'name': 'alessio-boni'}],
                 }
-        ckan.logic.action.create.vocabulary_create(context, data_dict)
+        logic.action.create.vocabulary_create(context, data_dict)
 
         # Add some vocab tags to some packages.
-        genre_vocab = ckan.model.Vocabulary.get('Genre')
-        actors_vocab = ckan.model.Vocabulary.get('Actors')
+        genre_vocab = model.Vocabulary.get('Genre')
+        actors_vocab = model.Vocabulary.get('Actors')
         annakarenina.add_tag_by_name('Drama', vocab=genre_vocab)
         annakarenina.add_tag_by_name('keira-knightley', vocab=actors_vocab)
         annakarenina.add_tag_by_name('jude-law', vocab=actors_vocab)

@@ -328,6 +328,9 @@ def update_config():
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this
         pass
+    except sqlalchemy.exc.IntegrityError:
+        # Race condition, user already exists.
+        pass
 
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on

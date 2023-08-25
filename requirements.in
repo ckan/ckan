@@ -13,14 +13,14 @@ Flask-Babel==1.0.0
 flask-multistatic==1.0
 Jinja2==2.10.1
 PyJWT==1.7.1
-Markdown==2.6.7
+Markdown==3.4.1
 passlib==1.6.5
 polib==1.0.7
-psycopg2==2.8.2
+psycopg2==2.9.3
 python-magic==0.4.15
 pysolr==3.6.0
 python-dateutil>=1.5.0
-pytz==2016.7
+pytz
 PyUtilib==5.7.1
 pyyaml==5.4.1
 repoze.who==2.3
@@ -29,10 +29,10 @@ Routes==1.13
 rq==1.0
 simplejson==3.10.0
 SQLAlchemy==1.3.5
-sqlparse==0.2.2
+sqlparse==0.3.0
 tzlocal==1.3
 unicodecsv>=0.9
 watchdog==2.1.5         # For py3 support
 webassets==0.12.1
 Werkzeug[watchdog]==1.0.0
-zope.interface==4.3.2
+zope.interface<5.0

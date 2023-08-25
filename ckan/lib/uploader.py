@@ -122,12 +122,17 @@ class Upload(object):
             return
         self.storage_path = os.path.join(path, 'storage',
                                          'uploads', object_type)
-        try:
-            os.makedirs(self.storage_path)
-        except OSError as e:
-            # errno 17 is file already exists
-            if e.errno != 17:
-                raise
+        # check if the storage directory is already created by
+        # the user or third-party
+        if os.path.isdir(self.storage_path):
+            pass
+        else:
+            try:
+                os.makedirs(self.storage_path)
+            except OSError as e:
+                # errno 17 is file already exists
+                if e.errno != 17:
+                    raise
         self.object_type = object_type
         self.old_filename = old_filename
         if old_filename:
@@ -199,10 +204,18 @@ class Upload(object):
             return
 
         mimetypes = aslist(
-            config.get("ckan.upload.{}.mimetypes".format(self.object_type)))
+            config.get(
+                "ckan.upload.{}.mimetypes".format(self.object_type),
+                ["image/png", "image/gif", "image/jpeg"]
+            )
+        )
 
         types = aslist(
-            config.get("ckan.upload.{}.types".format(self.object_type)))
+            config.get(
+                "ckan.upload.{}.types".format(self.object_type),
+                ["image"]
+            )
+        )
 
         if not mimetypes and not types:
             return
@@ -281,7 +294,8 @@ class ResourceUpload(object):
         real_storage = os.path.realpath(self.storage_path)
         directory = os.path.join(real_storage, id[0:3], id[3:6])
         if directory != os.path.realpath(directory):
-            raise logic.ValidationError({'upload': ['Invalid storage directory']})
+            raise logic.ValidationError(
+                {'upload': ['Invalid storage directory']})
         return directory
 
     def get_path(self, id):

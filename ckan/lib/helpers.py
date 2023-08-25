@@ -652,7 +652,7 @@ def full_current_url():
 @core_helper
 def current_url():
     ''' Returns current url unquoted'''
-    return unquote(request.environ['CKAN_CURRENT_URL'])
+    return request.environ['CKAN_CURRENT_URL']
 
 
 @core_helper
@@ -692,6 +692,11 @@ def lang_native_name(lang=None):
 def is_rtl_language():
     return lang() in config.get('ckan.i18n.rtl_languages',
                                 'he ar fa_IR').split()
+
+
+@core_helper
+def get_rtl_theme():
+    return config.get('ckan.i18n.rtl_theme', 'css/main-rtl')
 
 
 @core_helper
@@ -2843,8 +2848,16 @@ def get_translated(data_dict, field):
     try:
         return data_dict[field + u'_translated'][language]
     except KeyError:
-        val = data_dict.get(field, '')
-        return _(val) if val and isinstance(val, string_types) else val
+        pass
+
+    # Check the base language, en_GB->en
+    try:
+        base_language = language.split('_')[0]
+        if base_language != language:
+            return data_dict[field + u'_translated'][base_language]
+    except KeyError:
+        pass
+    return data_dict.get(field, '')
 
 
 @core_helper
@@ -3044,8 +3057,7 @@ def decode_view_request_filters():
     return None
 
 @core_helper
-def check_ckan_version(min_version,
-                       max_version):
+def check_ckan_version(min_version=None, max_version=None):
     """Return ``True`` if the CKAN version is greater than or equal to
     ``min_version`` and less than or equal to ``max_version``,
     return ``False`` otherwise.
@@ -3067,3 +3079,8 @@ def check_ckan_version(min_version,
     """
     return p.toolkit.check_ckan_version(min_version=min_version,
                                         max_version=max_version)
+
+
+@core_helper
+def csrf_input():
+    return ''

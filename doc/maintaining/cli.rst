@@ -493,7 +493,22 @@ Usage
  ckan run --host (-h)                  - Set Host
  ckan run --port (-p)                  - Set Port
  ckan run --disable-reloader (-r)      - Use reloader
+ ckan run --passthrough_errors         - Crash instead of handling fatal errors
 
+Use ``--passthrough-errors`` to enable pdb
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Exceptions are caught and handled by CKAN. Sometimes, user needs to disable
+this error handling, to be able to use ``pdb`` or the debug capabilities of the
+most common IDE. This allows to use breakpoints, inspect the stack frames and
+evaluate arbitrary Python code.
+Running CKAN with ``--passthrough-errors`` will automatically disable CKAN
+reload capabilities and run everything in a single process, for the sake of
+simplicity.
+
+Example:
+
+ python -m pdb ckan run --passthrough-errors
 
 
 search-index: Search index commands
@@ -549,7 +564,7 @@ computer to reindex faster
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| search-index rebuild_fast
+ ckan -c |ckan.ini| search-index rebuild-fast
 
 There are other search related commands, mostly useful for debugging purposes
 

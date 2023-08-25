@@ -555,3 +555,35 @@ class TestPackageMemberList(object):
         context = self._get_context(user)
         assert helpers.call_auth(
             'package_collaborator_list', context=context, id=dataset['id'])
+
+
+class TestAuthFunctions(object):
+    '''Simple tests (can anonymous call it?) for a group of auth functions for actions
+    that previously didn't have an auth function.'''
+
+    functions = [
+        "status_show",
+        "dataset_followee_count",
+        "group_followee_count",
+        "user_followee_count",
+        "followee_count",
+        "dataset_follower_count",
+        "group_follower_count",
+        "organization_follower_count",
+        "user_follower_count",
+        "am_following_dataset",
+        "am_following_group",
+        "am_following_user",
+        "group_package_show",
+        "member_list",
+        "resource_search",
+        "tag_search",
+        "term_translation_show",
+        "recently_changed_packages_activity_list"
+    ]
+
+    @pytest.mark.parametrize("func", functions)
+    def test_anonymous_can_call_get_method(self, func):
+        user = factories.User()
+        context = {"user": "", "model": model}
+        assert helpers.call_auth(func, context, id=user["id"])

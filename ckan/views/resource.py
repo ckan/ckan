@@ -166,8 +166,10 @@ def download(package_type, id, resource_id, filename=None):
     try:
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
         get_action(u'package_show')(context, {u'id': id})
-    except (NotFound, NotAuthorized):
+    except NotFound:
         return base.abort(404, _(u'Resource not found'))
+    except NotAuthorized:
+        return base.abort(403, _(u'Not authorized to download resource'))
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
@@ -973,5 +975,5 @@ def register_dataset_plugin_rules(blueprint):
 register_dataset_plugin_rules(resource)
 register_dataset_plugin_rules(prefixed_resource)
 # remove this when we improve blueprint registration to be explicit:
-resource.auto_register = False  # type: ignore
-prefixed_resource.auto_register = False  # type: ignore
+resource.auto_register = False
+prefixed_resource.auto_register = False

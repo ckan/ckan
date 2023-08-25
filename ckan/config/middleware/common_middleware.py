@@ -14,25 +14,6 @@ from ckan.common import config
 from ckan.lib.i18n import get_locales_from_config
 
 
-class RootPathMiddleware(object):
-    '''
-    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
-    config. The routes package uses the SCRIPT_NAME variable and appends to the
-    path and ckan addes the root url causing a duplication of the root path.
-
-    This is a middleware to ensure that even redirects use this logic.
-    '''
-    def __init__(self, app, config):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        # Prevents the variable interfering with the root_path logic
-        if 'SCRIPT_NAME' in environ:
-            environ['SCRIPT_NAME'] = ''
-
-        return self.app(environ, start_response)
-
-
 class CloseWSGIInputMiddleware(object):
     '''
     webob.request.Request has habit to create FakeCGIBody. This leads(

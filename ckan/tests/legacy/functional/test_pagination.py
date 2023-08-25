@@ -231,9 +231,6 @@ def test_users_index(app):
     assert 'href="/user/?q=&amp;order_by=name&amp;page=2"' in res
     user_numbers = scrape_search_results(res.data, "user")
 
-    # this page will list default user, created after db reset,
-    # that is skipped by our scraper. So, actually there 20 items,
-    # but only 19 of them have been caught by regExp
     assert [
         "00",
         "01",
@@ -254,9 +251,10 @@ def test_users_index(app):
         "16",
         "17",
         "18",
+        "19",
     ] == user_numbers
 
     res = app.get(url_for("user.index", page=2))
     assert 'href="/user/?q=&amp;order_by=name&amp;page=1"' in res
     user_numbers = scrape_search_results(res.data, "user")
-    assert ["19", "20"] == user_numbers
+    assert ["20"] == user_numbers

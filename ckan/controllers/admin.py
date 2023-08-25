@@ -35,11 +35,11 @@ class AdminController(base.BaseController):
 
     def _get_config_form_items(self):
         # Styles for use in the form.select() macro.
-        styles = [{'text': 'Default', 'value': '/base/css/main.css'},
-                  {'text': 'Red', 'value': '/base/css/red.css'},
-                  {'text': 'Green', 'value': '/base/css/green.css'},
-                  {'text': 'Maroon', 'value': '/base/css/maroon.css'},
-                  {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
+        styles = [{'text': 'Default', 'value': 'css/main'},
+                  {'text': 'Red', 'value': 'css/red'},
+                  {'text': 'Green', 'value': 'css/green'},
+                  {'text': 'Maroon', 'value': 'css/maroon'},
+                  {'text': 'Fuchsia', 'value': 'css/fuchsia'}]
 
         homepages = [{'value': '1', 'text': 'Introductory area, search, featured group and featured organization'},
                      {'value': '2', 'text': 'Search, stats, introductory area, featured organization and featured group'},
@@ -47,7 +47,7 @@ class AdminController(base.BaseController):
 
         items = [
             {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
-            {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
+            {'name': 'ckan.theme', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
             {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': ''},
             {'name': 'ckan.site_logo', 'control': 'image_upload', 'label': _('Site Tag Logo'), 'placeholder': '', 'upload_enabled':h.uploads_enabled(),
                 'field_url': 'ckan.site_logo', 'field_upload': 'logo_upload', 'field_clear': 'clear_logo_upload'},

@@ -29,19 +29,19 @@ def _get_sysadmins():
 def _get_config_options():
     styles = [{
         u'text': u'Default',
-        u'value': u'/base/css/main.css'
+        u'value': u'css/main'
     }, {
         u'text': u'Red',
-        u'value': u'/base/css/red.css'
+        u'value': u'css/red'
     }, {
         u'text': u'Green',
-        u'value': u'/base/css/green.css'
+        u'value': u'css/green'
     }, {
         u'text': u'Maroon',
-        u'value': u'/base/css/maroon.css'
+        u'value': u'css/maroon'
     }, {
         u'text': u'Fuchsia',
-        u'value': u'/base/css/fuchsia.css'
+        u'value': u'css/fuchsia'
     }]
 
     homepages = [{
@@ -62,7 +62,7 @@ def _get_config_options():
 
 def _get_config_items():
     return [
-        u'ckan.site_title', u'ckan.main_css', u'ckan.site_description',
+        u'ckan.site_title', u'ckan.theme', u'ckan.site_description',
         u'ckan.site_logo', u'ckan.site_about', u'ckan.site_intro_text',
         u'ckan.site_custom_css', u'ckan.homepage_style'
     ]

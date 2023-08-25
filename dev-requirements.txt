@@ -10,6 +10,8 @@ ipdb==0.13.2
 responses==0.10.14
 mock==2.0.0
 pycodestyle==2.5.0
+Pillow==9.2.0; python_version > '3.0'
+Pillow==6.2.2; python_version < '3.0'
 pip-tools==5.1.2
 pyfakefs==3.2
 Sphinx==1.8.5
