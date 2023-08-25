@@ -253,7 +253,7 @@ class DictionaryView(MethodView):
 
 
 def dump_to(
-    resource_id, output, fmt, offset, limit, options, sort, search_params, stream_response=False
+    resource_id, output, fmt, offset, limit, options, sort, search_params
 ):
     if fmt == u'csv':
         writer_factory = csv_writer
