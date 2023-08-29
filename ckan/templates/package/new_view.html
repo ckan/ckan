@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  <li class="active"><a href="#"><i class="fa fa-pencil-square-o"></i> {{ _('Add view') }}</a></li>
+  <li class="active"><a href="#"><i class="fa fa-pencil"></i> {{ _('Add view') }}</a></li>
 {% endblock %}
 
 {% block form %}
@@ -22,7 +22,8 @@
     </p>
   {% endif %}
 
-  <form class="dataset-form dataset-resource-form" method="post" data-module="basic-form resource-form">
+  <form method="post" data-module="basic-form resource-form">
+    {{ h.csrf_input() }}
     {% include 'package/snippets/view_form.html' %}
     <div class="form-actions">
         <button class="btn btn-default {% if not h.resource_view_display_preview(data) %}hide{%endif%}" name="preview" value="True" type="submit">{{ _('Preview') }}</button>

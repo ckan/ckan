@@ -1,2 +1,0 @@
-Revision and History UI is removed: `/revision/*` & `/dataset/{id}/history` in favour of `/dataset/changes/` visible in the Activity Stream.
-``model.ActivityDetail`` is no longer used and will be removed in the next CKAN release.

@@ -2,7 +2,7 @@
 
 import pytest
 
-from ckan.plugins import toolkit as tk
+import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.parametrize(
@@ -89,7 +89,7 @@ def test_raise(monkeypatch):
 
 def test_call_helper():
     # the null_function would return ''
-    assert tk.h.icon_url(u"x")
+    assert tk.h.ckan_version()
 
 
 def test_tk_helper_attribute_error_on_missing_helper():
@@ -107,3 +107,14 @@ def test_tk_helper_as_item_missing_helper():
     """Directly attempt access as item"""
     with pytest.raises(tk.HelperError):
         tk.h[u"nothere"]()
+
+
+def test_get_endpoint_without_context():
+    """Do not fail in CLI and tests."""
+    assert tk.get_endpoint() == (None, None)
+
+
+@pytest.mark.usefixtures("with_request_context")
+def test_get_endpoint_with_context():
+    """with_request_context fixture mocks request to the homepage."""
+    assert tk.get_endpoint() == ("home", "index")

@@ -1,0 +1,14 @@
+# {{ cookiecutter.project_shortname }}-js:
+#   filter: rjsmin
+#   output: ckanext-{{ cookiecutter.project_shortname }}/%(version)s-{{ cookiecutter.project_shortname }}.js
+#   contents:
+#     - js/{{ cookiecutter.project_shortname }}.js
+#   extra:
+#     preload:
+#       - base/main
+
+# {{ cookiecutter.project_shortname }}-css:
+#   filter: cssrewrite
+#   output: ckanext-{{ cookiecutter.project_shortname }}/%(version)s-{{ cookiecutter.project_shortname }}.css
+#   contents:
+#     - css/{{ cookiecutter.project_shortname }}.css

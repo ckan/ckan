@@ -10,17 +10,14 @@ of CKAN.
      :alt: CKAN architecture diagram
 
 
-------
-Routes
-------
+----------
+Blueprints
+----------
 
-Routes define the connection between CKAN URLs and views that process
-requests and provide responses.
+CKAN is based on Flask and built using Blueprints.
 
-Default routes are defined in ``ckan.config.routing`` and extended with the
-:class:`ckan.plugins.interfaces.IRoutes` plugin interface.
-
-.. FIXME: talk about flask
+Default blueprints are defined along views in ``ckan.views`` and extended with the
+:class:`ckan.plugins.interfaces.IBlueprint` plugin interface.
 
 
 -----
@@ -29,7 +26,7 @@ Views
 
 Views process requests by reading and updating data with action
 function and return a response by rendering Jinja2 templates.
-CKAN views are defined in ``ckan.controllers`` and templates in
+CKAN views are defined in ``ckan.views`` and templates in
 ``ckan.templates``.
 
 Views and templates may use ``logic.check_access`` or

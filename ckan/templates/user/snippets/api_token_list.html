@@ -36,6 +36,7 @@
             <td>
               {% set action = h.url_for("user.api_token_revoke", id=user['name'], jti=token['id']) %}
               <form action="{{ action }}" method="POST">
+                {{ h.csrf_input() }}
                 <div class="btn-group">
                   <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" title="{{ _('Revoke') }}" data-module="confirm-action">
                     <i class="fa fa-times"></i>

@@ -12,7 +12,7 @@ from ckan.plugins.toolkit import NotAuthorized, ObjectNotFound
 
 @pytest.mark.ckan_config('ckan.plugins',
                          'example_iauthfunctions_v6_parent_auth_functions')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 class TestAuthV6(object):
     def test_resource_delete_editor(self):
         '''Normally organization admins can delete resources
@@ -58,21 +58,21 @@ class TestAuthV6(object):
 @pytest.mark.ckan_config('ckan.plugins',
                          'example_iauthfunctions_v5_custom_config_setting')
 @pytest.mark.ckan_config('ckan.iauthfunctions.users_can_create_groups', False)
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 class TestAuthV5(object):
 
-    def test_sysadmin_can_create_group_when_config_is_False(self):
+    def test_sysadmin_can_create_group_when_config_is_false(self):
         sysadmin = factories.Sysadmin()
         context = {'ignore_auth': False, 'user': sysadmin['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_user_cannot_create_group_when_config_is_False(self):
+    def test_user_cannot_create_group_when_config_is_false(self):
         user = factories.User()
         context = {'ignore_auth': False, 'user': user['name']}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
 
-    def test_visitor_cannot_create_group_when_config_is_False(self):
+    def test_visitor_cannot_create_group_when_config_is_false(self):
         context = {'ignore_auth': False, 'user': None}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
@@ -81,20 +81,20 @@ class TestAuthV5(object):
 @pytest.mark.ckan_config('ckan.plugins',
                          'example_iauthfunctions_v5_custom_config_setting')
 @pytest.mark.ckan_config('ckan.iauthfunctions.users_can_create_groups', True)
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
-class testAuthV5WithUserCreateGroup(object):
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
+class TestAuthV5WithUserCreateGroup(object):
 
-    def test_sysadmin_can_create_group_when_config_is_True(self):
+    def test_sysadmin_can_create_group_when_config_is_true(self):
         sysadmin = factories.Sysadmin()
         context = {'ignore_auth': False, 'user': sysadmin['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_user_can_create_group_when_config_is_True(self):
+    def test_user_can_create_group_when_config_is_true(self):
         user = factories.User()
         context = {'ignore_auth': False, 'user': user['name']}
         helpers.call_action('group_create', context, name='test-group')
 
-    def test_visitor_cannot_create_group_when_config_is_True(self):
+    def test_visitor_cannot_create_group_when_config_is_true(self):
         context = {'ignore_auth': False, 'user': None}
         with pytest.raises(NotAuthorized):
             helpers.call_action('group_create', context, name='test-group')
@@ -125,7 +125,7 @@ def curators_group():
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v4')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 def test_group_create_with_no_curators_group():
     '''Test that group_create doesn't crash when there's no curators group.
     '''
@@ -140,7 +140,7 @@ def test_group_create_with_no_curators_group():
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v4')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 def test_group_create_with_visitor(curators_group):
     '''A visitor (not logged in) should not be able to create a group.
 
@@ -155,7 +155,7 @@ def test_group_create_with_visitor(curators_group):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v4')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 def test_group_create_with_non_curator(curators_group):
     '''A user who isn't a member of the curators group should not be able
     to create a group.
@@ -169,7 +169,7 @@ def test_group_create_with_non_curator(curators_group):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v4')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 def test_group_create_with_curator(curators_group):
     '''A member of the curators group should be able to create a group.
     '''
@@ -182,7 +182,7 @@ def test_group_create_with_curator(curators_group):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v3')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 class TestExampleIAuthFunctionsPluginV3(object):
     def test_group_create_with_no_curators_group_v3(self):
         '''Test that group_create returns a 404 when there's no curators group.
@@ -215,7 +215,7 @@ class TestExampleIAuthFunctionsPluginV3(object):
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v2')
-@pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 def test_group_create_with_curator_v2(curators_group):
     '''Test that a curator can*not* create a group.
 

@@ -1,30 +1,41 @@
 {% import "macros/form.html" as form %}
 
-<form id="user-register-form" action="" method="post" enctype="multipart/form-data">
-  {{ form.errors(error_summary) }}
-  {{ form.input("name", id="field-username", label=_("Username"), placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"], is_required=True) }}
-  {{ form.input("fullname", id="field-fullname", label=_("Full Name"), placeholder=_("Joe Bloggs"), value=data.fullname, error=errors.fullname, classes=["control-medium"]) }}
-  {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder=_("joe@example.com"), value=data.email, error=errors.email, classes=["control-medium"], is_required=True) }}
-  {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"], is_required=True) }}
-  {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password2, classes=["control-medium"], is_required=True) }}
+{% block form %}
+  <form id="user-register-form" action="" method="post" enctype="multipart/form-data">
+    {{ h.csrf_input() }}
+    {{ form.errors(error_summary) }}
 
-    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
-    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+    {% block core_fields %}
+      {% block required_core_fields %}
+        {{ form.input("name", id="field-username", label=_("Username"), placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"], is_required=True) }}
+        {{ form.input("fullname", id="field-fullname", label=_("Full Name"), placeholder=_("Joe Bloggs"), value=data.fullname, error=errors.fullname, classes=["control-medium"]) }}
+        {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder=_("joe@example.com"), value=data.email, error=errors.email, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"], is_required=True) }}
+        {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password2, classes=["control-medium"], is_required=True) }}
+      {% endblock %}
 
-    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL')) }}
-
-
-
-
-  {% if g.recaptcha_publickey %}
-    {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
-  {% endif %}
-
-  {{ form.required_message() }}
-
-  <div class="form-actions">
-    {% block form_actions %}
-    <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+      {% block optional_core_fields %}
+        {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+        {% set is_url = data.image_url and data.image_url.startswith('http') %}
+        {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL')) }}
+      {% endblock %}
     {% endblock %}
-  </div>
-</form>
+
+    {% block extra_fields %}
+    {% endblock %}
+
+    {% block captcha %}
+      {% if g.recaptcha_publickey %}
+        {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+      {% endif %}
+    {% endblock %}
+
+    {{ form.required_message() }}
+
+    <div class="form-actions">
+      {% block form_actions %}
+      <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+      {% endblock %}
+    </div>
+  </form>
+{% endblock %}

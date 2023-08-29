@@ -484,7 +484,7 @@ Simple Search
 -------------
 
 CKAN defers most of the search to Solr and by default it uses the `DisMax Query
-Parser <https://lucene.apache.org/solr/guide/6_6/the-dismax-query-parser.html>`_
+Parser <https://solr.apache.org/guide/8_11/the-dismax-query-parser.html>`_
 that was primarily designed to be easy to use and to accept almost any input
 without returning an error.
 

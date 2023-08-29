@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block subtitle %}{% endblock %}
+
+{% block page %}
+  <div>
+    <pre data-module="text_view">
+      <div class="loading">
+        {{ _('Loading...') }}
+      </div>
+    </pre>
+  </div>
+
+  {% block scripts %}
+    <script>
+      var preload_resource = {{ h.literal(resource_json) }};
+      var resource_url = {{ h.literal(resource_url) }};
+      var preview_metadata = {{ h.literal(preview_metadata) }};
+    </script>
+  {% endblock %}
+
+  {% block styles %}{% endblock %}
+  {% block custom_styles %}{% endblock %}
+
+  {% asset 'ckanext-textview/main' %}
+{% endblock %}
+

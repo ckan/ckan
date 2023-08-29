@@ -1,4 +1,0 @@
-Several logic functions now have new upper limits to how many items can be
-returned, notably ``group_list``, ``organization_list`` when
-``all_fields=true``, ``datastore_search`` and ``datastore_search_sql``.
-These are all configurable.

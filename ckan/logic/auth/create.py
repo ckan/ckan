@@ -1,13 +1,17 @@
 # encoding: utf-8
 
+from typing import Optional
+
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.logic.auth as logic_auth
 
 from ckan.common import _
+from ckan.types import Context, DataDict, AuthResult
 
 @logic.auth_allow_anonymous_access
-def package_create(context, data_dict=None):
+def package_create(context: Context,
+                   data_dict: Optional[DataDict] = None) -> AuthResult:
     user = context['user']
 
     if authz.auth_is_anon_user(context):
@@ -24,29 +28,35 @@ def package_create(context, data_dict=None):
             user, 'create_dataset')
 
     if not check1:
-        return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
+        return {'success': False, 'msg': _(
+            'User %s not authorized to create packages') % user}
 
-    check2 = _check_group_auth(context,data_dict)
+    check2 = _check_group_auth(context, data_dict)
     if not check2:
-        return {'success': False, 'msg': _('User %s not authorized to edit these groups') % user}
+        return {'success': False, 'msg': _(
+            'User %s not authorized to edit these groups') % user}
 
     # If an organization is given are we able to add a dataset to it?
     data_dict = data_dict or {}
     org_id = data_dict.get('owner_org')
     if org_id and not authz.has_user_permission_for_group_or_org(
             org_id, user, 'create_dataset'):
-        return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
+        return {'success': False, 'msg': _(
+            'User %s not authorized to add dataset to this organization'
+        ) % user}
     return {'success': True}
 
 
-def file_upload(context, data_dict=None):
+def file_upload(context: Context,
+                data_dict: Optional[DataDict] = None) -> AuthResult:
     user = context['user']
     if authz.auth_is_anon_user(context):
-        return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
+        return {'success': False, 'msg': _(
+            'User %s not authorized to create packages') % user}
     return {'success': True}
 
 
-def resource_create(context, data_dict):
+def resource_create(context: Context, data_dict: DataDict) -> AuthResult:
     model = context['model']
     user = context.get('user')
 
@@ -69,30 +79,37 @@ def resource_create(context, data_dict):
         )
 
     pkg_dict = {'id': pkg.id}
-    authorized = authz.is_authorized('package_update', context, pkg_dict).get('success')
+    authorized = authz.is_authorized(
+        'package_update', context, pkg_dict).get('success')
 
     if not authorized:
         return {'success': False,
-                'msg': _('User %s not authorized to create resources on dataset %s') %
-                        (str(user), package_id)}
+                'msg': _(
+                    'User %s not authorized to create resources on dataset %s'
+                ) % (str(user), package_id)}
     else:
         return {'success': True}
 
 
-def resource_view_create(context, data_dict):
-    return authz.is_authorized('resource_create', context, {'id': data_dict['resource_id']})
+def resource_view_create(context: Context, data_dict: DataDict) -> AuthResult:
+    return authz.is_authorized(
+        'resource_create', context, {'id': data_dict['resource_id']})
 
 
-def resource_create_default_resource_views(context, data_dict):
-    return authz.is_authorized('resource_create', context, {'id': data_dict['resource']['id']})
+def resource_create_default_resource_views(context: Context,
+                                           data_dict: DataDict) -> AuthResult:
+    return authz.is_authorized(
+        'resource_create', context, {'id': data_dict['resource']['id']})
 
 
-def package_create_default_resource_views(context, data_dict):
+def package_create_default_resource_views(context: Context,
+                                          data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('package_update', context,
                                data_dict['package'])
 
 
-def package_relationship_create(context, data_dict):
+def package_relationship_create(context: Context,
+                                data_dict: DataDict) -> AuthResult:
     user = context['user']
 
     id = data_dict['subject']
@@ -105,11 +122,14 @@ def package_relationship_create(context, data_dict):
         'package_update', context, {'id': id2})
 
     if not (authorized1 and authorized2):
-        return {'success': False, 'msg': _('User %s not authorized to edit these packages') % user}
+        return {'success': False, 'msg': _(
+            'User %s not authorized to edit these packages') % user}
     else:
         return {'success': True}
 
-def group_create(context, data_dict=None):
+
+def group_create(context: Context,
+                 data_dict: Optional[DataDict] = None) -> AuthResult:
     user = context['user']
     user = authz.get_user_id_for_username(user, allow_none=True)
 
@@ -119,7 +139,8 @@ def group_create(context, data_dict=None):
             'msg': _('User %s not authorized to create groups') % user}
 
 
-def organization_create(context, data_dict=None):
+def organization_create(context: Context,
+                        data_dict: Optional[DataDict] = None) -> AuthResult:
     user = context['user']
     user = authz.get_user_id_for_username(user, allow_none=True)
 
@@ -128,13 +149,10 @@ def organization_create(context, data_dict=None):
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
 
-def rating_create(context, data_dict):
-    # No authz check in the logic function
-    return {'success': True}
-
 
 @logic.auth_allow_anonymous_access
-def user_create(context, data_dict=None):
+def user_create(context: Context,
+                data_dict: Optional[DataDict] = None) -> AuthResult:
     using_api = 'api_version' in context
     create_user_via_api = authz.check_config_permission(
             'create_user_via_api')
@@ -150,12 +168,12 @@ def user_create(context, data_dict=None):
     return {'success': True}
 
 
-def user_invite(context, data_dict):
+def user_invite(context: Context, data_dict: DataDict) -> AuthResult:
     data_dict['id'] = data_dict['group_id']
     return group_member_create(context, data_dict)
 
 
-def _check_group_auth(context, data_dict):
+def _check_group_auth(context: Context, data_dict: Optional[DataDict]) -> bool:
     '''Has this user got update permission for all of the given groups?
     If there is a package in the context then ignore that package's groups.
     (owner_org is checked elsewhere.)
@@ -172,8 +190,6 @@ def _check_group_auth(context, data_dict):
     model = context['model']
     user = context['user']
     pkg = context.get("package")
-
-    api_version = context.get('api_version') or '1'
 
     group_blobs = data_dict.get('groups', [])
     groups = set()
@@ -197,44 +213,44 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not authz.has_user_permission_for_group_or_org(group.id, user, 'manage_group'):
+        if not authz.has_user_permission_for_group_or_org(
+                group.id, user, 'manage_group'):
             return False
 
     return True
 
 
-def vocabulary_create(context, data_dict):
+def vocabulary_create(context: Context, data_dict: DataDict) -> AuthResult:
     # sysadmins only
     return {'success': False}
 
 
-def activity_create(context, data_dict):
+def tag_create(context: Context, data_dict: DataDict) -> AuthResult:
     # sysadmins only
     return {'success': False}
 
 
-def tag_create(context, data_dict):
-    # sysadmins only
-    return {'success': False}
-
-
-def _group_or_org_member_create(context, data_dict):
+def _group_or_org_member_create(context: Context,
+                                data_dict: DataDict) -> AuthResult:
     user = context['user']
     group_id = data_dict['id']
-    if not authz.has_user_permission_for_group_or_org(group_id, user, 'membership'):
-        return {'success': False, 'msg': _('User %s not authorized to add members') % user}
+    if not authz.has_user_permission_for_group_or_org(
+            group_id, user, 'membership'):
+        return {'success': False,
+                'msg': _('User %s not authorized to add members') % user}
     return {'success': True}
 
 
-def organization_member_create(context, data_dict):
+def organization_member_create(context: Context,
+                               data_dict: DataDict) -> AuthResult:
     return _group_or_org_member_create(context, data_dict)
 
 
-def group_member_create(context, data_dict):
+def group_member_create(context: Context, data_dict: DataDict) -> AuthResult:
     return _group_or_org_member_create(context, data_dict)
 
 
-def member_create(context, data_dict):
+def member_create(context: Context, data_dict: DataDict) -> AuthResult:
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
 
@@ -255,15 +271,17 @@ def member_create(context, data_dict):
         return {'success': True}
 
 
-def api_token_create(context, data_dict):
+def api_token_create(context: Context, data_dict: DataDict) -> AuthResult:
     """Create new token for current user.
     """
     user = context['model'].User.get(data_dict['user'])
+    assert user
     return {'success': user.name == context['user']}
 
 
 
-def package_collaborator_create(context, data_dict):
+def package_collaborator_create(context: Context,
+                                data_dict: DataDict) -> AuthResult:
     '''Checks if a user is allowed to add collaborators to a dataset
 
     See :py:func:`~ckan.authz.can_manage_collaborators` for details
@@ -273,10 +291,11 @@ def package_collaborator_create(context, data_dict):
 
     pkg = model.Package.get(data_dict['id'])
     user_obj = model.User.get(user)
-
+    assert pkg and user_obj
     if not authz.can_manage_collaborators(pkg.id, user_obj.id):
         return {
             'success': False,
-            'msg': _('User %s not authorized to add collaborators to this dataset') % user}
+            'msg': _('User %s not authorized to add'
+                     ' collaborators to this dataset') % user}
 
     return {'success': True}

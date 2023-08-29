@@ -1,0 +1,1 @@
+The Recline-based view plugins (`recline_view`, `recline_grid_view`, `recline_graph_view` and `recline_map_view`) are deprecated and will be removed in future versions. Check :ref:`data-viewer` for alternatives.

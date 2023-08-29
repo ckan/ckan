@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
-All fixtures bellow available anywhere under the root of CKAN
+All fixtures below available anywhere under the root of CKAN
 repository. Any external CKAN extension should be able to include them
 by adding next lines under root `conftest.py`
 
@@ -23,28 +23,87 @@ There are three type of fixtures available in CKAN:
   test). But presence of these fixtures in test usually signals that
   is's a good time to refactor this test.
 
-Deeper expanation can be found in `official documentation
+Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
 
 import smtplib
 
+from io import BytesIO
+import copy
 
 import pytest
-import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
+from pytest_factoryboy import register
 
 import ckan.tests.helpers as test_helpers
 import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.lib.search as search
+import ckan.model as model
+from ckan.common import config, aslist
+from ckan.lib import redis, search
 
-from ckan.common import config
+
+@register
+class UserFactory(factories.User):
+    pass
+
+
+@register
+class ResourceFactory(factories.Resource):
+    pass
+
+
+@register
+class ResourceViewFactory(factories.ResourceView):
+    pass
+
+
+@register
+class GroupFactory(factories.Group):
+    pass
+
+
+@register
+class PackageFactory(factories.Dataset):
+    pass
+
+
+@register
+class VocabularyFactory(factories.Vocabulary):
+    pass
+
+
+@register
+class TagFactory(factories.Tag):
+    pass
+
+
+@register
+class SystemInfoFactory(factories.SystemInfo):
+    pass
+
+
+@register
+class APITokenFactory(factories.APIToken):
+    pass
+
+
+class SysadminFactory(factories.Sysadmin):
+    pass
+
+
+class OrganizationFactory(factories.Organization):
+    pass
+
+
+register(SysadminFactory, "sysadmin")
+register(OrganizationFactory, "organization")
 
 
 @pytest.fixture
@@ -77,9 +136,10 @@ def ckan_config(request, monkeypatch):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    _original = config.copy()
+    _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
+
     yield config
     config.clear()
     config.update(_original)
@@ -92,6 +152,12 @@ def make_app(ckan_config):
     Unless you need to create app instances lazily for some reason,
     use the ``app`` fixture instead.
     """
+    from ckan.lib.app_globals import _CONFIG_CACHE
+    # Reset values cached during the previous tests. Otherwise config values
+    # that were added to app_globals reset the patched versions from
+    # `ckan_config` mark.
+    _CONFIG_CACHE.clear()
+
     return test_helpers._get_test_app
 
 
@@ -135,6 +201,7 @@ def reset_db():
     If possible use the ``clean_db`` fixture instead.
 
     """
+    factories.fake.unique.clear()
     return test_helpers.reset_db
 
 
@@ -145,6 +212,75 @@ def reset_index():
     If possible use the ``clean_index`` fixture instead.
     """
     return search.clear_all
+
+
+@pytest.fixture(scope="session")
+def reset_redis():
+    """Callable for removing all keys from Redis.
+
+    Accepts redis key-pattern for narrowing down the list of items to
+    remove. By default removes everything.
+
+    This fixture removes all the records from Redis on call::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("test", "test")
+
+            reset_redis()
+            assert not redis.get("test")
+
+    If only specific records require removal, pass a pattern to the fixture::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("AAA-1", 1)
+            redis.set("AAA-2", 2)
+            redis.set("BBB-3", 3)
+
+            reset_redis("AAA-*")
+            assert not redis.get("AAA-1")
+            assert not redis.get("AAA-2")
+
+            assert redis.get("BBB-3") is not None
+
+    """
+    def cleaner(pattern: str = "*") -> int:
+        """Remove keys matching pattern.
+
+        Return number of removed records.
+        """
+        conn = redis.connect_to_redis()
+        keys = conn.keys(pattern)
+        if keys:
+            return conn.delete(*keys)
+        return 0
+
+    return cleaner
+
+
+@pytest.fixture()
+def clean_redis(reset_redis):
+    """Remove all keys from Redis.
+
+    This fixture removes all the records from Redis::
+
+        @pytest.mark.usefixtures("clean_redis")
+        def test_redis_is_empty():
+            assert redis.keys("*") == []
+
+    If test requires presence of some initial data in redis, make sure that
+    data producer applied **after** ``clean_redis``::
+
+        @pytest.mark.usefixtures(
+            "clean_redis",
+            "fixture_that_adds_xxx_key_to_redis"
+        )
+        def test_redis_has_one_record():
+            assert redis.keys("*") == [b"xxx"]
+
+    """
+    reset_redis()
 
 
 @pytest.fixture
@@ -169,6 +305,29 @@ def clean_db(reset_db):
     reset_db()
 
 
+@pytest.fixture(scope="session")
+def migrate_db_for():
+    """Apply database migration defined by plugin.
+
+    In order to use models defined by extension extra tables may be
+    required. In such cases database migrations(that were generated by `ckan
+    generate migration -p PLUGIN_NAME`) can be applied as per example below::
+
+        @pytest.mark.usefixtures("clean_db")
+        def test_migrations_applied(migrate_db_for):
+            migrate_db_for("my_plugin")
+            assert model.Session.bind.has_table("my_plugin_custom_table")
+
+    """
+    from ckan.cli.db import _run_migrations
+
+    def runner(plugin, version="head", forward=True):
+        assert plugin, "Cannot apply migrations of unknown plugin"
+        _run_migrations(plugin, version, forward)
+
+    return runner
+
+
 @pytest.fixture
 def clean_index(reset_index):
     """Clear search index before starting the test.
@@ -187,7 +346,7 @@ def with_plugins(ckan_config):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    plugins = ckan_config["ckan.plugins"].split()
+    plugins = aslist(ckan_config["ckan.plugins"])
     for plugin in plugins:
         if not ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.load(plugin)
@@ -225,13 +384,12 @@ def mail_server(monkeypatch):
 def with_test_worker(monkeypatch):
     """Worker that doesn't create forks.
     """
-    if six.PY3:
-        monkeypatch.setattr(
-            rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
-        )
-        monkeypatch.setattr(
-            rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
-        )
+    monkeypatch.setattr(
+        rq.Worker, u"main_work_horse", rq.SimpleWorker.main_work_horse
+    )
+    monkeypatch.setattr(
+        rq.Worker, u"execute_job", rq.SimpleWorker.execute_job
+    )
     yield
 
 
@@ -249,7 +407,33 @@ def with_extended_cli(ckan_config, monkeypatch):
     # using global config object.  With this patch it becomes possible
     # to apply per-test config changes to it without creating real
     # config file.
-    monkeypatch.setattr(ckan.cli, u'load_config', lambda _: ckan_config)
+    monkeypatch.setattr(ckan.cli, u"load_config", lambda _: ckan_config)
+
+
+@pytest.fixture(scope="session")
+def reset_db_once(reset_db):
+    """Internal fixture that cleans DB only the first time it's used.
+    """
+    reset_db()
+
+
+@pytest.fixture
+def non_clean_db(reset_db_once):
+    """Guarantees that DB is initialized.
+
+    This fixture either initializes DB if it hasn't been done yet or does
+    nothing otherwise. If there is some data in DB, it stays intact. If your
+    tests need empty database, use `clean_db` instead, which is much slower,
+    but guarantees that there are no data left from the previous test session.
+
+    Example::
+
+        @pytest.mark.usefixtures("non_clean_db")
+        def test_example():
+            assert factories.User()
+
+    """
+    model.repo.init_db()
 
 
 class FakeFileStorage(FlaskFileStorage):
@@ -273,7 +457,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     argument. Default value: `upload`.
 
     In addition, accepts named argument `context` which will be passed
-    to `ckan.tests.helpers.call_action` and arbitary number of
+    to `ckan.tests.helpers.call_action` and arbitrary number of
     additional named arguments, that will be used as resource
     properties.
 
@@ -281,7 +465,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
         def test_uploaded_resource(create_with_upload):
             dataset = factories.Dataset()
-            resource = make_resource(
+            resource = create_with_upload(
                 "hello world", "file.txt", url="http://data",
                 package_id=dataset["id"])
             assert resource["url_type"] == "upload"
@@ -290,13 +474,14 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
 
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-    monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
-        action = kwargs.pop(u"action", u"resource_create")
-        field = kwargs.pop(u"upload_field_name", u"upload")
-        test_file = six.BytesIO()
-        test_file.write(six.ensure_binary(data))
+        action = kwargs.pop("action", "resource_create")
+        field = kwargs.pop("upload_field_name", "upload")
+        test_file = BytesIO()
+        if type(data) is not bytes:
+            data = bytes(data, encoding="utf-8")
+        test_file.write(data)
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 

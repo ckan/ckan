@@ -1,16 +1,13 @@
 # encoding: utf-8
+import pytest
 
 from ckan.lib.helpers import url_for
 from ckan.tests import factories
 
-import ckan.plugins as p
-
-import pytest
-
 
 @pytest.mark.ckan_config('ckan.views.default_views', '')
 @pytest.mark.ckan_config("ckan.plugins", "audio_view")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 def test_view_shown_on_resource_page_with_audio_url(app):
 
     dataset = factories.Dataset()

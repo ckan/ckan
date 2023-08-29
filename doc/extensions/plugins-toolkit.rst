@@ -11,5 +11,3 @@ that plugins can use safe in the knowledge that this interface will remain
 stable, backward-compatible and with clear deprecation guidelines when new
 versions of CKAN are released. This interface is available in CKAN's *plugins
 toolkit*.
-
-

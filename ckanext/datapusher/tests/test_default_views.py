@@ -5,13 +5,15 @@ import datetime
 import pytest
 
 from ckan.tests import helpers, factories
+from ckanext.datapusher.tests import get_api_token
 
 
 @pytest.mark.ckan_config("ckan.views.default_views", "recline_grid_view")
 @pytest.mark.ckan_config(
     "ckan.plugins", "datapusher datastore recline_grid_view"
 )
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 def test_datapusher_creates_default_views_on_complete():
 
     dataset = factories.Dataset()
@@ -59,7 +61,8 @@ def test_datapusher_creates_default_views_on_complete():
 @pytest.mark.ckan_config(
     "ckan.plugins", "datapusher datastore recline_grid_view"
 )
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
 def test_datapusher_does_not_create_default_views_on_pending():
 
     dataset = factories.Dataset()

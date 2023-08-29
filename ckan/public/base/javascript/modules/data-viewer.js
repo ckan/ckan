@@ -28,7 +28,7 @@ this.ckan.module('data-viewer', function (jQuery) {
       // see if page is in part of the same domain
       if (this.el.attr('src').substring(0, loc.length) === loc) {
         this._recalibrate();
-        setInterval(function() {
+        setTimeout(function() {
           self._recalibrate();
         }, this.options.timeout);
       } else {

@@ -4,17 +4,23 @@ select2-css:
   contents:
     - select2/select2.css
 
-font-awesome:
-  output: vendor/%(version)s_font-awesome.css
+fontawesome:
+  output: vendor/%(version)s_fontawesome.css
   filters: cssrewrite
   contents:
-    - font-awesome/css/font-awesome.css
+    - fontawesome-free/css/all.css
 
 jquery:
   filters: rjsmin
   output: vendor/%(version)s_jquery.js
   contents:
     - jquery.js
+
+qs:
+  filters: rjsmin
+  output: vendor/%(version)s_qs.js
+  contents:
+    - qs.js
 
 vendor:
   filters: rjsmin
@@ -27,14 +33,15 @@ vendor:
     - jed.js
     - moment-with-locales.js
     - select2/select2.js
-    - qs.js
+    - popperjs.js
+    - purify.js
 
 bootstrap:
   filters: rjsmin
   output: vendor/%(version)s_bootstrap.js
   extra:
     preload:
-      - vendor/font-awesome
+      - vendor/fontawesome
       - vendor/jquery
   contents:
     - bootstrap/js/bootstrap.js

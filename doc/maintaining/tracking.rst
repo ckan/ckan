@@ -36,7 +36,7 @@ To enable page view tracking:
 
    For operations based on the tracking data CKAN uses a summarised version of
    the data, not the raw tracking data that is recorded "live" as page views
-   happen. The ``paster tracking update`` and ``paster search-index rebuild``
+   happen. The ``ckan tracking update`` and ``ckan search-index rebuild``
    commands need to be run periodicially to update this tracking summary data.
 
    You can setup a cron job to run these commands. On most UNIX systems you can
@@ -75,7 +75,7 @@ its number of views in the last 14 days, the ``total`` count is all of its
 tracked views (including recent ones).
 
 You can also export tracking data for all datasets to a CSV file using the
-``paster tracking export`` command. For details, run ``paster tracking -h``.
+``ckan tracking export`` command. For details, run ``ckan tracking -h``.
 
 .. note::
 

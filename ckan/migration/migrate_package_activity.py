@@ -30,15 +30,15 @@ package_revision table.)
 from __future__ import print_function
 from __future__ import absolute_import
 import argparse
-import sys
 from collections import defaultdict
-from six.moves import input
-from six import text_type
+from typing import Any
+import sys
+
 
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
 
-_context = None
+_context: Any = None
 
 
 def get_context():
@@ -124,7 +124,7 @@ def migrate_dataset(dataset_name, errors):
 
     import ckan.logic as logic
     from ckan import model
-
+    from ckanext.activity.model import Activity
     # 'hidden' activity is that by site_user, such as harvests, which are
     # not shown in the activity stream because they can be too numerous.
     # However these do have Activity objects, and if a hidden Activity is
@@ -151,14 +151,14 @@ def migrate_dataset(dataset_name, errors):
               i + 1, num_activities, activity[u'timestamp']))
 
         # we need activity.data and using the ORM is the fastest
-        activity_obj = model.Session.query(model.Activity).get(activity[u'id'])
+        activity_obj = model.Session.query(Activity).get(activity[u'id'])
         if u'resources' in activity_obj.data.get(u'package', {}):
             print(u'    activity has full dataset already recorded'
                   ' - no action')
             continue
 
         # get the dataset as it was at this revision:
-        # call package_show just as we do in package.py:activity_stream_item(),
+        # call package_show just as we do in Activity::activity_stream_item(),
         # only with a revision_id (to get it as it was then)
         context = dict(
             get_context(),
@@ -177,7 +177,7 @@ def migrate_dataset(dataset_name, errors):
             if isinstance(exc, logic.NotFound):
                 error_msg = u'Revision missing'
             else:
-                error_msg = text_type(exc)
+                error_msg = str(exc)
             print(u'    Error: {}! Skipping this version '
                   '(revision_id={}, timestamp={})'
                   .format(error_msg, activity_obj.revision_id,
@@ -196,8 +196,8 @@ def migrate_dataset(dataset_name, errors):
                 dataset = {u'title': u'unknown'}
 
         # get rid of revision_timestamp, which wouldn't be there if saved by
-        # during activity_stream_item() - something to do with not specifying
-        # revision_id.
+        # during Activity::activity_stream_item() - something to do with not
+        # specifying revision_id.
         if u'revision_timestamp' in (dataset.get(u'organization') or {}):
             del dataset[u'organization'][u'revision_timestamp']
         for res in dataset.get(u'resources', []):
@@ -207,7 +207,8 @@ def migrate_dataset(dataset_name, errors):
         actor = model.Session.query(model.User).get(activity[u'user_id'])
         actor_name = actor.name if actor else activity[u'user_id']
 
-        # add the data to the Activity, just as we do in activity_stream_item()
+        # add the data to the Activity, just as we do in
+        # Activity::activity_stream_item()
         data = {
             u'package': dataset,
             u'actor': actor_name,
@@ -273,11 +274,16 @@ if __name__ == u'__main__':
                         u'dataset - specify its name')
     args = parser.parse_args()
     assert args.config, u'You must supply a --config'
+    print(u'Loading config')
+
+    from ckan.plugins import plugin_loaded
     try:
-        from ckan.lib.cli import load_config
+        from ckan.cli import load_config
+        from ckan.config.middleware import make_app
+        make_app(load_config(args.config))
     except ImportError:
         # for CKAN 2.6 and earlier
-        def load_config(config):
+        def load_config(config):  # type: ignore
             from ckan.lib.cli import CkanCommand
             cmd = CkanCommand(name=None)
 
@@ -287,14 +293,18 @@ if __name__ == u'__main__':
             cmd.options.config = config
             cmd._load_config()
             return
+        load_config(args.config)
 
-    print(u'Loading config')
-    load_config(args.config)
+    if not plugin_loaded("activity"):
+        print(
+            "Please add the `activity` plugin to your `ckan.plugins` setting")
+        sys.exit(1)
+
     if not args.dataset:
         migrate_all_datasets()
         wipe_activity_detail(delete_activity_detail=args.delete)
     else:
-        errors = defaultdict(int)
+        errors: Any = defaultdict(int)
         with PackageDictizeMonkeyPatch():
             migrate_dataset(args.dataset, errors)
         print_errors(errors)

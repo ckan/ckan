@@ -9,11 +9,12 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  <li class="active"><a href="#"><i class="fa fa-pencil-square-o"></i> {{ _('Edit view') }}</a></li>
+  <li class="active"><a href="#"><i class="fa fa-pencil"></i> {{ _('Edit view') }}</a></li>
 {% endblock %}
 
 {% block form %}
-  <form class="dataset-form dataset-resource-form" method="post" data-module="basic-form resource-form">
+  <form method="post" data-module="basic-form resource-form">
+    {{ h.csrf_input() }}
     {% include 'package/snippets/view_form.html' %}
     <div class="form-actions">
       <button class="btn btn-danger pull-left" name="delete" value="Delete"> {{ _('Delete') }} </button>

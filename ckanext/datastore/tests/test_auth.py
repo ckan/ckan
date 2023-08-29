@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import pytest
-from six import string_types
+
 from ckan import model, logic
 from ckan.tests import helpers, factories
 
@@ -15,7 +15,7 @@ class TestCollaboratorsDataStore():
 
         return {
             u'model': model,
-            u'user': user if isinstance(user, string_types) else user.get(u'name')
+            u'user': user if isinstance(user, str) else user.get(u'name')
         }
 
     def test_datastore_search_private_editor(self):

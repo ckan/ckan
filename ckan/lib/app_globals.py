@@ -1,34 +1,35 @@
 # encoding: utf-8
 
 ''' The application's Globals object '''
+from __future__ import annotations
 
 import logging
 from threading import Lock
-import re
-import six
-from ckan.common import asbool
-from ckan.common import config
+from typing import Any, Union
+from packaging.version import parse as parse_version, Version
 
 import ckan
 import ckan.model as model
-from logic.schema import update_configuration_schema
+from ckan.logic.schema import update_configuration_schema
+from ckan.common import asbool, config, aslist
+from ckan.lib.webassets_tools import is_registered
 
 
 log = logging.getLogger(__name__)
 
 
-DEFAULT_MAIN_CSS_FILE = '/base/css/main.css'
+DEFAULT_THEME_ASSET = 'css/main'
 
 # mappings translate between config settings and globals because our naming
 # conventions are not well defined and/or implemented
-mappings = {
+mappings: dict[str, str] = {
 #   'config_key': 'globals_key',
 }
 
 
 # This mapping is only used to define the configuration options (from the
 # `config` object) that should be copied to the `app_globals` (`g`) object.
-app_globals_from_config_details = {
+app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_title': {},
     'ckan.site_logo': {},
     'ckan.site_url': {},
@@ -37,16 +38,10 @@ app_globals_from_config_details = {
     'ckan.site_intro_text': {},
     'ckan.site_custom_css': {},
     'ckan.favicon': {}, # default gets set in config.environment.py
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-        # has been setup in load_environment():
+    # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
     'ckan.homepage_style': {'default': '1'},
 
     # split string
@@ -59,7 +54,6 @@ app_globals_from_config_details = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
@@ -72,28 +66,39 @@ app_globals_from_config_details = {
 
 
 # A place to store the origional config options of we override them
-_CONFIG_CACHE = {}
+_CONFIG_CACHE: dict[str, Any] = {}
 
-def set_main_css(css_file):
-    ''' Sets the main_css.  The css_file must be of the form file.css '''
-    assert css_file.endswith('.css')
-    new_css = css_file
-    # FIXME we should check the css file exists
-    app_globals.main_css = str(new_css)
+def set_theme(asset: str) -> None:
+    ''' Sets the theme.
+
+    The `asset` argument is a name of existing web-asset registered by CKAN
+    itself or by any enabled extension.
+
+    If asset is not registered, use default theme instead.
+    '''
+    if not is_registered(asset):
+        log.error(
+            "Asset '%s' does not exist. Fallback to '%s'",
+            asset, DEFAULT_THEME_ASSET
+        )
+        asset = DEFAULT_THEME_ASSET
+
+    app_globals.theme = asset
 
 
-def set_app_global(key, value):
+def set_app_global(key: str, value: str) -> None:
     '''
     Set a new key on the app_globals (g) object
 
     It will process the value according to the options on
     app_globals_from_config_details (if any)
     '''
-    key, value = process_app_global(key, value)
-    setattr(app_globals, key, value)
+    key, new_value = process_app_global(key, value)
+    setattr(app_globals, key, new_value)
 
 
-def process_app_global(key, value):
+def process_app_global(
+        key: str, value: str) -> tuple[str, Union[bool, int, str, list[str]]]:
     '''
     Tweak a key, value pair meant to be set on the app_globals (g) object
 
@@ -101,6 +106,7 @@ def process_app_global(key, value):
     '''
     options = app_globals_from_config_details.get(key)
     key = get_globals_key(key)
+    new_value: Any = value
     if options:
         if 'name' in options:
             key = options['name']
@@ -108,16 +114,17 @@ def process_app_global(key, value):
 
         data_type = options.get('type')
         if data_type == 'bool':
-            value = asbool(value)
+            new_value = asbool(value)
         elif data_type == 'int':
-            value = int(value)
+            new_value = int(value)
         elif data_type == 'split':
-            value = value.split()
+            new_value = aslist(value)
+        else:
+            new_value = value
+    return key, new_value
 
-    return key, value
 
-
-def get_globals_key(key):
+def get_globals_key(key: str) -> str:
     # create our globals key
     # these can be specified in mappings or else we remove
     # the `ckan.` part this is to keep the existing namings
@@ -130,20 +137,12 @@ def get_globals_key(key):
         return key
 
 
-def reset():
+def reset() -> None:
     ''' set updatable values from config '''
-    def get_config_value(key, default=''):
-        if model.meta.engine.has_table('system_info'):
-            value = model.get_system_info(key)
-        else:
-            value = None
+    def get_config_value(key: str, default: str = ''):
+        value = model.get_system_info(key)
         config_value = config.get(key)
-        # sort encodeings if needed
-        if isinstance(config_value, str) and six.PY2:
-            try:
-                config_value = six.ensure_text(config_value)
-            except UnicodeDecodeError:
-                config_value = config_value.decode('latin-1')
+
         # we want to store the config the first time we get here so we can
         # reset them if needed
         if key not in _CONFIG_CACHE:
@@ -170,9 +169,8 @@ def reset():
         get_config_value(key)
 
     # custom styling
-    main_css = get_config_value(
-        'ckan.main_css', DEFAULT_MAIN_CSS_FILE) or DEFAULT_MAIN_CSS_FILE
-    set_main_css(main_css)
+    theme = get_config_value('ckan.theme') or DEFAULT_THEME_ASSET
+    set_theme(theme)
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'
@@ -183,9 +181,13 @@ def reset():
 
 
 class _Globals(object):
-
     ''' Globals acts as a container for objects available throughout the
     life of the application. '''
+
+    theme: str
+    site_logo: str
+    header_class: str
+    site_description: str
 
     def __init__(self):
         '''One instance of Globals is created during application
@@ -209,12 +211,15 @@ class _Globals(object):
     def _init(self):
 
         self.ckan_version = ckan.__version__
-        self.ckan_base_version = re.sub('[^0-9\.]', '', self.ckan_version)
-        if self.ckan_base_version == self.ckan_version:
-            self.ckan_doc_version = self.ckan_version[:3]
-        else:
-            self.ckan_doc_version = 'latest'
+        version = parse_version(self.ckan_version)
+        if not isinstance(version, Version):
+            raise ValueError(self.ckan_version)
 
+        self.ckan_base_version = version.base_version
+        if not version.is_prerelease:
+            self.ckan_doc_version = f"{version.major}.{version.minor}"
+        else:
+            self.ckan_doc_version = "latest"
         # process the config details to set globals
         for key in app_globals_from_config_details.keys():
             new_key, value = process_app_global(key, config.get(key) or '')

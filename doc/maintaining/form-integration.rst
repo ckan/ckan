@@ -1,13 +1,15 @@
+.. _form-integration:
+
 ================
 Form Integration
 ================
 
-CKAN allows you to integrate its Edit Dataset and New Dataset forms into an external front-end. To that end, CKAN also provides a simple way to redirect these forms back to the external front-end upon submission. 
+CKAN allows you to integrate its Edit Dataset and New Dataset forms into an external front-end. To that end, CKAN also provides a simple way to redirect these forms back to the external front-end upon submission.
 
 Redirecting CKAN Forms
 ======================
 
-It is obviously simple enough for an external front-end to link to CKAN's Edit Dataset and New Dataset forms, but once the forms are submitted, it would be desirable to redirect the user back to the external front-end, rather than CKAN's dataset read page. 
+It is obviously simple enough for an external front-end to link to CKAN's Edit Dataset and New Dataset forms, but once the forms are submitted, it would be desirable to redirect the user back to the external front-end, rather than CKAN's dataset read page.
 
 This is achieved with a parameter to the CKAN URL. The 'return URL' can be specified in two places:
 
@@ -24,7 +26,7 @@ Since the 'return URL' may need to include the dataset name, which could be chan
 Example
 -------
 
-An external front-end displays a dataset 'ontariolandcoverv100' here:: 
+An external front-end displays a dataset 'ontariolandcoverv100' here::
 
   http://datadotgc.ca/dataset/ontariolandcoverv100
 
@@ -40,11 +42,11 @@ And this is URL-encoded to become::
 
   http%3A%2F%2Fdatadotgc.ca%2Fdataset%2F%3CNAME%3E
 
-So, in summary, the edit link becomes:: 
+So, in summary, the edit link becomes::
 
   http://ca.ckan.net/dataset/edit/ontariolandoverv100?return_to=http%3A%2F%2Fdatadotgc.ca%2Fdataset%2F%3CNAME%3E
 
-During editing the dataset, the user changes the dataset name to `canadalandcover`, presses 'preview' and finally 'commit'. The user is now redirected back to the external front-end at:: 
+During editing the dataset, the user changes the dataset name to `canadalandcover`, presses 'preview' and finally 'commit'. The user is now redirected back to the external front-end at::
 
   http://datadotgc.ca/dataset/canadalandcover
 

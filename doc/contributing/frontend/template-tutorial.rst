@@ -85,21 +85,14 @@ it is useful to provide additional actions that a related to the page.
 Scripts and Stylesheets
 -----------------------
 
-Currently scripts and stylesheets can be added by extending the
-``styles`` and ``scripts`` blocks. This is soon to be replaced with the
-``{% resource %}`` tag which manages script loading for us.
+Currently scripts and stylesheets can be added by using the
+``{% asset %}`` tag which manages script loading for us.
 
 ::
 
-    {% block styles %}
-      {{ super() }}
-      <link rel="stylesheet" href="{% url_for_static "my-style.css" %}" />
-    {% endblock %}
+{% asset 'my-extension/main-css' %}
+{% asset 'my-extension/main-js' %}
 
-    {% block scripts %}
-      {{ super() }}
-      <script src="{% url_for_static "my-script.js" %}"></script>
-    {% endblock %}
 
 Summary
 -------

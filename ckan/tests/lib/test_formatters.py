@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import six
 import pytest
 import pytz
 from ckan.lib import formatters as f
@@ -25,7 +24,7 @@ from datetime import datetime
     ],
 )
 @pytest.mark.usefixtures(u"with_request_context")
-def test_localized_SI_number(number, expected):
+def test_localized_si_number(number, expected):
     assert f.localised_SI_number(number) == expected
 
 
@@ -59,7 +58,7 @@ class TestLocalizedNiceDate(object):
             (_now, False, False, False, u"Just now"),
             (_now, True, False, False, u"October 23, 2017"),
             (_now, True, True, False, u"October 23, 2017, 16:03 (UTC)"),
-            (_now, True, True, True, u"October 23, 2017 at 4:03:52 PM UTC"),
+            (_now, True, True, True, u"October 23, 2017, 4:03:52\u202fPM UTC"),
             (_now, False, True, True, u"Just now"),
             (_now, False, False, True, u"Just now"),
             (_now, False, True, False, u"Just now"),
@@ -98,7 +97,7 @@ class TestLocalizedNiceDate(object):
             (_now, False, False, u"MMM, YY", u"Oct, 17"),
             (_now, True, False, None, u"October 23, 2017, 16:03 (UTC)"),
             (_now, True, False, u"EEE, HH:mm", u"Mon, 16:03"),
-            (_now, True, True, None, u"October 23, 2017 at 4:03:52 PM UTC"),
+            (_now, True, True, None, u"October 23, 2017, 4:03:52\u202fPM UTC"),
             (
                 _now,
                 True,

@@ -1,8 +1,10 @@
 # encoding: utf-8
 
-from simplejson import loads, RawJSON, dumps
-import six
-from six import text_type
+from typing import Any
+from simplejson import (
+    loads,
+    RawJSON,
+    dumps)
 
 
 class LazyJSONObject(RawJSON):
@@ -12,13 +14,14 @@ class LazyJSONObject(RawJSON):
     string passed when possible. Accepts and produces only
     unicode strings containing a single JSON object.
     '''
-    def __init__(self, json_string):
-        assert isinstance(json_string, text_type), json_string
+    def __init__(self, json_string: str):
+        assert isinstance(json_string, str), json_string
         self._json_string = json_string
         self._json_dict = None
 
     def _loads(self):
         if not self._json_dict:
+            assert self._json_string is not None
             self._json_dict = loads(self._json_string)
             self._json_string = None
         return self._json_dict
@@ -28,7 +31,7 @@ class LazyJSONObject(RawJSON):
             return u'<LazyJSONObject %r>' % self._json_string
         return u'<LazyJSONObject %r>' % self._json_dict
 
-    @property
+    @property  # type: ignore
     def encoded_json(self):
         if self._json_string:
             return self._json_string
@@ -38,8 +41,8 @@ class LazyJSONObject(RawJSON):
             separators=(u',', u':'))
 
 
-def _loads_method(name):
-    def method(self, *args, **kwargs):
+def _loads_method(name: str):
+    def method(self: Any, *args: Any, **kwargs: Any):
         return getattr(self._loads(), name)(*args, **kwargs)
     return method
 

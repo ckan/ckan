@@ -33,7 +33,7 @@ templates in their top-level namespace:
 
 .. py:data:: tmpl_context
 
-   The `Pylons template context object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=template%20context#context-object>`_,
+   The `Pylons template context object <https://thejimmyg.github.io/pylonsbook/en/1.0/exploring-pylons.html?highlight=template%20context#context-object>`_,
    a thread-safe object that the application can store request-specific
    variables against without the variables associated with one HTTP request
    getting confused with variables from another request.
@@ -51,7 +51,7 @@ templates in their top-level namespace:
 
 .. py:data:: app_globals
 
-   The `Pylons App Globals object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=template%20context#app-globals-object>`_,
+   The `Pylons App Globals object <https://thejimmyg.github.io/pylonsbook/en/1.0/exploring-pylons.html?highlight=template%20context#app-globals-object>`_,
    an instance of the :py:class:`ckan.lib.app_globals.Globals` class.
    The application can store request-independent variables
    against the ``app_globals`` object. Variables stored against
@@ -70,14 +70,14 @@ templates in their top-level namespace:
 
 .. py:data:: request
 
-   The `Pylons Request object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=request#request>`_,
+   The `Pylons Request object <https://thejimmyg.github.io/pylonsbook/en/1.0/exploring-pylons.html?highlight=request#request>`_,
    contains information about the HTTP request that is currently being
    responded to, including the request headers and body, URL parameters, the
    requested URL, etc.
 
 .. py:data:: response
 
-   The `Pylons Response object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=request#response>`_,
+   The `Pylons Response object <https://thejimmyg.github.io/pylonsbook/en/1.0/exploring-pylons.html?highlight=request#response>`_,
    contains information about the HTTP response that is currently being
    prepared to be sent back to the user, including the HTTP status code,
    headers, cookies, etc.

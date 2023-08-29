@@ -3,10 +3,12 @@
 import datetime
 import hashlib
 import json
+from unittest import mock
 import pytest
 import six
 from ckan.common import config
 import ckan.lib.search as search
+from ckan.tests import factories, helpers
 
 
 @pytest.mark.skipif(not search.is_available(), reason="Solr not reachable")
@@ -32,6 +34,13 @@ class TestSearchIndex(object):
             "metadata_created": datetime.datetime.now().isoformat(),
             "metadata_modified": datetime.datetime.now().isoformat(),
         }
+
+    def test_solr_is_available(self):
+        assert self.solr_client.search("*:*") is not None
+
+    def test_search_all(self):
+        self.package_index.index_package(self.base_package_dict)
+        assert len(self.solr_client.search(q="*:*", fq=self.fq)) == 1
 
     def test_index_basic(self):
 
@@ -142,6 +151,8 @@ class TestSearchIndex(object):
                 "extras": [
                     {"key": "test_wrong_date", "value": "Not a date"},
                     {"key": "test_another_wrong_date", "value": "2014-13-01"},
+                    {"key": "test_yet_another_wrong_date", "value": "2014-15"},
+                    {"key": "test_yet_another_very_wrong_date", "value": "30/062012"},
                 ]
             }
         )
@@ -154,6 +165,8 @@ class TestSearchIndex(object):
 
         assert "test_wrong_date" not in response.docs[0]
         assert "test_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_wrong_date" not in response.docs[0]
+        assert "test_yet_another_very_wrong_date" not in response.docs[0]
 
     def test_index_date_field_empty_value(self):
 
@@ -262,18 +275,6 @@ class TestPackageSearchIndex:
         validated_data_dict = json.loads(indexed_pkg["validated_data_dict"])
         assert "data_dict" not in validated_data_dict
 
-    def test_index_package_stores_unvalidated_data_dict_without_validated_data_dict(
-        self,
-    ):
-        # This is a regression test for #2208
-        index = search.index.PackageSearchIndex()
-        pkg_dict = self._get_pkg_dict()
-
-        index.index_package(pkg_dict)
-        data_dict = json.loads(search.show(pkg_dict["name"])["data_dict"])
-
-        assert "validated_data_dict" not in data_dict
-
     def test_index_package_stores_resource_extras_in_config_file(self):
         index = search.index.PackageSearchIndex()
         pkg_dict = self._get_pkg_dict_with_resources()
@@ -300,3 +301,22 @@ class TestPackageSearchIndex:
 
         # Resource types are indexed
         assert indexed_pkg["res_type"] == ["doc", "file"]
+
+
+@pytest.mark.usefixtures("clean_index")
+def test_index_only_called_once():
+
+    with mock.patch("ckan.lib.search.index.PackageSearchIndex.index_package") as m:
+
+        dataset = factories.Dataset()
+
+        assert m.call_count == 1
+
+        m.reset_mock()
+
+        dataset["notes"] = "hi"
+        helpers.call_action("package_update", **dataset)
+
+        assert m.call_count == 1
+
+        assert helpers.call_action("package_show", id=dataset["id"])["notes"] == "hi"

@@ -206,8 +206,8 @@ Internationalizing strings in JavaScript code
 ---------------------------------------------
 
 Each :ref:`CKAN JavaScript module <javascript_modules>` offers the methods
-``_`` and ``ngettext`` for translating singular and plural strings,
-respectively:
+``_`` and ``ngettext``. The ``ngettext`` function is used to translate a single string which
+has both a singular and a plural form, whereas ``_`` is used to translate a single string only:
 
 .. code-block:: javascript
 
@@ -355,7 +355,7 @@ the quality of CKAN's translations:
 * Try not to make translators translate strings that don't need to be
   translated.
 
-  For example, ``'legacy_templates'`` is the name of a directory, it doesn't
+  For example, ``'templates'`` is the name of a directory, it doesn't
   need to be marked for translation.
 
 * Mark singular and plural forms of strings correctly.

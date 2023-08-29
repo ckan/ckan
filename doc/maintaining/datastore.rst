@@ -1,3 +1,5 @@
+.. _datastore:
+
 ===================
 DataStore extension
 ===================
@@ -10,14 +12,14 @@ the DataStore.
 When a resource is added to the DataStore, you get:
 
 * Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
-* `The DataStore API`_: search, filter and update the data, without having to download
+* `The Data API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <https://docs.ckan.org/projects/datapusher/en/latest/>`_, which will
+`DataPusher <https://github.com/ckan/datapusher>`_, which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked.
 
@@ -190,7 +192,7 @@ You can now delete the DataStore table with::
 
     curl -X POST http://127.0.0.1:5000/api/3/action/datastore_delete -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}"}'
 
-To find out more about the DataStore API, see `The DataStore API`_.
+To find out more about the Data API, see `The Data API`_.
 
 
 ---------------------------------------------------
@@ -206,7 +208,7 @@ This task of automatically parsing and then adding data to the DataStore is
 performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
-To install this please look at the docs here: https://docs.ckan.org/projects/datapusher/en/latest/
+To install this please look at the docs here: https://github.com/ckan/datapusher
 
 .. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
    not support duplicate column headers. That includes blank column headings.
@@ -251,14 +253,14 @@ tab-separated file use
 ``{CKAN-URL}/datastore/dump/{RESOURCE-ID}?format=tsv&bom=true``.
 
 A number of parameters from :meth:`~ckanext.datastore.logic.action.datastore_search` can be used:
-    ``offset``, ``limit``, ``filters``, ``q``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
+    ``offset``, ``limit``, ``filters``, ``q``, ``full_text``, ``distinct``, ``plain``, ``language``, ``fields``, ``sort``
 
 .. _CSV: https://en.wikipedia.org/wiki/Comma-separated_values
 
 
 
 -----------------
-The DataStore API
+The Data API
 -----------------
 
 The CKAN DataStore offers an API for reading, searching and filtering data without
@@ -280,14 +282,14 @@ database and the API as thin as possible to allow you to use the features you wo
 expect from a powerful database management system.
 
 A DataStore resource can not be created on its own. It is always required to have an
-associated CKAN resource. If data is stored in the DataStore, it will automatically be
-previewed by the :ref:`recline preview extension <data-explorer>`.
+associated CKAN resource. If data is stored in the DataStore, it can automatically be
+previewed by a :ref:`preview extension <data-explorer>`.
 
 
-Making a DataStore API request
+Making a Data API request
 ==============================
 
-Making a DataStore API request is the same as making an Action API request: you
+Making a Data API request is the same as making an Action API request: you
 post a JSON dictionary in an HTTP POST request to an API URL, and the API also
 returns its response in a JSON dictionary. See the :doc:`/api/index` for details.
 
@@ -409,6 +411,47 @@ You can find more information about the formatting of dates in the `date/time ty
 
 .. _date/time types section of the PostgreSQL documentation: http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
 
+.. _filters:
+
+Filters
+-------
+
+Filters define the matching conditions to select from the DataStore. A filter is defined as follows::
+
+    {
+        "resource_id":  # the resource ID (required)
+        "filters": {
+            # column name: # field value
+            # column name: # List of field values
+            ...:  # other user-defined filters
+  }
+    }
+
+Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
+The filters have to be valid key/value pairs. The key must be a valid column name
+and the value must match the respective column type. The value may be provided as a List
+of multiple matching values. See :ref:`valid-types` for details on which types are valid.
+
+Example (single filter values, used as `WHERE =` statements)::
+
+    {
+        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
+        "filters": {
+            "name": "Fred",
+            "dob":  "1994-7-07"
+        }
+    }
+
+Example (multiple filter values, used as `WHERE IN` statements)::
+
+    {
+        "resource_id":  "5f38da22-7d55-4312-81ce-17f1a9e84788",
+        "filters": {
+            "name": ["Fred", "Jones"],
+            "dob":  ["1994-7-07", "1992-7-27"]
+        }
+    }
+
 .. _resource-aliases:
 
 Resource aliases
@@ -416,30 +459,22 @@ Resource aliases
 
 A resource in the DataStore can have multiple aliases that are easier to remember than the resource id. Aliases can be created and edited with the :meth:`~ckanext.datastore.logic.action.datastore_create` API endpoint. All aliases can be found in a special view called ``_table_metadata``. See :ref:`db_internals` for full reference.
 
-.. _datastore_search_htsql:
-
-HTSQL support
--------------
-
-
-The `ckanext-htsql <https://github.com/okfn/ckanext-htsql>`_ extension adds an API action that allows a user to search data in a resource using the `HTSQL <http://htsql.org/doc/>`_ query expression language. Please refer to the extension documentation to know more.
-
 
 .. _comparison_querying:
 
 Comparison of different querying methods
 ----------------------------------------
 
-The DataStore supports querying with multiple API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
+The DataStore supports querying with two API endpoints. They are similar but support different features. The following list gives an overview of the different methods.
 
-==============================  ========================================================  ============================================================  =============================
-..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`  :ref:`HTSQL<datastore_search_htsql>`
-==============================  ========================================================  ============================================================  =============================
-**Ease of use**                 Easy                                                      Complex                                                       Medium
-**Flexibility**                 Low                                                       High                                                          Medium
-**Query language**              Custom (JSON)                                             SQL                                                           HTSQL
-**Join resources**              No                                                        Yes                                                           No
-==============================  ========================================================  ============================================================  =============================
+==============================  ========================================================  ============================================================
+..                              :meth:`~ckanext.datastore.logic.action.datastore_search`  :meth:`~ckanext.datastore.logic.action.datastore_search_sql`
+==============================  ========================================================  ============================================================
+**Ease of use**                 Easy                                                      Complex
+**Flexibility**                 Low                                                       High
+**Query language**              Custom (JSON)                                             SQL
+**Join resources**              No                                                        Yes
+==============================  ========================================================  ============================================================
 
 
 .. _db_internals:

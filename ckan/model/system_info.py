@@ -7,12 +7,15 @@ configuration options.
 For more details, check :doc:`maintaining/configuration`.
 '''
 
-from sqlalchemy import types, Column, Table
-from six import text_type
+from typing import Any, Optional
 
-from ckan.model import meta
-from ckan.model import core
-from ckan.model import domain_object
+from sqlalchemy import types, Column, Table
+from sqlalchemy.exc import ProgrammingError
+
+
+import ckan.model.meta as meta
+import ckan.model.core as core
+import ckan.model.domain_object as domain_object
 
 __all__ = ['system_info_table', 'SystemInfo',
            'get_system_info', 'set_system_info']
@@ -28,23 +31,27 @@ system_info_table = Table(
 
 class SystemInfo(core.StatefulObjectMixin,
                  domain_object.DomainObject):
+    id: int
+    key: str
+    value: str
+    state: str
 
-    def __init__(self, key, value):
+    def __init__(self, key: str, value: Any) -> None:
 
         super(SystemInfo, self).__init__()
 
         self.key = key
-        self.value = text_type(value)
+        self.value = str(value)
 
 
 meta.mapper(SystemInfo, system_info_table)
 
 
-def get_system_info(key, default=None):
+def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:
     ''' get data from system_info table '''
-    from sqlalchemy.exc import ProgrammingError
     try:
         obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
+        meta.Session.commit()
         if obj:
             return obj.value
     except ProgrammingError:
@@ -53,7 +60,7 @@ def get_system_info(key, default=None):
 
 
 
-def delete_system_info(key, default=None):
+def delete_system_info(key: str) -> None:
     ''' delete data from system_info table '''
     obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
     if obj:
@@ -61,16 +68,16 @@ def delete_system_info(key, default=None):
         meta.Session.commit()
 
 
-def set_system_info(key, value):
+def set_system_info(key: str, value: str) -> bool:
     ''' save data in the system_info table '''
     obj = None
     obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
-    if obj and obj.value == text_type(value):
-        return
+    if obj and obj.value == str(value):
+        return False
     if not obj:
         obj = SystemInfo(key, value)
     else:
-        obj.value = text_type(value)
+        obj.value = str(value)
 
     meta.Session.add(obj)
     meta.Session.commit()

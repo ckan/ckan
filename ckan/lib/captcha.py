@@ -1,14 +1,15 @@
 # encoding: utf-8
 
-from ckan.common import config
-
 import requests
 
+from ckan.common import config
+from ckan.types import Request
 
-def check_recaptcha(request):
+
+def check_recaptcha(request: Request) -> None:
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
     on failure.'''
-    recaptcha_private_key = config.get('ckan.recaptcha.privatekey', '')
+    recaptcha_private_key = config.get('ckan.recaptcha.privatekey')
     if not recaptcha_private_key:
         # Recaptcha not enabled
         return
@@ -28,7 +29,9 @@ def check_recaptcha(request):
         remoteip=client_ip_address,
         response=recaptcha_response_field.encode('utf8')
     )
-    response = requests.get(recaptcha_server_name, params)
+
+    timeout = config.get('ckan.requests.timeout')
+    response = requests.get(recaptcha_server_name, params, timeout=timeout)
     data = response.json()
 
     try:

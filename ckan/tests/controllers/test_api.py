@@ -7,44 +7,87 @@ import json
 import re
 
 import pytest
-import six
-
+from io import BytesIO
 from ckan.lib.helpers import url_for
 import ckan.tests.helpers as helpers
 from ckan.tests import factories
-from ckan.lib import uploader as ckan_uploader
 
 
-@pytest.mark.usefixtures("clean_db", "with_request_context")
+@pytest.mark.parametrize(
+    "ver, expected, status",
+    [(1, 1, 200), (2, 2, 200), (3, 3, 200)],
+)
+def test_get_api_version(ver, expected, status, app):
+    resp = app.get(url_for("api.get_api", ver=str(ver)), status=status)
+    if status == 200:
+        assert resp.json["version"] == expected
+
+
+def test_readonly_is_get_able_with_normal_url_params(app):
+    """Test that a read-only action is GET-able
+
+    Picks an action within `get.py` and checks that it works if it's
+    invoked with a http GET request.  The action's data_dict is
+    populated from the url parameters.
+    """
+    params = {"q": "russian"}
+    app.get(
+        url_for("api.action", logic_function="package_search", ver=3),
+        params=params,
+        status=200,
+    )
+
+
+def test_sideeffect_action_is_not_get_able(app):
+    """Test that a non-readonly action is not GET-able.
+
+    Picks an action outside of `get.py`, and checks that it 400s if an
+    attempt to invoke with a http GET request is made.
+    """
+    data_dict = {"type": "dataset", "name": "a-name"}
+    resp = app.get(
+        url_for("api.action", logic_function="package_create", ver=3),
+        json=data_dict,
+        status=400,
+    )
+    msg = (
+        "Bad request - JSON Error: Invalid request."
+        " Please use POST method for your request"
+    )
+    assert msg in resp
+
+
+@pytest.mark.usefixtures("clean_db")
 class TestApiController(object):
     def test_resource_create_upload_file(
-            self, app, monkeypatch, tmpdir, ckan_config):
-        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan_uploader, u'_storage_path', str(tmpdir))
+        self, app, monkeypatch, tmpdir, ckan_config
+    ):
+        monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
 
         user = factories.User()
+        user_token = factories.APIToken(user=user["name"])
         pkg = factories.Dataset(creator_user_id=user["id"])
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="resource_create",
-            ver="/3",
+            ver=3,
         )
-        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+        headers = {"Authorization": user_token["token"]}
 
-        content = six.ensure_binary('upload-content')
-        upload_content = six.BytesIO(content)
+        content = 'upload-content'.encode()
+        upload_content = BytesIO(content)
         postparams = {
             "name": "test-flask-upload",
             "package_id": pkg["id"],
-            "upload": (upload_content, "test-upload.txt")}
+            "upload": (upload_content, "test-upload.txt"),
+        }
 
         resp = app.post(
             url,
+            headers=headers,
             data=postparams,
-            environ_overrides=env,
-            content_type='multipart/form-data'
+            content_type="multipart/form-data",
         )
         result = resp.json["result"]
         assert "upload" == result["url_type"]
@@ -63,12 +106,12 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_name(self, app):
         dataset = factories.Dataset(name="rivers")
-        url = url_for(
-            controller="api", action="dataset_autocomplete", ver="/2"
-        )
+        url = url_for("api.dataset_autocomplete", ver=2)
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
+        response = app.get(
+            url=url, query_string={"incomplete": u"rive"}, status=200
+        )
 
         results = json.loads(response.body)
         assert results == {
@@ -91,12 +134,12 @@ class TestApiController(object):
     @pytest.mark.usefixtures("clean_index")
     def test_dataset_autocomplete_title(self, app):
         dataset = factories.Dataset(name="test_ri", title="Rivers")
-        url = url_for(
-            controller="api", action="dataset_autocomplete", ver="/2"
-        )
+        url = url_for("api.dataset_autocomplete", ver=2)
         assert url == "/api/2/util/dataset/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"riv"}, status=200)
+        response = app.get(
+            url=url, query_string={"incomplete": u"riv"}, status=200
+        )
 
         results = json.loads(response.body)
         assert results == {
@@ -117,22 +160,26 @@ class TestApiController(object):
         )
 
     def test_tag_autocomplete(self, app):
-        factories.Dataset(tags=[{"name": "rivers"}])
-        url = url_for(controller="api", action="tag_autocomplete", ver="/2")
+        factories.Dataset(tags=[{"name": "rivers ア"}])
+        url = url_for("api.tag_autocomplete", ver=2)
+
         assert url == "/api/2/util/tag/autocomplete"
 
-        response = app.get(url=url, query_string={"incomplete": u"rive"}, status=200)
+        response = app.get(
+            url=url, query_string={"incomplete": u"rs ア"}, status=200
+        )
 
-        results = json.loads(response.body)
-        assert results == {"ResultSet": {"Result": [{"Name": "rivers"}]}}
+        assert response.json == {
+            "ResultSet": {"Result": [{"Name": "rivers ア"}]}
+        }
         assert (
             response.headers["Content-Type"]
             == "application/json;charset=utf-8"
         )
 
     def test_group_autocomplete_by_name(self, app):
-        org = factories.Group(name="rivers", title="Bridges")
-        url = url_for(controller="api", action="group_autocomplete", ver="/2")
+        factories.Group(name="rivers", title="Bridges")
+        url = url_for("api.group_autocomplete", ver=2)
         assert url == "/api/2/util/group/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"rive"}, status=200)
@@ -147,8 +194,8 @@ class TestApiController(object):
         )
 
     def test_group_autocomplete_by_title(self, app):
-        org = factories.Group(name="frogs", title="Bugs")
-        url = url_for(controller="api", action="group_autocomplete", ver="/2")
+        factories.Group(name="frogs", title="Bugs")
+        url = url_for("api.group_autocomplete", ver=2)
 
         response = app.get(url=url, query_string={"q": u"bug"}, status=200)
 
@@ -158,9 +205,7 @@ class TestApiController(object):
 
     def test_organization_autocomplete_by_name(self, app):
         org = factories.Organization(name="simple-dummy-org")
-        url = url_for(
-            controller="api", action="organization_autocomplete", ver="/2"
-        )
+        url = url_for("api.organization_autocomplete", ver=2)
         assert url == "/api/2/util/organization/autocomplete"
 
         response = app.get(url=url, query_string={"q": u"simple"}, status=200)
@@ -175,12 +220,12 @@ class TestApiController(object):
         )
 
     def test_organization_autocomplete_by_title(self, app):
-        org = factories.Organization(title="Simple dummy org")
-        url = url_for(
-            controller="api", action="organization_autocomplete", ver="/2"
-        )
+        factories.Organization(title="Simple dummy org")
+        url = url_for("api.organization_autocomplete", ver=2)
 
-        response = app.get(url=url, query_string={"q": u"simple dum"}, status=200)
+        response = app.get(
+            url=url, query_string={"q": u"simple dum"}, status=200
+        )
 
         results = json.loads(response.body)
         assert len(results) == 1
@@ -188,35 +233,25 @@ class TestApiController(object):
 
     def test_config_option_list_access_sysadmin(self, app):
         user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="config_option_list",
-            ver="/3",
+            ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=200,
-        )
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={}, status=200)
 
     def test_config_option_list_access_sysadmin_jsonp(self, app):
         user = factories.Sysadmin()
+        user_token = factories.APIToken(user=user["name"])
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="config_option_list",
-            ver="/3",
+            ver=3,
         )
-
-        app.get(
-            url=url,
-            query_string={"callback": "myfn"},
-            environ_overrides={"REMOTE_USER": six.ensure_str(user["name"])},
-            status=403,
-        )
+        headers = {"Authorization": user_token["token"]}
+        app.get(url=url, headers=headers, query_string={"callback": "myfn"}, status=403)
 
     def test_jsonp_works_on_get_requests(self, app):
 
@@ -224,14 +259,13 @@ class TestApiController(object):
         dataset2 = factories.Dataset()
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="package_list",
-            ver="/3",
+            ver=3,
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
-        assert re.match(r"my_callback\(.*\);", six.ensure_str(res.body)), res
+        assert re.match(r"my_callback\(.*\);", str(res.body)), res
         # Unwrap JSONP callback (we want to look at the data).
         start = len("my_callback") + 1
         msg = res.body[start:-2]
@@ -243,10 +277,9 @@ class TestApiController(object):
 
     def test_jsonp_returns_javascript_content_type(self, app):
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="status_show",
-            ver="/3",
+            ver=3,
         )
 
         res = app.get(url=url, query_string={"callback": "my_callback"})
@@ -258,18 +291,127 @@ class TestApiController(object):
         dataset2 = factories.Dataset()
 
         url = url_for(
-            controller="api",
-            action="action",
+            "api.action",
             logic_function="package_list",
-            ver="/3",
+            ver=3,
             callback="my_callback",
         )
 
         res = app.post(url=url)
         # The callback param is ignored and the normal response is returned
-        assert not six.ensure_str(res.body).startswith("my_callback")
+        assert not str(res.body).startswith("my_callback")
         res_dict = json.loads(res.body)
         assert res_dict["success"]
         assert sorted(res_dict["result"]) == sorted(
             [dataset1["name"], dataset2["name"]]
         )
+
+    @pytest.mark.parametrize(
+        "incomplete, expected",
+        [
+            (None, set()),
+            ("", set()),
+            ("cs", {"csv"}),
+            ("on", {"json"}),
+            ("s", {"csv", "json"}),
+            ("xls", set()),
+        ],
+    )
+    def test_format_autocomplete(self, incomplete, expected, app):
+        factories.Resource(format="CSV")
+        factories.Resource(format="JSON")
+
+        resp = app.get(
+            url_for("api.format_autocomplete", ver=2, incomplete=incomplete)
+        )
+        result = {res["Format"] for res in resp.json["ResultSet"]["Result"]}
+
+        assert result == expected
+
+
+def test_i18n_only_known_locales_are_accepted(app):
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="fr")
+
+    assert app.get(url).status_code == 200
+
+    url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
+    r = app.get(url, status=400)
+    assert "Bad request - Unknown locale" in r.get_data(as_text=True)
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_cookie_based_auth_default(app):
+
+    sysadmin = factories.Sysadmin()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    env = {"REMOTE_USER": sysadmin["name"]}
+
+    res = app.get(url, environ_overrides=env)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+@pytest.mark.ckan_config("ckan.auth.enable_cookie_auth_in_api", False)
+def test_cookie_based_auth_disabled(app):
+
+    sysadmin = factories.Sysadmin()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    env = {"REMOTE_USER": sysadmin["name"]}
+
+    res = app.get(url, environ_overrides=env)
+
+    assert res.status_code == 403
+
+    # Check that token auth still works
+    user_token = factories.APIToken(user=sysadmin["name"])
+    headers = {"Authorization": user_token["token"]}
+
+    res = app.get(url, headers=headers)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_show", id=dataset["id"])
+
+    headers = {"Authorization": sysadmin["token"]}
+
+    res = app.get(url, headers=headers)
+
+    assert res.status_code == 200
+
+
+@pytest.mark.usefixtures("clean_db")
+def test_header_based_auth_default_post(app):
+
+    sysadmin = factories.SysadminWithToken()
+    org = factories.Organization()
+    dataset = factories.Dataset(private=True, owner_org=org["id"])
+
+    url = url_for("api.action", ver=3, logic_function="package_patch")
+
+    headers = {"Authorization": sysadmin["token"]}
+
+    data = {
+        "id": dataset["id"],
+        "notes": "updated",
+    }
+    res = app.post(url, headers=headers, data=data)
+
+    assert res.status_code == 200

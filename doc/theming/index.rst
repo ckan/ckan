@@ -2,10 +2,6 @@
 Theming guide
 =============
 
-.. versionchanged:: 2.0
-   The CKAN frontend was completely rewritten for CKAN 2.0, so most of the
-   tutorials below don't apply to earlier versions of CKAN.
-
 The following sections will teach you how to customize the content and
 appearance of CKAN pages by developing your own CKAN themes.
 
@@ -19,7 +15,7 @@ appearance of CKAN pages by developing your own CKAN themes.
 
 .. note::
 
-  Before you can start developing a CKAN theme, you’ll need a working source
+  Before you can start developing a CKAN theme, you'll need a working source
   install of CKAN on your system. If you don't have a CKAN source install
   already, follow the instructions in
   :doc:`/maintaining/installing/install-from-source` before continuing.
@@ -38,16 +34,16 @@ appearance of CKAN pages by developing your own CKAN themes.
    We also recommend familiarizing yourself with:
 
    * `Jinja2 templates <http://jinja.pocoo.org/docs/templates/>`_
-   * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
+   * `Bootstrap <https://getbootstrap.com/docs/3.4/>`__
    * `jQuery <http://jquery.com/>`_
 
 .. note::
 
-    Starting from CKAN version 2.8 the Bootstrap version used in the default
-    CKAN theme is Bootstrap 3. For backwards compatibility, Bootstrap 2 templates
+    Starting from CKAN version 2.10 the Bootstrap version used in the default
+    CKAN theme is Bootstrap 5. For backwards compatibility, Bootstrap 3 templates
     will be included in CKAN core for a few versions, but they will be eventually
-    removed so you are encouraged to update your custom theme to use Bootstrap 3.
-    You can select which set of templates to use (Bootstrap 3 or 2) by using the
+    removed so you are encouraged to update your custom theme to use Bootstrap 5.
+    You can select which set of templates to use (Bootstrap 5 or 3) by using the
     :ref:`ckan.base_public_folder` and :ref:`ckan.base_templates_folder`
     configuration options.
 

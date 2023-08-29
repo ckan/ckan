@@ -1,9 +1,10 @@
 # encoding: utf-8
-import six
 
+import pytest
+from io import BytesIO
 from werkzeug.datastructures import FileStorage
 
-import ckan.lib.uploader
+from ckan.logic import ValidationError
 from ckan.lib.uploader import ResourceUpload, Upload
 
 
@@ -11,7 +12,6 @@ class TestInitResourceUpload(object):
     def test_resource_without_upload_with_old_werkzeug(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
 
         # this test data is based on real observation using a browser
         # and werkzeug 0.14.1
@@ -30,7 +30,6 @@ class TestInitResourceUpload(object):
     def test_resource_without_upload(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'true',
                u'format': u'PNG',
@@ -47,7 +46,6 @@ class TestInitResourceUpload(object):
     def test_resource_with_upload(
             self, ckan_config, monkeypatch, tmpdir):
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         # this test data is based on real observation using a browser
         res = {u'clear_upload': u'',
                u'format': u'PNG',
@@ -62,18 +60,35 @@ class TestInitResourceUpload(object):
         assert res_upload.filesize == 0
         assert res_upload.filename == u'data.csv'
 
+    def test_resource_with_dodgy_id(
+            self, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
+
+        resource_id = u'aaabbb/../../../../nope.txt'
+        res = {u'clear_upload': u'',
+               u'format': u'PNG',
+               u'url': u'https://example.com/data.csv',
+               u'description': u'',
+               u'upload': FileStorage(filename=u'data.csv', content_type=u'CSV'),
+               u'package_id': u'dataset1',
+               u'id': resource_id,
+               u'name': u'data.csv'}
+        res_upload = ResourceUpload(res)
+
+        with pytest.raises(ValidationError):
+            res_upload.upload(resource_id)
+
 
 class TestUpload(object):
-    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config):
+    def test_group_upload(self, monkeypatch, tmpdir, make_app, ckan_config, faker):
         """Reproduce group's logo upload and check that file available through
         public url.
 
         """
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
-        monkeypatch.setattr(ckan.lib.uploader, u'_storage_path', str(tmpdir))
         group = {u'clear_upload': u'',
                  u'upload': FileStorage(
-                     six.BytesIO(six.ensure_binary(u'hello')),
+                     BytesIO(faker.image()),
                      filename=u'logo.png',
                      content_type=u'PNG'
                  ),
@@ -87,4 +102,5 @@ class TestUpload(object):
         app = make_app()
         resp = app.get(u'/uploads/group/' + group[u'url'])
         assert resp.status_code == 200
-        assert resp.body == u'hello'
+        # PNG signature
+        assert resp.data.hex()[:16].upper() == '89504E470D0A1A0A'

@@ -1,0 +1,2 @@
+Only user-defined functions can be used as validators. Attempt to use
+mock-object, built-in function or class will cause TypeError.

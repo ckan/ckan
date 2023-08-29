@@ -45,6 +45,7 @@ CKAN release you're upgrading to:
 
      pip install --upgrade -r requirements.txt
 
+
 #. Register any new or updated plugins:
 
    ::

@@ -1,0 +1,15 @@
+<li class="item {{ activity.activity_type|replace(' ', '-')|lower }}">
+  <span class="fa-stack fa-lg">
+    <i class="fa fa-circle fa-stack-2x icon"></i>
+    <i class="fa fa-tag fa-stack-1x fa-inverse"></i>
+  </span>
+  {{ _('{actor} removed the tag {tag} from the dataset {dataset}').format(
+    actor=ah.actor(activity),
+    tag=ah.tag(activity),
+    dataset=ah.dataset(dataset)
+  )|safe }}
+  <br />
+  <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+    {{ h.time_ago_from_timestamp(activity.timestamp) }}
+  </span>
+</li>

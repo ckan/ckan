@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from typing import Any
 import logging
 import os
 
@@ -7,6 +8,7 @@ import click
 
 from ckan.model import parse_db_config
 from ckan.common import config
+import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend.postgres import identifier
@@ -15,10 +17,11 @@ from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 log = logging.getLogger(__name__)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands to set up the datastore.")
 def datastore():
-    u'''Perform commands to set up the datastore.
-    '''
+    """Perform commands to set up the datastore.
+    """
+    pass
 
 
 @datastore.command(
@@ -57,7 +60,8 @@ def set_permissions():
     click.echo(sql)
 
 
-def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
+def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
+                    writeuser: str, readuser: str):
     template_filename = os.path.join(
         os.path.dirname(datastore_module.__file__), u'set_permissions.sql'
     )
@@ -84,7 +88,8 @@ def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
 @click.option(u'--limit', type=click.IntRange(0))
 @click.option(u'--bom', is_flag=True)  # FIXME: options based on format
 @click.pass_context
-def dump(ctx, resource_id, output_file, format, offset, limit, bom):
+def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
+         offset: int, limit: int, bom: bool):
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
@@ -101,7 +106,7 @@ def dump(ctx, resource_id, output_file, format, offset, limit, bom):
         )
 
 
-def _parse_db_config(config_key=u'sqlalchemy.url'):
+def _parse_db_config(config_key: str = u'sqlalchemy.url'):
     db_config = parse_db_config(config_key)
     if not db_config:
         click.secho(
@@ -111,3 +116,63 @@ def _parse_db_config(config_key=u'sqlalchemy.url'):
         )
         raise click.Abort()
     return db_config
+
+
+@datastore.command(
+    'purge',
+    short_help='purge orphaned resources from the datastore.'
+)
+def purge():
+    '''Purge orphaned resources from the datastore using the datastore_delete
+    action, which drops tables when called without filters.'''
+
+    site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+
+    result = logic.get_action('datastore_search')(
+        {'user': site_user['name']},
+        {'resource_id': '_table_metadata'}
+    )
+
+    resource_id_list = []
+    for record in result['records']:
+        try:
+            # ignore 'alias' records (views) as they are automatically
+            # deleted when the parent resource table is dropped
+            if record['alias_of']:
+                continue
+
+            logic.get_action('resource_show')(
+                {'user': site_user['name']},
+                {'id': record['name']}
+            )
+        except logic.NotFound:
+            resource_id_list.append(record['name'])
+            click.echo("Resource '%s' orphaned - queued for drop" %
+                       record[u'name'])
+        except KeyError:
+            continue
+
+    orphaned_table_count = len(resource_id_list)
+    click.echo('%d orphaned tables found.' % orphaned_table_count)
+
+    if not orphaned_table_count:
+        return
+
+    click.confirm('Proceed with purge?', abort=True)
+
+    # Drop the orphaned datastore tables. When datastore_delete is called
+    # without filters, it does a drop table cascade
+    drop_count = 0
+    for resource_id in resource_id_list:
+        logic.get_action('datastore_delete')(
+            {'user': site_user['name']},
+            {'resource_id': resource_id, 'force': True}
+        )
+        click.echo("Table '%s' dropped)" % resource_id)
+        drop_count += 1
+
+    click.echo('Dropped %s tables' % drop_count)
+
+
+def get_commands():
+    return (set_permissions, dump, purge)
