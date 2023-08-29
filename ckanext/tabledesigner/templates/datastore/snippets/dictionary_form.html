@@ -1,26 +1,35 @@
 {% ckan_extends %}
 
 {% block field_heading %}
-  {% if res.url_type != 'tabledesigner' or field.id %}
+  {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% else %}
-    <h3>{{ _("Field {num}.").format(num=position) }}</h3>
-    {% if is_new %}
-      <label for="{{ prefix }}__{{ position }}__pk">
-        {{ _("Primary Key") }}
-      </label>
-        <input id="{{ prefix }}__{{ position }}__pk"
-          type="checkbox"
-          name="{{ prefix }}__{{ position }}__pk">
+    <h3>{{ _("Field {num}.").format(num=position) }}
+      {{ field.id or '' }}
+      ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
+    </h3>
+    {% call form.select(
+      prefix ~ '__' ~ position ~ '__pkreq',
+      id='field-f' ~ position ~ 'choices',
+      label=_("Primary Key / Required"),
+      options=[
+        {'value': '', 'text': ''},
+        {'value': 'pk', 'text': _('Primary Key')},
+        {'value': 'req', 'text': _('Required')},
+      ],
+      classes=['control-full'],
+      selected=field.get('info', {}).get('pkreq', '')) %}
+    {% endcall %}
+
+    {% if not field.id %}
+      {% call form.input(prefix ~ '__' ~ position ~ '__id',
+        is_required=true,
+        label=_('ID'), classes=['control-full']) %}
+        {{ form.info(
+          text=_('Field identifier or column heading when exported to CSV')
+        )}}
+      {% endcall %}
     {% endif %}
-    {{ form.input(prefix ~ '__' ~ position ~ '__id',
-      is_required=true,
-      label=_('ID'), classes=['control-full']) }}
-    {{ form.select(prefix ~ '__' ~ position ~ '__type',
-      is_required=true,
-      label=_('Type'),
-      options=h.tabledesigner_column_type_options(),
-      selected='text') }}
   {% endif %}
 {% endblock %}
 
@@ -29,4 +38,18 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% endif %}
+{% endblock %}
+
+{% block standard_fields %}
+  {% if field.info.tdtype == 'choice' %}
+    {% call form.input(prefix ~ '__' ~ position ~ '__choices',
+      label=_('Choices'), id='field-f' ~ position ~ 'choices',
+      value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
+      {{ form.info(
+        text=_('Comma-separated list of options, e.g. <code>aa,b1,b2</code>')
+      )}}
+    {% endcall %}
+  {% endif %}
+
+  {{ super() }}
 {% endblock %}

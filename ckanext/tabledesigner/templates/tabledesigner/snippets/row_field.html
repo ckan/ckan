@@ -10,6 +10,7 @@
     id='field-' ~ position,
     value=value or '',
     error=errors.get(field.id),
+    is_required=is_required
   )
 -%}
   {%- if help_text -%}

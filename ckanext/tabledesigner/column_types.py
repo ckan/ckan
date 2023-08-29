@@ -27,6 +27,18 @@ class TextColumn(ColumnType):
     sql_is_empty = "({column} = '') IS NOT FALSE"
 
 
+@_standard_column('choice')
+class ChoiceColumn(ColumnType):
+    label = _('Choice')
+    description = _('Choose one option from a fixed list')
+    example = 'b1'
+    datastore_type = 'text'
+    table_schema_type = 'string'
+    table_schema_format = 'default'
+    table_schema_constraint = 'enum'
+    sql_is_empty = "({column} = '') IS NOT FALSE"
+
+
 @_standard_column('email')
 class EmailColumn(ColumnType):
     label = _('Email Address')
