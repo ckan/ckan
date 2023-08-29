@@ -251,7 +251,7 @@ def make_revisioned_table(base_table, frozen=False):
     for col in base_table.c:
         if col.primary_key:
             pkcols.append(col)
-    assert len(pkcols) <= 1,\
+    assert len(pkcols) <= 1, \
         u'Do not support versioning objects with multiple primary keys'
     fk_name = base_table.name + u'.' + pkcols[0].name
     revision_table.append_column(
