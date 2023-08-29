@@ -219,7 +219,8 @@ class TrashView(MethodView):
 
     def purge_entity(self, ent_type: str):
         entities = self.deleted_entities[ent_type]
-        number = len(entities) if type(entities) == list else entities.count()
+        number = len(entities) if isinstance(entities, list) \
+            else entities.count()
 
         for ent in entities:
             entity_id = ent.id if hasattr(ent, 'id') else ent['id']
