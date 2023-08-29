@@ -1,0 +1,1 @@
+Added new command `ckan shell` that opens an interactive python shell with the Flask's application context preloaded (among other useful objects).

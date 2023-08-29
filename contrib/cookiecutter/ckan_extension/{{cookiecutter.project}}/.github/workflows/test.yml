@@ -1,0 +1,48 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      # The CKAN version tag of the Solr and Postgres containers should match
+      # the one of the container the tests run on.
+      # You can switch this base image with a custom image tailored to your project
+      image: openknowledge/ckan-dev:2.9
+    services:
+      solr:
+        image: ckan/ckan-solr-dev:2.9
+      postgres:
+        image: ckan/ckan-postgres-dev:2.9
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+          image: redis:3
+
+    env:
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install requirements
+      # Install any extra requirements your extension has here (dev requirements, other extensions etc)
+      run: |
+        pip install -r requirements.txt
+        pip install -r dev-requirements.txt
+        pip install -e .
+    - name: Setup extension
+      # Extra initialization steps
+      run: |
+        # Replace default path to CKAN core config file with the one on the container
+        sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
+
+        ckan -c test.ini db init
+    - name: Run tests
+      run: pytest --ckan-ini=test.ini --cov=ckanext.{{ cookiecutter.project_shortname }} --disable-warnings ckanext/{{ cookiecutter.project_shortname }}
+

@@ -27,32 +27,26 @@
 {% endblock %}
 
 {% block package_basic_fields_license %}
-  <div class="form-group">
+  <div class="form-group control-full">
     {% set error = errors.license_id %}
-    <label class="control-label" for="field-license">{{ _("License") }}</label>
+    <label class="form-label" for="field-license">{{ _("License") }}</label>
     <div class="controls">
-      <div class="row">
-        <div class="col-md-6">
-          <select id="field-license" name="license_id" data-module="autocomplete">
-            {% set existing_license_id = data.get('license_id') %}
-            {% set empty_license = _('Please select the license') %}
-            <option value="">{{ empty_license }}</option>
-            {% for license_id, license_desc in h.license_options(existing_license_id) %}
-              <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
-            {% endfor %}
-          </select>
-          {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-        </div>
-        <div class="col-md-6">
-          <span class="info-block info-inline">
-            <i class="fa fa-info-circle"></i>
-            {% trans %}
-            License definitions and additional information can be found
-            at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
-            {% endtrans %}
-          </span>
-        </div>
-      </div>
+      <select id="field-license" name="license_id" data-module="autocomplete">
+        {% set existing_license_id = data.get('license_id') %}
+        {% set empty_license = _('Please select the license') %}
+        <option value="">{{ empty_license }}</option>
+        {% for license_id, license_desc in h.license_options(existing_license_id) %}
+          <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+        {% endfor %}
+      </select>
+      {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+      <span class="info-block">
+        <i class="fa fa-info-circle"></i>
+        {% trans %}
+        License definitions and additional information can be found
+        at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+        {% endtrans %}
+      </span>
     </div>
   </div>
 {% endblock %}
@@ -78,7 +72,7 @@
   {% if show_organizations_selector %}
     {% set existing_org = data.owner_org or data.group_id %}
     <div class="form-group control-medium">
-      <label for="field-organizations" class="control-label">{{ h.humanize_entity_type('organization', default_group_type, 'default label') or _('Organization') }}</label>
+      <label for="field-organizations" class="form-label">{{ h.humanize_entity_type('organization', default_group_type, 'default label') or _('Organization') }}</label>
       <div class="controls">
         <select id="field-organizations" name="owner_org" data-module="autocomplete">
           {% if h.check_config_permission('create_unowned_dataset') %}
@@ -97,7 +91,7 @@
     {% if show_visibility_selector %}
     {% block package_metadata_fields_visibility %}
     <div class="form-group control-medium">
-      <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+      <label for="field-private" class="form-label">{{ _('Visibility') }}</label>
       <div class="controls">
         <select id="field-private" name="private" class="form-control">
           {% for option in [('True', _('Private')), ('False', _('Public'))] %}
@@ -116,7 +110,7 @@
 
   {% if data.id and h.check_access('package_delete', {'id': data.id}) and data.state != 'active' %}
   <div class="form-group control-medium">
-    <label for="field-state" class="control-label">{{ _('State') }}</label>
+    <label for="field-state" class="form-label">{{ _('State') }}</label>
     <div class="controls">
       <select class="form-control" id="field-state" name="state">
         <option value="active" {% if data.get('state', 'none') == 'active' %} selected="selected" {% endif %}>{{ _('Active') }}</option>

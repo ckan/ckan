@@ -1,0 +1,22 @@
+{
+    "emptyTable": "Geen data beskikbaar in tabel",
+    "info": "uitstalling _START_ to _END_ of _TOTAL_ inskrywings",
+    "infoEmpty": "uitstalling 0 to 0 of 0 inskrywings",
+    "infoFiltered": "(gefiltreer uit _MAX_ totaal inskrywings)",
+    "infoThousands": ",",
+    "lengthMenu": "uitstal _MENU_ inskrywings",
+    "loadingRecords": "laai...",
+    "processing": "verwerking...",
+    "search": "soektog:",
+    "zeroRecords": "Geen treffers gevind",
+    "paginate": {
+        "first": "eerste",
+        "last": "laaste",
+        "next": "volgende",
+        "previous": "vorige"
+    },
+    "aria": {
+        "sortAscending": ": aktiveer kolom stygende te sorteer",
+        "sortDescending": ": aktiveer kolom orde te sorteer"
+    }
+}

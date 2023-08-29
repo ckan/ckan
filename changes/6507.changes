@@ -1,0 +1,4 @@
+`group_extra`, `package`, `package_extra`, `resource` and `tag` entities no longer have
+a default `order_by` in the query results as it has been deprecated in SQLAlchemy.
+If you require a specific order (eg by package name), you must explicitly
+declare it in the desired query.

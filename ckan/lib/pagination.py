@@ -33,16 +33,17 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 '''
+from __future__ import annotations
+
 import re
 from string import Template
+from typing import Any, Callable, Match, Optional, Sequence, List
 
 import dominate.tags as tags
 from markupsafe import Markup
-from six import text_type
-from six.moves import range
 
 
-class BasePage(list):
+class BasePage(List[Any]):
     """A list/iterator of items representing one page in a larger
     collection.
 
@@ -97,18 +98,20 @@ class BasePage(list):
         Index of last item on the current page
 
     """
+    previous_page: Optional[int]
+    next_page: Optional[int]
+    first_item: Optional[int]
+    last_item: Optional[int]
 
-    def __init__(
-        self,
-        collection,
-        page=1,
-        items_per_page=20,
-        item_count=None,
-        sqlalchemy_session=None,
-        presliced_list=False,
-        url=None,
-        **kwargs
-    ):
+    def __init__(self,
+                 collection: Sequence[Any],
+                 page: int = 1,
+                 items_per_page: int = 20,
+                 item_count: Optional[int] = None,
+                 sqlalchemy_session: Any = None,
+                 presliced_list: bool = False,
+                 url: Optional[Callable[..., str]] = None,
+                 **kwargs: Any) -> None:
         """Create a "Page" instance.
 
         Parameters:
@@ -219,9 +222,9 @@ class BasePage(list):
 
         # No items available
         else:
-            self.first_page = None
+            self.first_page = 0
             self.page_count = 0
-            self.last_page = None
+            self.last_page = 0
             self.first_item = None
             self.last_item = None
             self.previous_page = None
@@ -260,23 +263,21 @@ class BasePage(list):
             }
         )
 
-    def pager(
-        self,
-        format=u"~2~",
-        page_param=u"page",
-        partial_param=u"partial",
-        show_if_single_page=False,
-        separator=u" ",
-        onclick=None,
-        symbol_first=u"<<",
-        symbol_last=u">>",
-        symbol_previous=u"<",
-        symbol_next=u">",
-        link_attr={u"class": u"pager_link"},
-        curpage_attr={u"class": u"pager_curpage"},
-        dotdot_attr={u"class": u"pager_dotdot"},
-        **kwargs
-    ):
+    def pager(self,
+              format: str = u"~2~",
+              page_param: str = u"page",
+              partial_param: str = u"partial",
+              show_if_single_page: bool = False,
+              separator: str = u" ",
+              onclick: Optional[str] = None,
+              symbol_first: str = u"<<",
+              symbol_last: str = u">>",
+              symbol_previous: str = u"<",
+              symbol_next: str = u">",
+              link_attr: Optional[dict[str, str]] = None,
+              curpage_attr: Optional[dict[str, str]] = None,
+              dotdot_attr: Optional[dict[str, str]] = None,
+              **kwargs: Any) -> Markup:
         """Return string with links to other pages (e.g. "1 2 [3] 4 5 6 7").
 
         format:
@@ -457,6 +458,13 @@ class BasePage(list):
         to the page you are currently displaying.
 
         """
+        if curpage_attr is None:
+            curpage_attr = {u"class": u"pager_curpage"}
+        if link_attr is None:
+            link_attr = {u"class": u"pager_link"}
+        if dotdot_attr is None:
+            dotdot_attr = {u"class": u"pager_dotdot"}
+
         self.curpage_attr = curpage_attr
         self.separator = separator
         self.pager_kwargs = kwargs
@@ -470,7 +478,7 @@ class BasePage(list):
         if self.page_count == 0 or (
             self.page_count == 1 and not show_if_single_page
         ):
-            return u""
+            return Markup(u"")
 
         # Replace ~...~ in token format by range of pages
         result = re.sub(u"~(\\d+)~", self._range, format)
@@ -504,7 +512,7 @@ class BasePage(list):
         return Markup(result)
 
     # Private methods
-    def _range(self, regexp_match):
+    def _range(self, regexp_match: Match[str]):
         """
         Return range of linked pages (e.g. '1 2 [3] 4 5 6 7 8').
 
@@ -533,7 +541,8 @@ class BasePage(list):
         # Create a link to the first page (unless we are on the first page
         # or there would be no need to insert '..' spacers)
         if self.page != self.first_page and self.first_page < leftmost_page:
-            nav_items.append(self._pagerlink(self.first_page, self.first_page))
+            nav_items.append(self._pagerlink(
+                self.first_page, str(self.first_page)))
 
         # Insert dots if there are pages between the first page
         # and the currently displayed page range
@@ -541,7 +550,7 @@ class BasePage(list):
             # Wrap in a SPAN tag if nolink_attr is set
             text = u".."
             if self.dotdot_attr:
-                text = Markup(tags.span(text, **self.dotdot_attr))
+                text = Markup(str(tags.span(text, **self.dotdot_attr)))
             nav_items.append(text)
 
         for thispage in range(leftmost_page, rightmost_page + 1):
@@ -550,7 +559,7 @@ class BasePage(list):
                 text = u"%s" % (thispage,)
                 # Wrap in a SPAN tag if nolink_attr is set
                 if self.curpage_attr:
-                    text = Markup(tags.span(text, **self.curpage_attr))
+                    text = Markup(str(tags.span(text, **self.curpage_attr)))
                 nav_items.append(text)
             # Otherwise create just a link to that page
             else:
@@ -563,17 +572,18 @@ class BasePage(list):
             text = u".."
             # Wrap in a SPAN tag if nolink_attr is set
             if self.dotdot_attr:
-                text = Markup(tags.span(text, **self.dotdot_attr))
+                text = Markup(str(tags.span(text, **self.dotdot_attr)))
             nav_items.append(text)
 
         # Create a link to the very last page (unless we are on the last
         # page or there would be no need to insert '..' spacers)
         if self.page != self.last_page and rightmost_page < self.last_page:
-            nav_items.append(self._pagerlink(self.last_page, self.last_page))
+            nav_items.append(self._pagerlink(
+                self.last_page, str(self.last_page)))
 
         return self.separator.join(nav_items)
 
-    def _pagerlink(self, page, text):
+    def _pagerlink(self, page: int, text: str):
         """
         Create a URL that links to another page using url_for().
 
@@ -596,7 +606,7 @@ class BasePage(list):
         if self._url_generator is not None:
             url_generator = self._url_generator
         else:
-            from ckan.lib.helpers import pager_url
+            from ckan.lib.helpers import pager_url as url_generator
 
         # Create the URL to load a certain page
         link_url = url_generator(**link_params)
@@ -622,40 +632,45 @@ class BasePage(list):
 
 
 class Page(BasePage):
-    def pager(self, *args, **kwargs):
+    def pager(self, *args: Any, **kwargs: Any) -> Markup:
         with tags.div(cls=u"pagination-wrapper") as wrapper:
-            tags.ul(u"$link_previous ~2~ $link_next", cls=u"pagination")
+            tags.ul(
+                "$link_previous ~2~ $link_next",
+                cls="pagination justify-content-center"
+            )
         params = dict(
-            format=text_type(wrapper),
+            format=str(wrapper),
             symbol_previous=u"«",
             symbol_next=u"»",
-            curpage_attr={u"class": u"active"},
-            link_attr={},
+            curpage_attr={u"class": u"page-item active"},
+            link_attr={"class": "page-link"},
         )
         params.update(kwargs)
         return super(Page, self).pager(*args, **params)
 
     # Put each page link into a <li> (for Bootstrap to style it)
 
-    def _pagerlink(self, page, text, extra_attributes=None):
+    def _pagerlink(
+            self, page: int, text: str,
+            extra_attributes: Optional[dict[str, Any]] = None):
         anchor = super(Page, self)._pagerlink(page, text)
-        extra_attributes = extra_attributes or {}
-        return text_type(tags.li(anchor, **extra_attributes))
+        extra_attributes = extra_attributes or {"class": "page-item"}
+        return str(tags.li(anchor, **extra_attributes))
 
     # Change 'current page' link from <span> to <li><a>
     # and '..' into '<li><a>..'
     # (for Bootstrap to style them properly)
 
-    def _range(self, regexp_match):
+    def _range(self, regexp_match: Match[str]):
         html = super(Page, self)._range(regexp_match)
         # Convert ..
         dotdot = u'<span class="pager_dotdot">..</span>'
         dotdot_link = tags.li(tags.a(u"...", href=u"#"), cls=u"disabled")
-        html = re.sub(dotdot, text_type(dotdot_link), html)
+        html = re.sub(dotdot, str(dotdot_link), html)
 
         # Convert current page
         text = u"%s" % self.page
-        current_page_span = text_type(tags.span(text, **self.curpage_attr))
+        current_page_span = str(tags.span(text, **self.curpage_attr))
         current_page_link = self._pagerlink(
             self.page, text, extra_attributes=self.curpage_attr
         )

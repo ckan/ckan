@@ -3,7 +3,7 @@ CSS coding standards
 ====================
 
 .. Note::
-  For CKAN 2.0 we use LESS as a pre-processor for our core CSS. View
+  For CKAN 2.0 we use Sass as a pre-processor for our core CSS. View
   `Front-end Documentation <./frontend/index.html#stylesheets>`_
   for more information on this subject.
 

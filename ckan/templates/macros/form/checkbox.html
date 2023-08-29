@@ -1,0 +1,34 @@
+{% from "macros/form/attributes.html" import attributes %}
+
+{#
+Builds a single checkbox input.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input.
+checked     - If true the checkbox will be checked
+error       - An error string for the field or just true to highlight the field.
+classes     - An array of classes to apply to the form-group.
+is_required - Boolean of whether this input is requred for the form to validate
+
+Example:
+
+{% import 'macros/form.html' as form %}
+{{ form.checkbox('remember', checked=true) }}
+
+#}
+{% macro checkbox(name, id='', label='', value='', checked=false, placeholder='', error="", classes=[], attrs={}, is_required=false) %}
+{%- set extra_html = caller() if caller -%}
+<div class="form-group{{ " " ~ classes | join(" ") }}{% if error %} error{% endif %}">
+<div class="controls">
+    <label class="checkbox" for="{{ id or name }}">
+    <input id="{{ id or name }}" type="checkbox" name="{{ name }}" value="{{ value | empty_and_escape }}" {{ "checked " if checked }} {{ attributes(attrs) }} />
+    {{ label or name }}
+    {% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}
+    {% if error and error is iterable %}<strong class="error-inline">{{ error|join(', ') }}</strong>{% endif %}
+    </label>
+    {{ extra_html }}
+</div>
+</div>
+{% endmacro %}

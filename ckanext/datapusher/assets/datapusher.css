@@ -1,0 +1,33 @@
+.datapusher-activity {
+  padding: 0;
+  list-style-type: none;
+  background: transparent url("/dotted.png") 21px 0 repeat-y; }
+  .datapusher-activity .item {
+    position: relative;
+    margin: 0 0 15px 0;
+    padding: 0; }
+    .datapusher-activity .item .date {
+      color: #999;
+      font-size: 12px;
+      white-space: nowrap;
+      margin: 5px 0 0 80px; }
+    .datapusher-activity .item.no-avatar p {
+      margin-left: 40px; }
+
+.popover {
+  width: 300px; }
+  .popover .popover-header {
+    font-weight: bold;
+    margin-bottom: 0; }
+  .popover .popover-close {
+    float: right;
+    text-decoration: none; }
+
+.datapusher-activity .item .icon {
+  color: #999999; }
+.datapusher-activity .item.failure .icon {
+  color: #B95252; }
+.datapusher-activity .item.success .icon {
+  color: #69A67A; }
+
+/*# sourceMappingURL=datapusher.css.map */

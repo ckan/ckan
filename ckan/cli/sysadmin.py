@@ -1,7 +1,7 @@
 # encoding: utf-8
+from __future__ import annotations
 
 import click
-from six import text_type
 
 import ckan.model as model
 from ckan.cli import error_shout
@@ -13,7 +13,7 @@ from ckan.cli.user import add_user
     invoke_without_command=True,
 )
 @click.pass_context
-def sysadmin(ctx):
+def sysadmin(ctx: click.Context):
     """Gives sysadmin rights to a named user.
 
     """
@@ -44,16 +44,16 @@ def list_sysadmins():
 @click.argument(u"username")
 @click.argument(u"args", nargs=-1)
 @click.pass_context
-def add(ctx, username, args):
-    user = model.User.by_name(text_type(username))
+def add(ctx: click.Context, username: str, args: list[str]):
+    user = model.User.by_name(str(username))
     if not user:
         click.secho(u'User "%s" not found' % username, fg=u"red")
         if click.confirm(
             u"Create new user: %s?" % username, default=True, abort=True
         ):
             ctx.forward(add_user)
-            user = model.User.by_name(text_type(username))
-
+            user = model.User.by_name(str(username))
+    assert user
     user.sysadmin = True
     model.Session.add(user)
     model.repo.commit_and_remove()
@@ -62,8 +62,8 @@ def add(ctx, username, args):
 
 @sysadmin.command(help=u"Removes user from sysadmins.")
 @click.argument(u"username")
-def remove(username):
-    user = model.User.by_name(text_type(username))
+def remove(username: str):
+    user = model.User.by_name(str(username))
     if not user:
         return error_shout(u'Error: user "%s" not found!' % username)
     user.sysadmin = False

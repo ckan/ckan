@@ -8,9 +8,11 @@ Best practices for writing CKAN themes
 Don't use ``c``
 ---------------
 
-As much as possible, avoid accessing the Pylons template context :py:data:`c`
+As much as possible, avoid accessing the old Pylons template context :py:data:`c`
 (or :py:data:`tmpl_context`). :py:data:`c` is a thread-global variable, which
-encourages spaghetti code that's difficult to understand and to debug.
+encourages spaghetti code that's difficult to understand and to debug. same
+applies for the Flask :py:data:`g` object. Current uses of them in templates are
+to provide backwards compatibility but will be removed in the future.
 
 Instead, have controller methods add variables to the :py:data:`extra_vars`
 parameter of :py:func:`~ckan.lib.base.render`, or have the templates
@@ -66,7 +68,7 @@ See :ref:`avoid name clashes`.
 A |javascript| module should have a docstring at the top of the file, briefly
 documentating what the module does and what options it takes. For example:
 
-.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme_docs/v17_popover/assets/example_theme_popover.js
    :language: javascript
 
 

@@ -35,7 +35,7 @@ Finally, create the file
 with the following contents:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/tests/test_example_iauthfunctions.py
-   :end-before: class TestExampleIAuthFunctionsPluginV3
+   :end-before: @pytest.mark.ckan_config('ckan.plugins', 'example_iauthfunctions_v3')
 
 To run these extension tests, ``cd`` into the ``ckanext-iauthfunctions``
 directory and run this command::
@@ -47,20 +47,91 @@ Some notes on how these tests work:
 * Pytest has lots of useful functions for testing, see the
   `pytest documentation <https://docs.pytest.org/en/latest/>`_.
 
-* We're calling :func:`ckan.tests.call_action_api` to post (simulated) HTTP
-  requests to the CKAN API. This is a convenience function that CKAN provides
-  for its own tests.
+* We're calling :func:`ckan.tests.call_action` This is a convenience function
+  that CKAN provides for its own tests.
+
+* The CKAN core :doc:`/contributing/testing` can usefully be applied to writing tests for plugins.
+
+* CKAN core provides:
+
+  * :mod:`ckan.tests.factories` for creating test data
+
+  * :mod:`ckan.tests.helpers` a collection of helper functions for use in tests
+
+  * :mod:`ckan.tests.pytest_ckan.fixtures` for setting up the test environment
+
+  which are also useful for testing extensions.
 
 * You might also find it useful to read the
-  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
-
-* The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
+  `Flask testing documentation <https://flask-doc.readthedocs.io/en/latest/testing.html>`_ (or
+  `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_
+  for plugins using legacy pylons controllers).
 
 * Avoid importing the plugin modules directly into your test modules
   (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).
   This causes the plugin to be registered and loaded before the entire test run,
   so the plugin will be loaded for all tests. This can cause conflicts and
   test failures.
+
+.. _test client:
+
+Using the test client
+---------------------
+
+It is possible to make requests to the CKAN application from within your tests in order to test the actual responses returned by CKAN. To do so you need to import the ``app`` fixture::
+
+  def test_some_ckan_page(app):
+
+    pass
+
+The ``app`` fixture extends `Flask's Test client <https://flask.palletsprojects.com/en/2.2.x/testing/#sending-requests-with-the-test-client>`_, and can be used to perform GET and POST requests. A Werkzeug's ``TestResponse`` object (`reference <https://werkzeug.palletsprojects.com/en/2.2.x/test/#werkzeug.test.TestResponse>`_) will be returned::
+
+  from ckan.plugins.toolkit import url_for
+
+  def test_dataset_new_page(app):
+
+    url = url_for("group.index")
+    response = app.get(url)
+
+    assert "Search groups" in response.body
+
+By default, requests are not authenticated. If you want to make the request impersonating a user in particular, you can pass :ref:`an API Token <api authentication>` in the ``headers`` parameter::
+
+  from ckan.plugins.toolkit import url_for
+
+  def test_group_new_page(app):
+
+      user = factories.UserWithToken()
+
+      url = url_for("group.new")
+      response = app.get(
+        url,
+        headers={"Authorization": user["token"]}
+      )
+
+      assert "Create a Group" in response.body
+
+  def test_submit_group_form_page(app):
+
+      user = factories.UserWithToken()
+
+      url = url_for("group.new")
+      data = {
+        "name": "test-group",
+        "title": "Test Group",
+        "description": "Some test group",
+        "save": ""
+      }
+      response = app.post(
+        url,
+        headers={"Authorization": user["token"]},
+        data=data,
+      )
+
+      assert data["title"] in response.body
+      assert call_action("group_show", id=data["name"])
+
+
 
 .. todo::
 

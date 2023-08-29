@@ -1,0 +1,2 @@
+Prevent Traceback to logged for HTTP Exception until debug is true
+Add the HTTP status Code in logging for HTTP requests

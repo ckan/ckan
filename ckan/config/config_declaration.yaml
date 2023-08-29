@@ -1,0 +1,1695 @@
+version: 1
+groups:
+  # Internal options, that are used/computed by CKAN in runtime
+  - annotation: ~
+    options:
+      - key: __file__
+        internal: true
+      - key: here
+        internal: true
+      - key: plugin_template_paths
+        ignored: true
+      - key: plugin_public_paths
+        ignored: true
+      - key: computed_template_paths
+        ignored: true
+      - key: clear_logo_upload
+        ignored: true
+      - key: logo_upload
+        ignored: true
+      - key: ckan.host
+        ignored: true
+      - key: testing
+        ignored: true
+        type: bool
+
+  # Options that are available inside CircleCI containers:
+  - annotation: ~
+    options:
+      - key: CKAN_POSTGRES_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_USER
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_USER
+        internal: true
+      - key: CKAN_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_DB
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_WRITE_PWD
+        internal: true
+      - key: CKAN_POSTGRES_PWD
+        internal: true
+      - key: CKAN_DATASTORE_POSTGRES_READ_PWD
+        internal: true
+
+  # Flask configuration options
+  - annotation: ~
+    options:
+      - key: APPLICATION_ROOT
+        internal: true
+      - key: BABEL_DEFAULT_LOCALE
+        internal: true
+      - key: BABEL_DEFAULT_TIMEZONE
+        ignored: true
+      - key: BABEL_DOMAIN
+        ignored: true
+      - key: BABEL_TRANSLATION_DIRECTORIES
+        ignored: true
+      - key: CKAN_INI
+        internal: true
+      - key: DEBUG
+        internal: true
+      - key: ENV
+        internal: true
+      - key: EXPLAIN_TEMPLATE_LOADING
+        internal: true
+      - key: JSONIFY_MIMETYPE
+        internal: true
+      - key: JSONIFY_PRETTYPRINT_REGULAR
+        internal: true
+      - key: JSON_AS_ASCII
+        internal: true
+      - key: JSON_SORT_KEYS
+        internal: true
+      - key: MAX_CONTENT_LENGTH
+        internal: true
+      - key: MAX_COOKIE_SIZE
+        internal: true
+      - key: PERMANENT_SESSION_LIFETIME
+        internal: true
+      - key: PREFERRED_URL_SCHEME
+        internal: true
+      - key: PRESERVE_CONTEXT_ON_EXCEPTION
+        internal: true
+      - key: PROPAGATE_EXCEPTIONS
+        internal: true
+      - key: SECRET_KEY
+        internal: true
+      - key: SEND_FILE_MAX_AGE_DEFAULT
+        internal: true
+      - key: SERVER_NAME
+        internal: true
+      - key: SESSION_COOKIE_DOMAIN
+        internal: true
+      - key: SESSION_COOKIE_HTTPONLY
+        internal: true
+      - key: SESSION_COOKIE_NAME
+        internal: true
+      - key: SESSION_COOKIE_PATH
+        internal: true
+      - key: SESSION_COOKIE_SAMESITE
+        internal: true
+      - key: SESSION_COOKIE_SECURE
+        internal: true
+      - key: SESSION_REFRESH_EACH_REQUEST
+        internal: true
+      - key: TEMPLATES_AUTO_RELOAD
+        internal: true
+      - key: TESTING
+        internal: true
+      - key: TRAP_BAD_REQUEST_ERRORS
+        internal: true
+      - key: TRAP_HTTP_EXCEPTIONS
+        internal: true
+      - key: USE_X_SENDFILE
+        internal: true
+      - key: DEBUG_TB_HOSTS
+        internal: true
+      - key: DEBUG_TB_ENABLED
+        internal: true
+      - key: DEBUG_TB_INTERCEPT_REDIRECTS
+        internal: true
+      - key: DEBUG_TB_PANELS
+        internal: true
+
+  - annotation: Default settings
+    section: DEFAULT
+    options:
+      - key: debug
+        type: bool
+        example: 'true'
+        description: |
+          This enables the `Flask-DebugToolbar
+          <https://flask-debugtoolbar.readthedocs.io/>`_ in the web interface, makes
+          Webassets serve unminified JS and CSS files, and enables CKAN templates'
+          debugging features.
+
+          You will need to ensure the ``Flask-DebugToolbar`` python package is installed,
+          by activating your ckan virtual environment and then running::
+
+              pip install -r /usr/lib/ckan/default/src/ckan/dev-requirements.txt
+
+          If you are running CKAN on Apache, you must change the WSGI
+          configuration to run a single process of CKAN. Otherwise
+          the execution will fail with: ``AssertionError: The EvalException
+          middleware is not usable in a multi-process environment``. Eg. change::
+
+            WSGIDaemonProcess ckan_default display-name=ckan_default processes=2 threads=15
+            to
+            WSGIDaemonProcess ckan_default display-name=ckan_default threads=15
+
+          .. warning:: This option should be set to ``False`` for a public site.
+             With debug mode enabled, a visitor to your site could execute malicious
+             commands.
+
+  - annotation: General settings
+    options:
+      - key: use
+        placeholder: egg:ckan
+        validators: not_empty
+        required: true
+
+      - key: ckan.legacy_route_mappings
+        default: {}
+        example: '{"home": "home.index", "about": "home.about", "search": "dataset.search"}'
+        description: |
+          This can be used when using an extension that is still using old
+          (Pylons-based) route names to maintain compatibility.
+
+          .. warning:: This configuration will be removed when the migration to
+            Flask is completed. Please update the extension code to use the new
+            Flask-based route names.
+
+      - key: config.mode
+        default: default
+        example: strict
+        description: |
+          Controls the behavior of application when invalid values detected in
+          the ``config`` object.
+
+          In the ``default`` mode any invalid value is left unprocessed (i.e.,
+          it remains a ``str``). In addition, every invalid option is reported using
+          a log record with a ``WARNING`` level.
+
+          In the ``strict`` mode, CKAN will not start unless **all** config
+          options are valid according to the validators defined in the
+          configuration declaration. For every invalid config option, an error will be
+          printed to the output stream.
+
+  - annotation: Development settings
+    options:
+      - key: ckan.devserver.host
+        default: localhost
+        example: '0.0.0.0'
+        description: Host name to use when running the development server.
+      - key: ckan.devserver.port
+        type: int
+        default: 5000
+        example: 5005
+        description: Port to use when running the development server.
+      - key: ckan.devserver.threaded
+        type: bool
+        example: 'true'
+        description: Controls whether the development server should handle each request in a separate thread.
+      - key: ckan.devserver.multiprocess
+        type: int
+        default: 1
+        example: 8
+        description: |
+          If greater than 1 then the development server will handle each request in a new process, up to this
+          maximum number of concurrent processes.
+      - key: ckan.devserver.watch_patterns
+        type: list
+        example: 'mytheme/**/*.yaml mytheme/**/*.json'
+        description: |
+          A list of files the reloader should watch to restart the development server, in addition to the
+          Python modules (for example configuration files)
+
+      - key: ckan.devserver.ssl_cert
+        example: path/to/host.cert
+        description: |
+          Path to a certificate file that will be used to enable SSL (ie to serve the
+          local development server on https://localhost:5000). You can generate a
+          self-signed certificate and key (see :ref:`ckan.devserver.ssl_key`) running
+          the following commands::
+
+              openssl genrsa 2048 > host.key
+              chmod 400 host.key
+              openssl req -new -x509 -nodes -sha256 -days 3650 -key host.key > host.cert
+
+          After that you can run CKAN locally with SSL using this command::
+
+              ckan -c /path/to/ckan.ini run --ssl-cert=/path/to/host.cert --ssl-key=/path/to/host.key
+
+          Alternatively, setting this option to ``adhoc`` will automatically generate a new
+          certificate file (on each server reload, which means that you'll get a browser warning
+          about the certificate on each reload).
+
+      - key: ckan.devserver.ssl_key
+        example: path/to/host.key
+        description: |
+          Path to a certificate file that will be used to enable SSL (ie to serve the
+          local development server on https://localhost:5000). See :ref:`ckan.devserver.ssl_cert`
+          for more details. This option also supports the ``adhoc`` value, with the same caveat.
+
+  - annotation: Session settings
+    options:
+      - key: ckan.user.last_active_interval
+        type: int
+        default: 600
+        description: |
+          The number of seconds between requests to record the last time a user was active on the site.
+      - key: cache_dir
+        placeholder: "/tmp/%(ckan.site_id)s"
+      - key: beaker.session.key
+        default: ckan
+        description: Name of the cookie key used to save the session under.
+      - key: beaker.session.secret
+        validators: not_empty
+        required: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that the beaker library uses to hash the
+          cookie sent to the client. `ckan generate config` generates a unique
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+      - key: beaker.session.auto
+        type: bool
+        default: False
+        description: |
+          When set to True, the session will save itself anytime it is accessed during a request,
+          negating the need to issue the save() method.
+
+      - key: beaker.session.cookie_expires
+        type: bool
+        description: |
+          Determines when the cookie used to track the client-side of the session will expire.
+          When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
+          Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
+          Setting to an integer will result in the cookie being set to expire in that many seconds.
+          I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
+          Defaults to never expiring.
+
+      - key: beaker.session.cookie_domain
+        commented: true
+        placeholder: .example.com
+        description: |
+          What domain the cookie should be set to. When using sub-domains,
+          this should be set to the main domain the cookie should be valid for. For example,
+          if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
+          Defaults to the current domain in its entirety.
+
+      - key: beaker.session.save_accessed_time
+        type: bool
+        default: True
+        description: Whether beaker should save the session's access time (true) or only modification time (false).
+
+      - key: beaker.session.secure
+        type: bool
+        description: |
+          Whether or not the session cookie should be marked as secure. When marked as secure,
+          browsers are instructed to not send the cookie over anything other than an SSL connection.
+
+      - key: beaker.session.timeout
+        type: int
+        default: 600
+        description: |
+          Seconds until the session is considered invalid, after which it will be ignored and invalidated.
+          This number is based on the time since the session was last accessed, not from when the session was created.
+          Defaults to never expiring.
+          Requires that save_accessed_time be true.
+
+      - key: beaker.session.type
+        default: cookie
+        description: |
+          The type of session to use. The default is cookie, which uses a cookie to store the session id.
+          Other options include file, which stores the session id in a file, and dbm, which stores the session id in a dbm file.
+          The dbm option is not recommended as it is not thread-safe.
+
+      - key: beaker.session.validate_key
+        validators: not_empty
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that is used to sign the local encrypted session.
+          `ckan generate config` generates a unique
+          value for this each time it generates a config file. When used in a
+          cluster environment, the value must be the same on every machine.
+
+      - key: beaker.session.httponly
+        type: bool
+        default: True
+        description: |
+          Whether or not the session cookie should be marked as http only. When marked as http only,
+          browsers are instructed to not allow javascript access to the cookie.
+
+      - key: beaker.session.samesite
+        default: Lax
+        required: True
+        validators: OneOf(["Strict","Lax","None"])
+        description: |
+          Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
+          browsers are instructed to not send the cookie with cross-site requests.
+          The value can be "Strict", "Lax" or "None".
+
+  - annotation: Database settings
+    options:
+      - key: sqlalchemy.url
+        placeholder: postgresql://ckan_default:pass@localhost/ckan_default
+        validators: not_empty
+        required: true
+        example: postgres://tester:pass@localhost/ckantest3
+        description: |
+          This defines the database that CKAN is to use. The format is::
+
+           sqlalchemy.url = postgres://USERNAME:PASSWORD@HOST/DBNAME
+
+      - key: sqlalchemy.pool_pre_ping
+        type: bool
+        default: true
+
+      - key: sqlalchemy.<OPTION>
+        type: dynamic
+        description: |
+          Example::
+
+           sqlalchemy.pool_pre_ping=True
+           sqlalchemy.pool_size=10
+           sqlalchemy.max_overflow=20
+
+          Custom sqlalchemy config parameters used to establish the main
+          database connection.
+
+          To get the list of all the available properties check the `SQLAlchemy documentation`_
+
+          .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
+  - annotation: Site Settings
+    options:
+      - key: ckan.site_url
+        validators: not_empty
+        required: true
+        placeholder: http://localhost:5000
+        example: http://scotdata.ckan.net
+        description: |
+          Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
+          site use this setting.
+
+          This setting should only contain the protocol (e.g. ``http://``), host (e.g.
+          ``www.example.com``) and (optionally) the port (e.g. ``:8080``). In particular,
+          if you have mounted CKAN at a path other than ``/`` then the mount point must
+          *not* be included in ``ckan.site_url``. Instead, you need to set
+          :ref:`ckan.root_path`.
+
+          .. important:: It is mandatory to complete this setting
+
+          .. warning:: This setting should not have a trailing / on the end.
+
+      - key: apikey_header_name
+        default: X-CKAN-API-Key
+        example: API-KEY
+        description: |
+          This allows another http header to be used to provide the CKAN API
+          key. This is useful if network infrastructure blocks the
+          Authorization header and ``X-CKAN-API-Key`` is not suitable.
+
+      - key: ckan.cache_expires
+        default: 0
+        type: int
+        example: 2592000
+        description: This sets ``Cache-Control`` header's max-age value.
+
+      - key: ckan.cache_enabled
+        type: bool
+        example: "true"
+        description: |
+          This enables cache control headers on all requests. If the user is
+          not logged in and there is no session data a ``Cache-Control:
+          public`` header will be added. For all other requests the
+          ``Cache-control: private`` header will be added.
+
+      - key: ckan.mimetype_guess
+        default: file_ext
+        example: file_contents
+        description: |
+          There are three options for guessing the mimetype of uploaded or linked resources: file_ext, file_contents, None.
+
+          ``file_ext`` will guess the mimetype by the url first, then the file extension.
+
+          ``file_contents`` will guess the mimetype by the file itself, this tends to be inaccurate.
+
+          ``None`` will not store the mimetype for the resource.
+
+      - key: ckan.static_max_age
+        default: 3600
+        type: int
+        example: 2592000
+        description: Controls CKAN static files' cache max age, if we're serving and caching them.
+
+      - key: ckan.tracking_enabled
+        type: bool
+        example: "true"
+        description: This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
+
+      - key: ckan.valid_url_schemes
+        type: list
+        default:
+          - http
+          - https
+          - ftp
+        example: http https ftp sftp
+        description: >-
+          Controls what uri schemes are rendered as links.
+
+      - key: ckan.requests.timeout
+        default: 5
+        example: 10
+        type: int
+        description: >
+          Defines how long (in seconds) requests calls should last before they will timeout.
+
+      - key: ckan.hide_version
+        default: False
+        example: True
+        type: bool
+        description: If set to True, CKAN will not publicly expose its version number.
+
+      - key: ckan.redirect_to_login_if_not_authorized
+        default: True
+        type: bool
+        description: |
+          By default, if a user is not authorized to visit a page, they will
+          get redirected to the login page before trying to access it again.
+          If you want to raise a 401 or 403 error instead,
+          set this setting to `False`
+
+  - annotation: Authorization Settings
+    options:
+      - key: ckan.auth.anon_create_dataset
+        type: bool
+        default: false
+        example: "false"
+        description: Allow users to create datasets without registering and logging in.
+
+      - key: ckan.auth.create_unowned_dataset
+        type: bool
+        default: false
+        example: "false"
+        description: Allow the creation of datasets not owned by any organization.
+
+      - key: ckan.auth.create_dataset_if_not_in_organization
+        type: bool
+        default: true
+        example: "false"
+        description: |
+          Allow users who are not members of any organization to create datasets,
+          default: true. ``create_unowned_dataset`` must also be True, otherwise
+          setting ``create_dataset_if_not_in_organization`` to True is meaningless.
+
+      - key: ckan.auth.user_create_groups
+        type: bool
+        default: true
+        example: "true"
+        description: Allow users to create groups.
+
+      - key: ckan.auth.user_create_organizations
+        type: bool
+        default: true
+        example: "false"
+        description: Allow users to create organizations.
+
+      - key: ckan.auth.user_delete_groups
+        type: bool
+        default: true
+        example: "false"
+        description: Allow users to delete groups.
+
+      - key: ckan.auth.user_delete_organizations
+        type: bool
+        default: true
+        example: "false"
+        description: Allow users to delete organizations.
+
+      - key: ckan.auth.create_user_via_api
+        type: bool
+        default: false
+        example: "false"
+        description: Allow new user accounts to be created via the API by anyone. When ``False`` only sysadmins are authorised.
+
+      - key: ckan.auth.create_user_via_web
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
+
+      - key: ckan.auth.roles_that_cascade_to_sub_groups
+        default:
+          - admin
+        type: list
+        example: admin editor
+        description: |
+          Makes role permissions apply to all the groups or organizations down
+          the hierarchy from the groups or organizations that the role is
+          applied to.
+          e.g. a particular user has the 'admin' role for group 'Department of
+          Health'. If you set the value of this option to 'admin' then the user
+          will automatically have the same admin permissions for the child
+          groups of 'Department of Health' such as 'Cancer Research' (and its
+          children too and so on).
+
+      - key: ckan.auth.public_user_details
+        type: bool
+        default: true
+        example: "false"
+        description: |
+          Restricts anonymous access to user information. If is set to
+          ``False`` accessing users details when not logged in will raise a
+          ``Not Authorized`` exception.
+
+          .. note:: This setting should be used when user registration is
+            disabled (``ckan.auth.create_user_via_web = False``), otherwise
+            users can just create an account to see other users details.
+
+      - key: ckan.auth.public_activity_stream_detail
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Restricts access to 'view this version' and 'changes' in the Activity
+          Stream pages. These links provide users with the full edit history of
+          datasets etc - what they showed in the past and the diffs between
+          versions. If this option is set to ``False`` then only admins
+          (e.g. whoever can edit the dataset) can see this detail. If set to
+          ``True``, anyone can see this detail (assuming they have permission
+          to view the dataset etc).
+
+      - key: ckan.auth.allow_dataset_collaborators
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Enables or disable collaborators in individual datasets. If ``True``,
+          in addition to the standard organization based permissions, users can
+          be added as collaborators to individual datasets with different
+          roles, regardless of the organization they belong to. For more
+          information, check the documentation on :ref:`dataset_collaborators`.
+
+          .. warning:: If this setting is turned off in a site where there
+            already were collaborators created, you must reindex all datasets
+            to update the permission labels, in order to prevent access to
+            private datasets to the previous collaborators.
+
+      - key: ckan.auth.allow_admin_collaborators
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Allows dataset collaborators to have the "Admin" role, allowing them
+          to add more collaborators or remove existing ones. By default,
+          collaborators can only be managed by administrators of the
+          organization the dataset belongs to. For more information, check the
+          documentation on :ref:`dataset_collaborators`.
+
+          .. warning:: If this setting is turned off in a site where admin
+            collaborators have been already created, existing collaborators
+            with role "admin" will no longer be able to add or remove
+            collaborators, but they will still be able to edit and access the
+            datasets that they are assigned to.
+
+      - key: ckan.auth.allow_collaborators_to_change_owner_org
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Allows dataset collaborators to change the owner organization of the
+          datasets they are collaborators on. Defaults to False, meaning that
+          collaborators with role admin or editor can edit the dataset metadata
+          but not the organization field.
+
+      - key: ckan.auth.create_default_api_keys
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Determines if an API key should be automatically created for every
+          user when creating a user account. If set to False (the default
+          value), users can manually create an API token from their profile
+          instead. See :ref:`api authentication`: for more details.
+
+      - key: ckan.auth.login_view
+        default: user.login
+        description: The name of the view to redirect to when the user needs to log in
+
+      - key: ckan.auth.reveal_private_datasets
+        type: bool
+        default: False
+        description: |
+          Determines whether unauthorised requests for private datasets should have
+          the existence of the datasets revealed (True) or hidden (False).
+          If True, then unauthenticated requests will be redirected to the login page,
+          and redirected back to the dataset after logging in, while authenticated
+          but unauthorised requests will receive HTTP 403 Forbidden.
+          If False, all unauthorised requests will receive HTTP 404 Not Found.
+          Default is False.
+
+      - key: ckan.auth.enable_cookie_auth_in_api
+        type: bool
+        default: True
+        description: |
+          When set to False, cookie-based authentication is entirely ignored in all API requests,
+          and authentication must be always done using :ref:`API Tokens <api authentication>`. Note
+          that this will break some existing JS modules from the frontend that perform API calls,
+          so it should be used with caution.
+
+      - key: ckan.auth.route_after_login
+        legacy_key: ckan.route_after_login  # since v2.10.0
+        default: dashboard.datasets
+        description: |
+          Allows to customize the route that the user will get redirected to after a successful login.
+
+  - annotation: CSRF Protection
+    options:
+      - key: WTF_CSRF_ENABLED
+        type: bool
+        default: True
+        description: Set to False to disable all CSRF protection.
+
+      - key: WTF_CSRF_CHECK_DEFAULT
+        type: bool
+        default: True
+        description: |
+          When using the CSRF protection extension,
+          this controls whether every view is protected by default.
+
+      - key: WTF_CSRF_SECRET_KEY
+        description: Random data for generating secure tokens.
+        placeholder_callable: secrets:token_urlsafe
+
+      - key: WTF_CSRF_METHODS
+        type: list
+        default:
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+
+        description: HTTP methods to protect from CSRF.
+
+      - key: WTF_CSRF_FIELD_NAME
+        default: _csrf_token
+        description: Name of the form field and session key that holds the CSRF token.
+
+      - key: WTF_CSRF_HEADERS
+        type: list
+        default:
+          - X-CSRFToken
+          - X-CSRF-Token
+        description: |
+          HTTP headers to search for CSRF token when it is not provided in the form.
+
+      - key: WTF_CSRF_TIME_LIMIT
+        type: int
+        default: 3600
+        description: |
+          Max age in seconds for CSRF tokens.
+          This value is capped by the lifetime of the session.
+
+      - key: WTF_CSRF_SSL_STRICT
+        type: bool
+        default: True
+        description: |
+          Whether to enforce the same origin policy by checking that the referrer matches the host.
+          Only applies to HTTPS requests. Default is True.
+
+      - key: WTF_I18N_ENABLED
+        type: bool
+        default: True
+        description: |
+          Set to False to disable Flask-Babel I18N support.
+          Also set to False if you want to use WTForms’s built-in messages directly, see more info here.
+
+      - key: ckan.csrf_protection.ignore_extensions
+        type: bool
+        default: true
+        description: |
+          Exempt plugins blueprints from CSRF protection.
+
+          .. warning:: This feature will be deprecated in future versions.
+
+  - annotation: Flask-Login Remember me cookie settings
+    options:
+      - key: REMEMBER_COOKIE_NAME
+        default: remember_token
+        description: The name of the cookie to store the “remember me” information in.
+
+      - key: REMEMBER_COOKIE_DURATION
+        default: 31_536_000
+        type: int
+        description: |
+          The amount of time before the cookie expires, as a datetime.timedelta object or integer seconds.
+
+      - key: REMEMBER_COOKIE_DOMAIN
+        placeholder: .example.com
+        commented: true
+        description: |
+          If the “Remember Me” cookie should cross domains, set the domain value here
+          (i.e. .example.com would allow the cookie to be used on all subdomains of example.com).
+
+      - key: REMEMBER_COOKIE_PATH
+        default: /
+        description: Limits the “Remember Me” cookie to a certain path.
+
+      - key: REMEMBER_COOKIE_SECURE
+        type: bool
+        default: False
+        description: Restricts the “Remember Me” cookie's scope to secure channels (typically HTTPS).
+
+      - key: REMEMBER_COOKIE_HTTPONLY
+        type: bool
+        default: True
+        description: Prevents the “Remember Me” cookie from being accessed by client-side scripts.
+
+      - key: REMEMBER_COOKIE_REFRESH_EACH_REQUEST
+        type: bool
+        default: False
+        description: |
+          If set to True the cookie is refreshed on every request, which bumps the lifetime.
+          Works like Flask's SESSION_REFRESH_EACH_REQUEST.
+
+      - key: REMEMBER_COOKIE_SAMESITE
+        default: None
+        description: Restricts the “Remember Me” cookie to first-party or same-site context.
+
+  - annotation: API Token Settings
+    options:
+      - key: api_token.nbytes
+        type: int
+        default: 32
+        example: 20
+        description: Number of bytes used to generate unique id for API Token.
+
+      - key: api_token.jwt.encode.secret
+        placeholder: string:%(beaker.session.secret)s
+        example: file:/path/to/private/key
+        description: |
+          A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+          * for asymmetric algorithms(RS256): path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.decode.secret`. The algorithm used is controlled
+                    by the :ref:`api_token.jwt.algorithm` option.
+
+          Value must have prefix, which defines its type. Supported prefixes are:
+
+          * ``string:`` - Plain string, will be used as is.
+          * ``file:`` - Path to file. Content of the file will be used as key.
+
+      - key: api_token.jwt.decode.secret
+        placeholder: string:%(beaker.session.secret)s
+        example: file:/path/to/public/key.pub
+        description: |
+          A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
+
+          * for asymmetric algorithms(RS256): path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+          * for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+          .. note:: For symmetric algorithms this value must be identical to
+                    :ref:`api_token.jwt.encode.secret`. The algorithm used is defined
+                    by the :ref:`api_token.jwt.algorithm` option.
+
+          Value must have prefix, which defines it's type. Supported prefixes are:
+
+          * ``string:`` - Plain string, will be used as is.
+          * ``file:`` - Path to file. Content of the file will be used as key.
+
+      - key: api_token.jwt.algorithm
+        default: "HS256"
+        example: RS256
+        description: |
+
+          Algorithm to sign the token with, e.g. "ES256", "RS256"
+
+          Depending on the algorithm, additional restrictions may apply to
+          :ref:`api_token.jwt.decode.secret` and
+          :ref:`api_token.jwt.encode.secret`. For example, RS256 implies that
+          :ref:`api_token.jwt.encode.secret` contains RSA private key and
+          :ref:`api_token.jwt.decode.secret` contains public key. Whereas
+          HS256(default value) requires both :ref:`api_token.jwt.decode.secret`
+          and :ref:`api_token.jwt.encode.secret` to have exactly the same
+          value.
+
+  - annotation: Search Settings
+    options:
+      - key: ckan.site_id
+        default: default
+        example: my_ckan_instance
+        description: |
+          CKAN uses Solr to index and search packages. The search index is
+          linked to the value of the ``ckan.site_id``, so if you have more than
+          one CKAN instance using the same `solr_url`_, they will each have a
+          separate search index as long as their ``ckan.site_id`` values are
+          different. If you are only running a single CKAN instance then this
+          can be ignored.
+
+          .. note:: If you change this value, you need to rebuild the search index.
+
+      - key: solr_url
+        placeholder: http://127.0.0.1:8983/solr/ckan
+        validators: not_empty
+        required: true
+        example: http://solr.okfn.org:8983/solr/ckan-schema-2.0
+        description: |
+          This configures the Solr server used for search. The Solr schema
+          found at that URL must be one of the ones in ``ckan/config/solr``
+          (generally the most recent one). A check of the schema version number
+          occurs when CKAN starts.
+
+          Optionally, ``solr_user`` and ``solr_password`` can also be
+          configured to specify HTTP Basic authentication details for all Solr
+          requests.
+
+          .. note::  If you change this value, you need to rebuild the search index.
+
+      - key: solr_user
+        description: User to use in HTTP Basic Authentication when connecting to Solr
+      - key: solr_password
+        description: Password to use in HTTP Basic Authentication when connecting to Solr
+
+      - key: ckan.search.remove_deleted_packages
+        type: bool
+        default: true
+        description: |
+          By default, deleted datasets are removed from the search index so are no
+          longer available in searches. To keep them in the search index, set this
+          setting to ``False``. This will enable the  ``include_deleted``
+          parameter in the  :py:func:`ckan.logic.action.get.package_search`
+          API action.
+
+      - key: ckan.search.solr_commit
+        type: bool
+        default: true
+        example: false
+        description: |
+          Make ckan commit changes solr after every dataset update change. Turn
+          this to false if on solr 4.0 and you have automatic (soft)commits
+          enabled to improve dataset update/create speed (however there may be
+          a slight delay before dataset gets seen in results).
+
+      - key: ckan.search.show_all_types
+        default: dataset
+        example: dataset
+        description: |
+          Controls whether a search page (e.g. ``/dataset``) should also show
+          custom dataset types. The default is ``false`` meaning that no search
+          page for any type will show other types. ``true`` will show other types
+          on the ``/dataset`` search page. Any other value (e.g. ``dataset`` or
+          ``document`` will be treated as a dataset type and that type's search
+          page will show datasets of all types.
+
+      - key: ckan.search.default_include_private
+        type: bool
+        default: true
+        example: false
+        description: |
+          Controls whether the default search page (``/dataset``) should include
+          private datasets visible to the current user or only public datasets
+          visible to everyone.
+
+      - key: ckan.search.default_package_sort
+        default:  score desc, metadata_modified desc
+        example: name asc
+        description: >-
+          Controls whether the default search page (``/dataset``) should different
+          sorting parameter by default when the request does not specify sort.
+
+      - key: search.facets
+        type: list
+        default:
+          - organization
+          - groups
+          - tags
+          - res_format
+          - license_id
+      - key: search.facets.limit
+        type: int
+        default: 50
+        example: 100
+        description: Sets the default number of searched facets returned in a query.
+
+      - key: search.facets.default
+        type: int
+        default: 10
+        example: 10
+        description: Default number of facets shown in search results.
+
+      - key: ckan.extra_resource_fields
+        type: list
+        example: alt_url
+        description: List of the extra resource fields that would be used when searching.
+
+      - key: ckan.search.rows_max
+        type: int
+        default: 1000
+        example: 1000
+        description: |
+          Maximum allowed value for rows returned. Specifically this limits:
+
+          * ``package_search``'s ``rows`` parameter
+          * ``group_show`` and ``organization_show``'s number of datasets returned when specifying ``include_datasets=true``
+
+      - key: ckan.group_and_organization_list_max
+        type: int
+        default: 1000
+        example: 1000
+        description: |
+          Maximum number of groups/organizations returned when listing them. Specifically this limits:
+
+          * ``group_list``'s ``limit`` when ``all_fields=false``
+          * ``organization_list``'s ``limit`` when ``all_fields=false``
+
+      - key: ckan.group_and_organization_list_all_fields_max
+        type: int
+        default: 25
+        example: 100
+        description: |
+          Maximum number of groups/organizations returned when listing them in detail. Specifically this limits:
+
+          * ``group_list``'s ``limit`` when ``all_fields=true``
+          * ``organization_list``'s ``limit`` when ``all_fields=true``
+
+      - key: solr_timeout
+        type: int
+        default: 60
+        example: 120
+        description: |
+          The option defines the timeout in seconds until giving up on a
+          request. Raising this value might help you if you encounter a timeout
+          exception.
+
+  - annotation: Redis Settings
+    options:
+      - key: ckan.redis.url
+        default: redis://localhost:6379/0
+        validators: not_empty
+        example: redis://localhost:7000/1
+        description: URL to your Redis instance, including the database to be used.
+
+  - annotation: CORS Settings
+    options:
+      - key: ckan.cors.origin_allow_all
+        type: bool
+        example: "true"
+        description: |
+          This setting must be present to enable CORS. If True, all origins
+          will be allowed (the response header Access-Control-Allow-Origin is
+          set to '*'). If False, only origins from the
+          ``ckan.cors.origin_whitelist`` setting will be allowed.
+
+      - key: ckan.cors.origin_whitelist
+        type: list
+        example: http://www.myremotedomain1.com http://myremotedomain1.com
+        description: |
+          A space separated list of allowable origins. This setting is used when ``ckan.cors.origin_allow_all = False``.
+
+  - annotation: Plugins Settings
+    options:
+      - key: ckan.plugins
+        required: true
+        type: list
+        placeholder: activity
+        example: activity scheming_datasets datatables_view datastore xloader
+        description: |
+          Specify which CKAN plugins are to be enabled.
+
+          .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
+
+          Format as a space-separated list of the plugin names. The plugin name
+          is the key in the ``[ckan.plugins]`` section of the extension's
+          ``setup.py``. For more information on plugins and extensions, see
+          :doc:`/extensions/index`.
+
+          .. note::
+              The order of the plugin names in the configuration file influences the
+              order that CKAN will load the plugins in. As long as each plugin class is
+              implemented in a separate Python module (i.e. in a separate Python source
+              code file), the plugins will be loaded in the order given in the
+              configuration file.
+
+              When multiple plugins are implemented in the same Python module, CKAN will
+              process the plugins in the order that they're given in the config file, but as
+              soon as it reaches one plugin from a given Python module, CKAN will load all
+              plugins from that Python module, in the order that the plugin classes are
+              defined in the module.
+
+              For simplicity, we recommend implementing each plugin class in its own Python
+              module.
+
+              Plugin loading order can be important, for example for plugins that add custom
+              template files: templates found in template directories added earlier will
+              override templates in template directories added later.
+
+          .. todo::
+              Fix CKAN's plugin loading order to simply load all plugins in the order
+              they're given in the config file, regardless of which Python modules
+              they're implemented in.
+
+      - key: ckan.resource_proxy.timeout
+        type: int
+        default: 5
+        description: Timeout in seconds to use on Resource Proxy requests.
+
+  - annotation: Front-End Settings
+    options:
+      - key: ckan.site_title
+        default: CKAN
+        example: Open Data Scotland
+        description: This sets the name of the site, as displayed in the CKAN web interface.
+        editable: true
+
+      - key: ckan.site_description
+        example: The easy way to get, use and share data
+        description: This is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+        editable: true
+
+      - key: ckan.site_intro_text
+        example: Nice introductory paragraph about CKAN or the site in general.
+        description: This is for an introductory text used in the default template's index page.
+        editable: true
+
+      - key: ckan.site_logo
+        default: /base/images/ckan-logo.png
+        example: /images/ckan_logo_fullname_long.png
+        description: This sets the logo used in the title bar.
+        editable: true
+
+      - key: ckan.site_about
+        example: A _community-driven_ catalogue of _open data_ for the Greenfield area.
+        description: |
+          Format tips:
+
+          * multiline strings can be used by indenting following lines
+          * the format is Markdown
+
+          .. note:: Whilst the default text is translated into many languages
+            (switchable in the page footer), the text in this configuration
+            option will not be translatable. For this reason, it's better to
+            overload the snippet in ``home/snippets/about_text.html``. For more
+            information, see :doc:`/theming/index`.
+        editable: true
+
+      - key: ckan.theme
+        default: css/main
+        example: my-extension/theme-asset
+        description: >
+          With this option, instead of using the default `css/main` asset with
+          the theme, you can use your own.
+
+      - key: ckan.favicon
+        default: /base/images/ckan.ico
+        example: http://okfn.org/wp-content/themes/okfn-master-wordpress-theme/images/favicon.ico
+        description: This sets the site's `favicon`. This icon is usually displayed by the browser in the tab heading and bookmark.
+
+      - key: ckan.datasets_per_page
+        type: int
+        default: 20
+        example: 10
+        description: |
+          This controls the pagination of the dataset search results page. This is the maximum number of datasets viewed per page of results.
+
+      - key: package_hide_extras
+        type: list
+        example: my_private_field other_field
+        description: |
+          This sets a space-separated list of extra field key values which will not be shown on the dataset read page.
+
+          .. warning:: While this is useful to e.g. create internal notes, it
+            is not a security measure. The keys will still be available via the
+            API and in revision diffs.
+
+      - key: ckan.recaptcha.publickey
+        description: |
+          The public key for your reCAPTCHA account, for example::
+
+           ckan.recaptcha.publickey = 6Lc...-KLc
+
+          To get a reCAPTCHA account, sign up at: http://www.google.com/recaptcha
+
+      - key: ckan.recaptcha.privatekey
+        description: |
+          The private key for your reCAPTCHA account, for example::
+
+           ckan.recaptcha.privatekey = 6Lc...-jP
+
+          Setting both :ref:`ckan.recaptcha.publickey` and
+          :ref:`ckan.recaptcha.privatekey` adds captcha to the user registration form.
+          This has been effective at preventing bots registering users and creating spam
+          packages.
+
+      - key: ckan.featured_groups
+        type: list
+        example: group_one
+        description: |
+          Defines a list of group names or group ids. This setting is used to display a
+          group and datasets on the home page in the default templates (1 group and 2
+          datasets are displayed).
+
+      - key: ckan.featured_orgs
+        type: list
+        example: org_one
+        description: |
+          Defines a list of organization names or ids. This setting is used to display
+          an organization and datasets on the home page in the default templates (1
+          group and 2 datasets are displayed).
+
+      - key: ckan.default_group_sort
+        default: title
+        example: name
+        description: |
+          Defines if some other sorting is used in group_list and organization_list
+          by default when the request does not specify sort.
+
+      - key: ckan.gravatar_default
+        default: identicon
+        example: disabled
+        description: |
+          This controls the default gravatar style. Gravatar is used by default when a user has not set a custom profile picture,
+          but it can be turn completely off by setting this option to "disabled". In that case, a placeholder image will be shown
+          instead, which can be customized overriding the ``templates/user/snippets/placeholder.html`` template.
+
+      - key: ckan.debug_supress_header
+        type: bool
+        example: "false"
+        description: |
+          This configs if the debug information showing the controller and action
+          receiving the request being is shown in the header.
+
+          .. note:: This info only shows if debug is set to True.
+
+      - key: ckan.site_custom_css
+        description: Custom CSS directives to include on all CKAN pages.
+        editable: true
+
+  - annotation: Resource Views Settings
+    options:
+      - key: ckan.views.default_views
+        type: list
+        default:
+          - image_view
+          - datatables_view
+        example: image_view webpage_view datatables_view
+        description: |
+          Defines the resource views that should be created by default when creating or
+          updating a dataset. From this list only the views that are relevant to a particular
+          resource format will be created. This is determined by each individual view.
+
+          If not present (or commented), the default value is used. If left empty, no
+          default views are created.
+
+
+          .. note:: You must have the relevant view plugins loaded on the ``ckan.plugins`` setting to be able to create the default views, eg::
+                        ckan.plugins = image_view webpage_view geo_view datatables_view ...
+                        ckan.views.default_views = image_view webpage_view datatables_view
+
+  - annotation: Theming Settings
+    options:
+      - key: ckan.template_title_delimiter
+        default: '-'
+        example: '|'
+        description: This sets the delimiter between the site's subtitle (if there's one) and its title, in HTML's ``<title>``.
+
+      - key: extra_template_paths
+        default: ""
+        example: /home/okfn/brazil_ckan_config/templates
+        description: |
+          Use this option to specify where CKAN should look for additional
+          templates, before reverting to the ``ckan/templates`` folder. You can
+          supply more than one folder, separating the paths with a comma (,).
+
+          For more information on theming, see :doc:`/theming/index`.
+
+      - key: extra_public_paths
+        default: ""
+        example: /home/okfn/brazil_ckan_config/public
+        description: |
+          To customise the display of CKAN you can supply replacements for
+          static files such as HTML, CSS, script and PNG files. Use this option
+          to specify where CKAN should look for additional files, before
+          reverting to the ``ckan/public`` folder. You can supply more than one
+          folder, separating the paths with a comma (,).
+
+          For more information on theming, see :doc:`/theming/index`.
+
+      - key: ckan.base_public_folder
+        default: public
+        example: public
+        description: |
+          This config option is used to configure the base folder for static files used
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``public`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
+
+      - key: ckan.base_templates_folder
+        default: templates
+        example: templates
+        description: |
+          This config option is used to configure the base folder for templates used
+          by CKAN core. Starting CKAN 2.11 it only accepts: ``templates`` as a value.
+          (This variable is kept for backwards compatibility when updating Bootstrap
+          versions.)
+
+      - key: ckan.default.package_type
+        default: dataset
+        description: |
+          Default type of dataset that will be used in the UI links (eg. "New Dataset").
+
+          Use this option to change the dataset type that is used site-wide. Only existing dataset
+          types can be used as a value for this option. Upon setting a custom value, the following
+          happens:
+
+          * all new datasets have their ``type`` field set to the custom value(if no explicit value provided)
+          * all labels(e.g. "Create a Dataset", "My datasets", "Search datasets..") are adapted to the custom value
+          * all default links(e.g. ``/dataset/new``, ``/dataset/<name>/resource``) are adapted to the custom value
+
+          If labels require additional changes, register a chained helpers for :py:func:`~ckan.lib.helpers.humanize_entity_type`.
+          For example, setting a dataset type ``camel_photo`` as default, will turn the "Datasets" link in the header into
+          "Camel-photos". If "Camel Photos" is expected, the code below can be used::
+
+              @p.toolkit.chained_helper
+              def humanize_entity_type(next_helper: Callable[..., Any],
+                                       entity_type: str, object_type: str, purpose: str):
+                  if purpose == "main nav":
+                      return "Camel Photos"
+
+                  return next_helper(entity_type, object_type, purpose)
+
+          See :py:func:`~ckan.lib.helpers.humanize_entity_type` for additional details.
+
+      - key: ckan.default.group_type
+        default: group
+        description: |
+          Default type of group that used in UI links(eg. "New Group" button, "Groups" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for groups.
+
+      - key: ckan.default.organization_type
+        default: organization
+        description: |
+          Default type of group that used in UI links(eg. "New Organization" button, "Organizations" link in header)
+
+          Same as :ref:`ckan.default.package_type`, but for organizations.
+
+  - annotation: Storage Settings
+    options:
+      - key: ckan.storage_path
+        placeholder: /var/lib/ckan/default
+        example: /var/lib/ckan/default
+        description: This defines the location of where CKAN will store all uploaded data.
+
+      - key: ckan.max_resource_size
+        type: int
+        default: 10
+        example: 100
+        description: The maximum in megabytes a resources upload can be.
+
+      - key: ckan.max_image_size
+        type: int
+        default: 2
+        example: 10
+        description: The maximum in megabytes an image upload can be.
+
+  - annotation: Uploader Settings
+    options:
+      - key: ckan.upload.user.types
+        type: list
+        default: image
+        example: image text
+        description: File types allowed to upload as user's avatar. No restrictions applied when empty
+
+      - key: ckan.upload.user.mimetypes
+        type: list
+        default: image/png image/gif image/jpeg
+        example: image/png text/svg
+        description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
+
+      - key: ckan.upload.group.types
+        type: list
+        default: image
+        example: image text
+        description: File types allowed to upload as group image. No restrictions applied when empty
+
+      - key: ckan.upload.group.mimetypes
+        type: list
+        default: image/png image/gif image/jpeg
+        example: image/png text/svg
+        description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
+
+  - annotation: Webassets Settings
+    options:
+      - key: ckan.webassets.path
+        example: /var/lib/ckan/webassets
+        description: |
+          In order to increase performance, static assets (CSS and JS files) included via an ``asset`` tag inside templates are compiled only once,
+          when the asset is used for the first time. All subsequent requests to the
+          asset will use the existing file. CKAN stores the compiled webassets in the file system, in the path specified by this config option.
+
+      - key: ckan.webassets.url
+        example: /serve/assets/from/here
+        default: /webassets
+        description: |
+          URL path for endpoint that serves webassets.
+
+      - key: ckan.webassets.use_x_sendfile
+        type: bool
+        example: true
+        description: |
+          When serving static files, if this setting is ``True``, the applicatin will set the ``X-Sendfile`` header instead of
+          serving the files directly with Flask. This will increase performance when serving the assets, but it
+          requires that the web server (eg Nginx) supports the ``X-Sendfile`` header. See :ref:`x-sendfile` for more information.
+
+
+  - annotation: User Settings
+    options:
+      - key: ckan.user_list_limit
+        type: int
+        default: 20
+        example: 50
+        description: This controls the number of users to show in the Users list. By default, it shows 20 users.
+
+      - key: ckan.user_reset_landing_page
+        default: home.index
+        example: dataset
+        description: |
+          This controls the page where users will be sent after requesting a password reset.
+          This is ordinarily the home page, but specific sites may prefer somewhere else.
+
+  # TODO: move to activity extension
+  - annotation: Activity Streams Settings
+    options:
+      - key: ckan.activity_streams_enabled
+        type: bool
+        default: true
+        example: "false"
+        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+
+      - key: ckan.activity_streams_email_notifications
+        type: bool
+        default: false
+        example: "false"
+        description: |
+          Turns on and off the activity streams' email notifications. You'd also need to setup a cron job to send
+          the emails. For more information, visit :ref:`email-notifications`.
+
+      - key: ckan.activity_list_limit
+        type: int
+        default: 31
+        example: 31
+        description: This controls the number of activities to show in the Activity Stream.
+
+      - key: ckan.activity_list_limit_max
+        type: int
+        default: 100
+        example: 100
+        description: Maximum allowed value for Activity Stream ``limit`` parameter.
+
+      - key: ckan.email_notifications_since
+        default: '2 days'
+        example: 2 days
+        description: |
+          Email notifications for events older than this time delta will not be sent.
+          Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
+
+      - key: ckan.hide_activity_from_users
+        type: list
+        placeholder: "%(ckan.site_id)s"
+        example: sysadmin
+        description: |
+          Hides activity from the specified users from activity stream. If unspecified,
+          it'll use :ref:`ckan.site_id` to hide activity by the site user. The site user
+          is a sysadmin user on every ckan user with a username that's equal to
+          :ref:`ckan.site_id`. This user is used by ckan for performing actions from the
+          command-line.
+
+
+  - annotation: Feeds Settings
+    options:
+      - key: ckan.feeds.author_name
+        default: ""
+        example: Michael Jackson
+        description: This controls the feed author's name. If unspecified, it'll use :ref:`ckan.site_id`.
+
+      - key: ckan.feeds.author_link
+        example: http://okfn.org
+        description: This controls the feed author's link. If unspecified, it'll use :ref:`ckan.site_url`.
+
+      - key: ckan.feeds.authority_name
+        default: ""
+        example: http://okfn.org
+        description: The domain name or email address of the default publisher of the feeds and elements. If unspecified, it'll use :ref:`ckan.site_url`.
+
+      - key: ckan.feeds.date
+        default: ""
+        example: 2012-03-22
+        description: A string representing the default date on which the authority_name is owned by the publisher of the feed.
+
+      - key: ckan.feeds.limit
+        type: int
+        default: 20
+        description: Number of items returned in the feeds
+
+  - annotation: Internationalisation Settings
+    options:
+      - key: ckan.locale_default
+        default: en
+        example: de
+        description: |
+          Use this to specify the locale (language of the text) displayed in
+          the CKAN Web UI. This requires a suitable `mo` file installed for the
+          locale in the ckan/i18n. For more information on
+          internationalization, see :doc:`/contributing/i18n`. If you don't
+          specify a default locale, then it will default to the first locale
+          offered, which is by default English (alter that with
+          `ckan.locales_offered` and `ckan.locales_filtered_out`.
+
+          .. note: In versions of CKAN before 1.5, the settings used for this
+            was variously `lang` or `ckan.locale`, which have now been
+            deprecated in favour of `ckan.locale_default`.
+
+      - key: ckan.locales_offered
+        type: list
+        example: en de fr
+        description: |
+          By default, all locales found in the ``ckan/i18n`` directory will be
+          offered to the user. To only offer a subset of these, list them under
+          this option. The ordering of the locales is preserved when offered to
+          the user.
+
+      - key: ckan.locales_filtered_out
+        type: list
+        example: pl ru
+        description: If you want to not offer particular locales to the user, then list them here to have them removed from the options.
+
+      - key: ckan.locale_order
+        type: list
+        example: fr de
+        description: |
+          If you want to specify the ordering of all or some of the locales as
+          they are offered to the user, then specify them here in the required
+          order. Any locales that are available but not specified in this
+          option, will still be offered at the end of the list.
+
+      - key: ckan.i18n_directory
+        example: /opt/locales/i18n/
+        description: By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
+
+      - key: ckan.i18n.extra_directory
+        example: /opt/ckan/extra_translations/
+        description: |
+          If you wish to add extra translation strings and have them merged with the
+          default ckan translations at runtime you can specify the location of the extra
+          translations using this option.
+
+      - key: ckan.i18n.extra_gettext_domain
+        example: mydomain
+        description: |
+          You can specify the name of the gettext domain of the extra translations. For
+          example if your translations are stored as
+          ``i18n/<locale>/LC_MESSAGES/somedomain.mo`` you would want to set this option
+          to ``somedomain``
+
+      - key: ckan.i18n.extra_locales
+        type: list
+        example: fr es de
+        description: |
+          If you have set an extra i18n directory using ``ckan.i18n.extra_directory``, you
+          should specify the locales that have been translated in that directory in this
+          option.
+
+      - key: ckan.i18n.rtl_languages
+        type: list
+        default:
+          - he
+          - ar
+          - fa_IR
+        example: he ar fa_IR
+        description: Allows to modify the right-to-left languages
+
+      - key: ckan.i18n.rtl_theme
+        default: css/main-rtl
+        example: my-extension/my-custom-rtl-asset
+        description: |
+          Allows to override the default rtl asset used for the languages defined
+          in ``ckan.i18n.rtl_languages``.
+
+      - key: ckan.display_timezone
+        default: UTC
+        example: Europe/Zurich
+        description: |
+          By default, all datetimes are considered to be in the UTC
+          timezone. Use this option to change the displayed dates on the
+          frontend. Internally, the dates are always saved as UTC. This option
+          only changes the way the dates are displayed.
+
+          The valid values for this options [can be found at
+          pytz](http://pytz.sourceforge.net/#helpers)
+          (``pytz.all_timezones``). You can specify the special value `server`
+          to use the timezone settings of the server, that is running CKAN.
+
+      - key: ckan.root_path
+        example: /my/custom/path/{{LANG}}/foo
+        description: |
+          This setting is used to construct URLs inside CKAN. It specifies two things:
+
+          * *At which path CKAN is mounted:* By default it is assumed that CKAN is mounted
+            at ``/``, i.e. at the root of your web server. If you have configured your
+            web server to serve CKAN from a different mount point then you need to
+            duplicate that setting here.
+
+          * *Where the locale is added to an URL:* By default, URLs are formatted as
+            ``/some/url`` when using the default locale, or ``/de/some/url`` when using
+            the ``de`` locale, for example. When ``ckan.root_path`` is set it must
+            include the string ``{{LANG}}``, which will be replaced by the locale.
+
+          .. important::
+              The setting must contain ``{{LANG}}`` exactly as written here. Do not add
+              spaces between the brackets.
+
+          .. seealso::
+              The host of your CKAN installation can be set via :ref:`ckan.site_url`.
+
+          The CKAN repoze config file ``who.ini`` file will also need to be edited
+          by adding the path prefix to the options in the ``[plugin:friendlyform]``
+          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
+          Do not change the login/logout_handler_path options.
+
+      - key: ckan.resource_formats
+        example: /path/to/resource_formats
+        default_callable: ckan.lib.helpers:resource_formats_default_file
+        description: |
+          The purpose of this file is to supply a thorough list of resource formats
+          and to make sure the formats are normalized when saved to the database
+          and presented.
+
+          The format of the file is a JSON object with following format::
+
+              ["Format", "Description", "Mimetype", ["List of alternative representations"]]
+
+          Please look in ckan/config/resource_formats.json for full details and and as an
+          example.
+
+
+  - annotation: Form Settings
+    options:
+      - key: ckan.dataset.create_on_ui_requires_resources
+        type: bool
+        default: true
+        example: "false"
+        description: If False, there is no need to add any resources when creating a new dataset.
+
+      - key: package_new_return_url
+        description: |
+          The URL to redirect the user to after they've submitted a new package form,
+          example::
+
+           package_new_return_url = http://datadotgc.ca/new_dataset_complete?name=<NAME>
+
+          This is useful for integrating CKAN's new dataset form into a third-party
+          interface, see :ref:`form-integration`.
+
+          The ``<NAME>`` string is replaced with the name of the dataset created.
+
+      - key: package_edit_return_url
+        description: |
+          The URL to redirect the user to after they've submitted an edit package form,
+          example::
+
+           package_edit_return_url = http://datadotgc.ca/dataset/<NAME>
+
+          This is useful for integrating CKAN's edit dataset form into a third-party
+          interface, see :ref:`form-integration`.
+
+          The ``<NAME>`` string is replaced with the name of the dataset that was edited.
+
+      - key: licenses_group_url
+        example: file:///path/to/my/local/json-list-of-licenses.json
+        description: |
+          A url pointing to a JSON file containing a list of license objects. This list
+          determines the licenses offered by the system to users, for example when
+          creating or editing a dataset.
+
+          This is entirely optional - by default, the system will use an internal cached
+          version of the CKAN list of licenses available from the
+          http://licenses.opendefinition.org/licenses/groups/ckan.json.
+
+          More details about the license objects - including the license format and some
+          example license lists - can be found at the `Open Licenses Service
+          <http://licenses.opendefinition.org/>`_.
+
+
+  - annotation: Email settings
+    options:
+      - key: smtp.server
+        default: localhost
+        example: smtp.example.com:587
+        description: The SMTP server to connect to when sending emails with optional port.
+
+      - key: smtp.starttls
+        type: bool
+        example: "true"
+        description: Whether or not to use STARTTLS when connecting to the SMTP server.
+
+      - key: smtp.user
+        example: username@example.com
+        description: The username used to authenticate with the SMTP server.
+
+      - key: smtp.password
+        example: yourpass
+        description: The password used to authenticate with the SMTP server.
+
+      - key: smtp.mail_from
+        example: ckan@example.com
+        description: >-
+          The email address that emails sent by CKAN will come from. Note that, if left blank, the
+          SMTP server may insert its own.
+
+      - key: smtp.reply_to
+        example: noreply.example.com
+        description: |
+          The email address that will be used if someone attempts to reply to a system email.
+          If left blank, no ``Reply-to`` will be added to the email and the value of
+          ``smtp.mail_from`` will be used.
+
+      - key: email_to
+        example: errors@example.com
+        description: This controls where the error messages will be sent to.
+
+      - key: error_email_from
+        example: ckan-errors@example.com
+        description: This controls from which email the error messages will come from.
+
+
+  - annotation: Background Job Settings
+    options:
+      - key: ckan.jobs.timeout
+        type: int
+        default: 180
+        description: The option defines the timeout in seconds until giving up on a job

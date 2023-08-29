@@ -1,0 +1,20 @@
+{% ckan_extends %}
+
+{% block featured_group %}
+  <div class="box">
+    <header class="module-heading">
+      <h3>Recent activity</h3>
+    </header>
+    <div class="module-content">
+      <ul>
+        <li>Activity 01</li>
+        <li>Activity 02</li>
+        <li>Activity 03</li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+{% block featured_organization %}
+  {% snippet 'snippets/example_theme_most_popular_groups.html' %}
+{% endblock %}

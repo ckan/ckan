@@ -62,28 +62,25 @@ Creating test data
 ------------------
 
 It can be handy to have some test data to start with, to quickly check that
-everything works. You can add a standard set of test data to your site from the
-command line with the following ``seed`` commands:
+everything works. You can add a random set of test data to your site from the
+command line with the following ``generate fake-data`` commands:
 
 .. parsed-literal::
 
-   ckan -c |ckan.ini| seed basic
-   ckan -c |ckan.ini| seed family
-   ckan -c |ckan.ini| seed gov
-   ckan -c |ckan.ini| seed hierarchy
-   ckan -c |ckan.ini| seed search
-   ckan -c |ckan.ini| seed translations
-   ckan -c |ckan.ini| seed user
-   ckan -c |ckan.ini| seed vocabs
+   ckan -c |ckan.ini| generate fake-data organization
+   # check the output and save the ID of organization into variable:
+   owner_org=<Organization ID from the previous command>
+
+   ckan -c |ckan.ini| generate fake-data dataset --owner_org=$owner_org
 
 If you later want to delete this test data and start again with an empty
 database, you can use the :ref:`db clean <db clean>` command.
 
-For a short description of these seed subcommands for creating test data, run:
+For a short description of this subcommand, run:
 
 .. parsed-literal::
 
-   ckan -c |ckan.ini| seed --help
+   ckan -c |ckan.ini| generate fake-data --help
 
 -----------
 Config file

@@ -5,7 +5,7 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 18.04 (Python 2) or 20.04 (Python 3 or Python 2) 64-bit**. If
+and easiest way to install CKAN, but it requires **Ubuntu 20.04 or 22.04 64-bit**. If
 you're not using any of these Ubuntu versions, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
@@ -13,11 +13,7 @@ At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`. Additionally, there will be a process running the worker for running :doc:`/maintaining/background-tasks`. All these processes will be managed by `Supervisor <https://supervisord.org/>`_.
 
-For Python 3 installations, the minimum Python version required is 3.6.
-
-* **Ubuntu 20.04** includes **Python 3.8** as part of its distribution
-* **Ubuntu 18.04** includes **Python 3.6** as part of its distribution
-
+For Python 3 installations, the minimum Python version required is 3.8.
 
 Host ports requirements:
 
@@ -30,7 +26,7 @@ Host ports requirements:
     +------------+------------+-----------+
     | uWSGI      | 8800       | DataPusher|
     +------------+------------+-----------+
-    | Solr/Jetty | 8983       | Search    |
+    | Solr       | 8983       | Search    |
     +------------+------------+-----------+
     | PostgreSQL | 5432       | Database  |
     +------------+------------+-----------+
@@ -56,55 +52,33 @@ CKAN:
 
     sudo apt install -y libpq5 redis-server nginx supervisor
 
-   .. note:: If you want to install CKAN 2.9 running on Python 2 for backwards compatibility, you need to also install the Python 2 libraries:
-
-    .. parsed-literal::
-
-       # On Ubuntu 18.04
-       sudo apt install python2 libpython2.7
-
-       # On Ubuntu 20.04
-       sudo apt install libpython2.7
-
 #. Download the CKAN package:
 
-    - On Ubuntu 18.04:
+  - On Ubuntu 20.04:
 
        .. parsed-literal::
 
-           wget \http://packaging.ckan.org/|latest_package_name_bionic|
+            wget \https://packaging.ckan.org/|current_package_name_focal|
 
-     - On Ubuntu 20.04, for Python 3 (recommended):
-
-       .. parsed-literal::
-
-           wget \http://packaging.ckan.org/|latest_package_name_focal_py3|
-
-     - On Ubuntu 20.04, for Python 2:
+  - On Ubuntu 22.04:
 
        .. parsed-literal::
 
-           wget \http://packaging.ckan.org/|latest_package_name_focal_py2|
+            wget \https://packaging.ckan.org/|current_package_name_jammy|
 
 #. Install the CKAN package:
 
-   - On Ubuntu 18.04:
+  - On Ubuntu 20.04:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_bionic|
+            sudo dpkg -i |current_package_name_focal|
 
-   - On Ubuntu 20.04, for Python 3:
-
-       .. parsed-literal::
-
-           sudo dpkg -i |latest_package_name_focal_py3|
-
-   - On Ubuntu 20.04, for Python 2:
+  - On Ubuntu 22.04:
 
        .. parsed-literal::
 
-           sudo dpkg -i |latest_package_name_focal_py2|
+            sudo dpkg -i |current_package_name_jammy|
 
 
 -----------------------------------
@@ -119,11 +93,7 @@ CKAN:
 
 .. note::
 
-   The commands mentioned below are tested for Ubuntu system
-
-Install |postgres|, running this command in a terminal::
-
-    sudo apt install -y postgresql
+   The commands mentioned below are tested in Ubuntu
 
 .. include:: postgres.rst
 
@@ -141,14 +111,36 @@ set the correct password, database and database user.
    change the :ref:`solr_url` setting in your
    |ckan.ini| |production.ini| file to reference your |solr| server.
 
-Install |solr|, running this command in a terminal::
-
-    sudo apt install -y solr-tomcat
-
 .. include:: solr.rst
 
+
+------------------------------
+4. Set up a writable directory
+------------------------------
+
+CKAN needs a directory where it can write certain files, regardless of whether you
+are using the :doc:`/maintaining/filestore` or not (if you do want to enable file uploads,
+set the :ref:`ckan.storage_path` configuration option in the next section).
+
+1. Create the directory where CKAN will be able to write files:
+
+   .. parsed-literal::
+
+     sudo mkdir -p |storage_path|
+
+2. Set the permissions of this directory.
+   For example if you're running CKAN with Nginx, then the Nginx's user
+   (``www-data`` on Ubuntu) must have read, write and execute permissions on it:
+
+   .. parsed-literal::
+
+     sudo chown www-data |storage_path|
+     sudo chmod u+rwx |storage_path|
+
+
+
 -------------------------------------------------------
-4. Update the configuration and initialize the database
+5. Update the configuration and initialize the database
 -------------------------------------------------------
 
 #. Edit the :ref:`config_file` (|ckan.ini|) to set up the following options:
@@ -174,7 +166,7 @@ Install |solr|, running this command in a terminal::
    instructions in :doc:`/maintaining/filestore`.
 
 -----------------------------------------
-5. Start the Web Server and restart Nginx
+6. Start the Web Server and restart Nginx
 -----------------------------------------
 
 Reload the Supervisor daemon so the new processes are picked up::
@@ -198,7 +190,7 @@ Restart Nginx by running this command::
     sudo service nginx restart
 
 ---------------
-6. You're done!
+7. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front
@@ -217,3 +209,11 @@ your CKAN site.
     You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
     and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
 
+.. note::
+
+   There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or
+   accessing CKAN via a browser for the first time. This happens when a different user is used to execute
+   the web server process than the user who installed CKAN and the support software. A workaround would be to
+   open up the permissions on the ``/usr/lib/ckan/default/src/ckan/ckan/public/base/i18n/`` directory
+   so that this user could write the .js files into it. Accessing CKAN will generate these files for a new
+   install, or you could run ``ckan -c /etc/ckan/default/ckan.ini translation js`` to explicitly generate them.

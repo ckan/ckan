@@ -51,8 +51,8 @@ translation object.
 
 .. Note::
     In order to include a module for page render inclusion within an
-    extension it is recommended that you use ``{% resource %}`` within
-    your templates. See the `Resource Documentation <./resources.html>`_
+    extension it is recommended that you use ``{% asset %}`` within
+    your templates. See the `Assets Documentation <./assets.html>`_
 
 Initialisation
 ~~~~~~~~~~~~~~

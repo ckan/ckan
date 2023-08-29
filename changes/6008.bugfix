@@ -1,0 +1,1 @@
+Fix Chinese locales. Note that the URLs for the `zh_CN` and `zh_TW` locales have changed but there are redirects in place, eg http://localhost:5000/zh_CN/dataset -> http://localhost:5000/zh_Hans_CN/dataset

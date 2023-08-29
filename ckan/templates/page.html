@@ -3,7 +3,7 @@
 {%- block page -%}
 
   {% block skip %}
-    <div class="sr-only sr-only-focusable"><a href="#content">{{ _('Skip to content') }}</a></div>
+    <div class="visually-hidden-focusable"><a href="#content">{{ _('Skip to main content') }}</a></div>
   {% endblock %}
 
   {#
@@ -23,8 +23,8 @@
           {% block flash %}
             <div class="flash-messages">
               {% block flash_inner %}
-                {% for message in h.flash.pop_messages() | list %}
-                  <div class="alert fade in {{ message.category }}">
+                {% for category, message in h.get_flashed_messages(with_categories=true) %}
+                  <div class="alert alert-dismissible fade show {{ category }}">
                     {{ h.literal(message) }}
                   </div>
                 {% endfor %}
@@ -54,7 +54,7 @@
             {% endblock %}
 
             {% block secondary %}
-              <aside class="secondary col-sm-3">
+              <aside class="secondary col-md-3">
                 {#
                 The secondary_content block can be used to add content to the
                 sidebar of the page. This is the main block that is likely to be
@@ -72,7 +72,7 @@
             {% endblock %}
 
             {% block primary %}
-              <div class="primary col-sm-9 col-xs-12" role="main">
+              <div class="primary col-md-9 col-xs-12" role="main">
                 {#
                 The primary_content block can be used to add content to the page.
                 This is the main block that is likely to be used within a template.

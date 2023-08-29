@@ -1,14 +1,21 @@
 # encoding: utf-8
 
-import ckan.model as model
-import click
 import datetime
 import csv
+
+from typing import NamedTuple, Optional
+
+import click
+
+import ckan.model as model
 import ckan.logic as logic
-from collections import namedtuple
 from ckan.cli import error_shout
 
-_ViewCount = namedtuple(u'ViewCount', u'id name count')
+
+class ViewCount(NamedTuple):
+    id: str
+    name: str
+    count: int
 
 
 @click.group(name=u'tracking', short_help=u'Update tracking statistics')
@@ -18,24 +25,26 @@ def tracking():
 
 @tracking.command()
 @click.argument(u'start_date', required=False)
-def update(start_date):
+def update(start_date: Optional[str]):
     engine = model.meta.engine
+    assert engine
     update_all(engine, start_date)
 
 
 @tracking.command()
 @click.argument(u'output_file', type=click.Path())
 @click.argument(u'start_date', required=False)
-def export(output_file, start_date):
+def export(output_file: str, start_date: Optional[str]):
     engine = model.meta.engine
+    assert engine
 
     update_all(engine, start_date)
     export_tracking(engine, output_file)
 
 
-def update_all(engine, start_date=None):
+def update_all(engine: model.Engine, start_date: Optional[str] = None):
     if start_date:
-        start_date = datetime.datetime.strptime(start_date, u'%Y-%m-%d')
+        date = datetime.datetime.strptime(start_date, u'%Y-%m-%d')
     else:
         # No date given. See when we last have data for and get data
         # from 2 days before then in case new data is available.
@@ -44,26 +53,26 @@ def update_all(engine, start_date=None):
                     ORDER BY tracking_date DESC LIMIT 1;'''
         result = engine.execute(sql).fetchall()
         if result:
-            start_date = result[0][u'tracking_date']
-            start_date += datetime.timedelta(-2)
+            date = result[0][u'tracking_date']
+            date += datetime.timedelta(-2)
             # convert date to datetime
             combine = datetime.datetime.combine
-            start_date = combine(start_date, datetime.time(0))
+            date = combine(date, datetime.time(0))
         else:
-            start_date = datetime.datetime(2011, 1, 1)
-    start_date_solrsync = start_date
+            date = datetime.datetime(2011, 1, 1)
+    start_date_solrsync = date
     end_date = datetime.datetime.now()
 
-    while start_date < end_date:
-        stop_date = start_date + datetime.timedelta(1)
-        update_tracking(engine, start_date)
-        click.echo(u'tracking updated for {}'.format(start_date))
-        start_date = stop_date
+    while date < end_date:
+        stop_date = date + datetime.timedelta(1)
+        update_tracking(engine, date)
+        click.echo(u'tracking updated for {}'.format(date))
+        date = stop_date
 
     update_tracking_solr(engine, start_date_solrsync)
 
 
-def _total_views(engine):
+def _total_views(engine: model.Engine):
     sql = u'''
         SELECT p.id,
                 p.name,
@@ -73,10 +82,10 @@ def _total_views(engine):
             GROUP BY p.id, p.name
             ORDER BY total_views DESC
     '''
-    return [_ViewCount(*t) for t in engine.execute(sql).fetchall()]
+    return [ViewCount(*t) for t in engine.execute(sql).fetchall()]
 
 
-def _recent_views(engine, measure_from):
+def _recent_views(engine: model.Engine, measure_from: datetime.date):
     sql = u'''
         SELECT p.id,
                 p.name,
@@ -88,15 +97,15 @@ def _recent_views(engine, measure_from):
             ORDER BY total_views DESC
     '''
     return [
-        _ViewCount(*t) for t in engine.execute(
+        ViewCount(*t) for t in engine.execute(
             sql, measure_from=str(measure_from)
         ).fetchall()
     ]
 
 
-def export_tracking(engine, output_filename):
+def export_tracking(engine: model.Engine, output_filename: str):
     u'''Write tracking summary to a csv file.'''
-    HEADINGS = [
+    headings = [
         u'dataset id',
         u'dataset name',
         u'total views',
@@ -109,7 +118,7 @@ def export_tracking(engine, output_filename):
 
     with open(output_filename, u'w') as fh:
         f_out = csv.writer(fh)
-        f_out.writerow(HEADINGS)
+        f_out.writerow(headings)
         recent_views_for_id = dict((r.id, r.count) for r in recent_views)
         f_out.writerows([(r.id,
                         r.name,
@@ -118,8 +127,8 @@ def export_tracking(engine, output_filename):
                         for r in total_views])
 
 
-def update_tracking(engine, summary_date):
-    PACKAGE_URL = u'/dataset/'
+def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
+    package_url = u'/dataset/'
     # clear out existing data before adding new
     sql = u'''DELETE FROM tracking_summary
                 WHERE tracking_date='%s'; ''' % summary_date
@@ -150,7 +159,7 @@ def update_tracking(engine, summary_date):
                     ,'~~not~found~~')
                 WHERE t.package_id IS NULL
                 AND tracking_type = 'page';'''
-    engine.execute(sql, PACKAGE_URL)
+    engine.execute(sql, package_url)
 
     # update summary totals for resources
     sql = u'''UPDATE tracking_summary t1
@@ -191,13 +200,13 @@ def update_tracking(engine, summary_date):
     engine.execute(sql)
 
 
-def update_tracking_solr(engine, start_date):
+def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
     sql = u'''SELECT package_id FROM tracking_summary
             where package_id!='~~not~found~~'
             and tracking_date >= %s;'''
     results = engine.execute(sql, start_date)
 
-    package_ids = set()
+    package_ids: set[str] = set()
     for row in results:
         package_ids.add(row[u'package_id'])
 

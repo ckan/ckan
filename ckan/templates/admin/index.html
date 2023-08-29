@@ -17,6 +17,7 @@
           <td>
             <div class="btn-group pull-right">
               <form method="POST" action="{% url_for 'user.sysadmin' %}">
+                {{ h.csrf_input() }}
                 <input type="hidden" value="{{ user }}" name="username" />
                 <input type="hidden" value="0" name="status" />
                 <button
@@ -39,8 +40,9 @@
   <h2>{{ _('Promote user to Sysadmin') }}</h2>
 
   <form method="POST" action="{% url_for 'user.sysadmin' %}">
+    {{ h.csrf_input() }}
     <div class="row">
-      <div class="col-md-6">
+      <div class="col">
 
         <div class="form-group">
           <input
@@ -75,7 +77,7 @@
       {% set docs_url = "http://docs.ckan.org/en/{0}/sysadmin-guide.html".format(g.ckan_doc_version) %}
       {% trans %}
         <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>
-        <p>For guidance on using sysadmin features, see the CKAN  <a href="{{ docs_url }}" target="_blank">sysadmin guide</a></p>
+        <p>For guidance on using sysadmin features, see the CKAN  <a href="{{ docs_url }}" target="_blank" rel="noreferrer">sysadmin guide</a></p>
       {% endtrans %}
     </div>
   </div>

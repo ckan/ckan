@@ -1,0 +1,47 @@
+<li>
+  <p>
+    {% set pkg_link = (h.url_for('dataset.read', id=change.pkg_id))%}
+    {% if change.method == "change" %}
+
+      {{ _('Set author email of ')}}
+      <a href="{{pkg_link}}">
+        {{ change.title }}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{ 'mailto:' + change.new_author_email }}">
+        {{change.new_author_email}}
+      </a>
+
+      {{_('( previously ')}}
+      <a href="{{ 'mailto:' + change.old_author_email }}">
+        {{change.old_author_email}}
+      </a>
+      {{ _(')') }}
+
+    {% elif change.method == "add" %}
+    
+      {{_('Set author email of')}}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+      {{ _('to') }}
+      <a href="{{ 'mailto:' + change.new_author_email }}">
+        {{ change.new_author_email }}
+      </a>
+
+    {% elif change.method == "remove" %}
+
+      {{ _('Removed author email from')}}
+      <a href="{{pkg_link}}">
+        {{change.title}}
+      </a>
+
+    {% else %}
+
+      {{ _('No fields were updated. See the metadata diff for more details.') }}
+
+    {% endif %}
+  </p>
+</li>

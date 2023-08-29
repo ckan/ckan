@@ -1,11 +1,17 @@
+
 :orphan:
+
+Install PostgreSQL required packages::
+
+    sudo apt install -y postgresql
+
 
 .. note::
 
-    If you are facing a problem in case postgresql is not running, 
-    execute the command ``sudo service postgresql start`` 
-    
-    
+    If you are facing a problem in case postgresql is not running,
+    execute the command ``sudo service postgresql start``
+
+
 Check that |postgres| was installed correctly by listing the existing databases::
 
     sudo -u postgres psql -l

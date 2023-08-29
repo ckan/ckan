@@ -1,0 +1,2 @@
+``*_patch`` actions call their ``*_update`` equivalents via ``get_action``
+allowing plugins to override them consistently

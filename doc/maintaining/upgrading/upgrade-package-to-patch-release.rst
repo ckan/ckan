@@ -15,7 +15,7 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
 
 #. Download the CKAN package::
 
-    wget http://packaging.ckan.org/python-ckan_2.0_amd64.deb
+    wget https://packaging.ckan.org/python-ckan_2.0_amd64.deb
 
    You can check the actual CKAN version from a package running the following
    command::

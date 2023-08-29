@@ -9,7 +9,7 @@
               {%  if h.check_access('organization_create') %}
                 <div class="alert alert-warning">{{ _('Before you can create a dataset you need to create an organization.') }}</div>
 
-                  <a class='btn btn-primary' href="{{ h.url_for(controller='organization', action='new') }}">
+                  <a class='btn btn-primary' href="{{ h.url_for('organization.new') }}">
                     {{ _('Create a new organization') }}
                   </a>
 

@@ -26,7 +26,7 @@
     },
 
     /* Simple helper function for both GET's and POST's to the ckan API
-     * 
+     *
      * type - GET or POST
      * path - The API endpoint
      * data - Any data you need passing to the endpoint
@@ -51,6 +51,11 @@
       if (type == 'POST') {
         options.type = 'POST';
         options.data = JSON.stringify(data);
+        var csrf_field = $('meta[name=csrf_field_name]').attr('content');
+        var csrf_token = $('meta[name='+ csrf_field +']').attr('content');
+        options.headers = {
+          'X-CSRFToken': csrf_token
+        }
       } else {
         options.type = 'GET';
         options.url += data;
@@ -172,18 +177,37 @@
         var key = typeof options.key != 'undefined' ? item[options.key] : false;
         var label = typeof options.label != 'undefined' ? item[options.label] : false;
 
+        let children = item.children;
         item = typeof item === 'string' ? item : item.name || item.Name || item.Format || '';
         item = jQuery.trim(item);
 
         key = key ? key : item;
         label = label ? label : item;
 
+        /* Having the "ID" mark an element as selectable
+           Group labels should not be selectable
+           Children should include its own IDs and TEXTs
+        */
+        let ret = {text: label};
+        if (children === undefined) {
+          // This is a regular element without children
+          ret.id = key;
+        } else {
+          // This is a group. Children need ID and TEXT
+          // "key" and "label" should be defined
+          for (i = 0, l = children.length; i < l; i = i + 1) {
+            children[i].id = children[i][options.key];
+            children[i].text = children[i][options.label];
+          }
+          ret.children = children;
+        }
+
         var lowercased = item.toLowerCase();
         var returnObject = options && options.objects === true;
 
         if (lowercased && !map[lowercased]) {
           map[lowercased] = 1;
-          return returnObject ? {id: key, text: label} : item;
+          return returnObject ? ret : item;
         }
 
         return null;

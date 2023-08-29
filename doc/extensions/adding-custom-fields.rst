@@ -17,7 +17,12 @@ CKAN datasets, and can do custom validation of these fields.
 .. seealso::
 
    In this tutorial we are assuming that you have read the
-   :doc:`/extensions/tutorial`
+   :doc:`/extensions/tutorial`.
+
+   You may also want to check the [ckanext-scheming](https://github.com/ckan/ckanext-scheming) 
+   extension, as it will allow metadata schema configuration using a YAML or JSON 
+   schema description, replete with custom validation and template snippets for 
+   editing and display.
 
 CKAN schemas and validation
 ---------------------------
@@ -67,7 +72,7 @@ Create a new plugin named ``ckanext-extrafields`` and create a class named
 ``DefaultDatasetForm``.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
-    :end-before: def create_package_schema(self):
+    :end-before: def create_package_schema(self) -> Schema:
 
 Updating the CKAN schema
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -128,7 +133,7 @@ IConfigurer interface
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v2.py
     :emphasize-lines: 3
     :start-after: import ckan.plugins.toolkit as tk
-    :end-before: def create_package_schema(self):
+    :end-before: def create_package_schema(self) -> Schema:
 
 This interface allows to implement a function
 :py:meth:`~ckan.plugins.interfaces.IDatasetForm.update_config` that allows us
@@ -197,7 +202,7 @@ with:
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v3.py
     :start-after: p.implements(p.IDatasetForm)
-    :end-before: def show_package_schema(self):
+    :end-before: def show_package_schema(self) -> Schema:
 
 
 .. _custom-validators:
@@ -214,13 +219,28 @@ of a custom dataset, group or organization schema. CKAN's validation
 code will check for and attempt to use them in this order:
 
 
-1. a callable object taking a single parameter: ``validator(value)``
+1. a function taking a single parameter: ``validator(value)``
 
-2. a callable object taking four parameters:
+2. a function taking four parameters:
    ``validator(key, flattened_data, errors, context)``
 
-3. a callable object taking two parameters
+3. a function taking two parameters
    ``validator(value, context)``
+
+.. note::
+
+   Object constructors(including str, int, etc.) and some built-in functions
+   cannot be used as validators. In order to use them, create a thin wrapper
+   which passes values into these callables and converts expected exceptions
+   into :py:exc:`ckan.plugins.toolkit.Invalid`.
+
+   Example::
+
+     def int_validator(value):
+         try:
+             return int(value)
+         except ValueError:
+             raise Invalid(f"Invalid literal for integer: {value}")
 
 
 ``validator(value)``
@@ -276,9 +296,9 @@ Otherwise this is the same as the single-parameter form above.
 Validators that need to access or update multiple fields
 may be written as a callable taking four parameters.
 
-All fields and errors in a ``flattened`` form are passed to the 
-validator. The validator must fetch values from ``flattened_data`` 
-and may replace values in ``flattened_data``. The return value 
+All fields and errors in a ``flattened`` form are passed to the
+validator. The validator must fetch values from ``flattened_data``
+and may replace values in ``flattened_data``. The return value
 from this function is ignored.
 
 ``key`` is the flattened key for the field to which this validator was
@@ -303,7 +323,7 @@ The validator has to be registered. Example:
 
 .. literalinclude:: ../../ckanext/example_ivalidators/plugin.py
     :start-after: from ckan.plugins.toolkit import Invalid
-    :end-before: def equals_fortytwo(value):
+    :end-before: def equals_fortytwo(value: Any):
 
 Tag vocabularies
 ----------------
@@ -368,7 +388,7 @@ function defined for this interface.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :start-after: p.implements(p.IConfigurer)
-    :end-before: def _modify_package_schema(self, schema):
+    :end-before: def _modify_package_schema(self, schema: Schema):
 
 Our intention here is to tie our country_code fetching/creation to when they
 are used in the templates. Add the code below to

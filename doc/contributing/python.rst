@@ -60,7 +60,7 @@ Imports
 
   Most of the current CKAN code base imports just the modules and
   then accesses names with ``module.name``. This allows circular
-  imports in some cases and may still be necessary for exsiting
+  imports in some cases and may still be necessary for existing
   code, but is not recommended for new code.
 
 - Make all imports at the start of the file, after the module docstring.
@@ -265,7 +265,7 @@ Use ``:raises:`` to document exceptions raised by public functions. The
 docstring should say what type of exception is raised and under what
 conditions. Use ``:py:class:`` to reference exception types. For example::
 
-    def member_list(context, data_dict=None):
+    def member_list(context, data_dict):
         '''Return the members of a group.
 
         ... (parameters and return values documented here) ...
@@ -384,7 +384,7 @@ Example of a ckan.logic.action API docstring:
 
         '''
 
-.. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
+.. _Autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 
 
 Some helpful tools for Python code quality

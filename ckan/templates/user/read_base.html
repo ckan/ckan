@@ -1,6 +1,19 @@
 {% extends "page.html" %}
 
 {% set user = user_dict %}
+{% set dataset_type = h.default_package_type() %}
+{% set org_type = h.default_group_type('organization') %}
+{% set group_type = h.default_group_type('group') %}
+{% set orgs_available = h.organizations_available(permission='manage_group',
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
+{% set groups_available = h.groups_available(am_member=True,
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
 
 {% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
 
@@ -16,8 +29,9 @@
 {% endblock %}
 
 {% block content_primary_nav %}
-  {{ h.build_nav_icon('user.read', _('Datasets'), id=user.name, icon='sitemap') }}
-  {{ h.build_nav_icon('user.activity', _('Activity Stream'), id=user.name, icon='clock-o') }}
+  {{ h.build_nav_icon('user.read', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=user.name, icon='sitemap') }}
+  {{ h.build_nav_icon('user.read_organizations', h.humanize_entity_type('organization', org_type, 'content tab') or _('Organizations'), id=user.name, icon='building') }}
+  {{ h.build_nav_icon('user.read_groups', h.humanize_entity_type('group', group_type, 'content tab') or _('Groups'), id=user.name, icon='users') }}
   {% if h.check_access('api_token_list', {'user': user['name']}) %}
     {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
   {% endif %}
@@ -53,8 +67,16 @@
           <dd data-module="followers-counter" data-module-id="{{ user.id }}" data-module-num_followers="{{ user.num_followers }}">{{ h.SI_number_span(user.num_followers) }}</dd>
         </dl>
         <dl>
-          <dt>{{ _('Datasets') }}</dt>
+          <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
           <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</dt>
+          <dd>{{ orgs_available | count }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</dt>
+          <dd>{{ groups_available | count }}</dd>
         </dl>
       </div>
       {% endblock %}
@@ -86,6 +108,12 @@
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
         </dl>
+        {% if is_sysadmin %}
+        <dl>
+          <dt>{{_('Last Active') }}</dt>
+          <dd>{{ h.time_ago_from_timestamp(user.last_active) }}</dd>
+        </dl>
+        {% endif %}
         <dl>
           <dt>{{ _('State') }}</dt>
           <dd>{{ _(user.state) }}</dd>

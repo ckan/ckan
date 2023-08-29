@@ -1,0 +1,33 @@
+{% from "macros/form/input_block.html" import input_block %}
+{% from "macros/form/attributes.html" import attributes %}
+
+{#
+Creates all the markup required for a Markdown textarea element. Handles
+matching labels to inputs, selected item and error messages.
+
+name        - The name of the form parameter.
+id          - The id to use on the input and label. Convention is to prefix with 'field-'.
+label       - The human readable label.
+value       - The value of the input.
+placeholder - Some placeholder text.
+error       - A list of error strings for the field or just true to highlight the field.
+classes     - An array of classes to apply to the form-group.
+is_required - Boolean of whether this input is requred for the form to validate
+
+Examples:
+
+{% import 'macros/form.html' as form %}
+{{ form.markdown('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
+
+#}
+{% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={'class': 'form-control'}, is_required=false) %}
+{% set classes = (classes|list) %}
+{% do classes.append('control-full') %}
+{% set markdown_tooltip = "<pre><p>__Bold text__ or _italic text_</p><p># title<br>## secondary title<br>### etc</p><p>* list<br>* of<br>* items</p><p>http://auto.link.ed/</p></pre><p><b><a href='http://daringfireball.net/projects/markdown/syntax' target='_blank'>Full markdown syntax</a></b></p><p class='text-muted'><b>Please note:</b> HTML tags are stripped out for security reasons</p>" %}
+
+{%- set extra_html = caller() if caller -%}
+{% call input_block(id or name, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
+<textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+<span class="editor-info-block">{% trans %}You can use <a href="#markdown" title="Markdown quick reference" data-bs-toggle="popover" data-bs-content="{{ markdown_tooltip }}" data-bs-html="true">Markdown formatting</a> here{% endtrans %}</span>
+{% endcall %}
+{% endmacro %}

@@ -114,19 +114,14 @@ If the global ``ckan.auth.allow_dataset_collaborators`` setting is turned off in
 
 By default, collaborators can not change the owner organization of a dataset unless they are admins or editors in both the source and destination organizations. To allow collaborators to change the owner organization even if they don't belong to the source organization, set :ref:`ckan.auth.allow_collaborators_to_change_owner_org` to ``True``.
 
-Dataset collaborators can be used with other authorization settings to create custom authentication scenarios. For instance on instances where datasets don't need to belong to an organization (both :ref:`ckan.auth.create_dataset_if_not_in_organization` and :ref:`ckan.auth.create_unowned_dataset` are ``True``), the user that originally created a dataset can also add collaborators to it (allowing admin collaborators or not depending on the ``ckan.auth.allow_admin_collaborators`` setting). Note that in this case though, if the dataset is assigned to an organization, the original creator might no longer be able to access and edit, as organization permissions take precedence over collaborators ones.
+Dataset collaborators can be used with other authorization settings to create custom authentication scenarios. For instance, on instances where datasets don't need to belong to an organization (both :ref:`ckan.auth.create_dataset_if_not_in_organization` and :ref:`ckan.auth.create_unowned_dataset` are ``True``), the user that originally created a dataset can also add collaborators to it (allowing admin collaborators or not depending on the ``ckan.auth.allow_admin_collaborators`` setting). Note that in this case though, if the dataset is assigned to an organization, the original creator might no longer be able to access and edit, as organization permissions take precedence over collaborators ones.
 
 
 
 Configuration File Options
 --------------------------
 
-The following configuration file options can be used to customize CKAN's
-authorization behavior:
-
-.. include:: /maintaining/configuration.rst
-    :start-after: start_config-authorization
-    :end-before: end_config-authorization
+See :ref:`authorization-settings`.
 
 Extensions
 ----------

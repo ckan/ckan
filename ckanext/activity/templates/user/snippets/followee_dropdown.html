@@ -1,0 +1,52 @@
+{% macro followee_icon(type) -%}
+  {% if type == 'dataset' %}
+    <i class="fa fa-sitemap"></i>
+  {% elif type == 'user' %}
+    <i class="fa fa-user"></i>
+  {% elif type == 'group' %}
+    <i class="fa fa-users"></i>
+  {% elif type == 'organization' %}
+    <i class="fa fa-building"></i>
+  {% endif %}
+{%- endmacro %}
+
+<div id="followee-filter" class="pull-right">
+  <div class="dropdown">
+    <a href="#" id="followee-popover" class="btn btn-default dropdown-toggle"
+      title="{{ _('Activity from:') }} {{ context.context }}">
+      <span>{{ _('Activity from:') }}</span> <strong>{{ context.context }}</strong> <span class="caret"></span>
+    </a>
+  </div>
+
+  <form id="followee-content" action="/dashboard" style=" display:none;">
+    <div class="popover-header">
+      <div class="input-group">
+        <span class="input-group-text"><i class="fa fa-search"></i></span>
+        <input type="text" class="form-control" name="q" placeholder="{{ _('Search list...') }}" value="{{context.q}}"
+          autocomplete="off" aria-label="{{ _('Search followee') }}">
+      </div>
+    </div>
+    {% if followees %}
+      <ul class="nav flex-column">
+        <li class="nav-item everything {% if context.selected_id == False %} active{% endif %}">
+          <a class="nav-link" href="{{ h.url_for('activity.dashboard') }}">
+            <i class="fa fa-star"></i>
+            <span>Everything</span>
+          </a>
+        </li>
+        {% for followee in followees %}
+          <li {% if context.selected_id==followee.dict.id %} class="nav-item active" {% endif %}
+            data-search="{{followee.display_name|lower}}">
+            <a class="nav-link" href="{{ h.url_for('activity.dashboard', type=followee.type, name=followee.dict.name) }}"
+              title="{{followee.display_name}}">
+              {{followee_icon(followee.type)}}
+              <span>{{followee.display_name}}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">{{ _('You are not following anything') }}</p>
+    {% endif %}
+  </form>
+</div>

@@ -1,0 +1,22 @@
+version: 1
+groups:
+- annotation: Resource Proxy settings
+  options:
+  - default: 1048576
+    key: ckan.resource_proxy.max_file_size
+    type: int
+    example: 1048576
+    description: >
+      This sets the upper file size limit for in-line previews.
+      Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line;
+      however, a higher value might cause time-outs, or unresponsive browsers for CKAN users
+      with lower bandwidth.
+
+  - default: 4096
+    key: ckan.resource_proxy.chunk_size
+    type: int
+    example: 8192
+    description: >
+      This sets size of the chunk to read and write when proxying.
+      Raising this value might save some CPU cycles. It makes no sense to lower it
+      below the page size, which is default.

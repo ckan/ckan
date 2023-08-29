@@ -1,12 +1,11 @@
 # encoding: utf-8
 
-from __future__ import print_function
+from __future__ import annotations
 
 import logging
 
 import click
 
-import ckan.model as model
 import ckan.plugins.toolkit as tk
 import ckanext.datastore.backend as datastore_backend
 from ckan.cli import error_shout
@@ -23,22 +22,23 @@ requires_confirmation = click.option(
 )
 
 
-def confirm(yes):
+def confirm(yes: bool):
     if yes:
         return
     click.confirm(question, abort=True)
 
 
-@click.group()
+@click.group(short_help=u"Perform commands in the datapusher.")
 def datapusher():
-    u'''Perform commands in the datapusher.
-    '''
+    """Perform commands in the datapusher.
+    """
+    pass
 
 
 @datapusher.command()
 @requires_confirmation
-def resubmit(yes):
-    u'''Resubmit udated datastore resources.
+def resubmit(yes: bool):
+    u'''Resubmit updated datastore resources.
     '''
     confirm(yes)
 
@@ -49,7 +49,7 @@ def resubmit(yes):
 @datapusher.command()
 @click.argument(u'package', required=False)
 @requires_confirmation
-def submit(package, yes):
+def submit(package: str, yes: bool):
     u'''Submits resources from package.
 
     If no package ID/name specified, submits all resources from all
@@ -59,8 +59,7 @@ def submit(package, yes):
 
     if not package:
         ids = tk.get_action(u'package_list')({
-            u'model': model,
-            u'ignore_auth': True
+            'ignore_auth': True
         }, {})
     else:
         ids = [package]
@@ -69,7 +68,6 @@ def submit(package, yes):
         package_show = tk.get_action(u'package_show')
         try:
             pkg = package_show({
-                u'model': model,
                 u'ignore_auth': True
             }, {u'id': id})
         except Exception as e:
@@ -82,11 +80,10 @@ def submit(package, yes):
         _submit(resource_ids)
 
 
-def _submit(resources):
+def _submit(resources: list[str]):
     click.echo(u'Submitting {} datastore resources'.format(len(resources)))
     user = tk.get_action(u'get_site_user')({
-        u'model': model,
-        u'ignore_auth': True
+        'ignore_auth': True
     }, {})
     datapusher_submit = tk.get_action(u'datapusher_submit')
     for id in resources:

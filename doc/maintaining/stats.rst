@@ -34,10 +34,6 @@ in your CKAN config file, for example::
 
   ckan.plugins = stats
 
-If you also set the :ref:`ckanext.stats.cache_enabled` option to ``true``, CKAN
-will cache the stats for one day instead of calculating them each time a user
-visits the stats page.
-
 Viewing the Statistics
 ======================
 

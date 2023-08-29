@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-import mock
+import unittest.mock as mock
 import pytest
 
 import ckan.plugins as p
@@ -62,9 +62,8 @@ class TestPluginLoadingOrder(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
-@pytest.mark.usefixtures("clean_index", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("clean_index", "with_plugins")
 class TestPluginDatastoreSearch(object):
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", None)
     def test_english_is_default_fts_language(self):
         expected_ts_query = ", plainto_tsquery('english', 'foo') \"query\""
         data_dict = {"q": "foo"}
@@ -85,7 +84,7 @@ class TestPluginDatastoreSearch(object):
     @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", "simple")
     def test_lang_parameter_overwrites_default_fts_lang(self):
         expected_ts_query = ", plainto_tsquery('french', 'foo') \"query\""
-        data_dict = {"q": "foo", "lang": "french"}
+        data_dict = {"q": "foo", "language": "french"}
 
         result = self._datastore_search(data_dict=data_dict)
 
@@ -95,7 +94,7 @@ class TestPluginDatastoreSearch(object):
         expected_select_content = (
             u"to_tsvector('french', cast(\"country\" as text))"
         )
-        data_dict = {"q": {"country": "Brazil"}, "lang": "french"}
+        data_dict = {"q": {"country": "Brazil"}, "language": "french"}
         result = self._datastore_search(data_dict=data_dict, fields_types={})
         assert expected_select_content in result["select"][0]
 
@@ -114,7 +113,6 @@ class TestPluginDatastoreSearch(object):
 
         assert result["where"] == []
 
-    @pytest.mark.ckan_config("ckan.datastore.default_fts_lang", None)
     def test_fts_where_clause_lang_uses_english_by_default(self):
         expected_where = [
             (
@@ -156,7 +154,7 @@ class TestPluginDatastoreSearch(object):
                 u' @@ "query country"',
             )
         ]
-        data_dict = {"q": {"country": "Brazil"}, "lang": "french"}
+        data_dict = {"q": {"country": "Brazil"}, "language": "french"}
         fields_types = {"country": "text"}
 
         result = self._datastore_search(
@@ -177,7 +175,7 @@ class TestPluginDatastoreSearch(object):
                 u' @@ "query country"',
             ),
         ]
-        data_dict = {"q": {"country": "Brazil"}, "lang": "english"}
+        data_dict = {"q": {"country": "Brazil"}, "language": "english"}
         fields_types = {"country": "non-indexed field type"}
 
         result = self._datastore_search(

@@ -34,14 +34,13 @@ First of all, let's call the :py:func:`~ckan.logic.action.get.config_option_list
         "help": "http://localhost:5000/api/3/action/help_show?name=config_option_list",
         "result": [
             "ckan.site_custom_css",
-            "ckan.main_css",
+            "ckan.theme",
             "ckan.site_title",
             "ckan.site_about",
             "ckan.site_url",
             "ckan.site_logo",
             "ckan.site_description",
             "ckan.site_intro_text",
-            "ckan.homepage_style",
             "ckan.hola"
         ],
         "success": true
@@ -71,14 +70,13 @@ Restart the web server and do another request to the :py:func:`~ckan.logic.actio
             "ckan.datasets_per_page",
             "ckanext.example_iconfigurer.test_conf",
             "ckan.site_custom_css",
-            "ckan.main_css",
+            "ckan.theme",
             "ckan.site_title",
             "ckan.site_about",
             "ckan.site_url",
             "ckan.site_logo",
             "ckan.site_description",
             "ckan.site_intro_text",
-            "ckan.homepage_style",
             "ckan.hola"
         ],
         "success": true

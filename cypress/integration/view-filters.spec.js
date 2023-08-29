@@ -1,4 +1,5 @@
-describe('ckan.views.filters', function(){
+// Skip view filters tests until resource views are tested in cypress
+describe.skip('ckan.views.filters', function(){
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -90,6 +91,14 @@ describe('ckan.views.filters', function(){
       this.filters._initialize('?filters=time:11:00|time:');
       assert.deepEqual(expectedFilters, this.filters.get());
     });
+
+    it('should not execute javascript', function () {
+
+      const stub = cy.stub()
+      cy.on ('window:alert', stub)
+      this.filters._initialize('?{alert("This should not happen.")}');
+      expect(stub).not.to.be.called;
+    })
   });
 
   describe('#get', function(){

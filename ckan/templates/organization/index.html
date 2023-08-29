@@ -17,10 +17,10 @@
 {% block primary_content_inner %}
   <h1 class="hide-heading">{% block page_heading %}{{ h.humanize_entity_type('organization', group_type, 'page title') or _('Organizations') }}{% endblock %}</h1>
   {% block organizations_search_form %}
-    {% snippet 'snippets/search_form.html', form_id='organization-search-form', type=group_type, query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('organization', group_type, 'search placeholder') or _('Search organizations...'), show_empty=request.params, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
+    {% snippet 'snippets/search_form.html', form_id='organization-search-form', type=group_type, query=q, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('organization', group_type, 'search placeholder') or _('Search organizations...'), show_empty=request.args, no_bottom_border=true if page.items, sorting = [(_('Name Ascending'), 'title asc'), (_('Name Descending'), 'title desc')] %}
   {% endblock %}
   {% block organizations_list %}
-    {% if page.items or request.params %}
+    {% if page.items or request.args %}
       {% if page.items %}
         {% snippet "organization/snippets/organization_list.html", organizations=page.items %}
       {% endif %}

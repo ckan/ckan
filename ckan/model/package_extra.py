@@ -1,17 +1,16 @@
 # encoding: utf-8
+from __future__ import annotations
 
-from six import text_type
+from typing import Any
+
 from sqlalchemy import orm, types, Column, Table, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from ckan.model import (
-    meta,
-    core,
-    package as _package,
-    extension,
-    domain_object,
-    types as _types,
-)
+import ckan.model.meta as meta
+import ckan.model.core as core
+import ckan.model.package as _package
+import ckan.model.domain_object as domain_object
+import ckan.model.types as _types
 
 __all__ = ['PackageExtra', 'package_extra_table']
 
@@ -25,29 +24,33 @@ package_extra_table = Table('package_extra', meta.metadata,
 )
 
 
-class PackageExtra(
-        core.StatefulObjectMixin,
-        domain_object.DomainObject):
+class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
+    id: str
+    package_id: str
+    key: str
+    value: str
+    state: str
 
-    def related_packages(self):
+    package: _package.Package
+
+    def related_packages(self) -> list[_package.Package]:
         return [self.package]
 
 
+# type_ignore_reason: incomplete SQLAlchemy types
 meta.mapper(PackageExtra, package_extra_table, properties={
     'package': orm.relation(_package.Package,
         backref=orm.backref('_extras',
-            collection_class=orm.collections.attribute_mapped_collection(u'key'),
+            collection_class=orm.collections.attribute_mapped_collection(u'key'),  # type: ignore
             cascade='all, delete, delete-orphan',
             ),
         ),
-    },
-    order_by=[package_extra_table.c.package_id, package_extra_table.c.key],
-    extension=[extension.PluginMapperExtension()],
+    }
 )
 
 
-def _create_extra(key, value):
-    return PackageExtra(key=text_type(key), value=value)
+def _create_extra(key: str, value: Any):
+    return PackageExtra(key=str(key), value=value)
 
 _package.Package.extras = association_proxy(
     '_extras', 'value', creator=_create_extra)
