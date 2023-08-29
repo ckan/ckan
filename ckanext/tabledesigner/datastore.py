@@ -52,9 +52,12 @@ def create_table(resource_id, info):
     for f in info:
         colname, tdtype = f['id'], f['tdtype']
         ct = column_types[tdtype]
+
+        sql = REQUIRED_SQL
         if f.get('pkreq'):
-            sql = PK_REQUIRED_SQL if f.get('pkreq') == 'pk' else REQUIRED_SQL
-            primary_key.append((colname, tdtype))
+            if f.get('pkreq') == 'pk':
+                sql = PK_REQUIRED_SQL
+                primary_key.append((colname, tdtype))
 
             validate_rules.append(sql.format(
                 condition=ct.sql_is_empty.format(

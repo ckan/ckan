@@ -18,7 +18,8 @@
             res=res,
             value=row.get(field.id),
             errors=errors,
-            pk=field.get('info', {}).get('pk')
+            pk=field.get('info', {}).get('pkreq') == 'pk',
+            is_required=field.get('info', {}).get('pkreq', '') != ''
           %}
       {% endfor %}
     {% endblock %}
