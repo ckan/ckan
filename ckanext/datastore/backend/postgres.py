@@ -1124,6 +1124,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    num = -1
 
     if method == _INSERT:
         rows = []
