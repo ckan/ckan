@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import bs4
 
 from unittest import mock
@@ -288,7 +287,6 @@ class TestUrlsForCustomDatasetType(object):
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
-        # import ipdb; ipdb.set_trace()
         assert page.find(id="dataset-resources").find(
             href=url_for(
                 "fancy_type_resource.read",
@@ -321,12 +319,11 @@ class TestUrlsForCustomDatasetType(object):
             )
         )
 
-        assert page.find(class_="resources").find(
+        assert page.find(class_="actions").find(
             href=url_for(
-                "fancy_type_resource.read",
+                "fancy_type_resource.edit",
                 id=pkg["name"],
                 resource_id=res["id"],
-                inner_span=True,
             )
         )
 
@@ -477,8 +474,8 @@ class TestCustomSearch(object):
         )
 
         # check that package_b appears before package a (y < z)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert b < a
 
         response = app.get(
@@ -486,8 +483,8 @@ class TestCustomSearch(object):
         )
         # check that package_a appears before package b (z is first in
         # descending order)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert a < b
 
 

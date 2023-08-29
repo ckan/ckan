@@ -46,14 +46,14 @@ See :doc:`install-from-source`.
 Docker Compose install
 ======================
 
-The `ckan-docker <https://github.com/ckan/ckan-docker>`_ repository contains the necessary scripts 
+The `ckan-docker <https://github.com/ckan/ckan-docker>`_ repository contains the necessary scripts
 and images to install CKAN using Docker Compose. It provides a clean and quick way to deploy a
 standard CKAN instance pre-configured with the :doc:`Filestore <../filestore>` and :doc:`../datastore`.
 It also allows the addition (and customization) of extensions. The emphasis leans more towards
 a Development environment, however the base install can be used as the foundation for progressing
-to a Production environment. Please note that a fully-fledged CKAN Production system using Docker containers is 
+to a Production environment. Please note that a fully-fledged CKAN Production system using Docker containers is
 beyond the scope of the provided setup.
- 
+
 You should install CKAN from Docker Compose if:
 
 * You want to install CKAN with less effort than a source install and more flexibility than a

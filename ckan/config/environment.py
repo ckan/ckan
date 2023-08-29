@@ -9,7 +9,7 @@ import pytz
 
 from typing import Union, cast
 
-import sqlalchemy
+from sqlalchemy import engine_from_config, inspect
 import sqlalchemy.exc
 
 import ckan.model as model
@@ -21,7 +21,7 @@ from ckan.lib.redis import is_redis_available
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
-from ckan.lib.webassets_tools import webassets_init
+from ckan.lib.webassets_tools import webassets_init, register_core_assets
 from ckan.lib.i18n import build_js_translations
 
 from ckan.common import CKANConfig, config, config_declaration
@@ -41,14 +41,14 @@ def load_environment(conf: Union[Config, CKANConfig]):
     """
     os.environ['CKAN_CONFIG'] = cast(str, conf['__file__'])
 
-    valid_base_public_folder_names = ['public', 'public-bs3']
+    valid_base_public_folder_names = ['public']
     static_files = conf.get('ckan.base_public_folder', 'public')
     conf['ckan.base_public_folder'] = static_files
 
     if static_files not in valid_base_public_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_public_folder. '
-            'Possible values are: "public" and "public-bs3".'
+            'Possible value is: "public".'
         )
 
     log.info('Loading static files from %s' % static_files)
@@ -110,21 +110,37 @@ def update_config() -> None:
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
 
-    config_declaration.setup()
-    config_declaration.make_safe(config)
-    config_declaration.normalize(config)
-
-    webassets_init()
-
-    for plugin in reversed(list(p.PluginImplementations(p.IConfigurer))):
-        # must do update in place as this does not work:
-        # config = plugin.update_config(config)
-        plugin.update_config(config)
-
+    # read envvars before config declarations in order to apply normalization
+    # to the values, when declarations loaded
     for option in CONFIG_FROM_ENV_VARS:
         from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
         if from_env:
             config[option] = from_env
+
+    config_declaration.setup()
+    config_declaration.make_safe(config)
+    config_declaration.normalize(config)
+
+    # these are collections of all template/public paths registered by
+    # extensions. Each call to `tk.add_template_directory` or
+    # `tk.add_public_directory` updates these collections. We have to reset
+    # them in order to remove templates/public files that came from plugins
+    # that were once enabled but are disabled right now.
+    config["plugin_template_paths"] = []
+    config["plugin_public_paths"] = []
+
+    # initialize webassets environment because plugins will register assets
+    # inside IConfigured.update_config
+    webassets_init()
+
+    for plugin in p.PluginImplementations(p.IConfigurer):
+        # must do update in place as this does not work:
+        # config = plugin.update_config(config)
+        plugin.update_config(config)
+
+    # register core assets here, giving plugins an opportunity to override core
+    # assets inside IConfigurer.update_config
+    register_core_assets()
 
     _, errors = config_declaration.validate(config)
     if errors:
@@ -186,14 +202,14 @@ def update_config() -> None:
     helpers.load_plugin_helpers()
 
     # Templates and CSS loading from configuration
-    valid_base_templates_folder_names = ['templates', 'templates-bs3']
+    valid_base_templates_folder_names = ['templates']
     templates = config.get('ckan.base_templates_folder')
     config['ckan.base_templates_folder'] = templates
 
     if templates not in valid_base_templates_folder_names:
         raise CkanConfigurationException(
             'You provided an invalid value for ckan.base_templates_folder. '
-            'Possible values are: "templates" and "templates-bs3".'
+            'Possible value is: "templates"".'
         )
 
     jinja2_templates_path = os.path.join(root, templates)
@@ -212,7 +228,7 @@ def update_config() -> None:
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
     # Initialize SQLAlchemy
-    engine = sqlalchemy.engine_from_config(config)
+    engine = engine_from_config(config)
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):
@@ -224,14 +240,23 @@ def update_config() -> None:
     authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
+    user_table_exists = False
     try:
-        logic.get_action('get_site_user')({'ignore_auth': True}, {})
-    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
-        # The database is not yet initialised. It happens in `ckan db init`
-        pass
-    except sqlalchemy.exc.IntegrityError:
-        # Race condition, user already exists.
-        pass
+        user_table_exists = inspect(engine).has_table("user")
+    except sqlalchemy.exc.OperationalError:
+        log.debug("DB user table does not exist")
+
+    if user_table_exists:
+        try:
+            logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        except sqlalchemy.exc.ProgrammingError as e:
+            if "UndefinedColumn" in repr(e.orig):
+                log.debug("Old user model detected")
+            else:
+                raise
+        except sqlalchemy.exc.IntegrityError:
+            # Race condition, user already exists.
+            log.debug("Site user already exists")
 
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on

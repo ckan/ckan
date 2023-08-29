@@ -566,6 +566,7 @@ class TestPackageDictize:
             u"state": group["state"],
             u"title": group["title"],
             u"type": group["type"],
+            u"member_count": 1,
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 

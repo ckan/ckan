@@ -873,7 +873,7 @@ class TestCSRFToken:
         password = "RandomPassword123"
         user = factories.User(password=password)
 
-        with app.flask_app.test_request_context() as ctx:
+        with app.flask_app.app_context() as ctx:
             app.post(
                 url_for("user.login"),
                 data={
@@ -888,7 +888,7 @@ class TestCSRFToken:
         password = "RandomPassword123"
         user1 = factories.User(password=password)
         token_user1 = ""
-        with app.flask_app.test_request_context() as ctx:
+        with app.flask_app.app_context() as ctx:
             app.post(
                 url_for("user.login"),
                 data={
@@ -901,7 +901,7 @@ class TestCSRFToken:
 
         user2 = factories.User(password=password)
         token_user2 = ""
-        with app.flask_app.test_request_context() as ctx:
+        with app.flask_app.app_context() as ctx:
             app.post(
                 url_for("user.login"),
                 data={

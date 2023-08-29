@@ -51,6 +51,7 @@ ValidationError = logic.ValidationError
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 _get_or_bust = logic.get_or_bust
+fresh_context = logic.fresh_context
 
 
 def package_create(
@@ -629,7 +630,8 @@ def member_create(context: Context,
     member.capacity = capacity
 
     model.Session.add(member)
-    model.repo.commit()
+    if not context.get("defer_commit"):
+        model.repo.commit()
 
     return model_dictize.member_dictize(member, context)
 
@@ -770,14 +772,11 @@ def _group_or_org_create(context: Context,
         'object_type': 'user',
         'capacity': 'admin',
     }
-    member_create_context: Context = {
-        'model': model,
-        'user': user,
-        'ignore_auth': True,  # we are not a member of the group at this point
-        'session': session
-    }
-    logic.get_action('member_create')(member_create_context, member_dict)
+    member_create_context = fresh_context(context)
+    # We are not a member of the group at this point
+    member_create_context['ignore_auth'] = True
 
+    logic.get_action('member_create')(member_create_context, member_dict)
     log.debug('Created object %s' % group.name)
 
     return_id_only = context.get('return_id_only', False)
@@ -785,7 +784,6 @@ def _group_or_org_create(context: Context,
 
     output = context['id'] if return_id_only \
         else _get_action(action)(context, {'id': group.id})
-
     return output
 
 
@@ -1004,6 +1002,10 @@ def user_create(context: Context,
     if not context.get('defer_commit'):
         with logic.guard_against_duplicated_email(data_dict['email']):
             model.repo.commit()
+    else:
+        # The Dashboard object below needs the user id, and if we didn't
+        # commit we need to flush the session in order to populate it
+        session.flush()
 
     # A new context is required for dictizing the newly constructed user in
     # order that all the new user's data is returned, in particular, the
@@ -1025,7 +1027,11 @@ def user_create(context: Context,
     context['user_obj'] = user
     context['id'] = user.id
 
-    model.Dashboard.get(user.id)  # Create dashboard for user.
+    # Create dashboard for user.
+    dashboard = model.Dashboard(user.id)
+    session.add(dashboard)
+    if not context.get('defer_commit'):
+        model.repo.commit()
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict
@@ -1070,9 +1076,7 @@ def user_invite(context: Context,
 
     data['state'] = model.State.PENDING
     user_dict = _get_action('user_create')(
-        cast(
-            Context,
-            dict(context, schema=invite_schema, ignore_auth=True)),
+        Context(context, schema=invite_schema, ignore_auth=True),
         data)
     user = model.User.get(user_dict['id'])
     assert user
@@ -1351,11 +1355,10 @@ def _group_or_org_member_create(
         'object_type': 'user',
         'capacity': role,
     }
-    member_create_context = cast(Context, {
-        'model': model,
+    member_create_context: Context = {
         'user': user,
-        'ignore_auth': context.get('ignore_auth'),
-    })
+        'ignore_auth': context.get('ignore_auth', False),
+    }
     return logic.get_action('member_create')(member_create_context,
                                              member_dict)
 

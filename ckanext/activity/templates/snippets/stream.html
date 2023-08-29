@@ -41,7 +41,7 @@ object_type - 'package', 'organization', 'group', 'user'
 
 #}
 {% block activity_stream %}
-  <ul class="activity">
+  <ul class="activity {% if not activity_stream %}activity-empty{% endif %}">
   {% set can_show_activity_detail = h.check_access('activity_list', {'id': id, 'include_data': True, 'object_type': object_type}) %}
 
   {% for activity in activity_stream %}
@@ -57,6 +57,8 @@ object_type - 'package', 'organization', 'group', 'user'
       },
       id=id
     -%}
+  {% else %}
+      {{ _("No activity found for this type") }}
   {% endfor %}
   </ul>
 {% endblock %}

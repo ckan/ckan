@@ -23,6 +23,8 @@ then itself be extended to add/remove blocks of functionality. #}
   {% endblock %}
 
   {% block form_actions %}
+    {{ form.required_message() }}
+
     <div class="form-actions">
       {% block disclaimer %}
         <p class="action-info small">
@@ -43,7 +45,6 @@ then itself be extended to add/remove blocks of functionality. #}
       {% block save_button %}
         <button class="btn btn-primary" type="submit" name="save">{% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
       {% endblock %}
-      {{ form.required_message() }}
     </div>
   {% endblock %}
 </form>

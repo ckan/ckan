@@ -4,7 +4,7 @@
     position: relative;
     min-height: 300px;
     background-color: #fff;
-    @include media-breakpoint-up(sm) {
+    @include media-breakpoint-up(md) {
         &:before {
             content: '';
             display: block;
@@ -91,8 +91,8 @@
         display: flex;
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
-        -webkit-flex-direction: column;
-        flex-direction: column;
+        -webkit-flex-direction: column-reverse;
+        flex-direction: column-reverse;
         -webkit-box-align: start;
         -moz-box-align: start;
         -webkit-align-items: flex-start;

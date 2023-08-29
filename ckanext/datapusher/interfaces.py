@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from ckan.plugins.interfaces import Interface
 from typing import Any
+from ckan.types import Context
 
 
 class IDataPusher(Interface):
@@ -40,7 +41,7 @@ class IDataPusher(Interface):
         return True
 
     def after_upload(
-            self, context: dict[str, Any], resource_dict: dict[str, Any],
+            self, context: Context, resource_dict: dict[str, Any],
             dataset_dict: dict[str, Any]) -> None:
         """ After a resource has been successfully upload to the datastore
         this method will be called with the resource dictionary and the

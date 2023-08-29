@@ -9,7 +9,7 @@ import warnings
 import traceback
 
 import xml.dom.minidom
-from typing import Collection, Any, Optional, Type, cast, overload
+from typing import Collection, Any, Optional, Type, overload
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -164,13 +164,11 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
         if operation != domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(
                 entity.__class__.__name__,
-                logic.get_action('package_show')(cast(
-                    Context, {
-                        'model': model,
+                logic.get_action('package_show')({
                         'ignore_auth': True,
                         'validate': False,
                         'use_cache': False
-                    }), {'id': entity.id}), operation)
+                    }, {'id': entity.id}), operation)
         elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,
                                   {'id': entity.id}, operation)
@@ -197,12 +195,11 @@ def rebuild(package_id: Optional[str] = None,
     log.info("Rebuilding search index...")
 
     package_index = index_for(model.Package)
-    context = cast(Context, {
-        'model': model,
+    context: Context = {
         'ignore_auth': True,
         'validate': False,
         'use_cache': False
-    })
+    }
 
     if package_id:
         pkg_dict = logic.get_action('package_show')(context, {

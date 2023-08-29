@@ -54,11 +54,11 @@ def test_update_config_env_vars(ckan_config):
     assert ckan_config[u"ckan.datastore.read_url"] == u"http://mynewdbreadurl/"
     assert ckan_config[u"ckan.site_id"] == u"my-site"
     assert ckan_config[u"smtp.server"] == u"mail.example.com"
-    assert ckan_config[u"smtp.starttls"] == u"True"
+    assert ckan_config[u"smtp.starttls"] is True
     assert ckan_config[u"smtp.user"] == u"my_user"
     assert ckan_config[u"smtp.password"] == u"password"
     assert ckan_config[u"smtp.mail_from"] == u"server@example.com"
-    assert ckan_config[u"ckan.max_resource_size"] == u"50"
+    assert ckan_config[u"ckan.max_resource_size"] == 50
 
 
 @pytest.mark.ckan_config("ckan.site_url", "")
@@ -89,3 +89,23 @@ def test_siteurl_removes_backslash(ckan_config):
 def test_missing_timezone():
     with pytest.raises(CkanConfigurationException):
         environment.update_config()
+
+
+@pytest.mark.ckan_config("plugin_template_paths", [
+    os.path.join(os.path.dirname(__file__), "data")
+])
+def test_plugin_template_paths_reset(app):
+    resp = app.get("/about")
+    assert "YOU WILL NOT FIND ME" not in resp
+
+
+@pytest.mark.usefixtures(u"reset_env")
+def test_config_from_envs_are_normalized(ckan_config):
+    """ CONFIG_FROM_ENV_VARS takes precedence over
+        config file and extensions
+        but those settings are not normalized """
+
+    os.environ['CKAN_SMTP_STARTTLS'] = 'false'
+    environment.update_config()
+
+    assert ckan_config["smtp.starttls"] is False

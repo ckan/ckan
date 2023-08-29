@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING, Callable, ClassVar, Type
+from typing import TYPE_CHECKING, ClassVar, Type
 from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
@@ -57,5 +57,8 @@ class Model(Protocol):
     Session: ClassVar[AlchemySession]
     meta: ClassVar[Meta]
 
-    set_system_info: Callable[[str, str], bool]
     repo: ClassVar["_model.Repository"]
+
+    @staticmethod
+    def set_system_info(key: str, value: str) -> bool:
+        ...
