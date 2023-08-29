@@ -43,8 +43,6 @@ class _TableDesignerDictionary(MethodView):
         for e, f in zip(info, fields):
             e['id'] = f['id']
             e['type'] = f['type']
-            if f['info'].get('pk'):
-                e['pk'] = 'on'
 
         create_table(resource_id, info)
 

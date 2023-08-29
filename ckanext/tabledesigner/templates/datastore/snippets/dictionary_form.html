@@ -8,14 +8,19 @@
       {{ field.id or '' }}
       ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
     </h3>
-    {% if is_new %}
-      <label for="{{ prefix }}__{{ position }}__pk">
-        {{ _("Primary Key") }}
-      </label>
-        <input id="{{ prefix }}__{{ position }}__pk"
-          type="checkbox"
-          name="{{ prefix }}__{{ position }}__pk">
-    {% endif %}
+    {% call form.select(
+      prefix ~ '__' ~ position ~ '__pkreq',
+      id='field-f' ~ position ~ 'choices',
+      label=_("Primary Key / Required"),
+      options=[
+        {'value': '', 'text': ''},
+        {'value': 'pk', 'text': _('Primary Key')},
+        {'value': 'req', 'text': _('Required')},
+      ],
+      classes=['control-full'],
+      selected=field.get('info', {}).get('pkreq', '')) %}
+    {% endcall %}
+
     {% if not field.id %}
       {% call form.input(prefix ~ '__' ~ position ~ '__id',
         is_required=true,
