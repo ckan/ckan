@@ -93,3 +93,10 @@ groups:
       the user to view, copy and print the details of a specific row. This
       value can be overridden at the resource level when configuring a
       DataTables resource view.
+
+  - key: ckan.datatables.null_label
+    default: ''
+    example: N/A
+    description: |
+      The option defines the label used to display NoneType values for the front-end.
+      This should be a string and can be translated via po files.

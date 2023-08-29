@@ -701,7 +701,6 @@ def _group_or_org_member_delete(context: Context,
                                 data_dict: DataDict) -> None:
     model = context['model']
     user = context['user']
-    session = context['session']
 
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
@@ -713,11 +712,7 @@ def _group_or_org_member_delete(context: Context,
         'object': user_id,
         'object_type': 'user',
     }
-    member_context = cast(Context, {
-        'model': model,
-        'user': user,
-        'session': session
-    })
+    member_context: Context = {'user': user}
     _get_action('member_delete')(member_context, member_dict)
 
 

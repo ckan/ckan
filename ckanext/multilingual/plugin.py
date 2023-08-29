@@ -1,8 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from ckan.types import Context
-from typing import Any, cast
+from typing import Any
 
 import ckan
 import ckan.lib.navl.dictization_functions
@@ -48,7 +47,7 @@ def translate_data_dict(data_dict: dict[str, Any]):
 
     # Get the translations of all the terms (as a list of dictionaries).
     translations = get_action('term_translation_show')(
-            cast(Context, {'model': ckan.model}),
+            {},
             {'terms': terms,
                 'lang_codes': (desired_lang_code, fallback_lang_code)})
 
@@ -139,7 +138,7 @@ def translate_resource_data_dict(data_dict: dict[str, Any]):
 
     # Get the translations of all the terms (as a list of dictionaries).
     translations = get_action('term_translation_show')(
-            cast(Context, {'model': ckan.model}),
+            {},
             {'terms': terms,
                 'lang_codes': (desired_lang_code, fallback_lang_code)})
     # Transform the translations into a more convenient structure.
@@ -217,7 +216,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
         title = search_data.get('title')
         search_data['title_' + default_lang] = title
         title_translations = get_action('term_translation_show')(
-                          cast(Context, {'model': ckan.model}),
+                          {},
                           {'terms': [title],
                            'lang_codes': self.LANGS})
 
@@ -237,7 +236,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
                     all_terms.append(item)
 
         field_translations = get_action('term_translation_show')(
-                          cast(Context, {'model': ckan.model}),
+                          {},
                           {'terms': all_terms,
                            'lang_codes': self.LANGS})
 
@@ -308,7 +307,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
             for item in facet['items']:
                 terms.add(item['display_name'])
         translations = get_action('term_translation_show')(
-                cast(Context, {'model': ckan.model}),
+                {},
                 {'terms': terms,
                     'lang_codes': (desired_lang_code, fallback_lang_code)})
 
@@ -346,7 +345,7 @@ class MultilingualDataset(plugins.SingletonPlugin):
             return translate_data_dict(dataset_dict)
         terms = [value for _param, value in fields]
         translations = get_action('term_translation_show')(
-                cast(Context, {'model': ckan.model}),
+                {},
                 {'terms': terms,
                  'lang_codes': (desired_lang_code, fallback_lang_code)})
         g.translated_fields = {}

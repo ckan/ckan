@@ -78,6 +78,8 @@
     {% endblock %}
     {% endif %}
 
+    {{ form.required_message() }}
+
     <div class="form-actions">
       {% block form_actions %}
       {% set is_deleted = data.state == 'deleted' %}
@@ -88,7 +90,6 @@
           {% endif %}
         {% endblock %}
         {% endif %}
-        {{ form.required_message() }}
         <button class="btn btn-primary" type="submit" name="save">{{ _('Reactivate Profile') if is_deleted else _('Update Profile') }}</button>
       {% endblock %}
     </div>

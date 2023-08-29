@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-from ckan.types import Context
-
 import logging
-from typing import cast
 
 import click
 
-import ckan.model as model
 import ckan.plugins.toolkit as tk
 import ckanext.datastore.backend as datastore_backend
 from ckan.cli import error_shout
@@ -62,20 +58,18 @@ def submit(package: str, yes: bool):
     confirm(yes)
 
     if not package:
-        ids = tk.get_action(u'package_list')(cast(Context, {
-            u'model': model,
-            u'ignore_auth': True
-        }), {})
+        ids = tk.get_action(u'package_list')({
+            'ignore_auth': True
+        }, {})
     else:
         ids = [package]
 
     for id in ids:
         package_show = tk.get_action(u'package_show')
         try:
-            pkg = package_show(cast(Context, {
-                u'model': model,
+            pkg = package_show({
                 u'ignore_auth': True
-            }), {u'id': id})
+            }, {u'id': id})
         except Exception as e:
             error_shout(e)
             error_shout(u"Package '{}' was not found".format(package))
@@ -88,10 +82,9 @@ def submit(package: str, yes: bool):
 
 def _submit(resources: list[str]):
     click.echo(u'Submitting {} datastore resources'.format(len(resources)))
-    user = tk.get_action(u'get_site_user')(cast(Context, {
-        u'model': model,
-        u'ignore_auth': True
-    }), {})
+    user = tk.get_action(u'get_site_user')({
+        'ignore_auth': True
+    }, {})
     datapusher_submit = tk.get_action(u'datapusher_submit')
     for id in resources:
         click.echo(u'Submitting {}...'.format(id), nl=False)

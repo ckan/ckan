@@ -189,33 +189,6 @@ class TestConfig(object):
         style_tag = reset_intro_response_html.select("head style")
         assert len(style_tag) == 0
 
-    @pytest.mark.ckan_config("debug", True)
-    def test_homepage_style(self, app, sysadmin_headers):
-        """Select a homepage style"""
-        # current style
-        index_response = app.get("/")
-        assert "<!-- Snippet home/layout1.html start -->" in index_response
-
-        # set new style css
-        url = url_for(u"admin.config")
-        form = {"ckan.homepage_style": "2", "save": ""}
-        app.post(url, headers=sysadmin_headers, data=form)
-
-        # new style
-        new_index_response = app.get("/")
-        assert (
-            "<!-- Snippet home/layout1.html start -->"
-            not in new_index_response
-        )
-        assert "<!-- Snippet home/layout2.html start -->" in new_index_response
-
-        # reset config value
-        _reset_config(app, sysadmin_headers)
-        reset_index_response = app.get("/")
-        assert (
-            "<!-- Snippet home/layout1.html start -->" in reset_index_response
-        )
-
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestTrashView(object):
