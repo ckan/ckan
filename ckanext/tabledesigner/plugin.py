@@ -39,4 +39,6 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
                 helpers.tabledesigner_column_type_options,
             'tabledesigner_data_api_examples':
                 helpers.tabledesigner_data_api_examples,
+            'tabledesigner_column_type':
+                helpers.tabledesigner_column_type,
         }

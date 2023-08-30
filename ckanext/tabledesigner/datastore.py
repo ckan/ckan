@@ -6,7 +6,7 @@ from .column_types import column_types
 from .helpers import tabledesigner_choice_list
 
 
-PK_REQUIRED_SQL = '''
+PK_REQUIRED_SQL = u'''
 IF {condition} THEN
     errors := errors || ARRAY[
         {colname}, 'Primary key must not be empty'
@@ -14,7 +14,7 @@ IF {condition} THEN
 END IF;
 '''
 
-REQUIRED_SQL = '''
+REQUIRED_SQL = u'''
 IF {condition} THEN
     errors := errors || ARRAY[
         {colname}, 'Missing value'
@@ -23,7 +23,7 @@ END IF;
 '''
 
 # \t is used when converting errors to string
-CHOICE_CLEAN_SQL = '''
+CHOICE_CLEAN_SQL = u'''
 IF {value} IS NOT NULL AND {value} <> '' AND NOT ({value} = ANY ({choices}))
     THEN
     errors := errors || ARRAY[[{colname}, 'Invalid choice: "'
@@ -31,7 +31,7 @@ IF {value} IS NOT NULL AND {value} <> '' AND NOT ({value} = ANY ({choices}))
 END IF;
 '''
 
-VALIDATE_DEFINITION_SQL = '''
+VALIDATE_DEFINITION_SQL = u'''
 DECLARE
   errors text[] := '{{}}';
 BEGIN
