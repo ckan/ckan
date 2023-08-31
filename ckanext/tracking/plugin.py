@@ -12,7 +12,6 @@ from .cli.tracking import tracking
 from .middleware import TrackingMiddleware
 
 
-
 class TrackingPlugin(p.SingletonPlugin):
 
     p.implements(p.IClick)
