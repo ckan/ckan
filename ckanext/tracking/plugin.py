@@ -47,5 +47,12 @@ class TrackingPlugin(p.SingletonPlugin):
                 )
             resource_dict['tracking_summary'] = summary      
         
-        return pkg_dict    
+        return pkg_dict
+    
+
+    def before_dataset_index(self, pkg_dict: "dict[str, Any]") -> "dict[str, Any]":
+        tracking_summary = model.TrackingSummary.get_for_package(pkg_dict["id"])
+        pkg_dict['views_total'] = tracking_summary['total']
+        pkg_dict['views_recent'] = tracking_summary['recent']
+        return pkg_dict
     
