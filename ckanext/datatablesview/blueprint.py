@@ -76,6 +76,9 @@ def ajax(resource_view_id):
         if u'order[%d][column]' % i not in request.form:
             break
         sort_by_num = int(request.form[u'order[%d][column]' % i])
+        # workaround for _id not in show columns but forced on display:
+        if '_id' not in cols:
+            sort_by_num -= 1
         sort_order = (
             u'desc' if request.form[u'order[%d][dir]' %
                                     i] == u'desc' else u'asc'
