@@ -24,12 +24,12 @@ Example:
         {% block resources_list %}
           <ul class="list-unstyled nav nav-simple">
             {% for resource in resources %}
-              {% set url = h.url_for('%s_resource.read' % pkg.type, id=pkg.name, resource_id=resource.id) %}
+              {% set url = h.url_for(pkg.type ~ '_resource.read', id=pkg.id if is_activity_archive else pkg.name, resource_id=resource.id, **({'activity_id': request.args['activity_id']} if 'activity_id' in request.args else {})) %}
               {% if active == resource.id %}
                 <li class="nav-item active">
                   <a href="#">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
-              {% elif can_edit %}
+              {% elif can_edit and not is_activity_archive %}
                 <li class="nav-item d-flex justify-content-between position-relative">
                   <a class="flex-fill" href="{{ url }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                   <div class="dropdown position-absolute end-0 me-2">
@@ -54,7 +54,7 @@ Example:
   {% endblock %}
 {% endif %}
 
-{% if can_edit %}
+{% if can_edit and not is_activity_archive %}
   <div class="module-content">
     {% link_for _('Add new resource'), named_route=pkg.type ~ '_resource.new', id=pkg.name, class_='btn btn-light btn-sm', icon='plus' %}
   </div>
