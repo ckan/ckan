@@ -965,8 +965,10 @@ Default value: same as ``beaker.session.secret`` config option with ``string:`` 
 
 A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-* for asymmetric algorithms: path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
-* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+* for asymmetric algorithms(RS256): path to private key with ``file:`` prefix. I.e ``file:/path/private/key``
+* for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+.. note:: For symmetric algorithms this value must be identical to :ref:`api_token.jwt.decode.secret`. The algorithm used is controlled by the :ref:`api_token.jwt.algorithm` option.
 
 Value must have prefix, which defines its type. Supported prefixes are:
 
@@ -986,8 +988,10 @@ Default value: same as ``beaker.session.secret`` config option with ``string:`` 
 
 A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
 
-* for asymmetric algorithms: path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
-* for symmetric algorithms: plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc``
+* for asymmetric algorithms(RS256): path to public key with ``file:`` prefix. I.e ``file:/path/public/key.pub``
+* for symmetric algorithms(HS256): plain string, sufficiently long for security with ``string:`` prefix. I.e ``string:123abc...``
+
+.. note:: For symmetric algorithms this value must be identical to :ref:`api_token.jwt.encode.secret`. The algorithm used is defined by the :ref:`api_token.jwt.algorithm` option.
 
 Value must have prefix, which defines it's type. Supported prefixes are:
 
@@ -1006,6 +1010,14 @@ Example::
 Default value: ``HS256``
 
 Algorithm to sign the token with, e.g. "ES256", "RS256"
+
+Depending on the algorithm, additional restrictions may apply to
+:ref:`api_token.jwt.decode.secret` and :ref:`api_token.jwt.encode.secret`. For
+example, RS256 implies that :ref:`api_token.jwt.encode.secret` contains RSA
+private key and :ref:`api_token.jwt.decode.secret` contains public key. Whereas
+HS256(default value) requires both :ref:`api_token.jwt.decode.secret` and
+:ref:`api_token.jwt.encode.secret` to have exactly the same value.
+
 
 Search Settings
 ---------------
@@ -1443,18 +1455,18 @@ Format tips:
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
           For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`/theming/index`.
 
-.. _ckan.main_css:
+.. _ckan.theme:
 
-ckan.main_css
+ckan.theme
 ^^^^^^^^^^^^^
 
 Example::
 
-  ckan.main_css = /base/css/my-custom.css
+  ckan.theme = my_extension/my_custom_theme
 
-Default value: ``/base/css/main.css``
+Default value: ``css/main``
 
-With this option, instead of using the default `main.css`, you can use your own.
+With this option, instead of using the default ``css/main`` asset with your theme, you can use your own.
 
 .. _ckan.favicon:
 
@@ -2347,18 +2359,18 @@ Default value: ``he ar fa_IR``
 
 Allows to modify the right-to-left languages
 
-.. _ckan.i18n.rtl_css:
+.. _ckan.i18n.rtl_theme:
 
-ckan.i18n.rtl_css
-^^^^^^^^^^^^^^^^^^^^^^^
+ckan.i18n.rtl_theme
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
-  ckan.i18n.rtl_css = /base/css/my-custom-rtl.css
+  ckan.i18n.rtl_theme = my_extension/my-custom-rtl-theme
 
-Default value: ``/base/css/rtl.css``
+Default value: ``css/main-rtl``
 
-Allows to override the default rtl css file used for the languages defined
+Allows to override the default RTL asset used for the languages defined
 in ``ckan.i18n.rtl_languages``.
 
 .. _ckan.display_timezone:

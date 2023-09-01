@@ -4,6 +4,7 @@ import os
 import logging
 import html
 import io
+import datetime
 
 from flask import Blueprint, make_response
 import six
@@ -14,6 +15,7 @@ import ckan.model as model
 from ckan.common import json, _, g, request
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
+from ckan.lib.i18n import get_locales_from_config
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
@@ -36,6 +38,12 @@ API_MAX_VERSION = 3
 
 
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
+
+
+def _json_serial(obj):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError(u"Unhandled Object")
 
 
 def _finish(status_int, response_data=None,
@@ -65,6 +73,7 @@ def _finish(status_int, response_data=None,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
@@ -475,6 +484,10 @@ def snippet(snippet_path, ver=API_REST_DEFAULT_VERSION):
 
 
 def i18n_js_translations(lang, ver=API_REST_DEFAULT_VERSION):
+
+    if lang not in get_locales_from_config():
+        return _finish_bad_request(u'Unknown locale: {}'.format(lang))
+
     ckan_path = os.path.join(os.path.dirname(__file__), u'..')
     source = os.path.abspath(os.path.join(ckan_path, u'public',
                              u'base', u'i18n', u'{0}.js'.format(lang)))

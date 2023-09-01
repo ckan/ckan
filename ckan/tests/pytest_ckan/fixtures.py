@@ -92,6 +92,12 @@ def make_app(ckan_config):
     Unless you need to create app instances lazily for some reason,
     use the ``app`` fixture instead.
     """
+    from ckan.lib.app_globals import _CONFIG_CACHE
+    # Reset values cached during the previous tests. Otherwise config values
+    # that were added to app_globals reset the patched versions from
+    # `ckan_config` mark.
+    _CONFIG_CACHE.clear()
+
     return test_helpers._get_test_app
 
 

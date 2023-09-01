@@ -1,8 +1,11 @@
 # encoding: utf-8
 """Unit tests for ckan/logic/action/patch.py."""
 import pytest
+import mock
 
 from ckan.tests import helpers, factories
+from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic import ValidationError
 
 
 @pytest.mark.usefixtures("clean_db", "with_request_context")
@@ -24,6 +27,23 @@ class TestPatch(object):
 
         assert dataset2["name"] == "somethingnew"
         assert dataset2["notes"] == "some test now"
+
+    def test_package_patch_invalid_characters_in_resource_id(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "package_patch",
+                id=dataset["id"],
+                resources=[
+                    {
+                        "id": "../../nope.txt",
+                        "url": "http://data",
+                        "name": "A nice resource",
+                    },
+                ],
+            )
 
     def test_resource_patch_updating_single_field(self):
         user = factories.User()
@@ -171,3 +191,59 @@ class TestPatch(object):
         assert organization2["description"] == "somethingnew"
         assert len(organization2["users"]) == 1
         assert organization2["users"][0]["name"] == user["name"]
+
+    def test_package_patch_for_update(self):
+
+        dataset = factories.Dataset()
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('package_patch', id=dataset['id'], notes='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_patch_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_patch', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_resource_update_for_update(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        mock_package_show = mock.MagicMock()
+        mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
+
+        with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
+            helpers.call_action('resource_update', id=resource['id'], description='hey')
+            assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_user_patch_updating_single_field(self):
+        user = factories.User(
+            fullname="Mr. Test User",
+            about="Just another test user.",
+        )
+
+        user = helpers.call_action(
+            "user_patch",
+            id=user["id"],
+            about="somethingnew",
+            context={"user": user["name"]},
+        )
+
+        assert user["fullname"] == "Mr. Test User"
+        assert user["about"] == "somethingnew"
+
+        user2 = helpers.call_action("user_show", id=user["id"])
+
+        assert user2["fullname"] == "Mr. Test User"
+        assert user2["about"] == "somethingnew"

@@ -374,7 +374,11 @@ def _read(id, limit, group_type):
 
 def _update_facet_titles(facets, group_type):
     for plugin in plugins.PluginImplementations(plugins.IFacets):
-        facets = plugin.group_facets(facets, group_type, None)
+        facets = (
+            plugin.group_facets(facets, group_type, None)
+            if group_type == u"group"
+            else plugin.organization_facets(facets, group_type, None)
+        )
     return facets
 
 
@@ -575,7 +579,7 @@ def member_delete(id, group_type, is_organization):
             })
             h.flash_notice(_(u'Group member has been deleted.'))
             return h.redirect_to(u'{}.members'.format(group_type), id=id)
-        user_dict = _action(u'group_show')(context, {u'id': user_id})
+        user_dict = _action(u'user_show')(context, {u'id': user_id})
 
         # TODO: Remove
         # ckan 2.9: Adding variables that were removed from c object for
@@ -591,7 +595,8 @@ def member_delete(id, group_type, is_organization):
     extra_vars = {
         u"user_id": user_id,
         u"user_dict": user_dict,
-        u"group_id": id
+        u"group_id": id,
+        u"group_type": group_type
     }
     return base.render(_replace_group_org(u'group/confirm_delete_member.html'),
                        extra_vars)
@@ -1092,7 +1097,7 @@ class MembersGroupView(MethodView):
             try:
                 user_dict = _action(u'user_invite')(context, user_data_dict)
             except ValidationError as e:
-                for _, error in e.error_summary.items():
+                for error in e.error_summary.values():
                     h.flash_error(error)
                 return h.redirect_to(
                     u'{}.member_new'.format(group_type), id=id)
@@ -1106,7 +1111,7 @@ class MembersGroupView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
-            for _, error in e.error_summary.items():
+            for error in e.error_summary.values():
                 h.flash_error(error)
             return h.redirect_to(u'{}.member_new'.format(group_type), id=id)
 

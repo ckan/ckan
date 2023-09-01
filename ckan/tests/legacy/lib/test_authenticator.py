@@ -21,7 +21,7 @@ class TestUsernamePasswordAuthenticator(object):
         identity = {"login": user.name, "password": password}
 
         username = self.authenticate(environ, identity)
-        assert username == user.name, username
+        assert username == user.id + ",1", username
 
     def test_authenticate_fails_if_user_is_deleted(self):
         environ = {}

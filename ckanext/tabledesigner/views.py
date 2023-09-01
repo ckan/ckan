@@ -43,8 +43,6 @@ class _TableDesignerDictionary(MethodView):
         for e, f in zip(info, fields):
             e['id'] = f['id']
             e['type'] = f['type']
-            if f['info'].get('pk'):
-                e['pk'] = 'on'
 
         create_table(resource_id, info)
 
@@ -85,12 +83,17 @@ class _TableDesignerAddRow(MethodView):
             )
         except ValidationError as err:
             rec_err = err.error_dict.get('records', [''])[0]
-            if rec_err.startswith('duplicate key'):
+            if isinstance(rec_err, dict):
+                errors = rec_err
+            elif rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
-                pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pk')]
+                pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pkreq') == 'pk']
                 errors={
                     k:[_('Duplicate primary key exists')] for k in pk_fields
                 }
+            elif rec_err.startswith('invalid input syntax'):
+                bad_data = rec_err.split('"', 1)[1].rstrip('"')
+                errors = {f: [_("Invalid input")] for f in row if row[f] == bad_data}
             elif rec_err.startswith('TAB-DELIMITED\t'):
                 errors = {}
                 erriter = iter(rec_err.split('\t')[1:])

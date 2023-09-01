@@ -19,6 +19,8 @@ DEFAULT_PORT = 5000
 @click.option(u"-p", u"--port", help=u"Port number")
 @click.option(u"-r", u"--disable-reloader", is_flag=True,
               help=u"Disable reloader")
+@click.option(u"-E", u"--passthrough-errors", is_flag=True,
+              help=u"Disable error caching (useful to hook debuggers)")
 @click.option(
     u"-t", u"--threaded", is_flag=True,
     help=u"Handle each request in a separate thread"
@@ -40,9 +42,15 @@ DEFAULT_PORT = 5000
     help=u"Key file to use to enable SSL. Passing 'adhoc' will "
     " automatically generate a new one (on each server reload).")
 @click.pass_context
-def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
-        ssl_cert, ssl_key):
+def run(ctx, host, port, disable_reloader, passthrough_errors, threaded,
+        extra_files, processes, ssl_cert, ssl_key):
     u"""Runs the Werkzeug development server"""
+
+    # passthrough_errors overrides conflicting options
+    if passthrough_errors:
+        disable_reloader = True
+        threaded = False
+        processes = 1
 
     # Reloading
     use_reloader = not disable_reloader
@@ -95,4 +103,5 @@ def run(ctx, host, port, disable_reloader, threaded, extra_files, processes,
         processes=processes,
         extra_files=extra_files,
         ssl_context=ssl_context,
+        passthrough_errors=passthrough_errors,
     )

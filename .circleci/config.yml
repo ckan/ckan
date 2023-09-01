@@ -2,10 +2,6 @@ version: 2
 defaults:
   init_environemnt: &init_environment
     run: |
-      # SOLR config
-      cp ~/project/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-      service jetty9 restart || true  # erroring out but does seem to work
-
       # Database Creation
       psql --host=ckan-postgres --username=ckan --command="CREATE USER ${CKAN_POSTGRES_USER} WITH PASSWORD '${CKAN_POSTGRES_PWD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;"
       createdb --encoding=utf-8 --host=ckan-postgres --username=ckan --owner=${CKAN_POSTGRES_USER} ${CKAN_POSTGRES_DB}
@@ -29,7 +25,7 @@ defaults:
         npm install
         ;;
       esac
-      apt install -y postgresql-client solr-jetty openjdk-8-jdk
+      apt install -y postgresql-client
   run_tests: &run_tests
     # Tests Backend, split across containers by segments
     run: |
@@ -86,41 +82,19 @@ defaults:
   redis_image: &redis_image
     image: redis:3
     name: ckan-redis
+
+  solr_image: &solr_image
+    image: ckan/ckan-solr:2.9
+    name: ckan-solr
+
 jobs:
-  test-python-2:
-    docker:
-      - image: python:2-stretch
-        <<: *ckan_env
-      - <<: *pg_image
-      - <<: *redis_image
-
-    parallelism: 4
-
-    steps:
-      - checkout
-
-      - <<: *install_deps
-      - run: |
-          # Python Dependencies
-          pip install -r requirement-setuptools.txt
-          pip install -r requirements-py2.txt
-          pip install -r dev-requirements.txt
-          python setup.py develop
-          pip check
-      - <<: *init_environment
-      - <<: *run_tests
-      - store_test_results:
-          path: ~/junit
-      - <<: *start_test_server
-      - <<: *run_front_tests
-      - store_artifacts:
-          path: ~/project/cypress/screenshots
   test-python-3:
     docker:
-      - image: python:3-stretch
+      - image: python:3.9-buster
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
+      - <<: *solr_image
 
     parallelism: 4
 
@@ -150,5 +124,4 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - test-python-2
       - test-python-3

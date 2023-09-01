@@ -16,7 +16,7 @@ import six
 from six.moves.urllib.parse import (
     urlencode, unquote, urlunparse, parse_qsl, urlparse
 )
-from six import string_types, text_type, StringIO
+from six import string_types, text_type, StringIO, PY2
 
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
@@ -28,7 +28,7 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, DatabaseError)
 
 import ckan.model as model
 import ckan.plugins as plugins
@@ -685,7 +685,9 @@ def _insert_links(data_dict, limit, offset):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
+    if PY2 and isinstance(query, unicode):
+        query = query.encode('utf-8')
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
@@ -1068,13 +1070,11 @@ def upsert_data(context, data_dict):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError as err:
-            raise InvalidDataError(
-                toolkit._("The data was invalid: {}"
-                          ).format(_programming_error_summary(err)))
-        except sqlalchemy.exc.DatabaseError as err:
-            raise ValidationError(
-                {u'records': [_programming_error_summary(err)]})
+        except (DatabaseError, DataError) as err:
+            raise ValidationError({
+                'records': [_programming_error_summary(err)],
+                'records_row': num,
+            })
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1151,8 +1151,9 @@ def upsert_data(context, data_dict):
                         sql_string, used_values + unique_values)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -1186,8 +1187,9 @@ def upsert_data(context, data_dict):
                         (used_values + unique_values) * 2)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
 
 def validate(context, data_dict):

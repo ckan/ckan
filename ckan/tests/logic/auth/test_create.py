@@ -509,3 +509,32 @@ class TestPackageMemberCreateAuth(object):
         context = self._get_context(user)
         assert helpers.call_auth(
             'package_collaborator_create', context=context, id=dataset['id'])
+
+
+@pytest.mark.usefixtures("clean_db")
+class TestUserCreate:
+    def test_sysadmin_can_create_via_api(self):
+        sysadmin = factories.Sysadmin()
+        context = {"user": sysadmin["name"], "model": core_model, "api_version": 3}
+        assert helpers.call_auth("user_create", context)
+
+    def test_anon_can_not_create_via_web(self):
+        context = {"user": None, "model": core_model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("user_create", context)
+
+    def test_anon_cannot_create_via_api(self):
+        context = {"user": None, "model": core_model, "api_version": 3}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("user_create", context)
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
+    def test_anon_cannot_create_via_forbidden_web(self):
+        context = {"user": None, "model": core_model}
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_auth("user_create", context)
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_api", True)
+    def test_anon_not_create_via_allowed_api(self):
+        context = {"user": None, "model": core_model, "api_version": 3}
+        assert helpers.call_auth("user_create", context)

@@ -11,7 +11,7 @@ from ckan.common import config
 
 import ckan
 import ckan.model as model
-from logic.schema import update_configuration_schema
+from ckan.logic.schema import update_configuration_schema
 
 
 log = logging.getLogger(__name__)
@@ -71,6 +71,25 @@ app_globals_from_config_details = {
 
 # A place to store the origional config options of we override them
 _CONFIG_CACHE = {}
+
+def set_theme(asset):
+    ''' Sets the theme.
+    The `asset` argument is a name of existing web-asset registered by CKAN
+    itself or by any enabled extension.
+    If asset is not registered, use default theme instead.
+    '''
+    from ckan.lib.webassets_tools import env
+
+    assert env
+    if asset not in env:
+        log.error(
+            "Asset '%s' does not exist. Fallback to '%s'",
+            asset, 'css/main'
+        )
+        asset = 'css/main'
+
+    app_globals.theme = asset
+
 
 def set_main_css(css_file):
     ''' Sets the main_css.  The css_file must be of the form file.css '''
@@ -168,6 +187,9 @@ def reset():
         get_config_value(key)
 
     # custom styling
+    theme = get_config_value('ckan.theme') or 'css/main'
+    set_theme(theme)
+    # legacy -- preserve for extensinos
     main_css = get_config_value('ckan.main_css', '/base/css/main.css')
     set_main_css(main_css)
 

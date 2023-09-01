@@ -471,3 +471,110 @@ def package_collaborator_list_for_user(context, data_dict):
     if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
         return {'success': True}
     return {'success': False}
+
+
+def status_show(context, data_dict):
+    '''Show information about the site's configuration. Visible to all by default.'''
+    return {'success': True}
+
+
+def dataset_followee_count(context, data_dict):
+    '''Check if the number of datasets followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def group_followee_count(context, data_dict):
+    '''Check if the number of groups followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def user_followee_count(context, data_dict):
+    '''Check if the number of users followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def followee_count(context, data_dict):
+    '''Check if the number of objects (of any type) followed by a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def dataset_follower_count(context, data_dict):
+    '''Check if the number of followers of a dataset are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def group_follower_count(context, data_dict):
+    '''Check if the number of followers of a group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def organization_follower_count(context, data_dict):
+    '''Check if the number of followers of an organization are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def user_follower_count(context, data_dict):
+    '''Check if the number of followers of a user are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def am_following_dataset(context, data_dict):
+    '''Check if the information about following a dataset is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def am_following_group(context, data_dict):
+    '''Check if the information about following a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def am_following_user(context, data_dict):
+    '''Check if the information about following a user is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def group_package_show(context, data_dict):
+    '''Check if the set of datasets belonging to a group is visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def member_list(context, data_dict):
+    '''Check if the members of a given group are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def resource_search(context, data_dict):
+    '''Check if resource search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+
+def tag_search(context, data_dict):
+    '''Check if tag search is allowed.
+    Allowed for all by default.'''
+    return {'success': True}
+
+
+def term_translation_show(context, data_dict):
+    '''Check if the translations for the given term(s) and language(s) are visible.
+    Visible to all by default.'''
+    return {'success': True}
+
+
+def recently_changed_packages_activity_list(context, data_dict):
+    '''Check if the activity stream of all recently added or changed packages is
+    visible. Visible to all by default.'''
+    return {'success': True}
