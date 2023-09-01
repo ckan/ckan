@@ -1,0 +1,2 @@
+Tracking feature has been moved to its own core extension. Therefore, `ckan.tracking_enabled`
+configuration option should be changed to adding `tracking` to CKAN's plugins list.
