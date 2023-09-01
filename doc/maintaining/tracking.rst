@@ -4,7 +4,8 @@
 Page View Tracking
 ==================
 
-CKAN can track visits to pages of your site and use this tracking data to:
+CKAN has a core extension already installed that allows the system to
+anonymously track visits to pages of your site. You ca use this tracking data to:
 
 * Sort datasets by popularity
 * Highlight popular datasets and resources
@@ -18,16 +19,29 @@ CKAN can track visits to pages of your site and use this tracking data to:
     A CKAN extension that integrates Google Analytics into CKAN.
 
 
+.. note::
+
+   CKAN 2.10 and older versions had tracking integrated into the core and this
+   instructions no longer apply. Checkout the 
+   `2.10 documentation <https://docs.ckan.org/en/2.10/maintaining/tracking.html>`_
+   for more information.
+
+.. note::
+
+   While migrating CKAN from 2.10 to 2.11, you will need to replace the 
+   `ckan.tracking_enabled = true` configuration option with the 
+   `ckan.plugins = tracking` one.
+
+
 Enabling Page View Tracking
 ===========================
 
 To enable page view tracking:
 
-1. Set :ref:`ckan.tracking_enabled` to true in the ``[app:main]`` section of your
-   CKAN configuration file (e.g. |ckan.ini|)::
+1. Add the `tracking` extension to your CKAN configuration file (e.g. |ckan.ini|)::
 
     [app:main]
-    ckan.tracking_enabled = true
+    ckan.plugins = tracking
 
    Save the file and restart your web server. CKAN will now record raw page
    view tracking data in your CKAN database as pages are viewed.
@@ -60,8 +74,9 @@ To enable page view tracking:
 Retrieving Tracking Data
 ========================
 
-Tracking summary data for datasets and resources is available in the dataset
-and resource dictionaries returned by, for example, the ``package_show()``
+When the extension is enabled, tracking summary data for datasets and resources 
+is available in the dataset and resource dictionaries returned by, 
+for example, the ``package_show()``
 API::
 
   "tracking_summary": {
@@ -116,5 +131,3 @@ badge and a tooltip showing the number of views:
 .. image:: /images/popular-dataset.png
 
 .. image:: /images/popular-resource.png
-
-
