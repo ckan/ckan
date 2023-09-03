@@ -22,33 +22,33 @@
     {% block admin_form %}
     {{ h.csrf_input() }}
 
-      {% if site_title or site_title == '' %}
+      {% block site_title %}
       {{ form.input('ckan.site_title', id='field-ckan-site-title', label=_('Site Title'), value=site_title, error=error, classes=['control-medium']) }}
-      {% endif %} 
+      {% endblock %}
 
-      {% if ckan_theme %}
+      {% block ckan_theme %}
       {{ form.input('ckan.theme', id='field-ckan-main-css', label=_('Custom Stylesheet'), value=ckan_theme, error=error, classes=['control-medium']) }}
-      {% endif %}
+      {% endblock %}
 
-      {% if site_tag_line or site_tag_line == '' %}
+      {% block site_tag_line %}
       {{ form.input('ckan.site_description', id='field-ckan-site-description', label=_('Site Tag Line'), value=site_tag_line, error=error, classes=['control-medium']) }}
-      {% endif %}
+      {% endblock %}
 
-      {% if is_upload or is_url or is_upload == '' or is_url == '' %}
+      {% block is_upload %}
       {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label = _('Site logo'), url_label=_('Site logo'),  field_url=field_url, field_upload='logo_upload', field_clear='clear_logo_upload' )}}
-      {% endif %}
+      {% endblock %}
 
-      {% if site_about or site_about == '' %}
+      {% block site_about %}
       {{ form.markdown('ckan.site_about', id='field-ckan-site-about', label=_('About'), value=site_about, error=error, placeholder=_('About page text')) }}
-      {% endif %}
+      {% endblock %}
 
-      {% if site_intro_text or site_intro_text == '' %}
+      {% block site_intro_text %}
       {{ form.markdown('ckan.site_intro_text', id='field-ckan-site-intro-text', label=_('Intro Text'), value=site_intro_text, error=error, placeholder=_('Text on home page')) }}
-      {% endif %}
+      {% endblock %}
 
-      {% if site_custom_css or site_custom_css == '' %}
+      {% block site_custom_css %}
       {{ form.textarea('ckan.site_custom_css', id='field-ckan-site-custom-css', label=_('Custom CSS'), value=site_custom_css, error=error, placeholder=_('Customisable css inserted into the page header')) }}
-      {% endif %}
+      {% endblock %}
       {% endblock %}
       <div class="form-actions">
         <a href="{% url_for 'admin.reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reset the config?') }}">{{ _('Reset') }}</a>
@@ -68,49 +68,49 @@
         {% set about_url = h.url_for('home.about') %}
         {% set home_url = h.url_for('home.index') %}
         {% set docs_url = "http://docs.ckan.org/en/{0}/theming".format(g.ckan_doc_version) %}
-        {% if site_title or site_title == '' %} 
+        {% block site_title %} 
         {% trans %}
         <p><strong>Site Title:</strong> This is the title of this CKAN instance
           It appears in various places throughout CKAN.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
 
-        {% if ckan_theme %} 
+        {% block ckan_theme %} 
         {% trans %}
         <p><strong>Style:</strong> Choose from a list of simple variations of
           the main colour scheme to get a very quick custom theme working.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
 
-        {% if is_upload or is_url or is_upload == '' or is_url == ''%}
+        {% block is_upload %}
         {% trans %}
         <p><strong>Site Tag Logo:</strong> This is the logo that appears in the
           header of all the CKAN instance templates.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
 
-        {% if site_about or site_about == '' %}
+        {% block site_about %}
         {% trans %}
         <p><strong>About:</strong> This text will appear on this CKAN instances
           <a href="{{ about_url }}">about page</a>.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
 
-        {% if site_intro_text or site_intro_text == '' %}
+        {% block site_intro_text %}
         {% trans %}
         <p><strong>Intro Text:</strong> This text will appear on this CKAN instances
           <a href="{{ home_url }}">home page</a> as a welcome to visitors.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
 
-        {% if site_custom_css or site_custom_css == ''%}
+        {% block site_custom_css %}
         {% trans %}
         <p><strong>Custom CSS:</strong> This is a block of CSS that appears in
           <code>&lt;head&gt;</code> tag of every page. If you wish to customize
           the templates more fully we recommend
           <a href="{{ docs_url }}" target="_blank" rel="noreferrer">reading the documentation</a>.</p>
         {% endtrans %}
-        {% endif %}
+        {% endblock %}
     {% endblock %}
     </div>
   </div>
