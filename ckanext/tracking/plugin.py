@@ -40,7 +40,14 @@ class TrackingPlugin(p.SingletonPlugin):
 
     # IPackageController
     def after_dataset_show(self, context: Context, pkg_dict: "dict[str, Any]") -> "dict[str, Any]":
-        tracking_summary = model.TrackingSummary.get_for_package(pkg_dict["id"])
+        """Appends tracking summary data to the package dict.
+        
+        Tracking data is not stored in Solr so we need to retrieve it 
+        from the database.
+        """
+        tracking_summary = model.TrackingSummary.get_for_package(
+            pkg_dict["id"]
+            )
         pkg_dict["tracking_summary"] = tracking_summary
         
         for resource_dict in pkg_dict['resources']:
@@ -61,7 +68,9 @@ class TrackingPlugin(p.SingletonPlugin):
         when this code is run.
         """
         for package_dict in search_results["results"]:
-            tracking_summary = model.TrackingSummary.get_for_package(package_dict["id"])
+            tracking_summary = model.TrackingSummary.get_for_package(
+                package_dict["id"]
+                )
             package_dict["tracking_summary"] = tracking_summary
             for resource_dict in package_dict['resources']:
                 summary =  model.TrackingSummary.get_for_resource(
@@ -72,7 +81,15 @@ class TrackingPlugin(p.SingletonPlugin):
     
 
     def before_dataset_index(self, pkg_dict: "dict[str, Any]") -> "dict[str, Any]":
-        tracking_summary = model.TrackingSummary.get_for_package(pkg_dict["id"])
+        """ Index tracking information.
+        
+        This method will index (but not store) the tracking information of the
+        dataset. This will only allow us to sort Solr's queries by views. For
+        the actual data we will query the database after the search. 
+        """
+        tracking_summary = model.TrackingSummary.get_for_package(
+            pkg_dict["id"]
+            )
         pkg_dict['views_total'] = tracking_summary['total']
         pkg_dict['views_recent'] = tracking_summary['recent']
         return pkg_dict
