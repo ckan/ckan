@@ -148,6 +148,27 @@ class TestSearchIndex(object):
             == "2019-10-10 01:15:00"
         )
 
+    def test_index_date_empty_value(self):
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update(
+            {
+                "extras": [
+                    {"key": "test_empty_date", "value": ""},
+                    {"key": "test_none_date", "value": None},
+                ]
+            }
+        )
+
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.search(q="name:monkey", fq=self.fq)
+
+        assert len(response) == 1
+
+        assert "test_empty_date" not in response.docs[0]
+        assert "test_none_date" not in response.docs[0]
+
     def test_index_date_field_wrong_value(self):
 
         pkg_dict = self.base_package_dict.copy()

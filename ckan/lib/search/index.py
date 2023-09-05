@@ -244,6 +244,8 @@ class PackageSearchIndex(SearchIndex):
         for key, value in pkg_dict.items():
             key = six.ensure_str(key)
             if key.endswith('_date'):
+                if not value:
+                    continue
                 try:
                     date = parse(value, default=bogus_date)
                     if date != bogus_date:
