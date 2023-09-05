@@ -124,6 +124,7 @@ class TestSearchIndex(object):
                 "extras": [
                     {"key": "test_date", "value": "2014-03-22"},
                     {"key": "test_tim_date", "value": "2014-03-22 05:42:14"},
+                    {"key": "test_full_iso_date", "value": "2019-10-10T01:15:00Z"},
                 ]
             }
         )
@@ -141,6 +142,10 @@ class TestSearchIndex(object):
         assert (
             response.docs[0]["test_tim_date"].strftime("%Y-%m-%d %H:%M:%S")
             == "2014-03-22 05:42:14"
+        )
+        assert (
+            response.docs[0]["test_full_iso_date"].strftime("%Y-%m-%d %H:%M:%S")
+            == "2019-10-10 01:15:00"
         )
 
     def test_index_date_field_wrong_value(self):

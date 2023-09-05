@@ -247,7 +247,9 @@ class PackageSearchIndex(SearchIndex):
                 try:
                     date = parse(value, default=bogus_date)
                     if date != bogus_date:
-                        value = date.isoformat() + 'Z'
+                        value = date.isoformat()
+                        if not date.tzinfo:
+                            value += 'Z'
                     else:
                         # The date field was empty, so dateutil filled it with
                         # the default bogus date
