@@ -11,3 +11,8 @@
     %}
   {% endif %}
 {% endblock %}
+
+{% block primary_content_inner %}
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+  {{ super() }}
+{% endblock %}
