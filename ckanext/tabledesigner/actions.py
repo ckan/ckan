@@ -6,9 +6,8 @@ from ckanext.tabledesigner.datastore import create_table
 
 @chained_action
 def resource_create(original_action, context, data_dict):
-    _tabledesigner_info = data_dict.pop('_tabledesigner_info', None)
     res = original_action(context, data_dict)
-    _create_table_and_view(res, _tabledesigner_info)
+    _create_table_and_view(res)
     return res
 
 
@@ -19,11 +18,11 @@ def resource_update(original_action, context, data_dict):
     return res
 
 
-def _create_table_and_view(res, info=None):
+def _create_table_and_view(res):
     if res.get('url_type') != 'tabledesigner':
         return
     if not res.get('datastore_active'):
-        create_table(res['id'], [] if info is None else info)
+        create_table(res['id'], [])
 
     views = get_action('resource_view_list')({}, {
         'id': res['id']
