@@ -6,7 +6,6 @@ import string
 import logging
 import collections
 import json
-import datetime
 import re
 from dateutil.parser import parse, ParserError as DateParserError
 from typing import Any, NoReturn, Optional, cast
@@ -235,12 +234,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['dataset_type'] = pkg_dict['type']
 
         # clean the dict fixing keys and dates
-        # FIXME where are we getting these dirty keys from?  can we not just
-        # fix them in the correct place or is this something that always will
-        # be needed?  For my data not changing the keys seems to not cause a
-        # problem.
         new_dict = {}
-        bogus_date = datetime.datetime(1, 1, 1)
         for key, value in pkg_dict.items():
             key = six.ensure_str(key)
             if key.endswith('_date'):
