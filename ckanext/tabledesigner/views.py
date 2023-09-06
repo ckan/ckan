@@ -44,7 +44,24 @@ class _TableDesignerDictionary(MethodView):
             e['id'] = f['id']
             e['type'] = f['type']
 
-        create_table(resource_id, info)
+        try:
+            create_table(resource_id, info)
+        except ValidationError as e:
+            fields = {f['id']: f for f in data_dict['fields']}
+            data_dict['fields'] = [
+                dict(
+                    fields.get(d['id'], {}),
+                    info=d,
+                ) for d in data['info']
+            ]
+            if 'fields' in e.error_dict:
+                data_dict['error_summary'] = {
+                    'id': ', '.join(e.error_dict['fields'])
+                }
+            else:
+                raise
+
+            return render('datastore/dictionary.html', data_dict)
 
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
