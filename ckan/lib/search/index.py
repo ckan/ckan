@@ -8,7 +8,7 @@ import collections
 import json
 import datetime
 import re
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError as DateParserError
 from typing import Any, NoReturn, Optional, cast
 
 import six
@@ -247,19 +247,15 @@ class PackageSearchIndex(SearchIndex):
                 if not value:
                     continue
                 try:
-                    date = parse(value, default=bogus_date)
-                    if date != bogus_date:
-                        value = date.isoformat()
-                        if not date.tzinfo:
-                            value += 'Z'
-                    else:
-                        # The date field was empty, so dateutil filled it with
-                        # the default bogus date
-                        value = None
-                except (IndexError, TypeError, ValueError):
-                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
+                    date = parse(value)
+                    value = date.isoformat()
+                    if not date.tzinfo:
+                        value += 'Z'
+                except DateParserError:
+                    log.warning('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
+
         pkg_dict = new_dict
 
         for k in ('title', 'notes', 'title_string'):
