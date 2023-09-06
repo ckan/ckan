@@ -9,7 +9,7 @@
       ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
     </h3>
     {% call form.select(
-      prefix ~ '__' ~ position ~ '__pkreq',
+      'info__' ~ position ~ '__pkreq',
       id='field-f' ~ position ~ 'choices',
       label=_("Primary Key / Required"),
       options=[
@@ -22,7 +22,7 @@
     {% endcall %}
 
     {% if not field.id %}
-      {% call form.input(prefix ~ '__' ~ position ~ '__id',
+      {% call form.input('info__' ~ position ~ '__id',
         is_required=true,
         label=_('ID'), classes=['control-full']) %}
         {{ form.info(
@@ -42,7 +42,7 @@
 
 {% block standard_fields %}
   {% if field.info.tdtype == 'choice' %}
-    {% call form.input(prefix ~ '__' ~ position ~ '__choices',
+    {% call form.input('info__' ~ position ~ '__choices',
       label=_('Choices'), id='field-f' ~ position ~ 'choices',
       value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
       {{ form.info(
