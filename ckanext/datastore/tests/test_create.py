@@ -1368,7 +1368,10 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
                     triggers=[{u"function": u"spamexception_trigger"}],
                 )
-        assert error.value.error_dict == {u"records": [u'"EGGS"? Yeeeeccch!']}
+        assert error.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1402,5 +1405,6 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
                 )
             assert error.value.error_dict == {
-                u"records": [u'"BEANS"? Yeeeeccch!']
+                "records": ['"BEANS"? Yeeeeccch!'],
+                "records_row": 1,
             }
