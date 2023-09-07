@@ -1,0 +1,40 @@
+{% call register_example('curl', 'button_label') %}
+curl
+{% endcall %}
+
+
+{% call register_example('curl', 'request_limit') %}
+<pre class="example-curl"><code class="language-bash"
+>curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
+  -H"Authorization:$API_TOKEN" -d '
+{
+  "resource_id": "{{ resource_id }}",
+  "limit": 5,
+  "q": "jones"
+}'</code></pre>
+{% endcall %}
+
+
+{% call register_example('curl', 'request_filter') %}
+<pre class="example-curl"><code class="language-bash"
+>curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
+-H"Authorization:$API_TOKEN" -d '
+{
+"resource_id": "{{ resource_id }}",
+  "filters": {
+    "subject": ["watershed", "survey"],
+    "stage": "active"
+  }
+}'</code></pre>
+{% endcall %}
+
+
+{% call register_example('curl', 'request_sql') %}
+<pre class="example-curl"><code class="language-bash"
+>curl {{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }} \
+  -H"Authorization:$API_TOKEN" -d @- &lt;&lt;END
+{
+  "sql": "SELECT * FROM \"{{ resource_id }}\" WHERE title LIKE 'jones'"
+}
+END</code></pre>
+{% endcall %}
