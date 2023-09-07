@@ -53,16 +53,6 @@ class DatastoreException(Exception):
     pass
 
 
-class InvalidDataError(Exception):
-    """Exception that's raised if you try to add invalid data to the datastore.
-
-    For example if you have a column with type "numeric" and then you try to
-    add a non-numeric value like "foo" to it, this exception should be raised.
-
-    """
-    pass
-
-
 class DatastoreBackend:
     """Base class for all datastore backends.
 

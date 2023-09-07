@@ -1908,7 +1908,7 @@ class TestDatasetRevise(object):
         dataset = factories.Dataset(
             resources=[
                 {
-                    "id": "34a12bc-1420-cbad-1922",
+                    "id": "34a12bc-1420-cbad-1923",
                     "url": "http://example.com",
                     "name": "old name",
                 }

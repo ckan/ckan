@@ -15,9 +15,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckanext.datastore.logic.schema as dsschema
 import ckanext.datastore.helpers as datastore_helpers
-from ckanext.datastore.backend import (
-    DatastoreBackend, InvalidDataError
-)
+from ckanext.datastore.backend import DatastoreBackend
 from ckanext.datastore.backend.postgres import identifier
 
 log = logging.getLogger(__name__)
@@ -33,7 +31,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
     aliases and indexes and bulk insertion. This endpoint can be called
-    multiple times to initially insert more data, add fields, change the
+    multiple times to initially insert more data, add/remove fields, change the
     aliases or indexes as well as the primary keys.
 
     To create an empty datastore resource and a CKAN resource at the same time,
@@ -81,7 +79,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
 
     Please note that setting the ``aliases``, ``indexes`` or ``primary_key``
     replaces the existing aliases or constraints. Setting ``records`` appends
-    the provided records to the resource.
+    the provided records to the resource. Setting ``fields`` without including
+    all existing fields will remove the others and the data they contain.
 
     **Results:**
 
@@ -155,10 +154,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
                 'alias': [u'"{0}" is not a valid alias name'.format(alias)]
             })
 
-    try:
-        result = backend.create(context, data_dict)
-    except InvalidDataError as err:
-        raise p.toolkit.ValidationError({'message': str(err)})
+    result = backend.create(context, data_dict)
 
     if data_dict.get('calculate_record_count', False):
         backend.calculate_record_count(data_dict['resource_id'])  # type: ignore
@@ -677,20 +673,26 @@ def set_datastore_active_flag(
 
     model.Session.commit()
 
+    # copied from ckan.lib.search.rebuild
+    # using validated packages can cause solr errors.
+    context = {
+        'model': model,
+        'ignore_auth': True,
+        'validate': False,
+        'use_cache': False
+    }
+
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
-    try:
-        _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': resource.package_id
-        })
-        for resource in _data_dict['resources']:
-            if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
-                psi.index_package(_data_dict)
-                break
-    except (logic.NotAuthorized, logic.NotFound) as e:
-        log.error(e.message)
+    _data_dict = p.toolkit.get_action('package_show')(context, {
+        'id': resource.package_id
+    })
+    for resource in _data_dict['resources']:
+        if resource['id'] == data_dict['resource_id']:
+            resource.update(update_dict)
+            psi.index_package(_data_dict)
+            break
 
 
 def _check_read_only(context: Context, resource_id: str):
