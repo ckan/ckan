@@ -1,11 +1,22 @@
 {% if following %}
-  <a href="{{ h.url_for(obj_type + '.unfollow', id=obj_id) }}" class="{% block following_class %}btn btn-danger{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
-    <i class="fa fa-times-circle"></i>
-    {{ _('Unfollow') }}
-  </a>
+  {% set action='unfollow' %}
+  {% set icon_class='fa fa-times-circle' %}
+  {% set button_class %}
+    {% block following_class %}btn btn-danger{% endblock %}
+  {% endset %}
 {% else %}
-  <a href="{{ h.url_for(obj_type + '.follow', id=obj_id) }}" class="{% block unfollowing_class %}btn btn-success{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
-    <i class="fa fa-plus-circle"></i>
-    {{ _('Follow') }}
-  </a>
+  {% set action='follow' %}
+  {% set icon_class='fa fa-plus-circle' %}
+  {% set button_class %}
+    {% block unfollowing_class %}btn btn-success{% endblock %}
+  {% endset %}
 {% endif %}
+
+<form action="/api/action/{{ action }}_dataset" method="post">
+  <input type="hidden" name="id" value="{{ obj_id }}" />
+  <button class="{{ button_class }}" type="submit"
+      data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="{{ action }}">
+    <i class="{{ icon_class }}"></i>
+    {{ _(action|capitalize) }}
+  </button>
+</form>

@@ -1,0 +1,1 @@
+Make dataset follow button fall back to scriptless implementation if JavaScript module doesn't load
