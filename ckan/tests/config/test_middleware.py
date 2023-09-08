@@ -7,6 +7,7 @@ from flask import Blueprint
 from ckan import plugins as p
 from ckan.common import config, _
 from ckan.lib.helpers import url_for
+from ckan.exceptions import CkanConfigurationException
 
 
 class BlueprintPlugin(p.SingletonPlugin):
@@ -87,7 +88,7 @@ def test_beaker_secret_is_used_by_default(app):
 @pytest.mark.ckan_config(u"SECRET_KEY", None)
 @pytest.mark.ckan_config(u"beaker.session.secret", None)
 def test_no_beaker_secret_crashes(make_app):
-    with pytest.raises(RuntimeError):
+    with pytest.raises(CkanConfigurationException):
         make_app()
 
 
