@@ -38,9 +38,7 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% endif %}
-{% endblock %}
 
-{% block standard_fields %}
   {% if field.info.tdtype == 'choice' %}
     {% call form.input('info__' ~ position ~ '__choices',
       label=_('Choices'), id='field-f' ~ position ~ 'choices',
@@ -50,6 +48,4 @@
       )}}
     {% endcall %}
   {% endif %}
-
-  {{ super() }}
 {% endblock %}
