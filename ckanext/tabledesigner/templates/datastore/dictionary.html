@@ -6,8 +6,12 @@
   {% else %}
     {% snippet "tabledesigner/snippets/design_fields.html",
       fields=fields,
-      prefix='info',
       res=res
     %}
   {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+  {{ super() }}
 {% endblock %}

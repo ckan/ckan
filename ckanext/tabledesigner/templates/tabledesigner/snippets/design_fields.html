@@ -4,13 +4,12 @@
       <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
         >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
     {% endblock %}
-    <input type="hidden" name="{{ prefix }}__{{ index }}__tdtype" value="{{ field.info.tdtype or field.type }}">
+    <input type="hidden" name="info__{{ index }}__tdtype" value="{{ field.info.tdtype or field.type }}">
     <div class="field-content">
       {% snippet "datastore/snippets/dictionary_form.html",
         field=field,
         position=index,
         res=res,
-        prefix=prefix,
         is_new=not fields
       %}
     </div>
