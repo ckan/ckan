@@ -560,7 +560,7 @@ def members(id, group_type, is_organization):
 def member_delete(id, group_type, is_organization):
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.params:
+    if u'cancel' in request.form:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = {u'model': model, u'session': model.Session, u'user': g.user}
@@ -572,6 +572,8 @@ def member_delete(id, group_type, is_organization):
 
     try:
         user_id = request.params.get(u'user')
+        if not user_id:
+            base.abort(404, _(u'User not found'))
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
