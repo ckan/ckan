@@ -382,7 +382,7 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
         u'for_view': True,
         u'auth_user_obj': current_user
     }
-    data_dict: dict[str, Any] = {u'id': id, u'include_tracking': True}
+    data_dict: dict[str, Any] = {'id': id}
 
     try:
         check_access(u'package_update', context, data_dict)
@@ -422,7 +422,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         u'for_view': True,
         u'auth_user_obj': current_user
     }
-    data_dict = {u'id': id, u'include_tracking': True}
+    data_dict = {'id': id}
 
     # check if package exists
     try:

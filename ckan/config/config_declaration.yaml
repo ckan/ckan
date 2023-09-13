@@ -440,11 +440,6 @@ groups:
         example: 2592000
         description: Controls CKAN static files' cache max age, if we're serving and caching them.
 
-      - key: ckan.tracking_enabled
-        type: bool
-        example: "true"
-        description: This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
-
       - key: ckan.valid_url_schemes
         type: list
         default:

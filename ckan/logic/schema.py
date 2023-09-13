@@ -58,7 +58,6 @@ def default_resource_schema(
         'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
-        'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_valid_json, keep_extras],
     }
@@ -261,7 +260,6 @@ def default_show_package_schema(keep_extras: Validator,
     schema['organization'] = []
     schema['owner_org'] = []
     schema['private'] = []
-    schema['tracking_summary'] = [ignore_missing]
     schema['license_title'] = []
 
     return schema
