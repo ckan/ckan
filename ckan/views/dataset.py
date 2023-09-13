@@ -1260,20 +1260,42 @@ def collaborators_read(package_type, id):
 def collaborator_delete(package_type, id, user_id):
     context = {u'model': model, u'user': g.user}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'{}.collaborators_read'.format(package_type), id=id)
+
     try:
-        get_action(u'package_collaborator_delete')(context, {
-            u'id': id,
-            u'user_id': user_id
-        })
+        if request.method == u'POST':
+            get_action(u'package_collaborator_delete')(context, {
+                u'id': id,
+                u'user_id': user_id
+            })
     except NotAuthorized:
         message = _(u'Unauthorized to delete collaborators {}').format(id)
         return base.abort(401, _(message))
     except NotFound as e:
         return base.abort(404, _(e.message))
 
-    h.flash_success(_(u'User removed from collaborators'))
+    if request.method == u'POST':
+        h.flash_success(_(u'User removed from collaborators'))
 
-    return h.redirect_to(u'dataset.collaborators_read', id=id)
+        return h.redirect_to(u'{}.collaborators_read'.format(package_type), id=id)
+    else:
+        user_dict = logic.get_action(u'user_show')(context, {u'id': user_id})
+        # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
+        g.user_dict = user_dict
+        g.user_id = user_id
+        g.package_id = id
+
+        extra_vars = {
+            u"user_id": user_id,
+            u"user_dict": user_dict,
+            u"package_id": id,
+            u"package_type": package_type
+        }
+        return base.render(
+            u'package/collaborators/confirm_delete.html', extra_vars)
 
 
 class CollaboratorEditView(MethodView):
@@ -1307,14 +1329,14 @@ class CollaboratorEditView(MethodView):
             return base.abort(401, _(message))
         except NotFound as e:
             h.flash_error(_(u'User not found'))
-            return h.redirect_to(u'dataset.new_collaborator', id=id)
+            return h.redirect_to(u'{}.new_collaborator'.format(package_type), id=id)
         except ValidationError as e:
             h.flash_error(e.error_summary)
-            return h.redirect_to(u'dataset.new_collaborator', id=id)
+            return h.redirect_to(u'{}.new_collaborator'.format(package_type), id=id)
         else:
             h.flash_success(_(u'User added to collaborators'))
 
-        return h.redirect_to(u'dataset.collaborators_read', id=id)
+        return h.redirect_to(u'{}.collaborators_read'.format(package_type), id=id)
 
     def get(self, package_type, id):
         context = {u'model': model, u'user': g.user}
@@ -1425,7 +1447,7 @@ def register_dataset_plugin_rules(blueprint):
 
         blueprint.add_url_rule(
             rule=u'/collaborators/<id>/delete/<user_id>',
-            view_func=collaborator_delete, methods=['POST', ]
+            view_func=collaborator_delete, methods=['POST', 'GET']
         )
 
 

@@ -519,17 +519,38 @@ def delete(id):
     }
     data_dict = {u'id': id}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'user.edit', id=id)
+
     try:
-        logic.get_action(u'user_delete')(context, data_dict)
+        if request.method == u'POST':
+            logic.get_action(u'user_delete')(context, data_dict)
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
         base.abort(403, msg.format(user_id=id))
 
-    if g.userobj.id == id:
-        return logout()
+    if request.method == 'POST':
+
+        h.flash_notice(_(u'User %s has been deleted.') % id)
+
+        if g.userobj.id == id:
+            return logout()
+        else:
+            user_index = h.url_for(u'user.index')
+            return h.redirect_to(user_index)
     else:
-        user_index = h.url_for(u'user.index')
-        return h.redirect_to(user_index)
+        user_dict = logic.get_action(u'user_show')(context, {u'id': id})
+        # TODO: Remove
+        # ckan 2.9: Adding variables that were removed from c object for
+        # compatibility with templates in existing extensions
+        g.user_dict = user_dict
+        g.user_id = id
+
+        extra_vars = {
+            u"user_id": id,
+            u"user_dict": user_dict
+        }
+        return base.render(u'user/confirm_delete.html', extra_vars)
 
 
 def generate_apikey(id=None):
@@ -849,7 +870,7 @@ user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out', view_func=logged_out)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
-user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
+user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', u'GET'))
 
 user.add_url_rule(
     u'/generate_key', view_func=generate_apikey, methods=(u'POST', ))
