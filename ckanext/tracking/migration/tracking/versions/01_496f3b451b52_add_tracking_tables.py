@@ -1,7 +1,7 @@
 """empty message
 
 Revision ID: 496f3b451b52
-Revises: 
+Revises:
 Create Date: 2023-09-12 12:08:51.835952
 
 """
@@ -18,11 +18,11 @@ depends_on = None
 
 def upgrade():
     """Add tracking tables.
-    
+
     Starting CKAN 2.11 tracking has been refactored to its own extension.
     This migration will create the tracking tables if they don't already
     exist.
-    
+
     When upgragind from 2.10 to 2.11 tables will exist so this migration
     will be skipped.
     """

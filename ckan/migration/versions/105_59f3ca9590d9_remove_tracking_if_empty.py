@@ -18,10 +18,10 @@ depends_on = None
 
 def upgrade():
     """Remove tracking tables if they are empty.
-    
+
     Starting CKAN 2.11 tracking has been refactored to its own extension.
-    When running the migration from CKAN 2.10 to 2.11, `ckan db init` will 
-    run this migration and remove the tables if they are empty. 
+    When running the migration from CKAN 2.10 to 2.11, `ckan db init` will
+    run this migration and remove the tables if they are empty.
     (This assume that the tracking extension was never enabled)
     """
     tracking_rows = sa.sql.select([sa.sql.func.count('*')]).select_from(
@@ -30,7 +30,7 @@ def upgrade():
     rows = op.get_bind().execute(tracking_rows).scalar()
     if rows == 0:
         op.drop_table('tracking_summary')
-        op.drop_table('tracking_raw')      
+        op.drop_table('tracking_raw')
 
 
 def downgrade():

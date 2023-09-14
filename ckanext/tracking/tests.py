@@ -19,8 +19,7 @@ def export(tmp_path):
     # FIXME: Can this be done as more of a functional test where we
     # actually test calling the command and passing the args? By calling
     # the method directly, we're not testing the command-line parsing.
-    from ckan.cli.tracking import export_tracking
-    import ckan.model
+    from ckanext.tracking.cli.tracking import export_tracking
 
     path = tmp_path / "report.csv"
 
@@ -50,7 +49,9 @@ def track(app):
             "HTTP_ACCEPT_LANGUAGE": "en",
             "HTTP_ACCEPT_ENCODING": "gzip, deflate",
         }
-        app.post("/_tracking", params=params, environ_overrides=environ_overrides)
+        app.post(
+            "/_tracking", params=params, environ_overrides=environ_overrides
+            )
 
     return func
 
@@ -64,8 +65,7 @@ def update_tracking_summary():
     # FIXME: Can this be done as more of a functional test where we
     # actually test calling the command and passing the args? By calling
     # the method directly, we're not testing the command-line parsing.
-    import ckan.cli.tracking as tracking
-    import ckan.model
+    from ckanext.tracking.cli.tracking import tracking
 
     date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
         "%Y-%m-%d"
@@ -550,7 +550,7 @@ class TestTracking(object):
 
         """
         migrate_db_for("tracking")
-        
+
         admin = factories.Sysadmin()
 
         package_1 = factories.Dataset(user=admin)

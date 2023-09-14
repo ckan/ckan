@@ -11,10 +11,11 @@ def popular(type_: str,
     if type_ == 'views':
         title = toolkit.ungettext('{number} view', '{number} views', number)
     elif type_ == 'recent views':
-        title = toolkit.ungettext('{number} recent view', '{number} recent views',
-                          number)
+        title = toolkit.ungettext(
+            '{number} recent view', '{number} recent views', number
+            )
     elif not title:
         raise Exception('popular() did not recieve a valid type_ or title')
     data_dict = {'title': title, 'number': number, 'min': min}
-    
+
     return toolkit.render_snippet('snippets/popular.html', data_dict)
