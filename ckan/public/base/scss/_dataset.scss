@@ -58,10 +58,6 @@
     background-color: $resourceFormatBackground;
 }
 
-.popular {
-    color:#f29c2b;
-}
-
 // Resource List
 .resource-list {
     @include list-unstyled;
