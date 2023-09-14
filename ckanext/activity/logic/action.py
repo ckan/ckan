@@ -65,7 +65,6 @@ def dashboard_mark_activities_old(
         model.repo.commit()
 
 
-@tk.side_effect_free
 def activity_create(
     context: Context, data_dict: DataDict
 ) -> Optional[dict[str, Any]]:
