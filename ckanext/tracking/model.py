@@ -36,6 +36,7 @@ tracking_summary_table = Table(
 
 
 class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
+    __tablename__ = 'tracking_summary'
     url: str
     package_id: str
     tracking_type: str
@@ -65,6 +66,3 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
             return {'total': data.running_total, 'recent': data.recent_views}
 
         return {'total': 0, 'recent': 0}
-
-
-meta.mapper(TrackingSummary, tracking_summary_table)
