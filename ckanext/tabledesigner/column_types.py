@@ -106,6 +106,3 @@ class JSONColumn(ColumnType):
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
-
-
-_standard_column_types['int4'] = _standard_column_types['integer']
