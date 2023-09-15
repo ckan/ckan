@@ -90,7 +90,12 @@ class TrackingPlugin(p.SingletonPlugin):
         This method will index (but not store) the tracking information of the
         dataset. This will only allow us to sort Solr's queries by views. For
         the actual data we will query the database after the search.
+
+        It will also remove the tracking_summary key from the package dict since
+        it is not a valid Solr field.
         """
+        pkg_dict.pop("tracking_summary", None)
+
         tracking_summary = TrackingSummary.get_for_package(
             pkg_dict["id"]
             )
