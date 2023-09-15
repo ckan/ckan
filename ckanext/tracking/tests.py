@@ -81,9 +81,7 @@ class TestTracking(object):
 
         # The API should return 0 recent views and 0 total views for the
         # unviewed package.
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
             "A package that has not "
@@ -102,9 +100,7 @@ class TestTracking(object):
 
         # The package_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
         tracking_summary = resource["tracking_summary"]
@@ -121,9 +117,7 @@ class TestTracking(object):
 
         # The resource_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
-        resource = call_action(
-            "resource_show", id=resource["id"], include_tracking=True
-        )
+        resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 0, (
             "A resource that has not "
@@ -145,9 +139,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
             "A package that has been "
@@ -186,9 +178,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
 
@@ -228,9 +218,7 @@ class TestTracking(object):
 
         track(resource["url"], type_="resource")
         update_tracking_summary()
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
         assert package["tracking_summary"]["recent"] == 0, (
@@ -251,9 +239,7 @@ class TestTracking(object):
         )
 
         # The resource_show() API should return the same result.
-        resource = call_action(
-            "resource_show", id=resource["id"], include_tracking=True
-        )
+        resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
             "Downloading a resource should increase the resource's recent "
@@ -311,9 +297,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 3, (
             "A package that has been viewed 3 times recently should have 3 "
@@ -348,9 +332,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
 
         assert len(package["resources"]) == 1
         resource = package["resources"][0]
@@ -428,9 +410,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        package = call_action(
-            "package_show", id=package["name"], include_tracking=True
-        )
+        package = call_action("package_show", id=package["name"])
 
         tracking_summary = package["tracking_summary"]
         assert tracking_summary["recent"] == 1, (
@@ -456,9 +436,7 @@ class TestTracking(object):
 
         update_tracking_summary()
 
-        resource = call_action(
-            "resource_show", id=resource["id"], include_tracking=True
-        )
+        resource = call_action("resource_show", id=resource["id"])
         tracking_summary = resource["tracking_summary"]
         assert (
             tracking_summary["recent"] == 1

@@ -985,9 +985,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1087,9 +1084,6 @@ def resource_show(
 
     :param id: the id of the resource
     :type id: string
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
 
     :rtype: dictionary
 
