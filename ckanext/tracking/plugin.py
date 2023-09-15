@@ -95,6 +95,8 @@ class TrackingPlugin(p.SingletonPlugin):
         it is not a valid Solr field.
         """
         pkg_dict.pop("tracking_summary", None)
+        for r in pkg_dict.get('resources', []):
+            r.pop('tracking_summary', None)
 
         tracking_summary = TrackingSummary.get_for_package(
             pkg_dict["id"]
