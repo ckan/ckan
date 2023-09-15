@@ -65,12 +65,12 @@ def update_tracking_summary():
     # FIXME: Can this be done as more of a functional test where we
     # actually test calling the command and passing the args? By calling
     # the method directly, we're not testing the command-line parsing.
-    from ckanext.tracking.cli.tracking import tracking
+    from ckanext.tracking.cli.tracking import update_all
 
     date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
         "%Y-%m-%d"
     )
-    tracking.update_all(engine=engine, start_date=date)
+    update_all(engine=engine, start_date=date)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "tracking")
@@ -279,9 +279,10 @@ class TestTracking(object):
         # dataset) tracking summaries, eg. via the api or a paster command, the
         # only way we can check them is through the model directly.
         import ckan.model as model
+        from ckanext.tracking.model import TrackingSummary
 
         for url in ("", "/organization", "/about"):
-            q = model.Session.query(model.TrackingSummary)
+            q = model.Session.query(TrackingSummary)
             q = q.filter_by(url=url)
             tracking_summary = q.one()
             assert tracking_summary.count == 1, (
@@ -391,9 +392,10 @@ class TestTracking(object):
         # dataset) tracking summaries, eg. via the api or a paster command, the
         # only way we can check them if through the model directly.
         import ckan.model as model
+        from ckanext.tracking.model import TrackingSummary
 
         for url in ("", "/organization", "/about"):
-            q = model.Session.query(model.TrackingSummary)
+            q = model.Session.query(TrackingSummary)
             q = q.filter_by(url=url)
             tracking_summary = q.one()
             assert tracking_summary.count == 3, (
