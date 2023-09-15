@@ -1,4 +1,18 @@
 # encoding: utf-8
+""" Tracking models
+
+Tracking functinoality used to be implemented in core CKAN and it was
+later moved to an extension during the development of CKAN 2.11.
+
+Even when tracking models are defined here, the tables are still
+being created in the database by core CKAN db migrations. This is not
+ideal but it has been done this way to avoid breaking existing
+installations.
+
+If you are looking for the database migrations, you can find them in
+the core CKAN folder:
+ckan/migrations/versions/057_660a5aae527e_tracking.py
+"""
 from __future__ import annotations
 
 import datetime

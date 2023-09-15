@@ -74,10 +74,9 @@ def update_tracking_summary():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "tracking")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "app")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "app")
 class TestTracking(object):
-    def test_package_with_0_views(self, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_package_with_0_views(self):
         package = factories.Dataset()
 
         # The API should return 0 recent views and 0 total views for the
@@ -97,8 +96,7 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_resource_with_0_views(self, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_resource_with_0_views(self):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -138,8 +136,7 @@ class TestTracking(object):
             "total views"
         )
 
-    def test_package_with_one_view(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_package_with_one_view(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -178,8 +175,7 @@ class TestTracking(object):
             "of the package's resources"
         )
 
-    def test_resource_with_one_preview(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_resource_with_one_preview(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
         url = h.url_for(
@@ -226,8 +222,7 @@ class TestTracking(object):
             "recent views"
         )
 
-    def test_resource_with_one_download(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_resource_with_one_download(self, track):
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
 
@@ -270,8 +265,7 @@ class TestTracking(object):
         )
 
     @pytest.mark.usefixtures("clean_db")
-    def test_view_page(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_view_page(self, track):
 
         # Visit the front page.
         track(url="", type_="page")
@@ -303,8 +297,7 @@ class TestTracking(object):
             ), "running_total for a page is always 0"
 
     @pytest.mark.usefixtures("clean_db")
-    def test_package_with_many_views(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_package_with_many_views(self, track):
 
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
@@ -341,8 +334,7 @@ class TestTracking(object):
             "package's resources"
         )
 
-    def test_resource_with_many_downloads(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_resource_with_many_downloads(self, track):
 
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
@@ -382,8 +374,7 @@ class TestTracking(object):
         )
 
     @pytest.mark.usefixtures("clean_db")
-    def test_page_with_many_views(self, track, migrate_db_for):
-        migrate_db_for("tracking")
+    def test_page_with_many_views(self, track):
 
         # View each page three times, from three different IPs.
         for ip in ("111.111.11.111", "222.222.22.222", "333.333.33.333"):
@@ -418,12 +409,11 @@ class TestTracking(object):
                 "running_total for " "pages is always 0"
             )
 
-    def test_dataset_view_count_throttling(self, track, migrate_db_for):
+    def test_dataset_view_count_throttling(self, track):
         """If the same user visits the same dataset multiple times on the same
         day, only one view should get counted.
 
         """
-        migrate_db_for("tracking")
 
         package = factories.Dataset()
         factories.Resource(package_id=package["id"])
@@ -448,12 +438,11 @@ class TestTracking(object):
             "Repeat dataset views should " "not add to total views count"
         )
 
-    def test_resource_download_count_throttling(self, track, migrate_db_for):
+    def test_resource_download_count_throttling(self, track):
         """If the same user downloads the same resource multiple times on the
         same day, only one view should get counted.
 
         """
-        migrate_db_for("tracking")
 
         package = factories.Dataset()
         resource = factories.Resource(package_id=package["id"])
@@ -477,10 +466,9 @@ class TestTracking(object):
         ), "Repeat resource downloads should not add to total views count"
 
     @pytest.mark.usefixtures("clean_index", "clean_db")
-    def test_sorting_datasets_by_recent_views(self, track, migrate_db_for):
+    def test_sorting_datasets_by_recent_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        migrate_db_for("tracking")
 
         d1 = factories.Dataset()
         d2 = factories.Dataset()
@@ -509,10 +497,9 @@ class TestTracking(object):
         assert packages[2]["name"] == d1["name"]
 
     @pytest.mark.usefixtures("clean_db", "clean_index")
-    def test_sorting_datasets_by_total_views(self, track, migrate_db_for):
+    def test_sorting_datasets_by_total_views(self, track):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        migrate_db_for("tracking")
 
         factories.Dataset(name="consider_phlebas")
         factories.Dataset(name="the_player_of_games")
@@ -541,7 +528,7 @@ class TestTracking(object):
         assert packages[2]["name"] == "consider_phlebas"
 
     @pytest.mark.usefixtures("clean_db")
-    def test_export(self, track, export, migrate_db_for):
+    def test_export(self, track, export):
         """`paster tracking export` should export tracking data for all
         datasets in CSV format.
 
@@ -549,7 +536,6 @@ class TestTracking(object):
         views.
 
         """
-        migrate_db_for("tracking")
 
         admin = factories.Sysadmin()
 
