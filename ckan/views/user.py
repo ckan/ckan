@@ -879,7 +879,11 @@ def sysadmin() -> Response:
             _(u'Not authorized to promote user to sysadmin')
         )
     except logic.NotFound:
-        return base.abort(404, _(u'User not found'))
+        h.flash_error(_(u'User not found'))
+        return h.redirect_to(u'admin.index')
+    except logic.ValidationError as e:
+        h.flash_error((e.message or e.error_summary or e.error_dict))
+        return h.redirect_to(u'admin.index')
 
     if status:
         h.flash_success(
