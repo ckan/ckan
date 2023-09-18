@@ -10,11 +10,11 @@ The title of the facet, eg. "Tags", or "Tag Cloud"
 search_facet
 Dictionary with a search facet and all its items,
 eg. {
-	"title": "tags",
-	"items": [
-	{"name": "tag1", "display_name": "Tag 1", "count": 1},
-	{"name": "tag2", "display_name": "Tag 2", "count": 2}
-	]
+  "title": "tags",
+  "items": [
+    {"name": "tag1", "display_name": "Tag 1", "count": 1},
+    {"name": "tag2", "display_name": "Tag 2", "count": 2}
+  ]
 }
 
 facet_filter_length
@@ -22,42 +22,44 @@ Maximum number of facet items to display before showing a "more" link.
 
 #}
 {% macro item_link(item, facet_name) -%}
-	{% set active = item["name"] in request.args.getlist(facet_name) %}
-	{% set url_args = request.args.copy() %}
-	{% if not active %}
-		{% do url_args.add(facet_name, item["name"]) %}
-	{% else %}
-		{% set current_items_in_url = url_args.getlist(facet_name) %}
-		{% do current_items_in_url.remove(item["name"]) %}
-		{% do url_args.setlist(facet_name, current_items_in_url) %}
-	{% endif %}
-	<a href="{{h.url_for('dataset.search', **url_args.to_dict(False))}}" class="list-group-item list-group-item-action align-middle{% if active%} active{%endif%}" {% if active%}aria-current="true"{%endif%}>
-		{{item["display_name"]|truncate(30)}}
-		<span class="badge {%if active%}bg-light text-dark{%else%}bg-primary{%endif%} rounded-pill">{{ item["count"] }}</span>
-		{% if active %}<span class="float-end"><i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
-	</a>
+  {% set active = item["name"] in request.args.getlist(facet_name) %}
+  {% set url_args = request.args.copy() %}
+  {% if not active %}
+    {% do url_args.add(facet_name, item["name"]) %}
+  {% else %}
+    {% set current_items_in_url = url_args.getlist(facet_name) %}
+    {% do current_items_in_url.remove(item["name"]) %}
+    {% do url_args.setlist(facet_name, current_items_in_url) %}
+  {% endif %}
+  <a href="{{h.url_for('dataset.search', **url_args.to_dict(False))}}" class="list-group-item list-group-item-action align-middle{% if active%} active{%endif%}" {% if active %}aria-current="true" {%endif%}>
+	    {{item["display_name"]|truncate(30)}}
+	  <span class="badge {%if active%}bg-light text-dark{%else%}bg-primary{%endif%} rounded-pill">{{ item["count"]}}</span>
+	  {% if active %}<span class="float-end"><i class="fa fa-solid fa-circle-xmark"></i></span>{% endif %}
+  </a>
 {%- endmacro %}
 
-{% if search_facet %}
-	<div class="list-group list-group-flush">
-		<div class="list-group-item list-group-item-dark">{{title}} <i class="fa fa-filter"></i></div>
-		{% for item in search_facet["items"][:facet_filter_length]%}
-			{{ item_link(item, name) }}
-		{% endfor %}
-	</div>
-	<!-- Collapsable links -->
-	{% if search_facet["items"]|length > facet_filter_length %}
-		<div id="more-links-{{title}}" class="list-group list-group-flush collapse">
-		{% for item in search_facet["items"][facet_filter_length:]%}
-			{{ item_link(item, name) }}
-		{% endfor %}
-		</div>
-		<button class="list-group-item list-group-item-action list-group-item-light" data-bs-toggle="collapse"
-		data-bs-target="#more-links-{{title}}" aria-expanded="false">
-			<span class="collapsed"><strong>Show more...</strong></span>
-			<span class="expanded"><strong>Show less...</strong></span>
-		</button>
+<div class="list-group list-group-flush">
+	<div class="list-group-item list-group-item-dark">{{title}} <i class="fa fa-filter"></i></div>
+	{% if search_facet["items"]|length > 0 %}
+	  {% for item in search_facet["items"][:facet_filter_length]%}
+	    {{ item_link(item, name) }}
+	  {% endfor %}
+	  <!-- Collapsable links -->
+	  {% if search_facet["items"]|length > facet_filter_length %}
+	    <div id="more-links-{{title}}" class="list-group list-group-flush collapse">
+		    {% for item in search_facet["items"][facet_filter_length:]%}
+		      {{ item_link(item, name) }}
+		    {% endfor %}
+	    </div>
+	    <button class="list-group-item list-group-item-action list-group-item-light" data-bs-toggle="collapse"
+		    data-bs-target="#more-links-{{title}}" aria-expanded="false">
+		      <span class="collapsed"><strong>Show more...</strong></span>
+		      <span class="expanded"><strong>Show less...</strong></span>
+	    </button>
+	  {% endif %}
+	{% else %}
+    <button class="list-group-item list-group-item-action" disabled>
+	    {{ _('There are no {facet_type} that match this search').format(facet_type=title) }}
+    </button>
 	{% endif %}
-{% else %}
-	<p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
-{% endif %}
+</div>
