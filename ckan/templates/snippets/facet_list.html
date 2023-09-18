@@ -53,8 +53,9 @@ Maximum number of facet items to display before showing a "more" link.
 		{% endfor %}
 		</div>
 		<button class="list-group-item list-group-item-action list-group-item-light" data-bs-toggle="collapse"
-		data-bs-target="#more-links-{{title}}">
-			<strong>Show more...</strong>
+		data-bs-target="#more-links-{{title}}" aria-expanded="false">
+			<span class="collapsed"><strong>Show more...</strong></span>
+			<span class="expanded"><strong>Show less...</strong></span>
 		</button>
 	{% endif %}
 {% else %}
