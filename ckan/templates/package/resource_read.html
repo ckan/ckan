@@ -53,7 +53,7 @@
                     {% if res.datastore_active %}
                       <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-label="{{ _('Choose format') }}">
                         {% if not res.url or not h.is_url(res.url) %}
-                          <i class="fa fa-arrow-circle-o-down"></i>{{ _('Download') }}&nbsp;
+                          {{ _('Download') }}&nbsp;
                         {% endif %}
                         <span class="caret"></span>
                       </button>
