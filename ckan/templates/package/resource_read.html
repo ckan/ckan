@@ -32,50 +32,53 @@
                     <li>{% link_for _('Manage'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='wrench' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
-            {% if res.url and h.is_url(res.url) %}
-              <li>
-                <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
-                  {% if res.resource_type in ('listing', 'service') %}
-                    <i class="fa fa-eye"></i> {{ _('View') }}
-                  {% elif  res.resource_type == 'api' %}
-                    <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views and not res.url_type == 'upload' %}
-                    <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-                  {% else %}
-                    <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
-                  {% endif %}
-                </a>
-                {% block download_resource_button %}
-                  {% if res.datastore_active %}
-                <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
-                    <span class="caret"></span>
-                  </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownDownloadFormat">
-                  <li>
-                    <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
-                      target="_blank" rel="noreferrer"><span>CSV</span></a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
-                      target="_blank" rel="noreferrer"><span>TSV</span></a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
-                      target="_blank" rel="noreferrer"><span>JSON</span></a>
-                  </li>
-                  <li>
-                      <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
-                      target="_blank" rel="noreferrer"><span>XML</span></a>
-                  </li>
-                </ul>
-                  {% endif %}
-                {% endblock %}
-                </div>
-              </li>
-            {% endif %}
-            {% endblock %}
-          </ul>
+                <li>
+                  <div class="btn-group">
+                    {% if res.url and h.is_url(res.url) %}
+                      <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+                        {% if res.resource_type in ('listing', 'service') %}
+                          <i class="fa fa-eye"></i> {{ _('View') }}
+                        {% elif  res.resource_type == 'api' %}
+                          <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+                        {% elif not res.has_views and not res.url_type == 'upload' %}
+                          <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+                        {% else %}
+                          <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
+                        {% endif %}
+                      </a>
+                    {% endif %}
+                    {% block download_resource_button %}
+                      {% if res.datastore_active %}
+                        <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
+                          {% if not res.url or not h.is_url(res.url) %}
+                            {{ _('Download') }}&nbsp;
+                          {% endif %}
+                          <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownDownloadFormat">
+                          <li>
+                            <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
+                              target="_blank" rel="noreferrer"><span>CSV</span></a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
+                              target="_blank" rel="noreferrer"><span>TSV</span></a>
+                          </li>
+                          <li>
+                              <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
+                              target="_blank" rel="noreferrer"><span>JSON</span></a>
+                          </li>
+                          <li>
+                              <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
+                              target="_blank" rel="noreferrer"><span>XML</span></a>
+                          </li>
+                        </ul>
+                      {% endif %}
+                    {% endblock %}
+                  </div>
+                </li>
+              {% endblock %}
+            </ul>
           {% endblock %}
         </div>
         {% block resource_content %}
