@@ -612,7 +612,7 @@ def member_create(context: Context,
         filter(model.Member.table_name == obj_type).\
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
-        filter(model.Member.state == 'active').first()
+        order_by(model.Member.state.asc()).first()
     if member:
         user_obj = model.User.get(user)
         if user_obj and member.table_name == u'user' and \
@@ -621,6 +621,8 @@ def member_create(context: Context,
                 capacity != u'admin':
             raise NotAuthorized("Administrators cannot revoke their "
                                 "own admin status")
+        if member.state != u'active':
+            member.state = u'active'
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
