@@ -312,8 +312,7 @@ enabled plugins with this code in any template file:
    :start-after: Jinja for-loop example
    :end-before: End example
 
-Other variables, such as :ref:`ckan.debug`, are booleans, and can be
-tested using Jinja's ``{% if %}`` tag:
+Other boolean variables can be tested using Jinja's ``{% if %}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme_docs/v03_jinja/templates/home/index.html
    :language: django
