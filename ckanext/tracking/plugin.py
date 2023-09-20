@@ -87,12 +87,12 @@ class TrackingPlugin(p.SingletonPlugin):
             ) -> "dict[str, Any]":
         """ Index tracking information.
 
-        This method will index (but not store) the tracking information of the
-        dataset. This will only allow us to sort Solr's queries by views. For
-        the actual data we will query the database after the search.
+        This method will index (but not store) the tracking information of
+        the dataset. This will only allow us to sort Solr's queries by views.
+        For the actual data we will query the database after the search.
 
-        It will also remove the tracking_summary key from the package dict since
-        it is not a valid Solr field.
+        It will also remove the tracking_summary key from the package dict
+        since it is not a valid Solr field.
         """
         pkg_dict.pop("tracking_summary", None)
         for r in pkg_dict.get('resources', []):
