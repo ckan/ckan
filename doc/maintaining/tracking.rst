@@ -22,19 +22,13 @@ anonymously track visits to pages of your site. You ca use this tracking data to
 .. note::
 
    CKAN 2.10 and older versions had tracking integrated into the core and this
-   instructions no longer apply. Checkout the 
+   instructions no longer apply. Checkout the
    `2.10 documentation <https://docs.ckan.org/en/2.10/maintaining/tracking.html>`_
    for more information.
 
-.. note::
 
-   While migrating CKAN from 2.10 to 2.11, you will need to replace the 
-   `ckan.tracking_enabled = true` configuration option with the 
-   `ckan.plugins = tracking` one.
-
-
-Enabling Page View Tracking
-===========================
+Enabling Page View Tracking Extension
+=====================================
 
 To enable page view tracking:
 
@@ -74,8 +68,8 @@ To enable page view tracking:
 Retrieving Tracking Data
 ========================
 
-When the extension is enabled, tracking summary data for datasets and resources 
-is available in the dataset and resource dictionaries returned by, 
+When the extension is enabled, tracking summary data for datasets and resources
+is available in the dataset and resource dictionaries returned by,
 for example, the ``package_show()``
 API::
 
@@ -131,3 +125,10 @@ badge and a tooltip showing the number of views:
 .. image:: /images/popular-dataset.png
 
 .. image:: /images/popular-resource.png
+
+
+.. tip::
+
+    You can change the number of views that a dataset or resource needs to be
+    considered popular by overriding ``ckanext/tracking/templates/snippets/popular.html``
+    template. The default is 10.
