@@ -624,8 +624,8 @@ def member_create(context: Context,
                 capacity != u'admin':
             raise NotAuthorized("Administrators cannot revoke their "
                                 "own admin status")
-        if member.state != u'active':
-            member.state = u'active'
+        if member.state != 'active':
+            member.state = 'active'
     else:
         member = model.Member(table_name=obj_type,
                               table_id=obj.id,
