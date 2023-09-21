@@ -5,6 +5,7 @@ Babel==2.12.1
 Beaker==1.12.1
 bleach==6.0.0
 blinker==1.6.2
+certifi>=2023.7.22
 click==8.1.7
 dominate==2.8.0
 feedgen==0.9.0
