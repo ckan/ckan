@@ -64,8 +64,7 @@ def group_list_dictize(
     if with_package_counts and 'dataset_counts' not in group_dictize_context:
         # 'dataset_counts' will already be in the context in the case that
         # group_list_dictize recurses via group_dictize (groups in groups)
-        group_dictize_context['dataset_counts'] = get_group_dataset_counts(
-            logic.fresh_context(context))
+        group_dictize_context['dataset_counts'] = get_group_dataset_counts()
     if context.get('with_capacity'):
         group_list = [
             group_dictize(
@@ -324,19 +323,14 @@ def _get_members(context: Context, group: model.Group,
     return q.all()
 
 
-def get_group_dataset_counts(search_context) -> dict[str, Any]:
+def get_group_dataset_counts() -> dict[str, Any]:
     '''For all public groups, return their dataset counts, as a SOLR facet'''
-    q: dict[str, Any] = {
-        'facet.limit': -1,
-        'facet.field': ['groups', 'owner_org'],
-        'fl': 'groups',
-        'rows': 0,
-        'include_private': True,
-    }
-    # FIXME: layer violation, like get_packages_for_this_group below
-    search_results = logic.get_action('package_search')(
-        search_context, q)
-    return search_results['facets']
+    query = search.PackageSearchQuery()
+    q: dict[str, Any] = {'q': '',
+         'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
+         'facet.limit': -1, 'rows': 1}
+    query.run(q)
+    return query.facets
 
 
 def group_dictize(group: model.Group, context: Context,
@@ -385,7 +379,11 @@ def group_dictize(group: model.Group, context: Context,
                 is_group_member = (context.get('user') and
                     authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
-                q['include_private'] = True
+                if is_group_member:
+                    q['include_private'] = True
+                else:
+                    if config.get('ckan.auth.allow_dataset_collaborators'):
+                        q['include_private'] = True
 
             if not just_the_count:
                 # package_search limits 'rows' anyway, so this is only if you
@@ -397,7 +395,9 @@ def group_dictize(group: model.Group, context: Context,
                 else:
                     q['rows'] = packages_limit
 
-            search_context = logic.fresh_context(context)
+            search_context = cast(
+                Context, dict((k, v) for (k, v) in context.items()
+                              if k != 'schema'))
             search_results = logic.get_action('package_search')(
                 search_context, q)
             return search_results['count'], search_results['results']
