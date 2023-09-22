@@ -1113,8 +1113,9 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
         u'pkg_dict': pkg_dict})
 
 
-def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
-    context = cast(Context, {u'model': model, u'user': current_user.name})
+def collaborator_delete(package_type: str,
+                        id: str, user_id: str) -> Union[Response, str]:  # noqa
+    context: Context = {'user': current_user.name}
 
     if u'cancel' in request.form:
         return h.redirect_to(u'{}.collaborators_read'
