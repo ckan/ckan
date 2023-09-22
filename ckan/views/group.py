@@ -537,7 +537,7 @@ def member_delete(id: str, group_type: str,
                   is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.args:
+    if u'cancel' in request.form:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context = cast(
@@ -554,6 +554,8 @@ def member_delete(id: str, group_type: str,
 
     try:
         user_id = request.args.get(u'user')
+        if not user_id:
+            base.abort(404, _(u'User not found'))
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
