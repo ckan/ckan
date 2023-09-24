@@ -18,7 +18,7 @@ services:
         - WTF_CSRF_CHECK_DEFAULT=True
         - OAUTHLIB_INSECURE_TRANSPORT=True
       volumes:
-        - ./who.ini:/etc/ckan/production.ini          
+        - ./who.ini:/usr/lib/production.ini          
       depends_on:
           - solr          
       networks:
