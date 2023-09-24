@@ -17,8 +17,12 @@ services:
         - WTF_CSRF_ENABLED=False
         - WTF_CSRF_CHECK_DEFAULT=True
         - OAUTHLIB_INSECURE_TRANSPORT=True
+        - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-t8tnyisyxsa.ws-us104.gitpod.io
+        - CKAN_SOLR_URL=http://solr:8983/solr/ckan
+        - CKAN_SQLALCHEMY_URL=postgresql://ckan:ckan@db/ckan
+        - CKAN_REDIS_URL=redis://redis:6379/1      
       volumes:
-        - ./who.ini:/usr/lib/production.ini          
+        - ./who.ini:/usr/lib/who.ini          
       depends_on:
           - solr          
       networks:

@@ -8,7 +8,6 @@ WORKDIR /usr/lib/
 RUN python setup.py install
 RUN pip install -r requirements.txt
 
-USER ckan
 EXPOSE 5000
 
-CMD ["ckan","-c","/usr/lib/production.ini", "run", "--host", "0.0.0.0"]
+CMD ["ckan","-c","/usr/lib/who.ini", "run", "--host", "0.0.0.0"]

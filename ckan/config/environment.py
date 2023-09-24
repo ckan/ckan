@@ -193,7 +193,7 @@ def update_config():
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    site_url = config.get('ckan.site_url', '')
+    site_url = config.get('ckan.site_url')
     if not site_url:
         raise RuntimeError(
             'ckan.site_url is not configured and it must have a value.'
