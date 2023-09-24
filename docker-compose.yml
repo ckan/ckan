@@ -1,0 +1,61 @@
+version: "3"
+
+volumes:
+  ckan_storage:
+  pg_data:
+  solr_data:
+networks:
+  monolito: {}     
+
+services:    
+  ckan:
+      build: .
+      ports:
+          - "5000:5000"
+      environment:
+        #- CKAN_INI=/usr/lib/who.ini      
+        - WTF_CSRF_ENABLED=False
+        - WTF_CSRF_CHECK_DEFAULT=True
+        - OAUTHLIB_INSECURE_TRANSPORT=True
+      volumes:
+        - ./who.ini:/usr/lib/who.ini                
+      depends_on:
+          - solr          
+      networks:
+          - monolito               
+  db:
+    build:
+      context: postgresql/
+      args:
+       - DATASTORE_READONLY_PASSWORD=datastore
+       - POSTGRES_PASSWORD=ckan
+    environment:
+      - DATASTORE_READONLY_PASSWORD=datastore
+      - POSTGRES_PASSWORD=ckan
+      - PGDATA=/var/lib/postgresql/data/db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+    networks:
+        - monolito       
+  redis:
+    image: redis:6
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-e", "QUIT"]     
+    networks:
+        - monolito        
+  solr:
+    image: ckan/ckan-solr:2.9-solr8
+    volumes:
+      - solr_data:/var/solr
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/"]
+    depends_on:
+        - db           
+    networks:
+        - monolito       
+
