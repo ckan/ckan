@@ -4,6 +4,7 @@ from __future__ import annotations
 from ckan.types import Context
 import logging
 from typing import Any, cast
+import json
 
 import sqlalchemy
 import sqlalchemy.exc
@@ -632,6 +633,8 @@ def set_datastore_active_flag(
     Called after creation or deletion of DataStore table.
     '''
     model = context['model']
+    resource = model.Resource.get(data_dict['resource_id'])
+    assert resource
 
     # update extras json with a single statement
     model.Session.query(model.Resource).filter(
