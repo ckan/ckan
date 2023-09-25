@@ -20,7 +20,19 @@ services:
         - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-t8tnyisyxsa.ws-us104.gitpod.io
         - CKAN_SOLR_URL=http://solr:8983/solr/ckan
         - CKAN_SQLALCHEMY_URL=postgresql://ckan:ckan@db/ckan
-        - CKAN_REDIS_URL=redis://redis:6379/1      
+        - CKAN_REDIS_URL=redis://redis:6379/1
+        - CKAN_OAUTH2_AUTHORIZATION_ENDPOINT=https://accounts.google.com/o/oauth2/auth
+        - CKAN_OAUTH2_TOKEN_ENDPOINT=https://oauth2.googleapis.com/token
+        - CKAN_OAUTH2_PROFILE_API_URL=https://oauth2.googleapis.com/oauth2/v1/userinfo
+        - CKAN_OAUTH2_CLIENT_ID=client-id
+        - CKAN_OAUTH2_CLIENT_SECRET=client-secret
+        - CKAN_OAUTH2_SCOPE=https://oauth2.googleapis.com/oauth2/v1/userinfo.email https://oauth2.googleapis.com/oauth2/v1/userinfo.profile
+        - CKAN_OAUTH2_PROFILE_API_USER_FIELD=email
+        - CKAN_OAUTH2_PROFILE_API_FULLNAME_FIELD=name
+        - CKAN_OAUTH2_AUTHORIZATION_HEADER=Authorization      
+        - CKAN_OAUTH2_PROFILE_API_MAIL_FIELD=email
+        - CKAN_OAUTH2_REMEMBER_NAME=fake
+        - CKAN_OAUTH2_JWT_ENABLE=True
       volumes:
         - ./who.ini:/usr/lib/who.ini          
       depends_on:
