@@ -650,6 +650,7 @@ def set_datastore_active_flag(
         synchronize_session='fetch',
     )
     model.Session.commit()
+    model.Session.expire(resource, ['extras'])
 
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
