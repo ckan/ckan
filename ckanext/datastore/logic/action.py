@@ -673,6 +673,7 @@ def set_datastore_active_flag(model, data_dict, flag):
     res_query.update({'extras': extras}, synchronize_session=False)
 
     model.Session.commit()
+    model.Session.expire(resource, ['extras'])
 
     # get package with  updated resource from solr
     # find changed resource, patch it and reindex package
