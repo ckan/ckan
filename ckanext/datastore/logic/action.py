@@ -7,6 +7,8 @@ from typing import Any
 
 import sqlalchemy
 import sqlalchemy.exc
+from sqlalchemy.dialects.postgresql import TEXT, JSONB
+from sqlalchemy.sql.expression import func
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -656,21 +658,21 @@ def set_datastore_active_flag(
 
     Called after creation or deletion of DataStore table.
     '''
-    # We're modifying the resource extra directly here to avoid a
-    # race condition, see issue #3245 for details and plan for a
-    # better fix
     model = context['model']
-    update_dict = {'datastore_active': flag}
 
-    q = model.Session.query(model.Resource). \
-        filter(model.Resource.id == data_dict['resource_id'])
-    resource = q.one()
-
-    # update extras in database for record
-    extras = resource.extras
-    extras.update(update_dict)
-    q.update({'extras': extras}, synchronize_session=False)
-
+    # update extras json with a single statement
+    model.Session.query(model.Resource).filter(
+        model.Resource.id == data_dict['resource_id']
+    ).update(
+        {
+            'extras': func.jsonb_set(
+                model.resource_table.c.extras.cast(JSONB),
+                '{datastore_active}',
+                json.dumps(flag),
+            ).cast(TEXT)
+        },
+        synchronize_session='fetch',
+    )
     model.Session.commit()
 
     # copied from ckan.lib.search.rebuild
@@ -686,11 +688,11 @@ def set_datastore_active_flag(
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
     _data_dict = p.toolkit.get_action('package_show')(context, {
-        'id': resource.package_id
+        'id': model.Resource.get(data_dict['resource_id']).package_id
     })
     for resource in _data_dict['resources']:
         if resource['id'] == data_dict['resource_id']:
-            resource.update(update_dict)
+            resource['datastore_active'] = flag
             psi.index_package(_data_dict)
             break
 
