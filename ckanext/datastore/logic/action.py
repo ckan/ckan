@@ -677,6 +677,7 @@ def set_datastore_active_flag(
         synchronize_session='fetch',
     )
     model.Session.commit()
+    model.Session.expire(resource, ['extras'])
 
     # copied from ckan.lib.search.rebuild
     # using validated packages can cause solr errors.
