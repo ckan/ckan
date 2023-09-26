@@ -11,11 +11,11 @@
 # The %(here)s variable will be replaced with the parent directory of this file
 #
 
-[DEFAULT]
+#[DEFAULT]
 
 # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PUBLIC ENVIRONMENT*
 # With debug mode enabled, a visitor to your site could execute malicious commands.
-debug = false
+#debug = false
 
 [app:main]
 use = egg:ckan
@@ -39,7 +39,7 @@ beaker.session.secret = $app_instance_secret
 app_instance_uuid = $app_instance_uuid
 
 # repoze.who config
-who.config_file = %(here)s/development.ini
+who.config_file = %(here)s/test-core.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/development_log.ini
 # Session timeout (user logged out after period of inactivity, in seconds).
@@ -168,7 +168,7 @@ ckan.feeds.author_link =
 
 ## Storage Settings
 
-#ckan.storage_path = /var/lib/ckan
+ckan.storage_path = /data
 #ckan.max_resource_size = 10
 #ckan.max_image_size = 2
 
@@ -212,10 +212,54 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 #smtp.password = your_password
 #smtp.mail_from =
 #smtp.reply_to =
+[uwsgi]
 
+http            =  0.0.0.0:5000
+uid             =  www-data
+gid             =  www-data
+wsgi-file       =  /workspace/ckan/wsgi.py
+virtualenv      =  /workspace/ckan/ckan/default
+module          =  wsgi:application
+master          =  true
+pidfile         =  /tmp/%n.pid
+harakiri        =  50
+max-requests    =  5000
+vacuum          =  true
+callable        =  application
+buffer-size     =  32768
+strict          =  true
 ## Background Job Settings
 ckan.jobs.timeout = 180
 
+[plugin:auth_tkt]
+use = ckan.lib.repoze_plugins.auth_tkt:make_plugin
+
+[plugin:friendlyform]
+use = ckan.lib.repoze_plugins.friendly_form:FriendlyFormPlugin
+login_form_url= /user/login
+login_handler_path = /login_generic
+logout_handler_path = /user/logout
+rememberer_name = auth_tkt
+post_login_url = /user/logged_in
+post_logout_url = /user/logged_out
+charset = utf-8
+
+[identifiers]
+plugins =
+    friendlyform;browser
+    auth_tkt
+    #oauth2
+
+[authenticators]
+plugins =
+    auth_tkt
+    ckan.lib.authenticator:UsernamePasswordAuthenticator
+    #oauth2
+
+[challengers]
+plugins =
+    friendlyform;browser
+    #oauth2
 ## Logging configuration
 [loggers]
 keys = root, ckan, ckanext, werkzeug
