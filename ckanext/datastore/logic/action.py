@@ -11,6 +11,7 @@ import sqlalchemy.exc
 import six
 from sqlalchemy.dialects.postgresql import TEXT, JSONB
 from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import coalesce
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -642,7 +643,10 @@ def set_datastore_active_flag(
     ).update(
         {
             'extras': func.jsonb_set(
-                model.resource_table.c.extras.cast(JSONB),
+                coalesce(
+                    model.resource_table.c.extras,
+                    '{}',
+                ).cast(JSONB),
                 '{datastore_active}',
                 json.dumps(flag),
             ).cast(TEXT)
