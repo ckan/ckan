@@ -163,8 +163,11 @@ Install |solr|, running this command in a terminal::
 
         ckan.site_url = http://demo.ckan.org
 
-#. Initialize your CKAN database by running this command in a terminal::
+    Change the password in sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default 
 
+#. Initialize your CKAN database by restarting postgresql & running this command in a terminal::
+
+    sudo systemctl restart postgresql
     sudo ckan db init
 
 #. Optionally, setup the DataStore and DataPusher by following the
