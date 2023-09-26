@@ -60,6 +60,7 @@ zope.interface==5.4.0    # via -r requirements.in, repoze.who
 #ckanext-oauth2==0.7.0
 #ckanext-oidc-pkce==0.3.0
 blinker==1.6.2
+typing-extensions==4.8.0
 #requests-oauthlib==0.8.0
 setuptools==44.1.0
 # The following packages are considered to be unsafe in a requirements file:
