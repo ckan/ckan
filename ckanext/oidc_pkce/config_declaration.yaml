@@ -1,0 +1,68 @@
+version: 1
+groups:
+  - annotation: ckanext-oidc-pkce
+    options:
+      - key: ckanext.oidc_pkce.base_url
+        required: true
+        description: URL of SSO application
+        placeholder: https://12345.example.okta.com
+
+      - key: ckanext.oidc_pkce.client_id
+        required: true
+        description: ClientID of SSO application
+        placeholder: clientid
+
+      - key: ckanext.oidc_pkce.auth_path
+        default: /oidc/authorize
+        example: /auth
+        description: |
+          Path to the authorization endpont inside SSO application
+
+      - key: ckanext.oidc_pkce.token_path
+        default: /oidc/token
+        example: /token
+        description: Path to the token endpont inside SSO application
+
+      - key: ckanext.oidc_pkce.userinfo_path
+        default: /oidc/userinfo
+        example: /userinfo
+        description: Path to the userinfo endpont inside SSO application
+
+      - key: ckanext.oidc_pkce.redirect_path
+        default: /user/login/oidc-pkce/callback
+        example: /local/oidc/handler
+        description: |
+          Path to the authentication response handler inside CKAN application
+
+      - key: ckanext.oidc_pkce.error_redirect
+        default: null
+        example: /user/register
+        description: |
+          URL to redirect user in case of failed login attempt.  When
+          empty(default) redirects to `came_from` URL parameter if availabe or
+          to CKAN login page otherwise.
+
+      - key: ckanext.oidc_pkce.scope
+        default: openid
+        example: email
+        description: |
+          Scope of the authorization token. The plugin expects at least `sub`,
+          `email` and `name` attributes.
+
+      - key: ckanext.oidc_pkce.use_same_id
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          For newly created CKAN users use the same ID as one from SSO
+          application
+
+      - key: ckanext.oidc_pkce.munge_password
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          When connecting to an existing(non-sso) account, override user's
+          password so that it becomes impossible to login using CKAN
+          authentication system. Enable this flag if you want to force
+          SSO-logins for all users that once used SSO-login.
