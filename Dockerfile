@@ -1,4 +1,4 @@
-FROM python:3.8.5
+FROM python:3.9
 LABEL maintainer="maximiliano.pizarro.5@gmail.com"
 RUN mkdir -p /usr/lib/ckan/default
 ADD . /usr/lib/
