@@ -661,6 +661,7 @@ Usage
  ckan user remove      - remove user
  ckan user setpass     - set password for the user
  ckan user show        - show user
+ ckan user token       - Control API Tokens
 
 For example, to create a new user called 'admin'
 
