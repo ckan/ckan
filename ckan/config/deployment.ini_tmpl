@@ -39,9 +39,9 @@ beaker.session.secret = $app_instance_secret
 app_instance_uuid = $app_instance_uuid
 
 # repoze.who config
-who.config_file = %(here)s/who.ini
+who.config_file = %(here)s/development.ini
 who.log_level = warning
-who.log_file = %(cache_dir)s/who_log.ini
+who.log_file = %(cache_dir)s/development_log.ini
 # Session timeout (user logged out after period of inactivity, in seconds).
 # Inactive by default, so the session doesn't expire.
 # who.timeout = 86400
@@ -59,7 +59,7 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url =
+#ckan.site_url =
 #ckan.use_pylons_response_cleanup_middleware = true
 
 # Default timeout for Requests
@@ -119,11 +119,11 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view
+ckan.plugins = stats text_view image_view recline_view oidc_pkce
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
-ckan.views.default_views = image_view text_view recline_view
+ckan.views.default_views = image_view text_view recline_view oidc_pkce
 
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
@@ -256,3 +256,23 @@ formatter = generic
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
+
+
+
+[general]
+request_classifier = repoze.who.classifiers:default_request_classifier
+challenge_decider = repoze.who.classifiers:default_challenge_decider
+
+
+
+# URL of SSO application
+ckanext.oidc_pkce.base_url = https://oauth2-server.com
+ckanext.oidc_pkce.client_id = clientid
+ckanext.oidc_pkce.client_secret = clientsecret
+ckanext.oidc_pkce.auth_path = /oidc/authorize
+ckanext.oidc_pkce.token_path = /oidc/token
+ckanext.oidc_pkce.userinfo_path = /oidc/userinfo
+ckanext.oidc_pkce.redirect_path = /local/oidc/handler
+ckanext.oidc_pkce.error_redirect = /user/register
+ckanext.oidc_pkce.scope = email
+ckanext.oidc_pkce.use_same_id = true
