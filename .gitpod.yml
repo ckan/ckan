@@ -7,8 +7,13 @@
 image:
   file: .gitpod.Dockerfile
 tasks:
-  - init: docker compose build
+  - init: docker compose build 
     command: docker compose up
-  - name: local
-    command: sh ./ckan-run-dev.sh
+  - name: local-env
+    command: sh ./ckan-env-dev.sh
     openMode: split-right
+ports:
+    - name: CKAN
+      port: 5000
+      onOpen: open-preview
+      visibility: public   
