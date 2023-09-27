@@ -402,10 +402,11 @@ groups:
       - key: apitoken_header_name
         default: Authorization
         legacy_key: apikey_header_name  # since v2.10.0
-        example: API-TOKEN
+        example: X-CKAN-API-TOKEN
         description: |
-          This allows Authorization http header to be used to provide the CKAN API
-          token.
+          This allows to customize the name of the HTTP header used to provide the CKAN API
+          token. This is useful in some scenarios where using the default ``Authorization`` one
+          causes problems.
 
       - key: ckan.cache_expires
         default: 0
