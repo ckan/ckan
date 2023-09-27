@@ -18,12 +18,13 @@ services:
     ports:
         - "5000:5000"
     environment:
-      - CKAN_INI=/usr/lib/ckan/config/who.ini      
+      - CKAN_INI=/usr/lib/ckan/config/who.ini
+      - CKAN_SITE_URL=https://5000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}      
       - WTF_CSRF_ENABLED=False
       - WTF_CSRF_CHECK_DEFAULT=True
       - OAUTHLIB_INSECURE_TRANSPORT=True
-      - GITPOD_WORKSPACE_ID=$GITPOD_WORKSPACE_ID
-      - GITPOD_WORKSPACE_CLUSTER_HOST=$GITPOD_WORKSPACE_CLUSTER_HOST
+      - GITPOD_WORKSPACE_ID=${GITPOD_WORKSPACE_ID}
+      - GITPOD_WORKSPACE_CLUSTER_HOST=${GITPOD_WORKSPACE_CLUSTER_HOST}
     volumes:
       - ./who.ini:/usr/lib/ckan/config/who.ini         
     depends_on:
