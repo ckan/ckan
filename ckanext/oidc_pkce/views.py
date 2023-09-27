@@ -44,8 +44,8 @@ def login():
         "state": state,
         "code_challenge": utils.code_challenge(verifier),
         "code_challenge_method": "S256",
-        "response_type": "code",
-        "response_mode": "query",
+        "response_type": "token",
+        "response_mode": "form_post",
     }
 
     url = "{base_url}?{query_params}".format(

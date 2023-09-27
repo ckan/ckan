@@ -1,42 +1,32 @@
-version: "3"
-
+version: "3.7"
+name: ckan-29
 volumes:
   ckan_storage:
   pg_data:
   solr_data:
 networks:
-  monolito: {}     
-
+  ckan_network:
+    driver: bridge
 services:    
   ckan:
+      container_name: ckan-service
       build: .
       ports:
           - "5000:5000"
       environment:
-        #- CKAN_INI=/usr/lib/who.ini      
+        - CKAN_INI=/usr/lib/who.ini      
         - WTF_CSRF_ENABLED=False
         - WTF_CSRF_CHECK_DEFAULT=True
         - OAUTHLIB_INSECURE_TRANSPORT=True
-        - CKAN_SITE_URL=https://maximilianopizar-ckan-53hy4io5o4s.ws-us105.gitpod.io
-        - CKAN_SOLR_URL=http://solr:8983/solr/ckan
-        - CKAN_SQLALCHEMY_URL=postgresql://ckan:ckan@db/ckan
-        - CKAN_REDIS_URL=redis://redis:6379/1
-        - CKANEXT_OIDC_PKCE_BASE_URL=https://oauth2-server.com
-        - CKANEXT_OIDC_PKCE_CLIENT_ID=clientid
-        - CKANEXT_OIDC_PKCE_CLIENT_SECRET=clientsecret
-        - CKANEXT_OIDC_PKCE_AUTH_PATH=/oidc/authorize
-        - CKANEXT_OIDC_PKCE_TOKEN_PATH=/oidc/token
-        - CKANEXT_OIDC_PKCE_USERINFO_PATH=/oidc/userinfo
-        - CKANEXT_OIDC_PKCE_REDIRECT_PATH=/local/oidc/handler
-        - CKANEXT_OIDC_PKCE_SCOPE=openid
-        - CKANEXT_OIDC_PKCE_USE_SAME_ID=true
+        - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-labztrvi6bm.ws-us105.gitpod.io
       volumes:
         - ./who.ini:/usr/lib/who.ini          
       depends_on:
           - solr          
       networks:
-          - monolito               
+          - ckan_network               
   db:
+    container_name: db
     build:
       context: postgresql/
       args:
@@ -52,15 +42,17 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ckan"]
     networks:
-        - monolito       
+        - ckan_network       
   redis:
+    container_name: redis
     image: redis:6
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-e", "QUIT"]     
     networks:
-        - monolito        
+        - ckan_network        
   solr:
+    container_name: solr
     image: ckan/ckan-solr:2.9-solr8
     volumes:
       - solr_data:/var/solr
@@ -70,5 +62,5 @@ services:
     depends_on:
         - db           
     networks:
-        - monolito       
+        - ckan_network       
 

@@ -102,4 +102,5 @@ whose full text may be found at:
 http://www.fsf.org/licensing/licenses/agpl-3.0.html
 
 
+ckan -c who.ini db init
 ckan -c who.ini sysadmin add mpizarro email=maximiliano.pizarro@gmail.com name=mpizarro
