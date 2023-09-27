@@ -1,6 +1,6 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
-.. image:: https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge
+.. image:: https://gitpod.io/button/open-in-gitpod.svg
     :target: https://gitpod.io/#https://github.com/maximilianoPizarro/ckan
     :alt: Open in GitPod 
 .. image:: https://img.shields.io/badge/license-AGPL-blue.svg?style=flat
