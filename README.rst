@@ -44,7 +44,7 @@ Installation
 
 See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
 
-✔🙌 ✔🙌 ✔🙌 🔭🔭🔭 `Open in GitPod <https://github.com/maximilianoPizarro/ckan>`_ 🔭🔭🔭 ✔🙌 ✔🙌 ✔🙌 
+✔🙌 ✔🙌 ✔🙌 🔭🔭🔭 `Open in GitPod <https://gitpod.io/#https://github.com/maximilianoPizarro/ckan>`_ 🔭🔭🔭 ✔🙌 ✔🙌 ✔🙌 
 
 
 **Create a ckan sysadmin**.
