@@ -22,6 +22,8 @@ services:
       - WTF_CSRF_ENABLED=False
       - WTF_CSRF_CHECK_DEFAULT=True
       - OAUTHLIB_INSECURE_TRANSPORT=True
+      - GITPOD_WORKSPACE_ID=$GITPOD_WORKSPACE_ID
+      - GITPOD_WORKSPACE_CLUSTER_HOST=$GITPOD_WORKSPACE_CLUSTER_HOST
     volumes:
       - ./who.ini:/usr/lib/ckan/config/who.ini         
     depends_on:
