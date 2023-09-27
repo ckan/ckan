@@ -1,6 +1,8 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
-
+.. image:: https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge
+    :target: https://gitpod.io/#https://github.com/maximilianoPizarro/ckan
+    :alt: Open in GitPod 
 .. image:: https://img.shields.io/badge/license-AGPL-blue.svg?style=flat
     :target: https://opensource.org/licenses/AGPL-3.0
     :alt: License
@@ -44,9 +46,8 @@ See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructio
 
 ✔🙌 ✔🙌 ✔🙌 🔭🔭🔭 Open in GitPod 🔭🔭🔭 ✔🙌 ✔🙌 ✔🙌 
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/maximilianoPizarro/ckan)
 
-## Create CKAN SYSAdmin
+**Create a CKAN SYSAdmin
 
          ckan sysadmin add mpizarro email=maximiliano.pizarro@gmail.com name=mpizarro
 
