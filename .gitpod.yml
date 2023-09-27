@@ -10,5 +10,5 @@ tasks:
   - init: docker compose build
     command: docker compose up
   - name: local
-    command: sh ./dev-ckan.sh
+    command: sh ./ckan-run-dev.sh
     openMode: split-right

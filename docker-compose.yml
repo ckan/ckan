@@ -22,7 +22,6 @@ services:
       - WTF_CSRF_ENABLED=False
       - WTF_CSRF_CHECK_DEFAULT=True
       - OAUTHLIB_INSECURE_TRANSPORT=True
-      - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-labztrvi6bm.ws-us105.gitpod.io
     volumes:
       - ./who.ini:/usr/lib/ckan/config/who.ini         
     depends_on:
