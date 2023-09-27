@@ -38,7 +38,7 @@ def set_cors_headers_for_response(response: Response) -> Response:
             response.headers['Access-Control-Allow-Methods'] = \
                 'POST, PUT, GET, DELETE, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = \
-                'X-CKAN-API-KEY, Authorization, Content-Type'
+                f'{config.get("apitoken_header_name")}, Content-Type'
 
     return response
 
