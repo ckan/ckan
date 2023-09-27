@@ -47,7 +47,7 @@ See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructio
 ✔🙌 ✔🙌 ✔🙌 🔭🔭🔭 Open in GitPod 🔭🔭🔭 ✔🙌 ✔🙌 ✔🙌 
 
 
-**Create a CKAN SYSAdmin**.
+**Create a ckan sysadmin**.
 
          ckan sysadmin add mpizarro email=maximiliano.pizarro@gmail.com name=mpizarro
 
