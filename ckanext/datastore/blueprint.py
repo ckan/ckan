@@ -62,7 +62,7 @@ def dump_schema() -> Schema:
 
 def dump(resource_id: str):
     try:
-        resource_id = resource_id_validator(resource_id)
+        resource_id = resource_id_validator(resource_id)  # type: ignore
     except Invalid:
         abort(404, _(u'DataStore resource not found'))
 
@@ -119,11 +119,10 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    def start_stream_writer(output_stream: StringIO,
-                            fields: list[dict[str, Any]]):
+    def start_stream_writer(output_stream, fields):
         return writer_factory(output_stream, fields, bom=bom)
 
-    def stream_result_page(offs: int, lim: int):
+    def stream_result_page(offs, lim):
         return get_action(u'datastore_search')(
             {u'user': user_context},
             dict({
@@ -137,8 +136,7 @@ def dump(resource_id: str):
             }, **search_params)
         )
 
-    def stream_dump(offset: int, limit: int,
-                    paginate_by: int, result: dict[str, Any]):
+    def stream_dump(offset, limit, paginate_by, result):
         with start_stream_writer(output_stream, result[u'fields']) as output:
             while True:
                 if limit is not None and limit <= 0:
@@ -173,9 +171,10 @@ def dump(resource_id: str):
 
         if result[u'limit'] != limit:
             # `limit` (from PAGINATE_BY) must have been more than
-            # ckan.datastore.search.rows_max, so datastore_search responded with a
-            # limit matching ckan.datastore.search.rows_max. So we need to paginate
-            # by that amount instead, otherwise we'll have gaps in the records.
+            # ckan.datastore.search.rows_max, so datastore_search responded
+            # with a limit matching ckan.datastore.search.rows_max.
+            # So we need to paginate by that amount instead, otherwise
+            # we'll have gaps in the records.
             paginate_by = result[u'limit']
         else:
             paginate_by = PAGINATE_BY
@@ -183,7 +182,7 @@ def dump(resource_id: str):
         return Response(stream_dump(offset, limit, paginate_by, result),
                         mimetype=u'application/octet-stream',
                         headers={'Content-Type': content_type,
-                                'Content-disposition': content_disposition,})
+                                 'Content-disposition': content_disposition})
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 

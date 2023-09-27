@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from email.utils import encode_rfc2231
 from typing import Any, Optional
 from simplejson import dumps
 
@@ -110,7 +109,8 @@ def xml_writer(output: Any, fields: list[dict[str, Any]],
 
     if bom:
         output.write(BOM_UTF8)
-    output.write(b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    output.write(
+        b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
     yield XMLWriter(output, [f[u'id'] for f in fields])
     output.write(b'</data>\n')
 
