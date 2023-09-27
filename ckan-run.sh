@@ -1,6 +1,3 @@
-#/bin/bash
-echo "Ejecución de migraciones"
-ckan -c /usr/lib/who.ini db init
-
+#!/bin/bash
 echo "CKAN RUN"
-ckan -c /usr/lib/who.ini run
+ckan -c /usr/lib/ckan/config/who.ini run

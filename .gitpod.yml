@@ -9,4 +9,6 @@ image:
 tasks:
   - init: docker compose build
     command: docker compose up
-
+  - name: local
+    command: sh ./dev-ckan.sh
+    openMode: split-right

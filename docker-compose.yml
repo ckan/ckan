@@ -7,24 +7,29 @@ volumes:
 networks:
   ckan_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1    
 services:    
   ckan:
-      container_name: ckan-service
-      build: .
-      ports:
-          - "5000:5000"
-      environment:
-        - CKAN_INI=/usr/lib/who.ini      
-        - WTF_CSRF_ENABLED=False
-        - WTF_CSRF_CHECK_DEFAULT=True
-        - OAUTHLIB_INSECURE_TRANSPORT=True
-        - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-labztrvi6bm.ws-us105.gitpod.io
-      volumes:
-        - ./who.ini:/usr/lib/who.ini          
-      depends_on:
-          - solr          
-      networks:
-          - ckan_network               
+    container_name: ckan-service
+    build: .
+    ports:
+        - "5000:5000"
+    environment:
+      - CKAN_INI=/usr/lib/ckan/config/who.ini      
+      - WTF_CSRF_ENABLED=False
+      - WTF_CSRF_CHECK_DEFAULT=True
+      - OAUTHLIB_INSECURE_TRANSPORT=True
+      - CKAN_SITE_URL=https://5000-maximilianopizar-ckan-labztrvi6bm.ws-us105.gitpod.io
+    volumes:
+      - ./who.ini:/usr/lib/ckan/config/who.ini         
+    depends_on:
+        - solr          
+    networks:
+      ckan_network:
+        ipv4_address: 172.18.0.2                        
   db:
     container_name: db
     build:
@@ -42,7 +47,8 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ckan"]
     networks:
-        - ckan_network       
+      ckan_network:
+        ipv4_address: 172.18.0.3        
   redis:
     container_name: redis
     image: redis:6
@@ -50,7 +56,8 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "-e", "QUIT"]     
     networks:
-        - ckan_network        
+      ckan_network:
+        ipv4_address: 172.18.0.4        
   solr:
     container_name: solr
     image: ckan/ckan-solr:2.9-solr8
@@ -62,5 +69,6 @@ services:
     depends_on:
         - db           
     networks:
-        - ckan_network       
+      ckan_network:
+        ipv4_address: 172.18.0.5        
 
