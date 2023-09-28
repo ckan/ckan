@@ -88,6 +88,9 @@ def dump(resource_id: str):
         ]
     }
 
+    content_type = None
+    content_disposition = None
+
     if fmt == u'csv':
         writer_factory = csv_writer
         records_format = u'csv'
@@ -189,7 +192,7 @@ def dump(resource_id: str):
 
         return Response(stream_dump(offset, limit, paginate_by, result),
                         mimetype=u'application/octet-stream',
-                        headers=headers)  # type: ignore
+                        headers=headers)
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 
