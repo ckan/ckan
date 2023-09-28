@@ -8,7 +8,7 @@ from typing import Any, Optional, Union
 from typing_extensions import Literal
 
 from urllib.parse import urlencode
-import unicodecsv
+import csv
 from io import StringIO
 from codecs import BOM_UTF8
 
@@ -609,7 +609,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
 
     output_stream = StringIO()
     output_stream.write(BOM_UTF8)
-    unicodecsv.writer(output_stream, encoding=u'utf-8').writerows(results)
+    csv.writer(output_stream).writerows(results)
 
     file_name = u'{org_id}-{members}'.format(
             org_id=group_obj.name,

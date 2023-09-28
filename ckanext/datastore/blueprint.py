@@ -119,7 +119,8 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    def start_stream_writer(output_stream: StringIO, fields: dict[str, Any]):
+    def start_stream_writer(output_stream: StringIO,
+                            fields: list[dict[str, Any]]):
         return writer_factory(output_stream, fields, bom=bom)
 
     def stream_result_page(offs: int, lim: Union[None, int]):
@@ -128,7 +129,7 @@ def dump(resource_id: str):
             dict({
                 u'resource_id': resource_id,
                 u'limit': PAGINATE_BY
-                if limit is None else min(PAGINATE_BY, lim),
+                if limit is None else min(PAGINATE_BY, lim),  # type: ignore
                 u'offset': offs,
                 u'sort': sort,
                 u'records_format': records_format,
@@ -183,7 +184,7 @@ def dump(resource_id: str):
         return Response(stream_dump(offset, limit, paginate_by, result),
                         mimetype=u'application/octet-stream',
                         headers={'Content-Type': content_type,  # type: ignore
-                                 'Content-disposition': content_disposition})  # type: ignore
+                                 'Content-disposition': content_disposition})
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 

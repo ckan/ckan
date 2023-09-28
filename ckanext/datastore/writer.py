@@ -25,7 +25,7 @@ def csv_writer(output: Any, fields: list[dict[str, Any]],
     if bom:
         output.write(BOM_UTF8)
 
-    csv.writer(output, encoding=u'utf-8').writerow(
+    csv.writer(output).writerow(
         f['id'] for f in fields)
     yield TextWriter(output)
 
@@ -45,7 +45,6 @@ def tsv_writer(output: Any, fields: list[dict[str, Any]],
 
     csv.writer(
         output,
-        encoding=u'utf-8',
         dialect='excel-tab').writerow(
             f['id'] for f in fields)
     yield TextWriter(output)
