@@ -181,10 +181,15 @@ def dump(resource_id: str):
         else:
             paginate_by = PAGINATE_BY
 
+        headers = {}
+        if content_type:
+            headers['Content-Type'] = content_type
+        if content_disposition:
+            headers['Content-disposition'] = content_disposition
+
         return Response(stream_dump(offset, limit, paginate_by, result),
                         mimetype=u'application/octet-stream',
-                        headers={'Content-Type': content_type,  # type: ignore
-                                 'Content-disposition': content_disposition})
+                        headers=headers)  # type: ignore
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 

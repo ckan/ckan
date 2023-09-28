@@ -602,13 +602,13 @@ def member_dump(id: str, group_type: str, is_organization: bool):
             continue
         results.append([
             user_obj.name,
-            user_obj.email,
+            user_obj.email,  # type: ignore
             user_obj.fullname if user_obj.fullname else _('N/A'),
             role,
         ])
 
     output_stream = StringIO()
-    output_stream.write(BOM_UTF8)
+    output_stream.write(BOM_UTF8)  # type: ignore
     csv.writer(output_stream).writerows(results)
 
     file_name = u'{org_id}-{members}'.format(
@@ -621,7 +621,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     content_disposition = u'attachment; filename="{name}.csv"'.format(
                                     name=file_name)
     content_type = b'text/csv; charset=utf-8'
-    response.headers['Content-Type'] = content_type
+    response.headers['Content-Type'] = content_type  # type: ignore
     response.headers['Content-Disposition'] = content_disposition
 
     return response
