@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from typing import Any, Optional, cast
+from typing import Any, Optional, cast, Union
 from itertools import zip_longest
 from io import StringIO
 
@@ -119,10 +119,10 @@ def dump(resource_id: str):
 
     user_context = g.user
 
-    def start_stream_writer(output_stream, fields):
+    def start_stream_writer(output_stream: StringIO, fields: dict[str, Any]):
         return writer_factory(output_stream, fields, bom=bom)
 
-    def stream_result_page(offs, lim):
+    def stream_result_page(offs: int, lim: Union[None, int]):
         return get_action(u'datastore_search')(
             {u'user': user_context},
             dict({
@@ -136,7 +136,8 @@ def dump(resource_id: str):
             }, **search_params)
         )
 
-    def stream_dump(offset, limit, paginate_by, result):
+    def stream_dump(offset: int, limit: Union[None, int],
+                    paginate_by: int, result: dict[str, Any]):
         with start_stream_writer(output_stream, result[u'fields']) as output:
             while True:
                 if limit is not None and limit <= 0:
@@ -181,8 +182,8 @@ def dump(resource_id: str):
 
         return Response(stream_dump(offset, limit, paginate_by, result),
                         mimetype=u'application/octet-stream',
-                        headers={'Content-Type': content_type,
-                                 'Content-disposition': content_disposition})
+                        headers={'Content-Type': content_type,  # type: ignore
+                                 'Content-disposition': content_disposition})  # type: ignore
     except ObjectNotFound:
         abort(404, _(u'DataStore resource not found'))
 
