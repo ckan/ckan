@@ -1,0 +1,76 @@
+version: "3.7"
+name: ckan-29
+volumes:
+  ckan_storage:
+  pg_data:
+  solr_data:
+networks:
+  ckan_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1    
+services:    
+  ckan:
+    container_name: ckan-service
+    build: .
+    ports:
+        - "5000:5000"
+    environment:
+      - CKAN_INI=/usr/lib/ckan/config/who.ini
+      - CKAN_SITE_URL=https://5000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}      
+      - WTF_CSRF_ENABLED=False
+      - WTF_CSRF_CHECK_DEFAULT=True
+      - OAUTHLIB_INSECURE_TRANSPORT=True
+      - GITPOD_WORKSPACE_ID=${GITPOD_WORKSPACE_ID}
+      - GITPOD_WORKSPACE_CLUSTER_HOST=${GITPOD_WORKSPACE_CLUSTER_HOST}
+    volumes:
+      - ./who.ini:/usr/lib/ckan/config/who.ini         
+    depends_on:
+        - solr          
+    networks:
+      ckan_network:
+        ipv4_address: 172.18.0.2                        
+  db:
+    container_name: db
+    build:
+      context: postgresql/
+      args:
+       - DATASTORE_READONLY_PASSWORD=datastore
+       - POSTGRES_PASSWORD=ckan
+    environment:
+      - DATASTORE_READONLY_PASSWORD=datastore
+      - POSTGRES_PASSWORD=ckan
+      - PGDATA=/var/lib/postgresql/data/db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ckan"]
+    networks:
+      ckan_network:
+        ipv4_address: 172.18.0.3        
+  redis:
+    container_name: redis
+    image: redis:6
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-e", "QUIT"]     
+    networks:
+      ckan_network:
+        ipv4_address: 172.18.0.4        
+  solr:
+    container_name: solr
+    image: ckan/ckan-solr:2.9-solr8
+    volumes:
+      - solr_data:/var/solr
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/"]
+    depends_on:
+        - db           
+    networks:
+      ckan_network:
+        ipv4_address: 172.18.0.5        
+

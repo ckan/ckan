@@ -89,6 +89,12 @@ entry_points = {
         'audio_view = ckanext.audioview.plugin:AudioView',
         'video_view = ckanext.videoview.plugin:VideoView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
+        #OAuth2
+        'oauth2=ckanext.oauth2.plugin:OAuth2Plugin',
+
+        #OidcPkcePlugin
+        'oidc_pkce=ckanext.oidc_pkce.plugin:OidcPkcePlugin',
+
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',

@@ -1,6 +1,8 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
-
+.. image:: https://gitpod.io/button/open-in-gitpod.svg
+    :target: https://gitpod.io/#https://github.com/maximilianoPizarro/ckan
+    :alt: Open in GitPod 
 .. image:: https://img.shields.io/badge/license-AGPL-blue.svg?style=flat
     :target: https://opensource.org/licenses/AGPL-3.0
     :alt: License
@@ -23,6 +25,12 @@ CKAN: The Open Source Data Portal Software
 .. image:: https://badges.gitter.im/gitterHQ/gitter.svg
     :target: https://gitter.im/ckan/chat
     :alt: Chat on Gitter
+.. image:: https://img.shields.io/badge/docker-0db7ed?style=for-the-badge&logo=docker
+    :target: https://docker.io
+    :alt: Docker    
+.. image:: https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge
+    :target: https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge
+    :alt: Shell    
 
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
@@ -36,6 +44,12 @@ Installation
 
 See the `CKAN Documentation <http://docs.ckan.org>`_ for installation instructions.
 
+✔🙌 ✔🙌 ✔🙌 🔭🔭🔭 `Open in GitPod <https://gitpod.io/#https://github.com/maximilianoPizarro/ckan>`_ 🔭🔭🔭 ✔🙌 ✔🙌 ✔🙌 
+
+
+**Create a ckan sysadmin**.
+
+         ckan sysadmin add mpizarro email=maximiliano.pizarro@gmail.com name=mpizarro
 
 Support
 -------
@@ -100,3 +114,7 @@ It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
 
 http://www.fsf.org/licensing/licenses/agpl-3.0.html
+
+
+ckan -c who.ini db init
+ckan -c who.ini sysadmin add mpizarro email=maximiliano.pizarro@gmail.com name=mpizarro
