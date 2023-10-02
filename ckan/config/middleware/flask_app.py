@@ -139,13 +139,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Do all the Flask-specific stuff before adding other middlewares
 
-    # Secret key needed for flask-debug-toolbar and sessions
-    if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
-    if not app.config.get('SECRET_KEY'):
-        raise RuntimeError(u'You must provide a value for the secret key'
-                           ' with the SECRET_KEY config option')
-
     root_path = config.get('ckan.root_path')
     if debug:
         from flask_debugtoolbar import DebugToolbarExtension
