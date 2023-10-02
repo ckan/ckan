@@ -172,20 +172,15 @@ groups:
             Flask-based route names.
 
       - key: config.mode
-        default: default
+        default: strict
         example: strict
         description: |
-          Controls the behavior of application when invalid values detected in
-          the ``config`` object.
 
-          In the ``default`` mode any invalid value is left unprocessed (i.e.,
-          it remains a ``str``). In addition, every invalid option is reported using
-          a log record with a ``WARNING`` level.
-
-          In the ``strict`` mode, CKAN will not start unless **all** config
-          options are valid according to the validators defined in the
-          configuration declaration. For every invalid config option, an error will be
-          printed to the output stream.
+          .. warning:: This configuration option has no effect starting from CKAN 2.11. The
+            default behaviour going forward is the old ``strict`` mode, where CKAN will not
+            start unless **all** config options are valid according to the validators defined in the
+            configuration declaration. For every invalid config option, an error will be
+            printed to the output stream.
 
   - annotation: Development settings
     options:
