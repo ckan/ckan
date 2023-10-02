@@ -427,6 +427,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
     # check if package exists
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
+        pkg = context[u'package']
     except NotFound:
         return base.abort(
             404,
@@ -446,6 +447,9 @@ def read(package_type: str, id: str) -> Union[Response, str]:
             404,
             _(u'Dataset not found or you have no permission to view it')
         )
+
+    g.pkg_dict = pkg_dict
+    g.pkg = pkg
 
     if plugins.plugin_loaded("activity"):
         activity_id = request.args.get("activity_id")
