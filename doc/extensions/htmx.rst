@@ -39,12 +39,12 @@ overview of patterns and uses.
 2. htmx in CKAN
 ----------------
 
-For an exaple of how we are using htmx in CKAN, check the **Follow** / **Unfollow**
+For an example of how we are using htmx in CKAN, check the **Follow** / **Unfollow**
 logic.
 
 The **Follow** button is a simple link that makes a POST request to the
-``/dataset/follow/<dataset-id>`` and then replaces the section ``package-info`` with
-all the HTML returned by the endpoint.
+``/dataset/follow/<dataset-id>`` endpoint and then replaces the section
+``package-info`` with all the HTML returned by the endpoint.
 
 
 .. code-block:: jinja
