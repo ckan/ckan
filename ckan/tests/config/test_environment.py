@@ -63,7 +63,7 @@ def test_update_config_env_vars(ckan_config):
 
 @pytest.mark.ckan_config("ckan.site_url", "")
 def test_missing_siteurl():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(CkanConfigurationException):
         environment.update_config()
 
 
