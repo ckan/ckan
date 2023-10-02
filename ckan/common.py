@@ -150,7 +150,7 @@ def _get_request():
 class HtmxDetails(object):
     """Object to access htmx properties from the request headers.
 
-    This object is gonna be added to the CKAN `request` object
+    This object will be added to the CKAN `request` object
     as `request.htmx`. It adds properties to easily access
     htmx's request headers defined in
     https://htmx.org/reference/#headers.
