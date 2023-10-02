@@ -628,12 +628,13 @@ class TestUser(object):
 
     def test_sysadmin_invalid_user(self, app, sysadmin):
         headers = {"Authorization": sysadmin["token"]}
-        app.post(
+        resp = app.post(
             url_for("user.sysadmin"),
             data={"username": "fred", "status": "1"},
             headers=headers,
-            status=404,
+            status=200,
         )
+        assert helpers.body_contains(resp, "User not found")
 
     def test_sysadmin_promote_success(self, app):
 

@@ -1,0 +1,16 @@
+{% ckan_extends %}
+
+{% block scripts %}
+  {{ super() }}
+  {% asset 'ckanext-datapusher/datapusher' %}
+{% endblock scripts %}
+
+{% block styles %}
+  {{ super() }}
+  {% asset 'ckanext-datapusher/datapusher-css' %}
+{% endblock %}
+
+{% block inner_primary_nav %}
+  {{ super() }}
+  {{ h.build_nav_icon('datapusher.resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
+{% endblock %}
