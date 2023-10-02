@@ -1,4 +1,4 @@
-htmx
+Creating dynamic user interfaces with htmx
 ====
 
 Starting version 2.11, CKAN is shipped with `htmx <https://htmx.org/>`_.
