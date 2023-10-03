@@ -314,7 +314,10 @@ def package_update(
     user_obj = context.get('auth_user_obj')
     if user_obj:
         plugin_data = data.get('plugin_data', False)
-        include_plugin_data = user_obj.sysadmin and plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and plugin_data
+        )
 
     pkg = model_save.package_dict_save(data, context, include_plugin_data)
 
@@ -514,7 +517,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     # on update or "nothing changed" status once possible
     rval = {
         'package': _get_action('package_update')(
-            cast(Context, dict(context, package=pkg)),
+            Context(context, package=pkg),
             orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
@@ -1214,7 +1217,6 @@ def config_option_update(
 
         get_action('config_option_update)({}, {
             'ckan.site_title': 'My Open Data site',
-            'ckan.homepage_layout': 2,
         })
 
     :param key: a configuration option key (eg ``ckan.site_title``). It must

@@ -1,0 +1,4 @@
+datastore_upsert, datastore_create error fixes
+
+datastore_upsert method=insert: prevent 500 on invalid data datastore_create
+datastore_create: invalid data errors now reported against records value (not "message")

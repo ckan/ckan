@@ -12,21 +12,6 @@ class TestHome(object):
         response = app.get(url_for("home.index"))
         assert "Welcome to CKAN" in response.body
 
-    def test_template_head_end(self, app):
-        # test-core.ini sets ckan.template_head_end to this:
-        test_link = (
-            '<link rel="stylesheet" '
-            'href="TEST_TEMPLATE_HEAD_END.css" type="text/css">'
-        )
-        response = app.get(url_for("home.index"))
-        assert test_link in response.body
-
-    def test_template_footer_end(self, app):
-        # test-core.ini sets ckan.template_footer_end to this:
-        test_html = "<strong>TEST TEMPLATE_FOOTER_END TEST</strong>"
-        response = app.get(url_for("home.index"))
-        assert test_html in response.body
-
     @pytest.mark.usefixtures("non_clean_db")
     def test_email_address_nag(self, app):
         # before CKAN 1.6, users were allowed to have no email addresses

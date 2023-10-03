@@ -95,7 +95,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         if cert_file == key_file == 'adhoc':
             ssl_context = 'adhoc'
         else:
-            ssl_context = (ssl_cert, ssl_key)
+            ssl_context = (cert_file, key_file)
     else:
         ssl_context = None
 

@@ -210,13 +210,12 @@ class TagSearchQuery(SearchQuery):
             if field in ('tag', 'tags'):
                 query.append(value)
 
-        context = cast(Context, {'model': model, 'session': model.Session})
         data_dict = {
             'query': query,
             'offset': options.get('offset'),
             'limit': options.get('limit')
         }
-        results = logic.get_action('tag_search')(context, data_dict)
+        results = logic.get_action('tag_search')({}, data_dict)
 
         if not options.return_objects:
             # if options.all_fields is set, return a dict
@@ -242,11 +241,7 @@ class ResourceSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        context = cast(Context,{
-            'model': model,
-            'session': model.Session,
-            'search_query': True,
-        })
+        context: Context = {'search_query': True}
 
         # Transform fields into structure required by the resource_search
         # action.
