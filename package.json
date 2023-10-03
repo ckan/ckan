@@ -12,7 +12,7 @@
     "jquery": "^3.6.0",
     "moment": "^2.29.4",
     "qs": "^6.10.3",
-    "htmx.org": "^1.9.2"
+    "htmx.org": "^1.9.6"
   },
   "devDependencies": {
     "axe-core": "^4.4.1",
