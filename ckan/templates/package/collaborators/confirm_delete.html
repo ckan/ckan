@@ -11,6 +11,7 @@
         <p>{{ _('Are you sure you want to delete collaborator - {name}?').format(name=user_dict.name) }}</p>
         <p class="form-actions">
           <form id="collaborator-confirm-delete-form" action="{{ h.url_for(package_type + '.collaborator_delete', id=package_id, user_id=user_id) }}" method="post">
+            {{ h.csrf_input() }}
             <button class="btn btn-danger" type="submit" name="cancel" >{{ _('Cancel') }}</button>
             <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
           </form>
