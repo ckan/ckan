@@ -26,7 +26,7 @@ The library is very simple to use. You just need to add the ``hx-*`` attributes
 to your HTML elements to make them dynamic. For example, to make a link that
 makes a POST request to the ``/dataset/follow/<dataset-id>`` endpoint and
 replaces the HTML element with id ``package-info`` with all the HTML returned by
-the endpoint, you can do:
+the endpoint, you can write:
 
 .. code-block:: jinja
 
