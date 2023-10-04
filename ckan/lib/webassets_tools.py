@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-import tempfile
 from typing import Any
 from typing_extensions import Literal, TypedDict, assert_never
 
