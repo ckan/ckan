@@ -36,12 +36,6 @@ def last_active_check():
     return calc_time
 
 
-def set_api_key() -> Optional[str]:
-    if config.get('ckan.auth.create_default_api_keys'):
-        return _types.make_uuid()
-    return None
-
-
 user_table = Table('user', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True,
                default=_types.make_uuid),
@@ -49,7 +43,6 @@ user_table = Table('user', meta.metadata,
         Column('password', types.UnicodeText),
         Column('fullname', types.UnicodeText),
         Column('email', types.UnicodeText),
-        Column('apikey', types.UnicodeText, default=set_api_key),
         Column('created', types.DateTime, default=datetime.datetime.now),
         Column('reset_key', types.UnicodeText),
         Column('about', types.UnicodeText),
