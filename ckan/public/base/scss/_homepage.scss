@@ -10,7 +10,7 @@
     .module-search {
         color: $mastheadTextColor;
         padding: 10px;
-        border: 1px solid #ccc;  
+        border: 1px solid #ccc;
         .search-form {
             @include border-radius($card-border-radius);
             background-color: $mastheadBackgroundColor;
@@ -49,50 +49,16 @@
             }
         }
     }
-    .module-stats {
-        margin-top: $spacer * 1;
-        color: $layoutTextColor;
-        .card {
-            padding: ($spacer * 1.5) ($spacer * 1.75);
-            ul {
-                @include list-unstyled;
-                @include clearfix;
-                padding: 0;
-                li {
-                    float: left;
-                    width: 25%;
-                    font-weight: 300;
-                    a {
-                        display: block;
-                        b {
-                            display: block;
-                            font-size: $font-size-base;
-                            line-height: 1.5;
-                        }
-                        &:hover {
-                            text-decoration: none;
-                        }
-                    }
-                }
-            }
-        }
-    }
     .module-feeds {
         padding: $spacer * 2 0;
         background: $layoutBackgroundColor url($bgPath);
-        .module-stats {
-            margin-top: 0 
-        }
     }
 }
+
 @include media-breakpoint-down(md){
     .homepage {
         .module-search {
             margin-top: $spacer * .5;
-        }
-        .module-stats {
-            margin-top: $spacer * .5;
-            margin-bottom: $spacer * .5;
         }
         .module-feeds {
             .card {

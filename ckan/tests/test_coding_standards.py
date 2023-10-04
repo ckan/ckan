@@ -233,7 +233,7 @@ def test_building_the_docs():
     """
     try:
         output = subprocess.check_output(
-            [b"python", b"setup.py", b"build_sphinx"], stderr=subprocess.STDOUT
+            [b"sphinx-build", b"doc", b"build/sphinx"], stderr=subprocess.STDOUT
         )
     except subprocess.CalledProcessError as err:
         assert (

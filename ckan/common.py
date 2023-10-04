@@ -136,8 +136,7 @@ class CKANConfig(MutableMapping):
         """
         if default is SENTINEL:
             default = None
-            is_strict = super().get("config.mode") == "strict"
-            if is_strict and key not in config_declaration:
+            if len(config_declaration) and key not in config_declaration:
                 log.warning("Option %s is not declared", key)
 
         return super().get(key, default)

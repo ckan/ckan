@@ -8,8 +8,7 @@ import re
 from time import sleep
 from typing import Any, Optional
 
-from sqlalchemy import MetaData, Table
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy import MetaData, Table, inspect
 
 from alembic.command import (
     upgrade as alembic_upgrade,
@@ -278,12 +277,13 @@ class Repository():
         alembic_config.set_main_option(
             "sqlalchemy.url", config.get("sqlalchemy.url")
         )
-        try:
+
+        sqlalchemy_migrate_version = 0
+        db_inspect = inspect(self.metadata.bind)
+        if db_inspect.has_table("migrate_version"):
             sqlalchemy_migrate_version = self.metadata.bind.execute(
                 u'select version from migrate_version'
             ).scalar()
-        except ProgrammingError:
-            sqlalchemy_migrate_version = 0
 
         # this value is used for graceful upgrade from
         # sqlalchemy-migrate to alembic
