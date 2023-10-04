@@ -207,7 +207,9 @@ def get_webassets_path() -> str:
     webassets_path = config["ckan.webassets.path"]
 
     if not webassets_path:
-        storage_path = config["ckan.storage_path"] or get_ckan_temp_directory()
+        storage_path = config.get(
+            "ckan.storage_path"
+        ) or get_ckan_temp_directory()
 
         if storage_path:
             webassets_path = os.path.join(storage_path, "webassets")
