@@ -678,7 +678,7 @@ def member_delete(id: str, group_type: str,
                        extra_vars)
 
 
-def follow(id: str, group_type: str, is_organization: bool) -> str:
+def follow(id: str, group_type: str, is_organization: bool) -> Union[Response, str]:
     '''Start following this group.'''
     set_org(is_organization)
     data_dict = {
