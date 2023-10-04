@@ -137,7 +137,7 @@ use to access the htmx request headers. For example::
 
 Calling ``request.htmx`` will return a HtmxDetails object that contains attributes
 for each one of the ``htmx`` attributes. For example, if you want to access the
-``hx-target`` attribute, you can do::
+``hx-target`` attribute, you can write::
 
     from ckan.common import request
 
