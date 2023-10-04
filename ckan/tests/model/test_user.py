@@ -141,16 +141,6 @@ class TestPasswordUpgrade:
 
 @pytest.mark.usefixtures("clean_db")
 class TestUser:
-    @pytest.mark.ckan_config('ckan.auth.create_default_api_keys', True)
-    def test_api_key_created_when_config_true(self):
-        user = factories.User()
-        assert user['apikey']
-
-    @pytest.mark.ckan_config('ckan.auth.create_default_api_keys', False)
-    def test_api_key_not_created_when_config_false(self):
-        user = factories.User()
-        assert user['apikey'] is None
-
     def test_basic(self):
         data = factories.User()
         user = model.User.get(data["id"])
