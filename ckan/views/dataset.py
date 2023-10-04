@@ -920,8 +920,8 @@ def follow(package_type: str, id: str) -> str:
     extra_vars = {
         'pkg': package_dict,
         'am_following': am_following,
-        "current_user": current_user,
-        "error_message": error_message
+        'current_user': current_user,
+        'error_message': error_message
         }
 
     return base.render('package/snippets/info.html', extra_vars)
@@ -947,8 +947,8 @@ def unfollow(package_type: str, id: str) -> Union[Response, str]:
     extra_vars = {
         'pkg': package_dict,
         'am_following': am_following,
-        "current_user": current_user,
-        "error_message": error_message
+        'current_user': current_user,
+        'error_message': error_message
         }
 
     return base.render('package/snippets/info.html', extra_vars)
