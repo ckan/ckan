@@ -47,8 +47,8 @@ For a full list of the HTML attributes and their usage, check the `htmx document
 Implementing new features with htmx
 -----------------------------------
 
-``htmx`` give us the flexibility to implement new dynamic features in CKAN by just implementing
-new endpoints that returns the HTML that we want to display in the page. The
+``htmx`` give us the flexibility to implement new dynamic features in CKAN by implementing
+new endpoints that returns the partial HTML that we want to insert into the page. The
 **Follow** / **Unfollow** logic is a great example of this and we will explain the thought
 process behind it in this section.
 
