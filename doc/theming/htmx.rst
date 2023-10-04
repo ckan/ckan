@@ -68,10 +68,10 @@ What we need to achieve this behaviour is:
 
 1. HTML structure
 
-The HTML structure is very simple. We just need a div that contains the button and the counter. In our case, and
-to respect the current CKAN UX, we have the ``package/snippets/info.html`` snippet that is used to render this
-information. We just need to make sure that the HTML element that we want to replace has an id. In our case,
-we just add and id to it: ``package-info``.
+The HTML structure is very simple: a div that contains the button and the counter.
+To respect the current CKAN UX we update the ``package/snippets/info.html`` snippet that is used to render this
+information. We need to make sure that the HTML element that we want to replace has an id so
+we add and id to it: ``package-info``.
 
 .. code-block:: jinja
 
