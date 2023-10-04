@@ -108,8 +108,8 @@ we want to replace the ``package-info`` element, so we can use the ``#package-in
 
 The last step is to implement the endpoint that will be called when the user clicks on the button. In our case,
 we want to call the ``/dataset/follow/<dataset-id>`` endpoint. This endpoint is already implemented in CKAN.
-We just need to make sure that, under this new context, it should return only the HTML that we want to display in the page
-instead of rendering again the whole dataset page.  We achieve that by making it sure that we return the snippet that
+We need to make sure that, under this new context, it should return only the partial HTML that we want to insert into the page
+instead of rendering the whole dataset page again.  We achieve that by making it sure that we return the snippet that
 contains the HTML that we want to display, in our case ``package/snippets/info.html``.
 
 View:
