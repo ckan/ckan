@@ -19,8 +19,8 @@ Overview
 
 ``htmx`` is a library that allows you to use HTML attributes to make AJAX requests
 and update the DOM. It is a great alternative to Javascript frameworks like
-React or Vue, as it allows you to build dynamic user interfaces without writing
-any Javascript code.
+React or Vue, as it allows you to build dynamic user interfaces with regular flask
+views and Jinja2 templates, allowing templates to be overridden by themes and other extensions. 
 
 The library is very simple to use. You just need to add the ``hx-*`` attributes
 to your HTML elements to make them dynamic. For example, to make a link that
