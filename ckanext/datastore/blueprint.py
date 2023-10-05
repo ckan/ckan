@@ -92,105 +92,41 @@ def dump(resource_id: str):
     content_disposition = None
 
     if fmt == 'csv':
-        writer_factory = csv_writer
-        records_format = 'csv'
         content_disposition = 'attachment; filename="{name}.csv"'.format(
                                     name=resource_id)
         content_type = b'text/csv; charset=utf-8'
     elif fmt == 'tsv':
-        writer_factory = tsv_writer
-        records_format = 'tsv'
         content_disposition = 'attachment; filename="{name}.tsv"'.format(
                                     name=resource_id)
         content_type = b'text/tab-separated-values; charset=utf-8'
     elif fmt == 'json':
-        writer_factory = json_writer
-        records_format = 'lists'
         content_disposition = 'attachment; filename="{name}.json"'.format(
                                     name=resource_id)
         content_type = b'application/json; charset=utf-8'
     elif fmt == 'xml':
-        writer_factory = xml_writer
-        records_format = 'objects'
         content_disposition = 'attachment; filename="{name}.xml"'.format(
                                     name=resource_id)
         content_type = b'text/xml; charset=utf-8'
-
-    bom = options.get('bom', False)
+    else:
+        abort(404, _('Unsupported format'))
 
     output_stream = StringIO()
 
-    user_context = g.user
-
-    def start_stream_writer(output_stream: StringIO,
-                            fields: list[dict[str, Any]]):
-        return writer_factory(output_stream, fields, bom=bom)
-
-    def stream_result_page(offs: int, lim: Union[None, int]):
-        return get_action('datastore_search')(
-            {'user': user_context},
-            dict({
-                'resource_id': resource_id,
-                'limit': PAGINATE_BY
-                if limit is None else min(PAGINATE_BY, lim),  # type: ignore
-                'offset': offs,
-                'sort': sort,
-                'records_format': records_format,
-                'include_total': False,
-            }, **search_params)
-        )
-
-    def stream_dump(offset: int, limit: Union[None, int],
-                    paginate_by: int, result: dict[str, Any]):
-        with start_stream_writer(output_stream, result['fields']) as output:
-            while True:
-                if limit is not None and limit <= 0:
-                    break
-
-                records = result['records']
-
-                output.write_records(records)
-                output_stream.seek(0)
-                yield output_stream.read()
-                output_stream.truncate(0)
-                output_stream.seek(0)
-
-                if records_format == 'objects' or records_format == 'lists':
-                    if len(records) < paginate_by:
-                        break
-                elif not records:
-                    break
-
-                offset += paginate_by
-                if limit is not None:
-                    limit -= paginate_by
-                    if limit <= 0:
-                        break
-
-                result = stream_result_page(offset, limit)
-        output_stream.seek(0)
-        yield output_stream.read()
+    headers = {}
+    if content_type:
+        headers['Content-Type'] = content_type
+    if content_disposition:
+        headers['Content-disposition'] = content_disposition
 
     try:
-        result = stream_result_page(offset, limit)
-
-        if result['limit'] != limit:
-            # `limit` (from PAGINATE_BY) must have been more than
-            # ckan.datastore.search.rows_max, so datastore_search responded
-            # with a limit matching ckan.datastore.search.rows_max.
-            # So we need to paginate by that amount instead, otherwise
-            # we'll have gaps in the records.
-            paginate_by = result['limit']
-        else:
-            paginate_by = PAGINATE_BY
-
-        headers = {}
-        if content_type:
-            headers['Content-Type'] = content_type
-        if content_disposition:
-            headers['Content-disposition'] = content_disposition
-
-        return Response(stream_dump(offset, limit, paginate_by, result),
+        return Response(dump_to(resource_id,
+                                output_stream,
+                                fmt=fmt,
+                                offset=offset,
+                                limit=limit,
+                                options=options,
+                                sort=sort,
+                                search_params=search_params),
                         mimetype='application/octet-stream',
                         headers=headers)
     except ObjectNotFound:
@@ -267,75 +203,91 @@ class DictionaryView(MethodView):
 
 
 def dump_to(
-    resource_id: str, output: Any, fmt: str, offset: int, limit: Optional[int],
-        options: dict[str, Any], sort: str, search_params: dict[str, Any]
+    resource_id: str, output_stream: Any, fmt: str, offset: int,
+    limit: Optional[int], options: dict[str, Any], sort: str,
+    search_params: dict[str, Any]
 ):
-    if fmt == u'csv':
+    if fmt == 'csv':
         writer_factory = csv_writer
-        records_format = u'csv'
-    elif fmt == u'tsv':
+        records_format = 'csv'
+    elif fmt == 'tsv':
         writer_factory = tsv_writer
-        records_format = u'tsv'
-    elif fmt == u'json':
+        records_format = 'tsv'
+    elif fmt == 'json':
         writer_factory = json_writer
-        records_format = u'lists'
-    elif fmt == u'xml':
+        records_format = 'lists'
+    elif fmt == 'xml':
         writer_factory = xml_writer
-        records_format = u'objects'
+        records_format = 'objects'
     else:
-        assert False, u'Unsupported format'
+        assert False, 'Unsupported format'
 
-    def start_writer(fields: Any):
-        bom = options.get(u'bom', False)
-        return writer_factory(output, fields, bom)
+    bom = options.get('bom', False)
 
-    def result_page(offs: int, lim: Optional[int]):
-        return get_action(u'datastore_search')(
-            {},
+    user_context = g.user
+
+    def start_stream_writer(output_stream: StringIO,
+                            fields: list[dict[str, Any]]):
+        return writer_factory(output_stream, fields, bom=bom)
+
+    def stream_result_page(offs: int, lim: Union[None, int]):
+        return get_action('datastore_search')(
+            {'user': user_context},
             dict({
-                u'resource_id': resource_id,
-                u'limit': PAGINATE_BY
-                if lim is None else min(PAGINATE_BY, lim),
-                u'offset': offs,
-                u'sort': sort,
-                u'records_format': records_format,
-                u'include_total': False,
+                'resource_id': resource_id,
+                'limit': PAGINATE_BY
+                if limit is None else min(PAGINATE_BY, lim),  # type: ignore
+                'offset': offs,
+                'sort': sort,
+                'records_format': records_format,
+                'include_total': False,
             }, **search_params)
         )
 
-    result = result_page(offset, limit)
+    def stream_dump(offset: int, limit: Union[None, int],
+                    paginate_by: int, result: dict[str, Any]):
+        with start_stream_writer(output_stream, result['fields']) as output:
+            while True:
+                if limit is not None and limit <= 0:
+                    break
 
-    if result[u'limit'] != limit:
+                records = result['records']
+
+                output.write_records(records)
+                output_stream.seek(0)
+                yield output_stream.read()
+                output_stream.truncate(0)
+                output_stream.seek(0)
+
+                if records_format == 'objects' or records_format == 'lists':
+                    if len(records) < paginate_by:
+                        break
+                elif not records:
+                    break
+
+                offset += paginate_by
+                if limit is not None:
+                    limit -= paginate_by
+                    if limit <= 0:
+                        break
+
+                result = stream_result_page(offset, limit)
+        output_stream.seek(0)
+        yield output_stream.read()
+
+    result = stream_result_page(offset, limit)
+
+    if result['limit'] != limit:
         # `limit` (from PAGINATE_BY) must have been more than
-        # ckan.datastore.search.rows_max, so datastore_search responded with a
-        # limit matching ckan.datastore.search.rows_max. So we need to paginate
-        # by that amount instead, otherwise we'll have gaps in the records.
-        paginate_by = result[u'limit']
+        # ckan.datastore.search.rows_max, so datastore_search responded
+        # with a limit matching ckan.datastore.search.rows_max.
+        # So we need to paginate by that amount instead, otherwise
+        # we'll have gaps in the records.
+        paginate_by = result['limit']
     else:
         paginate_by = PAGINATE_BY
 
-    with start_writer(result[u'fields']) as wr:
-        while True:
-            if limit is not None and limit <= 0:
-                break
-
-            records = result[u'records']
-
-            wr.write_records(records)
-
-            if records_format == u'objects' or records_format == u'lists':
-                if len(records) < paginate_by:
-                    break
-            elif not records:
-                break
-
-            offset += paginate_by
-            if limit is not None:
-                limit -= paginate_by
-                if limit <= 0:
-                    break
-
-            result = result_page(offset, limit)
+    return stream_dump(offset, limit, paginate_by, result)
 
 
 datastore.add_url_rule(u'/datastore/dump/<resource_id>', view_func=dump)
