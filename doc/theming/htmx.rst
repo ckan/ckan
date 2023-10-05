@@ -20,7 +20,7 @@ Overview
 ``htmx`` is a library that allows you to use HTML attributes to make AJAX requests
 and update the DOM. It is a great alternative to Javascript frameworks like
 React or Vue, as it allows you to build dynamic user interfaces with regular flask
-views and Jinja2 templates, allowing templates to be overridden by themes and other extensions. 
+views and Jinja2 templates, allowing templates to be overridden by themes and other extensions.
 
 The library is very simple to use. You just need to add the ``hx-*`` attributes
 to your HTML elements to make them dynamic. For example, to make a link that
@@ -68,10 +68,10 @@ What we need to achieve this behaviour is:
 
 1. HTML structure
 
-The HTML structure is very simple: a div that contains the button and the counter.
-To respect the current CKAN UX we update the ``package/snippets/info.html`` snippet that is used to render this
-information. We need to make sure that the HTML element that we want to replace has an id so
-we add and id to it: ``package-info``.
+The HTML structure is very simple: an element that contains the button and the counter.
+To respect the current CKAN UX we update the ``package/snippets/info.html`` snippet.
+We need to make sure that the ``section`` HTML element we want to replace has an id so
+we add it: ``id="package-info"``.
 
 .. code-block:: jinja
 
