@@ -36,7 +36,6 @@ ignore_missing = get_validator(u'ignore_missing')
 one_of = cast(ValidatorFactory, get_validator(u'one_of'))
 default = cast(ValidatorFactory, get_validator(u'default'))
 unicode_only = get_validator(u'unicode_only')
-resource_id_validator = get_validator(u'resource_id_validator')
 
 DUMP_FORMATS = u'csv', u'tsv', u'json', u'xml'
 PAGINATE_BY = 32000
@@ -62,61 +61,62 @@ def dump_schema() -> Schema:
 
 def dump(resource_id: str):
     try:
-        resource_id = resource_id_validator(resource_id)  # type: ignore
-    except Invalid:
-        abort(404, _(u'DataStore resource not found'))
+        get_action('datastore_search')({}, {'resource_id': resource_id,
+                                            'limit': 0})
+    except ObjectNotFound:
+        abort(404, _('DataStore resource not found'))
 
     data, errors = dict_fns.validate(request.args.to_dict(), dump_schema())
     if errors:
         abort(
-            400, u'\n'.join(
-                u'{0}: {1}'.format(k, u' '.join(e)) for k, e in errors.items()
+            400, '\n'.join(
+                '{0}: {1}'.format(k, ' '.join(e)) for k, e in errors.items()
             )
         )
 
-    fmt = data[u'format']
-    offset = data[u'offset']
-    limit = data.get(u'limit')
-    options = {u'bom': data[u'bom']}
-    sort = data[u'sort']
+    fmt = data['format']
+    offset = data['offset']
+    limit = data.get('limit')
+    options = {'bom': data['bom']}
+    sort = data['sort']
     search_params = {
         k: v
         for k, v in data.items()
         if k in [
-            u'filters', u'q', u'distinct', u'plain', u'language',
-            u'fields'
+            'filters', 'q', 'distinct', 'plain', 'language',
+            'fields'
         ]
     }
 
     content_type = None
     content_disposition = None
 
-    if fmt == u'csv':
+    if fmt == 'csv':
         writer_factory = csv_writer
-        records_format = u'csv'
-        content_disposition = u'attachment; filename="{name}.csv"'.format(
+        records_format = 'csv'
+        content_disposition = 'attachment; filename="{name}.csv"'.format(
                                     name=resource_id)
         content_type = b'text/csv; charset=utf-8'
-    elif fmt == u'tsv':
+    elif fmt == 'tsv':
         writer_factory = tsv_writer
-        records_format = u'tsv'
-        content_disposition = u'attachment; filename="{name}.tsv"'.format(
+        records_format = 'tsv'
+        content_disposition = 'attachment; filename="{name}.tsv"'.format(
                                     name=resource_id)
         content_type = b'text/tab-separated-values; charset=utf-8'
-    elif fmt == u'json':
+    elif fmt == 'json':
         writer_factory = json_writer
-        records_format = u'lists'
-        content_disposition = u'attachment; filename="{name}.json"'.format(
+        records_format = 'lists'
+        content_disposition = 'attachment; filename="{name}.json"'.format(
                                     name=resource_id)
         content_type = b'application/json; charset=utf-8'
-    elif fmt == u'xml':
+    elif fmt == 'xml':
         writer_factory = xml_writer
-        records_format = u'objects'
-        content_disposition = u'attachment; filename="{name}.xml"'.format(
+        records_format = 'objects'
+        content_disposition = 'attachment; filename="{name}.xml"'.format(
                                     name=resource_id)
         content_type = b'text/xml; charset=utf-8'
 
-    bom = options.get(u'bom', False)
+    bom = options.get('bom', False)
 
     output_stream = StringIO()
 
@@ -127,27 +127,27 @@ def dump(resource_id: str):
         return writer_factory(output_stream, fields, bom=bom)
 
     def stream_result_page(offs: int, lim: Union[None, int]):
-        return get_action(u'datastore_search')(
-            {u'user': user_context},
+        return get_action('datastore_search')(
+            {'user': user_context},
             dict({
-                u'resource_id': resource_id,
-                u'limit': PAGINATE_BY
+                'resource_id': resource_id,
+                'limit': PAGINATE_BY
                 if limit is None else min(PAGINATE_BY, lim),  # type: ignore
-                u'offset': offs,
-                u'sort': sort,
-                u'records_format': records_format,
-                u'include_total': False,
+                'offset': offs,
+                'sort': sort,
+                'records_format': records_format,
+                'include_total': False,
             }, **search_params)
         )
 
     def stream_dump(offset: int, limit: Union[None, int],
                     paginate_by: int, result: dict[str, Any]):
-        with start_stream_writer(output_stream, result[u'fields']) as output:
+        with start_stream_writer(output_stream, result['fields']) as output:
             while True:
                 if limit is not None and limit <= 0:
                     break
 
-                records = result[u'records']
+                records = result['records']
 
                 output.write_records(records)
                 output_stream.seek(0)
@@ -155,7 +155,7 @@ def dump(resource_id: str):
                 output_stream.truncate(0)
                 output_stream.seek(0)
 
-                if records_format == u'objects' or records_format == u'lists':
+                if records_format == 'objects' or records_format == 'lists':
                     if len(records) < paginate_by:
                         break
                 elif not records:
@@ -174,13 +174,13 @@ def dump(resource_id: str):
     try:
         result = stream_result_page(offset, limit)
 
-        if result[u'limit'] != limit:
+        if result['limit'] != limit:
             # `limit` (from PAGINATE_BY) must have been more than
             # ckan.datastore.search.rows_max, so datastore_search responded
             # with a limit matching ckan.datastore.search.rows_max.
             # So we need to paginate by that amount instead, otherwise
             # we'll have gaps in the records.
-            paginate_by = result[u'limit']
+            paginate_by = result['limit']
         else:
             paginate_by = PAGINATE_BY
 
@@ -191,10 +191,10 @@ def dump(resource_id: str):
             headers['Content-disposition'] = content_disposition
 
         return Response(stream_dump(offset, limit, paginate_by, result),
-                        mimetype=u'application/octet-stream',
+                        mimetype='application/octet-stream',
                         headers=headers)
     except ObjectNotFound:
-        abort(404, _(u'DataStore resource not found'))
+        abort(404, _('DataStore resource not found'))
 
 
 class DictionaryView(MethodView):
