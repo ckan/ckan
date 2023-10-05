@@ -15,7 +15,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, g, h, Invalid
+    abort, render, g, h
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
