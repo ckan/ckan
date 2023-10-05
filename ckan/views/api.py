@@ -19,6 +19,7 @@ from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
+from ckan.lib.lazyjson import LazyJSONObject
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
@@ -478,8 +479,8 @@ def i18n_js_translations(
     source = os.path.join(js_translations_folder, f"{lang}.js")
     if not os.path.exists(source):
         return "{}"
-    translations = json.load(io.open(source, "r", encoding="utf-8"))
-    return _finish_ok(translations)
+    translations = io.open(source, "r", encoding="utf-8").read()
+    return _finish_ok(LazyJSONObject(translations))
 
 
 # Routing
