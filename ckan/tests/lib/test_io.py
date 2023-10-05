@@ -42,7 +42,7 @@ def test_decode_encode_path():
 
 
 def test_get_ckan_temp_directory():
-    suffix = hashlib.sha256(config["SECRET_KEY"].encode()).hexdigest()[:10]
+    suffix = hashlib.sha256(config["secret_key"].encode()).hexdigest()[:10]
     expected_folder = f"ckan_{suffix}"
 
     assert ckan_io.get_ckan_temp_directory() == os.path.join(tempfile.gettempdir(), expected_folder)

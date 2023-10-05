@@ -73,20 +73,20 @@ def test_flask_core_route_is_served(patched_app):
     assert res.get_data(as_text=True) == "This was served from Flask"
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
+@pytest.mark.ckan_config("secret_key", "super_secret_stuff")
 def test_secret_key_is_used_if_present(app):
-    assert app.flask_app.config[u"SECRET_KEY"] == u"super_secret_stuff"
+    assert app.flask_app.config["secret_key"] == "super_secret_stuff"
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", "some_secret")
-def test_SECRET_KEY_is_used_by_default(app):
+@pytest.mark.ckan_config("secret_key", "some_secret")
+def test_secret_key_is_used_by_default(app):
     assert (
-        app.flask_app.config[u"SECRET_KEY"] == "some_secret"
+        app.flask_app.config["secret_key"] == "some_secret"
     )
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", None)
-@pytest.mark.ckan_config(u"beaker.session.secret", None)
+@pytest.mark.ckan_config("secret_key", None)
+@pytest.mark.ckan_config("beaker.session.secret", None)
 def test_no_beaker_secret_crashes(make_app):
     with pytest.raises(CkanConfigurationException):
         make_app()

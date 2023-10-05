@@ -111,16 +111,16 @@ def test_config_from_envs_are_normalized(ckan_config):
     assert ckan_config["smtp.starttls"] is False
 
 
-@pytest.mark.ckan_config("SECRET_KEY", "super_secret")
+@pytest.mark.ckan_config("secret_key", "super_secret")
 @pytest.mark.ckan_config("beaker.session.secret", None)
 @pytest.mark.ckan_config("beaker.session.validate_key", None)
 @pytest.mark.ckan_config("WTF_CSRF_SECRET_KEY", None)
-def test_all_secrets_default_to_SECRET_KEY(ckan_config):
+def test_all_secrets_default_to_secret_key(ckan_config):
 
     environment.update_config()
 
     for key in [
-        "SECRET_KEY",
+        "secret_key",
         "beaker.session.secret",
         "beaker.session.validate_key",
         "WTF_CSRF_SECRET_KEY",
