@@ -94,10 +94,9 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
     flask_app = ctx.meta['flask_app']
     user = logic.get_action('get_site_user')(
             {'ignore_auth': True}, {})
+    bom = False
     if format == 'csv' or format == 'tsv':
         bom = True
-    elif format == 'json' or format == 'xml':
-        bom = False
     with flask_app.test_request_context():
         dump_to(
             resource_id,
