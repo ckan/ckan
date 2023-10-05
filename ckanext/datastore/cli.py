@@ -86,13 +86,18 @@ def permissions_sql(maindb: str, datastoredb: str, mainuser: str,
 @click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
 @click.option(u'--offset', type=click.IntRange(0, None), default=0)
 @click.option(u'--limit', type=click.IntRange(0))
-@click.option(u'--bom', is_flag=True)  # FIXME: options based on format
 @click.pass_context
 def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
-         offset: int, limit: int, bom: bool):
+         offset: int, limit: int):
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
+    user = logic.get_action('get_site_user')(
+            {'ignore_auth': True}, {})
+    if format == 'csv' or format == 'tsv':
+        bom = True
+    elif format == 'json' or format == 'xml':
+        bom = False
     with flask_app.test_request_context():
         dump_to(
             resource_id,
@@ -102,7 +107,9 @@ def dump(ctx: Any, resource_id: str, output_file: Any, format: str,
             limit=limit,
             options={u'bom': bom},
             sort=u'_id',
-            search_params={}
+            search_params={},
+            user=user['name'],
+            is_generator=False
         )
 
 
