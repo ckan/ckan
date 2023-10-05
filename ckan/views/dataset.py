@@ -900,7 +900,7 @@ class DeleteView(MethodView):
         )
 
 
-def follow(package_type: str, id: str) -> str:
+def follow(package_type: str, id: str) -> Union[Response, str]:
     """Start following this dataset."""
     am_following: bool = False
     error_message: str = ""
