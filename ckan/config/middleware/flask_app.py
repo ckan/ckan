@@ -227,7 +227,7 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     # CSRF
     wtf_key = "WTF_CSRF_SECRET_KEY"
     if not app.config.get(wtf_key):
-        config[wtf_key] = app.config[wtf_key] = app.config["secret_key"]
+        config[wtf_key] = app.config[wtf_key] = app.config["SECRET_KEY"]
     app.config["WTF_CSRF_FIELD_NAME"] = config.get('WTF_CSRF_FIELD_NAME')
     csrf.init_app(app)
 

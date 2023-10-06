@@ -158,7 +158,7 @@ groups:
         validators: not_empty
         required: true
 
-      - key: secret_key
+      - key: SECRET_KEY
         validators: not_empty
         required: true
         placeholder_callable: secrets:token_urlsafe
@@ -270,11 +270,11 @@ groups:
         default: ckan
         description: Name of the cookie key used to save the session under.
       - key: beaker.session.secret
-        placeholder: string:%(secret_key)s
-        validators: configured_default("secret_key",None)
+        placeholder: string:%(SECRET_KEY)s
+        validators: configured_default("SECRET_KEY",None)
         description: |
           This is the secret token that the beaker library uses to hash the
-          cookie sent to the client. If not provided, the value of ``secret_key`` will be used.
+          cookie sent to the client. If not provided, the value of ``SECRET_KEY`` will be used.
       - key: beaker.session.auto
         type: bool
         default: False
@@ -331,7 +331,7 @@ groups:
       - key: beaker.session.validate_key
         validators: not_empty
         placeholder_callable: secrets:token_urlsafe
-        validators: configured_default("secret_key",None)
+        validators: configured_default("SECRET_KEY",None)
         callable_args:
           nbytes: 20
         description: |
@@ -339,7 +339,7 @@ groups:
           `ckan generate config` generates a unique
           value for this each time it generates a config file. When used in a
           cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``secret_key`` will be used.
+          If not provided, the value of ``SECRET_KEY`` will be used.
 
       - key: beaker.session.httponly
         type: bool
@@ -691,11 +691,11 @@ groups:
           this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
-        placeholder: string:%(secret_key)s
-        validators: configured_default("secret_key",None)
+        placeholder: string:%(SECRET_KEY)s
+        validators: configured_default("SECRET_KEY",None)
         description: |
           Random data for generating secure tokens.
-          If not provided, the value of ``secret_key`` will be used.
+          If not provided, the value of ``SECRET_KEY`` will be used.
 
       - key: WTF_CSRF_METHODS
         type: list
@@ -801,7 +801,7 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
-        placeholder: string:%(secret_key)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -818,10 +818,10 @@ groups:
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
 
-          If not provided, ``"string:" + secret_key`` is used.
+          If not provided, ``"string:" + SECRET_KEY`` is used.
 
       - key: api_token.jwt.decode.secret
-        placeholder: string:%(secret_key)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -838,7 +838,7 @@ groups:
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
 
-          If not provided, ``"string:" + secret_key`` is used.
+          If not provided, ``"string:" + SECRET_KEY`` is used.
 
       - key: api_token.jwt.algorithm
         default: "HS256"

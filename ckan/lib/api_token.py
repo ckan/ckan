@@ -17,11 +17,11 @@ from ckan.types import Schema
 
 log = logging.getLogger(__name__)
 
-_config_encode_secret = "api_token.jwt.encode.secret"
-_config_decode_secret = "api_token.jwt.decode.secret"
-_config_secret_fallback = "secret_key"
+_config_encode_secret = u"api_token.jwt.encode.secret"
+_config_decode_secret = u"api_token.jwt.decode.secret"
+_config_secret_fallback = u"SECRET_KEY"
 
-_config_algorithm = "api_token.jwt.algorithm"
+_config_algorithm = u"api_token.jwt.algorithm"
 
 
 def _get_plugins() -> Iterable[plugins.IApiToken]:

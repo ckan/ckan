@@ -69,14 +69,14 @@ def get_ckan_temp_directory() -> str:
     It is used as fallback when `ckan.storage_path` is not defined.
     """
 
-    if not config.get("secret_key"):
+    if not config.get("SECRET_KEY"):
         # This function can be called before the configuration is validated,
         # so we need to do this check here
         raise CkanConfigurationException(
             "Invalid configuration values provided:\n"
-            "secret_key: Missing value")
+            "SECRET_KEY: Missing value")
     unique_suffix = hashlib.sha256(
-        config["secret_key"].encode()).hexdigest()[:10]
+        config["SECRET_KEY"].encode()).hexdigest()[:10]
     directory_name = f"ckan_{unique_suffix}"
 
     path = os.path.join(tempfile.gettempdir(), directory_name)
