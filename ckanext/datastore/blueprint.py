@@ -112,8 +112,6 @@ def dump(resource_id: str):
     else:
         abort(404, _('Unsupported format'))
 
-    output_stream = StringIO()
-
     headers = {}
     if content_type:
         headers['Content-Type'] = content_type
@@ -122,7 +120,6 @@ def dump(resource_id: str):
 
     try:
         return Response(dump_to(resource_id,
-                                output_stream,
                                 fmt=fmt,
                                 offset=offset,
                                 limit=limit,
@@ -206,10 +203,12 @@ class DictionaryView(MethodView):
 
 
 def dump_to(
-    resource_id: str, output_stream: Any, fmt: str, offset: int,
+    resource_id: str, fmt: str, offset: int,
     limit: Optional[int], options: dict[str, Any], sort: str,
-    search_params: dict[str, Any], user: str, is_generator: bool = True
+    search_params: dict[str, Any], user: str
 ):
+    output_buffer = StringIO()
+
     if fmt == 'csv':
         writer_factory = csv_writer
         records_format = 'csv'
@@ -227,9 +226,9 @@ def dump_to(
 
     bom = options.get('bom', False)
 
-    def start_stream_writer(output_stream: StringIO,
+    def start_stream_writer(output_buffer: StringIO,
                             fields: list[dict[str, Any]]):
-        return writer_factory(output_stream, fields, bom=bom)
+        return writer_factory(output_buffer, fields, bom=bom)
 
     def stream_result_page(offs: int, lim: Union[None, int]):
         return get_action('datastore_search')(
@@ -247,7 +246,7 @@ def dump_to(
 
     def stream_dump(offset: int, limit: Union[None, int],
                     paginate_by: int, result: dict[str, Any]):
-        with start_stream_writer(output_stream, result['fields']) as output:
+        with start_stream_writer(output_buffer, result['fields']) as output:
             while True:
                 if limit is not None and limit <= 0:
                     break
@@ -255,10 +254,10 @@ def dump_to(
                 records = result['records']
 
                 output.write_records(records)
-                output_stream.seek(0)
-                yield output_stream.read()
-                output_stream.truncate(0)
-                output_stream.seek(0)
+                output_buffer.seek(0)
+                yield output_buffer.read()
+                output_buffer.truncate(0)
+                output_buffer.seek(0)
 
                 if records_format == 'objects' or records_format == 'lists':
                     if len(records) < paginate_by:
@@ -273,8 +272,8 @@ def dump_to(
                         break
 
                 result = stream_result_page(offset, limit)
-        output_stream.seek(0)
-        yield output_stream.read()
+        output_buffer.seek(0)
+        yield output_buffer.read()
 
     result = stream_result_page(offset, limit)
 
@@ -288,33 +287,7 @@ def dump_to(
     else:
         paginate_by = PAGINATE_BY
 
-    # return generator method to yield data
-    if is_generator:
-        return stream_dump(offset, limit, paginate_by, result)
-
-    # do not yield any data, just write it to the output stream
-    with start_stream_writer(output_stream, result['fields']) as output:
-        while True:
-            if limit is not None and limit <= 0:
-                break
-
-            records = result['records']
-
-            output.write_records(records)
-
-            if records_format == 'objects' or records_format == 'lists':
-                if len(records) < paginate_by:
-                    break
-            elif not records:
-                break
-
-            offset += paginate_by
-            if limit is not None:
-                limit -= paginate_by
-                if limit <= 0:
-                    break
-
-            result = stream_result_page(offset, limit)
+    return stream_dump(offset, limit, paginate_by, result)
 
 
 datastore.add_url_rule(u'/datastore/dump/<resource_id>', view_func=dump)
