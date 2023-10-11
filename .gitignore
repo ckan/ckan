@@ -58,3 +58,6 @@ junit
 .coverage*
 .cache
 .bash_history
+.gitconfig
+.npm
+.test_durations
