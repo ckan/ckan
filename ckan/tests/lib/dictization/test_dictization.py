@@ -88,7 +88,6 @@ class TestBasicDictize:
         assert "about" in user_dict
 
         # Check sensitive data is available
-        assert "apikey" in user_dict
         assert "email" in user_dict
 
         # Passwords and reset keys should never be available
@@ -109,7 +108,6 @@ class TestBasicDictize:
         assert "about" in user_dict
 
         # Check sensitive data is available
-        assert "apikey" in user_dict
         assert "email" in user_dict
 
         # Passwords and reset keys should never be available
@@ -130,7 +128,6 @@ class TestBasicDictize:
         assert "about" in user_dict
 
         # Check sensitive data is not available
-        assert "apikey" not in user_dict
         assert "reset_key" not in user_dict
         assert "email" not in user_dict
 
@@ -151,7 +148,6 @@ class TestBasicDictize:
         assert "about" in user_dict
 
         # Check sensitive data is not available
-        assert "apikey" not in user_dict
         assert "reset_key" not in user_dict
         assert "email" not in user_dict
 
