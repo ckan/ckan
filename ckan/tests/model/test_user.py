@@ -133,11 +133,6 @@ class TestPasswordUpgrade:
         user_obj.save()
         assert user_obj.validate_password(password)
 
-    def test_api_key_created_by_default(self):
-        user = factories.User()
-
-        assert user['apikey']
-
 
 @pytest.mark.usefixtures("clean_db")
 class TestUser:
