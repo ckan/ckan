@@ -11,6 +11,19 @@
 
   <p>{{ungettext('Delete {num} row?', 'Delete {num} rows?', num).format(num=num) }}</p>
 
+  <table class="table">
+    <thead>
+      {% for f in fields %}<td scope="col">{{ f.id }}</td>{% endfor %}
+    </thead>
+    <tbody>
+      {% for r in records %}
+        <tr>
+          {% for f in fields %}<td>{{ r.get(f.id, '') }}</td>{% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
   <form method="post" >
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-alert"></i> {{ _('Delete') }}
