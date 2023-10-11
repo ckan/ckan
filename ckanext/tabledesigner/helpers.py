@@ -1,6 +1,8 @@
 from .column_types import column_types
 
-from ckan.plugins.toolkit import _, NotAuthorized, ObjectNotFound, get_action
+from ckan.plugins.toolkit import (
+    _, NotAuthorized, ObjectNotFound, get_action, chained_helper
+)
 
 
 def tabledesigner_column_type_options():
@@ -65,3 +67,8 @@ def tabledesigner_data_api_examples(resource_id):
         },
         "unique_filter_object": {"_id": 1},
     }
+
+@chained_helper
+def datastore_rw_resource_url_types(next_func):
+    '''tabledesigner datastore tables can be updated without force=True'''
+    return ['tabledesigner'] + next_func()
