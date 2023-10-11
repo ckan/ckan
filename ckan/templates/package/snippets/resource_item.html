@@ -43,7 +43,7 @@
           <li>
             <a class="dropdown-item" href="{{ url }}">
               {% if res.has_views %}
-                <i class="fa fa-bar-chart-o"></i>
+                <i class="fa fa-chart-bar"></i>
                 {{ _('Preview') }}
               {% else %}
                 <i class="fa fa-info-circle"></i>
@@ -57,7 +57,7 @@
       <li>
         <a class="dropdown-item resource-url-analytics" href="{{ res.url }}" target="_blank" rel="noreferrer">
           {% if res.has_views or res.url_type == 'upload' %}
-            <i class="fa fa-arrow-circle-o-down"></i>
+            <i class="fa fa-arrow-circle-down"></i>
             {{ _('Download') }}
           {% else %}
             <i class="fa fa-external-link"></i>
@@ -67,12 +67,9 @@
       </li>
       {% endif %}
       {% if can_edit %}
-      <li>
-        <a class="dropdown-item" href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
-          <i class="fa fa-pencil-square-o"></i>
-          {{ _('Edit') }}
-        </a>
-      </li>
+        <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
+        {% block resource_item_explore_inner scoped %}{% endblock %}
+        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}
       {% endif %}
       {% endblock %}
     </ul>

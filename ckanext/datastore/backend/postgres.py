@@ -18,11 +18,11 @@ import sqlalchemy.engine.url as sa_url
 import datetime
 import hashlib
 import json
+import decimal
 from collections import OrderedDict
 
-import six
 from urllib.parse import (
-    urlencode, unquote, urlunparse, parse_qsl, urlparse
+    urlencode, urlunparse, parse_qsl, urlparse
 )
 from io import StringIO
 
@@ -36,7 +36,7 @@ import ckanext.datastore.interfaces as interfaces
 from psycopg2.extras import register_default_json, register_composite
 import distutils.version
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, DatabaseError)
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig, config
@@ -46,7 +46,6 @@ from ckanext.datastore.backend import (
     DatastoreException,
     _parse_sort_clause
 )
-from ckanext.datastore.backend import InvalidDataError
 
 log = logging.getLogger(__name__)
 
@@ -301,7 +300,7 @@ def _get_fields(connection: Any, resource_id: str):
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
-                'id': six.ensure_text(field[0]),
+                'id': str(field[0]),
                 'type': _get_type(connection, field[1])
             })
     return fields
@@ -766,7 +765,7 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
 
     # change the offset in the url
     parsed = list(urlparse(urlstring))
-    query = unquote(parsed[4])
+    query = parsed[4]
 
     arguments = dict(parse_qsl(query))
     arguments_start = dict(arguments)
@@ -828,10 +827,10 @@ def convert(data: Any, type_name: str) -> Any:
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
     if type_name == 'tsvector':
-        return six.ensure_text(data)
+        return str(data)
     if isinstance(data, datetime.datetime):
         return data.isoformat()
-    if isinstance(data, (int, float)):
+    if isinstance(data, (int, float, decimal.Decimal)):
         return data
     return str(data)
 
@@ -1018,7 +1017,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
-    '''Adds new columns and updates column info (stored as comments).
+    '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
     :type resource_id: string
@@ -1038,20 +1037,15 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
-    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
     new_fields: list[dict[str, Any]] = []
+    field_ids: set[str] = set(f['id'] for f in supplied_fields)
+    current_ids: set[str] = set(f['id'] for f in current_fields)
 
-    for num, field in enumerate(supplied_fields):
+    for field in supplied_fields:
         # check to see if field definition is the same or and
         # extension of current fields
-        if num < len(current_fields):
-            if field['id'] != current_fields[num]['id']:
-                raise ValidationError({
-                    'fields': [(u'Supplied field "{0}" not '
-                                u'present or in wrong order').format(
-                        field['id'])]
-                })
+        if field['id'] in current_ids:
             # no need to check type as field already defined.
             continue
 
@@ -1102,17 +1096,17 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 identifier(f['id']),
                 info_sql))
 
+    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+            identifier(data_dict['resource_id']),
+            identifier(id_)))
+
     if alter_sql:
         context['connection'].execute(
             u';'.join(alter_sql).replace(u'%', u'%%'))
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
-    """
-
-    :raises InvalidDataError: if there is an invalid value in the given data
-
-    """
     data_dict['method'] = _INSERT
     result = upsert_data(context, data_dict)
     return result
@@ -1130,6 +1124,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    num = -1
 
     if method == _INSERT:
         rows = []
@@ -1142,6 +1137,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
+                elif value == '' and field['type'] != 'text':
+                    value = None
                 row.append(value)
             rows.append(row)
 
@@ -1154,13 +1151,11 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
         try:
             context['connection'].execute(sql_string, rows)
-        except sqlalchemy.exc.DataError as err:
-            raise InvalidDataError(
-                toolkit._("The data was invalid: {}"
-                          ).format(_programming_error_summary(err)))
-        except sqlalchemy.exc.DatabaseError as err:
-            raise ValidationError(
-                {u'records': [_programming_error_summary(err)]})
+        except (DatabaseError, DataError) as err:
+            raise ValidationError({
+                'records': [_programming_error_summary(err)],
+                'records_row': num,
+            })
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1187,6 +1182,8 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
+                elif value == '' and field['type'] != 'text':
+                    record[field['id']] = None
 
             non_existing_field_names = [
                 field for field in record
@@ -1234,8 +1231,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         sql_string, used_values + unique_values)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -1269,8 +1267,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         (used_values + unique_values) * 2)
                 except sqlalchemy.exc.DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
 
 def validate(context: Context, data_dict: dict[str, Any]):
@@ -1495,7 +1494,7 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     result_fields: list[dict[str, Any]] = []
     for field in results.cursor.description:
         result_fields.append({
-            'id': six.ensure_text(field[0]),
+            'id': str(field[0]),
             'type': _get_type(context['connection'], field[1])
         })
 
@@ -1930,26 +1929,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             rank_columns)
         where = _where_clauses(data_dict, fields_types)
         select_cols = []
-        records_format = data_dict.get(u'records_format')
+        records_format = data_dict.get('records_format')
         for field_id in field_ids:
-            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
+            fmt = '{0}'
+            if records_format == 'lists':
+                fmt = "coalesce(to_json({0}),'null')"
             typ = fields_types.get(field_id, '')
-            if typ == u'nested':
-                fmt = u'({0}).json'
-            elif typ == u'timestamp':
-                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
-                if records_format == u'lists':
-                    fmt = u"to_json({0})".format(fmt)
-            elif typ.startswith(u'_') or typ.endswith(u'[]'):
-                fmt = u'array_to_json({0})'
+            if typ == 'nested':
+                fmt = "coalesce(({0}).json,'null')"
+            elif typ == 'timestamp':
+                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if records_format == 'lists':
+                    fmt = f"coalesce(to_json({fmt}), 'null')"
+            elif typ.startswith('_') or typ.endswith('[]'):
+                fmt = "coalesce(array_to_json({0}),'null')"
 
             if field_id in rank_columns:
                 select_cols.append((fmt + ' as {1}').format(
                     rank_columns[field_id], identifier(field_id)))
                 continue
 
-            if records_format == u'objects':
-                fmt += u' as {0}'
+            if records_format == 'objects':
+                fmt += ' as {0}'
             select_cols.append(fmt.format(identifier(field_id)))
 
         query_dict['distinct'] = data_dict.get('distinct', False)
@@ -2001,8 +2002,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         nor can the ordering of them be changed. They can be extended though.
         Any error results in total failure! For now pass back the actual error.
         Should be transactional.
-        :raises InvalidDataError: if there is an invalid value in the given
-                                  data
         '''
         engine = get_write_engine()
         context['connection'] = engine.connect()
@@ -2317,5 +2316,5 @@ def _programming_error_summary(pe: Any):
     ValidationError to send back to API users
     '''
     # first line only, after the '(ProgrammingError)' text
-    message = six.ensure_text(pe.args[0].split('\n')[0])
-    return message.split(u') ', 1)[-1]
+    message = str(pe.args[0].split('\n')[0])
+    return message.split(') ', 1)[-1]

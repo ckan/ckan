@@ -17,6 +17,7 @@ from ckan.lib.datapreview import (
     get_view_plugins,
     get_default_view_plugins,
 )
+from ckan.plugins import plugin_loaded
 from ckan.types import Context
 
 
@@ -48,13 +49,10 @@ def create(ctx: click.Context, types: list[str], dataset: list[str],
 
     """
 
-    datastore_enabled = (
-        u"datastore" in config[u"ckan.plugins"].split()
-    )
-
     flask_app = ctx.meta['flask_app']
+    datastore_active = plugin_loaded("datastore")
     with flask_app.test_request_context():
-        loaded_view_plugins = _get_view_plugins(types, datastore_enabled)
+        loaded_view_plugins = _get_view_plugins(types, datastore_active)
     if loaded_view_plugins is None:
         return
     site_user = logic.get_action(u"get_site_user")({u"ignore_auth": True}, {})

@@ -58,14 +58,13 @@ def dashboard_mark_activities_old(
     user_obj = model.User.get(context["user"])
     assert user_obj
     user_id = user_obj.id
-    model.Dashboard.get(
-        user_id
-    ).activity_stream_last_viewed = datetime.datetime.utcnow()
+    dashboard = model.Dashboard.get(user_id)
+    if dashboard:
+        dashboard.activity_stream_last_viewed = datetime.datetime.utcnow()
     if not context.get("defer_commit"):
         model.repo.commit()
 
 
-@tk.side_effect_free
 def activity_create(
     context: Context, data_dict: DataDict
 ) -> Optional[dict[str, Any]]:
@@ -462,12 +461,15 @@ def dashboard_activity_list(
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = "%Y-%m-%dT%H:%M:%S.%f"
-    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
+    dashboard = model.Dashboard.get(user_id)
+    last_viewed = None
+    if dashboard:
+        last_viewed = dashboard.activity_stream_last_viewed
     for activity in activity_dicts:
         if activity["user_id"] == user_id:
             # Never mark the user's own activities as new.
             activity["is_new"] = False
-        else:
+        elif last_viewed:
             activity["is_new"] = (
                 strptime(activity["timestamp"], fmt) > last_viewed
             )

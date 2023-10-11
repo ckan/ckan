@@ -6,10 +6,9 @@ import string
 import logging
 import collections
 import json
-import datetime
 import re
-from dateutil.parser import parse
-from typing import Any, NoReturn, Optional, cast
+from dateutil.parser import parse, ParserError as DateParserError
+from typing import Any, NoReturn, Optional
 
 import six
 import pysolr
@@ -122,7 +121,7 @@ class PackageSearchIndex(SearchIndex):
         schema = package_plugin.show_package_schema()
         validated_pkg_dict, _errors = lib_plugins.plugin_validate(
             package_plugin,
-            cast(Context, {'model': model, 'session': model.Session}),
+            {'model': model, 'session': model.Session},
             pkg_dict, schema, 'package_show')
         pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
             cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
@@ -158,7 +157,7 @@ class PackageSearchIndex(SearchIndex):
         # vocab_<tag name> so that they can be used in facets
         non_vocab_tag_names = []
         tags = pkg_dict.pop('tags', [])
-        context = cast(Context, {'model': model})
+        context: Context = {'model': model}
 
         for tag in tags:
             if tag.get('vocabulary_id'):
@@ -235,27 +234,22 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['dataset_type'] = pkg_dict['type']
 
         # clean the dict fixing keys and dates
-        # FIXME where are we getting these dirty keys from?  can we not just
-        # fix them in the correct place or is this something that always will
-        # be needed?  For my data not changing the keys seems to not cause a
-        # problem.
         new_dict = {}
-        bogus_date = datetime.datetime(1, 1, 1)
         for key, value in pkg_dict.items():
             key = six.ensure_str(key)
             if key.endswith('_date'):
+                if not value:
+                    continue
                 try:
-                    date = parse(value, default=bogus_date)
-                    if date != bogus_date:
-                        value = date.isoformat() + 'Z'
-                    else:
-                        # The date field was empty, so dateutil filled it with
-                        # the default bogus date
-                        value = None
-                except (IndexError, TypeError, ValueError):
-                    log.error('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
+                    date = parse(value)
+                    value = date.isoformat()
+                    if not date.tzinfo:
+                        value += 'Z'
+                except DateParserError:
+                    log.warning('%r: %r value of %r is not a valid date', pkg_dict['id'], key, value)
                     continue
             new_dict[key] = value
+
         pkg_dict = new_dict
 
         for k in ('title', 'notes', 'title_string'):

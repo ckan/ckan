@@ -4,7 +4,7 @@ from __future__ import annotations
 from ckan.common import CKANConfig
 from ckan.types import Action, AuthFunction, Context
 import logging
-from typing import Any, Callable, cast
+from typing import Any, Callable
 
 import ckan.model as model
 import ckan.plugins as p
@@ -37,6 +37,8 @@ class DatapusherPlugin(p.SingletonPlugin):
     def update_config(self, config: CKANConfig):
         templates_base = config.get(u'ckan.base_templates_folder')
         p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_public_directory(config, 'public')
+        p.toolkit.add_resource('assets', 'ckanext-datapusher')
 
     def configure(self, config: CKANConfig):
         self.config = config
@@ -55,10 +57,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     # IResourceUrlChange
 
     def notify(self, resource: model.Resource):
-        context = cast(Context, {
-            u'model': model,
-            u'ignore_auth': True,
-        })
+        context: Context = {'ignore_auth': True}
         resource_dict = p.toolkit.get_action(u'resource_show')(
             context, {
                 u'id': resource.id,
@@ -79,11 +78,10 @@ class DatapusherPlugin(p.SingletonPlugin):
         self._submit_to_datapusher(resource_dict)
 
     def _submit_to_datapusher(self, resource_dict: dict[str, Any]):
-        context = cast(Context, {
-            u'model': model,
+        context: Context = {
             u'ignore_auth': True,
             u'defer_commit': True
-        })
+        }
 
         resource_format = resource_dict.get('format')
         supported_formats = p.toolkit.config.get(

@@ -9,7 +9,6 @@ from typing import (
 from typing_extensions import Literal
 
 import sqlparse
-import six
 
 import ckan.common as converters
 import ckan.plugins.toolkit as tk
@@ -116,7 +115,7 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
 
         result = context['connection'].execute(
             'EXPLAIN (VERBOSE, FORMAT JSON) {0}'.format(
-                six.ensure_str(sql))).fetchone()
+                str(sql))).fetchone()
 
         try:
             query_plan = json.loads(result['QUERY PLAN'])
@@ -206,9 +205,14 @@ def _get_subquery_from_crosstab_call(ct: str):
     return ct.replace("''", "'")
 
 
-def datastore_dictionary(resource_id: str):
+def datastore_dictionary(
+        resource_id: str, include_columns: Optional[list[str]] = None
+) -> list[dict[str, Any]]:
     """
-    Return the data dictionary info for a resource
+    Return the data dictionary info for a resource, optionally filtering
+    columns returned.
+
+    include_columns is a list of column ids to include in the output
     """
     try:
         return [
@@ -217,6 +221,30 @@ def datastore_dictionary(resource_id: str):
                     u'resource_id': resource_id,
                     u'limit': 0,
                     u'include_total': False})['fields']
-            if not f['id'].startswith(u'_')]
+            if not f['id'].startswith(u'_') and (
+                include_columns is None or f['id'] in include_columns)
+            ]
     except (tk.ObjectNotFound, tk.NotAuthorized):
         return []
+
+
+def datastore_search_sql_enabled(*args: Any) -> bool:
+    """
+    Return the configuration setting
+    if search sql is enabled as
+    CKAN__DATASTORE__SQLSEARCH__ENABLED
+    """
+    try:
+        config = tk.config.get('ckan.datastore.sqlsearch.enabled', False)
+        return tk.asbool(config)
+    except (tk.ObjectNotFound, tk.NotAuthorized):
+        return False
+
+
+def datastore_rw_resource_url_types() -> list[str]:
+    """
+    Return a list of resource url_type values that do not require passing
+    force=True when used with datastore_create, datastore_upsert,
+    datastore_delete
+    """
+    return ["datastore"]

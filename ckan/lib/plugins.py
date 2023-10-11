@@ -133,7 +133,9 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
     """
 
     from ckan.views.dataset import dataset, register_dataset_plugin_rules
-    from ckan.views.resource import resource, register_dataset_plugin_rules as dataset_resource_rules
+    from ckan.views.resource import (
+        resource, prefixed_resource,
+        register_dataset_plugin_rules as dataset_resource_rules)
 
     registered_dataset = False
 
@@ -185,6 +187,9 @@ def register_package_blueprints(app: 'CKANFlask') -> None:
         # core dataset blueprint not overridden
         app.register_blueprint(dataset)
         app.register_blueprint(resource)
+
+    # core no-package-type resource blueprint loaded last
+    app.register_blueprint(prefixed_resource)
 
 
 def set_default_package_plugin() -> None:
@@ -533,32 +538,6 @@ class DefaultGroupForm(object):
         if schema:
             return schema
         return self.db_to_form_schema()
-
-    def check_data_dict(self, data_dict: dict[str, Any]) -> None:
-        '''Check if the return data is correct, mostly for checking out
-        if spammers are submitting only part of the form
-
-        .. code-block:: python
-
-            # Resources might not exist yet (eg. Add Dataset)
-            surplus_keys_schema = ['__extras', '__junk', 'state', 'groups',
-                'extras_validation', 'save', 'return_to',
-                'resources'
-            ]
-
-            schema_keys = form_to_db_package_schema().keys()
-            keys_in_schema = set(schema_keys) - set(surplus_keys_schema)
-
-            missing_keys = keys_in_schema - set(data_dict.keys())
-
-            if missing_keys:
-                #print data_dict
-                #print missing_keys
-                log.info('incorrect form fields posted')
-                raise DataError(data_dict)
-
-        '''
-        pass
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:

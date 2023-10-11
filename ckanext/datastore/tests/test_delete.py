@@ -19,7 +19,6 @@ from ckanext.datastore.tests.helpers import (
 )
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -50,6 +49,10 @@ class TestDatastoreDelete(object):
         helpers.call_action("datastore_create", **data)
         data = {"resource_id": resource["id"], "force": True}
         helpers.call_action("datastore_delete", **data)
+
+        # regression test for #7832
+        resobj = model.Resource.get(data["resource_id"])
+        assert resobj.extras.get('datastore_active') is False
 
         results = execute_sql(
             u"select 1 from pg_views where viewname = %s", u"b\xfck2"
@@ -120,7 +123,87 @@ class TestDatastoreDelete(object):
         assert last_analyze is not None
 
 
-@pytest.mark.usefixtures("with_request_context")
+class TestDatastoreRecordsDelete(object):
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_basic(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "aliases": u"b\xfck2",
+            "fields": [
+                {"id": "book", "type": "text"},
+                {"id": "author", "type": "text"},
+                {"id": "rating with %", "type": "text"},
+            ],
+            "records": [
+                {
+                    "book": "annakarenina",
+                    "author": "tolstoy",
+                    "rating with %": "90%",
+                },
+                {
+                    "book": "warandpeace",
+                    "author": "tolstoy",
+                    "rating with %": "42%",
+                },
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {"resource_id": resource["id"], "force": True, "filters": {}}
+        helpers.call_action("datastore_records_delete", **data)
+
+        results = execute_sql(
+            u"select 1 from pg_views where viewname = %s", u"b\xfck2"
+        )
+        assert results.rowcount == 1
+
+        # check the table still exists
+        results = execute_sql(
+            u"""SELECT table_name
+            FROM information_schema.tables
+            WHERE table_name=%s;""",
+            resource["id"],
+        )
+        assert results.rowcount == 1
+
+        resource = model.Resource.get(resource["id"])
+        assert resource.extras.get('datastore_active') is True
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_delete_records_required_filters(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "name", "type": "text"},
+                {"id": "age", "type": "text"},
+            ],
+            "records": [
+                {"name": "Sunita", "age": "51"},
+                {"name": "Bowan", "age": "68"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {"resource_id": resource["id"], "force": True}
+        with pytest.raises(ValidationError) as ve:
+            helpers.call_action("datastore_records_delete", **data)
+        expected = {u'filters': [u'Missing value']}
+        err = ve.value.error_dict
+        assert err == expected
+
+        data = {"resource_id": resource["id"], "force": True, "filters": "error here"}
+        with pytest.raises(ValidationError) as ve:
+            helpers.call_action("datastore_records_delete", **data)
+        expected = {u'filters': [u'Must be a dict']}
+        err = ve.value.error_dict
+        assert err == expected
+
+
 class TestDatastoreDeleteLegacy(object):
     sysadmin_user = None
     normal_user = None
@@ -168,11 +251,11 @@ class TestDatastoreDeleteLegacy(object):
             )
 
     def _create(self):
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = self.app.post(
             "/api/action/datastore_create",
             json=self.data,
-            environ_overrides=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True
@@ -180,11 +263,11 @@ class TestDatastoreDeleteLegacy(object):
 
     def _delete(self):
         data = {"resource_id": self.data["resource_id"]}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = self.app.post(
             "/api/action/datastore_delete",
             data=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True
@@ -192,7 +275,7 @@ class TestDatastoreDeleteLegacy(object):
         return res_dict
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
-    @pytest.mark.usefixtures("with_plugins", "with_request_context")
+    @pytest.mark.usefixtures("with_plugins")
     def test_datastore_deleted_during_resource_deletion(self):
         package = factories.Dataset()
         data = {
@@ -255,11 +338,11 @@ class TestDatastoreDeleteLegacy(object):
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_delete_invalid_resource_id(self, app):
         data = {"resource_id": "bad"}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             data=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         assert res.status_code == 404
         res_dict = json.loads(res.data)
@@ -273,11 +356,11 @@ class TestDatastoreDeleteLegacy(object):
 
         # try and delete just the 'warandpeace' row
         data = {"resource_id": resource_id, "filters": {"book": "warandpeace"}}
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True
@@ -295,11 +378,11 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"book": "annakarenina", "author": "bad"},
         }
 
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True
@@ -316,11 +399,11 @@ class TestDatastoreDeleteLegacy(object):
             "id": resource_id,
             "filters": {"book": "annakarenina", "author": "tolstoy"},
         }
-        auth = {"Authorization": self.sysadmin_token}
+        headers = {"Authorization": self.sysadmin_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True
@@ -345,11 +428,11 @@ class TestDatastoreDeleteLegacy(object):
             "filters": {"invalid-column-name": "value"},
         }
 
-        auth = {"Authorization": self.normal_user_token}
+        headers = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         assert res.status_code == 409
         res_dict = json.loads(res.data)
@@ -366,11 +449,11 @@ class TestDatastoreDeleteLegacy(object):
         self._create()
 
         data = {"resource_id": self.data["resource_id"], "filters": []}
-        auth = {"Authorization": self.normal_user_token}
+        headers = {"Authorization": self.normal_user_token}
         res = app.post(
             "/api/action/datastore_delete",
             json=data,
-            environ_overrides=auth,
+            headers=headers,
         )
         assert res.status_code == 409
         res_dict = json.loads(res.data)
@@ -387,7 +470,7 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_delete",
             json={"resource_id": self.data["resource_id"], "filters": {}},
-            environ_overrides={"Authorization": self.normal_user_token},
+            headers={"Authorization": self.normal_user_token},
         )
         assert res.status_code == 200
         results = json.loads(res.data)
@@ -396,7 +479,7 @@ class TestDatastoreDeleteLegacy(object):
         res = app.post(
             "/api/action/datastore_search",
             json={"resource_id": self.data["resource_id"]},
-            environ_overrides={"Authorization": self.normal_user_token},
+            headers={"Authorization": self.normal_user_token},
         )
         assert res.status_code == 200
         results = json.loads(res.data)
@@ -406,7 +489,6 @@ class TestDatastoreDeleteLegacy(object):
         self._delete()
 
 
-@pytest.mark.usefixtures("with_request_context")
 class TestDatastoreFunctionDelete(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")

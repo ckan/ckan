@@ -122,19 +122,18 @@ Turn this file into a github issue with a checklist using this command::
    strings are allowed). Strings need to be extracted and uploaded to
    Transifex_:
 
-   a. Install the Babel and Transifex libraries if necessary::
-
-        pip install --upgrade Babel
-        pip install transifex-client
+   a. Install the `Transifex CLI <https://developers.transifex.com/docs/cli#installation>`_.
 
    b. Create a ``~/.transifexrc`` file if necessary with your login details
-      (``token`` should be left blank)::
+      (To generate the token, go to the Transifex `user settings <https://www.transifex.com/user/settings/api/>`_ page)::
 
-        [https://www.transifex.com]
-        hostname = https://www.transifex.com
-        username = <username>
-        password = <password>
-        token =
+         [https://www.transifex.com]
+         api_hostname  = https://api.transifex.com
+         hostname      = https://www.transifex.com
+         username      = api
+         password      = ADD_YOUR_TOKEN_HERE
+         rest_hostname = https://rest.api.transifex.com
+         token         = ADD_YOUR_TOKEN_HERE
 
    c. Extract new strings from the CKAN source code into the ``ckan.pot``
       file. The pot file is a text file that contains the original,
@@ -197,8 +196,8 @@ Turn this file into a github issue with a checklist using this command::
       script finds no mistakes.
 
    h. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
-      major release name (if different), using dashes instead of dots.
-      For instance v2.4.0, v2.4.1 and v2.4.2 all share: ``[ckan.2-4]``.
+      major release name (if different). For instance v2.10.0, v2.10.1 and v2.10.2
+      all share: ``[o:okfn:p:ckan:r:2-10]``.
 
    i. Create a new resource in the CKAN project on Transifex by pushing the new
       pot and po files::
@@ -350,7 +349,7 @@ a release.
 #. Check that the docs compile correctly::
 
         rm build/sphinx -rf
-        python setup.py build_sphinx
+        sphinx-build doc build/sphinx
 
 #. Remove the beta letter in the version number.
 
@@ -413,7 +412,7 @@ a release.
 #. Build new Docker images for the new version in the following repos:
 
    * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
-   * `ckan/ckan-solr-dev <https://github.com/ckan/ckan-solr-dev>`_ -> ``ckan/ckan-solr-dev:{Major:minor}``
+   * `ckan/ckan-solr <https://github.com/ckan/ckan-solr>`_ -> ``ckan/ckan-solr:{Major:minor}-solr{solr-version}``
    * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
 #. Enable the new version of the docs on Read the Docs.

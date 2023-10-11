@@ -4,7 +4,6 @@
 import hashlib
 from typing import Any
 
-import six
 from urllib.parse import unquote, urlparse
 
 import sqlalchemy as sa
@@ -41,9 +40,8 @@ class TrackingMiddleware(object):
         path = environ['PATH_INFO']
         method = environ.get('REQUEST_METHOD')
         if path == '/_tracking' and method == 'POST':
-            # do the tracking
-            # get the post data
-            payload = six.ensure_str(environ['wsgi.input'].read())
+            # wsgi.input is a BytesIO object
+            payload = environ['wsgi.input'].read().decode()
             parts = payload.split('&')
             data = {}
             for part in parts:
@@ -58,7 +56,7 @@ class TrackingMiddleware(object):
                 environ.get('HTTP_ACCEPT_LANGUAGE', ''),
                 environ.get('HTTP_ACCEPT_ENCODING', ''),
             ])
-            key = hashlib.md5(six.ensure_binary(key)).hexdigest()
+            key = hashlib.md5(key.encode()).hexdigest()
             # store key/data here
             sql = '''INSERT INTO tracking_raw
                      (user_key, url, tracking_type)

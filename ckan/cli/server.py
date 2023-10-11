@@ -27,6 +27,10 @@ DEFAULT_PORT = 5000
 @click.option(u"-E", u"--passthrough-errors", is_flag=True,
               help=u"Disable error caching (useful to hook debuggers)")
 @click.option(
+    u"-D", u"--disable-debugger", is_flag=True,
+    help=u"Disable debugger to prevent conflict with external debug tools"
+)
+@click.option(
     u"-t", u"--threaded", is_flag=True,
     help=u"Handle each request in a separate thread"
 )
@@ -52,9 +56,9 @@ DEFAULT_PORT = 5000
 )
 @click.pass_context
 def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
-        passthrough_errors: bool, threaded: bool, extra_files: list[str],
-        processes: int, ssl_cert: Optional[str], ssl_key: Optional[str],
-        prefix: Optional[str]):
+        passthrough_errors: bool, disable_debugger: bool, threaded: bool,
+        extra_files: list[str], processes: int, ssl_cert: Optional[str],
+        ssl_key: Optional[str], prefix: Optional[str]):
     u"""Runs the Werkzeug development server"""
 
     if config.get("debug"):
@@ -65,6 +69,9 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         disable_reloader = True
         threaded = False
         processes = 1
+
+    # Flask/werkzeug debugger
+    use_debugger = not disable_debugger
 
     # Reloading
     use_reloader = not disable_reloader
@@ -88,7 +95,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         if cert_file == key_file == 'adhoc':
             ssl_context = 'adhoc'
         else:
-            ssl_context = (ssl_cert, ssl_key)
+            ssl_context = (cert_file, key_file)
     else:
         ssl_context = None
 
@@ -117,6 +124,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         port_int,
         ctx.obj.app,
         use_reloader=use_reloader,
+        use_debugger=use_debugger,
         use_evalex=True,
         threaded=threaded,
         processes=processes,

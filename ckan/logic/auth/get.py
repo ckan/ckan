@@ -16,18 +16,6 @@ def sysadmin(context: Context, data_dict: DataDict) -> AuthResult:
     return {'success': False, 'msg': _('Not authorized')}
 
 
-def site_read(context: Context, data_dict: DataDict) -> AuthResult:
-    """\
-    This function should be deprecated. It is only here because we couldn't
-    get hold of Friedrich to ask what it was for.
-
-    ./ckan/controllers/api.py
-    """
-
-    # FIXME we need to remove this for now we allow site read
-    return {'success': True}
-
-
 def package_search(context: Context, data_dict: DataDict) -> AuthResult:
     # Everyone can search by default
     return {'success': True}
@@ -376,7 +364,7 @@ def package_collaborator_list_for_user(context: Context,
     The current implementation restricts to the own users themselves.
     '''
     user_obj = context.get('auth_user_obj')
-    if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):
+    if user_obj and data_dict.get('id') in (user_obj.name, user_obj.id):  # type: ignore
         return {'success': True}
     return {'success': False}
 

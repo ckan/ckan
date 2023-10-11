@@ -4,7 +4,7 @@
     position: relative;
     min-height: 300px;
     background-color: #fff;
-    @include media-breakpoint-up(sm) {
+    @include media-breakpoint-up(md) {
         &:before {
             content: '';
             display: block;
@@ -91,8 +91,8 @@
         display: flex;
         -webkit-box-orient: vertical;
         -moz-box-orient: vertical;
-        -webkit-flex-direction: column;
-        flex-direction: column;
+        -webkit-flex-direction: column-reverse;
+        flex-direction: column-reverse;
         -webkit-box-align: start;
         -moz-box-align: start;
         -webkit-align-items: flex-start;
@@ -231,43 +231,25 @@
     }
     .nums {
         @include clearfix;
-        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
         padding-top: 10px;
-        padding-bottom: 0;
         border-top: 1px dotted #DDD;
         dl {
-            float: left;
-            width: 50%;
-            margin: 5px 0 0 0;
             color: $layoutTextColor;
             dt {
-                display: block;
                 font-size: 13px;
                 font-weight: 300;
             }
             dd {
-                display: block;
                 font-size: 30px;
                 font-weight: 700;
                 line-height: 36px;
-                margin-left: 0;
-                .smallest {
-                    font-size: 13px;
-                }
-                .smaller {
-                    font-size: 16px;
-                }
-                .small {
-                    font-size: 21px;
-                }
             }
         }
     }
-    .follow_button {
-        margin: math.div($grid-gutter-width,2) 0;
-    }
     &.editing {
-        .module-heading {}
         .module-content {
             margin-top: 0;
         }

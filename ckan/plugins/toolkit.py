@@ -11,7 +11,7 @@ has been given.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
@@ -78,7 +78,7 @@ from ckan.lib.plugins import (
 from ckan.cli import error_shout
 
 from ckan.lib.mailer import mail_recipient, mail_user
-
+from ckan.model.base import BaseModel
 
 __all__ = [
     "ckan", "base", "render", "abort",
@@ -99,9 +99,9 @@ __all__ = [
     "error_shout",
     "mail_recipient", "mail_user",
     "render_snippet", "add_template_directory", "add_public_directory",
-    "add_resource", "add_ckan_admin_tab",
+    "add_resource",
     "check_ckan_version", "requires_ckan_version", "get_endpoint",
-    "fresh_context",
+    "fresh_context", "BaseModel",
 ]
 
 get_converter = get_validator
@@ -190,21 +190,6 @@ def add_resource(path: str, name: str):
     create_library(name, absolute_path)
 
 
-def add_ckan_admin_tab(
-        config_: CKANConfig, route_name: str, tab_label: str,
-        config_var: str = "ckan.admin_tabs", icon: Optional[str] = None
-):
-    """
-    Update 'ckan.admin_tabs' dict the passed config dict.
-    """
-    # get the admin_tabs dict from the config, or an empty dict.
-    admin_tabs_dict = config_.get(config_var)
-    # update the admin_tabs dict with the new values
-    admin_tabs_dict.update({route_name: {"label": tab_label, "icon": icon}})
-    # update the config with the updated admin_tabs dict
-    config_.update({config_var: admin_tabs_dict})
-
-
 def _version_str_2_list(v_str: str):
     """convert a version string into a list of ints
     eg 1.6.1b --> [1, 6, 1]"""
@@ -283,10 +268,11 @@ def requires_ckan_version(min_version: str, max_version: Optional[str] = None):
 
 def get_endpoint() -> Union[tuple[str, str], tuple[None, None]]:
     """Returns tuple in format: (blueprint, view)."""
-    if not request:
+    # skip CLI requests and requests with unallowed method
+    if not request or not request.endpoint:
         return None, None
 
-    blueprint, *rest = cast(str, request.endpoint).split(".", 1)
+    blueprint, *rest = request.endpoint.split(".", 1)
     # service routes, like `static`
     view = rest[0] if rest else "index"
     return blueprint, view
@@ -370,5 +356,19 @@ attributes for getting things like the request headers, query-string variables,
 request body variables, cookies, the request URL, etc.
 
 """,
-    "ckan": "``ckan`` package itself."
+    "ckan": "``ckan`` package itself.",
+    "BaseModel": """Base class for SQLAlchemy declarative models.
+
+Models extending ``BaseModel`` class are attached to the SQLAlchemy's metadata
+object automatically::
+
+    from ckan.plugins import toolkit
+
+    class ExtModel(toolkit.BaseModel):
+        __tablename__ = "ext_model"
+        id = Column(String(50), primary_key=True)
+        ...
+
+""",
+
 }

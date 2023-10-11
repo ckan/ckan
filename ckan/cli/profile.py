@@ -44,7 +44,7 @@ def main(url: str, user: str):
     def profile_url(url: str):  # type: ignore # noqa
         try:
             app.get(
-                url, status=[200], extra_environ={u"REMOTE_USER": str(user)}
+                url, status=[200], environ_overrides={"REMOTE_USER": str(user)}
             )
         except KeyboardInterrupt:
             raise

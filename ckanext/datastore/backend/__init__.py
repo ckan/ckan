@@ -29,7 +29,9 @@ def get_all_resources_ids_in_datastore() -> list[str]:
 
 def _parse_sort_clause(  # type: ignore
         clause: str, fields_types: Container[str]):
-    clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
+    clause_match = re.match(
+        u'^(.+?)( +(asc|desc))?( nulls +(first|last) *)?$', clause, re.I
+    )
 
     if not clause_match:
         return False
@@ -38,6 +40,8 @@ def _parse_sort_clause(  # type: ignore
     if field[0] == field[-1] == u'"':
         field = field[1:-1]
     sort = (clause_match.group(3) or u'asc').lower()
+    if clause_match.group(4):
+        sort += (clause_match.group(4)).lower()
 
     if field not in fields_types:
         return False
@@ -46,16 +50,6 @@ def _parse_sort_clause(  # type: ignore
 
 
 class DatastoreException(Exception):
-    pass
-
-
-class InvalidDataError(Exception):
-    """Exception that's raised if you try to add invalid data to the datastore.
-
-    For example if you have a column with type "numeric" and then you try to
-    add a non-numeric value like "foo" to it, this exception should be raised.
-
-    """
     pass
 
 

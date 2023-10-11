@@ -138,6 +138,8 @@ def _allow_caching(cache_force: Optional[bool] = None):
 def _is_valid_session_cookie_data() -> bool:
     is_valid_cookie_data = False
     for key, value in session.items():
+        if key == config.get("WTF_CSRF_FIELD_NAME"):
+            continue
         if not key.startswith(u'_') and value:
             is_valid_cookie_data = True
             break
