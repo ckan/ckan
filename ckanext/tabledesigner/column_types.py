@@ -14,6 +14,7 @@ column_types = _standard_column_types  # FIXME: include plugin column types
 
 class ColumnType:
     sql_is_empty = "{column} IS NULL"
+    form_snippet = 'text.html'
 
 
 @_standard_column('text')
@@ -37,6 +38,7 @@ class ChoiceColumn(ColumnType):
     table_schema_format = 'default'
     table_schema_constraint = 'enum'
     sql_is_empty = "({column} = '') IS NOT FALSE"
+    form_snippet = 'choice.html'
 
 
 @_standard_column('email')
