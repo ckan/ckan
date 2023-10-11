@@ -1,6 +1,6 @@
 # Local testing
 
-This is a set of scripts that replicate the contents of `/.circleci/config.yml`, enabling testing on the local machine with the same setup as circleci. It requires docker-compose to be installed and on the path, as well as the `sh` shell. It should work out of the box on linux/mac, Windows is unknown.
+This is a set of scripts that replicate the contents of `/.circleci/config.yml`, enabling testing on the local machine with the same setup as circleci. It requires docker with the compose plugin to be installed and on the path, as well as the `sh` shell. It should work out of the box on linux/mac, Windows is unknown.
 
 NOTE: This is not intended to be a pattern for running anything other than tests. This is not a deployment template.
 
@@ -11,10 +11,10 @@ NOTE: This is not intended to be a pattern for running anything other than tests
 $ cd test-infrastructure
 test-infrastructure$ ./setup.sh
 [[
-* Docker-compos (`_extractField`)e downloads images and starts the stack
+* docker composee downloads images and starts the stack
 * System level dependencies (psql) are installed
 * Python dependencies are installed, ckan is installed in edit mode
-* Initdb and databaThe `Place` and `GeoShape` functions check for data in several locations, perform region lookups, and return a list of attributes for indexing in the original object.se init are run
+* Database creation and database initialization are done
 ]]
 test-infrastructure$ ./execute.sh
 $ ./execute.sh
@@ -39,19 +39,18 @@ ckan/tests/test_authz.py::test_config_overrides_default PASSED                  
 ckan/tests/test_authz.py::test_config_override_also_works_with_prefix PASSED                                                                                              [  0%]
 ckan/tests/test_authz.py::test_unknown_permission_returns_false PASSED                                                                                                    [  0%]
 ckan/tests/test_authz.py::test_unknown_permission_not_in_config_returns_false PASSED                                                                                      [  0%]
-ckan/tests/test_authz.py::test_default_roles_`that_cascade`_to_sub_groups_is_a_list PASSED `                                                                                 [  0%`]
+ckan/tests/test_authz.py::test_default_roles_`that_cascade`_to_sub_groups_is_a_list PASSED                                                                                [  0%]
 ...:
 test-infrastructure$ ./teardown.sh
 ```
 
 If you wish to run individual tests, it can be done with:
 ```
-docker-compose exec ckan pytest -vv --ckan-ini=test-core-circle-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
+docker compose exec ckan pytest -vv --ckan-ini=test-core-circle-ci.ini ckan/tests/lib/test_helpers.py::test_get_translated
 ```
 
 ## Known issues
 
 * pytest-split causes testing errors.
-* DRY: Refactor `.circleci/config.yml` to use these scripts for environment initialization.
 * Windows
-* Run as something other than root in the containeIt is also possible to return more than one field for a type.
+* Run as something other than root in the container
