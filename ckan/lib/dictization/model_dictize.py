@@ -590,15 +590,10 @@ def user_dictize(
     if context.get('keep_email', False):
         result_dict['email'] = email
 
-    if context.get('keep_apikey', False):
-        result_dict['apikey'] = apikey
-
     if requester == user.name:
-        result_dict['apikey'] = apikey
         result_dict['email'] = email
 
     if authz.is_sysadmin(requester):
-        result_dict['apikey'] = apikey
         result_dict['email'] = email
 
         if include_password_hash:
