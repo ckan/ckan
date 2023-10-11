@@ -873,7 +873,6 @@ class TestUserList(object):
         assert got_user["number_created_packages"] == 0
         assert "password" not in got_user
         assert "reset_key" not in got_user
-        assert "apikey" not in got_user
         assert "email" not in got_user
         assert "datasets" not in got_user
 
@@ -1047,7 +1046,6 @@ class TestUserShow(object):
         assert got_user["number_created_packages"] == 0
         assert "password" not in got_user
         assert "reset_key" not in got_user
-        assert "apikey" not in got_user
         assert "email" not in got_user
         assert "datasets" not in got_user
         assert "password_hash" not in got_user
@@ -1061,20 +1059,6 @@ class TestUserShow(object):
         )
 
         assert got_user["email"] == user["email"]
-        assert "apikey" not in got_user
-        assert "password" not in got_user
-        assert "reset_key" not in got_user
-
-    def test_user_show_keep_apikey(self):
-
-        user = factories.User()
-
-        got_user = helpers.call_action(
-            "user_show", context={"keep_apikey": True}, id=user["id"]
-        )
-
-        assert "email" not in got_user
-        assert got_user["apikey"] == user["apikey"]
         assert "password" not in got_user
         assert "reset_key" not in got_user
 
@@ -1097,7 +1081,6 @@ class TestUserShow(object):
         )
 
         assert got_user["email"] == user["email"]
-        assert got_user["apikey"] == user["apikey"]
         assert "password" not in got_user
         assert "reset_key" not in got_user
 
@@ -1112,7 +1095,6 @@ class TestUserShow(object):
         )
 
         assert got_user["email"] == user["email"]
-        assert got_user["apikey"] == user["apikey"]
         assert "password" not in got_user
         assert "reset_key" not in got_user
 
@@ -1130,7 +1112,6 @@ class TestUserShow(object):
         )
 
         assert got_user["email"] == user["email"]
-        assert got_user["apikey"] == user["apikey"]
         assert "password_hash" in got_user
         assert "password" not in got_user
         assert "reset_key" not in got_user
@@ -1219,7 +1200,6 @@ class TestUserShow(object):
 
         assert got_user["name"] == user["name"]
         assert got_user["email"] == user["email"]
-        assert got_user["apikey"] == user["apikey"]
         assert "password" not in got_user
         assert "reset_key" not in got_user
 
