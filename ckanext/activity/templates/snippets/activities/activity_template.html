@@ -1,0 +1,33 @@
+<div class="activity-item {{ activity.activity_type|replace(' ', '-')|lower }}">
+    <div class="activity-item--icon">
+        <i class="fa {{ icon or 'fa-sitemap' }}"></i>
+    </div>
+    <div class="activity-item--wrapper">
+        <div class="activity-item--content">
+            {{ content }}
+        </div>
+        <div class="activity-item--meta">
+            {% if show_details or 1 %}
+                {% if version %}
+                    <div class="meta--version">
+                        <a class="btn btn-default btn-sm" href="{{ version }}">
+                            {{ _('View this version') }}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if changes %}
+                    <div class="meta--changes">
+                        <a class="btn btn-default btn-sm" href="{{ h.url_for('activity.package_changes', id=activity.id) }}">
+                            {{ _('Changes') }}
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <div class="meta--date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+                {{ h.time_ago_from_timestamp(activity.timestamp) }}
+            </div>
+        </div>
+    </div>
+</div>
