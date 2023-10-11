@@ -63,7 +63,6 @@ class User(core.StatefulObjectMixin,
     # password: str
     fullname: Optional[str]
     email: Optional[str]
-    apikey: Optional[str]
     created: datetime.datetime
     reset_key: str
     about: str

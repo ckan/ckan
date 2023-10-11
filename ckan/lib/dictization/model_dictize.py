@@ -550,7 +550,6 @@ def user_list_dictize(
     for obj in obj_list:
         user_dict = user_dictize(obj, context)
         user_dict.pop('reset_key', None)
-        user_dict.pop('apikey', None)
         user_dict.pop('email', None)
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
@@ -585,7 +584,6 @@ def user_dictize(
     requester = context.get('user')
 
     result_dict.pop('reset_key', None)
-    apikey = result_dict.pop('apikey', None)
     email = result_dict.pop('email', None)
     plugin_extras = result_dict.pop('plugin_extras', None)
 
