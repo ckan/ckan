@@ -1,0 +1,31 @@
+{% import 'macros/form.html' as form %}
+
+{%- set info = field.get('info', {}) -%}
+{%- set help_text = info.get('notes', '') -%}
+
+{%- set options=[{'value':'', 'text':''}] -%}
+{%- set choices=h.tabledesigner_choice_list(field.info.choices) -%}
+{%- if value and value not in choices -%}
+  {%- do options.append({
+    'value': value,
+    'text': value ~ ' ' ~ _('(invalid choice)')
+  }) -%}
+{%- endif -%}
+{%- for c in choices -%}
+  {%- do options.append({'value': c, 'text': c}) -%}
+{%- endfor -%}
+
+{%- call form.select(
+    'col__' ~ position ~ '__value',
+    id='field-' ~ position,
+    label=info.get('label', '') or field.id
+      ~ (_(' (Primary Key)') if pk else ''), classes=['control-full'],
+    options=options,
+    selected=value,
+    error=errors.get(field.id),
+    is_required=is_required
+) -%}
+  {%- if help_text -%}
+    {{- form.info(help_text) -}}
+  {%- endif -%}
+{% endcall %}

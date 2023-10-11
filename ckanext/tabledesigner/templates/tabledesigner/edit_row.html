@@ -12,7 +12,9 @@
   <form method="post" action="{{ action }}?_id={{ row['_id'] }}" >
     {% block add_row %}
       {% for field in fields %}
-        {% snippet "tabledesigner/snippets/row_field.html",
+        {% set ct = h.tabledesigner_column_type(field.info.tdtype or field.type) %}
+        {% set form_snippet = 'tabledesigner/form_snippets/' + ct.form_snippet %}
+        {% snippet form_snippet,
           field=field,
           position=loop.index,
           res=res,
