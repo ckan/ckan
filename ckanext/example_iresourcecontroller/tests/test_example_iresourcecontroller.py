@@ -47,7 +47,6 @@ class TestExampleIResourceController(object):
             "resource_update",
             id=resource["id"],
             url="http://resource.updated/",
-            apikey=user["apikey"],
         )
 
         assert plugin.counter["before_resource_create"] == 1, plugin.counter
