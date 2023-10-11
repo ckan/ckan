@@ -8,12 +8,12 @@
 
 {#
   Data Dictionary fields may be added this snippet. New fields following
-  the prefix ~ '__' ~ position ~ '__namegoeshere' convention will be saved
+  the 'info__' ~ position ~ '__namegoeshere' convention will be saved
   as part of the "info" object on the column.
 #}
 
 {% block datapusher_xloader_fields %}
-  {{ form.select(prefix ~ '__' ~ position ~ '__type_override',
+  {{ form.select('info__' ~ position ~ '__type_override',
     label=_('Type Override'), options=[
     {'name': '', 'value': ''},
     {'name': 'text', 'value': 'text'},
@@ -23,11 +23,11 @@
 {% endblock %}
 
 {% block standard_fields %}
-  {{ form.input(prefix ~ '__' ~ position ~ '__label',
+  {{ form.input('info__' ~ position ~ '__label',
     label=_('Label'), id='field-f' ~ position ~ 'label',
     value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
 
-  {{ form.markdown(prefix ~ '__' ~ position ~ '__notes',
+  {{ form.markdown('info__' ~ position ~ '__notes',
     label=_('Description'), id='field-d' ~ position ~ 'notes',
     value=field.get('info', {}).get('notes', '')) }}
 {% endblock %}
