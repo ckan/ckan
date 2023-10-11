@@ -178,6 +178,9 @@ class _TableDesignerEditRow(MethodView):
                 errors={
                     k:[_('Duplicate primary key exists')] for k in pk_fields
                 }
+            elif rec_err.startswith('invalid input syntax'):
+                bad_data = rec_err.split('"', 1)[1].rstrip('"')
+                errors = {f: [_("Invalid input")] for f in row if row[f] == bad_data}
             elif rec_err.startswith('TAB-DELIMITED\t'):
                 errors = {}
                 erriter = iter(rec_err.split('\t')[1:])
