@@ -28,7 +28,6 @@ class TestExampleIResourceController(object):
             package_id=package["id"],
             name="test-resource",
             url="http://resource.create/",
-            apikey=user["apikey"],
         )
 
         assert plugin.counter["before_resource_create"] == 1, plugin.counter
@@ -63,8 +62,7 @@ class TestExampleIResourceController(object):
         plugin = ckan.plugins.get_plugin("example_iresourcecontroller")
 
         helpers.call_action(
-            "resource_delete", id=resource["id"], apikey=user["apikey"]
-        )
+            "resource_delete", id=resource["id"])
 
         assert plugin.counter["before_resource_create"] == 1, plugin.counter
         assert plugin.counter["after_resource_create"] == 1, plugin.counter
