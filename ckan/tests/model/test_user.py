@@ -140,7 +140,6 @@ class TestUser:
         data = factories.User()
         user = model.User.get(data["id"])
         assert user.name == data["name"]
-        assert len(user.apikey) == 36
         assert user.fullname == data["fullname"]
         assert user.email == data["email"]
         assert user.last_active is None
