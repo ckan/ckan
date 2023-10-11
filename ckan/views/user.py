@@ -138,6 +138,16 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
+
+    am_following: bool = False
+    if not extra_vars['is_myself']:
+        try:
+            am_following = logic.get_action('am_following_user')(
+                {'user': current_user.name}, {"id": id})
+        except logic.NotAuthorized:
+            am_following = False
+
+    extra_vars["am_following"] = am_following
     return base.render(u'user/read.html', extra_vars)
 
 
@@ -799,45 +809,49 @@ class PerformResetView(MethodView):
         })
 
 
-def follow(id: str) -> Response:
-    u'''Start following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def follow(id: str) -> str:
+    '''Start following this user.'''
+    error_message = ''
+    am_following = False
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'follow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are now following {0}').format(user_dict[u'display_name']))
+        logic.get_action('follow_user')({}, {'id': id})
+        am_following = True
     except logic.ValidationError as e:
-        error_message: Any = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_dict['message']
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+    return base.render('user/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str) -> Response:
-    u'''Stop following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def unfollow(id: str) -> str:
+    '''Stop following this user.'''
+    error_message = ''
+    am_following = True
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'unfollow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are no longer following {0}').format(
-                user_dict[u'display_name']))
+        logic.get_action('unfollow_user')({}, {'id': id})
+        am_following = False
     except logic.ValidationError as e:
-        error_message: Any = (e.error_summary or e.message or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_summary
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+
+    return base.render('user/snippets/info.html', extra_vars)
 
 
 def followers(id: str) -> str:
@@ -921,8 +935,8 @@ user.add_url_rule(
 user.add_url_rule(
     u'/reset/<id>', view_func=PerformResetView.as_view(str(u'perform_reset')))
 
-user.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
-user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
+user.add_url_rule(u'/follow/<id>', view_func=follow, methods=('POST', ))
+user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=('POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)

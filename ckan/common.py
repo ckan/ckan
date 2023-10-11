@@ -146,12 +146,60 @@ def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy[Request]):
-    u'''Common request object
+class HtmxDetails(object):
+    """Object to access htmx properties from the request headers.
 
-    This is just a wrapper around LocalProxy so we can handle some special
-    cases for backwards compatibility.
+    This object will be added to the CKAN `request` object
+    as `request.htmx`. It adds properties to easily access
+    htmx's request headers defined in
+    https://htmx.org/reference/#headers.
+    """
+
+    def __init__(self, request: Any):
+        self.request = request
+
+    def __bool__(self) -> bool:
+        return self.request.headers.get("HX-Request") == "true"
+
+    @property
+    def boosted(self) -> bool:
+        return self.request.headers.get("HX-Boosted") == "true"
+
+    @property
+    def current_url(self) -> str | None:
+        return self.request.headers.get("HX-Current-URL")
+
+    @property
+    def history_restore_request(self) -> bool:
+        return self.request.headers.get("HX-History-Restore-Request") == "true"
+
+    @property
+    def prompt(self) -> str | None:
+        return self.request.headers.get("HX-Prompt")
+
+    @property
+    def target(self) -> str | None:
+        return self.request.headers.get("HX-Target")
+
+    @property
+    def trigger(self) -> str | None:
+        return self.request.headers.get("HX-Trigger")
+
+    @property
+    def trigger_name(self) -> str | None:
+        return self.request.headers.get("HX-Trigger-Name")
+
+
+class CKANRequest(LocalProxy[Request]):
+    '''CKAN request class.
+
+    This is a subclass of the Flask request object. It adds a new
+    `htmx` property to access htmx properties from the request headers.
     '''
+
+    @property
+    def htmx(self) -> HtmxDetails:
+        return HtmxDetails(self)
 
     @property
     @maintain.deprecated('Use `request.args` instead of `request.params`',
