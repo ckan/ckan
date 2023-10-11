@@ -42,12 +42,12 @@ meta.mapper(SystemInfo, system_info_table)
 
 def get_system_info(key, default=None):
     ''' get data from system_info table '''
-    from sqlalchemy.exc import ProgrammingError
+    from sqlalchemy.exc import ProgrammingError, OperationalError
     try:
         obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
         if obj:
             return obj.value
-    except ProgrammingError:
+    except (ProgrammingError, OperationalError):
         meta.Session.rollback()
     return default
 
