@@ -26,7 +26,7 @@ def csv_writer(output: Any, fields: list[dict[str, Any]],
         output.write(BOM_UTF8)
 
     csv.writer(output).writerow(
-        f['id'].encode('utf8') for f in fields)
+        f['id'].encode('utf-8') for f in fields)
     yield TextWriter(output)
 
 
@@ -46,7 +46,7 @@ def tsv_writer(output: Any, fields: list[dict[str, Any]],
     csv.writer(
         output,
         dialect='excel-tab').writerow(
-            f['id'].encode('utf8') for f in fields)
+            f['id'].encode('utf-8') for f in fields)
     yield TextWriter(output)
 
 
@@ -73,7 +73,7 @@ def json_writer(output: Any, fields: list[dict[str, Any]],
         output.write(BOM_UTF8)
     output.write(
         b'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':')).encode('utf8'))
+            fields, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
     yield JSONWriter(output)
     output.write(b'\n]}\n')
 
@@ -110,7 +110,7 @@ def xml_writer(output: Any, fields: list[dict[str, Any]],
         output.write(BOM_UTF8)
     output.write(
         b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
-    yield XMLWriter(output, [f['id'].encode('utf8') for f in fields])
+    yield XMLWriter(output, [f['id'].encode('utf-8') for f in fields])
     output.write(b'</data>\n')
 
 
