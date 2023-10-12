@@ -291,7 +291,7 @@ class Repository():
             raise CkanConfigurationException("Model is not initialized")
 
         sqlalchemy_migrate_version = 0
-        db_inspect = inspect(self.metadata.bind)
+        db_inspect = inspect(meta.engine)
         if db_inspect.has_table("migrate_version"):
             with meta.engine.connect() as conn:
                 sqlalchemy_migrate_version = conn.execute(

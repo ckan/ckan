@@ -126,7 +126,9 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
     # Use local session for task_status_update, so it can commit its own
     # results without messing up with the parent session that contains pending
     # updats of dataset/resource/etc.
-    context['session'] = context['model'].meta.create_local_session()
+    context.update({
+        'session': context['model'].meta.create_local_session()  # type: ignore
+    })
     p.toolkit.get_action('task_status_update')(context, task)
 
     timeout = config.get('ckan.requests.timeout')
