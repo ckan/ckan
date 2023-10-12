@@ -25,7 +25,7 @@ def csv_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM_UTF8.decode())
 
     csv.writer(output).writerow(
         f['id'].encode('utf-8') for f in fields)
@@ -43,7 +43,7 @@ def tsv_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM_UTF8.decode())
 
     csv.writer(
         output,
@@ -72,11 +72,10 @@ def json_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM_UTF8.decode())
     output.write(
         '{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':'))
-            .encode('utf-8'))
+            fields, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
     yield JSONWriter(output)
     output.write('\n]}\n')
 
@@ -110,7 +109,7 @@ def xml_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM_UTF8.decode())
     output.write(
         '<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
     yield XMLWriter(output, [f['id'].encode('utf-8') for f in fields])
