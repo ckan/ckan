@@ -25,8 +25,8 @@ def csv_writer(output: Any, fields: list[dict[str, Any]],
     if bom:
         output.write(BOM_UTF8)
 
-    csv.writer(output, encoding=u'utf-8').writerow(  # type: ignore
-        f['id'] for f in fields)
+    csv.writer(output).writerow(
+        f['id'].encode('utf8') for f in fields)
     yield TextWriter(output)
 
 
@@ -45,9 +45,8 @@ def tsv_writer(output: Any, fields: list[dict[str, Any]],
 
     csv.writer(
         output,
-        encoding=u'utf-8',  # type: ignore
         dialect='excel-tab').writerow(
-            f['id'] for f in fields)
+            f['id'].encode('utf8') for f in fields)
     yield TextWriter(output)
 
 
@@ -57,7 +56,7 @@ class TextWriter(object):
         self.output = output
 
     def write_records(self, records: list[Any]):
-        self.output.write(records)
+        self.output.write([r.encode('utf-8') for r in records])
 
 
 @contextmanager
@@ -111,7 +110,7 @@ def xml_writer(output: Any, fields: list[dict[str, Any]],
         output.write(BOM_UTF8)
     output.write(
         b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
-    yield XMLWriter(output, [f[u'id'] for f in fields])
+    yield XMLWriter(output, [f['id'].encode('utf8') for f in fields])
     output.write(b'</data>\n')
 
 
