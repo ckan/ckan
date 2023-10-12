@@ -232,12 +232,12 @@ class TestUser:
         from ckan.lib.helpers import url_for
         from freezegun import freeze_time
 
-        frozen_time = datetime.datetime.utcnow()
         data = factories.User()
         dataset = factories.Dataset()
         user_token = factories.APIToken(user=data["name"])
         headers = {"Authorization": user_token["token"]}
 
+        frozen_time = datetime.datetime.utcnow()
         with freeze_time(frozen_time):
             user = model.User.get(data["id"])
             assert user.last_active is None

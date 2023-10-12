@@ -18,7 +18,7 @@
 
 {% block secondary_content %}
   {% if organization %}
-    {% snippet 'snippets/organization.html', organization=organization %}
+    {% snippet 'organization/snippets/info.html', organization=organization %}
   {% else %}
     {{ super() }}
   {% endif %}
