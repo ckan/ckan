@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import pytest
 
 from ckan import model
@@ -72,3 +73,23 @@ class TestFakeData:
 
         user = model.Session.query(model.User).filter_by(fullname=name).one()
         assert user.fullname == name
+
+    def test_json_output(self, cli: CKANCliRunner):
+        """Command produces valid JSON."""
+        result = cli.invoke(generate, ["fake-data", "organization"])
+        value = json.loads(result.output)
+        assert value
+
+    def test_specify_user_parameter(self, cli: CKANCliRunner, user):
+        """Factory accepts username and use it as `context["user"]`."""
+        username = user["name"]
+        result = cli.invoke(
+            generate, [
+                "fake-data",
+                "dataset",
+                f"--user={username}"
+            ],
+        )
+
+        dataset = json.loads(result.output)
+        assert dataset["creator_user_id"] == user["id"]

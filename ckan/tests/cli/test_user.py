@@ -87,8 +87,8 @@ class TestApiToken(object):
         call_action(u"api_token_create", user=user[u"id"], name=u"first token")
         tid = model.Session.query(model.ApiToken).first().id
 
-        # tid must be escaped. When it starts with a hyphen it treated as a
-        # flag otherwise.
+        # tid must be prefixed by --. When it starts with a hyphen it treated
+        # as a flag otherwise.
         args = ["user", "token", "revoke", "--", tid]
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output

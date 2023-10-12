@@ -1217,7 +1217,6 @@ def config_option_update(
 
         get_action('config_option_update)({}, {
             'ckan.site_title': 'My Open Data site',
-            'ckan.homepage_layout': 2,
         })
 
     :param key: a configuration option key (eg ``ckan.site_title``). It must

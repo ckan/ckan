@@ -125,6 +125,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions: dict[str, Callable[..., Any]] = {}
@@ -907,26 +910,6 @@ def map_pylons_to_flask_route_name(menu_item: str):
                  'Please update calls to use "{}" instead'
                  .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
-
-
-@core_helper
-def build_extra_admin_nav() -> Markup:
-    '''Build extra navigation items used in ``admin/base.html`` for values
-    defined in the config option ``ckan.admin_tabs``. Typically this is
-    populated by extensions.
-
-    :rtype: HTML literal
-
-    '''
-    admin_tabs_dict = config.get('ckan.admin_tabs')
-    output: Markup = literal('')
-    if admin_tabs_dict:
-        for k, v in admin_tabs_dict.items():
-            if v['icon']:
-                output += build_nav_icon(k, v['label'], icon=v['icon'])
-            else:
-                output += build_nav(k, v['label'])
-    return output
 
 
 def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
@@ -2480,17 +2463,6 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
             break
 
     return groups_data
-
-
-@core_helper
-def get_site_statistics() -> dict[str, int]:
-    stats = {}
-    stats['dataset_count'] = logic.get_action('package_search')(
-        {}, {"rows": 1})['count']
-    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
-    stats['organization_count'] = len(
-        logic.get_action('organization_list')({}, {}))
-    return stats
 
 
 _RESOURCE_FORMATS: dict[str, Any] = {}

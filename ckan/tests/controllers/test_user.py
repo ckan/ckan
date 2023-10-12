@@ -488,15 +488,12 @@ class TestUser(object):
         assert "Old Password: incorrect password" in response
 
     def test_user_follow(self, app, user):
-
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
         response = app.post(follow_url, headers=headers)
-        assert (
-            "You are now following {0}".format(user_two["display_name"])
-            in response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>1</span>" in response
+        assert 'Unfollow</a>' in response
 
     def test_user_follow_not_exist(self, app, user):
         """Pass an id for a user that doesn't exist"""
@@ -507,7 +504,6 @@ class TestUser(object):
         assert response.status_code == 404
 
     def test_user_unfollow(self, app, user):
-
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         follow_url = url_for("user.follow", id=user_two["id"])
@@ -515,24 +511,18 @@ class TestUser(object):
 
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(user_two["display_name"])
-            in unfollow_response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
+        assert 'Follow</a>' in unfollow_response
 
     def test_user_unfollow_not_following(self, app, user):
-        """Unfollow a user not currently following"""
+        """It will just return the snippet to follow them."""
 
         user_two = factories.User()
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("user.unfollow", id=user_two["id"])
         unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(user_two["id"])
-            in unfollow_response
-        )
+        assert "<dt>Followers</dt>\n            <dd><span>0</span>" in unfollow_response
+        assert 'Follow</a>' in unfollow_response
 
     def test_user_unfollow_not_exist(self, app, user):
         """Unfollow a user that doesn't exist."""
@@ -638,12 +628,13 @@ class TestUser(object):
 
     def test_sysadmin_invalid_user(self, app, sysadmin):
         headers = {"Authorization": sysadmin["token"]}
-        app.post(
+        resp = app.post(
             url_for("user.sysadmin"),
             data={"username": "fred", "status": "1"},
             headers=headers,
-            status=404,
+            status=200,
         )
+        assert helpers.body_contains(resp, "User not found")
 
     def test_sysadmin_promote_success(self, app):
 
