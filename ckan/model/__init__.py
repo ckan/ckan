@@ -9,8 +9,7 @@ from time import sleep
 from typing import Any, Optional
 
 import sqlalchemy as sa
-from sqlalchemy import MetaData, Table
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy import MetaData, Table, inspect
 
 from alembic.command import (
     upgrade as alembic_upgrade,
@@ -291,13 +290,13 @@ class Repository():
         if not meta.engine:
             raise CkanConfigurationException("Model is not initialized")
 
-        try:
-            with meta.engine.connect() as conn:
-                sqlalchemy_migrate_version = conn.execute(
-                    sa.text('select version from migrate_version')
-                ).scalar()
-        except ProgrammingError:
-            sqlalchemy_migrate_version = 0
+        sqlalchemy_migrate_version = 0
+        db_inspect = inspect(self.metadata.bind)
+        if db_inspect.has_table("migrate_version"):
+        with meta.engine.connect() as conn:
+            sqlalchemy_migrate_version = conn.execute(
+                sa.text('select version from migrate_version')
+            ).scalar()
 
         # this value is used for graceful upgrade from
         # sqlalchemy-migrate to alembic

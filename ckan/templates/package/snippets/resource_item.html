@@ -67,12 +67,9 @@
       </li>
       {% endif %}
       {% if can_edit %}
-      <li>
-        <a class="dropdown-item" href="{{ h.url_for(pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id) }}">
-          <i class="fa fa-pencil-square"></i>
-          {{ _('Edit') }}
-        </a>
-      </li>
+        <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
+        {% block resource_item_explore_inner scoped %}{% endblock %}
+        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}
       {% endif %}
       {% endblock %}
     </ul>

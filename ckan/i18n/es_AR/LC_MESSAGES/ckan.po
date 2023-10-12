@@ -377,7 +377,7 @@ msgstr "Debe tener al menos %s caracteres de longitud"
 #: ckan/logic/validators.py:341 ckan/logic/validators.py:672
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr "El nonbre no puede tener más de %i caracteres de largo"
+msgstr "El nombre no puede tener más de %i caracteres de largo"
 
 #: ckan/logic/validators.py:344
 msgid ""

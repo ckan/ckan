@@ -23,7 +23,7 @@ import ckan.lib.signals as signals
 
 from ckan.common import _, g
 from ckan.types import (
-    Action, ChainedAction, Model,
+    Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
     Schema, Validator, ValidatorFactory)
 
@@ -276,7 +276,7 @@ def flatten_to_string_key(dict: dict[str, Any]) -> dict[str, Any]:
 def _prepopulate_context(context: Optional[Context]) -> Context:
     if context is None:
         context = {}
-    context.setdefault('model', cast(Model, model))
+    context.setdefault('model', model)
     context.setdefault('session', model.Session)
 
     try:
@@ -807,7 +807,7 @@ def get_validator(
         _validators_cache.update(converters)
         _validators_cache.update({'OneOf': _validators_cache['one_of']})
 
-        for plugin in reversed(list(p.PluginImplementations(p.IValidators))):
+        for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
                 log.debug('Validator function {0} from plugin {1} was inserted'
                           .format(name, plugin.name))
@@ -849,17 +849,12 @@ def guard_against_duplicated_email(email: str):
     except exc.IntegrityError as e:
         if e.orig.pgcode == _PG_ERR_CODE["unique_violation"]:
             model.Session.rollback()
-            raise ValidationError(
-                cast(
-                    ErrorDict,
-                    {
-                        "email": [
-                            "The email address '{email}' belongs to "
-                            "a registered user.".format(email=email)
-                        ]
-                    },
-                )
-            )
+            raise ValidationError({
+                "email": [
+                    "The email address '{email}' belongs to "
+                    "a registered user.".format(email=email)
+                ]
+            })
         raise
 
 

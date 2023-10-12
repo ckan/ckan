@@ -49,7 +49,6 @@ from ckanext.datastore.backend import (
     DatastoreException,
     _parse_sort_clause
 )
-from ckanext.datastore.backend import InvalidDataError
 
 log = logging.getLogger(__name__)
 
@@ -1061,7 +1060,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
-    '''Adds new columns and updates column info (stored as comments).
+    '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
     :type resource_id: string
@@ -1081,20 +1080,15 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
-    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
     new_fields: list[dict[str, Any]] = []
+    field_ids: set[str] = set(f['id'] for f in supplied_fields)
+    current_ids: set[str] = set(f['id'] for f in current_fields)
 
-    for num, field in enumerate(supplied_fields):
+    for field in supplied_fields:
         # check to see if field definition is the same or and
         # extension of current fields
-        if num < len(current_fields):
-            if field['id'] != current_fields[num]['id']:
-                raise ValidationError({
-                    'fields': [(u'Supplied field "{0}" not '
-                                u'present or in wrong order').format(
-                        field['id'])]
-                })
+        if field['id'] in current_ids:
             # no need to check type as field already defined.
             continue
 
@@ -1145,6 +1139,11 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 identifier(f['id']),
                 info_sql))
 
+    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+            identifier(data_dict['resource_id']),
+            identifier(id_)))
+
     if alter_sql:
         context['connection'].execute(sa.text(
             ';'.join(alter_sql)
@@ -1152,11 +1151,6 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
-    """
-
-    :raises InvalidDataError: if there is an invalid value in the given data
-
-    """
     data_dict['method'] = _INSERT
     result = upsert_data(context, data_dict)
     return result
@@ -1174,6 +1168,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    num = -1
 
     if method == _INSERT:
         rows = []
@@ -1202,13 +1197,11 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
 
         try:
             context['connection'].execute(sa.text(sql_string), rows)
-        except DataError as err:
-            raise InvalidDataError(
-                toolkit._("The data was invalid: {}"
-                          ).format(_programming_error_summary(err)))
-        except DatabaseError as err:
-            raise ValidationError(
-                {u'records': [_programming_error_summary(err)]})
+        except (DatabaseError, DataError) as err:
+            raise ValidationError({
+                'records': [_programming_error_summary(err)],
+                'records_row': num,
+            })
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -1299,8 +1292,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         {**used_values, **unique_values})
                 except DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
                 # validate that exactly one row has been updated
                 if results.rowcount != 1:
@@ -1344,8 +1338,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         sa.text(insert_string), values)
                 except DatabaseError as err:
                     raise ValidationError({
-                        u'records': [_programming_error_summary(err)],
-                        u'_records_row': num})
+                        'records': [_programming_error_summary(err)],
+                        'records_row': num,
+                    })
 
 
 def validate(context: Context, data_dict: dict[str, Any]):
@@ -2087,8 +2082,6 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         nor can the ordering of them be changed. They can be extended though.
         Any error results in total failure! For now pass back the actual error.
         Should be transactional.
-        :raises InvalidDataError: if there is an invalid value in the given
-                                  data
         '''
         engine = get_write_engine()
         _cache_types(engine)

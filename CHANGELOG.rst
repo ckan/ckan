@@ -45,15 +45,19 @@ Migration notes
   store the session data in the `client-side cookie <https://beaker.readthedocs.io/en/latest/sessions.html#cookie-based>`_.
   This will probably be the default behaviour in future CKAN versions::
 
-	# ckan.ini
-	beaker.session.type = cookie
-    beaker.session.data_serializer = json
-	beaker.session.validate_key = CHANGE_ME
+    # ckan.ini
 
-	beaker.session.httponly = True
-	beaker.session.secure = True
-	beaker.session.samesite = Lax
+    beaker.session.type = cookie
+    beaker.session.data_serializer = json
+    # Use a long, random string for this setting
+    beaker.session.validate_key = CHANGE_ME
+
+    beaker.session.httponly = True
+    beaker.session.secure = True
+    beaker.session.samesite = Lax
     # or Strict, depending on your setup
+
+  .. note:: You might need to install an additional library that can provide AES encryption, e.g. ``pip install cryptography``
 
 v.2.10.0 2023-02-15
 ===================
