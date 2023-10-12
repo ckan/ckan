@@ -24,7 +24,7 @@ import ckan.lib.signals as signals
 from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction,
-    ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
+    ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict, FlattenKey,
     Schema, Validator, ValidatorFactory)
 
 Decorated = TypeVar("Decorated")
@@ -255,7 +255,29 @@ def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
                 except ValueError:
                     raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
-    return tuplized_dict
+
+    # Sanitize key indexes to make sure they are sequential
+    seq_tuplized_dict: FlattenDataDict = {}
+    new_index = -1
+    last_group = None
+    last_index = None
+    tuple_key: FlattenKey
+    for tuple_key in sorted(tuplized_dict.keys()):
+        if len(tuple_key) != 3:
+            seq_tuplized_dict[tuple_key] = tuplized_dict[tuple_key]
+        else:
+            if last_group != tuple_key[0]:
+                new_index = 0
+            elif last_index != tuple_key[1]:
+                new_index += 1
+
+            new_key = (tuple_key[0], new_index, tuple_key[2])
+            seq_tuplized_dict[new_key] = tuplized_dict[tuple_key]
+
+            last_group = tuple_key[0]
+            last_index = tuple_key[1]
+
+    return seq_tuplized_dict
 
 
 def untuplize_dict(tuplized_dict: FlattenDataDict) -> dict[str, Any]:
