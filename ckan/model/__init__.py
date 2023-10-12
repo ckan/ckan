@@ -293,10 +293,10 @@ class Repository():
         sqlalchemy_migrate_version = 0
         db_inspect = inspect(self.metadata.bind)
         if db_inspect.has_table("migrate_version"):
-        with meta.engine.connect() as conn:
-            sqlalchemy_migrate_version = conn.execute(
-                sa.text('select version from migrate_version')
-            ).scalar()
+            with meta.engine.connect() as conn:
+                sqlalchemy_migrate_version = conn.execute(
+                    sa.text('select version from migrate_version')
+                ).scalar()
 
         # this value is used for graceful upgrade from
         # sqlalchemy-migrate to alembic
