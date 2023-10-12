@@ -72,10 +72,10 @@ def json_writer(output: Any, fields: list[dict[str, Any]],
     if bom:
         output.write(BOM_UTF8)
     output.write(
-        '{\n  "fields": %s,\n  "records": [' % dumps(
+        b'{\n  "fields": %s,\n  "records": [' % dumps(
             fields, ensure_ascii=False, separators=(',', ':')))
     yield JSONWriter(output)
-    output.write('\n]}\n')
+    output.write(b'\n]}\n')
 
 
 class JSONWriter(object):
@@ -87,9 +87,9 @@ class JSONWriter(object):
         for r in records:
             if self.first:
                 self.first = False
-                self.output.write('\n    ')
+                self.output.write(b'\n    ')
             else:
-                self.output.write(',\n    ')
+                self.output.write(b',\n    ')
 
             self.output.write(dumps(
                 r, ensure_ascii=False, separators=(u',', u':'))
@@ -109,9 +109,9 @@ def xml_writer(output: Any, fields: list[dict[str, Any]],
     if bom:
         output.write(BOM_UTF8)
     output.write(
-        '<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+        b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
     yield XMLWriter(output, [f[u'id'] for f in fields])
-    output.write('</data>\n')
+    output.write(b'</data>\n')
 
 
 class XMLWriter(object):
@@ -151,4 +151,4 @@ class XMLWriter(object):
             for c in self.columns:
                 self._insert_node(root, c, r[c])
             ElementTree(root).write(self.output, encoding=u'utf-8')
-            self.output.write('\n')
+            self.output.write(b'\n')

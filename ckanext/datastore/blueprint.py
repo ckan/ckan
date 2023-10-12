@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, cast, Union
 from itertools import zip_longest
-from io import StringIO
+from io import BytesIO
 
 from flask import Blueprint, Response
 from flask.views import MethodView
@@ -207,7 +207,7 @@ def dump_to(
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    output_buffer = StringIO()
+    output_buffer = BytesIO()
 
     if fmt == 'csv':
         writer_factory = csv_writer
@@ -226,7 +226,7 @@ def dump_to(
 
     bom = options.get('bom', False)
 
-    def start_stream_writer(output_buffer: StringIO,
+    def start_stream_writer(output_buffer: BytesIO,
                             fields: list[dict[str, Any]]):
         return writer_factory(output_buffer, fields, bom=bom)
 
