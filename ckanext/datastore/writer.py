@@ -25,7 +25,7 @@ def csv_writer(output: Any, fields: list[dict[str, Any]],
     if bom:
         output.write(BOM_UTF8)
 
-    csv.writer(output).writerow(
+    csv.writer(output, encoding=u'utf-8').writerow(  # type: ignore
         f['id'] for f in fields)
     yield TextWriter(output)
 
@@ -45,6 +45,7 @@ def tsv_writer(output: Any, fields: list[dict[str, Any]],
 
     csv.writer(
         output,
+        encoding=u'utf-8',  # type: ignore
         dialect='excel-tab').writerow(
             f['id'] for f in fields)
     yield TextWriter(output)
@@ -73,7 +74,7 @@ def json_writer(output: Any, fields: list[dict[str, Any]],
         output.write(BOM_UTF8)
     output.write(
         b'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':')))
+            fields, ensure_ascii=False, separators=(',', ':')).encode('utf8'))
     yield JSONWriter(output)
     output.write(b'\n]}\n')
 
