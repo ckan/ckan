@@ -28,7 +28,7 @@ def csv_writer(output: StringIO, fields: list[dict[str, Any]],
         output.write(BOM_UTF8.decode())
 
     csv.writer(output).writerow(
-        f['id'].encode('utf-8') for f in fields)
+        f['id'] for f in fields)
     yield TextWriter(output)
 
 
@@ -48,7 +48,7 @@ def tsv_writer(output: StringIO, fields: list[dict[str, Any]],
     csv.writer(
         output,
         dialect='excel-tab').writerow(
-            f['id'].encode('utf-8') for f in fields)
+            f['id'] for f in fields)
     yield TextWriter(output)
 
 
@@ -58,7 +58,7 @@ class TextWriter(object):
         self.output = output
 
     def write_records(self, records: list[Any]):
-        self.output.write([r.encode('utf-8') for r in records])
+        self.output.write(r for r in records)
 
 
 @contextmanager
@@ -75,7 +75,7 @@ def json_writer(output: StringIO, fields: list[dict[str, Any]],
         output.write(BOM_UTF8.decode())
     output.write(
         '{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+            fields, ensure_ascii=False, separators=(',', ':')))
     yield JSONWriter(output)
     output.write('\n]}\n')
 
@@ -94,8 +94,7 @@ class JSONWriter(object):
                 self.output.write(',\n    ')
 
             self.output.write(dumps(
-                r, ensure_ascii=False, separators=(u',', u':'))
-                .encode('utf-8'))
+                r, ensure_ascii=False, separators=(u',', u':')))
 
 
 @contextmanager
@@ -112,7 +111,7 @@ def xml_writer(output: StringIO, fields: list[dict[str, Any]],
         output.write(BOM_UTF8.decode())
     output.write(
         '<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
-    yield XMLWriter(output, [f['id'].encode('utf-8') for f in fields])
+    yield XMLWriter(output, [f['id'] for f in fields])
     output.write('</data>\n')
 
 
@@ -153,4 +152,4 @@ class XMLWriter(object):
             for c in self.columns:
                 self._insert_node(root, c, r[c])
             ElementTree(root).write(self.output, encoding=u'utf-8')
-            self.output.write(b'\n')
+            self.output.write('\n')
