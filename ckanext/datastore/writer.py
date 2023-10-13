@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from io import StringIO
+from io import BytesIO
 
 from contextlib import contextmanager
 from typing import Any, Optional
@@ -15,7 +15,7 @@ from codecs import BOM_UTF8
 
 
 @contextmanager
-def csv_writer(output: StringIO, fields: list[dict[str, Any]],
+def csv_writer(output: BytesIO, fields: list[dict[str, Any]],
                bom: bool = False):
     u'''Context manager for writing UTF-8 CSV data to file
 
@@ -25,15 +25,15 @@ def csv_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8.decode())
+        output.write(BOM_UTF8)
 
     csv.writer(output).writerow(
-        f['id'] for f in fields)
+        f['id'].encode('utf-8') for f in fields)
     yield TextWriter(output)
 
 
 @contextmanager
-def tsv_writer(output: StringIO, fields: list[dict[str, Any]],
+def tsv_writer(output: BytesIO, fields: list[dict[str, Any]],
                bom: bool = False):
     u'''Context manager for writing UTF-8 TSV data to file
 
@@ -43,26 +43,26 @@ def tsv_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8.decode())
+        output.write(BOM_UTF8)
 
     csv.writer(
         output,
         dialect='excel-tab').writerow(
-            f['id'] for f in fields)
+            f['id'].encode('utf-8') for f in fields)
     yield TextWriter(output)
 
 
 class TextWriter(object):
     u'text in, text out'
-    def __init__(self, output: StringIO):
+    def __init__(self, output: BytesIO, dialect):
         self.output = output
 
     def write_records(self, records: list[Any]):
-        self.output.write(r for r in records)
+        self.output.write(records)  # type: ignore
 
 
 @contextmanager
-def json_writer(output: StringIO, fields: list[dict[str, Any]],
+def json_writer(output: BytesIO, fields: list[dict[str, Any]],
                 bom: bool = False):
     u'''Context manager for writing UTF-8 JSON data to file
 
@@ -72,16 +72,16 @@ def json_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8.decode())
+        output.write(BOM_UTF8)
     output.write(
-        '{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':')))
+        b'{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
     yield JSONWriter(output)
-    output.write('\n]}\n')
+    output.write(b'\n]}\n')
 
 
 class JSONWriter(object):
-    def __init__(self, output: StringIO):
+    def __init__(self, output: BytesIO):
         self.output = output
         self.first = True
 
@@ -89,16 +89,17 @@ class JSONWriter(object):
         for r in records:
             if self.first:
                 self.first = False
-                self.output.write('\n    ')
+                self.output.write(b'\n    ')
             else:
-                self.output.write(',\n    ')
+                self.output.write(b',\n    ')
 
             self.output.write(dumps(
-                r, ensure_ascii=False, separators=(u',', u':')))
+                r, ensure_ascii=False, separators=(u',', u':'))
+                .encode('utf-8'))
 
 
 @contextmanager
-def xml_writer(output: StringIO, fields: list[dict[str, Any]],
+def xml_writer(output: BytesIO, fields: list[dict[str, Any]],
                bom: bool = False):
     u'''Context manager for writing UTF-8 XML data to file
 
@@ -108,18 +109,18 @@ def xml_writer(output: StringIO, fields: list[dict[str, Any]],
     '''
 
     if bom:
-        output.write(BOM_UTF8.decode())
+        output.write(BOM_UTF8)
     output.write(
-        '<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
-    yield XMLWriter(output, [f['id'] for f in fields])
-    output.write('</data>\n')
+        b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    yield XMLWriter(output, [f['id'].encode('utf-8') for f in fields])
+    output.write(b'</data>\n')
 
 
 class XMLWriter(object):
     _key_attr = u'key'
     _value_tag = u'value'
 
-    def __init__(self, output: StringIO, columns: list[str]):
+    def __init__(self, output: BytesIO, columns: list[str]):
         self.output = output
         self.id_col = columns[0] == u'_id'
         if self.id_col:
@@ -152,4 +153,4 @@ class XMLWriter(object):
             for c in self.columns:
                 self._insert_node(root, c, r[c])
             ElementTree(root).write(self.output, encoding=u'utf-8')
-            self.output.write('\n')
+            self.output.write(b'\n')
