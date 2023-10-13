@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Any, Optional, cast, Union
 from itertools import zip_longest
-from io import BytesIO
 
 from flask import Blueprint, Response
 from flask.views import MethodView
@@ -207,8 +206,6 @@ def dump_to(
     limit: Optional[int], options: dict[str, Any], sort: str,
     search_params: dict[str, Any], user: str
 ):
-    output_buffer = BytesIO()
-
     if fmt == 'csv':
         writer_factory = csv_writer
         records_format = 'csv'
@@ -226,9 +223,8 @@ def dump_to(
 
     bom = options.get('bom', False)
 
-    def start_stream_writer(output_buffer: BytesIO,
-                            fields: list[dict[str, Any]]):
-        return writer_factory(output_buffer, fields, bom=bom)
+    def start_stream_writer(fields: list[dict[str, Any]]):
+        return writer_factory(fields, bom=bom)
 
     def stream_result_page(offs: int, lim: Union[None, int]):
         return get_action('datastore_search')(
@@ -246,18 +242,14 @@ def dump_to(
 
     def stream_dump(offset: int, limit: Union[None, int],
                     paginate_by: int, result: dict[str, Any]):
-        with start_stream_writer(output_buffer, result['fields']) as output:
+        with start_stream_writer(result['fields']) as writer:
             while True:
                 if limit is not None and limit <= 0:
                     break
 
                 records = result['records']
 
-                output.write_records(records)
-                output_buffer.seek(0)
-                yield output_buffer.read()
-                output_buffer.truncate(0)
-                output_buffer.seek(0)
+                yield writer.write_records(records)
 
                 if records_format == 'objects' or records_format == 'lists':
                     if len(records) < paginate_by:
@@ -272,8 +264,8 @@ def dump_to(
                         break
 
                 result = stream_result_page(offset, limit)
-        output_buffer.seek(0)
-        yield output_buffer.read()
+
+            yield writer.end_file()
 
     result = stream_result_page(offset, limit)
 

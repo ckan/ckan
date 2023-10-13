@@ -1,7 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
-from io import BytesIO
+from io import StringIO, BytesIO
 
 from contextlib import contextmanager
 from typing import Any, Optional
@@ -14,113 +14,132 @@ import csv
 from codecs import BOM_UTF8
 
 
+BOM = "\N{bom}"
+
+
 @contextmanager
-def csv_writer(output: BytesIO, fields: list[dict[str, Any]],
-               bom: bool = False):
+def csv_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 CSV data to file
 
     :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM)
 
     csv.writer(output).writerow(  # type: ignore
-        f['id'].encode('utf-8') for f in fields)
+        f['id'] for f in fields)
     yield TextWriter(output)
 
 
 @contextmanager
-def tsv_writer(output: BytesIO, fields: list[dict[str, Any]],
-               bom: bool = False):
+def tsv_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 TSV data to file
 
     :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM)
 
     csv.writer(
         output,  # type: ignore
         dialect='excel-tab').writerow(
-            f['id'].encode('utf-8') for f in fields)
+            f['id'] for f in fields)
     yield TextWriter(output)
 
 
 class TextWriter(object):
     'text in, text out'
-    def __init__(self, output: BytesIO):
+    def __init__(self, output: StringIO):
         self.output = output
 
-    def write_records(self, records: list[Any]):
+    def write_records(self, records: list[Any]) -> bytes:
         self.output.write(records)  # type: ignore
+        self.output.seek(0)
+        output = self.output.read().encode('utf-8')
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b''
 
 
 @contextmanager
-def json_writer(output: BytesIO, fields: list[dict[str, Any]],
-                bom: bool = False):
+def json_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 JSON data to file
 
     :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = StringIO()
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM)
+
     output.write(
-        b'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+        '{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(',', ':')))
     yield JSONWriter(output)
-    output.write(b'\n]}\n')
 
 
 class JSONWriter(object):
-    def __init__(self, output: BytesIO):
+    def __init__(self, output: StringIO):
         self.output = output
         self.first = True
 
-    def write_records(self, records: list[Any]):
+    def write_records(self, records: list[Any]) -> bytes:
         for r in records:
             if self.first:
                 self.first = False
-                self.output.write(b'\n    ')
+                self.output.write('\n    ')
             else:
-                self.output.write(b',\n    ')
+                self.output.write(',\n    ')
 
             self.output.write(dumps(
-                r, ensure_ascii=False, separators=(',', ':'))
-                .encode('utf-8'))
+                r, ensure_ascii=False, separators=(',', ':')))
+
+        self.output.seek(0)
+        output = self.output.read().encode('utf-8')
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b'\n]}\n'
 
 
 @contextmanager
-def xml_writer(output: BytesIO, fields: list[dict[str, Any]],
-               bom: bool = False):
+def xml_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 XML data to file
 
     :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
+    output = BytesIO()
 
     if bom:
         output.write(BOM_UTF8)
+
     output.write(
         b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
     yield XMLWriter(output, [f['id'] for f in fields])
-    output.write(b'</data>\n')
 
 
 class XMLWriter(object):
     _key_attr = 'key'
     _value_tag = 'value'
 
-    def __init__(self, output: BytesIO, columns: list[str]):
+    def __init__(self, output: StringIO, columns: list[str]):
         self.output = output
         self.id_col = columns[0] == '_id'
         if self.id_col:
@@ -145,7 +164,7 @@ class XMLWriter(object):
         if key_attr is not None:
             element.attrib[self._key_attr] = str(key_attr)
 
-    def write_records(self, records: list[Any]):
+    def write_records(self, records: list[Any]) -> bytes:
         for r in records:
             root = Element('row')
             if self.id_col:
@@ -154,3 +173,12 @@ class XMLWriter(object):
                 self._insert_node(root, c, r[c])
             ElementTree(root).write(self.output, encoding='utf-8')
             self.output.write(b'\n')
+        self.output.seek(0)
+        output = self.output.read()
+        self.output.truncate(0)
+        self.output.seek(0)
+        return output
+
+    def end_file(self) -> bytes:
+        return b'</data>\n'
+
