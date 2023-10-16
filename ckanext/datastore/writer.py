@@ -21,7 +21,6 @@ BOM = "\N{bom}"
 def csv_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 CSV data to file
 
-    :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
@@ -39,7 +38,6 @@ def csv_writer(fields: list[dict[str, Any]], bom: bool = False):
 def tsv_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 TSV data to file
 
-    :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
@@ -76,7 +74,6 @@ class TextWriter(object):
 def json_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 JSON data to file
 
-    :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
@@ -121,7 +118,6 @@ class JSONWriter(object):
 def xml_writer(fields: list[dict[str, Any]], bom: bool = False):
     '''Context manager for writing UTF-8 XML data to file
 
-    :param response: file-like object for writing data
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
