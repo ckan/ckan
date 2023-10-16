@@ -30,7 +30,7 @@ def csv_writer(fields: list[dict[str, Any]], bom: bool = False):
     if bom:
         output.write(BOM)
 
-    csv.writer(output).writerow(  # type: ignore
+    csv.writer(output).writerow(
         f['id'] for f in fields)
     yield TextWriter(output)
 
@@ -49,7 +49,7 @@ def tsv_writer(fields: list[dict[str, Any]], bom: bool = False):
         output.write(BOM)
 
     csv.writer(
-        output,  # type: ignore
+        output,
         dialect='excel-tab').writerow(
             f['id'] for f in fields)
     yield TextWriter(output)
@@ -139,7 +139,7 @@ class XMLWriter(object):
     _key_attr = 'key'
     _value_tag = 'value'
 
-    def __init__(self, output: StringIO, columns: list[str]):
+    def __init__(self, output: BytesIO, columns: list[str]):
         self.output = output
         self.id_col = columns[0] == '_id'
         if self.id_col:
@@ -181,4 +181,3 @@ class XMLWriter(object):
 
     def end_file(self) -> bytes:
         return b'</data>\n'
-
