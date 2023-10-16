@@ -43,4 +43,6 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
                 helpers.tabledesigner_column_type,
             'datastore_rw_resource_url_types':
                 helpers.datastore_rw_resource_url_types,
+            'tabledesigner_choice_list':
+                helpers.tabledesigner_choice_list,
         }
