@@ -68,6 +68,6 @@ def tabledesigner_data_api_examples(resource_id):
         "unique_filter_object": {"_id": 1},
     }
 
-def datastore_rw_resource_url_types(next_func):
+def datastore_rw_resource_url_types():
     '''tabledesigner datastore tables can be updated without force=True'''
     return ['tabledesigner', 'datastore']
