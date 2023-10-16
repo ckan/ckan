@@ -32,5 +32,5 @@ def _create_table_and_view(res):
     get_action('resource_view_create')({}, {
         'resource_id': res['id'],
         'view_type': 'datatables_view',
-        'title': 'Table Designer',
+        'title': 'Table',
     })
