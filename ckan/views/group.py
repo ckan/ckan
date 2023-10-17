@@ -8,6 +8,9 @@ from typing import Any, Optional, Union
 from typing_extensions import Literal
 
 from urllib.parse import urlencode
+import csv
+from io import StringIO
+from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -21,7 +24,6 @@ import ckan.plugins as plugins
 from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
-from ckanext.datastore.writer import csv_writer
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -574,12 +576,6 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
 
 
 def member_dump(id: str, group_type: str, is_organization: bool):
-    response = make_response()
-    response.headers[u'content-type'] = u'application/octet-stream'
-
-    writer_factory = csv_writer
-    records_format = u'csv'
-
     group_obj = model.Group.get(id)
     if not group_obj:
         base.abort(404,
@@ -601,37 +597,40 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user',
-            u'records_format': records_format,
+            u'records_format': u'csv',
             u'include_total': False,
         })
     except NotFound:
         base.abort(404, _('Members not found'))
 
-    results = ''
+    results = [[_('Username'), _('Email'), _('Name'), _('Role')]]
     for uid, _user, role in members:
         user_obj = model.User.get(uid)
         if not user_obj:
             continue
-        results += '{name},{email},{fullname},{role}\n'.format(
-            name=user_obj.name,
-            email=user_obj.email,
-            fullname=user_obj.fullname if user_obj.fullname else _('N/A'),
-            role=role)
+        results.append([
+            user_obj.name,
+            user_obj.email,  # type: ignore
+            user_obj.fullname if user_obj.fullname else _('N/A'),
+            role,
+        ])
 
-    fields = [
-        {'id': _('Username')},
-        {'id': _('Email')},
-        {'id': _('Name')},
-        {'id': _('Role')}]
+    output_stream = StringIO()
+    output_stream.write(BOM_UTF8)  # type: ignore
+    csv.writer(output_stream).writerows(results)
 
-    def start_writer(fields: Any):
-        file_name = u'{group_id}-{members}'.format(
-                group_id=group_obj.name,
-                members=_(u'members'))
-        return writer_factory(response, fields, file_name, bom=True)
+    file_name = u'{org_id}-{members}'.format(
+            org_id=group_obj.name,
+            members=_(u'members'))
 
-    with start_writer(fields) as wr:
-        wr.write_records(results)  # type: ignore
+    output_stream.seek(0)
+    response = make_response(output_stream.read())
+    output_stream.close()
+    content_disposition = u'attachment; filename="{name}.csv"'.format(
+                                    name=file_name)
+    content_type = b'text/csv; charset=utf-8'
+    response.headers['Content-Type'] = content_type  # type: ignore
+    response.headers['Content-Disposition'] = content_disposition
 
     return response
 
