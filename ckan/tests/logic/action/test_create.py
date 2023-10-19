@@ -1155,7 +1155,49 @@ class TestGroupCreate(object):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+    
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
 
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "group_create",
+                context=context,
+                name=factories.Group.stub().name,
+                id = "d45c2ea1-de9a-4b9e-b1f5-df68c9aca073"
+            )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        id = "d45c2ea1-de9a-4b9e-b1f5-df68c9aca073"
+        result = helpers.call_action(
+            "group_create",
+            context=context,
+            name=factories.Group.stub().name,
+            id=id
+        )
+
+        assert result.get("id") == id
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        group = helpers.call_action(
+            "group_create",
+            name=factories.Group.stub().name,
+            context=context
+        )
+
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                id=group["id"],
+                context=context,
+                name=factories.Group.stub().name,
+            )
+        assert "Id already exists" in str(exception.value)
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):

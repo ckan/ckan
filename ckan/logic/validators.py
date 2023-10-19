@@ -239,18 +239,25 @@ def id_does_not_exist(value: str, context: Context) -> Any:
     model = context['model']
     session = context['session']
     entities_map = {
-        'resource_view_create': model.ResourceView,
-        'package_create': model.Package
+        'resource_view': model.ResourceView,
+        'group': model.Group
     }
     result = None
+    entity_type = None
+    schema_keys = context.get('schema_keys', None)
+   
+    # Temp solution, to be changed
+    if schema_keys: 
+        if "is_organization" in schema_keys:
+            entity_type = "group"
+        elif "resource_id" in schema_keys:
+            entity_type = "resource_view"
 
-    actions = context.get('__auth_audit', None)
-    print(context)
-    if actions:
-        action_type, _params = actions[0]
-        result = session.query(entities_map[action_type]).get(value)        
-    if result:
-        raise Invalid(_('Id already exists'))
+    print(schema_keys, entity_type)
+    if entity_type:
+        result = session.query(entities_map[entity_type]).get(value)        
+        if result:
+            raise Invalid(_('Id already exists'))
     return value
 
 def package_name_exists(value: str, context: Context) -> Any:

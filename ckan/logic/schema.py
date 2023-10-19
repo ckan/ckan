@@ -276,9 +276,11 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          group_name_validator: Validator,
                          package_id_or_name_exists: Validator,
                          no_loops_in_hierarchy: Validator,
+                         empty_if_not_sysadmin: Validator,
+                         id_validator: Validator, id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, unicode_safe],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator, id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
         'title': [ignore_missing, unicode_safe],
