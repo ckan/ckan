@@ -178,6 +178,24 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
+    def test_systemadmin_can_provide_custom_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = 'eac77164-dd5c-4fd0-a324-20a2f83651e9'
+
+        result = helpers.call_action("resource_view_create", context=context, **params)
+        assert result["id"] == 'eac77164-dd5c-4fd0-a324-20a2f83651e9'
+
+    def test_normal_user_can_not_provide_custom_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = 'eac77164-dd5c-4fd0-a324-20a2f83651e9'
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
     @mock.patch("ckan.lib.datapreview.get_view_plugin")
     def test_requires_view_type(self, get_view_plugin):
         context = {}

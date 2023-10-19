@@ -215,7 +215,6 @@ def resource_id_does_not_exist(
         errors: FlattenErrorDict, context: Context) -> Any:
     session = context['session']
     model = context['model']
-
     if data[key] is missing:
         return
     resource_id = data[key]

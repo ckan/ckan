@@ -690,9 +690,13 @@ def default_create_resource_view_schema(resource_view: Any):
 @validator_args
 def default_create_resource_view_schema_unfiltered(
         not_empty: Validator, resource_id_exists: Validator,
-        unicode_safe: Validator, ignore_missing: Validator, empty: Validator
+        unicode_safe: Validator, ignore_missing: Validator, empty: Validator,
+        id_validator: Validator,
+        empty_if_not_sysadmin: Validator,
+        ignore_empty: Validator
 ) -> Schema:
     return {
+        'id': [empty_if_not_sysadmin, ignore_empty, id_validator, unicode_safe],
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
