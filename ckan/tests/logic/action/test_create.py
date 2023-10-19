@@ -196,6 +196,16 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context=context, **params)
 
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        result =  helpers.call_action("resource_view_create", context=context, **params)
+        params["id"] = result.pop("id")
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
     @mock.patch("ckan.lib.datapreview.get_view_plugin")
     def test_requires_view_type(self, get_view_plugin):
         context = {}

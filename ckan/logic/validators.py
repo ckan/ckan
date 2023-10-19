@@ -232,6 +232,26 @@ def resource_id_does_not_exist(
     if parent_id != package_id:
         errors[key].append(_('Resource id already exists.'))
 
+def id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+    entities_map = {
+        'resource_view_create': model.ResourceView,
+        'package_create': model.Package
+    }
+    result = None
+
+    actions = context.get('__auth_audit', None)
+    print(context)
+    if actions:
+        action_type, _params = actions[0]
+        result = session.query(entities_map[action_type]).get(value)        
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
 
 def package_name_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's name.
