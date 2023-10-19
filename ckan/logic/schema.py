@@ -211,6 +211,7 @@ def default_show_package_schema(keep_extras: Validator,
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     cast(Schema, schema['resources']).update({
+        'id': [not_empty],
         'format': [ignore_missing, clean_format, unicode_safe],
         'created': [ignore_missing],
         'position': [not_empty],
