@@ -436,6 +436,34 @@ class TestResourceCreate:
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action('resource_create', **data_dict)
+    
+    def test_systemadmin_can_provide_custom_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Resource.stub()
+        data_dict = {
+            "id": stub.name,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        result = helpers.call_action("resource_create", context=context, **data_dict)
+        assert result["id"] == stub.name
+
+    def test_normal_user_can_not_provide_custom_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Resource.stub()
+        data_dict = {
+            "id": stub.name,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", context=context, **data_dict)
 
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()

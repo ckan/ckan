@@ -36,9 +36,10 @@ def default_resource_schema(
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
         resource_id_validator: Validator,
-        resource_id_does_not_exist: Validator) -> Schema:
+        resource_id_does_not_exist: Validator,
+        empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore_empty, resource_id_validator,
+        'id': [empty_if_not_sysadmin, ignore_empty, resource_id_validator,
                resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
