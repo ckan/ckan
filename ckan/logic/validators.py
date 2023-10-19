@@ -282,7 +282,7 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     return value
 
 
-def resource_id_validator(value: Any) -> Any:
+def id_validator(value: Any) -> Any:
     pattern = re.compile("[^0-9a-zA-Z _-]")
     if pattern.search(value):
         raise Invalid(_('Invalid characters in resource id'))
