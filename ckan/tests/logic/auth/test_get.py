@@ -45,6 +45,7 @@ class TestGetAuth(object):
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_show", context=context, id=fred["id"])
+
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
     @mock.patch("flask_login.utils._get_user")
     def test_restrict_anon_auth_when_user_is_in_context(self, current_user):
