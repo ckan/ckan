@@ -4,10 +4,13 @@ from __future__ import annotations
 import logging
 import re
 from collections import OrderedDict
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 from typing_extensions import Literal
 
 from urllib.parse import urlencode
+import csv
+from io import StringIO
+from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -22,7 +25,7 @@ from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
 
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
 from ckan.types import Action, Context, DataDict, Schema
@@ -129,18 +132,15 @@ def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     set_org(is_organization)
     page = h.get_page_number(request.args) or 1
-    items_per_page = config.get_value('ckan.datasets_per_page')
+    items_per_page = config.get('ckan.datasets_per_page')
 
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True,
-        u'with_private': False
-    })
+        u'with_private': False,
+    }
 
     try:
-        assert _check_access(u'site_read', context)
         assert _check_access(u'group_list', context)
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
@@ -169,6 +169,8 @@ def index(group_type: str, is_organization: bool) -> str:
             u'q': q,
             u'sort': sort_by,
             u'type': group_type or u'group',
+            u'include_dataset_count': True,
+            u'include_member_count': True,
         }
         global_results = _action(u'group_list')(context,
                                                 data_dict_global_results)
@@ -190,7 +192,9 @@ def index(group_type: str, is_organization: bool) -> str:
         u'type': group_type or u'group',
         u'limit': items_per_page,
         u'offset': items_per_page * (page - 1),
-        u'include_extras': True
+        u'include_extras': True,
+        u'include_dataset_count': True,
+        u'include_member_count': True,
     }
     page_results = _action(u'group_list')(context, data_dict_page_results)
 
@@ -214,14 +218,12 @@ def index(group_type: str, is_organization: bool) -> str:
 def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     u''' This is common code used by both read and bulk_process'''
     extra_vars: dict[str, Any] = {}
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True,
         u'extras_as_string': True
-    })
+    }
 
     q = request.args.get(u'q', u'')
 
@@ -332,9 +334,9 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
         u'extras': search_extras
     }
 
-    context_ = cast(
-        Context, dict((k, v) for (k, v) in context.items() if k != u'schema')
-    )
+    context_ = context.copy()
+    context_.pop("schema", None)
+
     try:
         query = get_action(u'package_search')(context_, data_dict)
     except search.SearchError as se:
@@ -356,7 +358,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
 
         extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
-        default_limit: int = config.get_value(u'search.facets.default')
+        default_limit: int = config.get(u'search.facets.default')
         for facet in extra_vars["search_facets"].keys():
             limit = int(request.args.get(u'_%s_limit' % facet, default_limit))
             g.search_facets_limits[facet] = limit
@@ -390,12 +392,10 @@ def _update_facet_titles(
 def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     u''' returns the result of group_show action or aborts if there is a
     problem '''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'for_view': True
-    })
+    }
     try:
         return _action(u'group_show')(context, {
             u'id': id,
@@ -410,13 +410,11 @@ def read(group_type: str,
          id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
     set_org(is_organization)
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'schema': _db_to_form_schema(group_type=group_type),
         u'for_view': True
-    })
+    }
     data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
 
     # unicode format (decoded from utf8)
@@ -424,7 +422,7 @@ def read(group_type: str,
 
     extra_vars["q"] = q
 
-    limit = config.get_value('ckan.datasets_per_page')
+    limit = config.get('ckan.datasets_per_page')
 
     try:
         # Do not query for the group datasets when dictizing, as they will
@@ -436,6 +434,7 @@ def read(group_type: str,
         data_dict['include_users'] = False
 
         group_dict = _action(u'group_show')(context, data_dict)
+
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -456,27 +455,38 @@ def read(group_type: str,
     g.group_dict = group_dict
 
     extra_vars = _read(id, limit, group_type)
+    try:
+        am_following = logic.get_action('am_following_group')(
+            {'user': current_user.name}, {'id': id}
+        )
+    except NotAuthorized:
+        # AnonymousUser
+        am_following = False
 
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["am_following"] = am_following
 
     return base.render(
-        _get_group_template(u'read_template', cast(str, g.group_dict['type'])),
+        _get_group_template(u'read_template', g.group_dict['type']),
         extra_vars)
 
 
 def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
-        }
-    )
-    group_dict = _get_group_dict(id, group_type)
-    group_type = group_dict['type']
+    context: Context = {'user': current_user.name}
+
+    try:
+        group_dict = _get_group_dict(id, group_type)
+        group_type = group_dict['type']
+    except NotFound:
+        base.abort(404, _(u'Group not found'))
+    except NotAuthorized:
+        base.abort(403,
+                   _(u'User %r not authorized to edit members of %s') %
+                   (current_user.name, id))
+
     _setup_template_variables(context, {u'id': id}, group_type=group_type)
 
     # TODO: Remove
@@ -495,13 +505,42 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
 def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
+
+    try:
+        data_dict: dict[str, Any] = {u'id': id}
+        assert check_access(u'group_show', context, data_dict)
+        members = get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user'
+        })
+        data_dict['include_datasets'] = False
+        group_dict = _action(u'group_show')(context, data_dict)
+    except NotFound:
+        base.abort(404, _(u'Group not found'))
+    except NotAuthorized:
+        base.abort(403,
+                   _(u'User %r not authorized to edit members of %s') %
+                   (current_user.name, id))
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.members = members
+    g.group_dict = group_dict
+
+    extra_vars: dict[str, Any] = {
+        u"members": members,
+        u"group_dict": group_dict,
+        u"group_type": group_type,
+    }
+    return base.render(_replace_group_org(u'group/members.html'), extra_vars)
+
+
+def manage_members(id: str, group_type: str, is_organization: bool) -> str:
+    extra_vars = {}
+    set_org(is_organization)
+    context: Context = {'user': current_user.name}
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
@@ -528,25 +567,83 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {
         u"members": members,
         u"group_dict": group_dict,
-        u"group_type": group_type
+        u"group_type": group_type,
     }
-    return base.render(_replace_group_org(u'group/members.html'), extra_vars)
+    return base.render(
+        _replace_group_org(u'group/manage_members.html'),
+        extra_vars
+    )
+
+
+def member_dump(id: str, group_type: str, is_organization: bool):
+    group_obj = model.Group.get(id)
+    if not group_obj:
+        base.abort(404,
+                   _(u'Organization not found')
+                   if is_organization
+                   else _(u'Group not found'))
+
+    set_org(is_organization)
+    context: Context = {'user': current_user.name}
+
+    try:
+        _check_access(u'group_member_create', context, {u'id': id})
+    except NotAuthorized:
+        base.abort(404,
+                   _(u'Not authorized to access {group} members download'
+                     .format(group=group_obj.title)))
+
+    try:
+        members = get_action(u'member_list')(context, {
+            u'id': id,
+            u'object_type': u'user',
+            u'records_format': u'csv',
+            u'include_total': False,
+        })
+    except NotFound:
+        base.abort(404, _('Members not found'))
+
+    results = [[_('Username'), _('Email'), _('Name'), _('Role')]]
+    for uid, _user, role in members:
+        user_obj = model.User.get(uid)
+        if not user_obj:
+            continue
+        results.append([
+            user_obj.name,
+            user_obj.email,  # type: ignore
+            user_obj.fullname if user_obj.fullname else _('N/A'),
+            role,
+        ])
+
+    output_stream = StringIO()
+    output_stream.write(BOM_UTF8)  # type: ignore
+    csv.writer(output_stream).writerows(results)
+
+    file_name = u'{org_id}-{members}'.format(
+            org_id=group_obj.name,
+            members=_(u'members'))
+
+    output_stream.seek(0)
+    response = make_response(output_stream.read())
+    output_stream.close()
+    content_disposition = u'attachment; filename="{name}.csv"'.format(
+                                    name=file_name)
+    content_type = b'text/csv; charset=utf-8'
+    response.headers['Content-Type'] = content_type  # type: ignore
+    response.headers['Content-Disposition'] = content_disposition
+
+    return response
 
 
 def member_delete(id: str, group_type: str,
                   is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.args:
+    if u'cancel' in request.form:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
+
     try:
         assert _check_access(u'group_member_delete', context, {u'id': id})
     except NotAuthorized:
@@ -554,13 +651,18 @@ def member_delete(id: str, group_type: str,
 
     try:
         user_id = request.args.get(u'user')
+        if not user_id:
+            base.abort(404, _(u'User not found'))
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
                 u'user_id': user_id
             })
             h.flash_notice(_(u'Group member has been deleted.'))
-            return h.redirect_to(u'{}.members'.format(group_type), id=id)
+            return h.redirect_to(
+                u'{}.manage_members'.format(
+                    group_type
+                ), id=id)
         user_dict = _action(u'user_show')(context, {u'id': user_id})
 
     except NotAuthorized:
@@ -577,71 +679,91 @@ def member_delete(id: str, group_type: str,
                        extra_vars)
 
 
-def follow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Start following this group.'''
+def follow(id: str, group_type: str,
+           is_organization: bool) -> Union[Response, str]:
+    '''Start following this group.'''
     set_org(is_organization)
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
         }
-    )
-    data_dict = {u'id': id}
+    extra_vars = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
+
     try:
-        get_action(u'follow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are now following {0}").format(group_dict['title']))
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
 
-        id = group_dict['name']
+    am_following = False
+    error_message = ""
+    try:
+        get_action('follow_group')({}, data_dict)
+        am_following = True
     except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotAuthorized as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'group.read', id=id)
+        error_message = str(e.error_dict.get('message'))
+
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
+    return base.render('group/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Stop following this group.'''
+def unfollow(id: str, group_type: str, is_organization: bool) -> str:
+    '''Stop following this group.'''
     set_org(is_organization)
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
+        'include_followers': True
         }
-    )
-    data_dict = {u'id': id}
+    extra_vars = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
     try:
-        get_action(u'unfollow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are no longer following {0}").format(group_dict['title']))
-        id = group_dict['name']
-    except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotFound as e:
-        error_message = e.message or ''
-        base.abort(404, _(error_message))
-    except NotAuthorized as e:
-        error_message = e.message or ''
-        base.abort(403, _(error_message))
-    return h.redirect_to(u'group.read', id=id)
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
+
+    am_following = True
+    error_message = ""
+    try:
+        get_action('unfollow_group')({}, data_dict)
+        am_following = False
+    except (ValidationError) as e:
+        error_message = e.error_summary
+
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
+    return base.render('group/snippets/info.html', extra_vars)
 
 
 def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
-    context = cast(
-        Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     group_dict = _get_group_dict(id, group_type)
     try:
         followers = \
@@ -693,14 +815,12 @@ class BulkProcessView(MethodView):
 
         # check we are org admin
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'schema': _db_to_form_schema(group_type=group_type),
             u'for_view': True,
             u'extras_as_string': True
-        })
+        }
 
         try:
             check_access(u'bulk_update_public', context, {u'org_id': id})
@@ -824,14 +944,12 @@ class CreateGroupView(MethodView):
         if data:
             data['type'] = group_type
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'save': u'save' in request.args,
             u'parent': request.args.get(u'parent', None),
             u'group_type': group_type
-        })
+        }
 
         try:
             assert _check_access(u'group_create', context)
@@ -842,6 +960,7 @@ class CreateGroupView(MethodView):
 
     def post(self, group_type: str,
              is_organization: bool) -> Union[Response, str]:
+
         set_org(is_organization)
         context = self._prepare()
         try:
@@ -866,7 +985,7 @@ class CreateGroupView(MethodView):
                             data_dict, errors, error_summary)
 
         return h.redirect_to(
-            cast(str, group['type']) + u'.read', id=group['name'])
+            group['type'] + '.read', id=group['name'])
 
     def get(self,
             group_type: str,
@@ -917,15 +1036,13 @@ class EditGroupView(MethodView):
     def _prepare(self, id: Optional[str]) -> Context:
         data_dict: dict[str, Any] = {u'id': id, u'include_datasets': False}
 
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'save': u'save' in request.args,
             u'for_edit': True,
             u'parent': request.args.get(u'parent', None),
             u'id': id
-        })
+        }
 
         try:
             _action(u'group_show')(context, data_dict)
@@ -966,7 +1083,7 @@ class EditGroupView(MethodView):
             return self.get(id, group_type, is_organization,
                             data_dict, errors, error_summary)
         return h.redirect_to(
-            cast(str, group[u'type']) + u'.read', id=group[u'name'])
+            group['type'] + '.read', id=group[u'name'])
 
     def get(self,
             id: str,
@@ -1016,11 +1133,7 @@ class DeleteGroupView(MethodView):
     u'''Delete group view '''
 
     def _prepare(self, id: Optional[str] = None) -> Context:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name,
-        })
+        context: Context = {'user': current_user.name}
         try:
             assert _check_access(u'group_delete', context, {u'id': id})
         except NotAuthorized:
@@ -1074,11 +1187,7 @@ class MembersGroupView(MethodView):
     u'''New members group view'''
 
     def _prepare(self, id: Optional[str] = None) -> Context:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name
-        })
+        context: Context = {'user': current_user.name}
         try:
             assert _check_access(u'group_member_create', context, {u'id': id})
         except NotAuthorized:
@@ -1131,7 +1240,7 @@ class MembersGroupView(MethodView):
         # TODO: Remove
         g.group_dict = group_dict
 
-        return h.redirect_to(u'{}.members'.format(group_type), id=id)
+        return h.redirect_to(u'{}.manage_members'.format(group_type), id=id)
 
     def get(self,
             group_type: str,
@@ -1184,10 +1293,6 @@ organization = Blueprint(u'organization', __name__,
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
-    actions = [
-        u'member_delete', u'followers', u'follow',
-        u'unfollow', u'admins',
-    ]
     blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
     blueprint.add_url_rule(
         u'/new',
@@ -1198,7 +1303,14 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/edit/<id>', view_func=EditGroupView.as_view(str(u'edit')))
     blueprint.add_url_rule(u'/about/<id>', methods=[u'GET'], view_func=about)
     blueprint.add_url_rule(
-        u'/members/<id>', methods=[u'GET', u'POST'], view_func=members)
+        u'/manage_members/<id>',
+        methods=[u'GET', u'POST'],
+        view_func=manage_members)
+    blueprint.add_url_rule(
+        u'/member_dump/<id>',
+        view_func=member_dump)
+    blueprint.add_url_rule(
+        u'/members/<id>', methods=[u'GET'], view_func=members)
     blueprint.add_url_rule(
         u'/member_new/<id>',
         view_func=MembersGroupView.as_view(str(u'member_new')))
@@ -1209,6 +1321,15 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/delete/<id>',
         methods=[u'GET', u'POST'],
         view_func=DeleteGroupView.as_view(str(u'delete')))
+    blueprint.add_url_rule(
+        '/follow/<id>',
+        methods=[u'POST'],
+        view_func=follow)
+    blueprint.add_url_rule(
+        '/unfollow/<id>',
+        methods=[u'POST'],
+        view_func=unfollow)
+    actions = ['member_delete', 'followers', 'admins']
     for action in actions:
         blueprint.add_url_rule(
             u'/{0}/<id>'.format(action),

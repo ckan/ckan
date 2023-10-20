@@ -31,7 +31,7 @@ def send_email_notifications(
     """
     tk.check_access("send_email_notifications", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_email_notifications"):
+    if not tk.config.get("ckan.activity_streams_email_notifications"):
         raise tk.ValidationError(
             {
                 "message": (
@@ -58,9 +58,9 @@ def dashboard_mark_activities_old(
     user_obj = model.User.get(context["user"])
     assert user_obj
     user_id = user_obj.id
-    model.Dashboard.get(
-        user_id
-    ).activity_stream_last_viewed = datetime.datetime.utcnow()
+    dashboard = model.Dashboard.get(user_id)
+    if dashboard:
+        dashboard.activity_stream_last_viewed = datetime.datetime.utcnow()
     if not context.get("defer_commit"):
         model.repo.commit()
 
@@ -91,7 +91,7 @@ def activity_create(
 
     tk.check_access("activity_create", context, data_dict)
 
-    if not tk.config.get_value("ckan.activity_streams_enabled"):
+    if not tk.config.get("ckan.activity_streams_enabled"):
         return
 
     model = context["model"]
@@ -117,6 +117,7 @@ def activity_create(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def user_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -173,6 +174,7 @@ def user_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def package_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -258,6 +260,7 @@ def package_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def group_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -319,6 +322,7 @@ def group_activity_list(
 
 
 @validate(schema.default_activity_list_schema)
+@tk.side_effect_free
 def organization_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -377,6 +381,7 @@ def organization_activity_list(
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def recently_changed_packages_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -407,6 +412,7 @@ def recently_changed_packages_activity_list(
 
 
 @validate(schema.default_dashboard_activity_list_schema)
+@tk.side_effect_free
 def dashboard_activity_list(
     context: Context, data_dict: DataDict
 ) -> list[dict[str, Any]]:
@@ -455,12 +461,15 @@ def dashboard_activity_list(
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = "%Y-%m-%dT%H:%M:%S.%f"
-    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
+    dashboard = model.Dashboard.get(user_id)
+    last_viewed = None
+    if dashboard:
+        last_viewed = dashboard.activity_stream_last_viewed
     for activity in activity_dicts:
         if activity["user_id"] == user_id:
             # Never mark the user's own activities as new.
             activity["is_new"] = False
-        else:
+        elif last_viewed:
             activity["is_new"] = (
                 strptime(activity["timestamp"], fmt) > last_viewed
             )
@@ -468,6 +477,7 @@ def dashboard_activity_list(
     return activity_dicts
 
 
+@tk.side_effect_free
 def dashboard_new_activities_count(
     context: Context, data_dict: DataDict
 ) -> ActionResult.DashboardNewActivitiesCount:
@@ -488,6 +498,7 @@ def dashboard_new_activities_count(
     return len([activity for activity in activities if activity["is_new"]])
 
 
+@tk.side_effect_free
 def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Show details of an item of 'activity' (part of the activity stream).
 
@@ -510,6 +521,7 @@ def activity_show(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return activity
 
 
+@tk.side_effect_free
 def activity_data_show(
     context: Context, data_dict: DataDict
 ) -> dict[str, Any]:
@@ -552,6 +564,7 @@ def activity_data_show(
     return activity_data
 
 
+@tk.side_effect_free
 def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """Returns a diff of the activity, compared to the previous version of the
     object

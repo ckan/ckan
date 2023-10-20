@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 import jinja2
 import datetime
 from markupsafe import Markup
 
-import ckan.model as model
 import ckan.plugins.toolkit as tk
 
 from ckan.types import Context
@@ -38,7 +37,7 @@ def dashboard_activity_stream(
     :rtype: string
 
     """
-    context = cast(Context, {"user": tk.g.user})
+    context: Context = {"user": tk.g.user}
     if filter_type:
         action_functions = {
             "dataset": "package_activity_list",
@@ -73,11 +72,10 @@ def recently_changed_packages_activity_stream(
         data_dict = {"limit": limit}
     else:
         data_dict = {}
-    context = cast(
-        Context, {"model": model, "session": model.Session, "user": tk.g.user}
-    )
+
     return tk.get_action("recently_changed_packages_activity_list")(
-        context, data_dict
+        {"user": tk.current_user.name},
+        data_dict
     )
 
 
@@ -187,4 +185,4 @@ def compare_group_dicts(
 
 
 def activity_show_email_notifications() -> bool:
-    return tk.config.get_value("ckan.activity_streams_email_notifications")
+    return tk.config.get("ckan.activity_streams_email_notifications")

@@ -5,7 +5,7 @@ that takes into account CKAN's specific search needs. Now that we have CKAN
 installed, we need to install and configure Solr.
 
 
-.. warning:: CKAN supports **Solr 8**. Starting from CKAN 2.10 this is the only Solr version supported. CKAN 2.9 can run with Solr 8 as long as it is patched to at least 2.9.5. CKAN 2.9 can also run against Solr 6 but this is not recommended as this Solr version does no longer receive security updates.
+.. warning:: CKAN supports **Solr 9** (recommended version) and Solr 8. Starting from CKAN 2.10 these are the only Solr version supported. CKAN 2.9 can run with Solr 9 and 8 as long as it is patched to at least 2.9.5.
 
 
 There are two supported ways to install Solr.
@@ -23,45 +23,49 @@ There are pre-configured Docker images for Solr for each CKAN version. Make sure
 
    .. parsed-literal::
 
-    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:2.10
-
-.. todo:: Switch to ``|current_minor_version|`` when we branch `dev-v2.10`
+    docker run --name ckan-solr -p 8983:8983 -d ckan/ckan-solr:2.10-solr9
 
 You can now jump to the `Next steps <#next-steps-with-solr>`_ section.
 
 Installing Solr manually
 ========================
 
-#. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 8.x.
+The following instructions have been tested in Ubuntu 22.04 and are provided as a guidance only. For a Solr production setup is it recommended that you
+follow the `official Solr documentation <https://solr.apache.org/guide/solr/latest/deployment-guide/taking-solr-to-production.html>`_.
 
-#. Extract the downloaded file to your desired location (adjust the Solr version number to the one you are using)::
 
-    tar xzf solr-8.11.0.tgz
+#. Install the OS dependencies::
 
-#. Change into the extracted directory::
+      sudo apt-get install openjdk-11-jdk
 
-    cd solr-8.11.0/
+#. Download the latest supported version from the `Solr downloads page <https://solr.apache.org/downloads.html>`_. CKAN supports Solr version 9.x (recommended) and 8.x.
 
-#. Start Solr::
+#. Extract the install script file to your desired location (adjust the Solr version number to the one you are using)::
 
-    bin/solr start
+    tar xzf solr-9.2.1.tgz solr-9.2.1/bin/install_solr_service.sh --strip-components=2
+
+#. Run the installation script as ``root``::
+
+    sudo bash ./install_solr_service.sh solr-9.2.1.tgz
+
+#. Check that Solr started running::
+
+    sudo service solr status
 
 #. Create a new core for CKAN::
 
-    bin/solr create -c ckan
+    sudo -u solr /opt/solr/bin/solr create -c ckan
 
-#. Replace the standard schema located in ``server/solr/ckan/conf/managed-schema`` with the CKAN one:
+#. Replace the standard schema with the CKAN one:
 
    .. parsed-literal::
 
-    wget -O server/solr/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/master/ckan/config/solr/schema.xml
+    sudo -u solr wget -O /var/solr/data/ckan/conf/managed-schema https://raw.githubusercontent.com/ckan/ckan/dev-v2.10/ckan/config/solr/schema.xml
 
-
-.. todo:: Switch to ``|current_release_tag|`` when we branch `dev-v2.10`
 
 #. Restart Solr::
 
-    bin/solr restart
+    sudo service solr restart
 
 
 Next steps with Solr

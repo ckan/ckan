@@ -253,7 +253,7 @@ def package_update(
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset (if ``'return_package_dict'`` is ``True`` in
+    :returns: the updated dataset (if ``'return_id_only'`` is ``False`` in
               the context, which is the default. Otherwise returns just the
               dataset id)
     :rtype: dictionary
@@ -280,18 +280,6 @@ def package_update(
 
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
-    if 'api_version' not in context:
-        # check_data_dict() is deprecated. If the package_plugin has a
-        # check_data_dict() we'll call it, if it doesn't have the method we'll
-        # do nothing.
-        check_data_dict = getattr(package_plugin, 'check_data_dict', None)
-        if check_data_dict:
-            try:
-                package_plugin.check_data_dict(data_dict, schema)
-            except TypeError:
-                # Old plugins do not support passing the schema so we need
-                # to ensure they still work.
-                package_plugin.check_data_dict(data_dict)
 
     resource_uploads = []
     for resource in data_dict.get('resources', []):
@@ -326,7 +314,10 @@ def package_update(
     user_obj = context.get('auth_user_obj')
     if user_obj:
         plugin_data = data.get('plugin_data', False)
-        include_plugin_data = user_obj.sysadmin and plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and plugin_data
+        )
 
     pkg = model_save.package_dict_save(data, context, include_plugin_data)
 
@@ -491,10 +482,10 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     if unmatched:
         model.Session.rollback()
-        raise ValidationError({'message': [{'match': [
+        raise ValidationError({'match': [
             '__'.join(str(p) for p in unm)
             for unm in unmatched
-        ]}]})
+        ]})
 
     if 'filter' in data:
         orig_id = orig['id']
@@ -506,7 +497,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             dfunc.update_merge_dict(orig, data['update'])
         except dfunc.DataError as de:
             model.Session.rollback()
-            raise ValidationError({'message': [{'update': [de.error]}]})
+            raise ValidationError({'update': [de.error]})
 
     # update __extend keys before __#__* so that files may be
     # attached to newly added resources in the same call
@@ -517,7 +508,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             dfunc.update_merge_string_key(orig, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
-            raise ValidationError({'message': [{k: [de.error]}]})
+            raise ValidationError({k: [de.error]})
 
     _check_access('package_revise', context, {"update": orig})
 
@@ -526,7 +517,7 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     # on update or "nothing changed" status once possible
     rval = {
         'package': _get_action('package_update')(
-            cast(Context, dict(context, package=pkg)),
+            Context(context, package=pkg),
             orig)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
@@ -662,7 +653,7 @@ def _group_or_org_update(
         raise NotFound('Group was not found.')
     context["group"] = group
 
-    data_dict_type = data_dict.get('type') 
+    data_dict_type = data_dict.get('type')
     if data_dict_type is None:
         data_dict['type'] = group.type
     else:
@@ -686,14 +677,6 @@ def _group_or_org_update(
         _check_access('organization_update', context, data_dict)
     else:
         _check_access('group_update', context, data_dict)
-
-    if 'api_version' not in context:
-        # old plugins do not support passing the schema so we need
-        # to ensure they still work
-        try:
-            group_plugin.check_data_dict(data_dict, schema)
-        except TypeError:
-            group_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
@@ -1146,7 +1129,7 @@ def _bulk_update_dataset(
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id'),
+            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
             'rows': BATCH_SIZE
         }
 
@@ -1234,7 +1217,6 @@ def config_option_update(
 
         get_action('config_option_update)({}, {
             'ckan.site_title': 'My Open Data site',
-            'ckan.homepage_layout': 2,
         })
 
     :param key: a configuration option key (eg ``ckan.site_title``). It must

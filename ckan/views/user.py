@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -80,36 +80,17 @@ def _extra_template_variables(context: Context,
     return extra
 
 
-@user.before_request
-def before_request() -> None:
-    try:
-        context = cast(Context, {
-            "model": model,
-            "user": current_user.name,
-            "auth_user_obj": current_user
-        })
-        logic.check_access(u'site_read', context)
-    except logic.NotAuthorized:
-        action = plugins.toolkit.get_endpoint()[1]
-        if action not in (
-                u'login',
-                u'request_reset',
-                u'perform_reset',
-        ):
-            base.abort(403, _(u'Not authorized to see this page'))
-
-
 def index():
     page_number = h.get_page_number(request.args)
     q = request.args.get('q', '')
     order_by = request.args.get('order_by', 'name')
-    default_limit: int = config.get_value('ckan.user_list_limit')
+    default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
-    context = cast(Context, {
+    context: Context = {
         u'return_query': True,
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
 
     data_dict = {
         u'q': q,
@@ -137,17 +118,15 @@ def index():
 
 def me() -> Response:
     return h.redirect_to(
-        config.get_value(u'ckan.route_after_login'))
+        config.get(u'ckan.auth.route_after_login'))
 
 
 def read(id: str) -> Union[Response, str]:
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user,
         u'for_view': True
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -159,9 +138,56 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
-    if extra_vars is None:
-        return h.redirect_to(u'user.login')
+
+    am_following: bool = False
+    if not extra_vars['is_myself']:
+        try:
+            am_following = logic.get_action('am_following_user')(
+                {'user': current_user.name}, {"id": id})
+        except logic.NotAuthorized:
+            am_following = False
+
+    extra_vars["am_following"] = am_following
     return base.render(u'user/read.html', extra_vars)
+
+
+def read_organizations(id: str) -> Union[Response, str]:
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    }
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+    g.fields = []
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_organizations.html', extra_vars)
+
+
+def read_groups(id: str) -> Union[Response, str]:
+    context: Context = {
+        u'user': current_user.name,
+        u'auth_user_obj': current_user,
+        u'for_view': True
+    }
+    data_dict: dict[str, Any] = {
+        u'id': id,
+        u'user_obj': current_user,
+        u'include_datasets': False,
+        u'include_num_followers': True
+    }
+    # FIXME: line 331 in multilingual plugins expects facets to be defined.
+    # any ideas?
+
+    extra_vars = _extra_template_variables(context, data_dict)
+    return base.render(u'user/read_groups.html', extra_vars)
 
 
 class ApiTokenView(MethodView):
@@ -171,14 +197,12 @@ class ApiTokenView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None
             ) -> Union[Response, str]:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'for_view': True,
             u'include_plugin_extras': True
-        })
+        }
         try:
             tokens = logic.get_action(u'api_token_list')(
                 context, {u'user': id}
@@ -194,8 +218,6 @@ class ApiTokenView(MethodView):
         }
 
         extra_vars = _extra_template_variables(context, data_dict)
-        if extra_vars is None:
-            return h.redirect_to(u'user.login')
         extra_vars[u'tokens'] = tokens
         extra_vars.update({
             u'data': data,
@@ -205,7 +227,6 @@ class ApiTokenView(MethodView):
         return base.render(u'user/api_tokens.html', extra_vars)
 
     def post(self, id: str) -> Union[Response, str]:
-        context = cast(Context, {u'model': model})
 
         data_dict = logic.clean_dict(
             dictization_functions.unflatten(
@@ -214,7 +235,7 @@ class ApiTokenView(MethodView):
         data_dict[u'user'] = id
         try:
             token = logic.get_action(u'api_token_create')(
-                context,
+                {},
                 data_dict
             )[u'token']
         except logic.NotAuthorized:
@@ -245,9 +266,8 @@ class ApiTokenView(MethodView):
 
 
 def api_token_revoke(id: str, jti: str) -> Response:
-    context = cast(Context, {u'model': model})
     try:
-        logic.get_action(u'api_token_revoke')(context, {u'jti': jti})
+        logic.get_action(u'api_token_revoke')({}, {u'jti': jti})
     except logic.NotAuthorized:
         base.abort(403, _(u'Unauthorized to revoke API tokens.'))
     return h.redirect_to(u'user.api_tokens', id=id)
@@ -255,14 +275,12 @@ def api_token_revoke(id: str, jti: str) -> Response:
 
 class EditView(MethodView):
     def _prepare(self, id: Optional[str]) -> tuple[Context, str]:
-        context = cast(Context, {
+        context: Context = {
             u'save': u'save' in request.form,
             u'schema': _edit_form_to_db_schema(),
-            u'model': model,
-            u'session': model.Session,
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         if id is None:
             if current_user.is_authenticated:
                 id = current_user.id  # type: ignore
@@ -389,11 +407,11 @@ class EditView(MethodView):
             u'error_summary': error_summary
         }
 
-        extra_vars = _extra_template_variables(cast(Context, {
+        extra_vars = _extra_template_variables({
             u'model': model,
             u'session': model.Session,
             u'user': current_user.name
-        }), data_dict)
+        }, data_dict)
 
         vars.update(extra_vars)
         extra_vars[u'form'] = base.render(edit_user_form, extra_vars=vars)
@@ -403,14 +421,12 @@ class EditView(MethodView):
 
 class RegisterView(MethodView):
     def _prepare(self):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'schema': _new_form_to_db_schema(),
             u'save': u'save' in request.form
-        })
+        }
         try:
             logic.check_access(u'user_create', context)
         except logic.NotAuthorized:
@@ -511,10 +527,8 @@ def rotate_token():
     for security purposes.
     """
     from flask_wtf.csrf import generate_csrf
-    from ckan.common import session
-    # WTF_CSRF_FIELD_NAME is added by flask_wtf
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
 
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
         generate_csrf()
@@ -574,7 +588,7 @@ def logout() -> Response:
     came_from = request.args.get('came_from', '')
     logout_user()
 
-    field_name = config.get_value("WTF_CSRF_FIELD_NAME")
+    field_name = config.get("WTF_CSRF_FIELD_NAME")
     if session.get(field_name):
         session.pop(field_name)
 
@@ -590,36 +604,51 @@ def logged_out_page() -> str:
 
 def delete(id: str) -> Union[Response, Any]:
     u'''Delete user with id passed as parameter'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict = {u'id': id}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'user.edit', id=id)
+
     try:
-        logic.get_action(u'user_delete')(context, data_dict)
+        if request.method == u'POST':
+            logic.get_action(u'user_delete')(context, data_dict)
+        user_dict = logic.get_action(u'user_show')(context, {u'id': id})
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
-        base.abort(403, msg.format(user_id=id))
+        return base.abort(403, msg.format(user_id=id))
+    except logic.NotFound as e:
+        return base.abort(404, _(e.message))
 
-    if current_user.is_authenticated:
+    if request.method == 'POST' and current_user.is_authenticated:
         if current_user.id == id:  # type: ignore
             return logout()
         else:
             user_index = h.url_for(u'user.index')
             return h.redirect_to(user_index)
 
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.user_dict = user_dict
+    g.user_id = id
+
+    extra_vars = {
+        u"user_id": id,
+        u"user_dict": user_dict
+    }
+    return base.render(u'user/confirm_delete.html', extra_vars)
+
 
 class RequestResetView(MethodView):
     def _prepare(self):
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         try:
             logic.check_access(u'request_reset', context)
         except logic.NotAuthorized:
@@ -630,16 +659,14 @@ class RequestResetView(MethodView):
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
         log.info(u'Password reset requested for user "{}"'.format(id))
 
-        context = cast(
-            Context, {
-                u'model': model,
-                u'user': current_user.name,
-                u'ignore_auth': True
-            }
-        )
+        context: Context = {
+            'user': current_user.name,
+            'ignore_auth': True,
+        }
+
         user_objs: list[model.User] = []
 
         # Usernames cannot contain '@' symbols
@@ -692,7 +719,7 @@ class RequestResetView(MethodView):
                 h.flash_error(_(u'Error sending the email. Try again later '
                                 'or contact an administrator for help'))
                 log.exception(e)
-                return h.redirect_to(config.get_value(
+                return h.redirect_to(config.get(
                     u'ckan.user_reset_landing_page'))
 
         # always tell the user it succeeded, because otherwise we reveal
@@ -700,7 +727,7 @@ class RequestResetView(MethodView):
         h.flash_success(
             _(u'A reset link has been emailed to you '
               '(unless the account specified does not exist)'))
-        return h.redirect_to(config.get_value(
+        return h.redirect_to(config.get(
             u'ckan.user_reset_landing_page'))
 
     def get(self) -> str:
@@ -711,12 +738,10 @@ class RequestResetView(MethodView):
 class PerformResetView(MethodView):
     def _prepare(self, id: str) -> tuple[Context, dict[str, Any]]:
         # FIXME 403 error for invalid key is a non helpful page
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': id,
-            u'keep_email': True
-        })
+        context: Context = {
+            'user': id,
+            'keep_email': True,
+        }
 
         try:
             logic.check_access(u'user_reset', context)
@@ -773,10 +798,10 @@ class PerformResetView(MethodView):
             updated_user = logic.get_action("user_update")(context, user_dict)
             # Users can not change their own state, so we need another edit
             if (updated_user["state"] == model.State.PENDING):
-                patch_context = cast(Context, {
+                patch_context: Context = {
                     'user': logic.get_action("get_site_user")(
                         {"ignore_auth": True}, {})["name"]
-                })
+                }
                 logic.get_action("user_patch")(
                     patch_context,
                     {"id": user_dict['id'], "state": model.State.ACTIVE}
@@ -786,7 +811,7 @@ class PerformResetView(MethodView):
                 username, user=context[u'user_obj'])
 
             h.flash_success(_(u'Your password has been reset.'))
-            return h.redirect_to(config.get_value(
+            return h.redirect_to(config.get(
                 u'ckan.user_reset_landing_page'))
 
         except logic.NotAuthorized:
@@ -811,57 +836,57 @@ class PerformResetView(MethodView):
         })
 
 
-def follow(id: str) -> Response:
-    u'''Start following this user.'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    })
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def follow(id: str) -> str:
+    '''Start following this user.'''
+    error_message = ''
+    am_following = False
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'follow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are now following {0}').format(user_dict[u'display_name']))
+        logic.get_action('follow_user')({}, {'id': id})
+        am_following = True
     except logic.ValidationError as e:
-        error_message: Any = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_dict['message']
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+    return base.render('user/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str) -> Response:
-    u'''Stop following this user.'''
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    })
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def unfollow(id: str) -> str:
+    '''Stop following this user.'''
+    error_message = ''
+    am_following = True
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'unfollow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are no longer following {0}').format(
-                user_dict[u'display_name']))
+        logic.get_action('unfollow_user')({}, {'id': id})
+        am_following = False
     except logic.ValidationError as e:
-        error_message: Any = (e.error_summary or e.message or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_summary
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+
+    return base.render('user/snippets/info.html', extra_vars)
 
 
 def followers(id: str) -> str:
-    context = cast(Context, {
+    context: Context = {
         u'for_view': True,
         u'user': current_user.name,
         u'auth_user_obj': current_user
-    })
+    }
     data_dict: dict[str, Any] = {
         u'id': id,
         u'user_obj': current_user,
@@ -883,12 +908,10 @@ def sysadmin() -> Response:
     status = asbool(request.form.get(u'status'))
 
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user,
-        })
+        }
         data_dict: dict[str, Any] = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
     except logic.NotAuthorized:
@@ -897,7 +920,11 @@ def sysadmin() -> Response:
             _(u'Not authorized to promote user to sysadmin')
         )
     except logic.NotFound:
-        return base.abort(404, _(u'User not found'))
+        h.flash_error(_(u'User not found'))
+        return h.redirect_to(u'admin.index')
+    except logic.ValidationError as e:
+        h.flash_error((e.message or e.error_summary or e.error_dict))
+        return h.redirect_to(u'admin.index')
 
     if status:
         h.flash_success(
@@ -928,18 +955,20 @@ user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
 user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
-user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
+user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))
 
 user.add_url_rule(
     u'/reset', view_func=RequestResetView.as_view(str(u'request_reset')))
 user.add_url_rule(
     u'/reset/<id>', view_func=PerformResetView.as_view(str(u'perform_reset')))
 
-user.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
-user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
+user.add_url_rule(u'/follow/<id>', view_func=follow, methods=('POST', ))
+user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=('POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)
+user.add_url_rule(u'/<id>/organizations', view_func=read_organizations)
+user.add_url_rule(u'/<id>/groups', view_func=read_groups)
 user.add_url_rule(
     u'/<id>/api-tokens', view_func=ApiTokenView.as_view(str(u'api_tokens'))
 )

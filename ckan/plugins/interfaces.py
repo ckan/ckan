@@ -6,8 +6,10 @@ extend CKAN.
 '''
 from __future__ import annotations
 
-from typing import (Any, Callable, Iterable, Mapping, Optional, Sequence,
-                    TYPE_CHECKING, Type, Union)
+from typing import (
+    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Type, Union,
+)
 
 from pyutilib.component.core import Interface as _pca_Interface
 
@@ -17,7 +19,8 @@ from flask.wrappers import Response
 from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
-    PUploader, PResourceUploader, Schema, SignalMapping, Validator)
+    PUploader, PResourceUploader, Schema, SignalMapping, Validator,
+    CKANApp)
 
 if TYPE_CHECKING:
     import click
@@ -74,6 +77,9 @@ class Interface(_pca_Interface):
     classes are used to define extension points.
     '''
 
+    # force PluginImplementations to iterate over interface in reverse order
+    _reverse_iteration_order: ClassVar[bool] = False
+
     @classmethod
     def provided_by(cls, instance: "SingletonPlugin") -> bool:
         u'''Check that the object is an instance of the class that implements
@@ -98,8 +104,7 @@ class IMiddleware(Interface):
     one for the Pylons stack and one for the Flask stack (eventually
     there will be only the Flask stack).
     '''
-    def make_middleware(self, app: 'CKANFlask',
-                        config: 'CKANConfig') -> 'CKANFlask':
+    def make_middleware(self, app: CKANApp, config: 'CKANConfig') -> CKANApp:
         u'''Return an app configured with this middleware
 
         When called on the Flask stack, this method will get the actual Flask
@@ -270,7 +275,7 @@ class IResourceView(Interface):
              'schema': {
                 'image_url': [ignore_empty, unicode]
              },
-             'icon': 'picture-o',
+             'icon': 'image',
              'always_available': True,
              'iframed': False,
              }
@@ -743,6 +748,10 @@ class IConfigDeclaration(Interface):
 
     """
 
+    # plugins from the beginning of the plugin list can declare missing options
+    # or override existing.
+    _reverse_iteration_order = True
+
     def declare_config_options(self, declaration: Declaration, key: Key):
         """Register extra config options.
 
@@ -789,6 +798,10 @@ class IConfigurer(Interface):
 
     See also :py:class:`IConfigurable`.
     '''
+
+    # plugins from the beginning of the plugin list can alter configuration of
+    # plugins from the end of the list
+    _reverse_iteration_order = True
 
     def update_config(self, config: 'CKANConfig') -> None:
         u'''
@@ -861,6 +874,11 @@ class IValidators(Interface):
     Add extra validators to be returned by
     :py:func:`ckan.plugins.toolkit.get_validator`.
     '''
+
+    # plugins from the beginning of the plugin list can override validators
+    # registered by plugins from the end of the list
+    _reverse_iteration_order = True
+
     def get_validators(self) -> dict[str, Validator]:
         u'''Return the validator functions provided by this plugin.
 
@@ -1318,7 +1336,6 @@ class IGroupForm(Interface):
      - group_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
-     - check_data_dict(self, data_dict)
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
@@ -1438,15 +1455,6 @@ class IGroupForm(Interface):
         format suitable for the form (optional)
         '''
         return {}
-
-    def check_data_dict(self,
-                        data_dict: DataDict,
-                        schema: Optional[Schema] = None) -> None:
-        u'''
-        Check if the return data is correct.
-
-        raise a DataError if not.
-        '''
 
     def setup_template_variables(self, context: Context,
                                  data_dict: DataDict) -> None:
@@ -1721,6 +1729,13 @@ class ITranslation(Interface):
     u'''
     Allows extensions to provide their own translation strings.
     '''
+
+    # replicate template-order. Templates from the plugins located in the
+    # beginning of the list has higher precedence. It means that other
+    # components affecting UI, such as translations, should behave in similar
+    # manner.
+    _reverse_iteration_order = True
+
     def i18n_directory(self) -> str:
         u'''Change the directory of the .mo translation files'''
         return ''

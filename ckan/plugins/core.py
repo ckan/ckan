@@ -97,7 +97,7 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
 
         plugin_lookup = {pf.name: pf for pf in iterator}
 
-        plugins = config.get_value("ckan.plugins")
+        plugins = config.get("ckan.plugins")
         if plugins is None:
             plugins = []
         elif isinstance(plugins, str):
@@ -116,6 +116,9 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
             # Any oustanding plugin not in the ini file (ie system ones),
             # add to the end of the iterator
             ordered_plugins.extend(plugin_lookup.values())
+
+        if self.interface._reverse_iteration_order:
+            ordered_plugins = list(reversed(ordered_plugins))
 
         return iter(ordered_plugins)
 
@@ -219,7 +222,7 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.get_value('ckan.plugins') + find_system_plugins()
+    plugins = config.get('ckan.plugins') + find_system_plugins()
 
     load(*plugins)
 

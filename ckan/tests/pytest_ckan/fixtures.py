@@ -34,7 +34,6 @@ from io import BytesIO
 import copy
 
 import pytest
-import six
 import rq
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
@@ -45,9 +44,9 @@ import ckan.tests.factories as factories
 
 import ckan.plugins
 import ckan.cli
-import ckan.lib.search as search
 import ckan.model as model
-from ckan.common import config
+from ckan.common import config, aslist
+from ckan.lib import redis, search
 
 
 @register
@@ -95,8 +94,16 @@ class APITokenFactory(factories.APIToken):
     pass
 
 
-register(factories.Sysadmin, "sysadmin")
-register(factories.Organization, "organization")
+class SysadminFactory(factories.Sysadmin):
+    pass
+
+
+class OrganizationFactory(factories.Organization):
+    pass
+
+
+register(SysadminFactory, "sysadmin")
+register(OrganizationFactory, "organization")
 
 
 @pytest.fixture
@@ -132,6 +139,7 @@ def ckan_config(request, monkeypatch):
     _original = copy.deepcopy(config)
     for mark in request.node.iter_markers(u"ckan_config"):
         monkeypatch.setitem(config, *mark.args)
+
     yield config
     config.clear()
     config.update(_original)
@@ -206,6 +214,75 @@ def reset_index():
     return search.clear_all
 
 
+@pytest.fixture(scope="session")
+def reset_redis():
+    """Callable for removing all keys from Redis.
+
+    Accepts redis key-pattern for narrowing down the list of items to
+    remove. By default removes everything.
+
+    This fixture removes all the records from Redis on call::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("test", "test")
+
+            reset_redis()
+            assert not redis.get("test")
+
+    If only specific records require removal, pass a pattern to the fixture::
+
+        def test_redis_is_empty(reset_redis):
+            redis = connect_to_redis()
+            redis.set("AAA-1", 1)
+            redis.set("AAA-2", 2)
+            redis.set("BBB-3", 3)
+
+            reset_redis("AAA-*")
+            assert not redis.get("AAA-1")
+            assert not redis.get("AAA-2")
+
+            assert redis.get("BBB-3") is not None
+
+    """
+    def cleaner(pattern: str = "*") -> int:
+        """Remove keys matching pattern.
+
+        Return number of removed records.
+        """
+        conn = redis.connect_to_redis()
+        keys = conn.keys(pattern)
+        if keys:
+            return conn.delete(*keys)
+        return 0
+
+    return cleaner
+
+
+@pytest.fixture()
+def clean_redis(reset_redis):
+    """Remove all keys from Redis.
+
+    This fixture removes all the records from Redis::
+
+        @pytest.mark.usefixtures("clean_redis")
+        def test_redis_is_empty():
+            assert redis.keys("*") == []
+
+    If test requires presence of some initial data in redis, make sure that
+    data producer applied **after** ``clean_redis``::
+
+        @pytest.mark.usefixtures(
+            "clean_redis",
+            "fixture_that_adds_xxx_key_to_redis"
+        )
+        def test_redis_has_one_record():
+            assert redis.keys("*") == [b"xxx"]
+
+    """
+    reset_redis()
+
+
 @pytest.fixture
 def clean_db(reset_db):
     """Resets the database to the initial state.
@@ -228,7 +305,7 @@ def clean_db(reset_db):
     reset_db()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def migrate_db_for():
     """Apply database migration defined by plugin.
 
@@ -269,7 +346,7 @@ def with_plugins(ckan_config):
        :end-before: # END-CONFIG-OVERRIDE
 
     """
-    plugins = ckan_config["ckan.plugins"].split()
+    plugins = aslist(ckan_config["ckan.plugins"])
     for plugin in plugins:
         if not ckan.plugins.plugin_loaded(plugin):
             ckan.plugins.load(plugin)
@@ -399,10 +476,12 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
     def factory(data, filename, context={}, **kwargs):
-        action = kwargs.pop(u"action", u"resource_create")
-        field = kwargs.pop(u"upload_field_name", u"upload")
+        action = kwargs.pop("action", "resource_create")
+        field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        test_file.write(six.ensure_binary(data))
+        if type(data) is not bytes:
+            data = bytes(data, encoding="utf-8")
+        test_file.write(data)
         test_file.seek(0)
         test_resource = FakeFileStorage(test_file, filename)
 

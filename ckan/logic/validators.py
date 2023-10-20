@@ -9,8 +9,9 @@ import mimetypes
 import string
 import json
 from typing import Any, Container, Optional, Union
-
 from urllib.parse import urlparse
+
+from sqlalchemy.orm.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -208,6 +209,31 @@ def package_id_does_not_exist(value: str, context: Context) -> Any:
         raise Invalid(_('Dataset id already exists'))
     return value
 
+
+def resource_id_does_not_exist(
+        key: FlattenKey, data: FlattenDataDict,
+        errors: FlattenErrorDict, context: Context) -> Any:
+    session = context['session']
+    model = context['model']
+
+    if data[key] is missing:
+        return
+    resource_id = data[key]
+    assert key[0] == 'resources', ('validator depends on resource schema '
+                                   'validating as part of package schema')
+    package_id = data.get(('id',))
+    query = session.query(model.Resource.package_id).filter(
+        model.Resource.id == resource_id,
+        model.Resource.state != State.DELETED,
+    )
+    try:
+        [parent_id] = query.one()
+    except NoResultFound:
+        return
+    if parent_id != package_id:
+        errors[key].append(_('Resource id already exists.'))
+
+
 def package_name_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's name.
     """
@@ -253,6 +279,15 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     session = context['session']
     if not session.query(model.Resource).get(value):
         raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    return value
+
+
+def resource_id_validator(value: Any) -> Any:
+    pattern = re.compile("[^0-9a-zA-Z _-]")
+    if pattern.search(value):
+        raise Invalid(_('Invalid characters in resource id'))
+    if len(value) < 7 or len(value) > 100:
+        raise Invalid(_('Invalid length for resource id'))
     return value
 
 
@@ -500,7 +535,7 @@ def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
     pkg = context.get('package')
     if pkg:
         try:
-            logic.check_access('package_change_state',context)
+            logic.check_access('package_change_state',context, {"id": pkg.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False
@@ -540,7 +575,7 @@ def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
     group = context.get('group')
     if group:
         try:
-            logic.check_access('group_change_state',context)
+            logic.check_access('group_change_state',context, {"id": group.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False

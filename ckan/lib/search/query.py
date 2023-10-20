@@ -210,13 +210,12 @@ class TagSearchQuery(SearchQuery):
             if field in ('tag', 'tags'):
                 query.append(value)
 
-        context = cast(Context, {'model': model, 'session': model.Session})
         data_dict = {
             'query': query,
             'offset': options.get('offset'),
             'limit': options.get('limit')
         }
-        results = logic.get_action('tag_search')(context, data_dict)
+        results = logic.get_action('tag_search')({}, data_dict)
 
         if not options.return_objects:
             # if options.all_fields is set, return a dict
@@ -242,11 +241,7 @@ class ResourceSearchQuery(SearchQuery):
         else:
             options.update(kwargs)
 
-        context = cast(Context,{
-            'model': model,
-            'session': model.Session,
-            'search_query': True,
-        })
+        context: Context = {'search_query': True}
 
         # Transform fields into structure required by the resource_search
         # action.
@@ -286,7 +281,7 @@ class PackageSearchQuery(SearchQuery):
         Return a list of the IDs of all indexed packages.
         """
         query = "*:*"
-        fq = "+site_id:\"%s\" " % config.get_value('ckan.site_id')
+        fq = "+site_id:\"%s\" " % config.get('ckan.site_id')
         fq += "+state:active "
 
         conn = make_connection()
@@ -298,7 +293,7 @@ class PackageSearchQuery(SearchQuery):
             'rows': 1,
             'q': 'name:"%s" OR id:"%s"' % (reference, reference),
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get_value('ckan.site_id')}
+            'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'}
 
         try:
             if query['q'].startswith('{!'):
@@ -367,7 +362,7 @@ class PackageSearchQuery(SearchQuery):
         fq.extend(query.get('fq_list', []))
 
         # show only results from this CKAN instance
-        fq.append('+site_id:%s' % solr_literal(config.get_value('ckan.site_id')))
+        fq.append('+site_id:%s' % solr_literal(config.get('ckan.site_id')))
 
         # filter for package status
         if not '+state:' in query.get('fq', ''):
@@ -381,7 +376,7 @@ class PackageSearchQuery(SearchQuery):
 
         # faceting
         query['facet'] = query.get('facet', 'true')
-        query['facet.limit'] = query.get('facet.limit', config.get_value('search.facets.limit'))
+        query['facet.limit'] = query.get('facet.limit', config.get('search.facets.limit'))
         query['facet.mincount'] = query.get('facet.mincount', 1)
 
         # return the package ID and search scores

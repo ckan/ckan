@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from typing import cast
 from ckan.types import Context, DataDict
 from logging import getLogger
 
@@ -8,7 +7,6 @@ import requests
 from urllib.parse import urlsplit
 from flask import Blueprint, make_response
 
-import ckan.model as model
 import ckan.logic as logic
 from ckan.common import config, _
 from ckan.plugins.toolkit import (abort, get_action, c)
@@ -39,8 +37,8 @@ def proxy_resource(context: Context, data_dict: DataDict):
     if not parts.scheme or not parts.netloc:
         return abort(409, _(u'Invalid URL.'))
 
-    timeout = config.get_value('ckan.resource_proxy.timeout')
-    max_file_size = config.get_value(u'ckan.resource_proxy.max_file_size')
+    timeout = config.get('ckan.resource_proxy.timeout')
+    max_file_size = config.get(u'ckan.resource_proxy.max_file_size')
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported
@@ -72,7 +70,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
         response.charset = r.encoding or "utf-8"
 
         length = 0
-        chunk_size = config.get_value(u'ckan.resource_proxy.chunk_size')
+        chunk_size = config.get(u'ckan.resource_proxy.chunk_size')
 
         for chunk in r.iter_content(chunk_size=chunk_size):
             response.stream.write(chunk)
@@ -102,11 +100,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
 
 def proxy_view(id: str, resource_id: str):
     data_dict = {u'resource_id': resource_id}
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': c.user
-    })
+    context: Context = {'user': c.user}
     return proxy_resource(context, data_dict)
 
 

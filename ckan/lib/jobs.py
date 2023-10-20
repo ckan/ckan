@@ -20,7 +20,7 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Iterable, Optional, cast
+from typing import Any, Union, Callable, Iterable, Optional, cast
 from redis import Redis
 
 import rq
@@ -126,7 +126,7 @@ def get_queue(name: str = DEFAULT_QUEUE_NAME) -> rq.Queue:
 
 
 def enqueue(fn: Callable[..., Any],
-            args: Optional[Iterable[Any]] = None,
+            args: Optional[Union[tuple[Any], list[Any], None]] = None,
             kwargs: Optional[dict[str, Any]] = None,
             title: Optional[str] = None,
             queue: str = DEFAULT_QUEUE_NAME,
@@ -161,12 +161,14 @@ def enqueue(fn: Callable[..., Any],
         kwargs = {}
     if rq_kwargs is None:
         rq_kwargs = {}
-    timeout = config.get_value(u'ckan.jobs.timeout')
+    timeout = config.get(u'ckan.jobs.timeout')
     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
 
     job = get_queue(queue).enqueue_call(
         func=fn, args=args, kwargs=kwargs, **rq_kwargs)
-    job.meta[u'title'] = title
+    if not job.meta:
+        job.meta = {}
+    job.meta["title"] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
     if title:
@@ -207,11 +209,13 @@ def dictize_job(job: Job) -> dict[str, Any]:
     '''
     assert job.created_at
     assert job.origin is not None
+    if not job.meta:
+        job.meta = {}
     return {
-        u'id': job.id,
-        u'title': job.meta.get(u'title'),
-        u'created': job.created_at.strftime(u'%Y-%m-%dT%H:%M:%S'),
-        u'queue': remove_queue_name_prefix(job.origin),
+        "id": job.id,
+        "title": job.meta.get("title"),
+        "created": job.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+        "queue": remove_queue_name_prefix(job.origin),
     }
 
 
@@ -283,8 +287,10 @@ class Worker(rq.Worker):
         meta.engine.dispose()
 
         # The original implementation performs the actual fork
-        queue = remove_queue_name_prefix(cast(str, job.origin))
+        queue = remove_queue_name_prefix(job.origin)
 
+        if not job.meta:
+            job.meta = {}
         if job.meta.get('title'):
             job_id = '{} ({})'.format(job.id, job.meta['title'])
         else:

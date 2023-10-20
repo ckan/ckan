@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-import six
 import bs4
 
 from unittest import mock
@@ -67,9 +66,11 @@ class TestVersion3(ExampleIDatasetFormPluginBase):
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestVersion5(object):
+
+    @pytest.mark.usefixtures("with_request_context")
     def test_custom_package_type_urls(self):
         assert url_for("fancy_type.search") == "/fancy_type/"
         assert url_for("fancy_type.new") == "/fancy_type/new"
@@ -122,16 +123,16 @@ def user():
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v5")
 @pytest.mark.ckan_config("package_edit_return_url", None)
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestUrlsForCustomDatasetType(object):
     def test_dataset_create_redirects(self, app, user):
         name = "fancy-urls"
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         resp = app.post(
             url_for("fancy_type.new"),
             data={"name": name, "save": "", "_ckan_phase": 1},
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
         assert resp.location == url_for(
@@ -143,7 +144,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "go-dataset", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=env
+            headers=headers
         )
         assert resp.location == url_for(
             "fancy_type.edit", id=name, _external=True
@@ -153,7 +154,7 @@ class TestUrlsForCustomDatasetType(object):
             res_form_url,
             data={"id": "", "url": "", "save": "again", "_ckan_phase": 2},
             follow_redirects=False,
-            extra_environ=env
+            headers=headers
         )
 
         assert resp.location == url_for(
@@ -167,7 +168,7 @@ class TestUrlsForCustomDatasetType(object):
                 "save": "go-metadata",
                 "_ckan_phase": 2,
             },
-            extra_environ=env,
+            headers=headers,
             follow_redirects=False,
         )
 
@@ -176,13 +177,13 @@ class TestUrlsForCustomDatasetType(object):
         )
 
     def test_links_on_edit_pages(self, app):
-        user = factories.Sysadmin()
+        user = factories.SysadminWithToken()
 
         pkg = factories.Dataset(type="fancy_type", user=user)
         res = factories.Resource(package_id=pkg["id"], user=user)
         response = app.get(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            headers={"Authorization": user["token"]},
             status=200,
         )
         page = bs4.BeautifulSoup(response.body)
@@ -197,7 +198,7 @@ class TestUrlsForCustomDatasetType(object):
         )
         resp = app.post(
             url_for("fancy_type.edit", id=pkg["name"]),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            headers={"Authorization": user["token"]},
             data={
                 "name": pkg["name"],
                 "save": "",
@@ -226,7 +227,7 @@ class TestUrlsForCustomDatasetType(object):
                     id=pkg["id"],
                     resource_id=res["id"],
                 ),
-                environ_overrides={"REMOTE_USER": user["name"]},
+                headers={"Authorization": user["token"]},
             ).body
         )
         page_header = page.find(class_="page-header")
@@ -257,7 +258,7 @@ class TestUrlsForCustomDatasetType(object):
                 id=pkg["name"],
                 resource_id=res["id"],
             ),
-            environ_overrides={"REMOTE_USER": user["name"]},
+            headers={"Authorization": user["token"]},
             data={"id": res["id"], "url": res["url"], "save": "go-metadata"},
             follow_redirects=False,
         )
@@ -286,7 +287,6 @@ class TestUrlsForCustomDatasetType(object):
             assert page_header.find(
                 href=url_for("fancy_type." + action, id=pkg["name"])
             )
-        # import ipdb; ipdb.set_trace()
         assert page.find(id="dataset-resources").find(
             href=url_for(
                 "fancy_type_resource.read",
@@ -319,19 +319,18 @@ class TestUrlsForCustomDatasetType(object):
             )
         )
 
-        assert page.find(class_="resources").find(
+        assert page.find(class_="actions").find(
             href=url_for(
-                "fancy_type_resource.read",
+                "fancy_type_resource.edit",
                 id=pkg["name"],
                 resource_id=res["id"],
-                inner_span=True,
             )
         )
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v4")
 @pytest.mark.usefixtures(
-    "clean_db", "clean_index", "with_plugins", "with_request_context"
+    "clean_db", "clean_index", "with_plugins"
 )
 class TestIDatasetFormPluginVersion4(object):
     def test_package_create(self, test_request_context):
@@ -475,8 +474,8 @@ class TestCustomSearch(object):
         )
 
         # check that package_b appears before package a (y < z)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert b < a
 
         response = app.get(
@@ -484,13 +483,13 @@ class TestCustomSearch(object):
         )
         # check that package_a appears before package b (z is first in
         # descending order)
-        a = six.ensure_text(response.data).index("test_package_a")
-        b = six.ensure_text(response.data).index("test_package_b")
+        a = response.data.index(b"test_package_a")
+        b = response.data.index(b"test_package_b")
         assert a < b
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v6")
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatasetBlueprintPreparations(object):
     def test_additional_routes_are_registered(self, app):
         resp = app.get("/fancy_type/fancy-route", status=200)
@@ -514,7 +513,7 @@ class TestDatasetBlueprintPreparations(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", u"example_idatasetform_v7")
-@pytest.mark.usefixtures("with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins")
 class TestDatasetMultiTypes(object):
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_untouched_routes(self, type_, app):
@@ -525,9 +524,9 @@ class TestDatasetMultiTypes(object):
     @pytest.mark.usefixtures('clean_db')
     @pytest.mark.parametrize('type_', ['first', 'second'])
     def test_template_without_options(self, type_, app, user):
-        env = {"Authorization": user["token"]}
+        headers = {"Authorization": user["token"]}
         resp = app.get(
-            '/{}/new'.format(type_), extra_environ=env, status=200)
+            '/{}/new'.format(type_), headers=headers, status=200)
         assert resp.body == 'new package form'
 
     @pytest.mark.usefixtures('clean_db')

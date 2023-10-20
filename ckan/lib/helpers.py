@@ -125,6 +125,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
 
+    def __repr__(self) -> str:
+        return '<template helper functions>'
+
 
 # Builtin helper functions.
 _builtin_functions: dict[str, Callable[..., Any]] = {}
@@ -292,7 +295,7 @@ def get_site_protocol_and_host() -> Union[tuple[str, str], tuple[None, None]]:
     If the setting is missing, `(None, None)` is returned instead.
 
     '''
-    site_url = config.get_value('ckan.site_url')
+    site_url = config.get('ckan.site_url')
     if site_url is not None:
         parsed_url = urlparse(site_url)
         return (parsed_url.scheme, parsed_url.netloc)
@@ -366,12 +369,6 @@ def url_for(*args: Any, **kw: Any) -> str:
 
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
-
-    # All API URLs generated should provide the version number
-    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
-        ver = kw.get('ver')
-        if not ver:
-            raise Exception('API URLs must specify the version (eg ver=3)')
 
     _auto_flask_context = _get_auto_flask_context()
     try:
@@ -547,7 +544,7 @@ def is_url(*args: Any, **kw: Any) -> bool:
     except ValueError:
         return False
 
-    valid_schemes = config.get_value('ckan.valid_url_schemes')
+    valid_schemes = config.get('ckan.valid_url_schemes')
 
     return url.scheme in (valid_schemes)
 
@@ -599,7 +596,7 @@ def _local_url(url_to_amend: str, **kw: Any):
 
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get_value('ckan.root_path')
+    root_path = config.get('ckan.root_path')
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -656,7 +653,7 @@ def full_current_url() -> str:
 @core_helper
 def current_url() -> str:
     ''' Returns current url unquoted'''
-    return unquote(request.environ['CKAN_CURRENT_URL'])
+    return request.environ['CKAN_CURRENT_URL']
 
 
 @core_helper
@@ -695,12 +692,12 @@ def lang_native_name(lang_: Optional[str] = None) -> Optional[str]:
 
 @core_helper
 def is_rtl_language() -> bool:
-    return lang() in config.get_value('ckan.i18n.rtl_languages')
+    return lang() in config.get('ckan.i18n.rtl_languages')
 
 
 @core_helper
 def get_rtl_theme() -> str:
-    return config.get_value('ckan.i18n.rtl_theme')
+    return config.get('ckan.i18n.rtl_theme')
 
 
 @core_helper
@@ -797,7 +794,7 @@ def _preprocess_dom_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
 
 
 @core_helper
-def link_to(label: str, url: str, **attrs: Any) -> Markup:
+def link_to(label: Optional[str], url: str, **attrs: Any) -> Markup:
     attrs = _preprocess_dom_attrs(attrs)
     attrs['href'] = url
     if label == '' or label is None:
@@ -901,7 +898,7 @@ def build_nav(menu_item: str, title: str, **kw: Any) -> Markup:
 def map_pylons_to_flask_route_name(menu_item: str):
     '''returns flask routes for old fashioned route names'''
     # Pylons to Flask legacy route names mappings
-    mappings = config.get_value('ckan.legacy_route_mappings')
+    mappings = config.get('ckan.legacy_route_mappings')
     if mappings:
         if isinstance(mappings, str):
             LEGACY_ROUTE_NAMES.update(json.loads(mappings))
@@ -913,26 +910,6 @@ def map_pylons_to_flask_route_name(menu_item: str):
                  'Please update calls to use "{}" instead'
                  .format(menu_item, LEGACY_ROUTE_NAMES[menu_item]))
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
-
-
-@core_helper
-def build_extra_admin_nav() -> Markup:
-    '''Build extra navigation items used in ``admin/base.html`` for values
-    defined in the config option ``ckan.admin_tabs``. Typically this is
-    populated by extensions.
-
-    :rtype: HTML literal
-
-    '''
-    admin_tabs_dict = config.get('ckan.admin_tabs', {})
-    output: Markup = literal('')
-    if admin_tabs_dict:
-        for k, v in admin_tabs_dict.items():
-            if v['icon']:
-                output += build_nav_icon(k, v['label'], icon=v['icon'])
-            else:
-                output += build_nav(k, v['label'])
-    return output
 
 
 def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
@@ -971,14 +948,14 @@ def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
 def default_group_type(type_: str) -> str:
     """Get default group/organization type for using site-wide.
     """
-    return config.get_value(f'ckan.default.{type_}_type')
+    return config.get(f'ckan.default.{type_}_type')
 
 
 @core_helper
 def default_package_type() -> str:
     """Get default package type for using site-wide.
     """
-    return str(config.get('ckan.default.package_type', "dataset"))
+    return config.get('ckan.default.package_type')
 
 
 def _humanize_activity(object_type: str, activity_type: str) -> str:
@@ -1016,7 +993,8 @@ def humanize_entity_type(entity_type: str, object_type: str,
       >>> humanize_entity_type('group', 'custom_group', 'not real purpuse')
       'Custom Group'
 
-    Possible purposes(depends on `entity_type` and change over time):
+    Possible purposes(depends on `entity_type` and change over time)::
+
         `add link`: "Add [object]" button on search pages
         `breadcrumb`: "Home / [object]s / New" section in breadcrums
         `content tab`: "[object]s | Groups | Activity" tab on details page
@@ -1216,7 +1194,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 
     # If exclude is not supplied use values defined in the config
     if not exclude:
-        exclude = config.get_value('package_hide_extras')
+        exclude = config.get('package_hide_extras')
     output = []
     for extra in sorted(package_extras, key=lambda x: x['key']):
         if extra.get('state') == 'deleted':
@@ -1237,9 +1215,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {
-        'model': model,
-        'user': current_user.name})
+    context: Context = {'user': current_user.name}
     if not data_dict:
         data_dict = {}
     try:
@@ -1383,7 +1359,7 @@ def gravatar(email_hash: str,
              size: int = 100,
              default: Optional[str] = None) -> Markup:
     if default is None:
-        default = config.get_value('ckan.gravatar_default')
+        default = config.get('ckan.gravatar_default')
     assert default is not None
 
     if default not in _VALID_GRAVATAR_DEFAULTS:
@@ -1442,7 +1418,7 @@ def user_image(user_id: str, size: int = 100) -> Union[Markup, str]:
     except logic.NotFound:
         return ''
 
-    gravatar_default = config.get_value('ckan.gravatar_default')
+    gravatar_default = config.get('ckan.gravatar_default')
 
     if user_dict['image_display_url']:
         return literal('''<img src="{url}"
@@ -1497,7 +1473,7 @@ def get_display_timezone() -> datetime.tzinfo:
     configuration file or UTC if not specified.
     :rtype: timezone
     '''
-    timezone_name = config.get_value('ckan.display_timezone')
+    timezone_name = config.get('ckan.display_timezone')
 
     if timezone_name == 'server':
         return tzlocal.get_localzone()
@@ -1784,7 +1760,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context = cast(Context, {'model': model})
+    context: Context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1817,9 +1793,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     # If the user is logged in show the follow/unfollow button
     user = current_user.name
     if user:
-        context = cast(
-            Context,
-            {'model': model, 'session': model.Session, 'user': user})
+        context: Context = {'user': user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1845,13 +1819,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     return logic.get_action(action)(context, {'id': obj_id})
 
 
@@ -1987,7 +1955,10 @@ def popular(type_: str,
 
 
 @core_helper
-def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
+def groups_available(am_member: bool = False,
+                     include_dataset_count: bool = False,
+                     include_member_count: bool = False,
+                     user: Union[str, None] = None) -> list[dict[str, Any]]:
     '''Return a list of the groups that the user is authorized to edit.
 
     :param am_member: if True return only the groups the logged-in user is a
@@ -1997,23 +1968,44 @@ def groups_available(am_member: bool = False) -> list[dict[str, Any]]:
     :type am-member: bool
 
     '''
-    context: Context = {}
-    data_dict = {'available_only': True, 'am_member': am_member}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
+    data_dict = {'available_only': True,
+                 'am_member': am_member,
+                 'include_dataset_count': include_dataset_count,
+                 'include_member_count': include_member_count}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 @core_helper
 def organizations_available(permission: str = 'manage_group',
-                            include_dataset_count: bool = False
+                            include_dataset_count: bool = False,
+                            include_member_count: bool = False,
+                            user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
-    context: Context = {'user': current_user.name}
+    if user is None:
+        user = current_user.name
+    context: Context = {'user': user}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
+        'include_dataset_count': include_dataset_count,
+        'include_member_count': include_member_count}
     return logic.get_action('organization_list_for_user')(context, data_dict)
+
+
+@core_helper
+def member_count(group: str) -> int:
+    '''Return the number of members belonging to the group'''
+    context: Context = {}
+    data_dict = {
+        u'id': group,
+        u'object_type': u'user'
+    }
+    return len(logic.get_action(u'member_list')(context, data_dict))
 
 
 @core_helper
@@ -2415,7 +2407,7 @@ def get_featured_organizations(count: int = 1) -> list[dict[str, Any]]:
     '''Returns a list of favourite organization in the form
     of organization_list action function
     '''
-    config_orgs = config.get_value('ckan.featured_orgs')
+    config_orgs = config.get('ckan.featured_orgs')
     orgs = featured_group_org(get_action='organization_show',
                               list_action='organization_list',
                               count=count,
@@ -2428,7 +2420,7 @@ def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
     '''Returns a list of favourite group the form
     of organization_list action function
     '''
-    config_groups = config.get_value('ckan.featured_groups')
+    config_groups = config.get('ckan.featured_groups')
     groups = featured_group_org(get_action='group_show',
                                 list_action='group_list',
                                 count=count,
@@ -2473,17 +2465,6 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
     return groups_data
 
 
-@core_helper
-def get_site_statistics() -> dict[str, int]:
-    stats = {}
-    stats['dataset_count'] = logic.get_action('package_search')(
-        {}, {"rows": 1})['count']
-    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
-    stats['organization_count'] = len(
-        logic.get_action('organization_list')({}, {}))
-    return stats
-
-
 _RESOURCE_FORMATS: dict[str, Any] = {}
 
 
@@ -2508,7 +2489,7 @@ def resource_formats() -> dict[str, list[str]]:
     '''
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
-        format_file_path = config.get_value('ckan.resource_formats')
+        format_file_path = config.get('ckan.resource_formats')
         if not format_file_path:
             format_file_path = resource_formats_default_file()
 
@@ -2605,7 +2586,7 @@ def get_translated(data_dict: dict[str, Any], field: str) -> Union[str, Any]:
 @core_helper
 def facets() -> list[str]:
     u'''Returns a list of the current facet names'''
-    return config.get_value(u'search.facets')
+    return config.get(u'search.facets')
 
 
 @core_helper
@@ -2795,11 +2776,12 @@ def make_login_url(
 
     if url_is_local(next_url):
         md = {}
+
         md[next_field] = urlparse(next_url).path
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return urlunparse(parsed_base)
+        return cast(str, urlunparse(parsed_base))
     return base
 
 

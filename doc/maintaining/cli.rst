@@ -174,7 +174,6 @@ plugin-info       Provide info on installed plugins.
 profile           Code speed profiler.
 run               Start Development server.
 search-index      Creates a search index for all datasets
-seed              Create test data in the database.
 sysadmin          Gives sysadmin rights to a named user.
 tracking          Update tracking statistics.
 translation       Translation helper functions
@@ -485,6 +484,7 @@ Usage
  ckan run --port (-p)                  - Set Port
  ckan run --disable-reloader (-r)      - Use reloader
  ckan run --passthrough_errors         - Crash instead of handling fatal errors
+ ckan run --disable-debugger           - Disable the default debugger
 
 Use ``--passthrough-errors`` to enable pdb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -500,6 +500,18 @@ simplicity.
 Example:
 
  python -m pdb ckan run --passthrough-errors
+
+Use ``--disable-debugger`` for external debugging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CKAN uses the run_simple function from the werkzeug package, which enables
+hot reloading and debugging amongst other things. If we wish to use external
+debugging tools such as debugpy (for remote, container-based debugging), we
+must disable the default debugger for CKAN.
+
+Example:
+
+ python -m pdb ckan run --disable-debugger
 
 
 search-index: Search index commands
@@ -633,7 +645,10 @@ For example, to create a new user called 'admin'
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| user add admin
+ ckan -c |ckan.ini| user add admin email=admin@localhost 
+
+.. note:: 
+     You can use password=test1234 option if "non-interactive" usage is a requirement.
 
 To delete the 'admin' user
 

@@ -730,13 +730,13 @@ class TestOrganizationList(object):
         results = helpers.call_action("organization_list")
         assert len(results) == 1000  # i.e. default value
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_configured(self):
         self._create_bulk_orgs("org_default", 7)
         results = helpers.call_action("organization_list")
         assert len(results) == 5  # i.e. configured limit
 
-    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", "5")
+    @pytest.mark.ckan_config("ckan.group_and_organization_list_max", 5)
     def test_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_default", 5)
         results = helpers.call_action("organization_list", limit=2)
@@ -748,7 +748,7 @@ class TestOrganizationList(object):
         assert len(results) == 25  # i.e. default value
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_with_custom_max_limit(self):
         self._create_bulk_orgs("org_all_fields_default", 5)
@@ -758,7 +758,7 @@ class TestOrganizationList(object):
         assert len(results) == 2
 
     @pytest.mark.ckan_config(
-        "ckan.group_and_organization_list_all_fields_max", "5"
+        "ckan.group_and_organization_list_all_fields_max", 5
     )
     def test_all_fields_limit_configured(self):
         self._create_bulk_orgs("org_all_fields_default", 30)
@@ -2828,6 +2828,46 @@ class TestMembersList(object):
 
         assert len(org_members) == 0
 
+    def test_user_list_excludes_deleted_users_not_marked_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {"user": sysadmin["name"]}
+
+        member_dict = {
+            "username": user["id"],
+            "id": org["id"],
+            "role": "member",
+        }
+        helpers.call_action(
+            "organization_member_create", context, **member_dict
+        )
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 1
+        assert org_members[0][0] == user["id"]
+        assert org_members[0][1] == "user"
+
+        model.Session.delete(model.User.get(user["id"]))
+        model.Session.commit()
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 0
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollow(object):
@@ -2912,11 +2952,12 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_hiding_version(self):
 
         status = helpers.call_action("status_show")
@@ -2927,11 +2968,12 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
     @pytest.mark.ckan_config('ckan.hide_version', True)
+    @pytest.mark.usefixtures("with_plugins")
     def test_status_show_version_to_sysadmins(self):
         sysadmin = factories.Sysadmin()
         status = helpers.call_action("status_show", context={"user": sysadmin["name"]})
@@ -2942,7 +2984,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
 
@@ -3022,9 +3064,16 @@ class TestApiToken(object):
         tokens = helpers.call_action(
             "api_token_list",
             context={"model": model, "user": user["name"]},
-            user=user["name"],
+            user_id=user["name"],
         )
         assert sorted([t["id"] for t in tokens]) == sorted(ids)
+
+        # Param "user" works for backwards compatibility
+        tokens = helpers.call_action(
+            "api_token_list",
+            context={"model": model, "user": user["name"]},
+            user=user["name"],
+        )
 
 
 @pytest.mark.usefixtures("non_clean_db")

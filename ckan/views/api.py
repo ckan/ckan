@@ -5,8 +5,9 @@ import os
 import logging
 import html
 import io
+import datetime
 
-from typing import Any, Callable, Optional, cast, Union
+from typing import Any, Callable, Optional, Union
 
 from flask import Blueprint, make_response
 
@@ -17,7 +18,7 @@ import ckan.model as model
 from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
-from ckan.lib.i18n import get_locales_from_config
+from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
@@ -40,6 +41,12 @@ API_DEFAULT_VERSION = 3
 API_MAX_VERSION = 3
 
 api = Blueprint(u'api', __name__, url_prefix=u'/api')
+
+
+def _json_serial(obj: Any):
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError("Unhandled Object")
 
 
 def _finish(status_int: int,
@@ -71,6 +78,7 @@ def _finish(status_int: int,
         if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
+                default=_json_serial,   # handle datetime objects
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
@@ -227,13 +235,11 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
+    context: Context = {
         u'user': current_user.name,
         u'api_version': ver,
         u'auth_user_obj': current_user
-    })
+    }
     model.Session()._context = context
 
     return_dict: dict[str, Any] = {
@@ -255,14 +261,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
             _(u'JSON Error: %s') % inst)
-    if not isinstance(request_data, dict):
-        # this occurs if request_data is blank
-        log.info(u'Bad Action API request data - not dict: %r',
-                 request_data)
-        return _finish_bad_request(
-            _(u'Bad request data: %s') %
-            u'Request data JSON decoded to %r but '
-            u'it needs to be a dictionary.' % request_data)
+
     if u'callback' in request_data:
         del request_data[u'callback']
         g.user = None
@@ -350,12 +349,10 @@ def dataset_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     limit = request.args.get(u'limit', 10)
     package_dicts: ActionResult.PackageAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
 
@@ -372,12 +369,10 @@ def tag_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     vocab = request.args.get(u'vocabulary_id', u'')
     tag_names: ActionResult.TagAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         if vocab != u'':
@@ -398,12 +393,10 @@ def format_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     limit = request.args.get(u'limit', 5)
     formats: ActionResult.FormatAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         formats = get_action(u'format_autocomplete')(context, data_dict)
 
@@ -421,12 +414,10 @@ def user_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     ignore_self = request.args.get(u'ignore_self', False)
     user_list: ActionResult.UserAutocomplete = []
     if q:
-        context = cast(
-            Context,
-            {u'model': model,
-             u'session': model.Session,
-             u'user': current_user.name,
-             u'auth_user_obj': current_user})
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user,
+        }
 
         data_dict: dict[str, Any] = {
             u'q': q, u'limit': limit, u'ignore_self': ignore_self}
@@ -441,11 +432,8 @@ def group_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     group_list: ActionResult.GroupAutocomplete = []
 
     if q:
-        context = cast(
-            Context, {
-                u'user': current_user.name,
-                u'model': model}
-        )
+        context: Context = {'user': current_user.name}
+
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         group_list = get_action(u'group_autocomplete')(context, data_dict)
     return _finish_ok(group_list)
@@ -457,9 +445,7 @@ def organization_autocomplete(ver: int = API_REST_DEFAULT_VERSION) -> Response:
     organization_list = []
 
     if q:
-        context = cast(Context, {
-            u'user': current_user.name,
-            u'model': model})
+        context: Context = {u'user': current_user.name}
         data_dict: dict[str, Any] = {u'q': q, u'limit': limit}
         organization_list = get_action(
             u'organization_autocomplete')(context, data_dict)
@@ -487,12 +473,12 @@ def i18n_js_translations(
     if lang not in get_locales_from_config():
         return _finish_bad_request('Unknown locale: {}'.format(lang))
 
-    ckan_path = os.path.join(os.path.dirname(__file__), u'..')
-    source = os.path.abspath(os.path.join(ckan_path, u'public',
-                             u'base', u'i18n', u'{0}.js'.format(lang)))
+    js_translations_folder = get_js_translations_dir()
+
+    source = os.path.join(js_translations_folder, f"{lang}.js")
     if not os.path.exists(source):
-        return u'{}'
-    translations = json.load(io.open(source, u'r', encoding='utf-8'))
+        return "{}"
+    translations = json.load(io.open(source, "r", encoding="utf-8"))
     return _finish_ok(translations)
 
 

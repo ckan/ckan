@@ -10,11 +10,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Iterable
 
 from typing import (
-    Any, Iterable, Optional, TYPE_CHECKING,
-    TypeVar, cast, overload, Container, Union)
+    Any, Optional, TYPE_CHECKING,
+    TypeVar, cast, overload, Union)
 from typing_extensions import Literal
 
 import flask
@@ -28,14 +28,14 @@ from flask_babel import (gettext as flask_ugettext,
 
 import simplejson as json  # type: ignore # noqa: re-export
 import ckan.lib.maintain as maintain
-from ckan.config.declaration import Declaration, Key
-from ckan.types import Model
+from ckan.config.declaration import Declaration
+from ckan.types import Model, Request
 
 
 if TYPE_CHECKING:
-    # starting from python 3.7 the following line can be used without any
-    # conditions after `annotation` import from `__future__`
     MutableMapping = MutableMapping[str, Any]
+
+SENTINEL = {}
 
 log = logging.getLogger(__name__)
 
@@ -66,14 +66,14 @@ def streaming_response(data: Iterable[Any],
 
 
 def ugettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ugettext(*args, **kwargs))
+    return flask_ugettext(*args, **kwargs)
 
 
 _ = ugettext
 
 
 def ungettext(*args: Any, **kwargs: Any) -> str:
-    return cast(str, flask_ungettext(*args, **kwargs))
+    return flask_ungettext(*args, **kwargs)
 
 
 class CKANConfig(MutableMapping):
@@ -128,41 +128,78 @@ class CKANConfig(MutableMapping):
         except RuntimeError:
             pass
 
-    def get_value(self, key: str) -> Any:
-        if self.get("config.mode") == "strict":
-            return self[key]
+    def is_declared(self, key: str) -> bool:
+        return key in config_declaration
 
-        option = config_declaration.get(key)
-        if not option:
-            log.warning("Option %s is not declared", key)
-            return self.get(key)
+    def get(self, key: str, default: Any = SENTINEL) -> Any:
+        """Return the value for key if key is in the config, else default.
+        """
+        if default is SENTINEL:
+            default = None
+            if len(config_declaration) and key not in config_declaration:
+                log.warning("Option %s is not declared", key)
 
-        value = self.get(key, option.default)
-        return option.normalize(value)
-
-    def subset(
-            self, pattern: Key,
-            exclude: Optional[Container[Union[str, Key]]] = None
-    ) -> dict[str, Any]:
-        subset = {}
-        exclude = exclude or set()
-        for k, v in self.store.items():
-            if k in exclude or pattern != k:
-                continue
-            subset[k] = v
-        return subset
+        return super().get(key, default)
 
 
 def _get_request():
     return flask.request
 
 
-class CKANRequest(LocalProxy):
-    u'''Common request object
+class HtmxDetails(object):
+    """Object to access htmx properties from the request headers.
 
-    This is just a wrapper around LocalProxy so we can handle some special
-    cases for backwards compatibility.
+    This object will be added to the CKAN `request` object
+    as `request.htmx`. It adds properties to easily access
+    htmx's request headers defined in
+    https://htmx.org/reference/#headers.
+    """
+
+    def __init__(self, request: Any):
+        self.request = request
+
+    def __bool__(self) -> bool:
+        return self.request.headers.get("HX-Request") == "true"
+
+    @property
+    def boosted(self) -> bool:
+        return self.request.headers.get("HX-Boosted") == "true"
+
+    @property
+    def current_url(self) -> str | None:
+        return self.request.headers.get("HX-Current-URL")
+
+    @property
+    def history_restore_request(self) -> bool:
+        return self.request.headers.get("HX-History-Restore-Request") == "true"
+
+    @property
+    def prompt(self) -> str | None:
+        return self.request.headers.get("HX-Prompt")
+
+    @property
+    def target(self) -> str | None:
+        return self.request.headers.get("HX-Target")
+
+    @property
+    def trigger(self) -> str | None:
+        return self.request.headers.get("HX-Trigger")
+
+    @property
+    def trigger_name(self) -> str | None:
+        return self.request.headers.get("HX-Trigger-Name")
+
+
+class CKANRequest(LocalProxy[Request]):
+    '''CKAN request class.
+
+    This is a subclass of the Flask request object. It adds a new
+    `htmx` property to access htmx properties from the request headers.
     '''
+
+    @property
+    def htmx(self) -> HtmxDetails:
+        return HtmxDetails(self)
 
     @property
     @maintain.deprecated('Use `request.args` instead of `request.params`',
@@ -261,6 +298,8 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return lst
     elif isinstance(obj, (list, tuple)):
         return cast(Any, obj)
+    elif isinstance(obj, Iterable):
+        return list(obj)
     elif obj is None:
         return []
     else:

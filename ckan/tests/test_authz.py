@@ -33,7 +33,7 @@ def test_default_roles_that_cascade_to_sub_groups_is_a_list():
 
 
 @pytest.mark.ckan_config(
-    "ckan.auth.roles_that_cascade_to_sub_groups", "admin editor"
+    "ckan.auth.roles_that_cascade_to_sub_groups", ["admin", "editor"]
 )
 def test_roles_that_cascade_to_sub_groups_is_a_list():
     assert sorted(_check("roles_that_cascade_to_sub_groups")) == sorted(
@@ -61,9 +61,8 @@ def test_get_user_not_found():
 
 def test_no_attributes_set_on_imported_auth_members():
     import ckan.logic.auth.get as auth_get
-
-    logic.check_access("site_read", {})
-    assert hasattr(auth_get.package_show, "auth_allow_anonymous_access")
+    logic.check_access("package_search", {})
+    assert hasattr(auth_get.package_search, "auth_allow_anonymous_access")
     assert not hasattr(auth_get.config, "auth_allow_anonymous_access")
 
 

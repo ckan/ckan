@@ -55,7 +55,7 @@ defaults:
 jobs:
   test-python-3:
     docker:
-      - image: python:3.7-bullseye
+      - image: python:3.8-bullseye
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
@@ -69,7 +69,6 @@ jobs:
       - <<: *install_deps
       - run: |
           # Python Dependencies
-          pip install -r requirement-setuptools.txt
           pip install -r requirements.txt
           pip install -r dev-requirements.txt
           python setup.py develop

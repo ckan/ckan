@@ -2,7 +2,6 @@
 
 import datetime
 import hashlib
-import six
 import os
 
 import pytz
@@ -495,7 +494,7 @@ class TestGetDisplayTimezone(object):
         (
             datetime.datetime(2008, 4, 13, 20, 40, 59, 123456),
             {"with_seconds": True},
-            "April 13, 2008 at 8:40:59 PM UTC",
+            "April 13, 2008, 8:40:59\u202fPM UTC",
         ),
         ("2008-04-13T20:40:20.123456", {}, "April 13, 2008"),
         (None, {}, ""),
@@ -635,7 +634,7 @@ class TestBuildNavMain(object):
         with test_request_context(u'/dataset/' + resource['package_id'] + '/resource/' + resource['id']):
             menu = (
                 ("home.index", "Home"),
-                ("dataset.search", "Datasets", ['dataset', 'resource']),
+                ("dataset.search", "Datasets", ['dataset', 'resource', 'dataset_resource']),
                 ("organization.index", "Organizations"),
                 ("group.index", "Groups"),
                 ("home.about", "About"),
@@ -656,8 +655,8 @@ class TestBuildNavMain(object):
         link2 == '<a class="tag" href="/dataset/?tags=name">display_name</a>'
 
     def test_build_nav_icon(self):
-        link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil-square-o')
-        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil-square-o"></i> Edit</a></li>'
+        link = h.build_nav_icon('organization.edit', 'Edit', id='org-id', icon='pencil')
+        assert link == '<li><a href="/organization/edit/org-id"><i class="fa fa-pencil"></i> Edit</a></li>'
 
 
 class TestRemoveUrlParam:
@@ -777,7 +776,7 @@ def test_gravatar():
     email = "zephod@gmail.com"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=mm"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default="mm")
     assert expected in res
 
@@ -785,12 +784,12 @@ def test_gravatar():
 def test_gravatar_config_set_default(ckan_config):
     """Test when default gravatar is None, it is pulled from the config file"""
     email = "zephod@gmail.com"
-    default = ckan_config.get_value("ckan.gravatar_default")
+    default = ckan_config.get("ckan.gravatar_default")
     expected = (
         '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=%s"'
         % default
     )
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200)
     assert expected in res
 
@@ -801,7 +800,7 @@ def test_gravatar_encodes_url_correctly():
     default = "http://example.com/images/avatar.jpg"
     expected = '<img src="//gravatar.com/avatar/7856421db6a63efa5b248909c472fbd2?s=200&amp;d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg"'
 
-    email_hash = hashlib.md5(six.ensure_binary(email)).hexdigest()
+    email_hash = hashlib.md5(email.encode()).hexdigest()
     res = h.gravatar(email_hash, 200, default=default)
     assert expected in res
 

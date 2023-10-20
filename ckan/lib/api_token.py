@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 _config_encode_secret = u"api_token.jwt.encode.secret"
 _config_decode_secret = u"api_token.jwt.decode.secret"
-_config_secret_fallback = u"beaker.session.secret"
+_config_secret_fallback = u"SECRET_KEY"
 
 _config_algorithm = u"api_token.jwt.algorithm"
 
@@ -29,14 +29,14 @@ def _get_plugins() -> Iterable[plugins.IApiToken]:
 
 
 def _get_algorithm() -> str:
-    return config.get_value(_config_algorithm)
+    return config.get(_config_algorithm)
 
 
 def _get_secret(encode: bool) -> str:
     config_key = _config_encode_secret if encode else _config_decode_secret
-    secret: str = config.get_value(config_key)
+    secret: str = config.get(config_key)
     if not secret:
-        secret = u"string:" + config.get_value(_config_secret_fallback)
+        secret = u"string:" + config.get(_config_secret_fallback)
     type_, value = secret.split(u":", 1)
     if type_ == u"file":
         with open(value, u"r") as key_file:
@@ -121,9 +121,11 @@ def get_user_from_token(token: str,
     data = decode(token)
     if not data:
         return None
-    # do preprocessing in reverse order, allowing onion-like
-    # "unwrapping" of the data, added during postprocessing, when
-    # token was created
+    # do preprocessing in reverse order, allowing onion-like "unwrapping" of
+    # the data, added during postprocessing, when token was
+    # created. `Interface._reverse_iteration_order` cannot be used here,
+    # because all other methods of IApiToken should be executed in a normal
+    # order and only `IApiToken.preprocess_api_token` must be different.
     for plugin in reversed(list(_get_plugins())):
         data = plugin.preprocess_api_token(data)
     if not data or u"jti" not in data:
