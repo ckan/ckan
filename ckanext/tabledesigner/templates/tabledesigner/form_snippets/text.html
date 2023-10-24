@@ -9,6 +9,7 @@
       ~ (_(' (Primary Key)') if pk else ''), classes=['control-full'],
     id='field-' ~ position,
     value=value or '',
+    type=column_type.html_input_type,
     error=errors.get(field.id),
     is_required=is_required
   )

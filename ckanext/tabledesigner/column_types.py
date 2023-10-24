@@ -15,6 +15,7 @@ column_types = _standard_column_types  # FIXME: include plugin column types
 class ColumnType:
     sql_is_empty = "{column} IS NULL"
     form_snippet = 'text.html'
+    html_input_type = 'text'
 
 
 @_standard_column('text')
@@ -50,6 +51,7 @@ class EmailColumn(ColumnType):
     table_schema_type = 'string'
     table_schema_format = 'email'
     sql_is_empty = "({column} = '') IS NOT FALSE"
+    html_input_type = 'email'
 
 
 @_standard_column('uri')
@@ -61,6 +63,7 @@ class URIColumn(ColumnType):
     table_schema_type = 'string'
     table_schema_format = 'uri'
     sql_is_empty = "({column} = '') IS NOT FALSE"
+    html_input_type = 'url'
 
 
 @_standard_column('uuid')
@@ -118,6 +121,7 @@ class DateColumn(ColumnType):
     datastore_type = 'date'
     table_schema_type = 'string'
     table_schema_format = 'date'
+    html_input_type = 'date'
 
 
 @_standard_column('timestamp')
@@ -128,13 +132,4 @@ class TimestampColumn(ColumnType):
     datastore_type = 'timestamp'
     table_schema_type = 'string'
     table_schema_format = 'date-time'
-
-
-@_standard_column('timestamptz')
-class TimestampTZColumn(ColumnType):
-    label = _('Timestamp + TZ')
-    description = _('Date, time and time zone')
-    example = '2024-01-01 12:00:00 UTC'
-    datastore_type = 'timestamptz'
-    table_schema_type = 'string'
-    table_schema_format = 'date-time'
+    html_input_type = 'datetime-local'
