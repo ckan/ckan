@@ -108,3 +108,33 @@ class JSONColumn(ColumnType):
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
+
+
+@_standard_column('date')
+class DateColumn(ColumnType):
+    label = _('Date')
+    description = _('Date without time of day')
+    example = '2024-01-01'
+    datastore_type = 'date'
+    table_schema_type = 'string'
+    table_schema_format = 'date'
+
+
+@_standard_column('timestamp')
+class TimestampColumn(ColumnType):
+    label = _('Timestamp')
+    description = _('Date and time without time zone')
+    example = '2024-01-01 12:00:00'
+    datastore_type = 'timestamp'
+    table_schema_type = 'string'
+    table_schema_format = 'date-time'
+
+
+@_standard_column('timestamptz')
+class TimestampTZColumn(ColumnType):
+    label = _('Timestamp + TZ')
+    description = _('Date, time and time zone')
+    example = '2024-01-01 12:00:00 UTC'
+    datastore_type = 'timestamptz'
+    table_schema_type = 'string'
+    table_schema_format = 'date-time'
