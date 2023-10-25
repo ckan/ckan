@@ -32,5 +32,7 @@ def track_request(response: Response) -> Response:
         sql = '''INSERT INTO tracking_raw
                     (user_key, url, tracking_type)
                     VALUES (%s, %s, %s)'''
-        engine.execute(sql, key, data.get('url'), data.get('type')) # type: ignore
+        engine.execute(  # type: ignore
+            sql, key, data.get('url'), data.get('type')
+            )
     return response
