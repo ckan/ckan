@@ -9,7 +9,7 @@ from ckan.common import CKANConfig
 
 from .cli.tracking import tracking
 from .helpers import popular
-from .middleware import TrackingMiddleware
+from .middleware import track_request
 from .model import TrackingSummary
 
 
@@ -31,7 +31,7 @@ class TrackingPlugin(p.SingletonPlugin):
 
     # IMiddleware
     def make_middleware(self, app: CKANApp, config: CKANConfig) -> Any:
-        app = TrackingMiddleware(app, config)
+        app.after_request(track_request)
         return app
 
     # IPackageController
