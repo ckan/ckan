@@ -15,11 +15,11 @@
 
   {% if status.error and status.error.message %}
     {% set show_table = false %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
     </div>
   {% elif status.task_info and status.task_info.error %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       {% if status.task_info.error is string %}
         {# DataPusher < 0.0.3 #}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}

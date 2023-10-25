@@ -776,7 +776,11 @@ class PerformResetView(MethodView):
         except dictization_functions.DataError:
             h.flash_error(_(u'Integrity Error'))
         except logic.ValidationError as e:
-            h.flash_error(u'%r' % e.error_dict)
+            # only print the error messages into separate flash messages.
+            # (canada fork only)
+            for _k, err_messages in e.error_dict.items():
+                for err_message in err_messages:
+                    h.flash_error('{message}'.format(message=_(err_message)))
         except ValueError as e:
             h.flash_error(text_type(e))
         user_dict[u'state'] = user_state
