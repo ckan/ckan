@@ -998,7 +998,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     user_obj = context.get('auth_user_obj')
     context['session'] = model.Session
     name_or_id = data_dict.get("id") or _get_or_bust(data_dict, 'name_or_id')
-
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = (
@@ -1020,7 +1019,9 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     _check_access('package_show', context, data_dict)
 
     if data_dict.get('use_default_schema', False):
-        context['schema'] = ckan.logic.schema.default_show_package_schema()
+        package_plugin = lib_plugins.lookup_package_plugin(
+            pkg.type)
+        context['schema'] = package_plugin.show_package_schema()
     include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
@@ -1082,8 +1083,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
         if bool(schema) and context.get('validate', True):
             package_dict, _errors = lib_plugins.plugin_validate(
-                package_plugin, context, package_dict, schema,
-                'package_show')
+                package_plugin, context, package_dict, schema, 'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_dataset_show(context, package_dict)
@@ -1855,16 +1855,31 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         ['id', 'extras_custom_field'].
         if fl = None, datasets are returned as a list of full dictionary.
     '''
+    import ckan.lib.pydantic as p_schema
+    model_schema = config.get('ckan.validator_model', 'navl')
+
+    schema_ = (
+        ckan.logic.schema.default_package_search_schema() 
+        if model_schema == 'navl' 
+        else p_schema.DefaultSearchPackageSchema
+    )
+
     # sometimes context['schema'] is None
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_package_search_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
+    schema = context.get('schema') or schema_
+
+    if isinstance(schema, type):
+        from ckan.lib.pydantic.utils import validate_with_pydantic
+        data_dict, errors = validate_with_pydantic(
+            data_dict, schema, context, by_alias=True)
+    else:
+        data_dict, errors = _validate(data_dict, schema, context)
+
     # put the extras back into the data_dict so that the search can
     # report needless parameters
     data_dict.update(data_dict.get('__extras', {}))
     data_dict.pop('__extras', None)
     if errors:
-        raise ValidationError(errors)
+        raise ValidationError(errors)  # type: ignore
 
     model = context['model']
     session = context['session']

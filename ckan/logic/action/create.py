@@ -33,6 +33,7 @@ import ckan.model
 
 from ckan.common import _, asbool
 from ckan.types import Context, DataDict, ErrorDict, Schema
+from ckan.lib.pydantic.base import CKANBaseModel
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -169,17 +170,17 @@ def package_create(
     else:
         package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
 
-    schema: Schema = context.get(
+    schema: Union[Schema, CKANBaseModel] = context.get(
         'schema') or package_plugin.create_package_schema()
-
+   
     _check_access('package_create', context, data_dict)
-
+    # breakpoint()
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
-
+    # breakpoint()
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
@@ -311,6 +312,7 @@ def resource_create(context: Context,
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
+        context['resource_to_validate'] = data_dict, -1
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError as e:
@@ -966,8 +968,17 @@ def user_create(context: Context,
     :rtype: dictionary
 
     '''
+    import ckan.lib.pydantic as p_schema
+    model_schema = ckan.common.config.get('ckan.validator_model', 'navl')
+
+    schema_ = (
+        ckan.logic.schema.default_user_schema()
+        if model_schema == 'navl'
+        else p_schema.DefaultUserSchema
+    )
+
     model = context['model']
-    schema = context.get('schema') or ckan.logic.schema.default_user_schema()
+    schema = context.get('schema') or schema_
     session = context['session']
 
     _check_access('user_create', context, data_dict)
@@ -982,8 +993,15 @@ def user_create(context: Context,
     upload = uploader.get_uploader('user')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
-    data, errors = _validate(data_dict, schema, context)
 
+    breakpoint()
+    if isinstance(schema, type):
+        from ckan.lib.pydantic.utils import validate_with_pydantic
+        data, errors = validate_with_pydantic(data_dict, schema, context)
+    else:
+        data, errors = _validate(data_dict, schema, context)
+
+    breakpoint()
     if errors:
         session.rollback()
         raise ValidationError(errors)

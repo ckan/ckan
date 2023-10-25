@@ -47,6 +47,8 @@ flask-babel==3.1.0
     # via -r requirements.in
 flask-login==0.6.2
     # via -r requirements.in
+pydantic==1.10.7
+    # via -r requirements.in
 flask-wtf==1.1.1
     # via -r requirements.in
 greenlet==2.0.2

@@ -4,15 +4,16 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast
+from typing import Any, Optional, TYPE_CHECKING, TypeVar, cast, Union
 
 from flask import Blueprint
 
 import ckan.logic.schema as schema
-from ckan.common import g
+from ckan.common import g, config
 from ckan import logic, model, plugins
 import ckan.authz
 from ckan.types import Context, DataDict, Schema
+from ckan.lib.pydantic.base import CKANBaseModel
 from . import signals
 from .navl.dictization_functions import validate
 if TYPE_CHECKING:
@@ -323,7 +324,7 @@ def set_default_group_plugin() -> None:
 
 def plugin_validate(
         plugin: Any, context: Context,
-        data_dict: DataDict, schema: Schema, action: Any) -> Any:
+        data_dict: DataDict, schema: Union[Schema, CKANBaseModel], action: Any) -> Any:
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
@@ -333,7 +334,14 @@ def plugin_validate(
         if result is not None:
             return result
 
-    return validate(data_dict, schema, context)
+    # Check if the schema is an actual class and a subclass of CKANBaseModel
+    # This helps avoid typing errors and ensures correct validation
+    if isinstance(schema, type) and issubclass(schema, CKANBaseModel):
+        from ckan.lib.pydantic.utils import validate_with_pydantic
+        return validate_with_pydantic(data_dict, schema, context)
+
+    if isinstance(schema, dict):
+        return validate(data_dict, schema, context)
 
 
 def get_permission_labels() -> Any:
@@ -366,14 +374,29 @@ class DefaultDatasetForm(object):
        being registered.
 
     '''
-    def create_package_schema(self) -> Schema:
-        return schema.default_create_package_schema()
+    def create_package_schema(self) -> Union[Schema, CKANBaseModel]:
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
 
-    def update_package_schema(self) -> Schema:
-        return schema.default_update_package_schema()
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultCreatePackageSchema  # type: ignore
 
-    def show_package_schema(self) -> Schema:
-        return schema.default_show_package_schema()
+    def update_package_schema(self) -> Union[Schema, CKANBaseModel]:
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultUpdatePackageSchema  # type: ignore
+
+    def show_package_schema(self) -> Union[Schema, CKANBaseModel]:
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.default_create_package_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.DefaultShowPackageSchema  # type: ignore
 
     def setup_template_variables(self, context: Context,
                                  data_dict: dict[str, Any]) -> None:
@@ -519,7 +542,12 @@ class DefaultGroupForm(object):
         return schema.default_update_group_schema()
 
     def form_to_db_schema(self) -> dict[str, Any]:
-        return schema.group_form_schema()
+        validator_model = config.get('ckan.validator_model', 'navl')
+        if 'navl' in validator_model:
+            return schema.group_form_schema()
+
+        import ckan.lib.pydantic as pydantic_schema
+        return pydantic_schema.GroupFormSchema  # type: ignore
 
     def db_to_form_schema(self) -> dict[str, Any]:
         '''This is an interface to manipulate data from the database

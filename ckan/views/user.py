@@ -17,6 +17,7 @@ import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
+import ckan.lib.pydantic as p_schema
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.model as model
@@ -53,8 +54,13 @@ def _edit_form_to_db_schema() -> Schema:
     return schema.user_edit_form_schema()
 
 
-def _new_form_to_db_schema() -> Schema:
-    return schema.user_new_form_schema()
+def _new_form_to_db_schema() -> Union[Schema, p_schema.CKANBaseModel]:
+    model_schema = config.get('ckan.validator_model', 'navl')
+
+    if model_schema == 'navl':
+        return schema.user_new_form_schema()
+    else:
+        return p_schema.UserNewFormSchema  # type: ignore
 
 
 def _extra_template_variables(context: Context,

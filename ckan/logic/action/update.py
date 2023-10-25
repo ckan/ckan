@@ -107,6 +107,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     resources[n] = data_dict
 
     try:
+        context['resource_to_validate'] = data_dict, n
         context['use_cache'] = False
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
@@ -295,12 +296,13 @@ def package_update(
                 resource['size'] = upload.filesize
 
         resource_uploads.append(upload)
-
+    # breakpoint()
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, user, context['package'].name, data)
 
+    breakpoint()
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
