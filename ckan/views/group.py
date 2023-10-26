@@ -864,7 +864,9 @@ class CreateGroupView(MethodView):
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
-
+        except Exception as e:
+            #TODO: DEVELOP::remove me
+            raise Exception(e)
         except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:

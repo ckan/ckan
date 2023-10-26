@@ -191,8 +191,7 @@ def make_flask_stack(conf):
             )
         debug_ext.init_app(app)
 
-        from werkzeug.debug import DebuggedApplication
-        app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
+        # app gets wrapped in the debugger at bottom of function (canada fork only)
 
     namespace = 'beaker.session.'
     session_opts = {k.replace('beaker.', ''): v
@@ -345,12 +344,6 @@ def make_flask_stack(conf):
         who_parser.remote_user_key
     )
 
-    if 'security' in config['ckan.plugins']:
-        try:
-            from ckanext.security.middleware import CSRFMiddleware
-            app = CSRFMiddleware(app, config)
-        except ImportError:
-            pass
     app = SessionMiddleware(app, config)
 
     # Update the main CKAN config object with the Flask specific keys
@@ -366,6 +359,11 @@ def make_flask_stack(conf):
 
         if asbool(config.get('ckan.tracking_enabled', 'false')):
             app = TrackingMiddleware(app, config)
+
+    # wrap EVERYTHING in the debugger (canada fork only)
+    if debug:
+        from werkzeug.debug import DebuggedApplication
+        app = DebuggedApplication(app, evalex=True)
 
     # Add a reference to the actual Flask app so it's easier to access
     app._wsgi_app = flask_app
