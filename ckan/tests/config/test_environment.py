@@ -99,18 +99,6 @@ def test_plugin_template_paths_reset(app):
     assert "YOU WILL NOT FIND ME" not in resp
 
 
-@pytest.mark.usefixtures(u"reset_env")
-def test_config_from_envs_are_normalized(ckan_config):
-    """ CONFIG_FROM_ENV_VARS takes precedence over
-        config file and extensions
-        but those settings are not normalized """
-
-    os.environ['CKAN_SMTP_STARTTLS'] = 'false'
-    environment.update_config()
-
-    assert ckan_config["smtp.starttls"] is False
-
-
 @pytest.mark.ckan_config("SECRET_KEY", "super_secret")
 @pytest.mark.ckan_config("beaker.session.secret", None)
 @pytest.mark.ckan_config("beaker.session.validate_key", None)

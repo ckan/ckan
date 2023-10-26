@@ -14,38 +14,34 @@ but some of them can also be set via `Environment variables`_ or at :ref:`runtim
 Environment variables
 *********************
 
-Some of the CKAN configuration options can be defined as `Environment variables`_
-on the server operating system.
+CKAN configuration options can be defined as `Environment variables`_ on the server operating system only
+in conjunction with `ckanext-envvars`_ extension. This extension is not installed by default, so you will
+need to install it first.
 
-These are generally low-level critical settings needed when setting up the application, like the database
-connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
-automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
+The extension will check for environmental variables conforming to an expected format
+and then override the corresponding CKAN config object before it starts the application. The format of the
+environmental variables is as follows:
 
-These options are only read at startup time to update the ``config`` object used by CKAN,
-but they won't be accessed any more during the lifetime of the application.
+  1. All uppercase
+  2. Replace periods ('.') with two underscores ('__')
+  3. Keys must begin with 'CKAN' or 'CKANEXT'
 
-CKAN environment variable names match the options in the configuration file, but they are always uppercase
-and prefixed with `CKAN_` (this prefix is added even if
-the corresponding option in the ini file does not have it), and replacing dots with underscores.
+Example::
 
-This is the list of currently supported environment variables, please refer to the entries in the
-`CKAN configuration file`_ section below for more details about each one:
+  ckan.site_id --> CKAN__SITE_ID
+  ckanext.s3filestore.aws_bucket_name --> CKANEXT__S3FILESTORE__AWS_BUCKET_NAME
 
-.. literalinclude:: /../ckan/config/environment.py
-    :language: python
-    :start-after: Start CONFIG_FROM_ENV_VARS
-    :end-before: End CONFIG_FROM_ENV_VARS
+For more information check the extension's website: `ckanext-envvars`_
 
 .. _Environment variables: http://en.wikipedia.org/wiki/Environment_variable
+.. _ckanext-envvars: https://github.com/okfn/ckanext-envvars
 
-
-.. _runtime-config:
 
 Updating configuration options during runtime
 *********************************************
 
 CKAN configuration options are generally defined before starting the web application (either in the
-`CKAN configuration file`_ or via `Environment variables`_).
+`CKAN configuration file`_ or via `Environment variables`_ using `ckanext-envvars`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
