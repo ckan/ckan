@@ -170,6 +170,10 @@ def user_activity_list(user_id, limit, offset):
 
     return _activities_at_offset(q, limit, offset)
 
+def _to_list(vals):
+    if isinstance(vale, (list, tuple)):
+        return vals
+    return [vals]
 
 def _package_activity_query(package_id):
     '''Return an SQLAlchemy query for all activities about package_id.
@@ -177,7 +181,7 @@ def _package_activity_query(package_id):
     '''
     import ckan.model as model
     q = model.Session.query(model.Activity) \
-        .filter_by(object_id=package_id)
+        .filter(model.Activity.object_id.in_(_to_list(package_id)))
     return q
 
 
@@ -210,11 +214,7 @@ def _group_activity_query(group_id, include_hidden_activity=False):
     '''
     import ckan.model as model
 
-    group = model.Group.get(group_id)
-    if not group:
-        # Return a query with no results.
-        return model.Session.query(model.Activity).filter(text('0=1'))
-
+    groups = _to_list(group_id)
     q = model.Session.query(
         model.Activity
     ).outerjoin(
@@ -236,17 +236,17 @@ def _group_activity_query(group_id, include_hidden_activity=False):
         # desired but is consistent with legacy behaviour.
         or_(
             # active dataset in the group
-            and_(model.Member.group_id == group_id,
+            and_(model.Member.group_id.in_(groups),
                  model.Member.state == 'active',
                  model.Package.state == 'active'),
             # deleted dataset in the group
-            and_(model.Member.group_id == group_id,
+            and_(model.Member.group_id.in_(groups),
                  model.Member.state == 'deleted',
                  model.Package.state == 'deleted'),
                  # (we want to avoid showing changes to an active dataset that
                  # was once in this group)
             # activity the the group itself
-            model.Activity.object_id == group_id,
+            model.Activity.object_id.in_(groups),
         )
     )
 
@@ -265,10 +265,9 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
     '''
     import ckan.model as model
 
-    org = model.Group.get(org_id)
-    if not org or not org.is_organization:
-        # Return a query with no results.
-        return model.Session.query(model.Activity).filter(text('0=1'))
+    orgs = [model.Group.get(org_id) for org in _to_list(org_id)]
+    orgs = [org for org in orgs if org and org.is_organization]
+    orgs = [org.id for org in orgs]
 
     q = model.Session.query(
         model.Activity
@@ -285,8 +284,8 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
         # to a org but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.
         or_(
-            model.Package.owner_org == org_id,
-            model.Activity.object_id == org_id
+            model.Package.owner_org.in_(orgs),
+            model.Activity.object_id.in_(orgs)
         )
     )
     if not include_hidden_activity:
@@ -337,9 +336,7 @@ def _activities_from_users_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _activities_union_all(*[
-        _user_activity_query(follower.object_id, limit)
-        for follower in follower_objects])
+    return _user_activity_query([follower.object_id for follower in follower_objects], limit)
 
 
 def _activities_from_datasets_followed_by_user_query(user_id, limit):
@@ -352,9 +349,7 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _activities_union_all(*[
-        _activities_limit(_package_activity_query(follower.object_id), limit)
-        for follower in follower_objects])
+    return _package_activity_query([follower.object_id for follower in follower_objects], limit)
 
 
 def _activities_from_groups_followed_by_user_query(user_id, limit):
@@ -373,9 +368,7 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _activities_union_all(*[
-        _activities_limit(_group_activity_query(follower.object_id), limit)
-        for follower in follower_objects])
+    return _group_activity_query([follower.object_id for follower in follower_objects], limit)
 
 
 def _activities_from_everything_followed_by_user_query(user_id, limit):
