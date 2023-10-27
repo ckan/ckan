@@ -316,8 +316,8 @@ def make_flask_stack(conf):
     if root_path:
         root_path = re.sub('/{{LANG}}', '', root_path)
         fanstatic_config['base_url'] = root_path
-    # Do not use Fanstatic (canada fork only)
-    #app = Fanstatic(app, **fanstatic_config)
+
+    app = Fanstatic(app, **fanstatic_config)
 
     for plugin in PluginImplementations(IMiddleware):
         try:
