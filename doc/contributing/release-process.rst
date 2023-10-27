@@ -100,8 +100,6 @@ Turn this file into a github issue with a checklist using this command::
         git commit -am "Rebuild CSS"
         git push
 
-   There will be a final front-end build before the actual release.
-
 #. Update beta.ckan.org to run new branch.
 
    The beta staging site
@@ -347,13 +345,6 @@ a release.
 
         pytest --ckan-ini=test-core.ini ckan/tests
 
-#. Do a final build of the front-end, add the generated files to the repo and
-   commit the changes::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
-
 #. Review the CHANGELOG to check it is complete.
 
 #. Check that the docs compile correctly::
@@ -499,14 +490,6 @@ Preparing patch releases
 ------------------------
 Doing the patch releases
 ------------------------
-
-#. If there have been any CSS or JS changes, rebuild the front-end.
-
-   Rebuild the front-end, add new files and commit with::
-
-        ckan -c |ckan.ini| front-end-build
-        git add ckan ckanext
-        git commit -am "Rebuild front-end"
 
 #. Review the CHANGELOG to check it is complete.
 

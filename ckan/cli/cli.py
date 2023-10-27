@@ -15,7 +15,6 @@ from ckan.exceptions import CkanConfigurationException
 from ckan.cli import (
     config_tool,
     jobs,
-    front_end_build,
     db, search_index, server,
     profile,
     asset,
@@ -27,7 +26,6 @@ from ckan.cli import (
     plugin_info,
     notify,
     tracking,
-    minify,
     less,
     generate,
     user
@@ -204,7 +202,6 @@ def ckan():
 
 ckan.add_command(jobs.jobs)
 ckan.add_command(config_tool.config_tool)
-ckan.add_command(front_end_build.front_end_build)
 ckan.add_command(server.run)
 ckan.add_command(profile.profile)
 ckan.add_command(seed.seed)
@@ -218,7 +215,6 @@ ckan.add_command(views.views)
 ckan.add_command(plugin_info.plugin_info)
 ckan.add_command(notify.notify)
 ckan.add_command(tracking.tracking)
-ckan.add_command(minify.minify)
 ckan.add_command(less.less)
 ckan.add_command(generate.generate)
 ckan.add_command(user.user)
