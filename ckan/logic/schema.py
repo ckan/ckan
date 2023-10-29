@@ -277,10 +277,10 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          package_id_or_name_exists: Validator,
                          no_loops_in_hierarchy: Validator,
                          empty_if_not_sysadmin: Validator,
-                         id_validator: Validator, id_does_not_exist: Validator,
+                         id_validator: Validator, group_id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator, id_does_not_exist, unicode_safe],
+        'id': [ignore_missing, id_validator, empty_if_not_sysadmin, group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
         'title': [ignore_missing, unicode_safe],
@@ -428,9 +428,11 @@ def default_user_schema(
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
+        empty_if_not_sysadmin: Validator,
+        id_validator: Validator, group_id_does_not_exist: Validator,
         json_object: Validator) -> Schema:
     return {
-        'id': [ignore_missing, unicode_safe],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator, group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
@@ -696,10 +698,10 @@ def default_create_resource_view_schema_unfiltered(
         empty_if_not_sysadmin: Validator,
         ignore_empty: Validator,
         id_validator: Validator,
-        id_does_not_exist: Validator
+        resource_view_id_does_not_exist: Validator
 ) -> Schema:
     return {
-        'id': [empty_if_not_sysadmin, ignore_empty, id_validator, id_does_not_exist, unicode_safe],
+        'id': [empty_if_not_sysadmin, ignore_empty, id_validator, resource_view_id_does_not_exist, unicode_safe],
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],

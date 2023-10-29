@@ -232,32 +232,28 @@ def resource_id_does_not_exist(
     if parent_id != package_id:
         errors[key].append(_('Resource id already exists.'))
 
-def id_does_not_exist(value: str, context: Context) -> Any:
+def group_id_does_not_exist(value: str, context: Context) -> Any:
     """Ensures that the value is not used as a ID or name.
     """
 
     model = context['model']
     session = context['session']
-    entities_map = {
-        'resource_view': model.ResourceView,
-        'group': model.Group
-    }
-    result = None
-    entity_type = None
-    schema_keys = context.get('schema_keys', None)
-   
-    # Temp solution, to be changed
-    if schema_keys: 
-        if "is_organization" in schema_keys:
-            entity_type = "group"
-        elif "resource_id" in schema_keys:
-            entity_type = "resource_view"
 
-    print(schema_keys, entity_type)
-    if entity_type:
-        result = session.query(entities_map[entity_type]).get(value)        
-        if result:
-            raise Invalid(_('Id already exists'))
+    result = session.query(model.Group).get(value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.ResourceView).get(value)
+    if result:
+        raise Invalid(_('ResourceView id already exists'))
     return value
 
 def package_name_exists(value: str, context: Context) -> Any:
