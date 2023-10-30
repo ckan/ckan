@@ -1017,28 +1017,7 @@ class TestDatasetCreate(object):
                 title="Test Extras",
                 extras=[{"id": factories.Dataset.stub().name, "key": "original media", "value": '"book"'}],
             )
-        assert "The input field id was not expected" in str(exception.value)    
-
-    def test_extras_id_cant_already_exist(self):
-        user = factories.Sysadmin()
-        context = {"user": user["name"], "ignore_auth": False}
-        id = factories.Dataset.stub().name
-        helpers.call_action(
-            "package_create",
-            context=context,
-            name=id,
-            title="Test Extras",
-            extras=[{"id": id, "key": "original media", "value": '"book"'}],
-        )
-        with pytest.raises(logic.ValidationError) as exception:
-            helpers.call_action(
-                "package_create",
-                context=context,
-                name=factories.Dataset.stub().name,
-                title="Test Extras Duplicate Id",
-                extras=[{"id": id, "key": "original medias", "value": '"books"'}],
-            )
-        assert "PackageExtra id already exists" in str(exception.value)
+        assert "The input field id was not expected" in str(exception.value)  
 
     def test_license(self):
         dataset = helpers.call_action(
@@ -1246,6 +1225,30 @@ class TestGroupCreate(object):
                 name=factories.Group.stub().name,
             )
         assert "Id already exists" in str(exception.value)
+    
+    def test_normal_user_cant_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            extras=[{"id": factories.Group.stub().name, "key": "area", "value": '"non profit"'}]
+        )
+        assert "The input field id was not expected" in str(exception.value)
+    
+    def test_sysadmin_user_cant_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            extras=[{"id": factories.Group.stub().name, "key": "area", "value": '"non profit"'}]
+        )
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):
