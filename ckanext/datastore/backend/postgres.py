@@ -1017,7 +1017,7 @@ def create_table(context: Context, data_dict: dict[str, Any]):
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
-    '''Adds new columns and updates column info (stored as comments).
+    '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
     :type resource_id: string
@@ -1037,20 +1037,15 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
     if not supplied_fields:
         supplied_fields = current_fields
     check_fields(context, supplied_fields)
-    field_ids = _pluck('id', supplied_fields)
     records = data_dict.get('records')
     new_fields: list[dict[str, Any]] = []
+    field_ids: set[str] = set(f['id'] for f in supplied_fields)
+    current_ids: set[str] = set(f['id'] for f in current_fields)
 
-    for num, field in enumerate(supplied_fields):
+    for field in supplied_fields:
         # check to see if field definition is the same or and
         # extension of current fields
-        if num < len(current_fields):
-            if field['id'] != current_fields[num]['id']:
-                raise ValidationError({
-                    'fields': [(u'Supplied field "{0}" not '
-                                u'present or in wrong order').format(
-                        field['id'])]
-                })
+        if field['id'] in current_ids:
             # no need to check type as field already defined.
             continue
 
@@ -1101,6 +1096,11 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 identifier(f['id']),
                 info_sql))
 
+    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+            identifier(data_dict['resource_id']),
+            identifier(id_)))
+
     if alter_sql:
         context['connection'].execute(
             u';'.join(alter_sql).replace(u'%', u'%%'))
@@ -1124,6 +1124,7 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    num = -1
 
     if method == _INSERT:
         rows = []
@@ -1409,7 +1410,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     else:
         v = list(_execute_single_statement(
             context, sql_string, where_values))[0][0]
-        if v is None:
+        if v is None or v == '[]':
             records = []
         else:
             records = LazyJSONObject(v)

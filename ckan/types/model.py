@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING, Callable, ClassVar, Type
+from typing import TYPE_CHECKING, ClassVar, Type
 from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
@@ -36,7 +36,6 @@ class Model(Protocol):
     System: ClassVar[Type["_model.System"]]
     Tag: ClassVar[Type["_model.Tag"]]
     TaskStatus: ClassVar[Type["_model.TaskStatus"]]
-    TrackingSummary: ClassVar[Type["_model.TrackingSummary"]]
     User: ClassVar[Type["_model.User"]]
     AnonymousUser: ClassVar[Type["_model.AnonymousUser"]]
     UserFollowingDataset: ClassVar[Type["_model.UserFollowingDataset"]]
@@ -57,5 +56,8 @@ class Model(Protocol):
     Session: ClassVar[AlchemySession]
     meta: ClassVar[Meta]
 
-    set_system_info: Callable[[str, str], bool]
     repo: ClassVar["_model.Repository"]
+
+    @staticmethod
+    def set_system_info(key: str, value: str) -> bool:
+        ...

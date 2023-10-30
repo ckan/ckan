@@ -74,60 +74,12 @@ options in the CKAN config file are not declared (and might have no effect).
 Declaring config options
 ------------------------
 
-The :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` interface is
-available to allow extensions to declare their own config options.
+.. note:: Starting from CKAN 2.11, CKAN will log a warning every time a non-declared
+  configuration option is accessed. To prevent this, declare the configuration options
+  offered by your extension using the methods below
 
-New config options can only be declared inside the
-:py:meth:`~ckan.plugins.interfaces.IConfigDeclaration.declare_config_options` method. This
-method accepts two arguments: a :py:class:`~ckan.config.declaration.Declaration`
-object that contains all the declarations, and a :py:class:`~ckan.config.declaration.Key`
-helper, which allows to declare more unusual config options.
-
-A very basic config option may be declared in this way::
-
-  declaration.declare("ckanext.my_ext.option")
-
-which just means that extension ``my_ext`` makes use of a config option named
-``ckanext.my_ext.option``. If we want to define the *default value* for this option
-we can write::
-
-  declaration.declare("ckanext.my_ext.option", True)
-
-The second parameter to
-:py:meth:`~ckan.config.declaration.Declaration.declare` specifies the default
-value of the declared option if it is not provided in the configuration file.
-If a default value is not specified, it's implicitly set to ``None``.
-
-You can assign validators to a declared config option::
-
-  option = declaration.declare("ckanext.my_ext.option", True)
-  option.set_validators("not_missing boolean_validator")
-
-``set_validators`` accepts a string with the names of validators that must be applied to the config option.
-These validators need to registered in CKAN core or in your own extension using
-the :py:class:`~ckan.plugins.interfaces.IValidators` interface.
-
-.. note:: Declared default values are also passed to validators. In addition,
-          different validators can be applied to the same option multiple
-          times. This means that validators must be idempotent and that the
-          default value itself must be valid for the given set of validators.
-
-If you need to declare a lot of options, you can declare all of them at once loading a dict::
-
-  declaration.load_dict(DICT_WITH_DECLARATIONS)
-
-This allows to keep the configuration declaration in a separate file to make it easier to maintain if
-your plugin supports several config options.
-
-.. note:: ``declaration.load_dict()`` takes only python dictionary as
-          argument. If you store the declaration in an external file like a
-          JSON, YAML file, you have to parse it into a Python dictionary
-          yourself or use corresponding
-          :py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. Read
-          the following section for additional information.
-
-Use a blanket implementation of the config declaration
-------------------------------------------------------
+Using a text file (JSON, YAML or TOML)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The recommended way of declaring config options is using the
 ``config_declarations``
@@ -137,9 +89,7 @@ package is installed inside your virtual environment). That is how CKAN
 declares config options for all its built-in plugins, like ``datastore`` or
 ``datatables_view``.
 
-Instead of implementing the
-:py:class:`~ckan.plugins.interfaces.IConfigDeclaration` interface, decorate the
-plugin with the ``config_declarations`` blanket::
+To use it, decorate the plugin with the ``config_declarations`` blanket::
 
   import ckan.plugins as p
   import ckan.plugins.toolkit as tk
@@ -272,6 +222,63 @@ only for explanation and you don't need them in the real file::
           # When `key` is missing from config and `legacy_key` is available, the value of
           # `legacy_key` is used, printing a deprecation warning in the logs.
           legacy_key: my_ext.legacy.flag.do_something
+
+The ``IConfigDeclaration`` interface
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+The :py:class:`~ckan.plugins.interfaces.IConfigDeclaration` interface is
+available to plugins that want more control on how their own config options are declared.
+
+New config options can only be declared inside the
+:py:meth:`~ckan.plugins.interfaces.IConfigDeclaration.declare_config_options` method. This
+method accepts two arguments: a :py:class:`~ckan.config.declaration.Declaration`
+object that contains all the declarations, and a :py:class:`~ckan.config.declaration.Key`
+helper, which allows to declare more unusual config options.
+
+A very basic config option may be declared in this way::
+
+  declaration.declare("ckanext.my_ext.option")
+
+which just means that extension ``my_ext`` makes use of a config option named
+``ckanext.my_ext.option``. If we want to define the *default value* for this option
+we can write::
+
+  declaration.declare("ckanext.my_ext.option", True)
+
+The second parameter to
+:py:meth:`~ckan.config.declaration.Declaration.declare` specifies the default
+value of the declared option if it is not provided in the configuration file.
+If a default value is not specified, it's implicitly set to ``None``.
+
+You can assign validators to a declared config option::
+
+  option = declaration.declare("ckanext.my_ext.option", True)
+  option.set_validators("not_missing boolean_validator")
+
+``set_validators`` accepts a string with the names of validators that must be applied to the config option.
+These validators need to registered in CKAN core or in your own extension using
+the :py:class:`~ckan.plugins.interfaces.IValidators` interface.
+
+.. note:: Declared default values are also passed to validators. In addition,
+          different validators can be applied to the same option multiple
+          times. This means that validators must be idempotent and that the
+          default value itself must be valid for the given set of validators.
+
+If you need to declare a lot of options, you can declare all of them at once loading a dict::
+
+  declaration.load_dict(DICT_WITH_DECLARATIONS)
+
+This allows to keep the configuration declaration in a separate file to make it easier to maintain if
+your plugin supports several config options.
+
+.. note:: ``declaration.load_dict()`` takes only python dictionary as
+          argument. If you store the declaration in an external file like a
+          JSON, YAML file, you have to parse it into a Python dictionary
+          yourself or use corresponding
+          :py:attr:`~ckan.plugins.toolkit.ckan.plugins.toolkit.blanket`. Read
+          the following section for additional information.
+
 
 Dynamic config options
 ^^^^^^^^^^^^^^^^^^^^^^

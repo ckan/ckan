@@ -17,7 +17,6 @@ def command(cli):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestDescribe(object):
     def test_basic_invocation(self, command):
         """Command prints nothing without arguments;"""
@@ -111,7 +110,6 @@ class TestDescribe(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestDeclaration(object):
     def test_basic_invocation(self, command):
         result = command("declaration")
@@ -148,7 +146,6 @@ class TestDeclaration(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestSearch(object):
     def test_wrong_non_pattern(self, command):
         result = command("search", "ckan")
@@ -195,7 +192,6 @@ class TestSearch(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
-@pytest.mark.ckan_config("config.mode", "strict")
 class TestUndeclared(object):
     def test_no_undeclared_options_by_default(self, command):
         result = command("undeclared", "-idatapusher", "-idatastore")
@@ -233,13 +229,6 @@ class TestValidate(object):
         assert not result.exit_code, result.output
 
     @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
-    def test_invalid_port(self, command):
-        result = command("validate")
-        assert not result.exit_code, result.output
-        assert "ckan.devserver.port" in result.stdout
-
-    @pytest.mark.ckan_config("config.mode", "strict")
-    @pytest.mark.ckan_config("ckan.devserver.port", "8-thousand")
-    def test_invalid_port_in_strict_mode_prevents_application_initialization(self, command):
+    def test_invalid_port_prevents_application_initialization(self, command):
         result = command("validate")
         assert result.exit_code, result.stdout

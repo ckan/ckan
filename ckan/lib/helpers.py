@@ -56,7 +56,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, g, request, json
+from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -124,6 +124,9 @@ class HelperAttributeDict(Dict[str, Callable[..., Any]]):
             return self[key]
         except ckan.exceptions.HelperError as e:
             raise AttributeError(e)
+
+    def __repr__(self) -> str:
+        return '<template helper functions>'
 
 
 # Builtin helper functions.
@@ -909,26 +912,6 @@ def map_pylons_to_flask_route_name(menu_item: str):
     return LEGACY_ROUTE_NAMES.get(menu_item, menu_item)
 
 
-@core_helper
-def build_extra_admin_nav() -> Markup:
-    '''Build extra navigation items used in ``admin/base.html`` for values
-    defined in the config option ``ckan.admin_tabs``. Typically this is
-    populated by extensions.
-
-    :rtype: HTML literal
-
-    '''
-    admin_tabs_dict = config.get('ckan.admin_tabs')
-    output: Markup = literal('')
-    if admin_tabs_dict:
-        for k, v in admin_tabs_dict.items():
-            if v['icon']:
-                output += build_nav_icon(k, v['label'], icon=v['icon'])
-            else:
-                output += build_nav(k, v['label'])
-    return output
-
-
 def _make_menu_item(menu_item: str, title: str, **kw: Any) -> Markup:
     ''' build a navigation item used for example breadcrumbs
 
@@ -1232,9 +1215,7 @@ def sorted_extras(package_extras: list[dict[str, Any]],
 @core_helper
 def check_access(
         action: str, data_dict: Optional[dict[str, Any]] = None) -> bool:
-    context = cast(Context, {
-        'model': model,
-        'user': current_user.name})
+    context: Context = {'user': current_user.name}
     if not data_dict:
         data_dict = {}
     try:
@@ -1779,7 +1760,7 @@ def convert_to_dict(object_type: str, objs: list[Any]) -> list[dict[str, Any]]:
     converters = {'package': md.package_dictize}
     converter = converters[object_type]
     items = []
-    context = cast(Context, {'model': model})
+    context: Context = {'model': model}
     for obj in objs:
         item = converter(obj, context)
         items.append(item)
@@ -1812,9 +1793,7 @@ def follow_button(obj_type: str, obj_id: str) -> str:
     # If the user is logged in show the follow/unfollow button
     user = current_user.name
     if user:
-        context = cast(
-            Context,
-            {'model': model, 'session': model.Session, 'user': user})
+        context: Context = {'user': user}
         action = 'am_following_%s' % obj_type
         following = logic.get_action(action)(context, {'id': obj_id})
         return snippet('snippets/follow_button.html',
@@ -1840,13 +1819,7 @@ def follow_count(obj_type: str, obj_id: str) -> int:
     obj_type = obj_type.lower()
     assert obj_type in _follow_objects
     action = '%s_follower_count' % obj_type
-    context = cast(
-        Context, {
-            'model': model,
-            'session': model.Session,
-            'user': current_user.name
-        }
-    )
+    context: Context = {'user': current_user.name}
     return logic.get_action(action)(context, {'id': obj_id})
 
 
@@ -1962,23 +1935,6 @@ def remove_url_param(key: Union[list[str], str],
 def debug_inspect(arg: Any) -> Markup:
     ''' Output pprint.pformat view of supplied arg '''
     return literal('<pre>') + pprint.pformat(arg) + literal('</pre>')
-
-
-@core_helper
-def popular(type_: str,
-            number: int,
-            min: int = 1,
-            title: Optional[str] = None) -> str:
-    ''' display a popular icon. '''
-    if type_ == 'views':
-        title = ungettext('{number} view', '{number} views', number)
-    elif type_ == 'recent views':
-        title = ungettext('{number} recent view', '{number} recent views',
-                          number)
-    elif not title:
-        raise Exception('popular() did not recieve a valid type_ or title')
-    return snippet('snippets/popular.html',
-                   title=title, number=number, min=min)
 
 
 @core_helper
@@ -2205,7 +2161,7 @@ def render_markdown(data: str,
 def format_resource_items(
         items: list[tuple[str, Any]]) -> list[tuple[str, Any]]:
     ''' Take a resource item list and format nicely with blacklisting etc. '''
-    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    blacklist = ['name', 'description', 'url']
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
@@ -2490,17 +2446,6 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
             break
 
     return groups_data
-
-
-@core_helper
-def get_site_statistics() -> dict[str, int]:
-    stats = {}
-    stats['dataset_count'] = logic.get_action('package_search')(
-        {}, {"rows": 1})['count']
-    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
-    stats['organization_count'] = len(
-        logic.get_action('organization_list')({}, {}))
-    return stats
 
 
 _RESOURCE_FORMATS: dict[str, Any] = {}

@@ -2,7 +2,6 @@
 
 from unittest import mock
 import pytest
-from typing import cast
 from ckan import logic, model
 from ckan.types import Context
 import ckan.tests.factories as factories
@@ -76,13 +75,13 @@ def test_fresh_context():
         'model', 'session', 'user', 'auth_user_obj', 'ignore_auth'
         values (if they exists)."""
 
-    dirty_context = {
+    dirty_context: Context = {
         "user": "test",
         "ignore_auth": True,
         "to_be_cleaned": "test",
     }
-    dirty_Context = cast(Context, dirty_context)
-    cleaned_context = logic.fresh_context(dirty_Context)
+
+    cleaned_context = logic.fresh_context(dirty_context)
 
     assert "to_be_cleaned" not in cleaned_context
     assert cleaned_context["user"] == "test"
@@ -90,3 +89,26 @@ def test_fresh_context():
     assert "model" not in cleaned_context
     assert "session" not in cleaned_context
     assert "auth_user_obj" not in cleaned_context
+
+
+def test_check_access_auth_user_for_different_objects():
+    user1 = factories.User()
+    user2 = factories.User()
+    context = {"user": user1["name"]}
+
+    organization1 = factories.Organization(user=user1)
+    organization2 = factories.Organization(user=user2)
+
+    datasets1 = [
+        factories.Dataset(owner_org=organization1["id"], private=True)
+        for _ in range(0, 1)
+    ]
+    datasets2 = [
+        factories.Dataset(owner_org=organization2["id"], private=True)
+        for _ in range(0, 1)
+    ]
+    dataset3 = datasets1 + datasets2
+
+    with pytest.raises(logic.NotAuthorized):
+        for dataset in dataset3:
+            logic.check_access("package_show", context, {'id': dataset["id"]})

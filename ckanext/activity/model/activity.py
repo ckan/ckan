@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Iterable, Optional, Type, TypeVar, cast
+from typing import Any, Iterable, Optional, Type, TypeVar
 from typing_extensions import TypeAlias
 
 from sqlalchemy.orm import relationship, backref
@@ -109,17 +109,12 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
             # We save the entire rendered package dict so we can support
             # viewing the past packages from the activity feed.
             dictized_package = ckan.logic.get_action("package_show")(
-                cast(
-                    Context,
-                    {
-                        "model": ckan.model,
-                        "session": ckan.model.Session,
-                        # avoid ckanext-multilingual translating it
-                        "for_view": False,
-                        "ignore_auth": True,
-                    },
-                ),
-                {"id": pkg.id, "include_tracking": False},
+                {
+                    # avoid ckanext-multilingual translating it
+                    "for_view": False,
+                    "ignore_auth": True,
+                },
+                {"id": pkg.id},
             )
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no

@@ -804,7 +804,7 @@ class TestDatastoreInsert(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'invalid input syntax for type integer: "notanumber"' in str(context.value)
+        assert u'invalid input syntax for integer: "notanumber"' in str(context.value)
 
 
 class TestDatastoreUpdate(object):
