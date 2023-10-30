@@ -992,6 +992,53 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["extras"][0]["key"] == "original media"
         assert dataset["extras"][0]["value"] == '"book"'
+    
+    def test_sysadmin_can_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            extras=[{"id": factories.Dataset.stub().name, "key": "original media", "value": '"book"'}],
+        )
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert dataset["extras"][0]["key"] == "original media"
+    
+    def test_normal_user_can_not_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "package_create",
+                context=context,
+                name=factories.Dataset.stub().name,
+                title="Test Extras",
+                extras=[{"id": factories.Dataset.stub().name, "key": "original media", "value": '"book"'}],
+            )
+        assert "The input field id was not expected" in str(exception.value)    
+
+    def test_extras_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        id = factories.Dataset.stub().name
+        helpers.call_action(
+            "package_create",
+            context=context,
+            name=id,
+            title="Test Extras",
+            extras=[{"id": id, "key": "original media", "value": '"book"'}],
+        )
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "package_create",
+                context=context,
+                name=factories.Dataset.stub().name,
+                title="Test Extras Duplicate Id",
+                extras=[{"id": id, "key": "original medias", "value": '"books"'}],
+            )
+        assert "PackageExtra id already exists" in str(exception.value)
 
     def test_license(self):
         dataset = helpers.call_action(

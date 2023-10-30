@@ -256,6 +256,20 @@ def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
         raise Invalid(_('ResourceView id already exists'))
     return value
 
+# This fails
+def package_extra_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+    package_extra = model.package_extra_table
+
+    result = session.query(package_extra).filter_by(id=value).first()
+    if result:
+        raise Invalid(_('PackageExtra id already exists'))
+    return value
+
 def package_name_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's name.
     """

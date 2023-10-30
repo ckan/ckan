@@ -364,9 +364,11 @@ def default_show_group_schema(
 def default_extras_schema(ignore: Validator, not_empty: Validator,
                           extra_key_not_in_root_schema: Validator,
                           unicode_safe: Validator, not_missing: Validator,
-                          ignore_missing: Validator) -> Schema:
+                          ignore_missing: Validator, id_validator: Validator,
+                          package_extra_id_does_not_exist: Validator,
+                          empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore],
+        'id': [empty_if_not_sysadmin, ignore_missing, id_validator, package_extra_id_does_not_exist],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
         'value': [not_missing],
         'state': [ignore],
