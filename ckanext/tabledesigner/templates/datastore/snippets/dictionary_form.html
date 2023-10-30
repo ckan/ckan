@@ -39,7 +39,7 @@
     {{ super() }}
   {% endif %}
 
-  {% if field.info.tdtype == 'choice' %}
+  {% if field.info and field.info.tdtype == 'choice' %}
     {% call form.input('info__' ~ position ~ '__choices',
       label=_('Choices'), id='field-f' ~ position ~ 'choices',
       value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
