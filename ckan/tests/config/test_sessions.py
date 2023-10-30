@@ -82,3 +82,20 @@ class FlashMessagePlugin(p.SingletonPlugin):
             blueprint.add_url_rule(*rule)
 
         return blueprint
+
+@pytest.mark.parametrize("timeout,normalized", [
+    (None, None),
+    ("", None),
+    ("123", 123),
+    ("1_000_000", 1_000_000),
+    ("-1", -1),
+])
+def test_beaker_session_timeout(
+        monkeypatch, ckan_config, make_app, timeout, normalized
+):
+    """Beaker timeout accepts `None`(never expires) and int(expires in
+    n-seconds) values.
+
+    """
+    monkeypatch.setitem(ckan_config, "beaker.session.timeout", timeout)
+    make_app()
