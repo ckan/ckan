@@ -56,7 +56,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, g, request, json
+from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -1938,23 +1938,6 @@ def debug_inspect(arg: Any) -> Markup:
 
 
 @core_helper
-def popular(type_: str,
-            number: int,
-            min: int = 1,
-            title: Optional[str] = None) -> str:
-    ''' display a popular icon. '''
-    if type_ == 'views':
-        title = ungettext('{number} view', '{number} views', number)
-    elif type_ == 'recent views':
-        title = ungettext('{number} recent view', '{number} recent views',
-                          number)
-    elif not title:
-        raise Exception('popular() did not recieve a valid type_ or title')
-    return snippet('snippets/popular.html',
-                   title=title, number=number, min=min)
-
-
-@core_helper
 def groups_available(am_member: bool = False,
                      include_dataset_count: bool = False,
                      include_member_count: bool = False,
@@ -2178,7 +2161,7 @@ def render_markdown(data: str,
 def format_resource_items(
         items: list[tuple[str, Any]]) -> list[tuple[str, Any]]:
     ''' Take a resource item list and format nicely with blacklisting etc. '''
-    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    blacklist = ['name', 'description', 'url']
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'

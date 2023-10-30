@@ -110,11 +110,6 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
-        # tracking summary values will be stale, never store them
-        tracking_summary = pkg_dict.pop('tracking_summary', None)
-        for r in pkg_dict.get('resources', []):
-            r.pop('tracking_summary', None)
-
         # Index validated data-dict
         package_plugin = lib_plugins.lookup_package_plugin(
             pkg_dict.get('type'))
@@ -190,13 +185,6 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = pkg_dict['organization']['name']
         else:
            pkg_dict['organization'] = None
-
-        # tracking
-        if not tracking_summary:
-            tracking_summary = model.TrackingSummary.get_for_package(
-                pkg_dict['id'])
-        pkg_dict['views_total'] = tracking_summary['total']
-        pkg_dict['views_recent'] = tracking_summary['recent']
 
         resource_fields = [('name', 'res_name'),
                            ('description', 'res_description'),
