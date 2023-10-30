@@ -83,6 +83,7 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
         return blueprint
 
+
 @pytest.mark.parametrize("timeout,normalized", [
     (None, None),
     ("", None),
