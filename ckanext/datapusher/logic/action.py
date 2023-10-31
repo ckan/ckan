@@ -167,7 +167,7 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
         m = 'An Error occurred while sending the job: {0}'.format(str(e))
 
         body = ""
-        if e.response:
+        if e.response is not None:
             try:
                 body = e.response.json()
                 if body.get('error'):

@@ -85,7 +85,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
 
     except requests.exceptions.HTTPError as error:
         details = 'Could not proxy resource.'
-        if error.response:
+        if error.response is not None:
             details += ' Server responded with %s %s' % (
                 error.response.status_code, error.response.reason
             )
