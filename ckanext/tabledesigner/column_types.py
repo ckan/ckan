@@ -1,7 +1,9 @@
+def _(x):
+    return x
 
-_ = lambda x: x
 
 _standard_column_types = {}
+
 
 def _standard_column(key):
     def register(cls):

@@ -12,11 +12,13 @@ def tabledesigner_column_type_options():
     """
     return [{"value": k, "text": _(v.label)} for k, v in column_types.items()]
 
+
 def tabledesigner_column_type(tdtype):
     """
     return column type object (fall back to text if not found)
     """
     return column_types.get(tdtype, column_types['text'])
+
 
 def tabledesigner_choice_list(choices):
     """
@@ -24,28 +26,27 @@ def tabledesigner_choice_list(choices):
     """
     return [c.strip() for c in choices.split(',')]
 
+
 def tabledesigner_data_api_examples(resource_id):
     resp = None
     try:
-        resp = get_action('datastore_search')({},
-            {
-                'resource_id': resource_id,
-                'limit': 1,
-            }
+        resp = get_action('datastore_search')(
+            {},
+            {'resource_id': resource_id, 'limit': 1}
         )
     except (ObjectNotFound, NotAuthorized):
         pass
     if resp and resp['records']:
         record = resp['records'][0]
         fields = [f['id'] for f in resp['fields']]
-        filtr = {k:record[k] for k in fields[1:3]}
+        filtr = {k: record[k] for k in fields[1:3]}
         txtcols = [f['id'] for f in resp['fields'] if f['type'] == 'text']
         if filtr and txtcols:
             return {
                 "text_column_filters_object": filtr,
                 "text_column_name_sql": txtcols[0],
                 "insert_record_object": {
-                    k:v for k,v in record.items() if k != '_id'
+                    k: v for k, v in record.items() if k != '_id'
                 },
                 "update_record_object": record,
                 "unique_filter_object": {"_id": 1},
