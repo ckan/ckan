@@ -4,6 +4,7 @@ import ckan.plugins.toolkit as toolkit
 
 import ckanext.tabledesigner.views as views
 
+
 @toolkit.blanket.actions
 @toolkit.blanket.blueprints(views.tabledesigner)
 @toolkit.blanket.helpers

@@ -139,13 +139,13 @@ class DictionaryView(MethodView):
             # resource_edit_base template uses these
             pkg_dict = get_action(u'package_show')({}, {u'id': id})
             resource = get_action(u'resource_show')({}, {u'id': resource_id})
-            rec = get_action(u'datastore_info')({}, {u'id': resource_id}
-            )
+            rec = get_action(u'datastore_info')({}, {u'id': resource_id})
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
                 u'fields': [
-                    f for f in rec.get('fields', []) if not f[u'id'].startswith(u'_')
+                    f for f in rec.get('fields', [])
+                    if not f[u'id'].startswith(u'_')
                 ]
             }
 

@@ -1,9 +1,8 @@
 # encoding: utf-8
-from flask import Blueprint, make_response
+from flask import Blueprint
 from flask.views import MethodView
 
 from ckanext.datastore.blueprint import DictionaryView
-from ckanext.datastore.backend.postgres import literal_string, identifier
 import ckan.lib.navl.dictization_functions as dict_fns
 from ckan.logic import (
     tuplize_dict,
@@ -23,6 +22,7 @@ from ckan.plugins.toolkit import (
 from ckanext.tabledesigner.datastore import create_table
 
 tabledesigner = Blueprint(u'tabledesigner', __name__)
+
 
 class _TableDesignerDictionary(MethodView):
     def post(self, id, resource_id):
@@ -64,7 +64,11 @@ class _TableDesignerDictionary(MethodView):
             return render('datastore/dictionary.html', data_dict)
 
         h.flash_success(_('Table Designer fields updated.'))
-        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+        return h.redirect_to(
+            data_dict['pkg_dict']['type'] + '_resource.read',
+            id=id,
+            resource_id=resource_id
+        )
 
 
 tabledesigner.add_url_rule(
@@ -77,7 +81,9 @@ class _TableDesignerAddRow(MethodView):
     def get(self, id, resource_id):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        return render('tabledesigner/add_row.html', dict(data_dict, errors={}, row={}))
+        return render(
+            'tabledesigner/add_row.html', dict(data_dict, errors={}, row={})
+        )
 
     def post(self, id, resource_id):
         _datastore_view = DictionaryView()
@@ -94,7 +100,6 @@ class _TableDesignerAddRow(MethodView):
                 None, {
                     'resource_id': resource_id,
                     'method': 'insert',
-                    'force': True,  # FIXME: don't require this for tabledesigner tables
                     'records': [row],
                 }
             )
@@ -102,13 +107,18 @@ class _TableDesignerAddRow(MethodView):
             rec_err = err.error_dict.get('records', [''])[0]
             if rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
-                pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pkreq') == 'pk']
-                errors={
-                    k:[_('Duplicate primary key exists')] for k in pk_fields
+                pk_fields = [
+                    f['id'] for f in info['fields']
+                    if f['info'].get('pkreq') == 'pk'
+                ]
+                errors = {
+                    k: [_('Duplicate primary key exists')] for k in pk_fields
                 }
             elif rec_err.startswith('invalid input syntax'):
                 bad_data = rec_err.split('"', 1)[1].rstrip('"')
-                errors = {f: [_("Invalid input")] for f in row if row[f] == bad_data}
+                errors = {
+                    f: [_("Invalid input")] for f in row if row[f] == bad_data
+                }
             elif rec_err.startswith('TAB-DELIMITED\t'):
                 errors = {}
                 erriter = iter(rec_err.split('\t')[1:])
@@ -120,7 +130,11 @@ class _TableDesignerAddRow(MethodView):
                 'tabledesigner/add_row.html',
                 dict(data_dict, row=row, errors=errors),
             )
-        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+        return h.redirect_to(
+            data_dict['pkg_dict']['type'] + '_resource.read',
+            id=id,
+            resource_id=resource_id
+        )
 
 
 tabledesigner.add_url_rule(
@@ -166,7 +180,6 @@ class _TableDesignerEditRow(MethodView):
                 None, {
                     'resource_id': resource_id,
                     'method': 'update',
-                    'force': True,  # FIXME: don't require this for tabledesigner tables
                     'records': [row],
                 }
             )
@@ -174,13 +187,18 @@ class _TableDesignerEditRow(MethodView):
             rec_err = err.error_dict.get('records', [''])[0]
             if rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
-                pk_fields = [f['id'] for f in info['fields'] if f['info'].get('pk')]
-                errors={
-                    k:[_('Duplicate primary key exists')] for k in pk_fields
+                pk_fields = [
+                    f['id'] for f in info['fields']
+                    if f['info'].get('pkreq') == 'pk'
+                ]
+                errors = {
+                    k: [_('Duplicate primary key exists')] for k in pk_fields
                 }
             elif rec_err.startswith('invalid input syntax'):
                 bad_data = rec_err.split('"', 1)[1].rstrip('"')
-                errors = {f: [_("Invalid input")] for f in row if row[f] == bad_data}
+                errors = {
+                    f: [_("Invalid input")] for f in row if row[f] == bad_data
+                }
             elif rec_err.startswith('TAB-DELIMITED\t'):
                 errors = {}
                 erriter = iter(rec_err.split('\t')[1:])
@@ -192,12 +210,18 @@ class _TableDesignerEditRow(MethodView):
                 'tabledesigner/edit_row.html',
                 dict(data_dict, row=row, errors=errors),
             )
-        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+        return h.redirect_to(
+            data_dict['pkg_dict']['type'] + '_resource.read',
+            id=id,
+            resource_id=resource_id
+        )
+
 
 tabledesigner.add_url_rule(
     '/dataset/<id>/tabledesigner/<resource_id>/edit-row',
     view_func=_TableDesignerEditRow.as_view('edit_row'),
 )
+
 
 class _TableDesignerDeleteRows(MethodView):
     def get(self, id, resource_id):
@@ -225,16 +249,20 @@ class _TableDesignerDeleteRows(MethodView):
         _ids = request.params.getlist('_id')
 
         try:
-            r = get_action('datastore_delete')(
+            get_action('datastore_delete')(
                 None, {
                     'resource_id': resource_id,
                     'filters': {'_id': _ids},
-                    'force': True,  # FIXME: don't require this for tabledesigner tables
                 }
             )
         except NotAuthorized:
             return base.abort(403, _('Not authorized to see this page'))
-        return h.redirect_to(data_dict['pkg_dict']['type'] + '_resource.read', id=id, resource_id=resource_id)
+        return h.redirect_to(
+            data_dict['pkg_dict']['type'] + '_resource.read',
+            id=id,
+            resource_id=resource_id
+        )
+
 
 tabledesigner.add_url_rule(
     '/dataset/<id>/tabledesigner/<resource_id>/delete-rows',

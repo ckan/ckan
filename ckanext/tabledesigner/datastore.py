@@ -43,6 +43,7 @@ BEGIN
 END;
 '''
 
+
 def create_table(resource_id, info):
     '''
     Set up datastore table + validation
@@ -80,7 +81,7 @@ def create_table(resource_id, info):
 
     if validate_rules:
         validate_def = VALIDATE_DEFINITION_SQL.format(
-            validate_rules = ''.join(validate_rules),
+            validate_rules=''.join(validate_rules),
         )
         get_action('datastore_function_create')(
             {
@@ -103,7 +104,7 @@ def create_table(resource_id, info):
                 'id': i['id'],
                 'type': column_types[i['tdtype']].datastore_type,
                 'info': {
-                    k:v for (k, v) in i.items()
+                    k: v for (k, v) in i.items()
                     if k != 'id'
                 },
             } for i in info],
