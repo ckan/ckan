@@ -16,7 +16,8 @@
         <ul class="user-list">
           {% block users_list_inner %}
             {% for user in page.items %}
-              <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
+              {# `user` is a tuple with a single item - username #}
+              <li>{{ h.linked_user(user[0], maxlength=20) }}</li>
             {% endfor %}
           {% endblock %}
         </ul>
