@@ -19,13 +19,13 @@ class ViewCount(NamedTuple):
     count: int
 
 
-@click.group(name=u'tracking', short_help=u'Update tracking statistics')
+@click.group(name='tracking', short_help='Update tracking statistics')
 def tracking():
     pass
 
 
 @tracking.command()
-@click.argument(u'start_date', required=False)
+@click.argument('start_date', required=False)
 def update(start_date: Optional[str]):
     engine = model.meta.engine
     assert engine
@@ -33,8 +33,8 @@ def update(start_date: Optional[str]):
 
 
 @tracking.command()
-@click.argument(u'output_file', type=click.Path())
-@click.argument(u'start_date', required=False)
+@click.argument('output_file', type=click.Path())
+@click.argument('start_date', required=False)
 def export(output_file: str, start_date: Optional[str]):
     engine = model.meta.engine
     assert engine
@@ -45,7 +45,7 @@ def export(output_file: str, start_date: Optional[str]):
 
 def update_all(engine: model.Engine, start_date: Optional[str] = None):
     if start_date:
-        date = datetime.datetime.strptime(start_date, u'%Y-%m-%d')
+        date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
     else:
         # No date given. See when we last have data for and get data
         # from 2 days before then in case new data is available.
@@ -70,7 +70,7 @@ def update_all(engine: model.Engine, start_date: Optional[str] = None):
     while date < end_date:
         stop_date = date + datetime.timedelta(1)
         update_tracking(engine, date)
-        click.echo(u'tracking updated for {}'.format(date))
+        click.echo('tracking updated for {}'.format(date))
         date = stop_date
 
     update_tracking_solr(engine, start_date_solrsync)
@@ -104,19 +104,19 @@ def _recent_views(engine: model.Engine, measure_from: datetime.date):
 
 
 def export_tracking(engine: model.Engine, output_filename: str):
-    u'''Write tracking summary to a csv file.'''
+    '''Write tracking summary to a csv file.'''
     headings = [
-        u'dataset id',
-        u'dataset name',
-        u'total views',
-        u'recent views (last 2 weeks)',
+        'dataset id',
+        'dataset name',
+        'total views',
+        'recent views (last 2 weeks)',
     ]
 
     measure_from = datetime.date.today() - datetime.timedelta(days=14)
     recent_views = _recent_views(engine, measure_from)
     total_views = _total_views(engine)
 
-    with open(output_filename, u'w') as fh:
+    with open(output_filename, 'w') as fh:
         f_out = csv.writer(fh)
         f_out.writerow(headings)
         recent_views_for_id = dict((r.id, r.count) for r in recent_views)
@@ -128,7 +128,7 @@ def export_tracking(engine: model.Engine, output_filename: str):
 
 
 def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
-    package_url = u'/dataset/'
+    package_url = '/dataset/'
     # clear out existing data before adding new
     with engine.begin() as conn:
         conn.execute(
@@ -233,8 +233,8 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
 
     total = len(package_ids)
     not_found = 0
-    click.echo(u'{} package index{} to be rebuilt starting from {}'.format(
-        total, u'' if total < 2 else u'es', start_date)
+    click.echo('{} package index{} to be rebuilt starting from {}'.format(
+        total, '' if total < 2 else 'es', start_date)
     )
 
     from ckan.lib.search import rebuild
@@ -242,15 +242,15 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
         try:
             rebuild(package_id)
         except logic.NotFound:
-            click.echo(u'Error: package {} not found.'.format(package_id))
+            click.echo('Error: package {} not found.'.format(package_id))
             not_found += 1
         except KeyboardInterrupt:
-            click.echo(u'Stopped.')
+            click.echo('Stopped.')
             return
         except Exception as e:
             error_shout(e)
     click.echo(
-        u'search index rebuilding done.' + (
-            u' {} not found.'.format(not_found) if not_found else u''
+        'search index rebuilding done.' + (
+            ' {} not found.'.format(not_found) if not_found else u''
         )
     )

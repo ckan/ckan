@@ -36,7 +36,6 @@ class Model(Protocol):
     System: ClassVar[Type["_model.System"]]
     Tag: ClassVar[Type["_model.Tag"]]
     TaskStatus: ClassVar[Type["_model.TaskStatus"]]
-    TrackingSummary: ClassVar[Type["_model.TrackingSummary"]]
     User: ClassVar[Type["_model.User"]]
     AnonymousUser: ClassVar[Type["_model.AnonymousUser"]]
     UserFollowingDataset: ClassVar[Type["_model.UserFollowingDataset"]]

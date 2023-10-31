@@ -73,12 +73,6 @@ from ckan.model.resource_view import (
     ResourceView,
     resource_view_table,
 )
-from ckan.model.tracking import (
-    tracking_summary_table,
-    TrackingSummary,
-    tracking_raw_table
-)
-
 from ckan.model.package_relationship import (
     PackageRelationship,
     package_relationship_table,
@@ -133,7 +127,6 @@ __all__ = [
     "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",
     "ResourceView", "resource_view_table",
-    "tracking_summary_table", "TrackingSummary", "tracking_raw_table",
     "PackageRelationship", "package_relationship_table",
     "TaskStatus", "task_status_table",
     "Vocabulary", "VOCABULARY_NAME_MAX_LENGTH", "VOCABULARY_NAME_MIN_LENGTH",

@@ -111,7 +111,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
                     "for_view": False,
                     "ignore_auth": True,
                 },
-                {"id": pkg.id, "include_tracking": False},
+                {"id": pkg.id},
             )
         except ckan.logic.NotFound:
             # This happens if this package is being purged and therefore has no
