@@ -1,4 +1,8 @@
 # encoding: utf-8
+from __future__ import annotations
+
+from typing import cast, List
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -25,7 +29,7 @@ tabledesigner = Blueprint(u'tabledesigner', __name__)
 
 
 class _TableDesignerDictionary(MethodView):
-    def post(self, id, resource_id):
+    def post(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
 
@@ -56,7 +60,7 @@ class _TableDesignerDictionary(MethodView):
             ]
             if 'fields' in e.error_dict:
                 data_dict['error_summary'] = {
-                    'id': ', '.join(e.error_dict['fields'])
+                    'id': ', '.join(cast(List[str], e.error_dict['fields']))
                 }
             else:
                 raise
@@ -78,14 +82,14 @@ tabledesigner.add_url_rule(
 
 
 class _TableDesignerAddRow(MethodView):
-    def get(self, id, resource_id):
+    def get(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
         return render(
             'tabledesigner/add_row.html', dict(data_dict, errors={}, row={})
         )
 
-    def post(self, id, resource_id):
+    def post(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
 
@@ -97,16 +101,17 @@ class _TableDesignerAddRow(MethodView):
 
         try:
             get_action('datastore_upsert')(
-                None, {
+                {},
+                {
                     'resource_id': resource_id,
                     'method': 'insert',
                     'records': [row],
                 }
             )
         except ValidationError as err:
-            rec_err = err.error_dict.get('records', [''])[0]
+            rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')(None, {'id': resource_id})
+                info = get_action('datastore_info')({}, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f['info'].get('pkreq') == 'pk'
@@ -144,14 +149,15 @@ tabledesigner.add_url_rule(
 
 
 class _TableDesignerEditRow(MethodView):
-    def get(self, id, resource_id):
+    def get(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        _id = request.params['_id']
+        _id = request.args['_id']
 
         try:
             r = get_action('datastore_search')(
-                None, {
+                {},
+                {
                     'resource_id': resource_id,
                     'filters': {'_id': _id},
                 }
@@ -164,10 +170,10 @@ class _TableDesignerEditRow(MethodView):
         data_dict['errors'] = {}
         return render('tabledesigner/edit_row.html', data_dict)
 
-    def post(self, id, resource_id):
+    def post(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        _id = request.params['_id']
+        _id = request.args['_id']
 
         data = dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
         col = data.get('col', [])
@@ -177,16 +183,17 @@ class _TableDesignerEditRow(MethodView):
 
         try:
             get_action('datastore_upsert')(
-                None, {
+                {},
+                {
                     'resource_id': resource_id,
                     'method': 'update',
                     'records': [row],
                 }
             )
         except ValidationError as err:
-            rec_err = err.error_dict.get('records', [''])[0]
+            rec_err = cast(List[str], err.error_dict.get('records', ['']))[0]
             if rec_err.startswith('duplicate key'):
-                info = get_action('datastore_info')(None, {'id': resource_id})
+                info = get_action('datastore_info')({}, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
                     if f['info'].get('pkreq') == 'pk'
@@ -224,14 +231,14 @@ tabledesigner.add_url_rule(
 
 
 class _TableDesignerDeleteRows(MethodView):
-    def get(self, id, resource_id):
+    def get(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        _ids = request.params.getlist('_id')
+        _ids = request.args.getlist('_id')
 
         try:
             r = get_action('datastore_search')(
-                None, {
+                {}, {
                     'resource_id': resource_id,
                     'filters': {'_id': _ids},
                 }
@@ -243,14 +250,14 @@ class _TableDesignerDeleteRows(MethodView):
         data_dict['records'] = r['records']
         return render('tabledesigner/delete_rows.html', data_dict)
 
-    def post(self, id, resource_id):
+    def post(self, id: str, resource_id: str):
         _datastore_view = DictionaryView()
         data_dict = _datastore_view._prepare(id, resource_id)
-        _ids = request.params.getlist('_id')
+        _ids = request.args.getlist('_id')
 
         try:
             get_action('datastore_delete')(
-                None, {
+                {}, {
                     'resource_id': resource_id,
                     'filters': {'_id': _ids},
                 }

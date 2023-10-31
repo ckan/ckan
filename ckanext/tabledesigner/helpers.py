@@ -1,11 +1,15 @@
-from .column_types import column_types
+from __future__ import annotations
+
+from typing import Callable, List, Any, Optional, Type
+
+from .column_types import column_types, ColumnType
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, chained_helper
 )
 
 
-def tabledesigner_column_type_options():
+def tabledesigner_column_type_options() -> List[dict[str, Any]]:
     """
     return list of {'value':..., 'text':...} dicts
     with the type name and label for all registered column types
@@ -13,21 +17,21 @@ def tabledesigner_column_type_options():
     return [{"value": k, "text": _(v.label)} for k, v in column_types.items()]
 
 
-def tabledesigner_column_type(tdtype):
+def tabledesigner_column_type(tdtype: str) -> Optional[Type[ColumnType]]:
     """
     return column type object (fall back to text if not found)
     """
     return column_types.get(tdtype, column_types['text'])
 
 
-def tabledesigner_choice_list(choices):
+def tabledesigner_choice_list(choices: str):
     """
     convert choices string to choice list, ignoring surrounding whitespace
     """
     return [c.strip() for c in choices.split(',')]
 
 
-def tabledesigner_data_api_examples(resource_id):
+def tabledesigner_data_api_examples(resource_id: str) -> dict[str, Any]:
     resp = None
     try:
         resp = get_action('datastore_search')(
@@ -71,6 +75,7 @@ def tabledesigner_data_api_examples(resource_id):
 
 
 @chained_helper
-def datastore_rw_resource_url_types(next_func):
+def datastore_rw_resource_url_types(
+        next_func: Callable[[], List[str]]) -> List[str]:
     '''tabledesigner datastore tables can be updated without force=True'''
     return ['tabledesigner'] + next_func()

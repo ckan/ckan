@@ -1,13 +1,19 @@
-def _(x):
+from __future__ import annotations
+
+from typing import Type, Callable
+
+def _(x: str):
     return x
 
 
 _standard_column_types = {}
 
 
-def _standard_column(key):
-    def register(cls):
+def _standard_column(
+        key: str) -> "Callable[[Type[ColumnType]], Type[ColumnType]]":
+    def register(cls: "Type[ColumnType]"):
         _standard_column_types[key] = cls
+        return cls
     return register
 
 

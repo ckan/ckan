@@ -1,24 +1,35 @@
 # encoding: utf-8
+from __future__ import annotations
+
+from typing import Any, Callable
+
+from ckan.types import Context
 from ckan.plugins.toolkit import get_action, chained_action
 
 from ckanext.tabledesigner.datastore import create_table
 
 
 @chained_action
-def resource_create(original_action, context, data_dict):
+def resource_create(
+        original_action: Callable[[Context, dict[str, Any]], dict[str, Any]],
+        context: Context,
+        data_dict: dict[str, Any]) -> dict[str, Any]:
     res = original_action(context, data_dict)
     _create_table_and_view(res)
     return res
 
 
 @chained_action
-def resource_update(original_action, context, data_dict):
+def resource_update(
+        original_action: Callable[[Context, dict[str, Any]], dict[str, Any]],
+        context: Context,
+        data_dict: dict[str, Any]) -> dict[str, Any]:
     res = original_action(context, data_dict)
-    res = _create_table_and_view(res)
+    _create_table_and_view(res)
     return res
 
 
-def _create_table_and_view(res):
+def _create_table_and_view(res: dict[str, Any]) -> None:
     if res.get('url_type') != 'tabledesigner':
         return
     if not res.get('datastore_active'):

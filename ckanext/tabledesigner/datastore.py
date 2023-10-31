@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any, List
+
 from ckan.plugins.toolkit import get_action
 
 from ckanext.datastore.backend.postgres import identifier, literal_string
@@ -44,7 +48,7 @@ END;
 '''
 
 
-def create_table(resource_id, info):
+def create_table(resource_id: str, info: List[dict[str, Any]]):
     '''
     Set up datastore table + validation
     '''
@@ -96,10 +100,11 @@ def create_table(resource_id, info):
         )
 
     get_action('datastore_create')(
-        None, {
+        {},
+        {
             'resource_id': resource_id,
             'force': True,
-            'primary_key': [f for f, typ in primary_key],
+            'primary_key': [f for f, _typ in primary_key],
             'fields': [{
                 'id': i['id'],
                 'type': column_types[i['tdtype']].datastore_type,
