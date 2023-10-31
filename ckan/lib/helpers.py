@@ -2776,7 +2776,7 @@ def make_login_url(
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return cast(str, urlunparse(parsed_base))
+        return urlunparse(parsed_base)
     return base
 
 

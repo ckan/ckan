@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Type
+from typing import TYPE_CHECKING, Any, ClassVar, Type
 from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
@@ -54,7 +54,7 @@ class Model(Protocol):
     term_translation_table: ClassVar[Table]
 
     Session: ClassVar[AlchemySession]
-    meta: ClassVar[Meta]
+    meta: ClassVar[Meta] | Any
 
     repo: ClassVar["_model.Repository"]
 

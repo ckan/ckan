@@ -916,7 +916,7 @@ def user_list(
 
     if all_fields:
         for user in query.all():
-            result_dict = model_dictize.user_dictize(user[0], context)
+            result_dict: Any = model_dictize.user_dictize(user[0], context)
             users_list.append(result_dict)
     else:
         for user in query.all():
