@@ -28,7 +28,7 @@ def ipython(namespace: Mapping[str, Any], banner: str) -> None:
     from traitlets.config.loader import Config
 
     c = Config()
-    c.TerminalInteractiveShell.banner2 = banner  # type: ignore
+    c.TerminalInteractiveShell.banner2 = banner
 
     IPython.start_ipython([], user_ns=namespace, config=c)
 
