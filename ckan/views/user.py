@@ -93,8 +93,9 @@ def index():
     }
 
     data_dict = {
-        u'q': q,
-        u'order_by': order_by
+        'q': q,
+        'order_by': order_by,
+        'all_fields': False,
     }
 
     try:
