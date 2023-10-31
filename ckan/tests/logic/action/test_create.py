@@ -2217,6 +2217,51 @@ class TestTagCreate:
                 name=factories.Tag.stub().name,
                 vocabulary_id=factories.Vocabulary.stub().name,
             )
+    
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Tag.stub()
+        tag1 = factories.Tag.stub().name
+        vocab = factories.Vocabulary(tags=[{"name": tag1}])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "tag_create",
+                id=stub.name,
+                context=context,
+                name=stub.name,            
+                vocabulary_id=vocab["id"]
+            )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Tag.stub()
+        tag1 = factories.Tag.stub().name
+        vocab = factories.Vocabulary(tags=[{"name": tag1}])
+        result = helpers.call_action(
+            "tag_create",
+            id=stub.name,
+            context=context,
+            name=stub.name,            
+            vocabulary_id=vocab["id"]
+        )
+        assert result.get("id") == stub.name
+    
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        tag = factories.Tag(name="first tag")
+        vocab = factories.Vocabulary(tags=[{"name": "first tag"}])
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "tag_create",
+                id=tag["id"],
+                context=context,
+                name="second tag",            
+                vocabulary_id=vocab["id"]
+            )
+        assert "Tag id already exists" in str(exception.value)
 
     @pytest.mark.usefixtures("non_clean_db")
     def test_duplicate(self):

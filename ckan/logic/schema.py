@@ -100,7 +100,9 @@ def default_create_tag_schema(not_missing: Validator, not_empty: Validator,
                               unicode_safe: Validator,
                               vocabulary_id_exists: Validator,
                               tag_not_in_vocabulary: Validator,
-                              empty: Validator):
+                              empty_if_not_sysadmin: Validator, id_validator: Validator,
+                              tag_id_does_not_exist: Validator,
+                              ignore_missing: Validator):
     schema = default_tags_schema()
     # When creating a tag via the tag_create() logic action function, a
     # vocabulary_id _must_ be given (you cannot create free tags via this
@@ -108,7 +110,7 @@ def default_create_tag_schema(not_missing: Validator, not_empty: Validator,
     schema['vocabulary_id'] = [not_missing, not_empty, unicode_safe,
                                vocabulary_id_exists, tag_not_in_vocabulary]
     # You're not allowed to specify your own ID when creating a tag.
-    schema['id'] = [empty]
+    schema['id'] = [empty_if_not_sysadmin, ignore_missing, id_validator, tag_id_does_not_exist]
     return schema
 
 
