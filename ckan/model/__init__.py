@@ -165,6 +165,27 @@ def init_model(engine: Engine) -> None:
             break
 
 
+def ensure_engine() -> Engine:
+    """Return initialized SQLAlchemy engine or raise an error.
+
+    This function guarantees that engine is initialized and provides a hint
+    when someone attempts to use the database before model is properly
+    initialized.
+
+    Prefer using this function instead of direct access to engine via
+    `meta.engine`.
+
+    """
+    if not meta.engine:
+        log.error(
+            "%s:%s must be called before any interaction with the database",
+            init_model.__module__, init_model.__name__
+
+        )
+        raise CkanConfigurationException("Model is not initialized")
+    return meta.engine
+
+
 class Repository():
     metadata: MetaData
     session: AlchemySession
@@ -210,14 +231,13 @@ class Repository():
         self.commit_and_remove()
         meta.metadata = MetaData()
 
-        if not meta.engine:
-            raise CkanConfigurationException("Model is not initialized")
+        engine = ensure_engine()
 
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
-            meta.metadata.reflect(meta.engine)
+            meta.metadata.reflect(engine)
 
-        with meta.engine.begin() as conn:
+        with engine.begin() as conn:
             meta.metadata.drop_all(conn)
 
         self.tables_created_and_initialised = False
@@ -228,9 +248,7 @@ class Repository():
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
         '''
-        if not meta.engine:
-            raise CkanConfigurationException("Model is not initialized")
-        with meta.engine.begin() as conn:
+        with ensure_engine().begin() as conn:
             self.metadata.create_all(conn)
         log.info('Database tables created')
 
@@ -280,13 +298,11 @@ class Repository():
             "sqlalchemy.url", config.get("sqlalchemy.url")
         )
 
-        if not meta.engine:
-            raise CkanConfigurationException("Model is not initialized")
-
+        engine = ensure_engine()
         sqlalchemy_migrate_version = 0
-        db_inspect = inspect(meta.engine)
+        db_inspect = inspect(engine)
         if db_inspect.has_table("migrate_version"):
-            with meta.engine.connect() as conn:
+            with engine.connect() as conn:
                 sqlalchemy_migrate_version = conn.execute(
                     sa.text('select version from migrate_version')
                 ).scalar()
@@ -331,13 +347,14 @@ class Repository():
 
         @param version: version to upgrade to (if None upgrade to latest)
         '''
-        assert meta.engine
-        _assert_engine_msg: str = (
-            u'Database migration - only Postgresql engine supported (not %s).'
-        ) % meta.engine.name
-        assert meta.engine.name in (
-            u'postgres', u'postgresql'
-        ), _assert_engine_msg
+        engine = ensure_engine()
+        if engine.name not in ('postgres', 'postgresql'):
+            log.error(
+                'Only Postgresql engine supported (not %s).',
+                engine.name,
+            )
+            raise CkanConfigurationException(engine.name)
+
         self.setup_migration_version_control()
         version_before = self.current_version()
         alembic_upgrade(self.alembic_config, version)
