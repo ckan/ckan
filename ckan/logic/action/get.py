@@ -985,9 +985,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -1021,7 +1018,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     if data_dict.get('use_default_schema', False):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
-    include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
     use_cache = (context.get('use_cache', True))
@@ -1053,16 +1049,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             pkg, context, include_plugin_data
         )
         package_dict_validated = False
-
-    if include_tracking:
-        # page-view tracking summary data
-        package_dict['tracking_summary'] = (
-            model.TrackingSummary.get_for_package(package_dict['id']))
-
-        for resource_dict in package_dict['resources']:
-            summary =  model.TrackingSummary.get_for_resource(
-                resource_dict['url'])
-            resource_dict['tracking_summary'] = summary
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1098,9 +1084,6 @@ def resource_show(
 
     :param id: the id of the resource
     :type id: string
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
 
     :rtype: dictionary
 
@@ -1116,9 +1099,8 @@ def resource_show(
     _check_access('resource_show', resource_context, data_dict)
 
     pkg_dict = logic.get_action('package_show')(
-        context.copy(),
-        {'id': resource.package.id,
-        'include_tracking': asbool(data_dict.get('include_tracking', False))})
+        context.copy(), {'id': resource.package.id}
+        )
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
