@@ -645,10 +645,10 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
     tag_obj.delete()
     model.repo.commit()
 
-
 def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
         FollowerClass: Type['ModelFollowingModel[Any, Any]']):
+
     model = context['model']
 
     if not context.get('user'):
@@ -662,15 +662,17 @@ def _unfollow(
 
     validated_data_dict, errors = validate(data_dict, schema, context)
     if errors:
-        raise ValidationError(errors)
-    object_id = validated_data_dict.get('id')
+        msg = _("Error validating the schema of the object to unfollow.")
+        raise ValidationError(msg)
 
+    object_id = validated_data_dict.get('id')
+    follower_id = userobj.id
     follower_obj = FollowerClass.get(follower_id, object_id)
     if follower_obj is None:
-        raise NotFound(
-                _('You are not following {0}.').format(data_dict.get('id')))
+        return
 
     follower_obj.delete()
+
     model.repo.commit()
 
 def unfollow_user(context: Context, data_dict: DataDict) -> None:

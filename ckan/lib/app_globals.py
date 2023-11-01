@@ -42,7 +42,6 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
@@ -54,7 +53,6 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},

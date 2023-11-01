@@ -144,21 +144,12 @@ def update_config() -> None:
 
     _, errors = config_declaration.validate(config)
     if errors:
-        if config.get("config.mode") == "strict":
-            msg = "\n".join(
-                "{}: {}".format(key, "; ".join(issues))
-                for key, issues in errors.items()
-            )
-            msg = "Invalid configuration values provided:\n" + msg
-            raise CkanConfigurationException(msg)
-        else:
-            for key, issues in errors.items():
-                log.warning(
-                    "Invalid value for %s (%s): %s",
-                    key,
-                    config.get(key),
-                    "; ".join(issues)
-                )
+        msg = "\n".join(
+            "{}: {}".format(key, "; ".join(issues))
+            for key, issues in errors.items()
+        )
+        msg = "Invalid configuration values provided:\n" + msg
+        raise CkanConfigurationException(msg)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

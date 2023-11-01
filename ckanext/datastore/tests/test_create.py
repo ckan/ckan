@@ -638,9 +638,9 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_alias_twice(self, app):
-        resource = model.Package.get("annakarenina").resources[1]
+        res1, res2 = model.Package.get("annakarenina").resources[:2]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res1.id,
             "aliases": "new_alias",
             "fields": [
                 {"id": "book", "type": "text"},
@@ -656,9 +656,8 @@ class TestDatastoreCreate(object):
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True, res_dict
 
-        resource = model.Package.get("annakarenina").resources[0]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res2.id,
             "aliases": "new_alias",
             "fields": [{"id": "more books", "type": "text"}],
         }
@@ -1369,7 +1368,10 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
                     triggers=[{u"function": u"spamexception_trigger"}],
                 )
-        assert error.value.error_dict == {u"records": [u'"EGGS"? Yeeeeccch!']}
+        assert error.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1403,5 +1405,6 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
                 )
             assert error.value.error_dict == {
-                u"records": [u'"BEANS"? Yeeeeccch!']
+                "records": ['"BEANS"? Yeeeeccch!'],
+                "records_row": 1,
             }

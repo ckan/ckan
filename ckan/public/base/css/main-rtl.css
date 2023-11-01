@@ -12459,10 +12459,6 @@ select[data-module=autocomplete] {
   background-color: #6e6e6e;
 }
 
-.popular {
-  color: #f29c2b;
-}
-
 .resource-list {
   margin: 0;
   list-style: none;
@@ -13307,9 +13303,10 @@ td.diff_header {
   margin-left: 0;
 }
 .context-info .nums {
-  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   padding-top: 10px;
-  padding-bottom: 0;
   border-top: 1px dotted #DDD;
 }
 .context-info .nums::after {
@@ -13318,34 +13315,16 @@ td.diff_header {
   content: "";
 }
 .context-info .nums dl {
-  float: left;
-  width: 50%;
-  margin: 5px 0 0 0;
   color: #444;
 }
 .context-info .nums dl dt {
-  display: block;
   font-size: 13px;
   font-weight: 300;
 }
 .context-info .nums dl dd {
-  display: block;
   font-size: 30px;
   font-weight: 700;
   line-height: 36px;
-  margin-left: 0;
-}
-.context-info .nums dl dd .smallest {
-  font-size: 13px;
-}
-.context-info .nums dl dd .smaller {
-  font-size: 16px;
-}
-.context-info .nums dl dd .small {
-  font-size: 21px;
-}
-.context-info .follow_button {
-  margin: 0.75rem 0;
 }
 .context-info.editing .module-content {
   margin-top: 0;

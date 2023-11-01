@@ -1,11 +1,17 @@
 # encoding: utf-8
 
-u'''
+"""
 Utility functions for I/O.
-'''
+"""
 
+import hashlib
+import os
 import sys
+import tempfile
 from typing import Any, Union
+
+from ckan.common import config
+from ckan.exceptions import CkanConfigurationException
 
 
 _FILESYSTEM_ENCODING = str(
@@ -53,3 +59,29 @@ def decode_path(p: Union[bytes, Any]) -> str:
     if not isinstance(p, bytes):
         raise TypeError(u'Can only decode bytes, not {}'.format(type(p)))
     return p.decode(_FILESYSTEM_ENCODING)
+
+
+def get_ckan_temp_directory() -> str:
+    """
+    Returns the path to a securely created temporary directory that can be used
+    to store internal generated files like webassets, i18n files, etc
+
+    It is used as fallback when `ckan.storage_path` is not defined.
+    """
+
+    if not config.get("SECRET_KEY"):
+        # This function can be called before the configuration is validated,
+        # so we need to do this check here
+        raise CkanConfigurationException(
+            "Invalid configuration values provided:\n"
+            "SECRET_KEY: Missing value")
+    unique_suffix = hashlib.sha256(
+        config["SECRET_KEY"].encode()).hexdigest()[:10]
+    directory_name = f"ckan_{unique_suffix}"
+
+    path = os.path.join(tempfile.gettempdir(), directory_name)
+
+    if not os.path.exists(path):
+        os.mkdir(path, mode=0o700)
+
+    return path

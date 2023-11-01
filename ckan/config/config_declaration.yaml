@@ -84,8 +84,6 @@ groups:
         internal: true
       - key: PROPAGATE_EXCEPTIONS
         internal: true
-      - key: SECRET_KEY
-        internal: true
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
@@ -160,6 +158,23 @@ groups:
         validators: not_empty
         required: true
 
+      - key: SECRET_KEY
+        validators: not_empty
+        required: true
+        placeholder_callable: secrets:token_urlsafe
+        callable_args:
+          nbytes: 20
+        description: |
+          This is the secret token that is used by security related tasks by CKAN and its extensions.
+          ``ckan generate config`` generates a unique
+          value for this each time it generates a config file. Alternatively you can generate one with
+          the following command::
+
+            python -c "import secrets; print(secrets.token_urlsafe(20))"
+
+          When used in a cluster environment, the value must be the same on every machine.
+
+
       - key: ckan.legacy_route_mappings
         default: {}
         example: '{"home": "home.index", "about": "home.about", "search": "dataset.search"}'
@@ -172,20 +187,15 @@ groups:
             Flask-based route names.
 
       - key: config.mode
-        default: default
+        default: strict
         example: strict
         description: |
-          Controls the behavior of application when invalid values detected in
-          the ``config`` object.
 
-          In the ``default`` mode any invalid value is left unprocessed (i.e.,
-          it remains a ``str``). In addition, every invalid option is reported using
-          a log record with a ``WARNING`` level.
-
-          In the ``strict`` mode, CKAN will not start unless **all** config
-          options are valid according to the validators defined in the
-          configuration declaration. For every invalid config option, an error will be
-          printed to the output stream.
+          .. warning:: This configuration option has no effect starting from CKAN 2.11. The
+            default behaviour going forward is the old ``strict`` mode, where CKAN will not
+            start unless **all** config options are valid according to the validators defined in the
+            configuration declaration. For every invalid config option, an error will be
+            printed to the output stream.
 
   - annotation: Development settings
     options:
@@ -256,16 +266,14 @@ groups:
         default: ckan
         description: Name of the cookie key used to save the session under.
       - key: beaker.session.secret
-        validators: not_empty
-        required: true
-        placeholder_callable: secrets:token_urlsafe
-        callable_args:
-          nbytes: 20
+        placeholder: string:%(SECRET_KEY)s
+        validators: configured_default("SECRET_KEY",None)
         description: |
           This is the secret token that the beaker library uses to hash the
           cookie sent to the client. `ckan generate config` generates a unique
           value for this each time it generates a config file. When used in a
           cluster environment, the value must be the same on every machine.
+          If not provided, the value of ``SECRET_KEY`` will be used.
       - key: beaker.session.auto
         type: bool
         default: False
@@ -322,6 +330,7 @@ groups:
       - key: beaker.session.validate_key
         validators: not_empty
         placeholder_callable: secrets:token_urlsafe
+        validators: configured_default("SECRET_KEY",None)
         callable_args:
           nbytes: 20
         description: |
@@ -329,6 +338,7 @@ groups:
           `ckan generate config` generates a unique
           value for this each time it generates a config file. When used in a
           cluster environment, the value must be the same on every machine.
+          If not provided, the value of ``SECRET_KEY`` will be used.
 
       - key: beaker.session.httponly
         type: bool
@@ -440,11 +450,6 @@ groups:
         example: 2592000
         description: Controls CKAN static files' cache max age, if we're serving and caching them.
 
-      - key: ckan.tracking_enabled
-        type: bool
-        example: "true"
-        description: This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
-
       - key: ckan.valid_url_schemes
         type: list
         default:
@@ -467,15 +472,6 @@ groups:
         example: True
         type: bool
         description: If set to True, CKAN will not publicly expose its version number.
-
-      - key: ckan.redirect_to_login_if_not_authorized
-        default: True
-        type: bool
-        description: |
-          By default, if a user is not authorized to visit a page, they will
-          get redirected to the login page before trying to access it again.
-          If you want to raise a 401 or 403 error instead,
-          set this setting to `False`
 
   - annotation: Authorization Settings
     options:
@@ -680,8 +676,11 @@ groups:
           this controls whether every view is protected by default.
 
       - key: WTF_CSRF_SECRET_KEY
-        description: Random data for generating secure tokens.
-        placeholder_callable: secrets:token_urlsafe
+        placeholder: string:%(SECRET_KEY)s
+        validators: configured_default("SECRET_KEY",None)
+        description: |
+          Random data for generating secure tokens.
+          If not provided, the value of ``SECRET_KEY`` will be used.
 
       - key: WTF_CSRF_METHODS
         type: list
@@ -787,7 +786,7 @@ groups:
         description: Number of bytes used to generate unique id for API Token.
 
       - key: api_token.jwt.encode.secret
-        placeholder: string:%(beaker.session.secret)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/private/key
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -804,8 +803,10 @@ groups:
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
 
+          If not provided, ``"string:" + SECRET_KEY`` is used.
+
       - key: api_token.jwt.decode.secret
-        placeholder: string:%(beaker.session.secret)s
+        placeholder: string:%(SECRET_KEY)s
         example: file:/path/to/public/key.pub
         description: |
           A key suitable for the chosen algorithm(``api_token.jwt.algorithm``):
@@ -821,6 +822,8 @@ groups:
 
           * ``string:`` - Plain string, will be used as is.
           * ``file:`` - Path to file. Content of the file will be used as key.
+
+          If not provided, ``"string:" + SECRET_KEY`` is used.
 
       - key: api_token.jwt.algorithm
         default: "HS256"
