@@ -8,6 +8,9 @@ from typing import Any, Optional, Union
 from typing_extensions import Literal
 
 from urllib.parse import urlencode
+import csv
+from io import StringIO
+from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -21,7 +24,6 @@ import ckan.plugins as plugins
 from ckan.common import g, config, request, current_user, _
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.views.dataset import _get_search_details
-from ckanext.datastore.writer import csv_writer
 
 from flask import Blueprint, make_response
 from flask.views import MethodView
@@ -453,9 +455,17 @@ def read(group_type: str,
     g.group_dict = group_dict
 
     extra_vars = _read(id, limit, group_type)
+    try:
+        am_following = logic.get_action('am_following_group')(
+            {'user': current_user.name}, {'id': id}
+        )
+    except NotAuthorized:
+        # AnonymousUser
+        am_following = False
 
     extra_vars["group_type"] = group_type
     extra_vars["group_dict"] = group_dict
+    extra_vars["am_following"] = am_following
 
     return base.render(
         _get_group_template(u'read_template', g.group_dict['type']),
@@ -566,12 +576,6 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
 
 
 def member_dump(id: str, group_type: str, is_organization: bool):
-    response = make_response()
-    response.headers[u'content-type'] = u'application/octet-stream'
-
-    writer_factory = csv_writer
-    records_format = u'csv'
-
     group_obj = model.Group.get(id)
     if not group_obj:
         base.abort(404,
@@ -593,37 +597,40 @@ def member_dump(id: str, group_type: str, is_organization: bool):
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user',
-            u'records_format': records_format,
+            u'records_format': u'csv',
             u'include_total': False,
         })
     except NotFound:
         base.abort(404, _('Members not found'))
 
-    results = ''
+    results = [[_('Username'), _('Email'), _('Name'), _('Role')]]
     for uid, _user, role in members:
         user_obj = model.User.get(uid)
         if not user_obj:
             continue
-        results += '{name},{email},{fullname},{role}\n'.format(
-            name=user_obj.name,
-            email=user_obj.email,
-            fullname=user_obj.fullname if user_obj.fullname else _('N/A'),
-            role=role)
+        results.append([
+            user_obj.name,
+            user_obj.email,  # type: ignore
+            user_obj.fullname if user_obj.fullname else _('N/A'),
+            role,
+        ])
 
-    fields = [
-        {'id': _('Username')},
-        {'id': _('Email')},
-        {'id': _('Name')},
-        {'id': _('Role')}]
+    output_stream = StringIO()
+    output_stream.write(BOM_UTF8)  # type: ignore
+    csv.writer(output_stream).writerows(results)
 
-    def start_writer(fields: Any):
-        file_name = u'{group_id}-{members}'.format(
-                group_id=group_obj.name,
-                members=_(u'members'))
-        return writer_factory(response, fields, file_name, bom=True)
+    file_name = u'{org_id}-{members}'.format(
+            org_id=group_obj.name,
+            members=_(u'members'))
 
-    with start_writer(fields) as wr:
-        wr.write_records(results)  # type: ignore
+    output_stream.seek(0)
+    response = make_response(output_stream.read())
+    output_stream.close()
+    content_disposition = u'attachment; filename="{name}.csv"'.format(
+                                    name=file_name)
+    content_type = b'text/csv; charset=utf-8'
+    response.headers['Content-Type'] = content_type  # type: ignore
+    response.headers['Content-Disposition'] = content_disposition
 
     return response
 
@@ -632,7 +639,7 @@ def member_delete(id: str, group_type: str,
                   is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
     set_org(is_organization)
-    if u'cancel' in request.args:
+    if u'cancel' in request.form:
         return h.redirect_to(u'{}.members'.format(group_type), id=id)
 
     context: Context = {'user': current_user.name}
@@ -644,6 +651,8 @@ def member_delete(id: str, group_type: str,
 
     try:
         user_id = request.args.get(u'user')
+        if not user_id:
+            base.abort(404, _(u'User not found'))
         if request.method == u'POST':
             _action(u'group_member_delete')(context, {
                 u'id': id,
@@ -670,48 +679,85 @@ def member_delete(id: str, group_type: str,
                        extra_vars)
 
 
-def follow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Start following this group.'''
+def follow(id: str, group_type: str,
+           is_organization: bool) -> Union[Response, str]:
+    '''Start following this group.'''
     set_org(is_organization)
-    context: Context = {'user': current_user.name}
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
+        }
+    extra_vars = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
 
-    data_dict = {u'id': id}
     try:
-        get_action(u'follow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are now following {0}").format(group_dict['title']))
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
 
-        id = group_dict['name']
+    am_following = False
+    error_message = ""
+    try:
+        get_action('follow_group')({}, data_dict)
+        am_following = True
     except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotAuthorized as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'group.read', id=id)
+        error_message = str(e.error_dict.get('message'))
+
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
+    return base.render('group/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str, group_type: str, is_organization: bool) -> Response:
-    u'''Stop following this group.'''
+def unfollow(id: str, group_type: str, is_organization: bool) -> str:
+    '''Stop following this group.'''
     set_org(is_organization)
-    context: Context = {'user': current_user.name}
-    data_dict = {u'id': id}
+    data_dict = {
+        'id': id,
+        'include_datasets': True,
+        'include_users': True,
+        'include_followers': True
+        }
+    extra_vars = {
+        'current_user': current_user,
+        'show_nums': True,
+    }
     try:
-        get_action(u'unfollow_group')(context, data_dict)
-        group_dict = get_action(u'group_show')(context, data_dict)
-        h.flash_success(
-            _(u"You are no longer following {0}").format(group_dict['title']))
-        id = group_dict['name']
-    except ValidationError as e:
-        error_message = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except NotFound as e:
-        error_message = e.message or ''
-        base.abort(404, _(error_message))
-    except NotAuthorized as e:
-        error_message = e.message or ''
-        base.abort(403, _(error_message))
-    return h.redirect_to(u'group.read', id=id)
+        if is_org:
+            org_dict = get_action('organization_show')({}, data_dict)
+            extra_vars['organization'] = org_dict
+        else:
+            group_dict = get_action('group_show')({}, data_dict)
+            extra_vars['group'] = group_dict
+    except (NotFound, NotAuthorized):
+        msg = _(f'{group_type} not found or you have no permission to view it')
+        base.abort(404, msg)
+
+    am_following = True
+    error_message = ""
+    try:
+        get_action('unfollow_group')({}, data_dict)
+        am_following = False
+    except (ValidationError) as e:
+        error_message = e.error_summary
+
+    extra_vars['error_message'] = error_message
+    extra_vars['am_following'] = am_following
+
+    if is_org:
+        return base.render('organization/snippets/info.html', extra_vars)
+    return base.render('group/snippets/info.html', extra_vars)
 
 
 def followers(id: str, group_type: str, is_organization: bool) -> str:
@@ -1247,10 +1293,6 @@ organization = Blueprint(u'organization', __name__,
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
-    actions = [
-        u'member_delete', u'followers', u'follow',
-        u'unfollow', u'admins',
-    ]
     blueprint.add_url_rule(u'/', view_func=index, strict_slashes=False)
     blueprint.add_url_rule(
         u'/new',
@@ -1279,6 +1321,15 @@ def register_group_plugin_rules(blueprint: Blueprint) -> None:
         u'/delete/<id>',
         methods=[u'GET', u'POST'],
         view_func=DeleteGroupView.as_view(str(u'delete')))
+    blueprint.add_url_rule(
+        '/follow/<id>',
+        methods=[u'POST'],
+        view_func=follow)
+    blueprint.add_url_rule(
+        '/unfollow/<id>',
+        methods=[u'POST'],
+        view_func=unfollow)
+    actions = ['member_delete', 'followers', 'admins']
     for action in actions:
         blueprint.add_url_rule(
             u'/{0}/<id>'.format(action),

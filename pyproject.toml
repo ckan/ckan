@@ -80,10 +80,11 @@ reportOptionalCall = true
 reportOptionalIterable = true
 reportOptionalContextManager = true
 reportOptionalOperand = true
-reportTypedDictNotRequiredAccess = false # We are using Context in a way that conflicts with this check
+# We are using Context in a way that conflicts with this check
+reportTypedDictNotRequiredAccess = false
 reportConstantRedefinition = true
 reportIncompatibleMethodOverride = false
-reportIncompatibleVariableOverride = true
+reportIncompatibleVariableOverride = false
 reportOverlappingOverload = true
 reportUntypedFunctionDecorator = false
 reportUnknownParameterType = true

@@ -38,8 +38,7 @@ from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
-from ckan.config.middleware.common_middleware import (TrackingMiddleware,
-                                                      HostHeaderMiddleware,
+from ckan.config.middleware.common_middleware import (HostHeaderMiddleware,
                                                       RootPathMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
@@ -298,9 +297,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app = HostHeaderMiddleware(app)
 
     app = I18nMiddleware(app)
-
-    if config.get('ckan.tracking_enabled'):
-        app = TrackingMiddleware(app, config)
 
     # Add a reference to the actual Flask app so it's easier to access
     # type_ignore_reason: custom attribute
