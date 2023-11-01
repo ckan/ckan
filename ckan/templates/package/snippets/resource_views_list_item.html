@@ -1,4 +1,4 @@
-{% set action = pkg.type ~ '_resource.edit_view' if is_edit else pkg.type ~ '_resource.read' %}
+{% set action = pkg.type ~ '_resource.edit_view' if is_edit and h.check_access('resource_view_update', view) else pkg.type ~ '_resource.read' %}
 
 {% if current_filters %}
   {% set url = h.url_for(action, id=pkg.name,
