@@ -88,11 +88,11 @@ class TestPackageNew(object):
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")
-        env = {"Authorization": user["token"]}
-        res = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        res = app.get(url, headers=headers)
         # See https://github.com/python-babel/flask-babel/issues/214
         refresh_babel()
-        res = app.get("/de/dataset/new", extra_environ=env)
+        res = app.get("/de/dataset/new", headers=headers)
         assert helpers.body_contains(res, "Datensatz")
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
