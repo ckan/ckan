@@ -56,7 +56,7 @@ class TestLimits:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestActivityShow:
     def test_simple_with_data(self, package, user, activity_factory):
         activity = activity_factory(
@@ -2485,7 +2485,7 @@ class TestSendEmailNotifications(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -2546,7 +2546,7 @@ class TestDashboardMarkActivitiesOld(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestFollow:
     @pytest.mark.usefixtures("app")
     def test_follow_dataset_no_activity(self):

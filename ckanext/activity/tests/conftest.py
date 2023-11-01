@@ -20,9 +20,3 @@ class ActivityFactory(CKANFactory):
 def clean_db(reset_db, migrate_db_for):
     reset_db()
     migrate_db_for("activity")
-
-
-@pytest.fixture(scope="session")
-def reset_db_once(reset_db, migrate_db_for):
-    reset_db()
-    migrate_db_for("activity")
