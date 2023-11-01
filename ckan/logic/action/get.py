@@ -1462,13 +1462,13 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     else:
         user_obj = None
 
-    if not user_obj:
-        raise NotFound
-
-    context['user_obj'] = user_obj
+    if user_obj:
+        context['user_obj'] = user_obj
 
     _check_access('user_show', context, data_dict)
 
+    if not user_obj:
+        raise NotFound
 
     # include private and draft datasets?
     requester = context.get('user')
