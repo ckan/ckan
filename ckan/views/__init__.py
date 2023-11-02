@@ -90,29 +90,19 @@ def identify_user() -> Optional[Response]:
                     break
             except AttributeError:
                 continue
+
     # sets the g.user/g.userobj for extensions
     g.user = current_user.name
     g.userobj = '' if current_user.is_anonymous else current_user
 
-    # logout, if a user that was still logged in is deleted.
     if current_user.is_authenticated:
+        current_user.set_user_last_active()  # type: ignore
+        # logout, if a user that was still logged in is deleted.
         if not current_user.is_active:
             logout_user()
 
-    # If we have a user but not the userobj let's get the userobj. This means
-    # that IAuthenticator extensions do not need to access the user model
-    # directly.
-    if g.user:
-        if not getattr(g, u'userobj', None):
-            g.userobj = model.User.by_name(g.user)
-
-    # general settings
-    if g.user:
-        if g.userobj:
-            userobj = model.User.by_name(g.user)
-            userobj.set_user_last_active()  # type: ignore
-        g.author = g.user
-    else:
+    g.author = g.user
+    if not g.author:
         g.author = g.remote_addr
     g.author = str(g.author)
 

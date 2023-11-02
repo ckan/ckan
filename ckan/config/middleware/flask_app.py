@@ -281,9 +281,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         This callback function is called whenever a user could not be
         authenticated via the session cookie, so we fall back to the API token.
         """
-        g.login_via_auth_header = True
 
         user = _get_user_for_apitoken()
+        if user:
+            g.login_via_auth_header = True
 
         return user
 
