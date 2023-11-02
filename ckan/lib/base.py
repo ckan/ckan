@@ -24,9 +24,6 @@ from ckan.common import request, config, session, g
 
 log = logging.getLogger(__name__)
 
-APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
-
 
 def abort(status_code: int,
           detail: str = '',
