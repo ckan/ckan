@@ -313,8 +313,7 @@ groups:
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
       - key: beaker.session.timeout
-        type: int
-        default: 600
+        validators: int_validator
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
@@ -410,13 +409,14 @@ groups:
 
           .. warning:: This setting should not have a trailing / on the end.
 
-      - key: apikey_header_name
-        default: X-CKAN-API-Key
-        example: API-KEY
+      - key: apitoken_header_name
+        default: Authorization
+        legacy_key: apikey_header_name  # since v2.10.0
+        example: X-CKAN-API-TOKEN
         description: |
-          This allows another http header to be used to provide the CKAN API
-          key. This is useful if network infrastructure blocks the
-          Authorization header and ``X-CKAN-API-Key`` is not suitable.
+          This allows to customize the name of the HTTP header used to provide the CKAN API
+          token. This is useful in some scenarios where using the default ``Authorization`` one
+          causes problems.
 
       - key: ckan.cache_expires
         default: 0
