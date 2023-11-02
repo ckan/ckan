@@ -129,10 +129,12 @@ six==1.16.0
     #   bleach
     #   python-dateutil
     #   pyutilib
-sqlalchemy[mypy]==2.0.23
+sqlalchemy[mypy]==1.4.50
     # via
     #   -r requirements.in
     #   alembic
+sqlalchemy2-stubs==0.0.2a36
+    # via sqlalchemy
 sqlparse==0.4.4
     # via -r requirements.in
 tomli==2.0.1
@@ -142,7 +144,7 @@ typing-extensions==4.8.0
     #   -r requirements.in
     #   alembic
     #   mypy
-    #   sqlalchemy
+    #   sqlalchemy2-stubs
 tzlocal==5.2
     # via -r requirements.in
 urllib3==2.0.7

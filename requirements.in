@@ -30,7 +30,7 @@ pyyaml==6.0.1
 requests==2.31.0
 rq==1.15.1
 simplejson==3.19.2
-SQLAlchemy[mypy]==2.0.23
+SQLAlchemy[mypy]==1.4.50
 sqlparse==0.4.4
 typing_extensions==4.8.0
 tzlocal==5.2
