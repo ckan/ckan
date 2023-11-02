@@ -165,12 +165,16 @@ def datapusher_submit(context: Context, data_dict: dict[str, Any]):
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
         m = 'An Error occurred while sending the job: {0}'.format(str(e))
-        try:
-            body = e.response.json()
-            if body.get('error'):
-                m += ' ' + body['error']
-        except ValueError:
-            body = e.response.text
+
+        body = ""
+        if e.response is not None:
+            try:
+                body = e.response.json()
+                if body.get('error'):
+                    m += ' ' + body['error']
+            except ValueError:
+                body = e.response.text
+
         error = {'message': m,
                  'details': body,
                  'status_code': r.status_code}
