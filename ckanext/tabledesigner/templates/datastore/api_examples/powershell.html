@@ -3,6 +3,7 @@
 {% block custom %}
   {{ super() }}
 
+  {% if examples %}
   {% call register_example('powershell', 'request_filter_custom') %}
 <pre class="example-powershell"><code class="language-powershell"
 >$json = @'
@@ -72,4 +73,5 @@ $response = Invoke-RestMethod {{ h.url_for('api.action', logic_function='datasto
   -Method Post -Body $json -Headers @{"Authorization"="$API_TOKEN"}
 $response.result.records</code></pre>
   {% endcall %}
+  {% endif %}
 {% endblock %}

@@ -3,6 +3,7 @@
 {% block custom %}
   {{ super() }}
 
+  {% if examples %}
   {% call register_example('curl', 'request_filter_custom') %}
   <pre class="example-curl"><code class="language-bash"
 >curl {{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }} \
@@ -58,4 +59,5 @@ END</code></pre>
   "filters": {{ examples.unique_filter_object | tojson(indent=2) | indent(2) }}
 }'</code></pre>
   {% endcall %}
+  {% endif %}
 {% endblock %}

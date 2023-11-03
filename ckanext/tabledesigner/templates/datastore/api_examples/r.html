@@ -14,6 +14,7 @@
     {% endfor %}
   {%- endmacro %}
 
+  {% if examples %}
   {% call register_example('r', 'request_filter_custom') %}
 <pre class="example-r"><code class="language-bash"
 >library(httr2)
@@ -89,5 +90,6 @@ result &lt;- req %&gt;%
     req_perform %&gt;% 
     resp_body_json</code></pre>
   {% endcall %}
+  {% endif %}
 
 {% endblock %}
