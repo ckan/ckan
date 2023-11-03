@@ -3,6 +3,7 @@
 {% block custom %}
   {{ super() }}
 
+  {% if examples %}
   {% call register_example('python', 'request_filter_custom') %}
 <pre class="example-python"><code class="language-python"
 >from ckanapi import RemoteCKAN
@@ -63,4 +64,5 @@ result = ck.action.datastore_records_delete(
 )
 </code></pre>
   {% endcall %}
+  {% endif %}
 {% endblock %}
