@@ -9,9 +9,10 @@ from typing import Any, Optional
 
 import ckan.plugins.toolkit as tk
 
-from ckan.logic import validate
+from ckan.logic import validate, check_access
 from ckan.types import Context, DataDict, ActionResult
 import ckanext.activity.email_notifications as email_notifications
+from ckanext.activity import utils
 
 from . import schema
 from ..model import activity as model_activity, activity_dict_save
@@ -644,4 +645,24 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return {
         "diff": diff,
         "activities": activities,
+    }
+
+
+@validate(schema.delete_activity_rows_schema)
+@tk.side_effect_free
+def activity_range_count_show(context: Context,
+                              data_dict: DataDict) -> dict[str, int]:
+    return {
+        "activity_count": utils.get_activity_count(data_dict),
+    }
+
+
+@validate(schema.delete_activity_rows_schema)
+def activity_range_delete(context: Context,
+                          data_dict: DataDict) -> dict[str, int]:
+    check_access("sysadmin", context)
+    count = utils.get_activity_count(data_dict)
+    utils.delete_activities(data_dict)
+    return {
+        "deleted_activity_count": count,
     }

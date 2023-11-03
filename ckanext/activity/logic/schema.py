@@ -95,3 +95,20 @@ def default_activity_list_schema(
     schema["after"] = [ignore_missing, datetime_from_timestamp_validator]
 
     return schema
+
+
+@validator_args
+def delete_activity_rows_schema(
+    unicode_safe: Validator,
+    natural_number_validator: Validator,
+    ignore_missing: Validator,
+    list_of_strings: Validator,
+    datetime_from_timestamp_validator: Validator,):
+    return {
+        "id": [ignore_missing, unicode_safe],
+        "limit": [ignore_missing, natural_number_validator],
+        "activity_types": [ignore_missing, list_of_strings],
+        "exclude_activity_types": [ignore_missing, list_of_strings],
+        "before": [ignore_missing, datetime_from_timestamp_validator],
+        "after": [ignore_missing, datetime_from_timestamp_validator],
+    }
