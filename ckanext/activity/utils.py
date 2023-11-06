@@ -27,7 +27,7 @@ def _parse_data_dict_to_query(data_dict: DataDict) -> QActivity:
                 Activity.activity_type
                 # type_ignore_reason: incomplete SQLAlchemy types after schema
                 .notin_(  # type: ignore
-                    data_dict.get('exclude_activity_types')))
+                    data_dict.get('exclude_activity_types')))  # type: ignore
 
     if data_dict.get('offset'):
         q = q.offset(data_dict.get('offset'))
