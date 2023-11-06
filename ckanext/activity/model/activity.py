@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     or_,
     and_,
+    not_,
     text,
 )
 
@@ -22,8 +23,8 @@ import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
 from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
-
 from ckan.types import Context, Query  # noqa
+from ckan.lib.plugins import get_permission_labels
 
 
 __all__ = ["Activity", "ActivityDetail"]
@@ -49,6 +50,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
+    permission_labels = Column("permission_labels", types.Text)
 
     def __init__(
         self,
@@ -56,12 +58,14 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         object_id: str,
         activity_type: str,
         data: Optional[dict[str, Any]] = None,
+        permission_labels: Optional[list[str]] = None
     ) -> None:
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.utcnow()
         self.user_id = user_id
         self.object_id = object_id
         self.activity_type = activity_type
+        self.permission_labels = permission_labels
         if data is None:
             self.data = {}
         else:
@@ -102,6 +106,9 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
                 # Emit a 'deleted' activity for this object.
                 activity_type = "deleted"
 
+        # Set activity permission labels
+        permission_labels = get_permission_labels().get_dataset_labels(pkg)
+
         try:
             # We save the entire rendered package dict so we can support
             # viewing the past packages from the activity feed.
@@ -132,6 +139,7 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
                 # properly displayed even if the user is deleted in the future.
                 "actor": actor.name if actor else None,
             },
+            permission_labels
         )
 
 
@@ -255,6 +263,7 @@ def user_activity_list(
     offset: int,
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return user_id's public activity stream.
 
@@ -272,6 +281,8 @@ def user_activity_list(
     q = _activities_union_all(q1, q2)
 
     q = _filter_activitites_from_users(q)
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -315,6 +326,7 @@ def package_activity_list(
     include_hidden_activity: bool = False,
     activity_types: Optional[list[str]] = None,
     exclude_activity_types: Optional[list[str]] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return the given dataset (package)'s public activity stream.
 
@@ -339,6 +351,8 @@ def package_activity_list(
         q = _filter_activitites_from_type(
             q, include=False, types=exclude_activity_types
         )
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -462,9 +476,9 @@ def group_activity_list(
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
-    activity_types: Optional[list[str]] = None
+    activity_types: Optional[list[str]] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
-
     """Return the given group's public activity stream.
 
     Returns activities where the given group or one of its datasets is the
@@ -484,6 +498,8 @@ def group_activity_list(
         q = _filter_activitites_from_type(
             q, include=True, types=activity_types
         )
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -519,7 +535,8 @@ def organization_activity_list(
     after: Optional[datetime.datetime] = None,
     before: Optional[datetime.datetime] = None,
     include_hidden_activity: bool = False,
-    activity_types: Optional[list[str]] = None
+    activity_types: Optional[list[str]] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return the given org's public activity stream.
 
@@ -540,6 +557,8 @@ def organization_activity_list(
         q = _filter_activitites_from_type(
             q, include=True, types=activity_types
         )
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -669,6 +688,7 @@ def dashboard_activity_list(
     offset: int,
     before: Optional[datetime.datetime] = None,
     after: Optional[datetime.datetime] = None,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return the given user's dashboard activity stream.
 
@@ -682,6 +702,8 @@ def dashboard_activity_list(
     q = _dashboard_activity_query(user_id)
 
     q = _filter_activitites_from_users(q)
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     if after:
         q = q.filter(Activity.timestamp > after)
@@ -723,7 +745,9 @@ def _changed_packages_activity_query() -> QActivity:
 
 
 def recently_changed_packages_activity_list(
-    limit: int, offset: int
+    limit: int,
+    offset: int,
+    user_permission_labels: Optional[list[str]] = None,
 ) -> list[Activity]:
     """Return the site-wide stream of recently changed package activities.
 
@@ -734,6 +758,8 @@ def recently_changed_packages_activity_list(
     q = _changed_packages_activity_query()
 
     q = _filter_activitites_from_users(q)
+
+    q = _filter_activities_by_permission_labels(q, user_permission_labels)
 
     return _activities_limit(q, limit, offset).all()
 
@@ -780,3 +806,26 @@ def _activity_stream_get_filtered_users() -> list[str]:
         users_list = [site_user.get("name")]
 
     return model.User.user_ids_for_name_or_id(users_list)
+
+
+def _filter_activities_by_permission_labels(
+    q: QActivity,
+    user_permission_labels: Optional[list[str]] = None,
+):
+    """Adds a filter to an existing query object to
+    exclude package activities based on user permissions.
+    """
+
+    # `user_permission_labels` is None when user is sysadmin
+    if user_permission_labels is not None:
+        # User can access non-package activities since they don't have labels
+        q = q.filter(
+            or_(
+                or_(Activity.activity_type.is_(None),  # type: ignore
+                    not_(Activity.activity_type.endswith("package"))),
+                Activity.permission_labels.op('&&')(  # type: ignore
+                    user_permission_labels)
+            )
+        )
+
+    return q
