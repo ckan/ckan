@@ -402,13 +402,13 @@ def _where_clauses(
                 f"value_{next(idx_gen)}" for _ in value
             ]
             clause_str = ('"{0}" in ({1})'.format(
-                field,
+                sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
             placeholder = f"value_{next(idx_gen)}"
-            clause: tuple[Any, ...] = (f'"{field}" = :{placeholder}', {
+            clause: tuple[Any, ...] = (f'{sa.column(field)} = :{placeholder}', {
                 placeholder: value
             })
         clauses.append(clause)
