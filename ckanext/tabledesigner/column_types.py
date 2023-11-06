@@ -30,6 +30,14 @@ class ColumnType:
     form_snippet = 'text.html'
     html_input_type = 'text'
 
+    _SQL_REQUIRED = '''
+    IF {condition} THEN
+        errors := errors || ARRAY[
+            {colname}, {error}
+        ];
+    END IF;
+    '''
+
     @classmethod
     def sql_required_rule(cls, info: dict[str, Any]):
         """
@@ -42,19 +50,13 @@ class ColumnType:
             if info.get('pkreq') == 'pk':
                 error = 'Primary key must not be empty'
 
-            return '''
-                IF {condition} THEN
-                    errors := errors || ARRAY[
-                        {colname}, {error}
-                    ];
-                END IF;
-                '''.format(
-                    condition=cls.sql_is_empty.format(
-                        column=f'NEW.{identifier(colname)}'
-                    ),
-                    colname=literal_string(colname),
-                    error=literal_string(error),
-                )
+            return cls._SQL_REQUIRED.format(
+                condition=cls.sql_is_empty.format(
+                    column=f'NEW.{identifier(colname)}'
+                ),
+                colname=literal_string(colname),
+                error=literal_string(error),
+            )
 
     @classmethod
     def sql_validate_rule(cls, info: dict[str, Any]):
@@ -86,6 +88,7 @@ class ChoiceColumn(ColumnType):
     table_schema_constraint = 'enum'
     sql_is_empty = "({column} = '') IS NOT FALSE"
     form_snippet = 'choice.html'
+    design_snippet = 'choice.html'
 
     @classmethod
     def choices(cls, info: dict[str, Any]) -> List[str]:
@@ -97,6 +100,15 @@ class ChoiceColumn(ColumnType):
             return [c.strip() for c in choices.split(',')]
         return []
 
+    _SQL_VALIDATE = '''
+    IF {value} IS NOT NULL AND {value} <> ''
+            AND NOT ({value} = ANY ({choices}))
+        THEN
+        errors := errors || ARRAY[[{colname}, 'Invalid choice: "'
+            || replace({value}, E'\t', ' ') || '"']];
+    END IF;
+    '''
+
     @classmethod
     def sql_validate_rule(cls, info: dict[str, Any]):
         """
@@ -105,19 +117,13 @@ class ChoiceColumn(ColumnType):
         colname = info['id']
 
         # \t is used when converting errors to string, remove any from data
-        return '''
-            IF {value} IS NOT NULL AND {value} <> '' AND NOT ({value} = ANY ({choices}))
-                THEN
-                errors := errors || ARRAY[[{colname}, 'Invalid choice: "'
-                    || replace({value}, E'\t', ' ') || '"']];
-            END IF;
-            '''.format(
-                value=f'NEW.{identifier(colname)}',
-                colname=literal_string(colname),
-                choices='ARRAY[' + ','.join(
-                    literal_string(c) for c in h.tabledesigner_choice_list(info)
-                ) + ']'
-            )
+        return cls._SQL_VALIDATE.format(
+            value=f'NEW.{identifier(colname)}',
+            colname=literal_string(colname),
+            choices='ARRAY[' + ','.join(
+                literal_string(c) for c in h.tabledesigner_choice_list(info)
+            ) + ']'
+        )
 
 
 @_standard_column('email')
