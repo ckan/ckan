@@ -82,7 +82,7 @@ class CKANSession(Session):
         option_name = f"ckan.session.custom_type.{session_type}.import_path"
 
         if path := config.get(option_name):
-            return import_string(path)()
+            return import_string(path)(app)
 
         return super()._get_interface(app)
 

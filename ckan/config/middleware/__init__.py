@@ -42,6 +42,9 @@ class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
     """Flask cookie-based sessions with expration support.
     """
 
+    def __init__(self, app: CKANApp):
+        pass
+
     def open_session(self, app: CKANApp, request: Request):
         session = super().open_session(app, request)
         if session:
