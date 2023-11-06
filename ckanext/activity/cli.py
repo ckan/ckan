@@ -22,6 +22,9 @@ def activity():
     "-l", "--limit", help="Limit the number of activities deleted.", type=int
 )
 @click.option(
+    "-o", "--offset", help="Offset the number of activities deleted.", type=int
+)
+@click.option(
     "-t", "--activity-types", multiple=True,
     help="Only delete activities of these types. Accepts multiple."
 )
@@ -45,6 +48,7 @@ def activity():
 )
 def delete(id: Optional[str],
            limit: Optional[int],
+           offset: Optional[int],
            activity_types: Optional[list[str]],
            exclude_activity_types: Optional[list[str]],
            before: Optional[str],
@@ -55,8 +59,9 @@ def delete(id: Optional[str],
 
     Example:
 
-        ckan clean activity -b 1699041313\n
-        ckan clean activity -d 90 -q
+        ckan activity delete -b 1699041313\n
+        ckan activity delete -d 90 -q\n
+        ckan activity delete --id=7e608e4c-c332-4511-ad43-97eb59cb5bd1 --offset=100 --limit=50
 
     """
     if days:
@@ -66,6 +71,7 @@ def delete(id: Optional[str],
     data_dict = {
         "id": id,
         "limit": limit,
+        "offset": offset,
         "activity_types":
             activity_types if activity_types else [],
         "exclude_activity_types":

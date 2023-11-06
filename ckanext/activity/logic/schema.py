@@ -107,6 +107,7 @@ def delete_activity_rows_schema(
     return {
         "id": [ignore_missing, unicode_safe],
         "limit": [ignore_missing, natural_number_validator],
+        "offset": [ignore_missing, natural_number_validator],
         "activity_types": [ignore_missing, list_of_strings],
         "exclude_activity_types": [ignore_missing, list_of_strings],
         "before": [ignore_missing, datetime_from_timestamp_validator],
