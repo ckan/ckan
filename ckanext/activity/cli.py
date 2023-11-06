@@ -49,8 +49,8 @@ def activity():
 def delete(id: Optional[str],
            limit: Optional[int],
            offset: Optional[int],
-           activity_types: Optional[tuple[str]],
-           exclude_activity_types: Optional[tuple[str]],
+           activity_types: Optional["tuple[str]"],
+           exclude_activity_types: Optional["tuple[str]"],
            before: Optional[float],
            after: Optional[float],
            days: Optional[int],
@@ -73,9 +73,9 @@ def delete(id: Optional[str],
         "id": id,
         "limit": limit,
         "offset": offset,
-        "activity_types": list(activity_types) \
+        "activity_types": list(activity_types)
             if activity_types else [],
-        "exclude_activity_types": list(exclude_activity_types) \
+        "exclude_activity_types": list(exclude_activity_types)
             if exclude_activity_types else [],
         "before": before,
         "after": after,
