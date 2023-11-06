@@ -34,18 +34,20 @@
 {% endblock %}
 
 {% block datapusher_xloader_fields %}
-  {# datapusher fields don't apply to our resources #}
-  {% if res.url_type != 'tabledesigner' %}
+  {% if res.url_type == 'tabledesigner' %}
+    {% if field.info %}
+      {% set ct = h.tabledesigner_column_type(field.info.tdtype) %}
+      {% if ct.design_snippet %}
+        {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
+          ct=ct,
+          position=position,
+          field=field,
+          form=form
+        %}
+      {% endif %}
+    {% endif %}
+    {# datapusher fields don't apply to our resources #}
+  {% else %}
     {{ super() }}
-  {% endif %}
-
-  {% if field.info and field.info.tdtype == 'choice' %}
-    {% call form.input('info__' ~ position ~ '__choices',
-      label=_('Choices'), id='field-f' ~ position ~ 'choices',
-      value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
-      {{ form.info(
-        text=_('Comma-separated list of options, e.g. <code>aa,b1,b2</code>')
-      )}}
-    {% endcall %}
   {% endif %}
 {% endblock %}
