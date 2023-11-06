@@ -76,8 +76,6 @@ groups:
         internal: true
       - key: MAX_COOKIE_SIZE
         internal: true
-      - key: PERMANENT_SESSION_LIFETIME
-        internal: true
       - key: PREFERRED_URL_SCHEME
         internal: true
       - key: PRESERVE_CONTEXT_ON_EXCEPTION
@@ -87,20 +85,6 @@ groups:
       - key: SEND_FILE_MAX_AGE_DEFAULT
         internal: true
       - key: SERVER_NAME
-        internal: true
-      - key: SESSION_COOKIE_DOMAIN
-        internal: true
-      - key: SESSION_COOKIE_HTTPONLY
-        internal: true
-      - key: SESSION_COOKIE_NAME
-        internal: true
-      - key: SESSION_COOKIE_PATH
-        internal: true
-      - key: SESSION_COOKIE_SAMESITE
-        internal: true
-      - key: SESSION_COOKIE_SECURE
-        internal: true
-      - key: SESSION_REFRESH_EACH_REQUEST
         internal: true
       - key: TEMPLATES_AUTO_RELOAD
         internal: true
@@ -260,100 +244,103 @@ groups:
         default: 600
         description: |
           The number of seconds between requests to record the last time a user was active on the site.
-      - key: cache_dir
-        placeholder: "/tmp/%(ckan.site_id)s"
-      - key: beaker.session.key
-        default: ckan
-        description: Name of the cookie key used to save the session under.
-      - key: beaker.session.secret
-        placeholder: string:%(SECRET_KEY)s
-        validators: configured_default("SECRET_KEY",None)
-        description: |
-          This is the secret token that the beaker library uses to hash the
-          cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file. When used in a
-          cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``SECRET_KEY`` will be used.
-      - key: beaker.session.auto
-        type: bool
-        default: False
-        description: |
-          When set to True, the session will save itself anytime it is accessed during a request,
-          negating the need to issue the save() method.
 
-      - key: beaker.session.cookie_expires
-        type: bool
+      - key: ckan.session.custom_type.cookie.import_path
+        default: ckan.config.middleware:CKANSecureCookieSessionInterface
         description: |
-          Determines when the cookie used to track the client-side of the session will expire.
-          When set to a boolean value, it will either expire at the end of the browsers session, or never expire.
-          Setting to a datetime forces a hard ending time for the session (generally used for setting a session to a far off date).
-          Setting to an integer will result in the cookie being set to expire in that many seconds.
-          I.e. a value of 300 will result in the cookie being set to expire in 300 seconds.
-          Defaults to never expiring.
+          Import path for cookie-based session interface.
 
-      - key: beaker.session.cookie_domain
-        commented: true
-        placeholder: .example.com
-        description: |
-          What domain the cookie should be set to. When using sub-domains,
-          this should be set to the main domain the cookie should be valid for. For example,
-          if a cookie should be valid under www.nowhere.com and files.nowhere.com then it should be set to .nowhere.com.
-          Defaults to the current domain in its entirety.
-
-      - key: beaker.session.save_accessed_time
-        type: bool
-        default: True
-        description: Whether beaker should save the session's access time (true) or only modification time (false).
-
-      - key: beaker.session.secure
-        type: bool
-        description: |
-          Whether or not the session cookie should be marked as secure. When marked as secure,
-          browsers are instructed to not send the cookie over anything other than an SSL connection.
-
-      - key: beaker.session.timeout
-        validators: int_validator
-        description: |
-          Seconds until the session is considered invalid, after which it will be ignored and invalidated.
-          This number is based on the time since the session was last accessed, not from when the session was created.
-          Defaults to never expiring.
-          Requires that save_accessed_time be true.
-
-      - key: beaker.session.type
+      - key: SESSION_TYPE
         default: cookie
         description: |
-          The type of session to use. The default is cookie, which uses a cookie to store the session id.
-          Other options include file, which stores the session id in a file, and dbm, which stores the session id in a dbm file.
-          The dbm option is not recommended as it is not thread-safe.
+            Specifies which type of session interface to use. Default
+            ``cookie`` type stores session inside a JSON-serialized signed
+            cookie. Alternatively, this option can be set to session types
+            supported by
+            [Flask-Session](https://flask-session.readthedocs.io/en/latest/config.html):
+            ``redis``, ``memcached``, ``filesystem``, ``mongodb``. Keep in mind
+            that certaint session types [require additional Python
+            packages](https://flask-session.readthedocs.io/en/latest/interfaces.html).
 
-      - key: beaker.session.validate_key
-        validators: not_empty
-        placeholder_callable: secrets:token_urlsafe
-        validators: configured_default("SECRET_KEY",None)
-        callable_args:
-          nbytes: 20
+            By default, attempt to use non-existing ``SESSION_TYPE`` cause a
+            runtime error upon visiting any endpoint. But if
+            ``ckan.session.custom_type.<TYPE NAME>.import_path`` config option
+            is present, its value used as an import path for the custom session
+            interface implementation. This feature is required in following scenarios:
+
+              * application requires a brand new session interface that uses
+                specific storage for sessions
+
+              * existing session interface is generally good, but requires
+                small changes. For example, application requires using ``json``
+                instead of ``pickle`` for serialization.
+
+            Example::
+
+              SESSION_TYPE = my_custom_interface
+              ckan.session.custom_type.my_custom_interface.import_path = ckanext.my_module.session:CustomInterface
+
+
+      - key: SESSION_COOKIE_NAME
+        default: ckan
         description: |
-          This is the secret token that is used to sign the local encrypted session.
-          `ckan generate config` generates a unique
-          value for this each time it generates a config file. When used in a
-          cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``SECRET_KEY`` will be used.
+          The name of the session cookie. Can be changed in case you already have a cookie with the same name.
 
-      - key: beaker.session.httponly
+      - key: SESSION_COOKIE_DOMAIN
+        validators: ignore_empty
+        description: |
+          The value of the Domain parameter on the session cookie. If not set,
+          browsers will only send the cookie to the exact domain it was set
+          from. Otherwise, they will send it to any subdomain of the given
+          value as well.
+
+      - key: SESSION_COOKIE_PATH
+        validators: ignore_empty
+        description: |
+          The path that the session cookie will be valid for.
+
+      - key: SESSION_COOKIE_HTTPONLY
         type: bool
-        default: True
+        default: true
         description: |
-          Whether or not the session cookie should be marked as http only. When marked as http only,
-          browsers are instructed to not allow javascript access to the cookie.
+          Browsers will not allow JavaScript access to cookies marked as “HTTP only” for security.
 
-      - key: beaker.session.samesite
-        default: Lax
-        required: True
-        validators: OneOf(["Strict","Lax","None"])
+      - key: SESSION_COOKIE_SECURE
+        type: bool
         description: |
-          Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
-          browsers are instructed to not send the cookie with cross-site requests.
-          The value can be "Strict", "Lax" or "None".
+          Browsers will only send cookies with requests over HTTPS if the
+          cookie is marked “secure”. The application must be served over HTTPS
+          for this to make sense.
+
+      - key: SESSION_COOKIE_SAMESITE
+        default: Lax
+        validators: one_of(["Strict","Lax","None"])
+        description: |
+          Restrict how cookies are sent with requests from external sites. Can
+          be set to 'Lax' (recommended) or 'Strict'
+
+      - key: SESSION_REFRESH_EACH_REQUEST
+        type: bool
+        description: |
+          Control whether the cookie is sent with every response when
+          session.permanent is true. Sending the cookie every time (the
+          default) can more reliably keep the session from expiring, but uses
+          more bandwidth. Non-permanent sessions are not affected.
+
+      - key: SESSION_PERMANENT
+        default: true
+        type: bool
+        description: |
+          When disabled, session expires with the browser session. When
+          enabled, session's expiration time set to
+          ``PERMANENT_SESSION_LIFETIME`` seconds.
+
+      - key: PERMANENT_SESSION_LIFETIME
+        type: int
+        default: 31_536_000 # 1 year
+        description: |
+          If ``SESSION_PERMANENT`` is enabled, the session’s expiration will be
+          set this number of seconds in the future.
 
   - annotation: Database settings
     options:

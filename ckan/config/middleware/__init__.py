@@ -1,16 +1,18 @@
 # encoding: utf-8
 
 """WSGI app initialization"""
+from __future__ import annotations
 
 import logging
 from typing import Optional, Union
 
 from flask.ctx import RequestContext
+from flask.sessions import SecureCookieSessionInterface
 
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.common import CKANConfig
-from ckan.types import CKANApp, Config
+from ckan.types import CKANApp, Config, Request
 
 log = logging.getLogger(__name__)
 
@@ -34,3 +36,20 @@ def make_app(conf: Union[Config, CKANConfig]) -> CKANApp:
     _internal_test_request_context = flask_app._wsgi_app.test_request_context()
 
     return flask_app
+
+
+class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
+    """Flask cookie-based sessions with expration support.
+    """
+
+    def open_session(self, app: CKANApp, request: Request):
+        session = super().open_session(app, request)
+        if session:
+            # Cookie-based sessions expire with the browser's session. The line
+            # below changes this behavior, extending session's lifetime by
+            # `PERMANENT_SESSION_LIFETIME` seconds. `SESSION_PERMANENT` option
+            # is used as indicator of permanent sessions by flask-session
+            # package, so we also should rely on it, for predictability.
+            session.setdefault("_permanent", app.config["SESSION_PERMANENT"])
+
+        return session

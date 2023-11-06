@@ -12,8 +12,6 @@ babel==2.12.1
     #   flask-babel
 backports-zoneinfo==0.2.1
     # via tzlocal
-beaker==1.12.1
-    # via -r requirements.in
 bleach==6.0.0
     # via -r requirements.in
 blinker==1.6.2
