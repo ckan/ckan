@@ -4,36 +4,8 @@ from typing import Any, List
 
 from ckan.plugins.toolkit import get_action
 
-from ckanext.datastore.backend.postgres import identifier, literal_string
-
 from .column_types import column_types
-from .helpers import tabledesigner_choice_list
 
-
-PK_REQUIRED_SQL = '''
-IF {condition} THEN
-    errors := errors || ARRAY[
-        {colname}, 'Primary key must not be empty'
-    ];
-END IF;
-'''
-
-REQUIRED_SQL = '''
-IF {condition} THEN
-    errors := errors || ARRAY[
-        {colname}, 'Missing value'
-    ];
-END IF;
-'''
-
-# \t is used when converting errors to string
-CHOICE_CLEAN_SQL = '''
-IF {value} IS NOT NULL AND {value} <> '' AND NOT ({value} = ANY ({choices}))
-    THEN
-    errors := errors || ARRAY[[{colname}, 'Invalid choice: "'
-        || replace({value}, E'\t', ' ') || '"']];
-END IF;
-'''
 
 VALIDATE_DEFINITION_SQL = '''
 DECLARE
@@ -58,30 +30,16 @@ def create_table(resource_id: str, info: List[dict[str, Any]]):
         colname, tdtype = f['id'], f['tdtype']
         ct = column_types[tdtype]
 
-        sql = REQUIRED_SQL
-        if f.get('pkreq'):
-            if f.get('pkreq') == 'pk':
-                sql = PK_REQUIRED_SQL
-                primary_key.append((colname, tdtype))
+        if f.get('pkreq') == 'pk':
+            primary_key.append((colname, tdtype))
 
-            validate_rules.append(sql.format(
-                condition=ct.sql_is_empty.format(
-                    column=f'NEW.{identifier(colname)}'
-                ),
-                colname=literal_string(colname),
-            ))
+        req_validate = ct.sql_required_rule(f)
+        if req_validate:
+            validate_rules.append(req_validate)
 
-        if tdtype == 'choice':
-            choices = 'ARRAY[' + ','.join(
-                literal_string(c) for c in tabledesigner_choice_list(
-                    f.get('choices', '')
-                )
-            ) + ']'
-            validate_rules.append(CHOICE_CLEAN_SQL.format(
-                value=f'NEW.{identifier(colname)}',
-                colname=literal_string(colname),
-                choices=choices,
-            ))
+        col_validate = ct.sql_validate_rule(f)
+        if col_validate:
+            validate_rules.append(col_validate)
 
     if validate_rules:
         validate_def = VALIDATE_DEFINITION_SQL.format(

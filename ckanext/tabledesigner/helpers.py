@@ -5,7 +5,7 @@ from typing import Callable, List, Any, Optional, Type
 from .column_types import column_types, ColumnType
 
 from ckan.plugins.toolkit import (
-    _, NotAuthorized, ObjectNotFound, get_action, chained_helper
+    _, NotAuthorized, ObjectNotFound, get_action, chained_helper, h
 )
 
 
@@ -24,11 +24,15 @@ def tabledesigner_column_type(tdtype: str) -> Optional[Type[ColumnType]]:
     return column_types.get(tdtype, column_types['text'])
 
 
-def tabledesigner_choice_list(choices: str):
+def tabledesigner_choice_list(info: dict[str, Any]) -> List[str]:
     """
     convert choices string to choice list, ignoring surrounding whitespace
     """
-    return [c.strip() for c in choices.split(',')]
+    tdtype = info.get('tdtype')
+    ct = h.tabledesigner_column_type(tdtype)
+    if hasattr(ct, 'choices'):
+        return ct.choices(info)
+    return []
 
 
 def tabledesigner_data_api_examples(resource_id: str) -> dict[str, Any]:
