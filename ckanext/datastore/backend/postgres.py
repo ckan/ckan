@@ -401,7 +401,7 @@ def _where_clauses(
             placeholders = [
                 f"value_{next(idx_gen)}" for _ in value
             ]
-            clause_str = ('"{0}" in ({1})'.format(
+            clause_str = ('{0} in ({1})'.format(
                 sa.column(field),
                 ','.join(f":{p}" for p in placeholders)
             ))
@@ -714,7 +714,7 @@ def _build_fts_indexes(
 
 def _drop_indexes(context: Context, data_dict: dict[str, Any],
                   unique: bool = False):
-    sql_drop_index = u'DROP INDEX "{0}" CASCADE'
+    sql_drop_index = u'DROP INDEX {0} CASCADE'
     sql_get_index_string = u"""
         SELECT
             i.relname AS index_name
@@ -736,7 +736,7 @@ def _drop_indexes(context: Context, data_dict: dict[str, Any],
     ).fetchall()
     for index in indexes_to_drop:
         context['connection'].execute(sa.text(
-            sql_drop_index.format(index[0])
+            sql_drop_index.format(sa.column(index[0]))
         ))
 
 
