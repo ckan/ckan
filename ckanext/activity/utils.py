@@ -20,13 +20,15 @@ def _parse_data_dict_to_query(data_dict: DataDict) -> QActivity:
         q = q.filter(
                 Activity.activity_type
                 # type_ignore_reason: incomplete SQLAlchemy types
-                .in_(data_dict.get('activity_types')))  # type: ignore
+                .in_(data_dict.get('activity_types')  # type: ignore
+            ))
 
     if data_dict.get('exclude_activity_types'):
         q = q.filter(
                 Activity.activity_type
                 # type_ignore_reason: incomplete SQLAlchemy types
-                .notin_(data_dict.get('exclude_activity_types')))  # type: ignore
+                .notin_(data_dict.get('exclude_activity_types')  # type: ignore
+            ))
 
     if data_dict.get('offset'):
         q = q.offset(data_dict.get('offset'))

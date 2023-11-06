@@ -73,10 +73,10 @@ def delete(id: Optional[str],
         "id": id,
         "limit": limit,
         "offset": offset,
-        "activity_types": list(activity_types)
-            if activity_types else [],
-        "exclude_activity_types": list(exclude_activity_types)
-            if exclude_activity_types else [],
+        "activity_types":
+            list(activity_types) if activity_types else [],
+        "exclude_activity_types":
+            list(exclude_activity_types) if exclude_activity_types else [],
         "before": before,
         "after": after,
     }
