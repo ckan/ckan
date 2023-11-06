@@ -7,17 +7,26 @@ def _parse_data_dict_to_query(data_dict: DataDict) -> QActivity:
     q = model.Session.query(Activity.id)
 
     if data_dict.get('before'):
-        q = q.filter(Activity.timestamp < data_dict.get('before'))
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.filter(Activity.timestamp <
+                     data_dict.get('before'))  # type: ignore
 
     if data_dict.get('after'):
-        q = q.filter(Activity.timestamp > data_dict.get('after'))
+        # type_ignore_reason: incomplete SQLAlchemy types
+        q = q.filter(Activity.timestamp >
+                     data_dict.get('after'))  # type: ignore
 
     if data_dict.get('activity_types'):
-        q = q.filter(Activity.activity_type.in_(data_dict.get('activity_types')))
+        q = q.filter(
+                Activity.activity_type
+                # type_ignore_reason: incomplete SQLAlchemy types
+                .in_(data_dict.get('activity_types')))  # type: ignore
 
     if data_dict.get('exclude_activity_types'):
-        q = q.filter(Activity.activity_type
-                     .notin_(data_dict.get('exclude_activity_types'))) \
+        q = q.filter(
+                Activity.activity_type
+                # type_ignore_reason: incomplete SQLAlchemy types
+                .notin_(data_dict.get('exclude_activity_types')))  # type: ignore
 
     if data_dict.get('offset'):
         q = q.offset(data_dict.get('offset'))
@@ -36,5 +45,7 @@ def delete_activities(data_dict: DataDict):
     # query.delete() cannot be used with offset and limit.
     # need to do another query with IN ids to delete them.
     ids = set(id[0] for id in _parse_data_dict_to_query(data_dict).all())
-    model.Session.query(Activity).filter(Activity.id.in_(ids)).delete()
+    model.Session.query(Activity).filter(
+        # type_ignore_reason: incomplete SQLAlchemy types
+        Activity.id.in_(ids)).delete()  # type: ignore
     model.Session.commit()

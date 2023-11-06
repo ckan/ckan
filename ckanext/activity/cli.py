@@ -49,8 +49,8 @@ def activity():
 def delete(id: Optional[str],
            limit: Optional[int],
            offset: Optional[int],
-           activity_types: Optional["list[str]"],
-           exclude_activity_types: Optional["list[str]"],
+           activity_types: Optional[tuple[str]],
+           exclude_activity_types: Optional[tuple[str]],
            before: Optional[float],
            after: Optional[float],
            days: Optional[int],
@@ -66,17 +66,17 @@ def delete(id: Optional[str],
 
     """
     if days:
-        before = (datetime.datetime.today() \
+        before = (datetime.datetime.today()
                   - datetime.timedelta(days=float(days))).timestamp()
 
     data_dict = {
         "id": id,
         "limit": limit,
         "offset": offset,
-        "activity_types":
-            activity_types if activity_types else [],
-        "exclude_activity_types":
-            exclude_activity_types if exclude_activity_types else [],
+        "activity_types": list(activity_types) \
+            if activity_types else [],
+        "exclude_activity_types": list(exclude_activity_types) \
+            if exclude_activity_types else [],
         "before": before,
         "after": after,
     }

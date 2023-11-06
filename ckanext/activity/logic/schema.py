@@ -104,7 +104,7 @@ def delete_activity_rows_schema(
     ignore_missing: Validator,
     list_of_strings: Validator,
     datetime_from_timestamp_validator: Validator,
-):
+) -> Schema:
     return {
         "id": [ignore_missing, unicode_safe],
         "limit": [ignore_missing, natural_number_validator],
