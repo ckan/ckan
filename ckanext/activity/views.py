@@ -203,7 +203,7 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
         "for_view": True,
         "auth_user_obj": tk.g.userobj,
     }
-    data_dict = {"id": id, "include_tracking": True}
+    data_dict = {"id": id}
 
     # check if package exists
     try:

@@ -70,6 +70,9 @@ class Declaration:
     def __getitem__(self, key: Key) -> Option[Any]:
         return self._options[key]
 
+    def __len__(self) -> int:
+        return len(self._options)
+
     def get(self, key: Union[str, Key]) -> Optional[Option[Any]]:
         """Return the declaration of config option or `None`.
         """

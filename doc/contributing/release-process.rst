@@ -349,7 +349,7 @@ a release.
 #. Check that the docs compile correctly::
 
         rm build/sphinx -rf
-        python setup.py build_sphinx
+        sphinx-build doc build/sphinx
 
 #. Remove the beta letter in the version number.
 

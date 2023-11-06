@@ -471,12 +471,6 @@ left arrow <
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
 
-        # Create activities for packages
-        for item in [pkg1, pkg2]:
-            from ckanext.activity.model import Activity
-            activity = Activity.activity_stream_item(item, 'new', 'not logged in')
-            model.Session.add(activity)
-
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere
