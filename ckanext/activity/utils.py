@@ -1,9 +1,9 @@
 from ckan import model
-from ckan.types import DataDict, Query
-from ckanext.activity.model import Activity
+from ckan.types import DataDict
+from ckanext.activity.model.activity import Activity, QActivity
 
 
-def _parse_data_dict_to_query(data_dict: DataDict) -> Query:
+def _parse_data_dict_to_query(data_dict: DataDict) -> QActivity:
     q = model.Session.query(Activity.id)
 
     if data_dict.get('before'):

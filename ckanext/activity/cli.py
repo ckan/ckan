@@ -34,7 +34,7 @@ def activity():
 )
 @click.option(
     "-b", "--before",
-    help="Delete activities `before` a Unix timestamp.",type=float
+    help="Delete activities `before` a Unix timestamp.", type=float
 )
 @click.option(
     "-a", "--after",
@@ -49,10 +49,10 @@ def activity():
 def delete(id: Optional[str],
            limit: Optional[int],
            offset: Optional[int],
-           activity_types: Optional[list[str]],
-           exclude_activity_types: Optional[list[str]],
-           before: Optional[str],
-           after: Optional[str],
+           activity_types: Optional["list[str]"],
+           exclude_activity_types: Optional["list[str]"],
+           before: Optional[float],
+           after: Optional[float],
            days: Optional[int],
            quiet: Optional[bool]):
     """Delete rows from the activity table.
@@ -61,12 +61,13 @@ def delete(id: Optional[str],
 
         ckan activity delete -b 1699041313\n
         ckan activity delete -d 90 -q\n
-        ckan activity delete --id=7e608e4c-c332-4511-ad43-97eb59cb5bd1 --offset=100 --limit=50
+        ckan activity delete --id=7e608e4c-c332-4511-ad43-97eb59cb5bd1
+                             --offset=100 --limit=50
 
     """
     if days:
-        before = datetime.datetime.today() - datetime.timedelta(days=float(days))
-        before = before.timestamp()
+        before = (datetime.datetime.today() \
+                  - datetime.timedelta(days=float(days))).timestamp()
 
     data_dict = {
         "id": id,
@@ -98,8 +99,8 @@ def delete(id: Optional[str],
 
     if not quiet:
         click.confirm(
-            f"Are you sure you want to delete {activity_count} activities?"
-            , abort=True)
+            f"Are you sure you want to delete {activity_count} activities?",
+            abort=True)
 
     utils.delete_activities(data)
 
