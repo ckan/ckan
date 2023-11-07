@@ -274,8 +274,8 @@ Leading up to the release
      folder. Name of every fragment is following format ``{issue
      number}.{fragment type}``, where *issue number* is GitHub issue id and
      *fragment type* is one of *migration*, *removal*, *bugfix* or *misc*
-     depending on change introduced by PR. Missing fragments can be created
-     using `towncrier create --edit {issue number}.{fragment type}` command.
+     depending on change introduced by PR.
+
      The following gist has a script that uses the GitHub API to aid in getting
      the merged issues between releases:
 
@@ -287,17 +287,13 @@ Leading up to the release
 
      When all fragments are ready, make a test build::
 
-        towncrier build --draft
+        make changelog-view
 
      And check output. If no problems identified, compile updated
-     changelog::
+     changelog and commit changes::
 
-        towncrier build --yes
-
-     You'll be asked, whether it's ok to remove source fragments. Feel
-     free to answer "yes" - all changes will be automatically inserted
-     into changelog, so there is no sense in keeping those
-     files. Don't forget to commit changes afterwards.
+        make changelog-build
+        git commit -m "Update changelog"
 
 #. A week before the translations will be closed send a reminder email.
 
