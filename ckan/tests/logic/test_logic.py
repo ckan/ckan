@@ -38,18 +38,6 @@ def test_check_access_auth_user_obj_is_set():
     assert context["auth_user_obj"].name == user["name"]
 
 
-@pytest.mark.usefixtures("non_clean_db")
-def test_check_access_auth_user_obj_is_not_set_when_ignoring_auth():
-    user = factories.User()
-    context = {"user": user["name"], "ignore_auth": True}
-
-    result = logic.check_access("package_create", context)
-
-    assert result
-    assert "__auth_user_obj_checked" not in context
-    assert context["auth_user_obj"] is None
-
-
 @mock.patch("ckan.authz.is_authorized")
 def test_user_inside_context_of_check_access(is_authorized: mock.Mock):
     logic.check_access("package_create", {})

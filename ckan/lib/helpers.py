@@ -56,7 +56,7 @@ import ckan
 
 
 from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
-from ckan.common import _, ungettext, g, request, json
+from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
 from markupsafe import Markup, escape
@@ -1938,23 +1938,6 @@ def debug_inspect(arg: Any) -> Markup:
 
 
 @core_helper
-def popular(type_: str,
-            number: int,
-            min: int = 1,
-            title: Optional[str] = None) -> str:
-    ''' display a popular icon. '''
-    if type_ == 'views':
-        title = ungettext('{number} view', '{number} views', number)
-    elif type_ == 'recent views':
-        title = ungettext('{number} recent view', '{number} recent views',
-                          number)
-    elif not title:
-        raise Exception('popular() did not recieve a valid type_ or title')
-    return snippet('snippets/popular.html',
-                   title=title, number=number, min=min)
-
-
-@core_helper
 def groups_available(am_member: bool = False,
                      include_dataset_count: bool = False,
                      include_member_count: bool = False,
@@ -2178,7 +2161,7 @@ def render_markdown(data: str,
 def format_resource_items(
         items: list[tuple[str, Any]]) -> list[tuple[str, Any]]:
     ''' Take a resource item list and format nicely with blacklisting etc. '''
-    blacklist = ['name', 'description', 'url', 'tracking_summary']
+    blacklist = ['name', 'description', 'url']
     output = []
     # regular expressions for detecting types in strings
     reg_ex_datetime = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?$'
@@ -2463,17 +2446,6 @@ def featured_group_org(items: list[str], get_action: str, list_action: str,
             break
 
     return groups_data
-
-
-@core_helper
-def get_site_statistics() -> dict[str, int]:
-    stats = {}
-    stats['dataset_count'] = logic.get_action('package_search')(
-        {}, {"rows": 1})['count']
-    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
-    stats['organization_count'] = len(
-        logic.get_action('organization_list')({}, {}))
-    return stats
 
 
 _RESOURCE_FORMATS: dict[str, Any] = {}
@@ -2792,7 +2764,7 @@ def make_login_url(
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return cast(str, urlunparse(parsed_base))
+        return urlunparse(parsed_base)
     return base
 
 

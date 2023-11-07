@@ -138,6 +138,16 @@ def read(id: str) -> Union[Response, str]:
     g.fields = []
 
     extra_vars = _extra_template_variables(context, data_dict)
+
+    am_following: bool = False
+    if not extra_vars['is_myself']:
+        try:
+            am_following = logic.get_action('am_following_user')(
+                {'user': current_user.name}, {"id": id})
+        except logic.NotAuthorized:
+            am_following = False
+
+    extra_vars["am_following"] = am_following
     return base.render(u'user/read.html', extra_vars)
 
 
@@ -600,18 +610,37 @@ def delete(id: str) -> Union[Response, Any]:
     }
     data_dict = {u'id': id}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'user.edit', id=id)
+
     try:
-        logic.get_action(u'user_delete')(context, data_dict)
+        if request.method == u'POST':
+            logic.get_action(u'user_delete')(context, data_dict)
+        user_dict = logic.get_action(u'user_show')(context, {u'id': id})
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
-        base.abort(403, msg.format(user_id=id))
+        return base.abort(403, msg.format(user_id=id))
+    except logic.NotFound as e:
+        return base.abort(404, _(e.message))
 
-    if current_user.is_authenticated:
+    if request.method == 'POST' and current_user.is_authenticated:
         if current_user.id == id:  # type: ignore
             return logout()
         else:
             user_index = h.url_for(u'user.index')
             return h.redirect_to(user_index)
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.user_dict = user_dict
+    g.user_id = id
+
+    extra_vars = {
+        u"user_id": id,
+        u"user_dict": user_dict
+    }
+    return base.render(u'user/confirm_delete.html', extra_vars)
 
 
 class RequestResetView(MethodView):
@@ -799,45 +828,49 @@ class PerformResetView(MethodView):
         })
 
 
-def follow(id: str) -> Response:
-    u'''Start following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def follow(id: str) -> str:
+    '''Start following this user.'''
+    error_message = ''
+    am_following = False
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'follow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are now following {0}').format(user_dict[u'display_name']))
+        logic.get_action('follow_user')({}, {'id': id})
+        am_following = True
     except logic.ValidationError as e:
-        error_message: Any = (e.message or e.error_summary or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_dict['message']
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+    return base.render('user/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str) -> Response:
-    u'''Stop following this user.'''
-    context: Context = {
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    }
-    data_dict: dict[str, Any] = {u'id': id, u'include_num_followers': True}
+def unfollow(id: str) -> str:
+    '''Stop following this user.'''
+    error_message = ''
+    am_following = True
+    extra_vars = _extra_template_variables({}, {'id': id})
+
     try:
-        logic.get_action(u'unfollow_user')(context, data_dict)
-        user_dict = logic.get_action(u'user_show')(context, data_dict)
-        h.flash_success(
-            _(u'You are no longer following {0}').format(
-                user_dict[u'display_name']))
+        logic.get_action('unfollow_user')({}, {'id': id})
+        am_following = False
     except logic.ValidationError as e:
-        error_message: Any = (e.error_summary or e.message or e.error_dict)
-        h.flash_error(error_message)
-    except (logic.NotFound, logic.NotAuthorized) as e:
-        h.flash_error(e.message)
-    return h.redirect_to(u'user.read', id=id)
+        error_message = e.error_summary
+
+    extra_vars.update({
+        'am_following': am_following,
+        'error_message': error_message,
+        'dataset_type': h.default_package_type(),
+        'group_type': h.default_group_type('group'),
+        'org_type': h.default_group_type('organization'),
+    })
+
+    return base.render('user/snippets/info.html', extra_vars)
 
 
 def followers(id: str) -> str:
@@ -879,7 +912,11 @@ def sysadmin() -> Response:
             _(u'Not authorized to promote user to sysadmin')
         )
     except logic.NotFound:
-        return base.abort(404, _(u'User not found'))
+        h.flash_error(_(u'User not found'))
+        return h.redirect_to(u'admin.index')
+    except logic.ValidationError as e:
+        h.flash_error((e.message or e.error_summary or e.error_dict))
+        return h.redirect_to(u'admin.index')
 
     if status:
         h.flash_success(
@@ -910,15 +947,15 @@ user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
 user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
-user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
+user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))
 
 user.add_url_rule(
     u'/reset', view_func=RequestResetView.as_view(str(u'request_reset')))
 user.add_url_rule(
     u'/reset/<id>', view_func=PerformResetView.as_view(str(u'perform_reset')))
 
-user.add_url_rule(u'/follow/<id>', view_func=follow, methods=(u'POST', ))
-user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=(u'POST', ))
+user.add_url_rule(u'/follow/<id>', view_func=follow, methods=('POST', ))
+user.add_url_rule(u'/unfollow/<id>', view_func=unfollow, methods=('POST', ))
 user.add_url_rule(u'/followers/<id>', view_func=followers)
 
 user.add_url_rule(u'/<id>', view_func=read)

@@ -58,7 +58,6 @@ def default_resource_schema(
         'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
-        'tracking_summary': [ignore_missing],
         'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_valid_json, keep_extras],
     }
@@ -261,7 +260,6 @@ def default_show_package_schema(keep_extras: Validator,
     schema['organization'] = []
     schema['owner_org'] = []
     schema['private'] = []
-    schema['tracking_summary'] = [ignore_missing]
     schema['license_title'] = []
 
     return schema
@@ -739,7 +737,6 @@ def default_update_resource_view_schema_changes(not_missing: Validator,
 
 @validator_args
 def default_update_configuration_schema(unicode_safe: Validator,
-                                        is_positive_integer: Validator,
                                         ignore_missing: Validator) -> Schema:
     return {
         'ckan.site_title': [ignore_missing, unicode_safe],
@@ -750,7 +747,6 @@ def default_update_configuration_schema(unicode_safe: Validator,
         'ckan.site_intro_text': [ignore_missing, unicode_safe],
         'ckan.site_custom_css': [ignore_missing, unicode_safe],
         'ckan.theme': [ignore_missing, unicode_safe],
-        'ckan.homepage_style': [ignore_missing, is_positive_integer],
         'logo_upload': [ignore_missing, unicode_safe],
         'clear_logo_upload': [ignore_missing, unicode_safe],
     }

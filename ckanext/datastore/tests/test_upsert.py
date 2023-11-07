@@ -780,6 +780,32 @@ class TestDatastoreInsert(object):
         rec = search_result["records"][0]
         assert rec == {'_id': 1, 'pk': '1000', 'n': None, 'd': None}
 
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("clean_datastore", "with_plugins")
+    def test_insert_wrong_type(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "fields": [
+                {"id": "num", "type": "int"},
+            ],
+        }
+        helpers.call_action("datastore_create", **data)
+
+        data = {
+            "resource_id": resource["id"],
+            "force": True,
+            "method": "insert",
+            "records": [
+                {"num": "notanumber"}
+            ],
+        }
+
+        with pytest.raises(ValidationError) as context:
+            helpers.call_action("datastore_upsert", **data)
+        assert u'invalid input syntax for integer: "notanumber"' in str(context.value)
+
 
 class TestDatastoreUpdate(object):
     # Test action 'datastore_upsert' with 'method': 'update'

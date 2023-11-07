@@ -88,7 +88,6 @@ const highlightJs = () =>
       .pipe(dest(__dirname + "/ckanext/textview/assets/vendor/"))
       .pipe(dest(__dirname + "/ckanext/datastore/assets/vendor/"))
 
-
 const highlightJsLightStyles = () =>
       src(__dirname + "/node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css")
       .pipe(rename("a11y-light.css"))
@@ -100,6 +99,10 @@ const highlightJsDarkStyles = () =>
       .pipe(dest(__dirname + "/ckanext/datastore/assets/vendor/"))
 
 
+const htmx = () =>
+src(__dirname + "/node_modules/htmx.org/dist/htmx.js").pipe(
+  dest(__dirname + "/ckan/public/base/vendor/")
+)
 
 exports.build = build;
 exports.watch = watchSource;
@@ -117,4 +120,5 @@ exports.updateVendorLibs = parallel(
   highlightJs,
   highlightJsLightStyles,
   highlightJsDarkStyles
+  htmx
 );

@@ -4,15 +4,16 @@
 from __future__ import annotations
 
 import logging
-import re
 from threading import Lock
 from typing import Any, Union
+from packaging.version import parse as parse_version, Version
 
 import ckan
 import ckan.model as model
 from ckan.logic.schema import update_configuration_schema
 from ckan.common import asbool, config, aslist
 from ckan.lib.webassets_tools import is_registered
+
 
 log = logging.getLogger(__name__)
 
@@ -37,17 +38,10 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     'ckan.site_intro_text': {},
     'ckan.site_custom_css': {},
     'ckan.favicon': {}, # default gets set in config.environment.py
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-        # has been setup in load_environment():
+    # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_delimiter': {'default': '-'},
-    'ckan.template_head_end': {},
-    'ckan.template_footer_end': {},
-    'ckan.dumps_url': {},
-    'ckan.dumps_format': {},
-    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
@@ -59,7 +53,6 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
     # bool
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
-    'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
@@ -216,11 +209,15 @@ class _Globals(object):
     def _init(self):
 
         self.ckan_version = ckan.__version__
-        self.ckan_base_version = re.sub(r'[^0-9\.]', '', self.ckan_version)
-        if self.ckan_base_version == self.ckan_version:
-            self.ckan_doc_version = self.ckan_version[:3]
+        version = parse_version(self.ckan_version)
+        if not isinstance(version, Version):
+            raise ValueError(self.ckan_version)
+
+        self.ckan_base_version = version.base_version
+        if not version.is_prerelease:
+            self.ckan_doc_version = f"{version.major}.{version.minor}"
         else:
-            self.ckan_doc_version = 'latest'
+            self.ckan_doc_version = "latest"
         # process the config details to set globals
         for key in app_globals_from_config_details.keys():
             new_key, value = process_app_global(key, config.get(key) or '')

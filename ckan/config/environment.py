@@ -144,21 +144,12 @@ def update_config() -> None:
 
     _, errors = config_declaration.validate(config)
     if errors:
-        if config.get("config.mode") == "strict":
-            msg = "\n".join(
-                "{}: {}".format(key, "; ".join(issues))
-                for key, issues in errors.items()
-            )
-            msg = "Invalid configuration values provided:\n" + msg
-            raise CkanConfigurationException(msg)
-        else:
-            for key, issues in errors.items():
-                log.warning(
-                    "Invalid value for %s (%s): %s",
-                    key,
-                    config.get(key),
-                    "; ".join(issues)
-                )
+        msg = "\n".join(
+            "{}: {}".format(key, "; ".join(issues))
+            for key, issues in errors.items()
+        )
+        msg = "Invalid configuration values provided:\n" + msg
+        raise CkanConfigurationException(msg)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -249,6 +240,11 @@ def update_config() -> None:
     if user_table_exists:
         try:
             logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        except sqlalchemy.exc.ProgrammingError as e:
+            if "UndefinedColumn" in repr(e.orig):
+                log.debug("Old user model detected")
+            else:
+                raise
         except sqlalchemy.exc.IntegrityError:
             # Race condition, user already exists.
             log.debug("Site user already exists")
