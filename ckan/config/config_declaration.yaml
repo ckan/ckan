@@ -323,9 +323,9 @@ groups:
         type: bool
         description: |
           Control whether the cookie is sent with every response when
-          session.permanent is true. Sending the cookie every time (the
-          default) can more reliably keep the session from expiring, but uses
-          more bandwidth. Non-permanent sessions are not affected.
+          session.permanent is true. Sending the cookie every time can more
+          reliably keep the session from expiring, but uses more
+          bandwidth. Non-permanent sessions are not affected.
 
       - key: SESSION_PERMANENT
         default: true
