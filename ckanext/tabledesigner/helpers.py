@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Callable, List, Any, Optional, Type
 
-from .column_types import column_types, ColumnType
+from . import column_types
+from .column_types import ColumnType
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, chained_helper, h
@@ -14,14 +15,20 @@ def tabledesigner_column_type_options() -> List[dict[str, Any]]:
     return list of {'value':..., 'text':...} dicts
     with the type name and label for all registered column types
     """
-    return [{"value": k, "text": _(v.label)} for k, v in column_types.items()]
+    return [
+        {"value": k, "text": _(v.label)}
+        for k, v in column_types.column_types.items()
+    ]
 
 
 def tabledesigner_column_type(tdtype: str) -> Optional[Type[ColumnType]]:
     """
     return column type object (fall back to text if not found)
     """
-    return column_types.get(tdtype, column_types['text'])
+    return column_types.column_types.get(
+        tdtype,
+        column_types.column_types['text']
+    )
 
 
 def tabledesigner_choice_list(info: dict[str, Any]) -> List[str]:

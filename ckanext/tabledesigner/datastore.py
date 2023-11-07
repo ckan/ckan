@@ -4,7 +4,7 @@ from typing import Any, List
 
 from ckan.plugins.toolkit import get_action
 
-from .column_types import column_types
+from . import column_types
 
 
 VALIDATE_DEFINITION_SQL = '''
@@ -28,7 +28,7 @@ def create_table(resource_id: str, info: List[dict[str, Any]]):
     validate_rules = []
     for f in info:
         colname, tdtype = f['id'], f['tdtype']
-        ct = column_types[tdtype]
+        ct = column_types.column_types[tdtype]
 
         if f.get('pkreq') == 'pk':
             primary_key.append((colname, tdtype))
@@ -65,7 +65,7 @@ def create_table(resource_id: str, info: List[dict[str, Any]]):
             'primary_key': [f for f, _typ in primary_key],
             'fields': [{
                 'id': i['id'],
-                'type': column_types[i['tdtype']].datastore_type,
+                'type': column_types.column_types[i['tdtype']].datastore_type,
                 'info': {
                     k: v for (k, v) in i.items()
                     if k != 'id'
