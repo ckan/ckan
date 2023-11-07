@@ -399,9 +399,7 @@ Update vendor libraries
 -----------------------
 
 3rd-party libraries are installed via ``npm`` and copied into public folder via
-``npm``'s post-install script. This script is executed only when all the
-dependencies are installed(i.e after ``npm install`` or ``npm ci``), so extra
-steps are be required when a single vendor library is updated.
+manual invocation of ``vendor-copy`` Make-rule.
 
 For example, when ``jQuery`` is updated, it must be installed from NPM registry
 first::
@@ -412,15 +410,18 @@ This command overrides `package-lock.json` and downloads a new version of
 ``jQuery`` into `node_modules/`. But public `jquery.js` used by CKAN is not
 changed yet. It must be updated using one of the following options:
 
-* Re-install all the dependencies and trigger the hook as a side-effect: ``npm
-  ci``. This command will take some time but it will clean up any mess inside
-  `node_modules/`, which may come in handy if you experimenting with ``npm``.
-* Run post-install hook directly: ``npm run postinstall``. It's fast and only
-  updates local files, so it works even without an internet connection.
+* run ``make vendor-copy`` to copy all the dependencies from ``node_modules``
+  into public CKAN folder.
+
+* run ``make vendor-copy-<NAME>``, where ``<NAME>`` replaced by the actual name
+  of the dependency, to copy a specific dependency. In current example the
+  command is: ``make vendor-copy-jquery``. List of available names: ``make
+  vendor-list``.
+
 * Copy updated version manually: ``cp node_modules/jquery/dist/jquery.js
-  ckan/public/base/vendor/``. Even thought this command is instant, it's not
-  recommended, because every vendor library must be copied into a different
-  folder. Copying them manually is too error-prone.
+  ckan/public/base/vendor/``. This option is not recommended, because every
+  vendor library must be copied into a different folder. Copying them manually
+  is too error-prone.
 
 
 ----
