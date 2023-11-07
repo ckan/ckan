@@ -39,7 +39,7 @@ def make_app(conf: Union[Config, CKANConfig]) -> CKANApp:
 
 
 class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
-    """Flask cookie-based sessions with expration support.
+    """Flask cookie-based sessions with expiration support.
     """
 
     def __init__(self, app: CKANApp):
