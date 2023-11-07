@@ -925,7 +925,7 @@ def _get_dashboard_context(
 
 @bp.route("/activity/delete", methods=['POST'])
 def delete():
-    context = {'user': tk.current_user.name}
+    context: Context = {'user': tk.current_user.name}
     form_data = parse_params(tk.request.form)
 
     came_from = form_data.get('came_from', 'home.index')
@@ -964,4 +964,3 @@ def delete():
         return tk.abort(401, tk._(message))
     except tk.ObjectNotFound as e:
         return tk.abort(404, tk._(e.message))
-
