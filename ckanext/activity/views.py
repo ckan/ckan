@@ -9,6 +9,7 @@ from flask import Blueprint
 
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.logic import parse_params
 from ckan.views.group import (
     set_org,
     # TODO: don't use hidden funcitons
@@ -920,3 +921,47 @@ def _get_dashboard_context(
         "selected_id": False,
         "dict": None,
     }
+
+
+@bp.route("/activity/delete", methods=['POST'])
+def delete():
+    context = {'user': tk.current_user.name}
+    form_data = parse_params(tk.request.form)
+
+    came_from = form_data.get('came_from', 'home.index')
+
+    delete_activities = form_data.get('delete_activities')
+    object_id = form_data.get('object_id')
+    object_type = form_data.get('object_type')
+
+    try:
+        if not delete_activities and not object_id:
+            tk.h.flash_error(tk._("No activities selected"))
+            return tk.redirect_to(str(came_from))
+
+        if delete_activities:
+            if isinstance(delete_activities, str):
+                delete_activities = [delete_activities]
+            data_dict = {"activity_ids": delete_activities}
+        elif object_id and object_type:
+            # need to get the uuid
+            object_dict = tk.get_action(f"{object_type}_show")(
+                context, {"id": object_id})
+            data_dict = {"object_id": object_dict['id']}
+        else:
+            return tk.abort(404, tk._("No activities were found"))
+
+        results = tk.get_action('activity_range_delete')(
+            context, data_dict)
+
+        count = results['deleted_activity_count']
+
+        tk.h.flash_success(tk._(f"Deleted {count} activities"))
+        return tk.redirect_to(str(came_from))
+
+    except tk.NotAuthorized:
+        message = tk._('Unauthorized to delete activities')
+        return tk.abort(401, tk._(message))
+    except tk.ObjectNotFound as e:
+        return tk.abort(404, tk._(e.message))
+

@@ -16,7 +16,7 @@ def activity():
 
 @activity.command(short_help="Delete rows from the activity table.")
 @click.option(
-    "-i", "--id", help="Only delete activities for this object ID."
+    "-i", "--object-id", help="Only delete activities for this object ID."
 )
 @click.option(
     "-l", "--limit", help="Limit the number of activities deleted.", type=int
@@ -25,11 +25,11 @@ def activity():
     "-o", "--offset", help="Offset the number of activities deleted.", type=int
 )
 @click.option(
-    "-t", "--activity-types", multiple=True,
+    "-t", "--activity-type", multiple=True,
     help="Only delete activities of these types. Accepts multiple."
 )
 @click.option(
-    "-T", "--exclude-activity-types", multiple=True,
+    "-T", "--exclude-activity-type", multiple=True,
     help="Do not delete activities of these types. Accepts multiple."
 )
 @click.option(
@@ -44,16 +44,21 @@ def activity():
     "-d", "--days", help="Delete activities before x `days` ago.", type=int
 )
 @click.option(
+    "-A", "--activity-id", multiple=True,
+    help="Delete specific rows by Activity ID. Accepts multiple."
+)
+@click.option(
     "-q", "--quiet", is_flag=True, help="Supresses human interaction."
 )
-def delete(id: Optional[str],
+def delete(object_id: Optional[str],
            limit: Optional[int],
            offset: Optional[int],
-           activity_types: Optional["tuple[str]"],
-           exclude_activity_types: Optional["tuple[str]"],
+           activity_type: Optional["tuple[str]"],
+           exclude_activity_type: Optional["tuple[str]"],
            before: Optional[float],
            after: Optional[float],
            days: Optional[int],
+           activity_id: Optional["tuple[str]"],
            quiet: Optional[bool]):
     """Delete rows from the activity table.
 
@@ -70,15 +75,17 @@ def delete(id: Optional[str],
                   - datetime.timedelta(days=float(days))).timestamp()
 
     data_dict = {
-        "id": id,
+        "object_id": object_id,
         "limit": limit,
         "offset": offset,
         "activity_types":
-            list(activity_types) if activity_types else [],
+            list(activity_type) if activity_type else [],
         "exclude_activity_types":
-            list(exclude_activity_types) if exclude_activity_types else [],
+            list(exclude_activity_type) if exclude_activity_type else [],
         "before": before,
         "after": after,
+        "activity_ids":
+            list(activity_id) if activity_id else [],
     }
 
     data, errors = plugin_validate(None, {}, data_dict,

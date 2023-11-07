@@ -34,5 +34,6 @@
     <br />
     <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
       {{ h.time_ago_from_timestamp(activity.timestamp) }}
+      {{ ah.delete_select_field(activity, can_delete_activities) }}
     </span>
   </li>

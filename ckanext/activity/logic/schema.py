@@ -106,11 +106,12 @@ def delete_activity_rows_schema(
     datetime_from_timestamp_validator: Validator,
 ) -> Schema:
     return {
-        "id": [ignore_missing, unicode_safe],
+        "object_id": [ignore_missing, unicode_safe],
         "limit": [ignore_missing, natural_number_validator],
         "offset": [ignore_missing, natural_number_validator],
         "activity_types": [ignore_missing, list_of_strings],
         "exclude_activity_types": [ignore_missing, list_of_strings],
         "before": [ignore_missing, datetime_from_timestamp_validator],
         "after": [ignore_missing, datetime_from_timestamp_validator],
+        "activity_ids": [ignore_missing, list_of_strings],
     }

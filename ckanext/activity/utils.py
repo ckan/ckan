@@ -6,6 +6,14 @@ from ckanext.activity.model.activity import Activity, QActivity
 def _parse_data_dict_to_query(data_dict: DataDict) -> QActivity:
     q = model.Session.query(Activity.id)
 
+    if data_dict.get('object_id'):
+        q = q.filter(Activity.object_id == data_dict.get('object_id'))
+
+    if data_dict.get('activity_ids'):
+        # type_ignore_reason: incomplete SQLAlchemy types after schema
+        q = q.filter(
+                Activity.id.in_(data_dict.get('activity_ids')))  # type: ignore
+
     if data_dict.get('before'):
         # type_ignore_reason: incomplete SQLAlchemy types after schema
         q = q.filter(Activity.timestamp <
