@@ -1,4 +1,5 @@
-from .column_types import column_types
+from . import column_types
+from .column_types import ColumnType
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, h
@@ -10,14 +11,20 @@ def tabledesigner_column_type_options():
     return list of {'value':..., 'text':...} dicts
     with the type name and label for all registered column types
     """
-    return [{"value": k, "text": _(v.label)} for k, v in column_types.items()]
+    return [
+        {"value": k, "text": _(v.label)}
+        for k, v in column_types.column_types.items()
+    ]
 
 
 def tabledesigner_column_type(tdtype):
     """
     return column type object (fall back to text if not found)
     """
-    return column_types.get(tdtype, column_types['text'])
+    return column_types.column_types.get(
+        tdtype,
+        column_types.column_types['text']
+    )
 
 
 def tabledesigner_choice_list(info):

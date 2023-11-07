@@ -2,15 +2,14 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.tabledesigner import actions
-import ckanext.tabledesigner.views as views
-import ckanext.tabledesigner.helpers as helpers
+from . import views, column_types, interfaces
 
 class TableDesignerPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IConfigurable)
 
     # IConfigurer
 
@@ -46,3 +45,11 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
             'tabledesigner_choice_list':
                 helpers.tabledesigner_choice_list,
         }
+
+    # IConfigurable
+
+    def configure(self, config: CKANConfig):
+        coltypes = dict(column_types._standard_column_types)
+        for plugin in plugins.PluginImplementations(interfaces.IColumnTypes):
+            coltypes = plugin.column_types(coltypes)
+        column_types.column_types = coltypes

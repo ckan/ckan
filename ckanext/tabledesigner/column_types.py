@@ -16,7 +16,7 @@ def _standard_column(key):
     return register
 
 
-column_types = _standard_column_types  # FIXME: include plugin column types
+column_types = {}  # updated by TableDesignerPlugin.configure
 
 
 class ColumnType:
