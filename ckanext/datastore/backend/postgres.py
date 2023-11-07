@@ -408,9 +408,10 @@ def _where_clauses(
             clause = (clause_str, dict(zip(placeholders, value)))
         else:
             placeholder = f"value_{next(idx_gen)}"
-            clause: tuple[Any, ...] = (f'{sa.column(field)} = :{placeholder}', {
-                placeholder: value
-            })
+            clause: tuple[Any, ...] = (
+                f'{sa.column(field)} = :{placeholder}',
+                {placeholder: value}
+            )
         clauses.append(clause)
 
     # add full-text search where clause

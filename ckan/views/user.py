@@ -120,6 +120,7 @@ def index():
     page = h.Page(
         collection=users,
         page=page_number,
+        presliced_list=True,
         url=h.pager_url,
         item_count=users_list.count(),
         items_per_page=limit)
