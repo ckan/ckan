@@ -9,6 +9,7 @@
     "bootstrap": "^5.1.3",
     "dompurify": "^2.3.3",
     "highlight.js": "github:highlightjs/highlight.js#11.9.0",
+    "highlightjs-curl": "^1.3.0",
     "htmx.org": "^1.9.6",
     "jquery": "^3.6.0",
     "moment": "^2.29.4",

@@ -89,8 +89,8 @@ vendor-copy-popover:
 vendor-copy-hljs:
 	cp node_modules/@highlightjs/cdn-assets/highlight.js ckanext/textview/assets/vendor/
 	cp node_modules/@highlightjs/cdn-assets/highlight.js ckanext/datastore/assets/vendor
-	cp node_modules/@highlightjs/cdn-assets/styles/a11y-light.min.css ckanext/textview/assets/styles/a11y-light.css
-	cp node_modules/@highlightjs/cdn-assets/styles/a11y-dark.min.css ckanext/datastore/assets/vendor/a11y-dark.css
+	cp node_modules/highlight.js/src/styles/a11y-light.css ckanext/textview/assets/styles/a11y-light.css
+	cp node_modules/highlight.js/src/styles/a11y-dark.css ckanext/datastore/assets/vendor/a11y-dark.css
 
 vendor-copy-htmx:
 	cp node_modules/htmx.org/dist/htmx.js $(vendor_dir)/
@@ -101,8 +101,11 @@ vendor-copy-htmx:
 hljs-prepare:
 ifeq ($(wildcard node_modules/highlight.js/tools),)
 	@echo 'Wrong version of highlight.js installed. Update dependencies via `npm ci`'
+else ifeq ($(wildcard node_modules/highlightjs-curl),)
+	@echo 'highlightjs-curl is not installed. Update dependencies via `npm ci`'
 else ifeq ($(wildcard node_modules/highlight.js/package-lock.json),)
 	npm explore highlight.js -- npm i
+	npm explore highlight.js -- cp ../highlightjs-curl/src/languages/curl.js src/languages/
 endif
 	@echo 'highligh.js build dependencies are installed'
 
