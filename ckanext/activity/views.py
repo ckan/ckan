@@ -10,7 +10,7 @@ from flask import Blueprint
 import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.views.group import (
-    set_org,
+    # set_org,
     # TODO: don't use hidden funcitons
     _get_group_dict,
     _get_group_template,

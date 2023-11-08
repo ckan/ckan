@@ -45,7 +45,7 @@ log = logging.getLogger(__name__)
 lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
 
-is_org = False
+# is_org = False
 
 
 def _get_group_template(template_type: str,
@@ -75,21 +75,21 @@ def _setup_template_variables(context: Context,
         setup_template_variables(context, data_dict)
 
 
-def _replace_group_org(string: str) -> str:
+def _replace_group_org(string: str, is_org: bool) -> str:
     u''' substitute organization for group if this is an org'''
     if is_org:
         return re.sub(u'^group', u'organization', string)
     return string
 
 
-def _action(action_name: str) -> Action:
+def _action(action_name: str, is_org: bool) -> Action:
     u''' select the correct group/org action '''
-    return get_action(_replace_group_org(action_name))
+    return get_action(_replace_group_org(action_name, is_org))
 
 
-def _check_access(action_name: str, *args: Any, **kw: Any) -> Literal[True]:
+def _check_access(action_name: str, is_org: bool, *args: Any, **kw: Any) -> Literal[True]:
     u''' select the correct group/org check_access '''
-    return check_access(_replace_group_org(action_name), *args, **kw)
+    return check_access(_replace_group_org(action_name, is_org), *args, **kw)
 
 
 def _force_reindex(grp: dict[str, Any]) -> None:
@@ -123,14 +123,9 @@ def _guess_group_type(expecting_name: bool = False) -> str:
     return gt
 
 
-def set_org(is_organization: bool) -> None:
-    global is_org
-    is_org = is_organization
-
-
-def index(group_type: str, is_organization: bool) -> str:
+def index(group_type: str, is_org: bool) -> str:
     extra_vars: dict[str, Any] = {}
-    set_org(is_organization)
+
     page = h.get_page_number(request.args) or 1
     items_per_page = config.get('ckan.datasets_per_page')
 
@@ -141,7 +136,7 @@ def index(group_type: str, is_organization: bool) -> str:
     }
 
     try:
-        assert _check_access(u'group_list', context)
+        assert _check_access(u'group_list', is_org, context)
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
@@ -165,14 +160,15 @@ def index(group_type: str, is_organization: bool) -> str:
 
     try:
         data_dict_global_results: dict[str, Any] = {
-            u'all_fields': False,
+            u'all_fields': True,
             u'q': q,
             u'sort': sort_by,
             u'type': group_type or u'group',
             u'include_dataset_count': True,
             u'include_member_count': True,
+            u'include_extras': True,
         }
-        global_results = _action(u'group_list')(context,
+        page_results = _action(u'group_list', is_org)(context,
                                                 data_dict_global_results)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
@@ -185,26 +181,22 @@ def index(group_type: str, is_organization: bool) -> str:
         return base.render(
             _get_group_template(u'index_template', group_type), extra_vars)
 
-    data_dict_page_results: dict[str, Any] = {
-        u'all_fields': True,
-        u'q': q,
-        u'sort': sort_by,
-        u'type': group_type or u'group',
-        u'limit': items_per_page,
-        u'offset': items_per_page * (page - 1),
-        u'include_extras': True,
-        u'include_dataset_count': True,
-        u'include_member_count': True,
-    }
-    page_results = _action(u'group_list')(context, data_dict_page_results)
+    total_count = len(page_results)
+    # Calculate the offset and limit for list slicing
+    offset = (page - 1) * items_per_page
+    end = min(offset + items_per_page, total_count)
+
+    # Get the orgs/groups for the current page
+    orgs_for_page = page_results[offset:end]
 
     extra_vars["page"] = h.Page(
-        collection=global_results,
+        collection=page_results,
         page=page,
         url=h.pager_url,
+        item_count=total_count,
         items_per_page=items_per_page, )
 
-    extra_vars["page"].items = page_results
+    extra_vars["page"].items = orgs_for_page
     extra_vars["group_type"] = group_type
 
     # TODO: Remove
@@ -392,12 +384,13 @@ def _update_facet_titles(
 def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     u''' returns the result of group_show action or aborts if there is a
     problem '''
+    breakpoint()
     context: Context = {
         u'user': current_user.name,
         u'for_view': True
     }
     try:
-        return _action(u'group_show')(context, {
+        return _action(u'group_show', is_org)(context, {
             u'id': id,
             u'include_datasets': False
         })
@@ -1285,11 +1278,11 @@ class MembersGroupView(MethodView):
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
                   url_defaults={u'group_type': u'group',
-                                u'is_organization': False})
+                                u'is_org': False})
 organization = Blueprint(u'organization', __name__,
                          url_prefix=u'/organization',
                          url_defaults={u'group_type': u'organization',
-                                       u'is_organization': True})
+                                       u'is_org': True})
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
