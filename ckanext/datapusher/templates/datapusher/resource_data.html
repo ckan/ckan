@@ -5,10 +5,21 @@
 {% block primary_content_inner %}
 
   {% set action = h.url_for('datapusher.resource_data', id=pkg.name, resource_id=res.id) %}
+  {% set delete_action = h.url_for('datapusher.delete_datastore_table', id=pkg.id, resource_id=res.id) %}
   {% set show_table = true %}
 
-  <form method="post" action="{{ action }}" class="datapusher-form">
-    {{ h.csrf_input() }} 
+  <form method="post" action="{{ delete_action }}" class="mb-3 d-inline-block">
+    {{ h.csrf_input() }}
+    <button class="btn btn-danger" name="delete" type="submit"
+      data-module="confirm-action"
+      data-module-with-data=true
+      data-module-content="{{ _('Are you sure you want to delete this DataStore table and Data Dictionary?') }}">
+      <i class="fa fa-remove"></i> {{ _('Delete DataStore table') }}
+    </button>
+  </form>
+
+  <form method="post" action="{{ action }}" class="datapusher-form mb-3 d-inline-block">
+    {{ h.csrf_input() }}
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>
@@ -76,7 +87,7 @@
           {% endfor %}
           <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
             {{ h.time_ago_from_timestamp(item.timestamp) }}
-            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">              
+            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">
               {{ _('Details') }}
             </a>
           </span>
