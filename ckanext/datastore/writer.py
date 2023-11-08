@@ -61,7 +61,7 @@ class TextWriter(object):
         # type: (list) -> bytes
         self.output.write(records)  # type: ignore
         self.output.seek(0)
-        output = self.output.read()
+        output = self.output.read().encode(u'utf-8')
         self.output.truncate(0)
         self.output.seek(0)
         return output
@@ -81,11 +81,11 @@ def json_writer(fields, bom=False):
     output = StringIO()
 
     if bom:
-        output.stream.write(BOM_UTF8)
+        output.write(BOM_UTF8)
 
     output.write(
-        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':')).encode('utf-8')))
+        u'{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(u',', u':')))
     yield JSONWriter(output)
 
 
@@ -104,10 +104,10 @@ class JSONWriter(object):
                 self.output.write(',\n    ')
 
             self.output.write(dumps(
-                r, ensure_ascii=False, separators=(u',', u':')).encode('utf-8'))
+                r, ensure_ascii=False, separators=(u',', u':')))
 
         self.output.seek(0)
-        output = self.output.read()
+        output = self.output.read().encode(u'utf-8')
         self.output.truncate(0)
         self.output.seek(0)
         return output
@@ -129,7 +129,7 @@ def xml_writer(fields, bom=False):
     if bom:
         output.write(BOM_UTF8)
 
-    output.write(b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    output.write(u'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
     yield XMLWriter(output, [f[u'id'] for f in fields])
 
 
@@ -169,10 +169,10 @@ class XMLWriter(object):
                 root.attrib[u'_id'] = text_type(r[u'_id'])
             for c in self.columns:
                 self._insert_node(root, c, r[c])
-            ElementTree(root).write(self.output, encoding=u'utf-8')
+            ElementTree(root).write(self.output)
             self.output.write(b'\n')
         self.output.seek(0)
-        output = self.output.read()
+        output = self.output.read().encode(u'utf-8')
         self.output.truncate(0)
         self.output.seek(0)
         return output
