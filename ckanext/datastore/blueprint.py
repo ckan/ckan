@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Any, Optional, cast, Union
 from itertools import zip_longest
 
-from flask import Blueprint, Response
+from flask import Blueprint
+from flask.wrappers import Response
 from flask.views import MethodView
 
 import ckan.lib.navl.dictization_functions as dict_fns

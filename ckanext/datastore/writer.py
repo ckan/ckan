@@ -6,7 +6,6 @@ from io import StringIO, BytesIO
 from contextlib import contextmanager
 from typing import Any, Optional
 from simplejson import dumps
-import six
 
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
@@ -84,8 +83,8 @@ def json_writer(fields: list[dict[str, Any]], bom: bool = False):
         output.write(BOM)
 
     output.write(
-        six.ensure_binary(u'{\n  "fields": %s,\n  "records": [' % dumps(
-            fields, ensure_ascii=False, separators=(u',', u':'))))
+        '{\n  "fields": %s,\n  "records": [' % dumps(
+            fields, ensure_ascii=False, separators=(u',', u':')))
     yield JSONWriter(output)
 
 
@@ -161,7 +160,7 @@ class XMLWriter(object):
         if key_attr is not None:
             element.attrib[self._key_attr] = str(key_attr)
 
-    def write_records(self, records: list[Any])-> bytes:
+    def write_records(self, records: list[Any]) -> bytes:
         for r in records:
             root = Element('row')
             if self.id_col:
