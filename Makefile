@@ -71,7 +71,7 @@ vendor-copy-moment:
 	cp node_modules/moment/min/moment-with-locales.js $(vendor_dir)/
 
 vendor-copy-fa:
-	cp node_modules/@fortawesome/fontawesome-free/css/all.css $(vendor_dir)/fontawesome-free/css/
+	cp node_modules/@fortawesome/fontawesome-free/css/all.min.css $(vendor_dir)/fontawesome-free/css/all.css
 	cp node_modules/@fortawesome/fontawesome-free/webfonts/* $(vendor_dir)/fontawesome-free/webfonts/
 
 vendor-copy-jquery-fileupload:
@@ -86,9 +86,9 @@ vendor-copy-dompurify:
 vendor-copy-popover:
 	cp node_modules/@popperjs/core/dist/cjs/popper.js $(vendor_dir)/
 
-vendor-copy-hljs:
-	cp node_modules/@highlightjs/cdn-assets/highlight.js ckanext/textview/assets/vendor/
-	cp node_modules/@highlightjs/cdn-assets/highlight.js ckanext/datastore/assets/vendor
+vendor-copy-hljs: hljs-build
+	cp node_modules/highlight.js/build/highlight.js ckanext/textview/assets/vendor/
+	cp node_modules/highlight.js/build/highlight.js ckanext/datastore/assets/vendor/
 	cp node_modules/highlight.js/src/styles/a11y-light.css ckanext/textview/assets/styles/a11y-light.css
 	cp node_modules/highlight.js/src/styles/a11y-dark.css ckanext/datastore/assets/vendor/a11y-dark.css
 
@@ -103,7 +103,7 @@ ifeq ($(wildcard node_modules/highlight.js/tools),)
 	@echo 'Wrong version of highlight.js installed. Update dependencies via `npm ci`'
 else ifeq ($(wildcard node_modules/highlightjs-curl),)
 	@echo 'highlightjs-curl is not installed. Update dependencies via `npm ci`'
-else ifeq ($(wildcard node_modules/highlight.js/package-lock.json),)
+else ifeq ($(wildcard node_modules/highlight.js/node_modules/clean-css),)
 	npm explore highlight.js -- npm i
 	npm explore highlight.js -- cp ../highlightjs-curl/src/languages/curl.js src/languages/
 endif
