@@ -88,8 +88,8 @@ vendor-copy-popover:
 
 vendor-copy-hljs: hljs-build
 	cp node_modules/highlight.js/build/highlight.js $(vendor_dir)/hljs/
-	cp node_modules/highlight.js/src/styles/a11y-light.css $(vendor_dir)/hljs/a11y-light.css
-	cp node_modules/highlight.js/src/styles/a11y-dark.css $(vendor_dir)/hljs/a11y-dark.css
+	cp node_modules/highlight.js/build/demo/styles/a11y-light.css $(vendor_dir)/hljs/a11y-light.css
+	cp node_modules/highlight.js/build/demo/styles/a11y-dark.css $(vendor_dir)/hljs/a11y-dark.css
 
 vendor-copy-htmx:
 	cp node_modules/htmx.org/dist/htmx.js $(vendor_dir)/

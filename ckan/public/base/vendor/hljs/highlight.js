@@ -1,5 +1,5 @@
 /*!
-  Highlight.js v11.9.0 (git: 90100c22b2)
+  Highlight.js v11.9.0 (git: 52b170d4cb)
   (c) 2006-2023 undefined and other contributors
   License: BSD-3-Clause
  */

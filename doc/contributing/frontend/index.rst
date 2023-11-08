@@ -444,4 +444,48 @@ Highlight.js
 ------------
 
 Built-in ``datastore`` and ``text_view`` plugins are using
-[Highlight.js](https://highlightjs.org/) for syntax highlighting.
+`Highlight.js <https://highlightjs.org/>`_ for syntax highlighting. In order to
+add Highlight.js to the page, include the following asset-tag into page
+source::
+
+  {# add JS code #}
+  {% asset "vendor/hljs" %}
+
+  {# and add one of the available themes: #}
+
+  {# light accessible theme #}
+  {% asset "vendor/hljs-light-theme" %}
+
+  {# or dark accessible theme #}
+  {% asset "vendor/hljs-dark-theme" %}
+
+  {# or include external theme(check current Highlight.js version and update URL if necessary) #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/docco.min.css">
+
+
+To reduce its size, Highlight.js was compileled for small subset of supported
+languages: ``javascript powershell r python json xml bash``. Every time ``make
+vendor-copy`` is executed, Highlight.js is rebuilt and copied into public
+vendor folder. During this step, different set of languages can be specified::
+
+  make vendor-copy hljs_languages="bash cpp"
+
+This command updates Highlight.js shipped with CKAN, but the next time ``make
+vendor-copy`` without ``hljs_languages`` is executed, standard version of
+Highlight.js will be restored. So, to permanently update the list of supported
+languages, update and commit the value of ``hljs_languages`` variable inside
+``Makefile`` in the root folder of CKAN repository.
+
+Alternatively, to include a new supported language without recompiling
+Highlight.js, add the following tag to the page(or download the script and
+include it via WebAssets)::
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+
+Make sure the Highlight.js version (``11.9.0`` in the example) and language
+name (``powershell`` in the example) updated to meet your needs. And pay
+attention to the ``defer`` attribute of the tag. Additional languages must be
+included after Highlight.js is loaded and ``defer`` puts the script into a
+queue which will be processed after all normal scripts are loaded. Using
+webassets gives you more control over the load order(via ``extra: preload:
+...`` option), so consider using them instead of including external scripts.
