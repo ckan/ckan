@@ -438,3 +438,10 @@ Gulp
 New tasks can be added to ``gulpfile.js`` in the project root. Check `gulp
 documentation <https://gulpjs.com/docs/en/getting-started/creating-tasks>`_ for
 additional information.
+
+------------
+Highlight.js
+------------
+
+Built-in ``datastore`` and ``text_view`` plugins are using
+[Highlight.js](https://highlightjs.org/) for syntax highlighting.

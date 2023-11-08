@@ -308,8 +308,8 @@ Leading up to the release
        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
        make translation-compile
 
-    The compilation shows the translation percentage. Compare this with the new
-    languages directories added to ckan/i18n::
+   The compilation shows the translation percentage. Compare this with the new
+   languages directories added to ckan/i18n::
 
         git status
 

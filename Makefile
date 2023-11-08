@@ -87,10 +87,9 @@ vendor-copy-popover:
 	cp node_modules/@popperjs/core/dist/cjs/popper.js $(vendor_dir)/
 
 vendor-copy-hljs: hljs-build
-	cp node_modules/highlight.js/build/highlight.js ckanext/textview/assets/vendor/
-	cp node_modules/highlight.js/build/highlight.js ckanext/datastore/assets/vendor/
-	cp node_modules/highlight.js/src/styles/a11y-light.css ckanext/textview/assets/styles/a11y-light.css
-	cp node_modules/highlight.js/src/styles/a11y-dark.css ckanext/datastore/assets/vendor/a11y-dark.css
+	cp node_modules/highlight.js/build/highlight.js $(vendor_dir)/hljs/
+	cp node_modules/highlight.js/src/styles/a11y-light.css $(vendor_dir)/hljs/a11y-light.css
+	cp node_modules/highlight.js/src/styles/a11y-dark.css $(vendor_dir)/hljs/a11y-dark.css
 
 vendor-copy-htmx:
 	cp node_modules/htmx.org/dist/htmx.js $(vendor_dir)/
@@ -98,7 +97,7 @@ vendor-copy-htmx:
 ###############################################################################
 #                                 Highlight.js                                #
 ###############################################################################
-hljs-prepare:
+hljs-prepare:  ## install Highlight.js build dependencies
 ifeq ($(wildcard node_modules/highlight.js/tools),)
 	@echo 'Wrong version of highlight.js installed. Update dependencies via `npm ci`'
 else ifeq ($(wildcard node_modules/highlightjs-curl),)
@@ -109,8 +108,8 @@ else ifeq ($(wildcard node_modules/highlight.js/node_modules/clean-css),)
 endif
 	@echo 'highligh.js build dependencies are installed'
 
-hljs_languages = javascript powershell r python json xml
-hljs-build: hljs-prepare
+hljs_languages = javascript powershell r python json xml bash
+hljs-build: hljs-prepare ## build Highlight.js for languages specified by `hljs_languages` variable
 	@echo "Building highlight.js for the following targets: $(hljs_languages)"
 	@echo 'Different targets can be set via hljs_languages variable: make $@ hljs_languages="cs curl dart php"'
 	npm explore highlight.js -- node tools/build.js $(hljs_languages)
