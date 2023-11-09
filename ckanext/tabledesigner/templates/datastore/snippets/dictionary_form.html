@@ -39,12 +39,23 @@
       {% set ct = h.tabledesigner_column_type(field.info.tdtype) %}
       {% if ct.design_snippet %}
         {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
-          ct=ct,
+          column_type=ct,
           position=position,
           field=field,
           form=form
         %}
       {% endif %}
+      {% for cc in h.tabledesigner_column_constraints(field.info.tdtype) %}
+        {% if cc.constraint_snippet %}
+          {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
+            column_type=ct,
+            column_constraint=cc,
+            position=position,
+            field=field,
+            form=form
+          %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
     {# datapusher fields don't apply to our resources #}
   {% else %}

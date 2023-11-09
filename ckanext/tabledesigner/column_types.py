@@ -22,13 +22,18 @@ def _standard_column(
     return register
 
 
-column_types = {}  # updated by TableDesignerPlugin.configure
-
-
 class ColumnType:
-    sql_is_empty = "{column} IS NULL"
+    label = 'undefined'
+    # some defaults to save repetition in subclasses
+    datastore_type = 'text'
     form_snippet = 'text.html'
     html_input_type = 'text'
+    sql_is_empty = "({column} = '') IS NOT FALSE"
+
+    def __new__(cls, *args: Any, **kwargs: Any):
+        raise TypeError(
+            'Column type classes are used directly, not instantiated'
+        )
 
     _SQL_REQUIRED = '''
     IF {condition} THEN
@@ -61,7 +66,9 @@ class ColumnType:
     @classmethod
     def sql_validate_rule(cls, info: dict[str, Any]):
         """
-        Override when validation is required
+        Override when type-related validation is required
+
+        For constraints use ColumnConstraint subclasses instead
         """
         return
 
@@ -71,10 +78,8 @@ class TextColumn(ColumnType):
     label = _('Text')
     description = _('Unicode text of any length')
     example = _('free-form text')
-    datastore_type = 'text'
     table_schema_type = 'string'
     table_schema_format = 'default'
-    sql_is_empty = "({column} = '') IS NOT FALSE"
 
 
 @_standard_column('choice')
@@ -86,7 +91,6 @@ class ChoiceColumn(ColumnType):
     table_schema_type = 'string'
     table_schema_format = 'default'
     table_schema_constraint = 'enum'
-    sql_is_empty = "({column} = '') IS NOT FALSE"
     form_snippet = 'choice.html'
     design_snippet = 'choice.html'
 
@@ -134,7 +138,6 @@ class EmailColumn(ColumnType):
     datastore_type = 'text'
     table_schema_type = 'string'
     table_schema_format = 'email'
-    sql_is_empty = "({column} = '') IS NOT FALSE"
     html_input_type = 'email'
 
 
@@ -146,7 +149,6 @@ class URIColumn(ColumnType):
     datastore_type = 'text'
     table_schema_type = 'string'
     table_schema_format = 'uri'
-    sql_is_empty = "({column} = '') IS NOT FALSE"
     html_input_type = 'url'
 
 
@@ -158,6 +160,7 @@ class UUIDColumn(ColumnType):
     datastore_type = 'uuid'
     table_schema_type = 'string'
     table_schema_format = 'uuid'
+    sql_is_empty = "{column} IS NULL"
 
 
 @_standard_column('numeric')
@@ -168,6 +171,7 @@ class NumericColumn(ColumnType):
     example = '2.01'
     datastore_type = 'numeric'
     table_schema_type = 'number'
+    sql_is_empty = "{column} IS NULL"
 
 
 @_standard_column('integer')
@@ -177,6 +181,7 @@ class IntegerColumn(ColumnType):
     example = '21'
     datastore_type = 'int8'
     table_scema_type = 'integer'
+    sql_is_empty = "{column} IS NULL"
 
 
 @_standard_column('boolean')
@@ -186,6 +191,7 @@ class BooleanColumn(ColumnType):
     example = 'false'
     datastore_type = 'boolean'
     table_schema_type = 'boolean'
+    sql_is_empty = "{column} IS NULL"
 
 
 @_standard_column('json')
@@ -195,6 +201,7 @@ class JSONColumn(ColumnType):
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
+    sql_is_empty = "{column} IS NULL OR {column}::jsonb = 'null'::jsonb"
 
 
 @_standard_column('date')
@@ -203,9 +210,10 @@ class DateColumn(ColumnType):
     description = _('Date without time of day')
     example = '2024-01-01'
     datastore_type = 'date'
-    table_schema_type = 'string'
-    table_schema_format = 'date'
+    table_schema_type = 'date'
+    table_schema_format = 'fmt:YYYY-MM-DD'
     html_input_type = 'date'
+    sql_is_empty = "{column} IS NULL"
 
 
 @_standard_column('timestamp')
@@ -214,6 +222,7 @@ class TimestampColumn(ColumnType):
     description = _('Date and time without time zone')
     example = '2024-01-01 12:00:00'
     datastore_type = 'timestamp'
-    table_schema_type = 'string'
-    table_schema_format = 'date-time'
+    table_schema_type = 'time'
+    table_schema_format = 'fmt:YYYY-MM--DD hh:mm:ss'
     html_input_type = 'datetime-local'
+    sql_is_empty = "{column} IS NULL"
