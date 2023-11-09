@@ -14,6 +14,8 @@ from sqlalchemy import (
     and_,
     not_,
     text,
+    select,
+    literal,
     Index,
 )
 
@@ -464,22 +466,26 @@ def _organization_activity_query(org_id: str) -> QActivity:
 
     q: QActivity = (
         model.Session.query(Activity)
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Package.id == Activity.object_id,
-                model.Package.private == False,  # noqa
-            ),
-        )
         .filter(
             # We only care about activity either on the the org itself or on
             # packages within that org.
             # FIXME: This means that activity that occured while a package
             # belonged to a org but was then removed will not show up. This may
             # not be desired but is consistent with legacy behaviour.
-            or_(
-                model.Package.owner_org.in_(orgs),
-                Activity.object_id.in_(orgs)
+            #
+            # Use subselect instead of outer join so that it can all be indexable
+            model.Activity.object_id.in_(
+                select([model.Package.id])
+                .where(
+                    and_(
+                        model.Package.private == False,
+                        model.Package.owner_org == org_id
+                    )
+                )
+                .union(
+                    # select the org itself
+                    select([literal(org_id)])
+                )
             )
         )
     )
