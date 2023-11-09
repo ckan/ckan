@@ -13,9 +13,9 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
-    select
+    select,
+    literal
 )
-from sqlalchemy.sql import Values
 
 from ckan.common import config
 import ckan.model
@@ -267,9 +267,10 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
     '''
     import ckan.model as model
 
-    orgs = [model.Group.get(org) for org in _to_list(org_id)]
-    orgs = [org for org in orgs if org and org.is_organization]
-    orgs = [org.id for org in orgs]
+    org = model.Group.get(org_id)
+    if not org or not org.is_organization:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     q = model.Session.query(
         model.Activity
@@ -279,20 +280,20 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
         # FIXME: This means that activity that occured while a package belonged
         # to a org but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.
+        #
+        # Use subselect instead of outer join so that it can all
+        # be indexable
         model.Activity.object_id.in_(
             select([model.Package.id])
             .where(
                 and_(
                     model.Package.private == False,
-                    model.Package.owner_org.in_(orgs)
+                    model.Package.owner_org == org_id
                 )
             )
             .union(
-                # select the orgs as text
-                select(Values(Column('id', types.Text),
-                              name='org_id').data(
-                                  [(org,) for org in orgs])
-                       )
+                # select the org as text
+                select([literal(org_id)])
             )
         )
     )
