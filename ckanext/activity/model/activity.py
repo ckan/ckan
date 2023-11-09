@@ -442,7 +442,7 @@ def _group_activity_query(group_id: [str, list]) -> QActivity:
     return q
 
 
-def _organization_activity_query(org_id: [str, list]) -> QActivity:
+def _organization_activity_query(org_id: str) -> QActivity:
     """Return an SQLAlchemy query for all activities about org_id.
 
     Returns a query for all activities whose object is either the org itself
@@ -450,9 +450,10 @@ def _organization_activity_query(org_id: [str, list]) -> QActivity:
 
     """
 
-    orgs = [model.Group.get(org_id) for org in _to_list(org_id)]
-    orgs = [org for org in orgs if org and org.is_organization]
-    orgs = [org.id for org in orgs]
+    org = model.Group.get(org_id)
+    if not org or not org.is_organization:
+        # Return a query with no results.
+        return model.Session.query(model.Activity).filter(text('0=1'))
 
     q: QActivity = (
         model.Session.query(Activity)
