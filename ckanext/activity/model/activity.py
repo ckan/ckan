@@ -242,17 +242,17 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     return q
 
 
-def _activities_from_user_query(user_id: str) -> QActivity:
+def _activities_from_user_query(user_id: [str, list]) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.user_id == user_id)
+    q = q.filter(Activity.user_id.in_(_to_list(user_id)))
     return q
 
 
-def _activities_about_user_query(user_id: str) -> QActivity:
+def _activities_about_user_query(user_id: [str, list]) -> QActivity:
     """Return an SQLAlchemy query for all activities about user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.object_id == user_id)
+    q = q.filter(Activity.object_id.in_(_to_list(user_id)))
     return q
 
 
@@ -617,8 +617,7 @@ def _activities_from_users_followed_by_user_query(
 
     return _user_activity_query(
         [follower.object_id for follower in follower_objects],
-        limit
-    )
+        limit)
 
 
 def _activities_from_datasets_followed_by_user_query(
@@ -631,10 +630,10 @@ def _activities_from_datasets_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return _package_activity_query(
-        [follower.object_id for follower in follower_objects],
-        limit
-    )
+    return _activities_limit(
+        _package_activity_query(
+            [follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_groups_followed_by_user_query(
@@ -653,10 +652,10 @@ def _activities_from_groups_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return _group_activity_query(
-        [follower.object_id for follower in follower_objects],
-        limit
-    )
+    return  _activities_limit(
+        _group_activity_query(
+            [follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_everything_followed_by_user_query(
