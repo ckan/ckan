@@ -334,7 +334,7 @@ def _to_list(vals:[list, tuple, str]):
 def _package_activity_query(package_id: [str, list]) -> QActivity:
     """Return an SQLAlchemy query for all activities about package_id."""
     q = model.Session.query(Activity)\
-        .filter(model.Activity.object_id.in_(_to_list(package_id)))
+        .filter(Activity.object_id.in_(_to_list(package_id)))
     return q
 
 
@@ -474,7 +474,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
             # not be desired but is consistent with legacy behaviour.
             #
             # Use subselect instead of outer join so that it can all be indexable
-            model.Activity.object_id.in_(
+            Activity.object_id.in_(
                 select([model.Package.id])
                 .where(
                     and_(
