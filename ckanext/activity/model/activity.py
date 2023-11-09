@@ -263,7 +263,8 @@ def _activities_about_user_query(user_id: Union[str, List[str]]) -> QActivity:
     return q
 
 
-def _user_activity_query(user_id: Union[str, List[str]], limit: int) -> QActivity:
+def _user_activity_query(
+        user_id: Union[str, List[str]], limit: int) -> QActivity:
     """Return an SQLAlchemy query for all activities from or about user_id."""
     q1 = _activities_limit(_activities_from_user_query(user_id), limit)
     q2 = _activities_limit(_activities_about_user_query(user_id), limit)
