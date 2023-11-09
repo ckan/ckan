@@ -171,7 +171,7 @@ def user_activity_list(user_id, limit, offset):
     return _activities_at_offset(q, limit, offset)
 
 def _to_list(vals):
-    if isinstance(vale, (list, tuple)):
+    if isinstance(vals, (list, tuple)):
         return vals
     return [vals]
 
