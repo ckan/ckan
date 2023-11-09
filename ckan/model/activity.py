@@ -13,9 +13,9 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
-    select,
-    literal
+    select
 )
+from sqlalchemy.sql import Values
 
 from ckan.common import config
 import ckan.model
@@ -267,7 +267,7 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
     '''
     import ckan.model as model
 
-    orgs = [model.Group.get(org_id) for org in _to_list(org_id)]
+    orgs = [model.Group.get(org) for org in _to_list(org_id)]
     orgs = [org for org in orgs if org and org.is_organization]
     orgs = [org.id for org in orgs]
 
@@ -284,12 +284,15 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
             .where(
                 and_(
                     model.Package.private == False,
-                    model.Package.owner_org == org_id
+                    model.Package.owner_org.in_(orgs)
                 )
             )
             .union(
-                # select the org itself
-                select([literal(org_id)])
+                # select the orgs as text
+                select(Values(Column('id', types.Text),
+                              name='org_id').data(
+                                  [(org,) for org in orgs])
+                       )
             )
         )
     )
