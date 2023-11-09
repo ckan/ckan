@@ -77,7 +77,7 @@ datapusher.add_url_rule(
 
 
 @datapusher.route(
-    "/dataset/<id>/delete-datastore-table/<resource_id>",
+    "/dataset/<id>/delete-datastore/<resource_id>",
     methods=["POST"]
 )
 def delete_datastore_table(id: str, resource_id: str) -> Response:
@@ -91,7 +91,7 @@ def delete_datastore_table(id: str, resource_id: str) -> Response:
             403, _(f'Unauthorized to delete resource {resource_id}'))
 
     toolkit.h.flash_notice(
-        _('DataStore table and Data Dictionary '
+        _('DataStore and Data Dictionary '
             f'deleted for resource {resource_id}'))
 
     return toolkit.h.redirect_to(
