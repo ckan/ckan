@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Iterable, Optional, Type, TypeVar
+from typing import Any, Iterable, Optional, Type, TypeVar, Union, List, Tuple
 from typing_extensions import TypeAlias
 
 from sqlalchemy.orm import relationship, backref, Mapped
@@ -249,21 +249,21 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     return q
 
 
-def _activities_from_user_query(user_id: [str, list]) -> QActivity:
+def _activities_from_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
     q = q.filter(Activity.user_id.in_(_to_list(user_id)))
     return q
 
 
-def _activities_about_user_query(user_id: [str, list]) -> QActivity:
+def _activities_about_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about user_id."""
     q = model.Session.query(Activity)
     q = q.filter(Activity.object_id.in_(_to_list(user_id)))
     return q
 
 
-def _user_activity_query(user_id: str, limit: int) -> QActivity:
+def _user_activity_query(user_id: Union[str, List[str]], limit: int) -> QActivity:
     """Return an SQLAlchemy query for all activities from or about user_id."""
     q1 = _activities_limit(_activities_from_user_query(user_id), limit)
     q2 = _activities_limit(_activities_about_user_query(user_id), limit)
@@ -324,13 +324,13 @@ def user_activity_list(
     return results
 
 
-def _to_list(vals: [list, tuple, str]):
+def _to_list(vals: Union[List[str], Tuple[str], str]):
     if isinstance(vals, (list, tuple)):
         return vals
     return [vals]
 
 
-def _package_activity_query(package_id: [str, list]) -> QActivity:
+def _package_activity_query(package_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about package_id."""
     q = model.Session.query(Activity)\
         .filter(Activity.object_id.in_(_to_list(package_id)))
@@ -401,7 +401,7 @@ def package_activity_list(
     return results
 
 
-def _group_activity_query(group_id: [str, list]) -> QActivity:
+def _group_activity_query(group_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
