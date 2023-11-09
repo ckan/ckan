@@ -324,11 +324,10 @@ def user_activity_list(
     return results
 
 
-def _to_list(vals:[list, tuple, str]):
+def _to_list(vals: [list, tuple, str]):
     if isinstance(vals, (list, tuple)):
         return vals
     return [vals]
-
 
 
 def _package_activity_query(package_id: [str, list]) -> QActivity:
@@ -473,12 +472,13 @@ def _organization_activity_query(org_id: str) -> QActivity:
             # belonged to a org but was then removed will not show up. This may
             # not be desired but is consistent with legacy behaviour.
             #
-            # Use subselect instead of outer join so that it can all be indexable
+            # Use subselect instead of outer join so that it can all
+            # be indexable
             Activity.object_id.in_(
                 select([model.Package.id])
                 .where(
                     and_(
-                        model.Package.private == False,
+                        model.Package.private == False,  # noqa
                         model.Package.owner_org == org_id
                     )
                 )
@@ -659,7 +659,7 @@ def _activities_from_groups_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return  _activities_limit(
+    return _activities_limit(
         _group_activity_query(
             [follower.object_id for follower in follower_objects]),
         limit)
