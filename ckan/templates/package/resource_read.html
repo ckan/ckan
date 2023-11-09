@@ -37,7 +37,10 @@
                 <li>
                   <div class="btn-group">
                   {% if res.url and h.is_url(res.url) %}
-                    <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
+                    <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}"
+                    data-pkg-id="{{ pkg.id }}"
+                    data-res-id="{{ res.id }}"
+                    data-org-id="{{ pkg.organization.id }}">
                       {% if res.resource_type in ('listing', 'service') %}
                         <i class="fa fa-eye"></i> {{ _('View') }}
                       {% elif  res.resource_type == 'api' %}
