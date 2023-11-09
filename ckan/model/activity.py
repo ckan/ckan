@@ -136,7 +136,7 @@ def _activities_from_user_query(user_id):
     '''Return an SQLAlchemy query for all activities from user_id.'''
     import ckan.model as model
     q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.user_id == user_id)
+    q = q.filter(model.Activity.user_id.in_(_to_list(user_id)))
     return q
 
 
@@ -144,7 +144,7 @@ def _activities_about_user_query(user_id):
     '''Return an SQLAlchemy query for all activities about user_id.'''
     import ckan.model as model
     q = model.Session.query(model.Activity)
-    q = q.filter(model.Activity.object_id == user_id)
+    q = q.filter(model.Activity.object_id.in_(_to_list(user_id)))
     return q
 
 
@@ -341,7 +341,9 @@ def _activities_from_users_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _user_activity_query([follower.object_id for follower in follower_objects], limit)
+    return _user_activity_query(
+        [follower.object_id for follower in follower_objects],
+        limit)
 
 
 def _activities_from_datasets_followed_by_user_query(user_id, limit):
@@ -354,7 +356,9 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _package_activity_query([follower.object_id for follower in follower_objects], limit)
+    return _activites_limit(
+        _package_activity_query([follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_groups_followed_by_user_query(user_id, limit):
@@ -373,7 +377,9 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _group_activity_query([follower.object_id for follower in follower_objects], limit)
+    return _activities_limit(
+        _group_activity_query([follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_everything_followed_by_user_query(user_id, limit):
