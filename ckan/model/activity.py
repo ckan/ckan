@@ -13,6 +13,8 @@ from sqlalchemy import (
     and_,
     union_all,
     text,
+    select,
+    literal
 )
 
 from ckan.common import config
@@ -271,21 +273,24 @@ def _organization_activity_query(org_id, include_hidden_activity=False):
 
     q = model.Session.query(
         model.Activity
-    ).outerjoin(
-        model.Package,
-        and_(
-            model.Package.id == model.Activity.object_id,
-            model.Package.private == False,
-        )
     ).filter(
         # We only care about activity either on the the org itself or on
         # packages within that org.
         # FIXME: This means that activity that occured while a package belonged
         # to a org but was then removed will not show up. This may not be
         # desired but is consistent with legacy behaviour.
-        or_(
-            model.Package.owner_org.in_(orgs),
-            model.Activity.object_id.in_(orgs)
+        model.Activity.object_id.in_(
+            select([model.Package.id])
+            .where(
+                and_(
+                    model.Package.private == False,
+                    model.Package.owner_org == org_id
+                )
+            )
+            .union(
+                # select the org itself
+                select([literal(org_id)])
+            )
         )
     )
     if not include_hidden_activity:
