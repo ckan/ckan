@@ -1,5 +1,6 @@
-from . import column_types
+from . import plugin
 from .column_types import ColumnType
+from .column_constraints import ColumnConstraint
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, h
@@ -13,17 +14,28 @@ def tabledesigner_column_type_options():
     """
     return [
         {"value": k, "text": _(v.label)}
-        for k, v in column_types.column_types.items()
+        for k, v in plugin._column_types.items()
     ]
 
 
 def tabledesigner_column_type(tdtype):
     """
-    return column type object (fall back to text if not found)
+    return column type class (fall back to text if not found)
     """
-    return column_types.column_types.get(
+    return plugin._column_types.get(
         tdtype,
-        column_types.column_types['text']
+        plugin._column_types.get('text')
+    )
+
+
+def tabledesigner_column_constraints(
+        tdtype: str) -> List[Type[ColumnConstraint]]:
+    """
+    return column constraints subclasses (or an empty list)
+    """
+    return list(plugin._column_constraints.get(
+            tdtype, []
+        )
     )
 
 

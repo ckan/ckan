@@ -1,6 +1,4 @@
-from ckan.plugins.toolkit import get_action
-
-from . import column_types
+from ckan.plugins.toolkit import get_action, h
 
 
 VALIDATE_DEFINITION_SQL = u'''
@@ -24,7 +22,7 @@ def create_table(resource_id, info):
     validate_rules = []
     for f in info:
         colname, tdtype = f['id'], f['tdtype']
-        ct = column_types.column_types[tdtype]
+        ct = h.tabledesigner_column_type(tdtype)
 
         if f.get('pkreq') == 'pk':
             primary_key.append((colname, tdtype))
@@ -36,6 +34,11 @@ def create_table(resource_id, info):
         col_validate = ct.sql_validate_rule(f)
         if col_validate:
             validate_rules.append(col_validate)
+
+        for cc in h.tabledesigner_column_constraints(tdtype):
+            cc_validate = cc.sql_constraint_rule(f, ct)
+            if cc_validate:
+                validate_rules.append(cc_validate)
 
     if validate_rules:
         validate_def = VALIDATE_DEFINITION_SQL.format(
@@ -60,7 +63,8 @@ def create_table(resource_id, info):
             'primary_key': [f for f, typ in primary_key],
             'fields': [{
                 'id': i['id'],
-                'type': column_types.column_types[i['tdtype']].datastore_type,
+                'type':
+                    h.tabledesigner_column_type(i['tdtype']).datastore_type,
                 'info': {
                     k: v for (k, v) in i.items()
                     if k != 'id'

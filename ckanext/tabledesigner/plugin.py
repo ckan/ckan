@@ -1,15 +1,21 @@
 # encoding: utf-8
-import ckan.plugins as plugins
+import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 
-from . import views, column_types, interfaces
+from . import views, interfaces
+from .column_types import ColumnType, _standard_column_types
+from .column_constraints import ColumnConstraint, _standard_column_constraints
 
-class TableDesignerPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IActions)
-    plugins.implements(plugins.IBlueprint)
-    plugins.implements(plugins.ITemplateHelpers)
-    plugins.implements(plugins.IConfigurable)
+
+_column_types: dict[str, Type[ColumnType]] = {}
+_column_constraints: dict[str, List[Type[ColumnConstraint]]] = {}
+
+class TableDesignerPlugin(p.SingletonPlugin):
+    p.implements(p.IConfigurer)
+    p.implements(p.IActions)
+    p.implements(p.IBlueprint)
+    p.implements(p.ITemplateHelpers)
+    p.implements(p.IConfigurable)
 
     # IConfigurer
 
@@ -49,7 +55,19 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
     # IConfigurable
 
     def configure(self, config: CKANConfig):
-        coltypes = dict(column_types._standard_column_types)
-        for plugin in plugins.PluginImplementations(interfaces.IColumnTypes):
+        coltypes = dict(_standard_column_types)
+        for plugin in p.PluginImplementations(interfaces.IColumnTypes):
             coltypes = plugin.column_types(coltypes)
-        column_types.column_types = coltypes
+
+        _column_types.clear()
+        _column_types.update(coltypes)
+
+        colcons = {
+            key: list(val) for key, val
+            in _standard_column_constraints.items()
+        }
+        for plugin in p.PluginImplementations(interfaces.IColumnConstraints):
+            colcons = plugin.column_types(colcons)
+
+        _column_constraints.clear()
+        _column_constraints.update(colcons)
