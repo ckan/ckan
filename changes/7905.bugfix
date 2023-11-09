@@ -1,0 +1,1 @@
+Changed dataset query to check for `+state:` in the `fq_list` as well as the `fq` parameter before forcing `state:active`
