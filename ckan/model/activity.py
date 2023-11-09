@@ -356,7 +356,7 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter(text('0=1'))
 
-    return _activites_limit(
+    return _activities_limit(
         _package_activity_query([follower.object_id for follower in follower_objects]),
         limit)
 
