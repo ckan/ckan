@@ -38,7 +38,7 @@ defaults:
       PGPASSWORD: ckan
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=~/junit/result/junit.xml
   pg_image: &pg_image
-    image: postgres:10
+    image: postgres:15
     environment:
       POSTGRES_USER: ckan
       POSTGRES_PASSWORD: ckan
