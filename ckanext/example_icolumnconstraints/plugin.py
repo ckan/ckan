@@ -46,6 +46,9 @@ class ImmutableConstraint(ColumnConstraint):
     def sql_constraint_rule(
             cls, info: dict[str, Any], column_type: Type[ColumnType]):
         colname = info['id']
+        if not info.get('immutable'):
+            return
+
         column = identifier(colname)
         old_is_empty = column_type.sql_is_empty.format(column='OLD.' + column)
 
