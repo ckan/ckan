@@ -1344,6 +1344,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
+    where = query_dict['where']
 
     if query_dict.get('distinct'):
         distinct = 'DISTINCT'
@@ -1352,6 +1353,10 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
     if not sort and not distinct:
         sort = ['_id']
+
+    if not where:
+        where_clause = 'WHERE %s' % (''.join("name != 'pg_buffercache'"))\
+            .replace('%', '%%')
 
     if sort:
         sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
@@ -2225,7 +2230,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def get_all_ids(self):
         resources_sql = sqlalchemy.text(
             u'''SELECT name FROM "_table_metadata"
-            WHERE alias_of IS NULL''')
+            WHERE alias_of IS NULL and name != "pg_buffercache"''')
         query = self._get_read_engine().execute(resources_sql)
         return [q[0] for q in query.fetchall()]
 
