@@ -2,6 +2,7 @@ from ckan.plugins.toolkit import get_action, h
 
 
 VALIDATE_DEFINITION_SQL = u'''
+<<validation>>
 DECLARE
   errors text[] := '{{}}';
 BEGIN
