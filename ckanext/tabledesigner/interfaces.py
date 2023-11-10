@@ -40,7 +40,8 @@ class IColumnConstraints(interfaces.Interface):
 
     def column_constraints(
             self,
-            existing_constraints: dict[str, List[Type[ColumnConstraint]]]
+            existing_constraints: dict[str, List[Type[ColumnConstraint]]],
+            column_types: dict[str, Type[ColumnType]],
             ) -> dict[str, List[Type[ColumnConstraint]]]:
         """
         return a {tdtype string value: [ColumnConstraint subclass, ...], ...}

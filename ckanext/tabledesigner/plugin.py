@@ -45,7 +45,7 @@ class TableDesignerPlugin(p.SingletonPlugin):
             in _standard_column_constraints.items()
         }
         for plugin in p.PluginImplementations(interfaces.IColumnConstraints):
-            colcons = plugin.column_types(colcons)
+            colcons = plugin.column_constraints(colcons, _column_types)
 
         _column_constraints.clear()
         _column_constraints.update(colcons)
