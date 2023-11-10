@@ -1,10 +1,9 @@
-{% macro tabledesigner_field(field, index, index1) %}
+{% macro tabledesigner_field(field, index) %}
   <div class="tabledesigner-field" data-index="{{ index }}">
     {% block field_removal_button%}
       <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
         >{% block delete_button_text %}{{ _('Remove') }}{% endblock %}</a>
     {% endblock %}
-    <input type="hidden" name="info__{{ index }}__tdtype" value="{{ field.info.tdtype or field.type }}">
     <div class="field-content">
       {% snippet "datastore/snippets/dictionary_form.html",
         field=field,
@@ -14,7 +13,7 @@
       %}
     </div>
     <div class="field-removed-notice" style="display:none">
-      {{ _('Field {num} removed, click save below to save your changes and delete all data in this field.').format(num=index1) }}
+      {{ _('Field {num} removed, click save below to save your changes and delete all data in this field.').format(num=index) }}
     </div>
   </div>
 {% endmacro %}
@@ -22,7 +21,7 @@
 <fieldset name="tabledesigner-fields" class="tabledesigner-fields" data-module="tabledesigner-fields">
   <div class="tabledesigner-fields-group">
     {% for field in fields %}
-      {{ tabledesigner_field(field, loop.index, loop.index + 1) }}
+      {{ tabledesigner_field(field, loop.index) }}
     {% endfor %}
   </div>
   <div class="control-medium dropdown">
@@ -40,8 +39,7 @@
     <div name="tabledesigner-template" data-tdtype="{{ opt.value }}" style="display:none">
       {{ tabledesigner_field(
         {'info': {'tdtype': opt.value}},
-        'TABLEDESIGNER-INDEX0',
-        'TABLEDESIGNER-INDEX1'
+        'TABLEDESIGNER-INDEX',
       )}}
     </div>
   {% endfor %}

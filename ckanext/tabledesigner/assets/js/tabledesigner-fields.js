@@ -12,10 +12,9 @@ this.ckan.module('tabledesigner-fields', function($, _) {
 
       $add.on('click', function(e) {
         var $last = $this.find('.tabledesigner-field').last();
-        var group = ($last.data('index') + 1) || 0;
+        var group = ($last.data('index') + 1) || 1;
         var $copy = $(templates[e.target.dataset.tdtype]
-          .replace(/TABLEDESIGNER-INDEX0/g, group)
-          .replace(/TABLEDESIGNER-INDEX1/g, group + 1));
+          .replace(/TABLEDESIGNER-INDEX/g, group));
         $this.find('.tabledesigner-fields-group').append($copy);
         $copy.hide().show(100);
         $copy.find('input').first().focus();

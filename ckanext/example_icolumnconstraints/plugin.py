@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, Type, List
-from collections import defaultdict
 
 from ckan import plugins
 from ckan.common import CKANConfig
