@@ -192,7 +192,9 @@ class _TableDesignerEditRow(MethodView):
             )
         except ValidationError as err:
             rec_err = err.error_dict.get('records', [''])[0]
-            if rec_err.startswith('duplicate key'):
+            if isinstance(rec_err, dict):
+                errors = rec_err
+            elif rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
