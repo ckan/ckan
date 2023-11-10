@@ -487,7 +487,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
                     # select the org itself
                     select([literal(org_id)])
                 )
-            )  # type: ignore
+            )
         )
     )
 
