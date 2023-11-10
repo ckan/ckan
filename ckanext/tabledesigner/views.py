@@ -40,9 +40,14 @@ class _TableDesignerDictionary(MethodView):
         if not isinstance(info, list):
             info = []
 
-        for e, f in zip(info, fields):
-            e['id'] = f['id']
-            e['type'] = f['type']
+        flookup = {f['id']: f for f in fields}
+
+        for e in info:
+            if not e.get('tdtype') or not e.get('id'):
+                return base.abort(400, _('Required fields missing'))
+            f = flookup.get(e['id'])
+            if f:
+                e['type'] = f['type']
 
         try:
             create_table(resource_id, info)
