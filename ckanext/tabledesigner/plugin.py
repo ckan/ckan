@@ -2,13 +2,13 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 
-from . import views, interfaces
+from . import views, interfaces, helpers, actions
 from .column_types import ColumnType, _standard_column_types
 from .column_constraints import ColumnConstraint, _standard_column_constraints
 
 
-_column_types: dict[str, Type[ColumnType]] = {}
-_column_constraints: dict[str, List[Type[ColumnConstraint]]] = {}
+_column_types = {}
+_column_constraints = {}
 
 class TableDesignerPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
@@ -46,6 +46,8 @@ class TableDesignerPlugin(p.SingletonPlugin):
                 helpers.tabledesigner_data_api_examples,
             'tabledesigner_column_type':
                 helpers.tabledesigner_column_type,
+            'tabledesigner_column_constraints':
+                helpers.tabledesigner_column_constraints,
             'datastore_rw_resource_url_types':
                 helpers.datastore_rw_resource_url_types,
             'tabledesigner_choice_list':
@@ -54,7 +56,7 @@ class TableDesignerPlugin(p.SingletonPlugin):
 
     # IConfigurable
 
-    def configure(self, config: CKANConfig):
+    def configure(self, config):
         coltypes = dict(_standard_column_types)
         for plugin in p.PluginImplementations(interfaces.IColumnTypes):
             coltypes = plugin.column_types(coltypes)

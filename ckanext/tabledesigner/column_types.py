@@ -24,7 +24,7 @@ class ColumnType:
     html_input_type = 'text'
     sql_is_empty = "({column} = '') IS NOT FALSE"
 
-    def __new__(cls, *args: Any, **kwargs: Any):
+    def __new__(cls, *args, **kwargs):
         raise TypeError(
             'Column type classes are used directly, not instantiated'
         )
@@ -38,7 +38,7 @@ class ColumnType:
     '''
 
     @classmethod
-    def sql_required_rule(cls, info: dict[str, Any]):
+    def sql_required_rule(cls, info):
         """
         Primary keys and required fields must not be empty
         """
@@ -51,14 +51,14 @@ class ColumnType:
 
             return cls._SQL_REQUIRED.format(
                 condition=cls.sql_is_empty.format(
-                    column=f'NEW.{identifier(colname)}'
+                    column='NEW.' + identifier(colname)
                 ),
                 colname=literal_string(colname),
                 error=literal_string(error),
             )
 
     @classmethod
-    def sql_validate_rule(cls, info: dict[str, Any]):
+    def sql_validate_rule(cls, info):
         """
         Override when type-related validation is required
 
@@ -89,7 +89,7 @@ class ChoiceColumn(ColumnType):
     design_snippet = 'choice.html'
 
     @classmethod
-    def choices(cls, info: dict[str, Any]) -> List[str]:
+    def choices(cls, info):
         """
         Comma-separated text field with choice values
         """
@@ -108,7 +108,7 @@ class ChoiceColumn(ColumnType):
     '''
 
     @classmethod
-    def sql_validate_rule(cls, info: dict[str, Any]):
+    def sql_validate_rule(cls, info):
         """
         Copy choices into validation rule as a literal string array
         """
@@ -116,7 +116,7 @@ class ChoiceColumn(ColumnType):
 
         # \t is used when converting errors to string, remove any from data
         return cls._SQL_VALIDATE.format(
-            value=f'NEW.{identifier(colname)}',
+            value='NEW.' + identifier(colname),
             colname=literal_string(colname),
             choices='ARRAY[' + ','.join(
                 literal_string(c) for c in h.tabledesigner_choice_list(info)

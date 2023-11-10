@@ -1,4 +1,3 @@
-from . import plugin
 from .column_types import ColumnType
 from .column_constraints import ColumnConstraint
 
@@ -12,6 +11,7 @@ def tabledesigner_column_type_options():
     return list of {'value':..., 'text':...} dicts
     with the type name and label for all registered column types
     """
+    from . import plugin
     return [
         {"value": k, "text": _(v.label)}
         for k, v in plugin._column_types.items()
@@ -22,17 +22,18 @@ def tabledesigner_column_type(tdtype):
     """
     return column type class (fall back to text if not found)
     """
+    from . import plugin
     return plugin._column_types.get(
         tdtype,
         plugin._column_types.get('text')
     )
 
 
-def tabledesigner_column_constraints(
-        tdtype: str) -> List[Type[ColumnConstraint]]:
+def tabledesigner_column_constraints(tdtype):
     """
     return column constraints subclasses (or an empty list)
     """
+    from . import plugin
     return list(plugin._column_constraints.get(
             tdtype, []
         )

@@ -1,7 +1,3 @@
-from __future__ import annotations
-
-from typing import Type, List
-
 from ckan.plugins import interfaces
 
 from .column_types import ColumnType
@@ -14,9 +10,7 @@ class IColumnTypes(interfaces.Interface):
     # earlier plugins override later plugins
     _reverse_iteration_order = True
 
-    def column_types(
-            self, existing_types: dict[str, Type[ColumnType]]
-            ) -> dict[str, Type[ColumnType]]:
+    def column_types(self, existing_types):
         """
         return a {tdtype string value: ColumnType subclasses, ...} dict
 
@@ -38,11 +32,7 @@ class IColumnConstraints(interfaces.Interface):
     # earlier plugins override later plugins
     _reverse_iteration_order = True
 
-    def column_constraints(
-            self,
-            existing_constraints: dict[str, List[Type[ColumnConstraint]]],
-            column_types: dict[str, Type[ColumnType]],
-            ) -> dict[str, List[Type[ColumnConstraint]]]:
+    def column_constraints(self, existing_constraints, column_types):
         """
         return a {tdtype string value: [ColumnConstraint subclass, ...], ...}
         dict
