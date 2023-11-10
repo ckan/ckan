@@ -749,8 +749,9 @@ class PerformResetView(MethodView):
             base.abort(403, _(u'Unauthorized to reset password.'))
 
         # Ignore auth for the user_show action only.
-        # user_show will fail for anon users if
+        # user_show might fail for anon users if
         # `ckan.auth.public_user_details` is False
+        # and user_show has non core auth functions.
         context[u'ignore_auth'] = True
         try:
             user_dict = logic.get_action(u'user_show')(context, {u'id': id})
