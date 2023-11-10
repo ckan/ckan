@@ -27,7 +27,8 @@ def track_request(response: Response) -> Response:
             request.environ.get('HTTP_ACCEPT_LANGUAGE', ''),
             request.environ.get('HTTP_ACCEPT_ENCODING', ''),
         ])
-        h = hashlib.new('md5', usedforsecurity=False)
+        # raises a type error on python<3.9
+        h = hashlib.new('md5', usedforsecurity=False)  # type: ignore
         key = h.update(key.encode()).hexdigest()
         # store key/data here
         sql = '''INSERT INTO tracking_raw
