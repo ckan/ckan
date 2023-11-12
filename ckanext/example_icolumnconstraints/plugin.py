@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Type, List
+from typing import Type, List
 
 from ckan import plugins
 from ckan.common import CKANConfig
@@ -42,20 +42,19 @@ class ImmutableConstraint(ColumnConstraint):
     """Allow a field to be set once then not changed again"""
     constraint_snippet = 'immutable.html'
 
-    @classmethod
-    def sql_constraint_rule(
-            cls, info: dict[str, Any], column_type: Type[ColumnType]):
-        colname = info['id']
-        if not info.get('immutable'):
-            return
+    def sql_constraint_rule(self):
+        if not self.info.get('immutable'):
+            return ''
 
-        column = identifier(colname)
-        old_is_empty = column_type.sql_is_empty.format(column='OLD.' + column)
+        icolname = identifier(self.colname)
+        old_is_empty = self.column_type._SQL_IS_EMPTY.format(
+            value='OLD.' + icolname
+        )
 
         error = _('This field may not be changed')
         return f'''
-            IF NOT ({old_is_empty}) AND NEW.{column} <> OLD.{column} THEN
-                errors := errors || ARRAY[
-                    [{literal_string(colname)}, {literal_string(error)}]];
+            IF NOT ({old_is_empty}) AND NEW.{icolname} <> OLD.{icolname} THEN
+                errors := errors || ARRAY[[
+                    {literal_string(self.colname)}, {literal_string(error)}]];
             END IF;
         '''

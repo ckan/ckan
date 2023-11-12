@@ -45,16 +45,26 @@ class _TableDesignerDictionary(MethodView):
             info = []
 
         flookup = {f['id']: f for f in fields}
+        new_fields = []
 
         for e in info:
             if not e.get('tdtype') or not e.get('id'):
                 return base.abort(400, _('Required fields missing'))
             f = flookup.get(e['id'])
             if f:
-                e['type'] = f['type']
+                datastore_type = f['type']
+            else:
+                datastore_type = h.tabledesigner_column_type(
+                    {'info':e}
+                ).datastore_type
+            new_fields.append({
+                'id': e['id'],
+                'type': datastore_type,
+                'info': e
+            })
 
         try:
-            create_table(resource_id, info)
+            create_table(resource_id, new_fields)
         except ValidationError as e:
             fields = {f['id']: f for f in data_dict['fields']}
             data_dict['fields'] = [

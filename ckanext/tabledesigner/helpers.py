@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Callable, List, Any, Optional, Type
+from typing import Callable, List, Any
 
 from . import plugin
-from .column_types import ColumnType
-from .column_constraints import ColumnConstraint
+from .column_types import ColumnType, TextColumn
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, chained_helper, h
@@ -22,35 +21,22 @@ def tabledesigner_column_type_options() -> List[dict[str, Any]]:
     ]
 
 
-def tabledesigner_column_type(tdtype: str) -> Optional[Type[ColumnType]]:
+def tabledesigner_column_type(field: dict[str, Any]) -> ColumnType:
     """
-    return column type class (fall back to text if not found)
+    return column type object (fall back to text if not found)
     """
+    info = field['info']
+    tdtype = info.get('tdtype', field.get('type', 'text'))
     return plugin._column_types.get(
         tdtype,
-        plugin._column_types.get('text')
-    )
+        plugin._column_types.get('text', TextColumn)
+    )(info, plugin._column_constraints.get(tdtype, []))
 
 
-def tabledesigner_column_constraints(
-        tdtype: str) -> List[Type[ColumnConstraint]]:
-    """
-    return column constraints subclasses (or an empty list)
-    """
-    return list(plugin._column_constraints.get(
-            tdtype, []
-        )
-    )
-
-
-def tabledesigner_choice_list(info: dict[str, Any]) -> List[str]:
-    """
-    convert choices string to choice list, ignoring surrounding whitespace
-    """
-    tdtype = info.get('tdtype')
-    ct = h.tabledesigner_column_type(tdtype)
+def tabledesigner_choice_list(field: dict[str, Any]) -> List[str]:
+    ct = h.tabledesigner_column_type(field)
     if hasattr(ct, 'choices'):
-        return ct.choices(info)
+        return ct.choices()
     return []
 
 

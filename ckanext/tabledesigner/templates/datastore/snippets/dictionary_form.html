@@ -6,7 +6,7 @@
   {% else %}
     <h3>{{ _("Field {num}.").format(num=position) }}
       {{ field.id or '' }}
-      ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
+      ({{ h.tabledesigner_column_type(field).label }})
     </h3>
     {% if field.id %}
       <input type="hidden" name="info__{{ position }}__id" value="{{ field.id }}">
@@ -39,7 +39,7 @@
 {% block datapusher_xloader_fields %}
   {% if res.url_type == 'tabledesigner' %}
     {% if field.info %}
-      {% set ct = h.tabledesigner_column_type(field.info.tdtype) %}
+      {% set ct = h.tabledesigner_column_type(field) %}
       {% if ct.design_snippet %}
         {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
           column_type=ct,
@@ -48,7 +48,7 @@
           form=form
         %}
       {% endif %}
-      {% for cc in h.tabledesigner_column_constraints(field.info.tdtype) %}
+      {% for cc in ct.column_constraints() %}
         {% if cc.constraint_snippet %}
           {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
             column_type=ct,

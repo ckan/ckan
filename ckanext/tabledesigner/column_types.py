@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from typing import Type, Callable, Any, List
+from collections.abc import Iterator
 
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
-from ckan.plugins.toolkit import h
+from .column_constraints import ColumnConstraint
 
 
 def _(x: str):
@@ -28,12 +29,19 @@ class ColumnType:
     datastore_type = 'text'
     form_snippet = 'text.html'
     html_input_type = 'text'
-    sql_is_empty = "({column} = '') IS NOT FALSE"
+    _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
 
-    def __new__(cls, *args: Any, **kwargs: Any):
-        raise TypeError(
-            'Column type classes are used directly, not instantiated'
-        )
+    def __init__(
+            self,
+            info: dict[str, Any],
+            constraint_types: List[Type[ColumnConstraint]]):
+        self.colname = info.get('id', '')
+        self.info = info
+        self._constraint_types = constraint_types
+
+    def column_constraints(self) -> Iterator[ColumnConstraint]:
+        for cct in self._constraint_types:
+            yield cct(self)
 
     _SQL_REQUIRED = '''
     IF {condition} THEN
@@ -43,28 +51,25 @@ class ColumnType:
     END IF;
     '''
 
-    @classmethod
-    def sql_required_rule(cls, info: dict[str, Any]):
+    def sql_required_rule(self):
         """
         Primary keys and required fields must not be empty
         """
-        colname = info['id']
         error = 'Missing value'
 
-        if info.get('pkreq'):
-            if info.get('pkreq') == 'pk':
+        if self.info.get('pkreq'):
+            if self.info.get('pkreq') == 'pk':
                 error = 'Primary key must not be empty'
 
-            return cls._SQL_REQUIRED.format(
-                condition=cls.sql_is_empty.format(
-                    column=f'NEW.{identifier(colname)}'
+            return self._SQL_REQUIRED.format(
+                condition=self._SQL_IS_EMPTY.format(
+                    value=f'NEW.{identifier(self.colname)}'
                 ),
-                colname=literal_string(colname),
+                colname=literal_string(self.colname),
                 error=literal_string(error),
             )
 
-    @classmethod
-    def sql_validate_rule(cls, info: dict[str, Any]):
+    def sql_validate_rule(self):
         """
         Override when type-related validation is required
 
@@ -94,16 +99,16 @@ class ChoiceColumn(ColumnType):
     form_snippet = 'choice.html'
     design_snippet = 'choice.html'
 
-    @classmethod
-    def choices(cls, info: dict[str, Any]) -> List[str]:
+    def choices(self) -> List[str]:
         """
         Comma-separated text field with choice values
         """
-        choices = info.get('choices')
+        choices = self.info.get('choices')
         if choices:
             return [c.strip() for c in choices.split(',')]
         return []
 
+    # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''
     IF {value} IS NOT NULL AND {value} <> ''
             AND NOT ({value} = ANY ({choices}))
@@ -113,19 +118,15 @@ class ChoiceColumn(ColumnType):
     END IF;
     '''
 
-    @classmethod
-    def sql_validate_rule(cls, info: dict[str, Any]):
+    def sql_validate_rule(self):
         """
         Copy choices into validation rule as a literal string array
         """
-        colname = info['id']
-
-        # \t is used when converting errors to string, remove any from data
-        return cls._SQL_VALIDATE.format(
-            value=f'NEW.{identifier(colname)}',
-            colname=literal_string(colname),
+        return self._SQL_VALIDATE.format(
+            value=f'NEW.{identifier(self.colname)}',
+            colname=literal_string(self.colname),
             choices='ARRAY[' + ','.join(
-                literal_string(c) for c in h.tabledesigner_choice_list(info)
+                literal_string(c) for c in self.choices()
             ) + ']'
         )
 
@@ -160,7 +161,7 @@ class UUIDColumn(ColumnType):
     datastore_type = 'uuid'
     table_schema_type = 'string'
     table_schema_format = 'uuid'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
 
 
 @_standard_column('numeric')
@@ -171,7 +172,7 @@ class NumericColumn(ColumnType):
     example = '2.01'
     datastore_type = 'numeric'
     table_schema_type = 'number'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
 
 
 @_standard_column('integer')
@@ -181,7 +182,7 @@ class IntegerColumn(ColumnType):
     example = '21'
     datastore_type = 'int8'
     table_scema_type = 'integer'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
 
 
 @_standard_column('boolean')
@@ -191,7 +192,7 @@ class BooleanColumn(ColumnType):
     example = 'false'
     datastore_type = 'boolean'
     table_schema_type = 'boolean'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
 
 
 @_standard_column('json')
@@ -201,7 +202,7 @@ class JSONColumn(ColumnType):
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
-    sql_is_empty = "{column} IS NULL OR {column}::jsonb = 'null'::jsonb"
+    _SQL_IS_EMPTY = "{value} IS NULL OR {value}::jsonb = 'null'::jsonb"
 
 
 @_standard_column('date')
@@ -213,7 +214,7 @@ class DateColumn(ColumnType):
     table_schema_type = 'date'
     table_schema_format = 'fmt:YYYY-MM-DD'
     html_input_type = 'date'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
 
 
 @_standard_column('timestamp')
@@ -225,4 +226,4 @@ class TimestampColumn(ColumnType):
     table_schema_type = 'time'
     table_schema_format = 'fmt:YYYY-MM--DD hh:mm:ss'
     html_input_type = 'datetime-local'
-    sql_is_empty = "{column} IS NULL"
+    _SQL_IS_EMPTY = "{value} IS NULL"
