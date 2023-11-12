@@ -15,29 +15,28 @@ END;
 '''
 
 
-def create_table(resource_id, info):
+def create_table(resource_id, fields):
     '''
     Set up datastore table + validation
     '''
     primary_key = []
     validate_rules = []
-    for f in info:
-        colname, tdtype = f['id'], f['tdtype']
-        ct = h.tabledesigner_column_type(tdtype)
+    for f in fields:
+        ct = h.tabledesigner_column_type(f)
 
-        if f.get('pkreq') == 'pk':
-            primary_key.append((colname, tdtype))
+        if f['info'].get('pkreq') == 'pk':
+            primary_key.append(ct.colname)
 
-        req_validate = ct.sql_required_rule(f)
+        req_validate = ct.sql_required_rule()
         if req_validate:
             validate_rules.append(req_validate)
 
-        col_validate = ct.sql_validate_rule(f)
+        col_validate = ct.sql_validate_rule()
         if col_validate:
             validate_rules.append(col_validate)
 
-        for cc in h.tabledesigner_column_constraints(tdtype):
-            cc_validate = cc.sql_constraint_rule(f, ct)
+        for cc in ct.column_constraints():
+            cc_validate = cc.sql_constraint_rule()
             if cc_validate:
                 validate_rules.append(cc_validate)
 
@@ -61,16 +60,15 @@ def create_table(resource_id, info):
         None, {
             'resource_id': resource_id,
             'force': True,
-            'primary_key': [f for f, typ in primary_key],
+            'primary_key': primary_key,
             'fields': [{
-                'id': i['id'],
-                'type':
-                    h.tabledesigner_column_type(i['tdtype']).datastore_type,
+                'id': f['id'],
+                'type': f['type'],
                 'info': {
-                    k: v for (k, v) in i.items()
+                    k: v for (k, v) in f['info'].items()
                     if k != 'id'
                 },
-            } for i in info],
+            } for f in fields],
             'triggers': [
                 {'function': u'{0}_tabledesigner_validate'.format(resource_id)}
             ] if validate_rules else [],

@@ -4,7 +4,7 @@
 {%- set help_text = info.get('notes', '') -%}
 
 {%- set options=[{'value':'', 'text':''}] -%}
-{%- set choices=h.tabledesigner_choice_list(field.info) -%}
+{%- set choices=h.tabledesigner_choice_list(field) -%}
 {%- if value and value not in choices -%}
   {%- do options.append({
     'value': value,

@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
-from .column_types import ColumnType
+from . import column_types
 
 
 def _(x):
@@ -21,10 +21,10 @@ def _standard_constraint(keys):
 
 
 class ColumnConstraint:
-    def __new__(cls, *args, **kwargs):
-        raise TypeError(
-            'Column constraint classes are used directly, not instantiated'
-        )
+    def __init__(self, ct):
+        self.colname = ct.colname
+        self.info = ct.info
+        self.column_type = ct
 
 
 @_standard_constraint(['numeric', 'integer', 'date', 'timestamp'])
@@ -45,28 +45,26 @@ class RangeConstraint(ColumnConstraint):
     END IF;
     '''
 
-    @classmethod
-    def sql_constraint_rule(cls, info, column_type):
-        colname = info['id']
+    def sql_constraint_rule(self):
         sql = ''
 
-        minimum = info.get('minimum')
+        minimum = self.info.get('minimum')
         if minimum:
-            sql += cls._SQL_VALIDATE_MIN.format(
-                colname=literal_string(colname),
+            sql += self._SQL_VALIDATE_MIN.format(
+                colname=literal_string(self.colname),
                 value='NEW.' + identifier(colname),
                 minimum=literal_string(minimum),
                 error=literal_string(_('Below minimum')),
-                type_=column_type.datastore_type,
+                type_=self.column_type.datastore_type,
             )
-        maximum = info.get('maximum')
+        maximum = self.info.get('maximum')
         if maximum:
-            sql += cls._SQL_VALIDATE_MAX.format(
-                colname=literal_string(colname),
+            sql += self._SQL_VALIDATE_MAX.format(
+                colname=literal_string(self.colname),
                 value='NEW.' + identifier(colname),
                 maximum=literal_string(maximum),
                 error=literal_string(_('Above maximum')),
-                type_=column_type.datastore_type,
+                type_=self.column_type.datastore_type,
             )
         return sql
 
@@ -87,18 +85,14 @@ class PatternConstraint(ColumnConstraint):
     END;
     '''
 
-    @classmethod
-    def sql_constraint_rule(
-            cls, info: dict[str, Any], column_type: Type[ColumnType]
-            ):
-        colname = info['id']
-        pattern = info.get('pattern')
+    def sql_constraint_rule(self) -> str:
+        pattern = self.info.get('pattern')
         if not pattern:
-            return
+            return ''
 
-        return cls._SQL_VALIDATE_PATTERN.format(
-            colname=literal_string(colname),
-            value=f'NEW.{identifier(colname)}',
+        return self._SQL_VALIDATE_PATTERN.format(
+            colname=literal_string(self.colname),
+            value=f'NEW.{identifier(self.colname)}',
             pattern=literal_string('^' + pattern + '$'),
             error=literal_string(_('Does not match pattern')),
             invalid=literal_string(

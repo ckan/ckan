@@ -1,5 +1,4 @@
-from .column_types import ColumnType
-from .column_constraints import ColumnConstraint
+from .column_types import ColumnType, TextColumn
 
 from ckan.plugins.toolkit import (
     _, NotAuthorized, ObjectNotFound, get_action, h
@@ -18,36 +17,23 @@ def tabledesigner_column_type_options():
     ]
 
 
-def tabledesigner_column_type(tdtype):
+def tabledesigner_column_type(field):
     """
-    return column type class (fall back to text if not found)
+    return column type object (fall back to text if not found)
     """
     from . import plugin
+    info = field['info']
+    tdtype = info.get('tdtype', field.get('type', 'text'))
     return plugin._column_types.get(
         tdtype,
-        plugin._column_types.get('text')
-    )
+        plugin._column_types.get('text', TextColumn)
+    )(info, plugin._column_constraints.get(tdtype, []))
 
 
-def tabledesigner_column_constraints(tdtype):
-    """
-    return column constraints subclasses (or an empty list)
-    """
-    from . import plugin
-    return list(plugin._column_constraints.get(
-            tdtype, []
-        )
-    )
-
-
-def tabledesigner_choice_list(info):
-    """
-    convert choices string to choice list, ignoring surrounding whitespace
-    """
-    tdtype = info.get('tdtype')
-    ct = h.tabledesigner_column_type(tdtype)
+def tabledesigner_choice_list(field):
+    ct = h.tabledesigner_column_type(field)
     if hasattr(ct, 'choices'):
-        return ct.choices(info)
+        return ct.choices()
     return []
 
 
