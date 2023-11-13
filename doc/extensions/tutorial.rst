@@ -320,7 +320,7 @@ receive an ``Authorization Error`` from CKAN::
 
     $ http 127.0.0.1:5000/api/3/action/group_create Authorization:*** name=my_group
     HTTP/1.0 403 Forbidden
-    Access-Control-Allow-Headers: X-CKAN-API-KEY, Authorization, Content-Type
+    Access-Control-Allow-Headers: Authorization, Content-Type
     Access-Control-Allow-Methods: POST, PUT, GET, DELETE, OPTIONS
     Access-Control-Allow-Origin: *
     Cache-Control: no-cache

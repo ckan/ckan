@@ -717,7 +717,7 @@ def flash_error(message: Any, allow_html: bool = False) -> None:
         message = Markup(message)
     else:
         message = escape(message)
-    flash(message, category='alert-error')
+    flash(message, category='alert-danger')
 
 
 @core_helper
@@ -2764,7 +2764,7 @@ def make_login_url(
         parsed_base = urlparse(base)
         netloc = parsed_base.netloc
         parsed_base = parsed_base._replace(netloc=netloc, query=urlencode(md))
-        return cast(str, urlunparse(parsed_base))
+        return urlunparse(parsed_base)
     return base
 
 
