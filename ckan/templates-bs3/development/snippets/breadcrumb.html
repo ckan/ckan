@@ -1,7 +1,0 @@
-<div class="toolbar">
-  <ol class="breadcrumb">
-    {% snippet 'snippets/home_breadcrumb_item.html' %}
-    {% if stage > 1 %}<li{% if stage == 2 %} class="active"{% endif %}><a href="#">{% if stage == 2 %}Active {% endif %}Breadcrumb Item</a></li>{% endif %}
-    {% if stage > 2 %}<li class="active"><a href="#">Active Breadcrumb Item</a></li>{% endif %}
-  </ol>
-</div>

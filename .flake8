@@ -50,7 +50,6 @@ extend-exclude =
                ckan/model/tag.py
                ckan/model/task_status.py
                ckan/model/term_translation.py
-               ckan/model/tracking.py
                ckan/model/user.py
                ckan/model/vocabulary.py
                ckan/authz.py

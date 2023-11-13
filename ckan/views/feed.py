@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import json
 import unicodedata
-from typing import Optional, cast, Any
+from typing import Optional, Any
 
 
 from urllib.parse import urlparse
@@ -15,7 +15,6 @@ from feedgen.feed import FeedGenerator
 from ckan.common import _, config, request, current_user
 import ckan.lib.helpers as h
 import ckan.lib.base as base
-import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.types import Context, DataDict, PFeedFactory, Response
@@ -32,12 +31,10 @@ def _package_search(data_dict: DataDict) -> tuple[int, list[dict[str, Any]]]:
      * unless overridden, sorts results by metadata_modified date
      * unless overridden, sets a default item limit
     """
-    context = cast(Context, {
-        u'model': model,
-        u'session': model.Session,
-        u'user': current_user.name,
-        u'auth_user_obj': current_user
-    })
+    context: Context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user
+    }
     if u'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = u'metadata_modified desc'
 
@@ -106,8 +103,8 @@ class CKANFeed(FeedGenerator):
                 continue
             self.link(href=href, rel=rel)
 
-    def writeString(self, encoding: str) -> str:  # noqa
-        return cast(str, self.atom_str(encoding=encoding))
+    def writeString(self, encoding: str) -> str:
+        return self.atom_str(encoding=encoding)
 
     def add_item(self, **kwargs: Any) -> None:
         entry = self.add_entry()
@@ -196,12 +193,10 @@ def output_feed(
 
 def group(id: str) -> Response:
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
-            u'user': current_user.name,
-            u'auth_user_obj': current_user
-        })
+        context: Context = {
+            'user': current_user.name,
+            'auth_user_obj': current_user
+        }
         group_dict = logic.get_action(u'group_show')(context, {u'id': id})
     except logic.NotFound:
         base.abort(404, _(u'Group not found'))
@@ -213,12 +208,10 @@ def group(id: str) -> Response:
 
 def organization(id: str) -> Response:
     try:
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'user': current_user.name,
             u'auth_user_obj': current_user
-        })
+        }
         group_dict = logic.get_action(u'organization_show')(context, {
             u'id': id
         })

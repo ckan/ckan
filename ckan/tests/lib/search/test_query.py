@@ -342,11 +342,11 @@ class TestPackageQuery:
         assert {pkg1["name"], pkg2["name"], pkg3["name"]} == set(result["results"])
 
     def test_single_by_name(self):
-        factories.Dataset(name="first")
-        factories.Dataset(name="second")
+        factories.Dataset(name="verycomplexnameoffirstdataset")
+        factories.Dataset(name="verycomplexnameofseconddataset")
 
-        result = search.query_for(model.Package).run({"q": u"first"})
-        assert result["results"] == ["first"]
+        result = search.query_for(model.Package).run({"q": u"verycomplexnameoffirstdataset"})
+        assert result["results"] == ["verycomplexnameoffirstdataset"]
 
     def test_name_multiple_results(self):
         factories.Dataset(name="first-record")

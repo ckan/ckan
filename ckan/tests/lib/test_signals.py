@@ -40,7 +40,7 @@ def test_request_signals(app):
     assert finish_receiver.call_count == 2
 
 
-@pytest.mark.usefixtures(u"non_clean_db", u"with_request_context")
+@pytest.mark.usefixtures(u"non_clean_db")
 class TestUserSignals:
     def test_user_created(self):
         created = mock.Mock()
@@ -103,3 +103,31 @@ class TestUserSignals:
                 app.post(url, data=data)
                 assert success.call_count == 1
                 assert fail.call_count == 3
+
+    def test_logged_in(self, user_factory, app, faker):
+        pwd = faker.password()
+        user = user_factory(password=pwd)
+        logged_in = mock.Mock()
+        url = url_for("user.login")
+
+        with signals.user_logged_in.connected_to(logged_in):
+            app.post(url, data={"login": user["name"], "password": pwd * 3})
+            assert logged_in.call_count == 0
+
+            app.post(url, data={"login": user["name"], "password": pwd})
+            assert logged_in.call_count == 1
+            assert logged_in.call_args.args[0] == app.flask_app
+            assert logged_in.call_args.kwargs["user"].id == user["id"]
+
+    def test_logged_out(self, api_token_factory, user, app):
+        api_token = api_token_factory(user=user["id"])
+        logged_out = mock.Mock()
+        url = url_for("user.logout")
+
+        with signals.user_logged_out.connected_to(logged_out):
+            app.get(url)
+            assert logged_out.call_count == 0
+
+            headers = {"Authorization": api_token["token"]}
+            app.get(url, headers=headers)
+            assert logged_out.call_count == 1

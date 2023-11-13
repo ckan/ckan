@@ -2828,6 +2828,46 @@ class TestMembersList(object):
 
         assert len(org_members) == 0
 
+    def test_user_list_excludes_deleted_users_not_marked_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {"user": sysadmin["name"]}
+
+        member_dict = {
+            "username": user["id"],
+            "id": org["id"],
+            "role": "member",
+        }
+        helpers.call_action(
+            "organization_member_create", context, **member_dict
+        )
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 1
+        assert org_members[0][0] == user["id"]
+        assert org_members[0][1] == "user"
+
+        model.Session.delete(model.User.get(user["id"]))
+        model.Session.commit()
+
+        org_members = helpers.call_action(
+            "member_list",
+            context,
+            id=org["id"],
+            object_type="user",
+            capacity="member",
+        )
+
+        assert len(org_members) == 0
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestFollow(object):
@@ -2912,7 +2952,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2928,7 +2968,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2944,7 +2984,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
 

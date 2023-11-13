@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
+from ckan.lib.redis import connect_to_redis
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -127,3 +128,41 @@ class TestMigrateDbFor(object):
 @pytest.mark.usefixtures("non_clean_db")
 def test_non_clean_db_does_not_fail(package_factory):
     assert package_factory()
+
+
+class TestRedisFixtures:
+
+    @pytest.fixture()
+    def add_redis_record(self, redis, faker):
+        """Create a random record in Redis."""
+        redis.set(faker.word(), faker.word())
+
+    @pytest.fixture()
+    def redis(self):
+        """Return Redis client."""
+        return connect_to_redis()
+
+    @pytest.mark.usefixtures("add_redis_record", "clean_redis")
+    def test_clean_redis_after_adding_record(self, redis):
+        """clean_redis fixture removes everything from redis."""
+        assert redis.keys("*") == []
+
+    @pytest.mark.usefixtures("clean_redis", "add_redis_record")
+    def test_clean_redis_before_adding_record(self, redis):
+        """It's possible to add data to redis after cleaning."""
+        assert len(redis.keys("*")) == 1
+
+    def test_reset_redis(self, redis, reset_redis):
+        """reset_redis can be used for removing records multiple times."""
+        redis.set("AAA-1", 1)
+        redis.set("AAA-2", 2)
+        redis.set("BBB-3", 3)
+
+        reset_redis("AAA-*")
+        assert not redis.get("AAA-1")
+        assert not redis.get("AAA-2")
+
+        assert redis.get("BBB-3")
+
+        reset_redis()
+        assert not redis.get("BBB-3")

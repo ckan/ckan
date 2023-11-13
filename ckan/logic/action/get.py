@@ -55,6 +55,7 @@ _or_ = sqlalchemy.or_
 _and_ = sqlalchemy.and_
 _func = sqlalchemy.func
 _case = sqlalchemy.case
+_null = sqlalchemy.null
 
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
@@ -174,12 +175,13 @@ def member_list(context: Context, data_dict: DataDict) -> ActionResult.MemberLis
     # User must be able to update the group to remove a member from it
     _check_access('group_show', context, data_dict)
 
-    q = model.Session.query(model.Member).\
-        filter(model.Member.group_id == group.id).\
+    q = model.Session.query(model.Member)
+    if obj_type:
+        q = model.Member.all(obj_type)
+
+    q = q.filter(model.Member.group_id == group.id).\
         filter(model.Member.state == "active")
 
-    if obj_type:
-        q = q.filter(model.Member.table_name == obj_type)
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
@@ -400,13 +402,13 @@ def _group_or_org_list(
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
-        sort_model_field = sqlalchemy.func.count(model.Group.id)
+        sort_model_field: Any = sqlalchemy.func.count(model.Group.id)
         if sort_field == 'package_count':
             query = query.group_by(model.Group.id, model.Group.name)
         elif sort_field == 'name':
             sort_model_field = model.Group.name
         elif sort_field == 'title':
-            sort_model_field = cast(Any, model.Group.title)
+            sort_model_field = model.Group.title
 
         if sort_direction == 'asc':
             query = query.order_by(sqlalchemy.asc(sort_model_field))
@@ -914,7 +916,7 @@ def user_list(
 
     if all_fields:
         for user in query.all():
-            result_dict = model_dictize.user_dictize(user[0], context)
+            result_dict: Any = model_dictize.user_dictize(user[0], context)
             users_list.append(result_dict)
     else:
         for user in query.all():
@@ -983,9 +985,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: ``False``)
     :type use_default_schema: bool
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
     :param include_plugin_data: Include the internal plugin data object
         (sysadmin only, optional, default:``False``)
     :type: include_plugin_data: bool
@@ -999,7 +998,10 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
-        include_plugin_data = user_obj.sysadmin and include_plugin_data
+        include_plugin_data = (
+            user_obj.sysadmin  # type: ignore
+            and include_plugin_data
+        )
 
         if include_plugin_data:
             context['use_cache'] = False
@@ -1016,7 +1018,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
 
     if data_dict.get('use_default_schema', False):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
-    include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
     use_cache = (context.get('use_cache', True))
@@ -1048,16 +1049,6 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             pkg, context, include_plugin_data
         )
         package_dict_validated = False
-
-    if include_tracking:
-        # page-view tracking summary data
-        package_dict['tracking_summary'] = (
-            model.TrackingSummary.get_for_package(package_dict['id']))
-
-        for resource_dict in package_dict['resources']:
-            summary =  model.TrackingSummary.get_for_resource(
-                resource_dict['url'])
-            resource_dict['tracking_summary'] = summary
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1093,9 +1084,6 @@ def resource_show(
 
     :param id: the id of the resource
     :type id: string
-    :param include_tracking: add tracking information to dataset and
-        resources (default: ``False``)
-    :type include_tracking: bool
 
     :rtype: dictionary
 
@@ -1104,17 +1092,15 @@ def resource_show(
     id = _get_or_bust(data_dict, 'id')
 
     resource = model.Resource.get(id)
-    resource_context = cast(Context, dict(context, resource=resource))
-
     if not resource:
         raise NotFound
 
+    resource_context = Context(context, resource=resource)
     _check_access('resource_show', resource_context, data_dict)
 
     pkg_dict = logic.get_action('package_show')(
-        context.copy(),
-        {'id': resource.package.id,
-        'include_tracking': asbool(data_dict.get('include_tracking', False))})
+        context.copy(), {'id': resource.package.id}
+        )
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1458,13 +1444,13 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     else:
         user_obj = None
 
-    if not user_obj:
-        raise NotFound
-
-    context['user_obj'] = user_obj
+    if user_obj:
+        context['user_obj'] = user_obj
 
     _check_access('user_show', context, data_dict)
 
+    if not user_obj:
+        raise NotFound
 
     # include private and draft datasets?
     requester = context.get('user')

@@ -8,7 +8,7 @@
   {% set show_table = true %}
 
   <form method="post" action="{{ action }}" class="datapusher-form">
-    {{ h.csrf_input() }} 
+    {{ h.csrf_input() }}
     <button class="btn btn-primary" name="save" type="submit">
       <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
     </button>
@@ -16,11 +16,11 @@
 
   {% if status.error and status.error.message %}
     {% set show_table = false %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
     </div>
   {% elif status.task_info and status.task_info.error %}
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
       {% if status.task_info.error is string %}
         {# DataPusher < 0.0.3 #}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
@@ -76,7 +76,7 @@
           {% endfor %}
           <span class="date" title="{{ h.render_datetime(item.timestamp, with_hours=True) }}">
             {{ h.time_ago_from_timestamp(item.timestamp) }}
-            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">              
+            <a href="#" data-module="datapusher_popover" data-module-title="Details <a href='#' class='popover-close'>X</a>" data-module-content="<ul class='list-unstyled'>{% for key, value in item.items() %}<li><b>{{ key }}</b>: {{ h.clean_html(value|string) }}</li>{% endfor %}</ul>">
               {{ _('Details') }}
             </a>
           </span>

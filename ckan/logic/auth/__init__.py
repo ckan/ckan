@@ -8,8 +8,8 @@ from typing import Any, Optional, TYPE_CHECKING, overload
 from typing_extensions import Literal
 
 import ckan.logic as logic
+import ckan.authz as authz
 from ckan.types import Context, AuthResult, DataDict
-from ckan.common import current_user
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -46,24 +46,19 @@ def _get_object(context: Context,
 def _get_object(context: Context,
                 data_dict: Optional[DataDict], name: str,
                 class_name: str) -> Any:
-    # return the named item if in the context, or get it from model.class_name
-    try:
-        return context[name]
-    except KeyError:
-        model = context['model']
-        if not data_dict:
-            data_dict = {}
-        id = data_dict.get('id', None)
-        if not id:
-            raise logic.ValidationError({
-                "message": 'Missing id, can not get {0} object'.format(
-                    class_name)})
-        obj = getattr(model, class_name).get(id)
-        if not obj:
-            raise logic.NotFound
-        # Save in case we need this again during the request
-        context[name] = obj
-        return obj
+    # return the named item from model.class_name
+    model = context['model']
+    if not data_dict:
+        data_dict = {}
+    id = data_dict.get('id', None)
+    if not id:
+        raise logic.ValidationError({
+            "message": 'Missing id, can not get {0} object'.format(
+                class_name)})
+    obj = getattr(model, class_name).get(id)
+    if not obj:
+        raise logic.NotFound
+    return obj
 
 
 def get_package_object(
@@ -91,7 +86,7 @@ def get_user_object(
 
 
 def restrict_anon(context: Context) -> AuthResult:
-    if current_user.is_anonymous:
+    if authz.auth_is_anon_user(context):
         return {'success': False}
     else:
         return {'success': True}

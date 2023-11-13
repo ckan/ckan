@@ -535,7 +535,7 @@ def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
     pkg = context.get('package')
     if pkg:
         try:
-            logic.check_access('package_change_state',context)
+            logic.check_access('package_change_state',context, {"id": pkg.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False
@@ -575,7 +575,7 @@ def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
     group = context.get('group')
     if group:
         try:
-            logic.check_access('group_change_state',context)
+            logic.check_access('group_change_state',context, {"id": group.id})
             authorized = True
         except logic.NotAuthorized:
             authorized = False
@@ -772,25 +772,37 @@ def tag_not_in_vocabulary(key: FlattenKey, tag_dict: FlattenDataDict,
         return
 
 
-def url_validator(key: FlattenKey, data: FlattenDataDict,
-                  errors: FlattenErrorDict, context: Context) -> Any:
-    ''' Checks that the provided value (if it is present) is a valid URL '''
-
+def url_validator(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    """Checks that the provided value (if it is present) is a valid URL"""
     url = data.get(key, None)
     if not url:
         return
 
     try:
         pieces = urlparse(url)
-        if all([pieces.scheme, pieces.netloc]) and \
-           set(pieces.netloc) <= set(string.ascii_letters + string.digits + '-.') and \
-           pieces.scheme in ['http', 'https']:
-            return
+        if all([pieces.scheme, pieces.netloc]) and pieces.scheme in [
+            "http",
+            "https",
+        ]:
+            hostname, port = (
+                pieces.netloc.split(":")
+                if ":" in pieces.netloc
+                else (pieces.netloc, None)
+            )
+            if set(hostname) <= set(
+                string.ascii_letters + string.digits + "-."
+            ) and (port is None or port.isdigit()):
+                return
     except ValueError:
         # url is invalid
         pass
 
-    errors[key].append(_('Please provide a valid URL'))
+    errors[key].append(_("Please provide a valid URL"))
 
 
 def user_name_exists(user_name: str, context: Context) -> Any:

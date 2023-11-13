@@ -26,7 +26,6 @@ from . import (
     profile,
     sass,
     sysadmin,
-    tracking,
     translation,
     user,
     views,
@@ -229,7 +228,6 @@ ckan.add_command(sass.sass)
 ckan.add_command(search_index.search_index)
 ckan.add_command(server.run)
 ckan.add_command(sysadmin.sysadmin)
-ckan.add_command(tracking.tracking)
 ckan.add_command(translation.translation)
 ckan.add_command(user.user)
 ckan.add_command(views.views)
