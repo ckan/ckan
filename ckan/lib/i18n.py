@@ -310,7 +310,9 @@ def _build_js_translation(
                 for _, msgstr in ordered_plural:
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
-        s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
+        s = json.dumps(
+            result, sort_keys=True, ensure_ascii=False, separators=(',', ':')
+        )
         f.write(s)
 
 
