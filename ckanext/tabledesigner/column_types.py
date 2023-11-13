@@ -76,6 +76,21 @@ class TextColumn(ColumnType):
     table_schema_type = 'string'
     table_schema_format = 'default'
 
+    _SQL_TRIM_PK = '''
+    {value} := trim({value});
+    '''
+
+    def sql_validate_rule(self):
+        '''
+        remove surrounding whitespace from text pk fields to avoid
+        accidental duplication
+        '''
+        if self.info.get('pkreq') == 'pk':
+            return self._SQL_TRIM_PK.format(
+                value=f'NEW.{identifier(self.colname)}',
+            )
+        return ''
+
 
 @_standard_column('choice')
 class ChoiceColumn(ColumnType):
@@ -134,7 +149,7 @@ class EmailColumn(ColumnType):
     # remove surrounding whitespace and validate
     _SQL_VALIDATE = '''
     {value} := trim({value});
-    IF regexp_match({value}, {pattern}) IS NULL THEN
+    IF {value} <> '' AND regexp_match({value}, {pattern}) IS NULL THEN
         errors := errors || ARRAY[{colname}, {error}];
     END IF;
     '''
