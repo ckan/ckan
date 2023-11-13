@@ -34,10 +34,9 @@ def send_emails():
     import ckan.logic as logic
     import ckan.lib.mailer as mailer
     from ckan.types import Context
-    from typing import cast
 
     site_user = logic.get_action("get_site_user")({"ignore_auth": True}, {})
-    context = cast(Context, {"user": site_user["name"]})
+    context: Context = {"user": site_user["name"]}
     try:
         logic.get_action("send_email_notifications")(context, {})
     except (NotAuthorized, ValidationError, mailer.MailerException) as e:

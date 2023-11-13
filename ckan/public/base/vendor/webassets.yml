@@ -68,3 +68,9 @@ reorder:
     - jquery.ui.widget.js
     - jquery.ui.mouse.js
     - jquery.ui.sortable.js
+
+htmx:
+  filters: rjsmin
+  output: vendor/%(version)s_htmx.js
+  contents:
+    - htmx.js

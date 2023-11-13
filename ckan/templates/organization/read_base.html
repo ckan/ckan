@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet 'snippets/organization.html', organization=group_dict, show_nums=true, group_type=group_type %}
+  {% snippet 'organization/snippets/info.html', organization=group_dict, show_nums=true, group_type=group_type, am_following=am_following %}
   {% block organization_facets %}{% endblock %}
 {% endblock %}
 

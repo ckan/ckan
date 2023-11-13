@@ -271,9 +271,9 @@ but its use is discouraged as they are not as secure as tokens and are limited t
 Support for legacy API keys will be removed in future CKAN versions.
 
 
-To provide your API token in an HTTP request, include it in either an
-``Authorization`` or ``X-CKAN-API-Key`` header.  (The name of the HTTP header
-can be configured with the ``apikey_header_name`` option in your CKAN
+To provide your API token in an HTTP request, include it in an
+``Authorization`` header.  (The name of the HTTP header
+can be configured with the :ref:``apitoken_header_name`` option in your CKAN
 configuration file.)
 
 For example, to ask whether or not you're currently following the user

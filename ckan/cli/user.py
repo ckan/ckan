@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, cast
+from typing import Optional
 
 import click
 
@@ -50,20 +50,16 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
                                              confirmation_prompt=True)
 
     import ckan.logic as logic
-    import ckan.model as model
 
     try:
-        site_user = logic.get_action(u'get_site_user')(cast(Context, {
-            u'model': model,
-            u'ignore_auth': True}),
+        site_user = logic.get_action(u'get_site_user')(
+            {'ignore_auth': True},
             {}
         )
-        context = cast(Context, {
-            u'model': model,
-            u'session': model.Session,
+        context: Context = {
             u'ignore_auth': True,
             u'user': site_user['name'],
-        })
+        }
         flask_app = ctx.meta['flask_app']
         # Current user is tested agains sysadmin role during model
         # dictization, thus we need request context

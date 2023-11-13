@@ -38,8 +38,7 @@ from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
-from ckan.config.middleware.common_middleware import (TrackingMiddleware,
-                                                      HostHeaderMiddleware,
+from ckan.config.middleware.common_middleware import (HostHeaderMiddleware,
                                                       RootPathMiddleware)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
@@ -138,13 +137,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         app.config.update(conf)
 
     # Do all the Flask-specific stuff before adding other middlewares
-
-    # Secret key needed for flask-debug-toolbar and sessions
-    if not app.config.get('SECRET_KEY'):
-        app.config['SECRET_KEY'] = config.get('beaker.session.secret')
-    if not app.config.get('SECRET_KEY'):
-        raise RuntimeError(u'You must provide a value for the secret key'
-                           ' with the SECRET_KEY config option')
 
     root_path = config.get('ckan.root_path')
     if debug:
@@ -306,9 +298,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     app = I18nMiddleware(app)
 
-    if config.get('ckan.tracking_enabled'):
-        app = TrackingMiddleware(app, config)
-
     # Add a reference to the actual Flask app so it's easier to access
     # type_ignore_reason: custom attribute
     app._wsgi_app = flask_app  # type: ignore
@@ -382,8 +371,9 @@ def ckan_before_request() -> Optional[Response]:
         # eg "organization.edit" -> "group.edit", or custom dataset types
         endpoint = request.endpoint or ""
         view = current_app.view_functions.get(endpoint)
-        dest = f"{view.__module__}.{view.__name__}"     # type: ignore
-        csrf.exempt(dest)
+        if view:
+            dest = f"{view.__module__}.{view.__name__}"
+            csrf.exempt(dest)
 
     # Set the csrf_field_name so we can use it in our templates
     g.csrf_field_name = config.get("WTF_CSRF_FIELD_NAME")
@@ -587,4 +577,5 @@ def _setup_webassets(app: CKANApp):
     def webassets(path: str):
         return send_from_directory(webassets_folder, path)
 
-    app.add_url_rule('/webassets/<path:path>', 'webassets.index', webassets)
+    path = config["ckan.webassets.url"].rstrip("/")
+    app.add_url_rule(f'{path}/<path:path>', 'webassets.index', webassets)

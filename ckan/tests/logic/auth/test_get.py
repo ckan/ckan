@@ -38,13 +38,22 @@ def test_user_list_email_parameter():
 class TestGetAuth(object):
     @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
     @mock.patch("flask_login.utils._get_user")
-    def test_auth_user_show(self, current_user):
+    def test_restrict_anon_auth_when_user_is_anonymouus(self, current_user):
         fred = factories.User()
         fred["capacity"] = "editor"
         current_user.return_value = mock.Mock(is_anonymous=True)
         context = {"user": None, "model": model}
         with pytest.raises(logic.NotAuthorized):
             helpers.call_auth("user_show", context=context, id=fred["id"])
+
+    @pytest.mark.ckan_config(u"ckan.auth.public_user_details", False)
+    @mock.patch("flask_login.utils._get_user")
+    def test_restrict_anon_auth_when_user_is_in_context(self, current_user):
+        fred = factories.User()
+        fred["capacity"] = "editor"
+        current_user.return_value = mock.Mock(is_anonymous=True)
+        context = {"user": fred['id'], "model": model}
+        assert helpers.call_auth("user_show", context=context, id=fred["id"])
 
     def test_authed_user_show(self):
         fred = factories.User()

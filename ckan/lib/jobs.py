@@ -287,7 +287,7 @@ class Worker(rq.Worker):
         meta.engine.dispose()
 
         # The original implementation performs the actual fork
-        queue = remove_queue_name_prefix(cast(str, job.origin))
+        queue = remove_queue_name_prefix(job.origin)
 
         if not job.meta:
             job.meta = {}

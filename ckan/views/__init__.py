@@ -38,7 +38,7 @@ def set_cors_headers_for_response(response: Response) -> Response:
             response.headers['Access-Control-Allow-Methods'] = \
                 'POST, PUT, GET, DELETE, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = \
-                'X-CKAN-API-KEY, Authorization, Content-Type'
+                f'{config.get("apitoken_header_name")}, Content-Type'
 
     return response
 
@@ -118,23 +118,13 @@ def identify_user() -> Optional[Response]:
 
 
 def _get_user_for_apitoken() -> Optional[model.User]:  # type: ignore
-    apitoken_header_name = config.get("apikey_header_name")
-
+    apitoken_header_name = config.get("apitoken_header_name")
     apitoken: str = request.headers.get(apitoken_header_name, u'')
-    if not apitoken:
-        apitoken = request.environ.get(apitoken_header_name, u'')
-    if not apitoken:
-        # For misunderstanding old documentation (now fixed).
-        apitoken = request.environ.get(u'HTTP_AUTHORIZATION', u'')
-    if not apitoken:
-        apitoken = request.environ.get(u'Authorization', u'')
-        # Forget HTTP Auth credentials (they have spaces).
-        if u' ' in apitoken:
-            apitoken = u''
+
     if not apitoken:
         return None
     apitoken = str(apitoken)
-    log.debug(u'Received API Token: %s' % apitoken)
+    log.debug(f'Received API Token: {apitoken[:10]}[...]')
 
     user = api_token.get_user_from_token(apitoken)
 
