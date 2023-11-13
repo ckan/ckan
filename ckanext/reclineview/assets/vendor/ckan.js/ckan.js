@@ -31,7 +31,7 @@ if (isNodeModule) {
   my.Client.prototype._ajax = function(options, cb) {
     options.headers = options.headers || {};
     if (this.apiKey) {
-      options.headers['X-CKAN-API-KEY'] = this.apiKey;
+      options.headers['Authorization'] = this.apiKey;
     }
 
     var csrf_field = $('meta[name=csrf_field_name]').attr('content');

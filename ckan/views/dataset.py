@@ -382,7 +382,7 @@ def resources(package_type: str, id: str) -> Union[Response, str]:
         u'for_view': True,
         u'auth_user_obj': current_user
     }
-    data_dict: dict[str, Any] = {u'id': id, u'include_tracking': True}
+    data_dict: dict[str, Any] = {'id': id}
 
     try:
         check_access(u'package_update', context, data_dict)
@@ -422,7 +422,7 @@ def read(package_type: str, id: str) -> Union[Response, str]:
         u'for_view': True,
         u'auth_user_obj': current_user
     }
-    data_dict = {u'id': id, u'include_tracking': True}
+    data_dict = {'id': id}
 
     # check if package exists
     try:
@@ -1091,23 +1091,47 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
         u'pkg_dict': pkg_dict})
 
 
-def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
+def collaborator_delete(package_type: str,
+                        id: str, user_id: str) -> Union[Response, str]:  # noqa
     context: Context = {'user': current_user.name}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'{}.collaborators_read'
+                             .format(package_type), id=id)
+
     try:
-        get_action(u'package_collaborator_delete')(context, {
-            u'id': id,
-            u'user_id': user_id
-        })
+        if request.method == u'POST':
+            get_action(u'package_collaborator_delete')(context, {
+                u'id': id,
+                u'user_id': user_id
+            })
+        user_dict = logic.get_action(u'user_show')(context, {u'id': user_id})
     except NotAuthorized:
         message = _(u'Unauthorized to delete collaborators {}').format(id)
         return base.abort(401, _(message))
     except NotFound as e:
         return base.abort(404, _(e.message))
 
-    h.flash_success(_(u'User removed from collaborators'))
+    if request.method == u'POST':
+        h.flash_success(_(u'User removed from collaborators'))
 
-    return h.redirect_to(u'dataset.collaborators_read', id=id)
+        return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.user_dict = user_dict
+    g.user_id = user_id
+    g.package_id = id
+
+    extra_vars = {
+        u"user_id": user_id,
+        u"user_dict": user_dict,
+        u"package_id": id,
+        u"package_type": package_type
+    }
+    return base.render(
+        u'package/collaborators/confirm_delete.html', extra_vars)
 
 
 class CollaboratorEditView(MethodView):
@@ -1231,7 +1255,7 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
 
         blueprint.add_url_rule(
             rule=u'/collaborators/<id>/delete/<user_id>',
-            view_func=collaborator_delete, methods=['POST', ]
+            view_func=collaborator_delete, methods=['POST', 'GET']
         )
 
 
