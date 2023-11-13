@@ -277,7 +277,7 @@ class TestGroupDictize:
 
         org = model_dictize.group_dictize(group_obj, context)
 
-        assert type(org["packages"]) == list
+        assert isinstance(org["packages"], list)
         assert len(org["packages"]) == 1
         assert org["packages"][0]["name"] == package["name"]
 
@@ -548,6 +548,7 @@ class TestPackageDictize:
             u"state": group["state"],
             u"title": group["title"],
             u"type": group["type"],
+            u"member_count": 1,
         }
         self.assert_equals_expected(expected_dict, result["groups"][0])
 

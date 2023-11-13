@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2022
+# Andi Chandler <andi@gowling.com>, 2023
 # 
 #, fuzzy
 msgid ""
@@ -13,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-16 11:30+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
-"Language-Team: English (United Kingdom) (https://www.transifex.com/okfn/teams/11162/en_GB/)\n"
+"Last-Translator: Andi Chandler <andi@gowling.com>, 2023\n"
+"Language-Team: English (United Kingdom) (https://app.transifex.com/okfn/teams/11162/en_GB/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -108,76 +109,76 @@ msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1058
 msgid "Add {object_type}"
-msgstr ""
+msgstr "Add {object_type}"
 
 #: ckan/lib/helpers.py:1059 ckan/lib/helpers.py:1060 ckan/lib/helpers.py:1068
 #: ckan/lib/helpers.py:1070 ckan/lib/helpers.py:1081
 msgid "{object_type}s"
-msgstr ""
+msgstr "{object_type}s"
 
 #: ckan/lib/helpers.py:1061 ckan/lib/helpers.py:1062
 msgid "Create {object_type}"
-msgstr ""
+msgstr "Create {object_type}"
 
 #: ckan/lib/helpers.py:1063
 msgid "Are you sure you want to delete this {object_type}?"
-msgstr ""
+msgstr "Are you sure you want to delete this {object_type}?"
 
 #: ckan/lib/helpers.py:1065
 msgid "A little information about my {object_type}..."
-msgstr ""
+msgstr "A little information about my {object_type}..."
 
 #: ckan/lib/helpers.py:1067
 msgid "Edit {object_type}"
-msgstr ""
+msgstr "Edit {object_type}"
 
 #: ckan/lib/helpers.py:1069
 msgid "{object_type} Form"
-msgstr ""
+msgstr "{object_type} Form"
 
 #: ckan/lib/helpers.py:1071
 msgid "My {object_type}s"
-msgstr ""
+msgstr "My {object_type}s"
 
 #: ckan/lib/helpers.py:1072
 msgid "View {object_type}"
-msgstr ""
+msgstr "View {object_type}"
 
 #: ckan/lib/helpers.py:1073
 msgid "My {object_type}"
-msgstr ""
+msgstr "My {object_type}"
 
 #: ckan/lib/helpers.py:1074
 msgid "There are currently no {object_type}s for this site"
-msgstr ""
+msgstr "There are currently no {object_type}s for this site"
 
 #: ckan/lib/helpers.py:1076
 msgid "There are no {object_type}s associated with this dataset"
-msgstr ""
+msgstr "There are no {object_type}s associated with this dataset"
 
 #: ckan/lib/helpers.py:1078
 msgid "There is no description for this {object_type}"
-msgstr ""
+msgstr "There is no description for this {object_type}"
 
 #: ckan/lib/helpers.py:1080
 msgid "No {object_type}"
-msgstr ""
+msgstr "No {object_type}"
 
 #: ckan/lib/helpers.py:1082
 msgid "Save {object_type}"
-msgstr ""
+msgstr "Save {object_type}"
 
 #: ckan/lib/helpers.py:1083
 msgid "Search {object_type}s..."
-msgstr ""
+msgstr "Search {object_type}s..."
 
 #: ckan/lib/helpers.py:1084
 msgid "You are not a member of any {object_type}s."
-msgstr ""
+msgstr "You are not a member of any {object_type}s."
 
 #: ckan/lib/helpers.py:1085
 msgid "Update {object_type}"
-msgstr ""
+msgstr "Update {object_type}"
 
 #: ckan/lib/helpers.py:1683
 msgid "Unknown"
@@ -316,7 +317,7 @@ msgstr "An organisation must be provided"
 
 #: ckan/logic/validators.py:77
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "You cannot move this dataset to another organisation"
 
 #: ckan/logic/validators.py:81
 msgid "Organization does not exist"
@@ -336,11 +337,11 @@ msgstr "Must be a natural number"
 
 #: ckan/logic/validators.py:147
 msgid "Must be a positive integer"
-msgstr ""
+msgstr "Must be a positive integer"
 
 #: ckan/logic/validators.py:156
 msgid "Must be a float timestamp"
-msgstr ""
+msgstr "Must be a float timestamp"
 
 #: ckan/logic/validators.py:185
 msgid "Date format incorrect"
@@ -428,6 +429,8 @@ msgid ""
 "Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
 " (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
+"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
+" (\"-\"), underscores (\"_\") or dots (\".\")"
 
 #: ckan/logic/validators.py:459
 #, python-format
@@ -444,7 +447,7 @@ msgstr "That login name is not available."
 
 #: ckan/logic/validators.py:589
 msgid "That login name can not be modified."
-msgstr ""
+msgstr "That login name can not be modified."
 
 #: ckan/logic/validators.py:604
 msgid "Please enter both passwords"
@@ -456,7 +459,7 @@ msgstr "Passwords must be strings"
 
 #: ckan/logic/validators.py:621
 msgid "Your password must be 8 characters or longer"
-msgstr ""
+msgstr "Your password must be 8 characters or longer"
 
 #: ckan/logic/validators.py:633
 msgid "The passwords you entered do not match"
@@ -548,27 +551,27 @@ msgstr "Email {email} is not a valid format"
 
 #: ckan/logic/validators.py:993
 msgid "Must be a dict"
-msgstr ""
+msgstr "Must be a dict"
 
 #: ckan/logic/validators.py:1017
 msgid "The email address '{email}' belongs to a registered user."
-msgstr ""
+msgstr "The email address '{email}' belongs to a registered user."
 
 #: ckan/logic/validators.py:1024
 msgid "Value must be one of {}"
-msgstr ""
+msgstr "Value must be one of {}"
 
 #: ckan/logic/validators.py:1035
 msgid "The value should be a valid JSON object"
-msgstr ""
+msgstr "The value should be a valid JSON object"
 
 #: ckan/logic/validators.py:1037
 msgid "Could not parse the value as a valid JSON object"
-msgstr ""
+msgstr "Could not parse the value as a valid JSON object"
 
 #: ckan/logic/validators.py:1049
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr ""
+msgstr "Could not parse extra '{name}' as valid JSON"
 
 #: ckan/logic/action/__init__.py:70 ckan/views/util.py:19
 msgid "Missing Value"
@@ -576,7 +579,7 @@ msgstr "Missing Value"
 
 #: ckan/logic/action/create.py:688
 msgid "Role must be one of \"{}\""
-msgstr ""
+msgstr "Role must be one of \"{}\""
 
 #: ckan/logic/action/create.py:695 ckan/views/dataset.py:405
 #: ckan/views/dataset.py:416 ckan/views/dataset.py:614
@@ -603,7 +606,7 @@ msgstr "User not found"
 #: ckan/logic/action/create.py:703 ckan/logic/action/delete.py:348
 #: ckan/logic/action/get.py:241 ckan/logic/action/get.py:287
 msgid "Dataset collaborators not enabled"
-msgstr ""
+msgstr "Dataset collaborators not enabled"
 
 #: ckan/logic/action/create.py:880
 msgid "Trying to create an organization as a group"
@@ -611,7 +614,7 @@ msgstr "Trying to create an organisation as a group"
 
 #: ckan/logic/action/create.py:1116
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Error sending the invite email, the user was not created: {0}"
 
 #: ckan/logic/action/create.py:1237 ckan/logic/action/create.py:1243
 msgid "You must be logged in to follow users"
@@ -653,11 +656,11 @@ msgstr "You must be logged in to follow a group."
 
 #: ckan/logic/action/delete.py:352 ckan/logic/action/get.py:235
 msgid "Package not found"
-msgstr ""
+msgstr "Package not found"
 
 #: ckan/logic/action/delete.py:408
 msgid "Organization cannot be deleted while it still has datasets"
-msgstr ""
+msgstr "Organisation cannot be deleted while it still has datasets"
 
 #: ckan/logic/action/delete.py:607 ckan/logic/action/delete.py:633
 #: ckan/logic/action/get.py:2501 ckan/logic/action/update.py:1037
@@ -685,11 +688,11 @@ msgstr "You are not following {0}."
 
 #: ckan/logic/action/get.py:249 ckan/logic/action/get.py:299
 msgid "Capacity must be one of \"{}\""
-msgstr ""
+msgstr "Capacity must be one of \"{}\""
 
 #: ckan/logic/action/get.py:293
 msgid "Not allowed to retrieve collaborators"
-msgstr ""
+msgstr "Not allowed to retrieve collaborators"
 
 #: ckan/logic/action/get.py:1130 ckan/logic/action/update.py:80
 #: ckan/logic/action/update.py:96
@@ -698,7 +701,7 @@ msgstr "Resource was not found."
 
 #: ckan/logic/action/get.py:1215
 msgid "Parameter is not an bool"
-msgstr ""
+msgstr "Parameter is not an bool"
 
 #: ckan/logic/action/get.py:2121
 msgid "Must be <field>:<value> pair(s)"
@@ -789,7 +792,7 @@ msgstr "User %s not authorised to edit group %s"
 #: ckan/logic/auth/create.py:298
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
-msgstr ""
+msgstr "User %s not authorised to add collaborators to this dataset"
 
 #: ckan/logic/auth/delete.py:44
 #, python-format
@@ -828,7 +831,7 @@ msgstr "User %s not authorised to delete organisation %s"
 #: ckan/logic/auth/delete.py:163
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
-msgstr ""
+msgstr "User %s not authorised to remove collaborators from this dataset"
 
 #: ckan/logic/auth/get.py:16 ckan/logic/auth/get.py:271
 msgid "Not authorized"
@@ -857,7 +860,7 @@ msgstr "User %s not authorised to read group %s"
 #: ckan/logic/auth/get.py:365
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
-msgstr ""
+msgstr "User %s not authorised to list collaborators from this dataset"
 
 #: ckan/logic/auth/update.py:51
 #, python-format
@@ -1112,7 +1115,7 @@ msgstr "Upload"
 #: ckan/public-bs3/base/javascript/modules/image-upload.js:75
 #: ckan/public/base/javascript/modules/image-upload.js:75
 msgid "Please select the file to upload again"
-msgstr ""
+msgstr "Please select the file to upload again"
 
 #: ckan/public-bs3/base/javascript/modules/image-upload.js:79
 #: ckan/public/base/javascript/modules/image-upload.js:79

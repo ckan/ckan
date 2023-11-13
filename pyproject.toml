@@ -51,7 +51,7 @@ testpaths = ["ckan", "ckanext"]
 addopts = "--strict-markers --pdbcls=IPython.terminal.debugger:TerminalPdb -p no:ckan"
 
 [tool.pyright]
-pythonVersion = "3.7"
+pythonVersion = "3.8"
 include = ["ckan", "ckanext"]
 exclude = [
     "**/test*",
@@ -80,10 +80,11 @@ reportOptionalCall = true
 reportOptionalIterable = true
 reportOptionalContextManager = true
 reportOptionalOperand = true
-reportTypedDictNotRequiredAccess = false # We are using Context in a way that conflicts with this check
+# We are using Context in a way that conflicts with this check
+reportTypedDictNotRequiredAccess = false
 reportConstantRedefinition = true
 reportIncompatibleMethodOverride = false
-reportIncompatibleVariableOverride = true
+reportIncompatibleVariableOverride = false
 reportOverlappingOverload = true
 reportUntypedFunctionDecorator = false
 reportUnknownParameterType = true

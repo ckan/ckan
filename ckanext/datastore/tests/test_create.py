@@ -307,6 +307,30 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
+    def test_remove_columns(self):
+        resource = factories.Resource()
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_b", "type": "text"},
+                {"id": "col_c", "type": "text"},
+                {"id": "col_d", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == ['col_a', 'col_c']
 
 
 class TestDatastoreCreate(object):
@@ -614,9 +638,9 @@ class TestDatastoreCreate(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_create_alias_twice(self, app):
-        resource = model.Package.get("annakarenina").resources[1]
+        res1, res2 = model.Package.get("annakarenina").resources[:2]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res1.id,
             "aliases": "new_alias",
             "fields": [
                 {"id": "book", "type": "text"},
@@ -632,9 +656,8 @@ class TestDatastoreCreate(object):
         res_dict = json.loads(res.data)
         assert res_dict["success"] is True, res_dict
 
-        resource = model.Package.get("annakarenina").resources[0]
         data = {
-            "resource_id": resource.id,
+            "resource_id": res2.id,
             "aliases": "new_alias",
             "fields": [{"id": "more books", "type": "text"}],
         }
@@ -1125,43 +1148,6 @@ class TestDatastoreCreate(object):
             u"nested",  # count3
         ], types
 
-        ### fields resupplied in wrong order
-
-        data = {
-            "resource_id": resource.id,
-            "fields": [
-                {"id": "author", "type": "text"},
-                {"id": "count"},
-                {"id": "date"},  # date and book in wrong order
-                {"id": "book"},
-                {"id": "count2"},
-                {"id": "extra", "type": "text"},
-                {"id": "date2"},
-            ],
-            "records": [
-                {
-                    "book": "annakarenina",
-                    "author": "tolstoy",
-                    "count": 1,
-                    "date": "2005-12-01",
-                    "count2": 2,
-                    "count3": 432,
-                    "date2": "2005-12-01",
-                }
-            ],
-        }
-
-        headers = {"Authorization": self.sysadmin_token}
-        res = app.post(
-            "/api/action/datastore_create",
-            json=data,
-            headers=headers,
-            status=409,
-        )
-        res_dict = json.loads(res.data)
-
-        assert res_dict["success"] is False
-
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("with_plugins")
     def test_datastore_create_with_invalid_data_value(self, app):
@@ -1193,7 +1179,7 @@ class TestDatastoreCreate(object):
 
         assert res_dict["success"] is False
         assert res_dict["error"]["__type"] == "Validation Error"
-        assert res_dict["error"]["message"].startswith("The data was invalid")
+        assert 'invalid input syntax for type numeric' in str(res_dict["error"])
 
 
 
@@ -1382,7 +1368,10 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"EGGS"}],
                     triggers=[{u"function": u"spamexception_trigger"}],
                 )
-        assert error.value.error_dict == {u"records": [u'"EGGS"? Yeeeeccch!']}
+        assert error.value.error_dict == {
+            "records": ['"EGGS"? Yeeeeccch!'],
+            "records_row": 1,
+        }
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
@@ -1416,5 +1405,6 @@ class TestDatastoreCreateTriggers(object):
                     records=[{u"spam": u"spam"}, {u"spam": u"BEANS"}],
                 )
             assert error.value.error_dict == {
-                u"records": [u'"BEANS"? Yeeeeccch!']
+                "records": ['"BEANS"? Yeeeeccch!'],
+                "records_row": 1,
             }

@@ -27,7 +27,7 @@ class VideoView(p.SingletonPlugin):
     def info(self) -> dict[str, Any]:
         return {'name': 'video_view',
                 'title': p.toolkit._('Video'),
-                'icon': 'file-video-o',
+                'icon': 'file-video',
                 'schema': {'video_url': [ignore_empty, unicode_safe],
                            'poster_url': [ignore_empty, unicode_safe]},
                 'iframed': False,

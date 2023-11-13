@@ -115,6 +115,10 @@ def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
 
     It can be overridden by explicitly setting {'user': None} in the keyword
     arguments. In that case, this method will return None.
+
+    If `user` key available in kwargs and it's a string, return value
+    unchanged. Otherwise, return `user["name"]`.
+
     """
 
     if "user" in kwargs:
@@ -124,6 +128,8 @@ def _get_action_user_name(kwargs: dict[str, Any]) -> Optional[str]:
 
     if user is None:
         user_name = None
+    elif isinstance(user, str):
+        user_name = user
     else:
         user_name = user["name"]
 

@@ -206,7 +206,8 @@ def _get_subquery_from_crosstab_call(ct: str):
 
 
 def datastore_dictionary(
-        resource_id: str, include_columns: Optional[list[str]] = None):
+        resource_id: str, include_columns: Optional[list[str]] = None
+) -> list[dict[str, Any]]:
     """
     Return the data dictionary info for a resource, optionally filtering
     columns returned.
@@ -238,3 +239,12 @@ def datastore_search_sql_enabled(*args: Any) -> bool:
         return tk.asbool(config)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         return False
+
+
+def datastore_rw_resource_url_types() -> list[str]:
+    """
+    Return a list of resource url_type values that do not require passing
+    force=True when used with datastore_create, datastore_upsert,
+    datastore_delete
+    """
+    return ["datastore"]

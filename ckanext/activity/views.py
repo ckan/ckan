@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 from datetime import datetime
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from flask import Blueprint
 
@@ -99,13 +99,10 @@ def _get_newer_activities_url(
 
 @bp.route("/dataset/<id>/resources/<resource_id>/history/<activity_id>")
 def resource_history(id: str, resource_id: str, activity_id: str) -> str:
-    context = cast(
-        Context,
-        {
-            "auth_user_obj": tk.g.userobj,
-            "for_view": True,
-        },
-    )
+    context: Context = {
+        "auth_user_obj": tk.g.userobj,
+        "for_view": True,
+    }
 
     try:
         package = tk.get_action("package_show")(context, {"id": id})
@@ -202,14 +199,11 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
 
 @bp.route("/dataset/<id>/history/<activity_id>")
 def package_history(id: str, activity_id: str) -> Union[Response, str]:
-    context = cast(
-        Context,
-        {
-            "for_view": True,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
-    data_dict = {"id": id, "include_tracking": True}
+    context: Context = {
+        "for_view": True,
+        "auth_user_obj": tk.g.userobj,
+    }
+    data_dict = {"id": id}
 
     # check if package exists
     try:
@@ -302,13 +296,10 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
     before = tk.request.args.get("before")
     activity_type = tk.request.args.get("activity_type")
 
-    context = cast(
-        Context,
-        {
-            "for_view": True,
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context: Context = {
+        "for_view": True,
+        "auth_user_obj": tk.g.userobj,
+    }
 
     data_dict = {"id": id}
     limit = _get_activity_stream_limit()
@@ -380,7 +371,7 @@ def package_changes(id: str) -> Union[Response, str]:  # noqa
     Shows the changes to a dataset in one particular activity stream item.
     """
     activity_id = id
-    context = cast(Context, {"auth_user_obj": tk.g.userobj})
+    context: Context = {"auth_user_obj": tk.g.userobj}
     try:
         activity_diff = tk.get_action("activity_diff")(
             context,
@@ -424,7 +415,7 @@ def package_changes_multiple() -> Union[Response, str]:  # noqa
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
-    context = cast(Context, {"auth_user_obj": tk.g.userobj})
+    context: Context = {"auth_user_obj": tk.g.userobj}
 
     # check to ensure that the old activity is actually older than
     # the new activity
@@ -512,7 +503,7 @@ def group_activity(id: str, group_type: str) -> str:
     if group_type == 'organization':
         set_org(True)
 
-    context = cast(Context, {"user": tk.g.user, "for_view": True})
+    context: Context = {"user": tk.g.user, "for_view": True}
 
     try:
         group_dict = _get_group_dict(id, group_type)
@@ -601,12 +592,9 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
     """
     extra_vars = {}
     activity_id = id
-    context = cast(
-        Context,
-        {
-            "auth_user_obj": tk.g.userobj,
-        },
-    )
+    context: Context = {
+        "auth_user_obj": tk.g.userobj,
+    }
     try:
         activity_diff = tk.get_action("activity_diff")(
             context,
@@ -659,12 +647,9 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
     new_id = tk.h.get_request_param("new_id")
     old_id = tk.h.get_request_param("old_id")
 
-    context = cast(
-        Context,
-        {
+    context: Context = {
             "auth_user_obj": tk.g.userobj,
-        },
-    )
+    }
 
     # check to ensure that the old activity is actually older than
     # the new activity
@@ -745,13 +730,10 @@ def user_activity(id: str) -> str:
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
 
-    context = cast(
-        Context,
-        {
-            "auth_user_obj": tk.g.userobj,
-            "for_view": True,
-        },
-    )
+    context: Context = {
+        "auth_user_obj": tk.g.userobj,
+        "for_view": True,
+    }
     data_dict: dict[str, Any] = {
         "id": id,
         "user_obj": tk.g.userobj,
@@ -810,13 +792,14 @@ def user_activity(id: str) -> str:
 
 @bp.route("/dashboard/", strict_slashes=False)
 def dashboard() -> str:
-    context = cast(
-        Context,
-        {
-            "auth_user_obj": tk.g.userobj,
-            "for_view": True,
-        },
-    )
+    if tk.current_user.is_anonymous:
+        tk.h.flash_error(tk._(u'Not authorized to see this page'))
+        return tk.h.redirect_to(u'user.login')
+
+    context: Context = {
+        "auth_user_obj": tk.g.userobj,
+        "for_view": True,
+    }
     data_dict: dict[str, Any] = {"user_obj": tk.g.userobj}
     extra_vars = _extra_template_variables(context, data_dict)
 
@@ -895,13 +878,10 @@ def _get_dashboard_context(
         return display_name or fullname or title or name
 
     if filter_type and filter_id:
-        context = cast(
-            Context,
-            {
-                "auth_user_obj": tk.g.userobj,
-                "for_view": True,
-            },
-        )
+        context: Context = {
+            "auth_user_obj": tk.g.userobj,
+            "for_view": True,
+        }
         data_dict: dict[str, Any] = {
             "id": filter_id,
             "include_num_followers": True,
