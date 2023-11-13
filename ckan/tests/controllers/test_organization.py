@@ -620,3 +620,91 @@ class TestOrganizationMembership(object):
             # only test.ckan.net
             assert len(org['users']) == 1
             assert user["id"] not in org["users"][0]["id"]
+
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationFollow:
+    def test_organization_follow_and_unfollow(self, app, user):
+        headers = {"Authorization": user["token"]}
+
+        organization = factories.Organization()
+        organization_url = url_for("organization.read", id=organization["id"])
+        response = app.get(organization_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+        follow_url = url_for("organization.follow", id=organization["id"])
+        response = app.post(follow_url, headers=headers)
+        assert '<a class="btn btn-danger"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>1</span></dd>
+        ''' in response
+
+    def test_organization_follow_not_exist(self, app, user):
+        """Pass an id for a organization that doesn't exist"""
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id="not-here")
+        app.post(follow_url, headers=headers, status=404)
+
+    def test_organization_unfollow(self, app, user):
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+        ''' in response
+
+    def test_organization_unfollow_not_following(self, app, user):
+        """Unfollow a organization not currently following"""
+
+        organization = factories.Organization()
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id=organization["id"])
+        response = app.post(unfollow_url, headers=headers)
+        assert '<a class="btn btn-success"' in response
+        assert 'hx-target="#organization-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+            <dt>Followers</dt>
+            <dd><span>0</span></dd>
+          ''' in response
+
+    def test_organization_unfollow_not_exist(self, app, user):
+        """Unfollow a organization that doesn't exist."""
+
+        headers = {"Authorization": user["token"]}
+        unfollow_url = url_for("organization.unfollow", id="not-here")
+        app.post(unfollow_url, headers=headers, status=404)
+
+    def test_organization_follower_list(self, app, sysadmin):
+        """Following users appear on followers list page."""
+        organization = factories.Organization()
+        headers = {"Authorization": sysadmin["token"]}
+        follow_url = url_for("organization.follow", id=organization["id"])
+        app.post(follow_url, headers=headers)
+
+        followers_url = url_for("organization.followers", id=organization["id"])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, headers=headers, status=200)
+        assert sysadmin["name"] in followers_response

@@ -54,6 +54,7 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 from ckan.types import Request
 from ckan.common import config
+from ckan.lib.io import get_ckan_temp_directory
 
 log = logging.getLogger(__name__)
 
@@ -64,9 +65,6 @@ LOCALE_ALIASES['pt'] = 'pt_BR'
 # CKAN root directory
 _CKAN_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), u'..'))
 
-# Output directory for generated JavaScript translations
-_JS_TRANSLATIONS_DIR = os.path.join(_CKAN_DIR, u'public', u'base', u'i18n')
-
 
 def get_ckan_i18n_dir() -> str:
     path = config.get(u'ckan.i18n_directory') or os.path.join(
@@ -75,6 +73,14 @@ def get_ckan_i18n_dir() -> str:
         path = os.path.join(path, u'i18n')
 
     return path
+
+
+def get_js_translations_dir() -> str:
+    storage_path = config["ckan.storage_path"] or get_ckan_temp_directory()
+
+    js_translations_path = os.path.join(storage_path, "i18n", "js")
+
+    return js_translations_path
 
 
 def get_locales_from_config() -> set[str]:
@@ -304,8 +310,16 @@ def _build_js_translation(
                 for _, msgstr in ordered_plural:
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
-        s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
+        s = json.dumps(
+            result, sort_keys=True, ensure_ascii=False, separators=(',', ':')
+        )
         f.write(s)
+
+
+def _check_js_translations_dest_dir() -> None:
+    dest_dir = get_js_translations_dir()
+    if not os.path.isdir(dest_dir):
+        os.makedirs(dest_dir)
 
 
 def build_js_translations() -> None:
@@ -319,6 +333,9 @@ def build_js_translations() -> None:
     '''
     log.debug(u'Generating JavaScript translations')
     ckan_i18n_dir = get_ckan_i18n_dir()
+    dest_dir = get_js_translations_dir()
+    _check_js_translations_dest_dir()
+
     # Collect all language codes (an extension might add support for a
     # language that isn't supported by CKAN core, yet).
     langs = set()
@@ -357,7 +374,7 @@ def build_js_translations() -> None:
             continue
 
         latest = max(os.path.getmtime(fn) for fn in po_files)
-        dest_file = os.path.join(_JS_TRANSLATIONS_DIR, lang + u'.js')
+        dest_file = os.path.join(dest_dir, lang + u'.js')
 
         if (not os.path.isfile(dest_file) or
                 os.path.getmtime(dest_file) < latest):

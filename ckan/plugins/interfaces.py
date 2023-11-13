@@ -6,8 +6,10 @@ extend CKAN.
 '''
 from __future__ import annotations
 
-from typing import (Any, Callable, Iterable, Mapping, Optional, Sequence,
-                    TYPE_CHECKING, Type, Union)
+from typing import (
+    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Type, Union,
+)
 
 from pyutilib.component.core import Interface as _pca_Interface
 
@@ -74,6 +76,9 @@ class Interface(_pca_Interface):
     of subclasses of Interface are recorded, and these
     classes are used to define extension points.
     '''
+
+    # force PluginImplementations to iterate over interface in reverse order
+    _reverse_iteration_order: ClassVar[bool] = False
 
     @classmethod
     def provided_by(cls, instance: "SingletonPlugin") -> bool:
@@ -743,6 +748,10 @@ class IConfigDeclaration(Interface):
 
     """
 
+    # plugins from the beginning of the plugin list can declare missing options
+    # or override existing.
+    _reverse_iteration_order = True
+
     def declare_config_options(self, declaration: Declaration, key: Key):
         """Register extra config options.
 
@@ -789,6 +798,10 @@ class IConfigurer(Interface):
 
     See also :py:class:`IConfigurable`.
     '''
+
+    # plugins from the beginning of the plugin list can alter configuration of
+    # plugins from the end of the list
+    _reverse_iteration_order = True
 
     def update_config(self, config: 'CKANConfig') -> None:
         u'''
@@ -861,6 +874,11 @@ class IValidators(Interface):
     Add extra validators to be returned by
     :py:func:`ckan.plugins.toolkit.get_validator`.
     '''
+
+    # plugins from the beginning of the plugin list can override validators
+    # registered by plugins from the end of the list
+    _reverse_iteration_order = True
+
     def get_validators(self) -> dict[str, Validator]:
         u'''Return the validator functions provided by this plugin.
 
@@ -1732,6 +1750,13 @@ class ITranslation(Interface):
     u'''
     Allows extensions to provide their own translation strings.
     '''
+
+    # replicate template-order. Templates from the plugins located in the
+    # beginning of the list has higher precedence. It means that other
+    # components affecting UI, such as translations, should behave in similar
+    # manner.
+    _reverse_iteration_order = True
+
     def i18n_directory(self) -> str:
         u'''Change the directory of the .mo translation files'''
         return ''

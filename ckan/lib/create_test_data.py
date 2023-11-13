@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import datetime
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 
 
@@ -91,11 +91,7 @@ class CreateTestData(object):
                             'term_translation': translations[term],
                             'lang_code': lang_code,
                             }
-                    context = cast(Context, {
-                        'model': ckan.model,
-                        'session': ckan.model.Session,
-                        'user': sysadmin_user.name,
-                    })
+                    context: Context = {'user': sysadmin_user.name,}
                     get_action('term_translation_update')(context,
                             data_dict)
 
@@ -114,11 +110,7 @@ class CreateTestData(object):
         assert sysadmin_user and annakarenina and warandpeace
 
         # Create a couple of vocabularies.
-        context = cast(Context, {
-                'model': ckan.model,
-                'session': ckan.model.Session,
-                'user': sysadmin_user.name
-                })
+        context: Context = {'user': sysadmin_user.name}
         data_dict = {
                 'name': 'Genre',
                 'tags': [{'name': 'Drama'}, {'name': 'Sci-Fi'},
@@ -478,12 +470,6 @@ left arrow <
             sysadmin,
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
-
-        # Create activities for packages
-        for item in [pkg1, pkg2]:
-            from ckanext.activity.model import Activity
-            activity = Activity.activity_stream_item(item, 'new', 'not logged in')
-            model.Session.add(activity)
 
         model.repo.commit_and_remove()
 
