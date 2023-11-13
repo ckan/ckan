@@ -62,7 +62,7 @@
         {% block follow %}
         {% if current_user.is_authenticated %}
           {% if error_message %}
-            <div class="alert alert-error">{{ error_message }}</div>
+            <div class="alert alert-danger">{{ error_message }}</div>
           {% elif am_following %}
             <a class="btn btn-danger" hx-post="{{ h.url_for('organization.unfollow', id=organization.id) }}" hx-target="#organization-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
           {% else %}

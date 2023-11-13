@@ -18,13 +18,13 @@ class ViewCount(NamedTuple):
     count: int
 
 
-@click.group(name=u'tracking', short_help=u'Update tracking statistics')
+@click.group(name='tracking', short_help='Update tracking statistics')
 def tracking():
     pass
 
 
 @tracking.command()
-@click.argument(u'start_date', required=False)
+@click.argument('start_date', required=False)
 def update(start_date: Optional[str]):
     engine = model.meta.engine
     assert engine
@@ -32,8 +32,8 @@ def update(start_date: Optional[str]):
 
 
 @tracking.command()
-@click.argument(u'output_file', type=click.Path())
-@click.argument(u'start_date', required=False)
+@click.argument('output_file', type=click.Path())
+@click.argument('start_date', required=False)
 def export(output_file: str, start_date: Optional[str]):
     engine = model.meta.engine
     assert engine
@@ -44,16 +44,16 @@ def export(output_file: str, start_date: Optional[str]):
 
 def update_all(engine: model.Engine, start_date: Optional[str] = None):
     if start_date:
-        date = datetime.datetime.strptime(start_date, u'%Y-%m-%d')
+        date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
     else:
         # No date given. See when we last have data for and get data
         # from 2 days before then in case new data is available.
         # If no date here then use 2011-01-01 as the start date
-        sql = u'''SELECT tracking_date from tracking_summary
+        sql = '''SELECT tracking_date from tracking_summary
                     ORDER BY tracking_date DESC LIMIT 1;'''
         result = engine.execute(sql).fetchall()
         if result:
-            date = result[0][u'tracking_date']
+            date = result[0]['tracking_date']
             date += datetime.timedelta(-2)
             # convert date to datetime
             combine = datetime.datetime.combine
@@ -66,14 +66,14 @@ def update_all(engine: model.Engine, start_date: Optional[str] = None):
     while date < end_date:
         stop_date = date + datetime.timedelta(1)
         update_tracking(engine, date)
-        click.echo(u'tracking updated for {}'.format(date))
+        click.echo('tracking updated for {}'.format(date))
         date = stop_date
 
     update_tracking_solr(engine, start_date_solrsync)
 
 
 def _total_views(engine: model.Engine):
-    sql = u'''
+    sql = '''
         SELECT p.id,
                 p.name,
                 COALESCE(SUM(s.count), 0) AS total_views
@@ -86,7 +86,7 @@ def _total_views(engine: model.Engine):
 
 
 def _recent_views(engine: model.Engine, measure_from: datetime.date):
-    sql = u'''
+    sql = '''
         SELECT p.id,
                 p.name,
                 COALESCE(SUM(s.count), 0) AS total_views
@@ -104,19 +104,19 @@ def _recent_views(engine: model.Engine, measure_from: datetime.date):
 
 
 def export_tracking(engine: model.Engine, output_filename: str):
-    u'''Write tracking summary to a csv file.'''
+    '''Write tracking summary to a csv file.'''
     headings = [
-        u'dataset id',
-        u'dataset name',
-        u'total views',
-        u'recent views (last 2 weeks)',
+        'dataset id',
+        'dataset name',
+        'total views',
+        'recent views (last 2 weeks)',
     ]
 
     measure_from = datetime.date.today() - datetime.timedelta(days=14)
     recent_views = _recent_views(engine, measure_from)
     total_views = _total_views(engine)
 
-    with open(output_filename, u'w') as fh:
+    with open(output_filename, 'w') as fh:
         f_out = csv.writer(fh)
         f_out.writerow(headings)
         recent_views_for_id = dict((r.id, r.count) for r in recent_views)
@@ -128,13 +128,13 @@ def export_tracking(engine: model.Engine, output_filename: str):
 
 
 def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
-    package_url = u'/dataset/'
+    package_url = '/dataset/'
     # clear out existing data before adding new
-    sql = u'''DELETE FROM tracking_summary
+    sql = '''DELETE FROM tracking_summary
                 WHERE tracking_date='%s'; ''' % summary_date
     engine.execute(sql)
 
-    sql = u'''SELECT DISTINCT url, user_key,
+    sql = '''SELECT DISTINCT url, user_key,
                     CAST(access_timestamp AS Date) AS tracking_date,
                     tracking_type INTO tracking_tmp
                 FROM tracking_raw
@@ -151,7 +151,7 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
     engine.execute(sql, summary_date)
 
     # get ids for dataset urls
-    sql = u'''UPDATE tracking_summary t
+    sql = '''UPDATE tracking_summary t
                 SET package_id = COALESCE(
                     (SELECT id FROM package p
                     WHERE p.name = regexp_replace
@@ -162,7 +162,7 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
     engine.execute(sql, package_url)
 
     # update summary totals for resources
-    sql = u'''UPDATE tracking_summary t1
+    sql = '''UPDATE tracking_summary t1
                 SET running_total = (
                 SELECT sum(count)
                 FROM tracking_summary t2
@@ -180,7 +180,7 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
     engine.execute(sql)
 
     # update summary totals for pages
-    sql = u'''UPDATE tracking_summary t1
+    sql = '''UPDATE tracking_summary t1
                 SET running_total = (
                 SELECT sum(count)
                 FROM tracking_summary t2
@@ -201,19 +201,19 @@ def update_tracking(engine: model.Engine, summary_date: datetime.datetime):
 
 
 def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
-    sql = u'''SELECT package_id FROM tracking_summary
+    sql = '''SELECT package_id FROM tracking_summary
             where package_id!='~~not~found~~'
             and tracking_date >= %s;'''
     results = engine.execute(sql, start_date)
 
     package_ids: set[str] = set()
     for row in results:
-        package_ids.add(row[u'package_id'])
+        package_ids.add(row['package_id'])
 
     total = len(package_ids)
     not_found = 0
-    click.echo(u'{} package index{} to be rebuilt starting from {}'.format(
-        total, u'' if total < 2 else u'es', start_date)
+    click.echo('{} package index{} to be rebuilt starting from {}'.format(
+        total, '' if total < 2 else 'es', start_date)
     )
 
     from ckan.lib.search import rebuild
@@ -221,15 +221,15 @@ def update_tracking_solr(engine: model.Engine, start_date: datetime.datetime):
         try:
             rebuild(package_id)
         except logic.NotFound:
-            click.echo(u'Error: package {} not found.'.format(package_id))
+            click.echo('Error: package {} not found.'.format(package_id))
             not_found += 1
         except KeyboardInterrupt:
-            click.echo(u'Stopped.')
+            click.echo('Stopped.')
             return
         except Exception as e:
             error_shout(e)
     click.echo(
-        u'search index rebuilding done.' + (
-            u' {} not found.'.format(not_found) if not_found else u''
+        'search index rebuilding done.' + (
+            ' {} not found.'.format(not_found) if not_found else u''
         )
     )
