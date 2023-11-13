@@ -31,10 +31,6 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
         if f['info'].get('pkreq') == 'pk':
             primary_key.append(ct.colname)
 
-        req_validate = ct.sql_required_rule()
-        if req_validate:
-            validate_rules.append(req_validate)
-
         col_validate = ct.sql_validate_rule()
         if col_validate:
             validate_rules.append(col_validate)
@@ -43,6 +39,11 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
             cc_validate = cc.sql_constraint_rule()
             if cc_validate:
                 validate_rules.append(cc_validate)
+
+        # required check last in case other rules modify value
+        req_validate = ct.sql_required_rule()
+        if req_validate:
+            validate_rules.append(req_validate)
 
     if validate_rules:
         validate_def = VALIDATE_DEFINITION_SQL.format(
