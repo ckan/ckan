@@ -11351,7 +11351,10 @@ a.tag:hover {
   position: relative;
   float: right;
   top: -10px;
-  right: -15px;
+  right: 0;
+}
+.module-resource .actions li {
+  margin-right: 0px;
 }
 
 .module .module-tags {
@@ -12456,10 +12459,6 @@ select[data-module=autocomplete] {
   background-color: #6e6e6e;
 }
 
-.popular {
-  color: #f29c2b;
-}
-
 .resource-list {
   margin: 0;
   list-style: none;
@@ -13304,9 +13303,10 @@ td.diff_header {
   margin-left: 0;
 }
 .context-info .nums {
-  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   padding-top: 10px;
-  padding-bottom: 0;
   border-top: 1px dotted #DDD;
 }
 .context-info .nums::after {
@@ -13315,34 +13315,16 @@ td.diff_header {
   content: "";
 }
 .context-info .nums dl {
-  float: left;
-  width: 50%;
-  margin: 5px 0 0 0;
   color: #444;
 }
 .context-info .nums dl dt {
-  display: block;
   font-size: 13px;
   font-weight: 300;
 }
 .context-info .nums dl dd {
-  display: block;
   font-size: 30px;
   font-weight: 700;
   line-height: 36px;
-  margin-left: 0;
-}
-.context-info .nums dl dd .smallest {
-  font-size: 13px;
-}
-.context-info .nums dl dd .smaller {
-  font-size: 16px;
-}
-.context-info .nums dl dd .small {
-  font-size: 21px;
-}
-.context-info .follow_button {
-  margin: 0.75rem 0;
 }
 .context-info.editing .module-content {
   margin-top: 0;
@@ -13406,54 +13388,14 @@ td.diff_header {
   float: left;
   margin: 5px 10px 0 0;
 }
-.homepage .module-stats {
-  margin-top: 1rem;
-  color: #444;
-}
-.homepage .module-stats .card {
-  padding: 1.5rem 1.75rem;
-}
-.homepage .module-stats .card ul {
-  margin: 0;
-  list-style: none;
-  padding: 0;
-}
-.homepage .module-stats .card ul::after {
-  display: block;
-  clear: both;
-  content: "";
-}
-.homepage .module-stats .card ul li {
-  float: left;
-  width: 25%;
-  font-weight: 300;
-}
-.homepage .module-stats .card ul li a {
-  display: block;
-}
-.homepage .module-stats .card ul li a b {
-  display: block;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-.homepage .module-stats .card ul li a:hover {
-  text-decoration: none;
-}
 .homepage .module-feeds {
   padding: 2rem 0;
   background: #eee url("../../../base/images/bg.png");
-}
-.homepage .module-feeds .module-stats {
-  margin-top: 0;
 }
 
 @media (max-width: 767.98px) {
   .homepage .module-search {
     margin-top: 0.5rem;
-  }
-  .homepage .module-stats {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
   }
   .homepage .module-feeds .card {
     margin-top: 1rem;
@@ -14152,6 +14094,12 @@ td.diff_header {
   background-position: -2220px -220px;
   transform: scale(0.53);
   margin: -14px 0 0 -14px;
+}
+
+.btn {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 @media (min-width: 576px) {

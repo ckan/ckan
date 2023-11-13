@@ -8,7 +8,7 @@ import socket
 import logging
 import mimetypes
 from time import time
-from typing import Any, Iterable, Optional, Tuple, Union, IO, cast
+from typing import Any, Iterable, Optional, Tuple, Union, IO
 
 from email.message import EmailMessage
 from email import utils
@@ -64,8 +64,8 @@ def _mail_recipient(
         else:
             msg.add_header(k, v)
     msg['Subject'] = subject
-    msg['From'] = _("%s <%s>") % (sender_name, mail_from)
-    msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
+    msg['From'] = utils.formataddr((sender_name, mail_from))
+    msg['To'] = utils.formataddr((recipient_name, recipient_email))
     msg['Date'] = utils.formatdate(time())
     if not config.get('ckan.hide_version'):
         msg['X-Mailer'] = "CKAN %s" % ckan.__version__
@@ -75,9 +75,9 @@ def _mail_recipient(
 
     for attachment in attachments:
         if len(attachment) == 3:
-            name, _file, media_type = cast(AttachmentWithType, attachment)
+            name, _file, media_type = attachment
         else:
-            name, _file = cast(AttachmentWithoutType, attachment)
+            name, _file = attachment
             media_type = None
 
         if not media_type:

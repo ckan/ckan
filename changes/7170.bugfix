@@ -1,0 +1,1 @@
+Fix `member_list` action to exclude deleted user(when state deleted is not updated in member table)

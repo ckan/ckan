@@ -13,7 +13,7 @@ At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
 importing data to CKAN's :doc:`/maintaining/datastore`. Additionally, there will be a process running the worker for running :doc:`/maintaining/background-tasks`. All these processes will be managed by `Supervisor <https://supervisord.org/>`_.
 
-For Python 3 installations, the minimum Python version required is 3.7.
+For Python 3 installations, the minimum Python version required is 3.8.
 
 Host ports requirements:
 
@@ -211,9 +211,9 @@ your CKAN site.
 
 .. note::
 
-   There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or 
-   accessing CKAN via a browser for the first time. This happens when a different user is used to execute 
-   the web server process than the user who installed CKAN and the support software. A workaround would be to 
-   open up the permissions on the ``/usr/lib/ckan/default/src/ckan/ckan/public/base/i18n/`` directory 
-   so that this user could write the .js files into it. Accessing CKAN will generate these files for a new 
+   There may be a ``PermissionError: [Errno 13] Permission denied:`` message when restarting supervisor or
+   accessing CKAN via a browser for the first time. This happens when a different user is used to execute
+   the web server process than the user who installed CKAN and the support software. A workaround would be to
+   open up the permissions on the ``/usr/lib/ckan/default/src/ckan/ckan/public/base/i18n/`` directory
+   so that this user could write the .js files into it. Accessing CKAN will generate these files for a new
    install, or you could run ``ckan -c /etc/ckan/default/ckan.ini translation js`` to explicitly generate them.

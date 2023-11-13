@@ -4,7 +4,7 @@ from __future__ import annotations
 import copy
 import json
 from typing import (Any, Callable, Iterable, Optional,
-                    Sequence, Union, cast)
+                    Sequence, Union)
 
 from ckan.common import _
 from ckan.types import (
@@ -290,8 +290,7 @@ def validate(
 
     # create a copy of the context which also includes the schema keys so
     # they can be used by the validators
-    validators_context = cast(Context,
-                              dict(context, schema_keys=list(schema.keys())))
+    validators_context = Context(context, schema_keys=list(schema.keys()))
 
     flattened = flatten_dict(data)
     flat_data, errors = _validate(flattened, schema, validators_context)
