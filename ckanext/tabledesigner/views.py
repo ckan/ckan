@@ -51,7 +51,7 @@ class _TableDesignerDictionary(MethodView):
                 datastore_type = f['type']
             else:
                 datastore_type = h.tabledesigner_column_type(
-                    {'info':e}
+                    {'info': e}
                 ).datastore_type
             new_fields.append({
                 'id': e['id'],

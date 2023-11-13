@@ -131,6 +131,29 @@ class EmailColumn(ColumnType):
     table_schema_format = 'email'
     html_input_type = 'email'
 
+    # remove surrounding whitespace and validate
+    _SQL_VALIDATE = '''
+    {value} := trim({value});
+    IF regexp_match({value}, {pattern}) IS NULL THEN
+        errors := errors || ARRAY[{colname}, {error}];
+    END IF;
+    '''
+
+    # pattern from https://html.spec.whatwg.org/#valid-e-mail-address
+    _EMAIL_PATTERN = (
+        r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]" +
+        r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]" +
+        r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+    )
+
+    def sql_validate_rule(self):
+        return self._SQL_VALIDATE.format(
+            value=f'NEW.{identifier(self.colname)}',
+            pattern=literal_string(self._EMAIL_PATTERN),
+            colname=literal_string(self.colname),
+            error=literal_string(_('Invalid email')),
+        )
+
 
 @_standard_column('uri')
 class URIColumn(ColumnType):
