@@ -287,7 +287,7 @@ def relationship_list_save(
         relationship_list.append(relationship)
 
 def package_dict_save(
-        pkg_dict: dict[str, Any], context: Context, 
+        pkg_dict: dict[str, Any], context: Context,
         include_plugin_data: bool = False) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
@@ -300,7 +300,7 @@ def package_dict_save(
     if 'metadata_modified' in pkg_dict:
         del pkg_dict['metadata_modified']
 
-    plugin_data = pkg_dict.pop('plugin_data', None)    
+    plugin_data = pkg_dict.pop('plugin_data', None)
     if include_plugin_data:
         pkg_dict['plugin_data'] = copy.deepcopy(
             plugin_data) if plugin_data else plugin_data
@@ -333,7 +333,9 @@ def group_member_save(context: Context, group_dict: dict[str, Any],
     session = context["session"]
     group = context['group']
     assert group is not None
-    entity_list: list[dict[str, Any]] = group_dict.get(member_table_name, None)
+    entity_list: list[dict[str, Any]] | None = group_dict.get(
+        member_table_name, None
+    )
 
     if entity_list is None:
         if context.get('allow_partial_update', False):

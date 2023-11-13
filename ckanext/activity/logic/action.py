@@ -8,15 +8,26 @@ import json
 from typing import Any, Optional
 
 import ckan.plugins.toolkit as tk
-
+from ckan import authz
 from ckan.logic import validate
 from ckan.types import Context, DataDict, ActionResult
 import ckanext.activity.email_notifications as email_notifications
+from ckan.lib.plugins import get_permission_labels
 
 from . import schema
 from ..model import activity as model_activity, activity_dict_save
 
 log = logging.getLogger(__name__)
+
+
+def _get_user_permission_labels(
+    context: Context
+):
+    if not authz.is_sysadmin(context.get('user')):
+        return get_permission_labels().get_user_dataset_labels(
+            context['auth_user_obj'])
+    else:
+        return None
 
 
 def send_email_notifications(
@@ -58,14 +69,13 @@ def dashboard_mark_activities_old(
     user_obj = model.User.get(context["user"])
     assert user_obj
     user_id = user_obj.id
-    model.Dashboard.get(
-        user_id
-    ).activity_stream_last_viewed = datetime.datetime.utcnow()
+    dashboard = model.Dashboard.get(user_id)
+    if dashboard:
+        dashboard.activity_stream_last_viewed = datetime.datetime.utcnow()
     if not context.get("defer_commit"):
         model.repo.commit()
 
 
-@tk.side_effect_free
 def activity_create(
     context: Context, data_dict: DataDict
 ) -> Optional[dict[str, Any]]:
@@ -169,6 +179,7 @@ def user_activity_list(
         offset=offset,
         after=after,
         before=before,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -255,6 +266,7 @@ def package_activity_list(
         include_hidden_activity=include_hidden_activity,
         activity_types=activity_types,
         exclude_activity_types=exclude_activity_types,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -316,7 +328,8 @@ def group_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
-        activity_types=activity_types
+        activity_types=activity_types,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -375,7 +388,8 @@ def organization_activity_list(
         after=after,
         before=before,
         include_hidden_activity=include_hidden_activity,
-        activity_types=activity_types
+        activity_types=activity_types,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -402,11 +416,20 @@ def recently_changed_packages_activity_list(
     """
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
+
+    tk.check_access(
+        "recently_changed_packages_activity_list",
+        context,
+        data_dict
+    )
+
     offset = data_dict.get("offset", 0)
     limit = data_dict["limit"]  # defaulted, limited & made an int by schema
 
     activity_objects = model_activity.recently_changed_packages_activity_list(
-        limit=limit, offset=offset
+        limit=limit,
+        offset=offset,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     return model_activity.activity_list_dictize(activity_objects, context)
@@ -452,7 +475,12 @@ def dashboard_activity_list(
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     activity_objects = model_activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset, before=before, after=after
+        user_id,
+        limit=limit,
+        offset=offset,
+        before=before,
+        after=after,
+        user_permission_labels=_get_user_permission_labels(context)
     )
 
     activity_dicts = model_activity.activity_list_dictize(
@@ -462,12 +490,15 @@ def dashboard_activity_list(
     # Mark the new (not yet seen by user) activities.
     strptime = datetime.datetime.strptime
     fmt = "%Y-%m-%dT%H:%M:%S.%f"
-    last_viewed = model.Dashboard.get(user_id).activity_stream_last_viewed
+    dashboard = model.Dashboard.get(user_id)
+    last_viewed = None
+    if dashboard:
+        last_viewed = dashboard.activity_stream_last_viewed
     for activity in activity_dicts:
         if activity["user_id"] == user_id:
             # Never mark the user's own activities as new.
             activity["is_new"] = False
-        else:
+        elif last_viewed:
             activity["is_new"] = (
                 strptime(activity["timestamp"], fmt) > last_viewed
             )

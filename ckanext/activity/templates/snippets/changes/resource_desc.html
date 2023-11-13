@@ -5,7 +5,7 @@
       {{ _('Updated description of resource {resource_link} in {pkg_link} to <br class="line-height2"><blockquote>{new_desc}</blockquote>').format(
         pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
         resource_link = h.nav_link(
-          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          change.resource_name, named_route='dataset_resource.read', id=change.pkg_id,
           resource_id=change.resource_id, qualified=True),
         new_desc = change.new_desc
         ) }}
@@ -15,7 +15,7 @@
       {{ _('Removed description from resource {resource_link} in {pkg_link}').format(
         pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
         resource_link = h.nav_link(
-          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          change.resource_name, named_route='dataset_resource.read', id=change.pkg_id,
           resource_id=change.resource_id, qualified=True)
         )}}
 
@@ -24,7 +24,7 @@
       {{ _('Updated description of resource {resource_link} in {pkg_link} from <br class="line-height2"><blockquote>{old_desc}</blockquote> to <br class="line-height2"><blockquote>{new_desc}</blockquote>').format(
         pkg_link = h.nav_link(change.title, named_route='dataset.read', id=change.pkg_id),
         resource_link = h.nav_link(
-          change.resource_name, named_route='resource.read', id=change.pkg_id,
+          change.resource_name, named_route='dataset_resource.read', id=change.pkg_id,
           resource_id=change.resource_id, qualified=True),
         new_desc = change.new_desc,
         old_desc = change.old_desc

@@ -80,6 +80,7 @@ class DatastorePlugin(p.SingletonPlugin):
         templates_base = config.get('ckan.base_templates_folder')
 
         p.toolkit.add_template_directory(config, templates_base)
+        p.toolkit.add_resource('assets', 'ckanext_datastore')
         self.backend = DatastoreBackend.get_active_backend()
 
     # IConfigurable
@@ -257,10 +258,12 @@ class DatastorePlugin(p.SingletonPlugin):
     def get_helpers(self) -> dict[str, Callable[..., object]]:
         conf_dictionary = datastore_helpers.datastore_dictionary
         conf_sql_enabled = datastore_helpers.datastore_search_sql_enabled
+        rw_url_types = datastore_helpers.datastore_rw_resource_url_types
 
         return {
             'datastore_dictionary': conf_dictionary,
-            'datastore_search_sql_enabled': conf_sql_enabled
+            'datastore_search_sql_enabled': conf_sql_enabled,
+            'datastore_rw_resource_url_types': rw_url_types,
         }
 
     # IForkObserver

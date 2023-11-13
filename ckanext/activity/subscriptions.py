@@ -67,7 +67,8 @@ def bulk_changed(sender: str, **kwargs: Any):
         activity = Activity.activity_stream_item(entity, "changed", user_id)
         model.Session.add(activity)
 
-    model.Session.commit()
+    if not context.get("defer_commit"):
+        model.Session.commit()
 
 
 # action, context, data_dict, result
@@ -93,9 +94,6 @@ def package_changed(sender: str, **kwargs: Any):
     pkg = context["model"].Package.get(id_)
     assert pkg
 
-    if pkg.private:
-        return
-
     user_obj = context["model"].User.get(context["user"])
     if user_obj:
         user_id = user_obj.id
@@ -103,8 +101,10 @@ def package_changed(sender: str, **kwargs: Any):
         user_id = "not logged in"
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
+
     context["session"].add(activity)
-    context["session"].commit()
+    if not context.get("defer_commit"):
+        context["session"].commit()
 
 
 # action, context, data_dict, result
@@ -145,11 +145,8 @@ def group_or_org_changed(sender: str, **kwargs: Any):
     activity_dict["data"] = {
         "group": dictization.table_dictize(group, context)
     }
-    activity_create_context: types.Context = {
-        "ignore_auth": True,
-        "user": context["user"],
-        "session": context["session"],
-    }
+    activity_create_context = tk.fresh_context(context)
+    activity_create_context['ignore_auth'] = True
     tk.get_action("activity_create")(activity_create_context, activity_dict)
 
 
@@ -173,9 +170,6 @@ def user_changed(sender: str, **kwargs: Any):
         "object_id": result["id"],
         "activity_type": activity_type,
     }
-    activity_create_context: types.Context = {
-        "ignore_auth": True,
-        "user": context["user"],
-        "session": context["session"],
-    }
+    activity_create_context = tk.fresh_context(context)
+    activity_create_context['ignore_auth'] = True
     tk.get_action("activity_create")(activity_create_context, activity_dict)

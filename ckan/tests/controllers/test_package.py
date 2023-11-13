@@ -88,11 +88,11 @@ class TestPackageNew(object):
 
     def test_change_locale(self, app, user):
         url = url_for("dataset.new")
-        env = {"Authorization": user["token"]}
-        res = app.get(url, extra_environ=env)
+        headers = {"Authorization": user["token"]}
+        res = app.get(url, headers=headers)
         # See https://github.com/python-babel/flask-babel/issues/214
         refresh_babel()
-        res = app.get("/de/dataset/new", extra_environ=env)
+        res = app.get("/de/dataset/new", headers=headers)
         assert helpers.body_contains(res, "Datensatz")
 
     @pytest.mark.ckan_config("ckan.auth.create_unowned_dataset", "false")
@@ -1106,7 +1106,7 @@ class TestResourceView(object):
         resource = factories.Resource(package_id=dataset["id"])
 
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource["package_id"],
             resource_id=resource["id"],
             view_type="image_view",
@@ -1129,7 +1129,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1153,7 +1153,7 @@ class TestResourceView(object):
 
         resource_view = factories.ResourceView(resource_id=resource["id"])
         url = url_for(
-            "resource.edit_view",
+            "{}_resource.edit_view".format(dataset["type"]),
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1170,7 +1170,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1182,7 +1182,7 @@ class TestResourceView(object):
         resource_view = factories.ResourceView()
 
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id="inexistent-view-id",
@@ -1193,7 +1193,7 @@ class TestResourceView(object):
     def test_resource_view_description_is_rendered_as_markdown(self, app):
         resource_view = factories.ResourceView(description="Some **Markdown**")
         url = url_for(
-            "resource.read",
+            "dataset_resource.read",
             id=resource_view["package_id"],
             resource_id=resource_view["resource_id"],
             view_id=resource_view["id"],
@@ -1420,7 +1420,7 @@ class TestResourceDelete(object):
             headers=headers
         )
         assert 403 == response.status_code
-        assert helpers.body_contains(response, "Unauthorized to delete package")
+        assert helpers.body_contains(response, "Unauthorized to delete resource")
 
     def test_sysadmins_can_delete_any_resource(self, app, sysadmin):
         owner_org = factories.Organization()
@@ -1821,15 +1821,19 @@ class TestPackageFollow(object):
         follow_url = url_for("dataset.follow", id=package["id"])
         headers = {"Authorization": user["token"]}
         response = app.post(follow_url, headers=headers)
-        assert "You are now following {0}".format(package["title"]) in response
+        assert 'Unfollow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-minus"></i> Unfollow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>1</span></dd>
+                ''' in response
 
     def test_package_follow_not_exist(self, app, user):
         """Pass an id for a package that doesn't exist"""
         headers = {"Authorization": user["token"]}
         follow_url = url_for("dataset.follow", id="not-here")
-        response = app.post(follow_url, headers=headers)
-
-        assert "Dataset not found" in response
+        app.post(follow_url, headers=headers, status=404)
 
     def test_package_unfollow(self, app, user):
 
@@ -1839,12 +1843,14 @@ class TestPackageFollow(object):
         app.post(follow_url, headers=headers)
 
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are no longer following {0}".format(package["title"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert 'Follow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_following(self, app, user):
         """Unfollow a package not currently following"""
@@ -1852,19 +1858,20 @@ class TestPackageFollow(object):
         package = factories.Dataset()
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id=package["id"])
-        unfollow_response = app.post(unfollow_url, headers=headers)
-
-        assert (
-            "You are not following {0}".format(package["id"])
-            in unfollow_response
-        )
+        response = app.post(unfollow_url, headers=headers)
+        assert 'Follow</a>' in response
+        assert 'hx-target="#package-info"' in response
+        assert 'fa-circle-plus"></i> Follow' in response
+        assert '''
+                  <dt>Followers</dt>
+                  <dd><span>0</span></dd>
+                ''' in response
 
     def test_package_unfollow_not_exist(self, app, user):
         """Unfollow a package that doesn't exist."""
         headers = {"Authorization": user["token"]}
         unfollow_url = url_for("dataset.unfollow", id="not-here")
-        unfollow_response = app.post(unfollow_url, headers=headers)
-        assert "Dataset not found" in unfollow_response
+        app.post(unfollow_url, headers=headers, status=404)
 
     def test_package_follower_list(self, app, sysadmin):
         """Following users appear on followers list page."""

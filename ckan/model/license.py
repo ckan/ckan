@@ -46,6 +46,14 @@ class License():
                 self.osd_conformance == 'approved'
         return self._isopen
 
+    def license_dictize(self) -> dict[str, Any]:
+        data = self._data.copy()
+        if 'date_created' in data:
+            value = data['date_created']
+            value = value.isoformat()
+            data['date_created'] = value
+        return data
+
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
