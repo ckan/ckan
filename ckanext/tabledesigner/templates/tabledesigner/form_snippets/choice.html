@@ -11,9 +11,15 @@
     'text': value ~ ' ' ~ _('(invalid choice)')
   }) -%}
 {%- endif -%}
-{%- for c in choices -%}
-  {%- do options.append({'value': c, 'text': c}) -%}
-{%- endfor -%}
+{% if choices is mapping %}
+  {%- for c, v in choices.items() -%}
+    {%- do options.append({'value': c, 'text': v}) -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for c in choices -%}
+    {%- do options.append({'value': c, 'text': c}) -%}
+  {%- endfor -%}
+{%- endif -%}
 
 {%- call form.select(
     'col__' ~ position ~ '__value',

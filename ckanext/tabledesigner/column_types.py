@@ -29,7 +29,7 @@ class ColumnType:
         self.info = info
         self._constraint_types = constraint_types
 
-    def column_constraints(self) -> Iterator[ColumnConstraint]:
+    def column_constraints(self) -> Iterable[ColumnConstraint]:
         for cct in self._constraint_types:
             yield cct(self)
 
@@ -106,7 +106,7 @@ class ChoiceColumn(ColumnType):
 
     def choices(self):
         """
-        Comma-separated text field with choice values
+        Choices based on comma-separated info field
         """
         choices = self.info.get('choices')
         if choices:
