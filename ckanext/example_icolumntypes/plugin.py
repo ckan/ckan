@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type, List
+from typing import Type
 
 from ckan import plugins
 
@@ -31,8 +31,14 @@ class StarRatingColumn(IntegerColumn):
     datastore_type = 'int2'  # smallest int type (16-bits)
     form_snippet = 'choice.html'
 
-    def choices(self) -> List[str]:
-        return list('12345')
+    def choices(self):
+        return {
+            '1': '★',
+            '2': '★★',
+            '3': '★★★',
+            '4': '★★★★',
+            '5': '★★★★★',
+        }
 
     def sql_validate_rule(self):
         error = _('Rating must be between 1 and 5')

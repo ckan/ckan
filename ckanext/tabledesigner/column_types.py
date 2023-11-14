@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Type, Callable, Any, List
-from collections.abc import Iterator
+from collections.abc import Iterable, Mapping
 
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
@@ -39,7 +39,7 @@ class ColumnType:
         self.info = info
         self._constraint_types = constraint_types
 
-    def column_constraints(self) -> Iterator[ColumnConstraint]:
+    def column_constraints(self) -> Iterable[ColumnConstraint]:
         for cct in self._constraint_types:
             yield cct(self)
 
@@ -114,9 +114,9 @@ class ChoiceColumn(ColumnType):
     form_snippet = 'choice.html'
     design_snippet = 'choice.html'
 
-    def choices(self) -> List[str]:
+    def choices(self) -> Iterable[str] | Mapping[str, str]:
         """
-        Comma-separated text field with choice values
+        Choices based on comma-separated info field
         """
         choices = self.info.get('choices')
         if choices:

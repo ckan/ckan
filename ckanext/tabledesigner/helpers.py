@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable, List, Any
+from collections.abc import Iterable, Mapping
 
 from . import plugin
 from .column_types import ColumnType, TextColumn
@@ -33,7 +34,8 @@ def tabledesigner_column_type(field: dict[str, Any]) -> ColumnType:
     )(info, plugin._column_constraints.get(tdtype, []))
 
 
-def tabledesigner_choice_list(field: dict[str, Any]) -> List[str]:
+def tabledesigner_choice_list(
+        field: dict[str, Any]) -> Iterable[str] | Mapping[str, str]:
     ct = h.tabledesigner_column_type(field)
     if hasattr(ct, 'choices'):
         return ct.choices()
