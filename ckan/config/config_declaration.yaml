@@ -312,8 +312,7 @@ groups:
           browsers are instructed to not send the cookie over anything other than an SSL connection.
 
       - key: beaker.session.timeout
-        type: int
-        default: 600
+        validators: int_validator
         description: |
           Seconds until the session is considered invalid, after which it will be ignored and invalidated.
           This number is based on the time since the session was last accessed, not from when the session was created.
@@ -409,13 +408,14 @@ groups:
 
           .. warning:: This setting should not have a trailing / on the end.
 
-      - key: apikey_header_name
-        default: X-CKAN-API-Key
-        example: API-KEY
+      - key: apitoken_header_name
+        default: Authorization
+        legacy_key: apikey_header_name  # since v2.10.0
+        example: X-CKAN-API-TOKEN
         description: |
-          This allows another http header to be used to provide the CKAN API
-          key. This is useful if network infrastructure blocks the
-          Authorization header and ``X-CKAN-API-Key`` is not suitable.
+          This allows to customize the name of the HTTP header used to provide the CKAN API
+          token. This is useful in some scenarios where using the default ``Authorization`` one
+          causes problems.
 
       - key: ckan.cache_expires
         default: 0
@@ -1392,7 +1392,10 @@ groups:
         type: bool
         default: true
         example: "false"
-        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc.
+                     The activity feature has been moved to a separate activity plugin. To keep showing the
+                     activities in the UI and enable the activity related API actions you need to add the activity
+                     plugin to the ckan.plugins config option.
 
       - key: ckan.activity_streams_email_notifications
         type: bool

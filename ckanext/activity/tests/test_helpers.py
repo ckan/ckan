@@ -8,7 +8,7 @@ import ckan.plugins.toolkit as tk
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "with_request_context")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
 class TestActivityListSelect(object):
     def test_simple(self):
         pkg_activity = {

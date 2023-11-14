@@ -171,8 +171,6 @@ class TestUser(object):
         )
         # assert "/user/activity" in response.headers["location"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "activity")
-    @pytest.mark.usefixtures("with_plugins")
     def test_registered_user_login(self, app):
         """
         Registered user can submit valid login details at /user/login and
@@ -191,7 +189,7 @@ class TestUser(object):
             },
         )
         # the response is the user dashboard, right?
-        assert '<a href="/dashboard/">Dashboard</a>' in response
+        assert '<a href="/dashboard/datasets">Dashboard</a>' in response
         assert (
             '<span class="username">{0}</span>'.format(user["fullname"])
             in response
