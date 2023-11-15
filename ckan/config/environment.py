@@ -150,6 +150,7 @@ def update_config() -> None:
         )
         msg = "Invalid configuration values provided:\n" + msg
         raise CkanConfigurationException(msg)
+    config_declaration.normalize(config)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
