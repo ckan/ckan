@@ -576,21 +576,14 @@ def login() -> Union[Response, str]:
     return base.render("user/login.html", extra_vars)
 
 
-def _uncached_response(response: Response) -> Response:
-    """ Ensure some types of responses are not cached at all, even privately
-    """
-    response.cache_control.no_store = True
-    return response
-
-
 def logout() -> Response:
     for item in plugins.PluginImplementations(plugins.IAuthenticator):
         response = item.logout()
         if response:
-            return _uncached_response(response)
+            return response
     user = current_user.name
     if not user:
-        return _uncached_response(h.redirect_to('user.login'))
+        return h.redirect_to('user.login')
 
     came_from = request.args.get('came_from', '')
     logout_user()
@@ -599,9 +592,10 @@ def logout() -> Response:
     if session.get(field_name):
         session.pop(field_name)
 
-    return _uncached_response(h.redirect_to(
-        str(came_from) if h.url_is_local(came_from) else 'user.logged_out_page'
-    ))
+    if h.url_is_local(came_from):
+        return h.redirect_to(str(came_from))
+
+    return h.redirect_to('user.logged_out_page')
 
 
 def logged_out_page() -> str:
