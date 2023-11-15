@@ -661,7 +661,7 @@ def set_datastore_active_flag(
     psi = search.PackageSearchIndex()
     try:
         _data_dict = p.toolkit.get_action('package_show')(context, {
-            'id': model.Resource.get(data_dict['resource_id']).package_id
+            'id': resource.package_id
         })
         for resource in _data_dict['resources']:
             if resource['id'] == data_dict['resource_id']:
