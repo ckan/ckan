@@ -1,16 +1,21 @@
 # encoding: utf-8
-import ckan.plugins as plugins
+import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.tabledesigner import actions
-import ckanext.tabledesigner.views as views
-import ckanext.tabledesigner.helpers as helpers
+from . import views, interfaces, helpers, actions
+from .column_types import ColumnType, _standard_column_types
+from .column_constraints import ColumnConstraint, _standard_column_constraints
 
-class TableDesignerPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IActions)
-    plugins.implements(plugins.IBlueprint)
-    plugins.implements(plugins.ITemplateHelpers)
+
+_column_types = {}
+_column_constraints = {}
+
+class TableDesignerPlugin(p.SingletonPlugin):
+    p.implements(p.IConfigurer)
+    p.implements(p.IActions)
+    p.implements(p.IBlueprint)
+    p.implements(p.ITemplateHelpers)
+    p.implements(p.IConfigurable)
 
     # IConfigurer
 
@@ -43,6 +48,26 @@ class TableDesignerPlugin(plugins.SingletonPlugin):
                 helpers.tabledesigner_column_type,
             'datastore_rw_resource_url_types':
                 helpers.datastore_rw_resource_url_types,
-            'tabledesigner_choice_list':
-                helpers.tabledesigner_choice_list,
+            'tabledesigner_choices':
+                helpers.tabledesigner_choices,
         }
+
+    # IConfigurable
+
+    def configure(self, config):
+        coltypes = dict(_standard_column_types)
+        for plugin in p.PluginImplementations(interfaces.IColumnTypes):
+            coltypes = plugin.column_types(coltypes)
+
+        _column_types.clear()
+        _column_types.update(coltypes)
+
+        colcons = {
+            key: list(val) for key, val
+            in _standard_column_constraints.items()
+        }
+        for plugin in p.PluginImplementations(interfaces.IColumnConstraints):
+            colcons = plugin.column_constraints(colcons, _column_types)
+
+        _column_constraints.clear()
+        _column_constraints.update(colcons)

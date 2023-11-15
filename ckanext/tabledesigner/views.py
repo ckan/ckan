@@ -40,12 +40,27 @@ class _TableDesignerDictionary(MethodView):
         if not isinstance(info, list):
             info = []
 
-        for e, f in zip(info, fields):
-            e['id'] = f['id']
-            e['type'] = f['type']
+        flookup = {f['id']: f for f in fields}
+        new_fields = []
+
+        for e in info:
+            if not e.get('tdtype') or not e.get('id'):
+                return base.abort(400, _('Required fields missing'))
+            f = flookup.get(e['id'])
+            if f:
+                datastore_type = f['type']
+            else:
+                datastore_type = h.tabledesigner_column_type(
+                    {'info': e}
+                ).datastore_type
+            new_fields.append({
+                'id': e['id'],
+                'type': datastore_type,
+                'info': e
+            })
 
         try:
-            create_table(resource_id, info)
+            create_table(resource_id, new_fields)
         except ValidationError as e:
             fields = {f['id']: f for f in data_dict['fields']}
             data_dict['fields'] = [
@@ -187,7 +202,9 @@ class _TableDesignerEditRow(MethodView):
             )
         except ValidationError as err:
             rec_err = err.error_dict.get('records', [''])[0]
-            if rec_err.startswith('duplicate key'):
+            if isinstance(rec_err, dict):
+                errors = rec_err
+            elif rec_err.startswith('duplicate key'):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']

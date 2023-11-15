@@ -4,16 +4,25 @@
 {%- set help_text = info.get('notes', '') -%}
 
 {%- set options=[{'value':'', 'text':''}] -%}
-{%- set choices=h.tabledesigner_choice_list(field.info.choices) -%}
+{%- set choices=column_type.choices() -%}
+{%- if column_type.choice_value_key -%}
+  {%- set value=column_type.choice_value_key(value) -%}
+{%- endif -%}
 {%- if value and value not in choices -%}
   {%- do options.append({
     'value': value,
     'text': value ~ ' ' ~ _('(invalid choice)')
   }) -%}
 {%- endif -%}
-{%- for c in choices -%}
-  {%- do options.append({'value': c, 'text': c}) -%}
-{%- endfor -%}
+{% if choices is mapping %}
+  {%- for c, v in choices.items() -%}
+    {%- do options.append({'value': c, 'text': v}) -%}
+  {%- endfor -%}
+{%- else -%}
+  {%- for c in choices -%}
+    {%- do options.append({'value': c, 'text': c}) -%}
+  {%- endfor -%}
+{%- endif -%}
 
 {%- call form.select(
     'col__' ~ position ~ '__value',

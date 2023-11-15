@@ -1,37 +1,8 @@
-from ckan.plugins.toolkit import get_action
+from ckan.plugins.toolkit import get_action, h
 
-from ckanext.datastore.backend.postgres import identifier, literal_string
-
-from .column_types import column_types
-from .helpers import tabledesigner_choice_list
-
-
-PK_REQUIRED_SQL = u'''
-IF {condition} THEN
-    errors := errors || ARRAY[
-        {colname}, 'Primary key must not be empty'
-    ];
-END IF;
-'''
-
-REQUIRED_SQL = u'''
-IF {condition} THEN
-    errors := errors || ARRAY[
-        {colname}, 'Missing value'
-    ];
-END IF;
-'''
-
-# \t is used when converting errors to string
-CHOICE_CLEAN_SQL = u'''
-IF {value} IS NOT NULL AND {value} <> '' AND NOT ({value} = ANY ({choices}))
-    THEN
-    errors := errors || ARRAY[[{colname}, 'Invalid choice: "'
-        || replace({value}, E'\t', ' ') || '"']];
-END IF;
-'''
 
 VALIDATE_DEFINITION_SQL = u'''
+<<validation>>
 DECLARE
   errors text[] := '{{}}';
 BEGIN
@@ -44,40 +15,31 @@ END;
 '''
 
 
-def create_table(resource_id, info):
+def create_table(resource_id, fields):
     '''
     Set up datastore table + validation
     '''
     primary_key = []
     validate_rules = []
-    for f in info:
-        colname, tdtype = f['id'], f['tdtype']
-        ct = column_types[tdtype]
+    for f in fields:
+        ct = h.tabledesigner_column_type(f)
 
-        sql = REQUIRED_SQL
-        if f.get('pkreq'):
-            if f.get('pkreq') == 'pk':
-                sql = PK_REQUIRED_SQL
-                primary_key.append((colname, tdtype))
+        if f['info'].get('pkreq') == 'pk':
+            primary_key.append(ct.colname)
 
-            validate_rules.append(sql.format(
-                condition=ct.sql_is_empty.format(
-                    column='NEW.' + identifier(colname),
-                ),
-                colname=literal_string(colname),
-            ))
+        col_validate = ct.sql_validate_rule()
+        if col_validate:
+            validate_rules.append(col_validate)
 
-        if tdtype == 'choice':
-            choices = 'ARRAY[' + ','.join(
-                literal_string(c) for c in tabledesigner_choice_list(
-                    f.get('choices', '')
-                )
-            ) + ']'
-            validate_rules.append(CHOICE_CLEAN_SQL.format(
-                value='NEW.' + identifier(colname),
-                colname=literal_string(colname),
-                choices=choices,
-            ))
+        for cc in ct.column_constraints():
+            cc_validate = cc.sql_constraint_rule()
+            if cc_validate:
+                validate_rules.append(cc_validate)
+
+        # required check last in case other rules modify value
+        req_validate = ct.sql_required_rule()
+        if req_validate:
+            validate_rules.append(req_validate)
 
     if validate_rules:
         validate_def = VALIDATE_DEFINITION_SQL.format(
@@ -99,15 +61,15 @@ def create_table(resource_id, info):
         None, {
             'resource_id': resource_id,
             'force': True,
-            'primary_key': [f for f, typ in primary_key],
+            'primary_key': primary_key,
             'fields': [{
-                'id': i['id'],
-                'type': column_types[i['tdtype']].datastore_type,
+                'id': f['id'],
+                'type': f['type'],
                 'info': {
-                    k: v for (k, v) in i.items()
+                    k: v for (k, v) in f['info'].items()
                     if k != 'id'
                 },
-            } for i in info],
+            } for f in fields],
             'triggers': [
                 {'function': u'{0}_tabledesigner_validate'.format(resource_id)}
             ] if validate_rules else [],
