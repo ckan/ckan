@@ -1,7 +1,5 @@
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
-from .column_constraints import ColumnConstraint
-
 
 def _(x):
     return x
@@ -30,7 +28,7 @@ class ColumnType:
         self.info = info
         self._constraint_types = constraint_types
 
-    def column_constraints(self) -> Iterable[ColumnConstraint]:
+    def column_constraints(self):
         for cct in self._constraint_types:
             yield cct(self)
 
@@ -54,7 +52,7 @@ class ColumnType:
 
             return self._SQL_REQUIRED.format(
                 condition=self._SQL_IS_EMPTY.format(
-                    column='NEW.' + identifier(colname)
+                    value='NEW.' + identifier(self.colname)
                 ),
                 colname=literal_string(self.colname),
                 error=literal_string(error),
@@ -88,7 +86,7 @@ class TextColumn(ColumnType):
         '''
         if self.info.get('pkreq') == 'pk':
             return self._SQL_TRIM_PK.format(
-                value=f'NEW.{identifier(self.colname)}',
+                value='NEW.' + identifier(self.colname),
             )
         return ''
 
@@ -129,7 +127,7 @@ class ChoiceColumn(ColumnType):
         Copy choices into validation rule as a literal string array
         """
         return self._SQL_VALIDATE.format(
-            value='NEW.' + identifier(colname),
+            value='NEW.' + identifier(self.colname),
             colname=literal_string(self.colname),
             choices='ARRAY[' + ','.join(
                 literal_string(c) for c in self.choices()
@@ -170,7 +168,7 @@ class EmailColumn(ColumnType):
 
     def sql_validate_rule(self):
         return self._SQL_VALIDATE.format(
-            value=f'NEW.{identifier(self.colname)}',
+            value='NEW.' + identifier(self.colname),
             pattern=literal_string(self._EMAIL_PATTERN),
             colname=literal_string(self.colname),
             error=literal_string(_('Invalid email')),
@@ -243,7 +241,7 @@ class BooleanColumn(ColumnType):
             'true': _('True'),
         }
 
-    def choice_value_key(self, value: bool | str) -> str:
+    def choice_value_key(self, value):
         """
         convert bool to string for matching choice keys
         """

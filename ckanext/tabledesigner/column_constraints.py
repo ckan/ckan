@@ -53,7 +53,7 @@ class RangeConstraint(ColumnConstraint):
         if minimum:
             sql += self._SQL_VALIDATE_MIN.format(
                 colname=literal_string(self.colname),
-                value='NEW.' + identifier(colname),
+                value='NEW.' + identifier(self.colname),
                 minimum=literal_string(minimum),
                 error=literal_string(_('Below minimum')),
                 type_=self.column_type.datastore_type,
@@ -62,14 +62,14 @@ class RangeConstraint(ColumnConstraint):
         if maximum:
             sql += self._SQL_VALIDATE_MAX.format(
                 colname=literal_string(self.colname),
-                value='NEW.' + identifier(colname),
+                value='NEW.' + identifier(self.colname),
                 maximum=literal_string(maximum),
                 error=literal_string(_('Above maximum')),
                 type_=self.column_type.datastore_type,
             )
         return sql
 
-    def excel_constraint_rule(self) -> str:
+    def excel_constraint_rule(self):
         rules = []
         minimum = self.info.get('minimum')
         if minimum:
@@ -98,14 +98,14 @@ class PatternConstraint(ColumnConstraint):
     END;
     '''
 
-    def sql_constraint_rule(self) -> str:
+    def sql_constraint_rule(self):
         pattern = self.info.get('pattern')
         if not pattern:
             return ''
 
         return self._SQL_VALIDATE_PATTERN.format(
             colname=literal_string(self.colname),
-            value=f'NEW.{identifier(self.colname)}',
+            value='NEW.' + identifier(self.colname),
             pattern=literal_string('^' + pattern + '$'),
             error=literal_string(
                 _('Does not match pattern') + ': ' + pattern),
