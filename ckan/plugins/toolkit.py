@@ -214,14 +214,24 @@ def check_ckan_version(
     """
     current = pv.parse(ckan.__version__)
     try:
-        at_least_min = (min_version is None) or (current >= pv.parse(min_version))
+        at_least_min = (
+            min_version is None
+            or current >= pv.parse(min_version)
+        )
     except pv.InvalidVersion:
-        raise ValueError(f"min_version '{min_version}' is not a valid version identifier")
+        raise ValueError(
+            f"min_version '{min_version}' is not a valid version identifier"
+        )
 
     try:
-        at_most_max = (max_version is None) or (current <= pv.parse(max_version))
+        at_most_max = (
+            max_version is None
+            or current <= pv.parse(max_version)
+        )
     except pv.InvalidVersion:
-        raise ValueError(f"max_version '{max_version}' is not a valid version identifier")
+        raise ValueError(
+            f"max_version '{max_version}' is not a valid version identifier"    
+        )
     return at_least_min and at_most_max
 
 
