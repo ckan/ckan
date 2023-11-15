@@ -34,12 +34,12 @@ def tabledesigner_column_type(field: dict[str, Any]) -> ColumnType:
     )(info, plugin._column_constraints.get(tdtype, []))
 
 
-def tabledesigner_choice_list(
+def tabledesigner_choices(
         field: dict[str, Any]) -> Iterable[str] | Mapping[str, str]:
     ct = h.tabledesigner_column_type(field)
     if hasattr(ct, 'choices'):
         return ct.choices()
-    return []
+    return {}
 
 
 def tabledesigner_data_api_examples(resource_id: str) -> dict[str, Any]:

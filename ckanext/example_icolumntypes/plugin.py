@@ -40,11 +40,14 @@ class StarRatingColumn(IntegerColumn):
             '5': '★★★★★',
         }
 
+    def choice_value_key(self, value: int | str) -> str:
+        return str(value)
+
     def sql_validate_rule(self):
         error = _('Rating must be between 1 and 5')
         return f'''
-            IF NOT NEW.{identifier(self.colname)} BETWEEN 1 AND 5 THEN
-                errors := errors || ARRAY[[
-                    {literal_string(self.colname)}, {literal_string(error)}]];
-            END IF;
+        IF NOT NEW.{identifier(self.colname)} BETWEEN 1 AND 5 THEN
+            errors := errors || ARRAY[[
+                {literal_string(self.colname)}, {literal_string(error)}]];
+        END IF;
         '''

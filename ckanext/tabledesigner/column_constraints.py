@@ -6,6 +6,7 @@ from collections import defaultdict
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
 from . import column_types
+from .excel import excel_literal
 
 
 def _(x: str):
@@ -73,6 +74,18 @@ class RangeConstraint(ColumnConstraint):
             )
         return sql
 
+    def excel_constraint_rule(self) -> str:
+        rules = []
+        minimum = self.info.get('minimum')
+        if minimum:
+            rules.append('0>{_value_}-' + excel_literal(minimum))
+        maximum = self.info.get('maximum')
+        if maximum:
+            rules.append('0<{_value_}-' + excel_literal(maximum))
+            if minimum:
+                return 'OR(' + ','.join(rules) + ')'
+        return ''.join(rules)
+
 
 @_standard_constraint(['text'])
 class PatternConstraint(ColumnConstraint):
@@ -99,7 +112,8 @@ class PatternConstraint(ColumnConstraint):
             colname=literal_string(self.colname),
             value=f'NEW.{identifier(self.colname)}',
             pattern=literal_string('^' + pattern + '$'),
-            error=literal_string(_('Does not match pattern')),
+            error=literal_string(
+                _('Does not match pattern') + ': ' + pattern),
             invalid=literal_string(
                 _('Data dictionary field pattern is invalid')
             ),

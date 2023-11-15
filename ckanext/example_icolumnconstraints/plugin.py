@@ -53,8 +53,8 @@ class ImmutableConstraint(ColumnConstraint):
 
         error = _('This field may not be changed')
         return f'''
-            IF NOT ({old_is_empty}) AND NEW.{icolname} <> OLD.{icolname} THEN
-                errors := errors || ARRAY[[
-                    {literal_string(self.colname)}, {literal_string(error)}]];
-            END IF;
+        IF NOT ({old_is_empty}) AND NEW.{icolname} <> OLD.{icolname} THEN
+            errors := errors || ARRAY[[
+                {literal_string(self.colname)}, {literal_string(error)}]];
+        END IF;
         '''
