@@ -479,7 +479,7 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
         action = kwargs.pop("action", "resource_create")
         field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        if type(data) is not bytes:
+        if not isinstance(data, bytes):
             data = bytes(data, encoding="utf-8")
         test_file.write(data)
         test_file.seek(0)
