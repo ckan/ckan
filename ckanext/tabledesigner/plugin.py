@@ -46,12 +46,10 @@ class TableDesignerPlugin(p.SingletonPlugin):
                 helpers.tabledesigner_data_api_examples,
             'tabledesigner_column_type':
                 helpers.tabledesigner_column_type,
-            'tabledesigner_column_constraints':
-                helpers.tabledesigner_column_constraints,
             'datastore_rw_resource_url_types':
                 helpers.datastore_rw_resource_url_types,
-            'tabledesigner_choice_list':
-                helpers.tabledesigner_choice_list,
+            'tabledesigner_choices':
+                helpers.tabledesigner_choices,
         }
 
     # IConfigurable

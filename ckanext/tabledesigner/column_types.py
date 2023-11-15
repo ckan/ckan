@@ -22,6 +22,7 @@ class ColumnType:
     datastore_type = 'text'
     form_snippet = 'text.html'
     html_input_type = 'text'
+    excel_format = 'General'
     _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
 
     def __init__(self, info, constraint_types):
@@ -135,6 +136,12 @@ class ChoiceColumn(ColumnType):
             ) + ']'
         )
 
+    def excel_validate_rule(self):
+        """
+        excelforms provides {_choice_range_} cells with all choice values
+        """
+        return 'COUNTIF({_choice_range_},TRIM({_value_}))=0'
+
 
 @_standard_column('email')
 class EmailColumn(ColumnType):
@@ -202,6 +209,9 @@ class NumericColumn(ColumnType):
     table_schema_type = 'number'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
+    def excel_validate_rule(self):
+        return 'NOT(ISNUMBER({_value_}))'
+
 
 @_standard_column('integer')
 class IntegerColumn(ColumnType):
@@ -212,6 +222,9 @@ class IntegerColumn(ColumnType):
     table_scema_type = 'integer'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
+    def excel_validate_rule(self):
+        return 'NOT(IFERROR(INT({_value_})=VALUE({_value_}),FALSE))'
+
 
 @_standard_column('boolean')
 class BooleanColumn(ColumnType):
@@ -220,7 +233,25 @@ class BooleanColumn(ColumnType):
     example = 'false'
     datastore_type = 'boolean'
     table_schema_type = 'boolean'
+    form_snippet = 'choice.html'
     _SQL_IS_EMPTY = "{value} IS NULL"
+
+    def choices(self):
+        from ckan.plugins.toolkit import _
+        return {
+            'false': _('False'),
+            'true': _('True'),
+        }
+
+    def choice_value_key(self, value: bool | str) -> str:
+        """
+        convert bool to string for matching choice keys
+        """
+        return 'true' if value else 'false' if isinstance(
+            value, bool) else value
+
+    def excel_validate_rule(self):
+        return 'AND({_value_}<>TRUE,{_value_}<>FALSE)'
 
 
 @_standard_column('json')
@@ -242,7 +273,11 @@ class DateColumn(ColumnType):
     table_schema_type = 'date'
     table_schema_format = 'fmt:YYYY-MM-DD'
     html_input_type = 'date'
+    excel_format = 'yyyy-mm-dd'
     _SQL_IS_EMPTY = "{value} IS NULL"
+
+    def excel_validate_rule(self):
+        return 'NOT(ISNUMBER({_value_}+0))'
 
 
 @_standard_column('timestamp')
@@ -254,4 +289,8 @@ class TimestampColumn(ColumnType):
     table_schema_type = 'time'
     table_schema_format = 'fmt:YYYY-MM--DD hh:mm:ss'
     html_input_type = 'datetime-local'
+    excel_format = 'yyyy-mm-dd HH:MM:SS'
     _SQL_IS_EMPTY = "{value} IS NULL"
+
+    def excel_validate_rule(self):
+        return 'NOT(ISNUMBER({_value_}+0))'

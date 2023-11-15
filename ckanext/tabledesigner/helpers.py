@@ -30,11 +30,11 @@ def tabledesigner_column_type(field):
     )(info, plugin._column_constraints.get(tdtype, []))
 
 
-def tabledesigner_choice_list(field):
+def tabledesigner_choices(field):
     ct = h.tabledesigner_column_type(field)
     if hasattr(ct, 'choices'):
         return ct.choices()
-    return []
+    return {}
 
 
 def tabledesigner_data_api_examples(resource_id):
