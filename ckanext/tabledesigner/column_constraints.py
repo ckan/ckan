@@ -83,8 +83,10 @@ class RangeConstraint(ColumnConstraint):
         if maximum:
             rules.append('0<{_value_}-' + excel_literal(maximum))
             if minimum:
-                return 'OR(' + ','.join(rules) + ')'
-        return ''.join(rules)
+                return 'IFERROR(OR(' + ','.join(rules) + '),1)'
+        if rules:
+            return 'IFERROR(' + rules[0] + ',1)'
+        return ''
 
 
 @_standard_constraint(['text'])
