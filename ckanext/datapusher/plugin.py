@@ -66,10 +66,9 @@ class DatapusherPlugin(p.SingletonPlugin):
         We want to check if values have changed, namely the url.
         See: ckan/model/modification.py.DomainObjectModificationExtension
         """
-        if (operation != DomainObjectOperation.changed
-            or not isinstance(entity, model.Resource)
-            or not getattr(entity, 'url_changed', False)
-        ):
+        if operation != DomainObjectOperation.changed \
+           or not isinstance(entity, model.Resource) \
+           or not getattr(entity, 'url_changed', False):
             return
         context: Context = {'ignore_auth': True}
         resource_dict = p.toolkit.get_action(u'resource_show')(
