@@ -59,7 +59,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     # IDomainObjectModification
 
     def notify(self, entity: Union[model.Resource, model.Package],
-               operation: Enum):
+               operation: Enum[str]):
         """
         Runs before_commit to database for Packages and Resources.
         We only want to check for changed Resources for this.
@@ -69,7 +69,7 @@ class DatapusherPlugin(p.SingletonPlugin):
         if operation != DomainObjectOperation.changed \
             or not isinstance(entity, model.Resource) \
             or not getattr(entity, 'url_changed', False):
-                return
+            return
         context: Context = {'ignore_auth': True}
         resource_dict = p.toolkit.get_action(u'resource_show')(
             context, {
