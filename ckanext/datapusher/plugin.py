@@ -13,7 +13,7 @@ import ckanext.datapusher.helpers as helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
 
-from ckan.model.domain_object import DomainObjectOperation
+from ckan.model.domain_object import DomainObjectOperation, Enum
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     # IDomainObjectModification
 
     def notify(self, entity: Union[model.Resource, model.Package],
-               operation: DomainObjectOperation):
+               operation: Enum):
         """
         Runs before_commit to database for Packages and Resources.
         We only want to check for changed Resources for this.
@@ -67,9 +67,9 @@ class DatapusherPlugin(p.SingletonPlugin):
         See: ckan/model/modification.py.DomainObjectModificationExtension
         """
         if operation != DomainObjectOperation.changed \
-        or not isinstance(entity, model.Resource) \
-        or not getattr(entity, 'url_changed', False):
-            return
+            or not isinstance(entity, model.Resource) \
+            or not getattr(entity, 'url_changed', False):
+                return
         context: Context = {'ignore_auth': True}
         resource_dict = p.toolkit.get_action(u'resource_show')(
             context, {

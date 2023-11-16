@@ -1,0 +1,1 @@
+Fixed Datapusher compatibility with other extensions that delete Resources during session commits
