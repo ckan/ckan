@@ -307,7 +307,7 @@ class TestDatastoreCreateNewTests(object):
         last_analyze = when_was_last_analyze(resource["id"])
         assert last_analyze is not None
 
-    def test_remove_columns(self):
+    def test_delete_fields(self):
         resource = factories.Resource()
         data = {
             "resource_id": resource["id"],
@@ -327,6 +327,20 @@ class TestDatastoreCreateNewTests(object):
                 {"id": "col_c", "type": "text"},
             ],
             "force": True,
+        }
+        helpers.call_action("datastore_create", **data)
+        info = helpers.call_action("datastore_info", id=resource["id"])
+        assert [f['id'] for f in info['fields']] == [
+            'col_a', 'col_b', 'col_c', 'col_d'
+        ]
+        data = {
+            "resource_id": resource["id"],
+            "fields": [
+                {"id": "col_a", "type": "text"},
+                {"id": "col_c", "type": "text"},
+            ],
+            "force": True,
+            "delete_fields": True,
         }
         helpers.call_action("datastore_create", **data)
         info = helpers.call_action("datastore_info", id=resource["id"])
