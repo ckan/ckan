@@ -84,6 +84,8 @@ Some view plugins for common formats are included in the main CKAN repository.
 These don't require further setup and can be directly added to the
 :ref:`ckan.plugins` setting.
 
+.. _datatables-view:
+
 DataTables view
 +++++++++++++++
 
