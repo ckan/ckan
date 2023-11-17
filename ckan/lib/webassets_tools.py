@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-import tempfile
 from typing import Any
 from typing_extensions import Literal, TypedDict, assert_never
 
@@ -11,6 +10,7 @@ from webassets import Environment
 from webassets.loaders import YAMLLoader
 
 from ckan.common import config, g
+from ckan.lib.io import get_ckan_temp_directory
 
 
 log = logging.getLogger(__name__)
@@ -207,7 +207,9 @@ def get_webassets_path() -> str:
     webassets_path = config["ckan.webassets.path"]
 
     if not webassets_path:
-        storage_path = config["ckan.storage_path"] or tempfile.gettempdir()
+        storage_path = config.get(
+            "ckan.storage_path"
+        ) or get_ckan_temp_directory()
 
         if storage_path:
             webassets_path = os.path.join(storage_path, "webassets")

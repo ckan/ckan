@@ -21,7 +21,7 @@ def _clear_activities():
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganization(object):
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -152,8 +152,8 @@ class TestOrganization(object):
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -161,7 +161,8 @@ class TestOrganization(object):
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (
@@ -174,7 +175,7 @@ class TestOrganization(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestUser:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -257,7 +258,6 @@ class TestUser:
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-
         user = factories.UserWithToken()
         dataset = factories.Dataset(user=user)
         _clear_activities()
@@ -364,7 +364,7 @@ class TestUser:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestPackage:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -561,8 +561,8 @@ class TestPackage:
         assert len(activities) == 1
 
     def test_delete_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
+        user = factories.UserWithToken()
+        org = factories.Organization(user=user)
         dataset = factories.Dataset(owner_org=org["id"], user=user)
         _clear_activities()
         helpers.call_action(
@@ -570,7 +570,8 @@ class TestPackage:
         )
 
         url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
 
@@ -635,7 +636,8 @@ class TestPackage:
     def test_custom_activity(self, app):
         """Render a custom activity"""
 
-        user = factories.User()
+        user = factories.UserWithToken()
+        headers = {"Authorization": user["token"]}
         organization = factories.Organization(
             users=[{"name": user["id"], "capacity": "admin"}]
         )
@@ -660,7 +662,7 @@ class TestPackage:
         helpers.call_action("activity_create", **activity_dict)
 
         url = url_for("activity.package_activity", id=dataset["id"])
-        response = app.get(url)
+        response = app.get(url, headers=headers)
         assert (
             '<a href="/user/{}">{}'.format(user["name"], user["fullname"])
             in response
@@ -821,7 +823,8 @@ class TestPackage:
         assert older_activities_url_url in response.body
 
         # Prev page button is not in the first page
-        newer_activities_url_url = "/dataset/activity/{}?after=".format(dataset["id"])
+        newer_activities_url_url = "/dataset/activity/{}?after=".format(
+            dataset["id"])
         assert newer_activities_url_url not in response.body
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
@@ -894,7 +897,8 @@ class TestPackage:
         )
 
         # There's not a third page
-        older_activities_url_url = "/dataset/activity/{}?before=".format(dataset["name"])
+        older_activities_url_url = "/dataset/activity/{}?before=".format(
+            dataset["name"])
         assert older_activities_url_url not in response.body
 
         # previous page exists
@@ -906,7 +910,7 @@ class TestPackage:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestGroup:
     def test_simple(self, app):
         """Checking the template shows the activity stream."""
@@ -1036,7 +1040,7 @@ class TestGroup:
         assert dataset["title"] in href.text.strip()
 
     def test_delete_dataset(self, app):
-        user = factories.User()
+        user = factories.UserWithToken()
         group = factories.Group(user=user)
         dataset = factories.Dataset(groups=[{"id": group["id"]}], user=user)
         _clear_activities()
@@ -1045,7 +1049,8 @@ class TestGroup:
         )
 
         url = url_for("activity.group_activity", id=group["id"])
-        response = app.get(url)
+        headers = {"Authorization": user["token"]}
+        response = app.get(url, headers=headers)
         page = BeautifulSoup(response.body)
         href = page.select_one(".dataset")
         assert (

@@ -598,6 +598,8 @@ For example, to make a user called 'admin' into a sysadmin
 tracking: Update tracking statistics
 ====================================
 
+Starting CKAN 2.11 tracking command is only available if the extension es enabled.
+
 Usage
 
 .. parsed-literal::
@@ -645,9 +647,9 @@ For example, to create a new user called 'admin'
 
 .. parsed-literal::
 
- ckan -c |ckan.ini| user add admin email=admin@localhost 
+ ckan -c |ckan.ini| user add admin email=admin@localhost
 
-.. note:: 
+.. note::
      You can use password=test1234 option if "non-interactive" usage is a requirement.
 
 To delete the 'admin' user

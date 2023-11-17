@@ -18,7 +18,7 @@ changes it is related to.
 
 To create a new migration script, use CKAN CLI::
 
-     ckan generate migration -m "Add account table"
+     ckan -c /etc/ckan/default/ckan.ini generate migration -m "Add account table"
 
 Update the generated file, because it doesn't contain any actual
 changes, only placeholders for `upgrade` and `downgrade` steps. For
