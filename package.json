@@ -13,7 +13,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "jquery": "^3.5.0",
     "less": "^3.11.2",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "qs": "^6.9.4"
   },
   "devDependencies": {
