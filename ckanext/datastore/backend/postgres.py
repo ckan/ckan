@@ -1096,10 +1096,11 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
                 identifier(f['id']),
                 info_sql))
 
-    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
-        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
-            identifier(data_dict['resource_id']),
-            identifier(id_)))
+    if data_dict['delete_fields']:
+        for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+            alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+                identifier(data_dict['resource_id']),
+                identifier(id_)))
 
     if alter_sql:
         context['connection'].execute(
