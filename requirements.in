@@ -9,8 +9,8 @@ certifi>=2023.7.22
 click==8.1.7
 dominate==2.8.0
 feedgen==0.9.0
-Flask==3.0.0
-Flask-Babel==4.0.0
+Flask==2.3.3
+Flask-Babel==3.1.0
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 # For Python 3.11 support
@@ -35,5 +35,5 @@ sqlparse==0.4.4
 typing_extensions==4.8.0
 tzlocal==5.2
 webassets==2.0
-Werkzeug[watchdog]==3.0.1
+Werkzeug[watchdog]==2.3.7
 zope.interface==6.1
