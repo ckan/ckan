@@ -230,7 +230,7 @@ def check_ckan_version(
         )
     except pv.InvalidVersion:
         raise ValueError(
-            f"max_version '{max_version}' is not a valid version identifier" 
+            f"max_version '{max_version}' is not a valid version identifier"
         )
     return at_least_min and at_most_max
 
