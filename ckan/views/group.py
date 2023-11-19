@@ -53,8 +53,8 @@ def _db_to_form_schema(group_type: Optional[str] = None) -> Schema:
 
 
 def _setup_template_variables(
-        context: Context, 
-        data_dict: DataDict, 
+        context: Context,
+        data_dict: DataDict,
         group_type: Optional[str] = None) -> None:
     return lookup_group_plugin(group_type).\
         setup_template_variables(context, data_dict)
