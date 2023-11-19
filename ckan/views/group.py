@@ -75,7 +75,7 @@ def _force_reindex(grp: dict[str, Any]) -> None:
         search.rebuild(dataset.name)
 
 
-def index(group_type: str, is_org: bool) -> str:
+def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     items_per_page = config.get('ckan.datasets_per_page')
     limit = config.get("ckan.group_and_organization_list_max")
@@ -350,7 +350,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
         base.abort(404, _(u'Group not found'))
 
 
-def read(group_type: str, is_org: bool, id: Optional[str] = None) -> Union[str, Response]:
+def read(group_type: str, is_organization: bool, id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
 
     context: Context = {
@@ -413,7 +413,7 @@ def read(group_type: str, is_org: bool, id: Optional[str] = None) -> Union[str, 
     return base.render(group_template, extra_vars)
 
 
-def about(id: str, group_type: str, is_org: bool) -> str:
+def about(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     context: Context = {'user': current_user.name}
 
@@ -442,7 +442,7 @@ def about(id: str, group_type: str, is_org: bool) -> str:
     return base.render(group_template, extra_vars)
 
 
-def members(id: str, group_type: str, is_org: bool) -> str:
+def members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     context: Context = {'user': current_user.name}
 
@@ -476,7 +476,7 @@ def members(id: str, group_type: str, is_org: bool) -> str:
     return base.render(f'{group_type}/members.html', extra_vars)
 
 
-def manage_members(id: str, group_type: str, is_org: bool) -> str:
+def manage_members(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     context: Context = {'user': current_user.name}
 
@@ -510,12 +510,12 @@ def manage_members(id: str, group_type: str, is_org: bool) -> str:
     return base.render(f'{group_type}/manage_members.html', extra_vars)
 
 
-def member_dump(id: str, group_type: str, is_org: bool):
+def member_dump(id: str, group_type: str, is_organization: bool):
     group_obj = model.Group.get(id)
     if not group_obj:
         base.abort(404,
                    _(u'Organization not found')
-                   if is_org
+                   if is_organization
                    else _(u'Group not found'))
 
     context: Context = {'user': current_user.name}
@@ -568,7 +568,7 @@ def member_dump(id: str, group_type: str, is_org: bool):
     return response
 
 
-def member_delete(id: str, group_type: str, is_org: bool) -> Union[Response, str]:
+def member_delete(id: str, group_type: str, is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
 
     if u'cancel' in request.form:
@@ -610,7 +610,7 @@ def member_delete(id: str, group_type: str, is_org: bool) -> Union[Response, str
     return base.render(f'{group_type}/confirm_delete_member.html', extra_vars)
 
 
-def follow(id: str, group_type: str, is_org: bool) -> Union[Response, str]:
+def follow(id: str, group_type: str, is_organization: bool) -> Union[Response, str]:
     '''Start following this group.'''
     data_dict = {
         'id': id,
@@ -643,7 +643,7 @@ def follow(id: str, group_type: str, is_org: bool) -> Union[Response, str]:
     return base.render(f'{group_type}/snippets/info.html', extra_vars)
 
 
-def unfollow(id: str, group_type: str, is_org: bool) -> str:
+def unfollow(id: str, group_type: str, is_organization: bool) -> str:
     '''Stop following this group.'''
     data_dict = {
         'id': id,
@@ -676,7 +676,7 @@ def unfollow(id: str, group_type: str, is_org: bool) -> str:
     return base.render(f'{group_type}/snippets/info.html', extra_vars)
 
 
-def followers(id: str, group_type: str, is_org: bool) -> str:
+def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     context: Context = {'user': current_user.name}
     group_dict = _get_group_dict(id, group_type)
@@ -700,7 +700,7 @@ def followers(id: str, group_type: str, is_org: bool) -> str:
     return base.render(u'group/followers.html', extra_vars)
 
 
-def admins(id: str, group_type: str, is_org: bool) -> str:
+def admins(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     group_dict = _get_group_dict(id, group_type)
     admins = authz.get_group_or_org_admin_ids(id)
@@ -742,7 +742,7 @@ class BulkProcessView(MethodView):
 
         return context
 
-    def get(self, id: str, group_type: str, is_org: bool) -> str:
+    def get(self, id: str, group_type: str, is_organization: bool) -> str:
         extra_vars = {}
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
@@ -771,7 +771,7 @@ class BulkProcessView(MethodView):
         group_template = _get_group_template(u'bulk_process_template', group_type)
         return base.render(group_template, extra_vars)
 
-    def post(self, id: str, group_type: str, is_org: bool) -> Response:
+    def post(self, id: str, group_type: str, is_organization: bool) -> Response:
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
         user = current_user.name
@@ -782,10 +782,10 @@ class BulkProcessView(MethodView):
             group_dict = get_action(f'{group_type}_show')(context, data_dict)
         except NotFound:
             group_label = h.humanize_entity_type(
-                u'organization' if is_org else u'group',
+                u'organization' if is_organization else u'group',
                 group_type,
                 u'default label') or _(
-                    u'Organization' if is_org else u'Group')
+                    u'Organization' if is_organization else u'Group')
             base.abort(404, _(u'{} not found'.format(group_label)))
         except NotAuthorized:
             base.abort(403,
@@ -859,7 +859,7 @@ class CreateGroupView(MethodView):
 
         return context
 
-    def post(self, group_type: str, is_org: bool) -> Union[Response, str]:
+    def post(self, group_type: str, is_organization: bool) -> Union[Response, str]:
 
         context = self._prepare(group_type)
         try:
@@ -880,7 +880,7 @@ class CreateGroupView(MethodView):
         except ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
-            return self.get(group_type, is_org,
+            return self.get(group_type, is_organization,
                             data_dict, errors, error_summary)
 
         return h.redirect_to(
@@ -888,7 +888,7 @@ class CreateGroupView(MethodView):
 
     def get(self,
             group_type: str,
-            is_org: bool,
+            is_organization: bool,
             data: Optional[dict[str, Any]] = None,
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
@@ -953,7 +953,7 @@ class EditGroupView(MethodView):
 
     def post(self,
              group_type: str,
-             is_org: bool,
+             is_organization: bool,
              id: Optional[str] = None) -> Union[Response, str]:
 
         context = self._prepare(id, group_type)
@@ -977,7 +977,7 @@ class EditGroupView(MethodView):
             errors = e.error_dict
             error_summary = e.error_summary
             assert id
-            return self.get(id, group_type, is_org,
+            return self.get(id, group_type, is_organization,
                             data_dict, errors, error_summary)
         return h.redirect_to(
             group['type'] + '.read', id=group[u'name'])
@@ -985,7 +985,7 @@ class EditGroupView(MethodView):
     def get(self,
             id: str,
             group_type: str,
-            is_org: bool,
+            is_organization: bool,
             data: Optional[dict[str, Any]] = None,
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
@@ -1038,7 +1038,7 @@ class DeleteGroupView(MethodView):
 
     def post(self,
              group_type: str,
-             is_org: bool,
+             is_organization: bool,
              id: Optional[str] = None) -> Response:
 
         context = self._prepare(group_type, id)
@@ -1061,7 +1061,7 @@ class DeleteGroupView(MethodView):
 
     def get(self,
             group_type: str,
-            is_org: bool,
+            is_organization: bool,
             id: Optional[str] = None) -> Union[str, Response]:
 
         context = self._prepare(group_type, id)
@@ -1094,7 +1094,7 @@ class MembersGroupView(MethodView):
 
     def post(self,
              group_type: str,
-             is_org: bool,
+             is_organization: bool,
              id: Optional[str] = None) -> Response:
 
         context = self._prepare(group_type, id)
@@ -1141,7 +1141,7 @@ class MembersGroupView(MethodView):
 
     def get(self,
             group_type: str,
-            is_org: bool,
+            is_organization: bool,
             id: Optional[str] = None) -> str:
         extra_vars: dict[str, Any] = {}
 
@@ -1181,11 +1181,11 @@ class MembersGroupView(MethodView):
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
                   url_defaults={u'group_type': u'group',
-                                u'is_org': False})
+                                u'is_organization': False})
 organization = Blueprint(u'organization', __name__,
                          url_prefix=u'/organization',
                          url_defaults={u'group_type': u'organization',
-                                       u'is_org': True})
+                                       u'is_organization': True})
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:
