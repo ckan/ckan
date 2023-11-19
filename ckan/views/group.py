@@ -26,7 +26,7 @@ from ckan.views.dataset import _get_search_details
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
-from ckan.types import Context
+from ckan.types import Context, DataDict, Schema
 
 
 NotFound = logic.NotFound
@@ -42,13 +42,22 @@ log = logging.getLogger(__name__)
 
 lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
-_db_to_form_schema = lambda type: lookup_group_plugin(type).db_to_form_schema()
 
-_setup_template_variables = (
-    lambda group_type, context, data_dict: lookup_group_plugin(
-        group_type
-    ).setup_template_variables(context, data_dict)
-)
+
+def _db_to_form_schema(group_type: Optional[str] = None) -> Schema:
+    '''
+    This is an interface to manipulate data from the database
+    into a format suitable for the form (optional)
+    '''
+    return lookup_group_plugin(group_type).db_to_form_schema()
+
+
+def _setup_template_variables(
+        context: Context, 
+        data_dict: DataDict, 
+        group_type: Optional[str] = None) -> None:
+    return lookup_group_plugin(group_type).\
+        setup_template_variables(context, data_dict)
 
 
 def _get_group_template(
@@ -319,7 +328,7 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     g.page = extra_vars["page"]
 
     extra_vars["group_type"] = group_type
-    _setup_template_variables(group_type, context, id)
+    _setup_template_variables(context, {'id': id}, group_type)
     return extra_vars
 
 
@@ -429,7 +438,7 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
                    _(u'User %r not authorized to edit members of %s') %
                    (current_user.name, id))
 
-    _setup_template_variables(group_type, context, id)
+    _setup_template_variables(context, {'id': id}, group_type)
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
@@ -932,7 +941,7 @@ class CreateGroupView(MethodView):
             u'group_type': group_type
         }
 
-        _setup_template_variables(group_type, context, data)
+        _setup_template_variables(context, data, group_type)
         group_template = _get_group_template(u'group_form', group_type)
         form = base.render(group_template, extra_vars)
 
@@ -1026,7 +1035,7 @@ class EditGroupView(MethodView):
             u'group_type': group_type
         }
 
-        _setup_template_variables(group_type, context, data)
+        _setup_template_variables(context, data, group_type)
         group_template = _get_group_template(u'group_form', group_type)
         form = base.render(group_template, extra_vars)
 
