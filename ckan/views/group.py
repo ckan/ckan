@@ -52,8 +52,7 @@ _setup_template_variables = (
 
 
 def _get_group_template(
-        template_type: str, group_type: Optional[str] = None
-    ) -> str:
+        template_type: str, group_type: Optional[str] = None) -> str:
     group_plugin = lookup_group_plugin(group_type)
     method = getattr(group_plugin, template_type)
     try:
@@ -350,7 +349,10 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
         base.abort(404, _(u'Group not found'))
 
 
-def read(group_type: str, is_organization: bool, id: Optional[str] = None) -> Union[str, Response]:
+def read(
+        group_type: str,
+        is_organization: bool,
+        id: Optional[str] = None) -> Union[str, Response]:
     extra_vars = {}
 
     context: Context = {
@@ -568,7 +570,10 @@ def member_dump(id: str, group_type: str, is_organization: bool):
     return response
 
 
-def member_delete(id: str, group_type: str, is_organization: bool) -> Union[Response, str]:
+def member_delete(
+        id: str,
+        group_type: str,
+        is_organization: bool) -> Union[Response, str]:
     extra_vars = {}
 
     if u'cancel' in request.form:
@@ -577,7 +582,9 @@ def member_delete(id: str, group_type: str, is_organization: bool) -> Union[Resp
     context: Context = {'user': current_user.name}
 
     try:
-        assert check_access(f'{group_type}_member_delete', context, {u'id': id})
+        assert check_access(
+            f'{group_type}_member_delete', context, {u'id': id}
+        )
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
 
@@ -610,7 +617,10 @@ def member_delete(id: str, group_type: str, is_organization: bool) -> Union[Resp
     return base.render(f'{group_type}/confirm_delete_member.html', extra_vars)
 
 
-def follow(id: str, group_type: str, is_organization: bool) -> Union[Response, str]:
+def follow(
+        id: str,
+        group_type: str,
+        is_organization: bool) -> Union[Response, str]:
     '''Start following this group.'''
     data_dict = {
         'id': id,
@@ -768,10 +778,15 @@ class BulkProcessView(MethodView):
         extra_vars['group_dict'] = group_dict
         extra_vars['group'] = group
 
-        group_template = _get_group_template(u'bulk_process_template', group_type)
+        group_template = _get_group_template(
+            u'bulk_process_template', group_type
+        )
         return base.render(group_template, extra_vars)
 
-    def post(self, id: str, group_type: str, is_organization: bool) -> Response:
+    def post(self,
+             id: str,
+             group_type: str,
+             is_organization: bool) -> Response:
         context = self._prepare(group_type, id)
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
         user = current_user.name
@@ -859,7 +874,10 @@ class CreateGroupView(MethodView):
 
         return context
 
-    def post(self, group_type: str, is_organization: bool) -> Union[Response, str]:
+    def post(self,
+             group_type: str,
+             is_organization: bool
+             ) -> Union[Response, str]:
 
         context = self._prepare(group_type)
         try:

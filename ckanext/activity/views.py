@@ -561,8 +561,8 @@ def group_activity(id: str, group_type: str) -> str:
         "newer_activities_url": newer_activities_url,
         "older_activities_url": older_activities_url
     }
-
-    return tk.render(_get_group_template("activity_template", group_type), extra_vars)
+    group_template = _get_group_template(u'activity_template', group_type)
+    return tk.render(group_template, extra_vars)
 
 
 @bp.route(
