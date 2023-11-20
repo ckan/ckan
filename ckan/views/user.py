@@ -14,6 +14,7 @@ import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
 from ckan.plugins.toolkit import h
+from ckan.lib.helpers import Page
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -104,7 +105,7 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
-    page = h.Page(
+    page = Page(
         collection=users_list,
         page=page_number,
         url=h.pager_url,

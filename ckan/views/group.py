@@ -14,6 +14,7 @@ from codecs import BOM_UTF8
 
 import ckan.lib.base as base
 from ckan.plugins.toolkit import h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -180,7 +181,7 @@ def index(group_type: str, is_organization: bool) -> str:
         else:
             msg = str(e)
         h.flash_error(msg)
-        extra_vars["page"] = h.Page([], 0)
+        extra_vars["page"] = Page([], 0)
         extra_vars["group_type"] = group_type
         return base.render(
             _get_group_template(u'index_template', group_type), extra_vars)
@@ -198,7 +199,7 @@ def index(group_type: str, is_organization: bool) -> str:
     }
     page_results = _action(u'group_list')(context, data_dict_page_results)
 
-    extra_vars["page"] = h.Page(
+    extra_vars["page"] = Page(
         collection=global_results,
         page=page,
         url=h.pager_url,
@@ -342,9 +343,9 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     except search.SearchError as se:
         log.error(u'Group search error: %r', se.args)
         extra_vars["query_error"] = True
-        extra_vars["page"] = h.Page(collection=[])
+        extra_vars["page"] = Page(collection=[])
     else:
-        extra_vars["page"] = h.Page(
+        extra_vars["page"] = Page(
             collection=query['results'],
             page=page,
             url=pager_url,
