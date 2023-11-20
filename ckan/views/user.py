@@ -944,7 +944,7 @@ user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
 user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
-user.add_url_rule(u'/_logout', view_func=logout)
+user.add_url_rule(u'/_logout', view_func=logout, methods=('GET', 'POST'))
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))
