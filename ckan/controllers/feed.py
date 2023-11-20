@@ -30,7 +30,7 @@ from six.moves.urllib.parse import urlparse
 import webhelpers.feedgenerator
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins

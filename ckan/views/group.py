@@ -9,7 +9,7 @@ from six import string_types
 from six.moves.urllib.parse import urlencode
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search

@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g, request

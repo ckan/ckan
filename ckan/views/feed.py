@@ -10,7 +10,7 @@ from six import text_type
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, g, request
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.logic as logic

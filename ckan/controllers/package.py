@@ -17,7 +17,7 @@ import ckan.lib.base as base
 import ckan.lib.i18n as i18n
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.model as model
 import ckan.lib.datapreview as datapreview
 import ckan.lib.plugins
