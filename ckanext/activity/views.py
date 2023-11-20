@@ -498,7 +498,7 @@ def group_activity(id: str, group_type: str) -> str:
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
     context: Context = {"user": tk.g.user, "for_view": True}
-    breakpoint()
+
     is_org = group_type == "organization"
 
     try:
