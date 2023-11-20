@@ -1181,7 +1181,8 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            group_dict = _action('group_member_create', is_organization)(context, data_dict)
+            action = 'group_member_create'
+            group_dict = _action(action, is_organization)(context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:

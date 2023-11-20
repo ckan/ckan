@@ -616,8 +616,8 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
         "group_activity_list": group_activity_list,
         "group_type": current_group_dict["type"],
     }
-
-    return tk.render(f"{group_type}/changes.html", extra_vars)
+    group_or_org = "organization" if is_organization else "group"
+    return tk.render(f"{group_or_org}/changes.html", extra_vars)
 
 
 @bp.route(
@@ -714,7 +714,8 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
         "group_type": current_group_dict["type"],
     }
 
-    return tk.render(f"{group_type}/changes.html", extra_vars)
+    group_or_org = "organization" if is_organization else "group"
+    return tk.render(f"{group_or_org}/changes.html", extra_vars)
 
 
 @bp.route("/user/activity/<id>")
