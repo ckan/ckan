@@ -24,7 +24,7 @@ def before_request() -> None:
 
         # flask types do not mention that it's possible to return a response
         # from the `before_request` callback
-        return h.redirect_to(u'user.login')  # type: ignore
+        return h.redirect_to(u'user.login')
     return None
 
 
