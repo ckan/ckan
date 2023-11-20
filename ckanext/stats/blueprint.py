@@ -4,8 +4,7 @@ from typing import Any
 
 from flask import Blueprint
 
-from ckan.plugins.toolkit import render
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import render, h
 import ckanext.stats.stats as stats_lib
 
 

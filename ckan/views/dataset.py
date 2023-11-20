@@ -16,7 +16,7 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model

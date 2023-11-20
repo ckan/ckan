@@ -7,7 +7,7 @@ from typing import Any
 from flask import Blueprint
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 from ckan.common import _, current_user
 from ckan.views.user import _extra_template_variables
 from ckan.types import Context

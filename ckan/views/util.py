@@ -3,7 +3,7 @@
 from flask import Blueprint
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 from ckan.common import _, request
 from ckan.types import Response
 
