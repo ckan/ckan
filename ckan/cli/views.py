@@ -312,12 +312,7 @@ def _add_default_filters(search_data_dict: dict[str, Any],
         elif view_type == u"pdf_view":
             filter_formats.extend([u"pdf", u"PDF"])
 
-        elif view_type in [
-            u"recline_view",
-            u"recline_grid_view",
-            u"recline_graph_view",
-            u"recline_map_view",
-        ]:
+        elif view_type == "datatables_view":
 
             if datapusher_formats[0] in filter_formats:
                 continue
