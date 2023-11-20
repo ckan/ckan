@@ -11,6 +11,7 @@ from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, g, request
 from ckan.plugins.toolkit import h
+from ckan.lib.helpers import _url_with_params
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.logic as logic
@@ -576,7 +577,7 @@ def custom():
                                action=u'search')
 
     guid = _create_atom_id(
-                h._url_with_params(u'/feeds/custom.atom',
+                _url_with_params(u'/feeds/custom.atom',
                                    search_params.items()))
 
     enclosure = _enclosure(results, u'package_search', **data_dict)
