@@ -108,7 +108,6 @@ def _check_access(
 def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     items_per_page = config.get('ckan.datasets_per_page')
-    limit = config.get("ckan.group_and_organization_list_max")
     page = h.get_page_number(request.args) or 1
 
     context: Context = {
@@ -146,10 +145,10 @@ def index(group_type: str, is_organization: bool) -> str:
             u'q': q,
             u'sort': sort_by,
             u'type': group_type or u'group',
-            u'limit': limit,
             u'include_dataset_count': True,
             u'include_member_count': True,
             u'include_extras': True,
+            u'set_max_limit': True
         }
         action = 'group_list'
         page_results = _action(action, is_organization)(context, data_dict)
@@ -507,7 +506,8 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
         u"group_dict": group_dict,
         u"group_type": group_type,
     }
-    return base.render(f'{group_type}/members.html', extra_vars)
+    template = _replace_group_org('group/members.html', is_organization)
+    return base.render(template, extra_vars)
 
 
 def manage_members(id: str, group_type: str, is_organization: bool) -> str:
@@ -541,7 +541,8 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
         u"group_dict": group_dict,
         u"group_type": group_type,
     }
-    return base.render(f'{group_type}/manage_members.html', extra_vars)
+    template = _replace_group_org('group/manage_members.html', is_organization)
+    return base.render(template, extra_vars)
 
 
 def member_dump(id: str, group_type: str, is_organization: bool):
@@ -647,7 +648,11 @@ def member_delete(
         u"group_id": id,
         u"group_type": group_type
     }
-    return base.render(f'{group_type}/confirm_delete_member.html', extra_vars)
+
+    template = (
+        _replace_group_org('group/confirm_delete_member.html', is_organization)
+    )
+    return base.render(template, extra_vars)
 
 
 def follow(
@@ -682,8 +687,8 @@ def follow(
 
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
-
-    return base.render(f'{group_type}/snippets/info.html', extra_vars)
+    template = _replace_group_org('group/snippets/info.html', is_organization)
+    return base.render(template, extra_vars)
 
 
 def unfollow(id: str, group_type: str, is_organization: bool) -> str:
@@ -715,8 +720,8 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
 
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
-
-    return base.render(f'{group_type}/snippets/info.html', extra_vars)
+    template = _replace_group_org('group/snippets/info.html', is_organization)
+    return base.render(template, extra_vars)
 
 
 def followers(id: str, group_type: str, is_organization: bool) -> str:
@@ -1133,7 +1138,11 @@ class DeleteGroupView(MethodView):
             u"group_dict": group_dict,
             u"group_type": group_type
         }
-        return base.render(f'{group_type}/confirm_delete.html', extra_vars)
+
+        template = (
+            _replace_group_org('group/confirm_delete.html', is_organization)
+        )
+        return base.render(template, extra_vars)
 
 
 class MembersGroupView(MethodView):
@@ -1234,7 +1243,8 @@ class MembersGroupView(MethodView):
             u"group_type": group_type,
             u"user_dict": user_dict
         })
-        return base.render(f'{group_type}/member_new.html', extra_vars)
+        template = _replace_group_org('group/member_new.html', is_organization)
+        return base.render(template, extra_vars)
 
 
 group = Blueprint(u'group', __name__, url_prefix=u'/group',
