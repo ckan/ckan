@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections import OrderedDict
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Literal
 
 from urllib.parse import urlencode
 import csv
@@ -26,7 +27,7 @@ from ckan.views.dataset import _get_search_details
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
-from ckan.types import Context, DataDict, Schema
+from ckan.types import Action, Context, DataDict, Schema
 
 
 NotFound = logic.NotFound
@@ -83,6 +84,27 @@ def _force_reindex(grp: dict[str, Any]) -> None:
         search.rebuild(dataset.name)
 
 
+def _replace_group_org(string: str, is_org: bool) -> str:
+    u''' substitute organization for group if this is an org'''
+    if is_org:
+        return re.sub(u'^group', u'organization', string)
+    return string
+
+
+def _action(action_name: str, is_org: bool) -> Action:
+    u''' select the correct group/org action '''
+    return get_action(_replace_group_org(action_name, is_org))
+
+
+def _check_access(
+        action_name: str,
+        is_org: bool,
+        *args: Any,
+        **kw: Any) -> Literal[True]:
+    u''' select the correct group/org check_access '''
+    return check_access(_replace_group_org(action_name, is_org), *args, **kw)
+
+
 def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     items_per_page = config.get('ckan.datasets_per_page')
@@ -96,7 +118,7 @@ def index(group_type: str, is_organization: bool) -> str:
     }
 
     try:
-        assert check_access(f'{group_type}_list', context)
+        assert _check_access('group_list', is_organization, context)
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
@@ -125,12 +147,12 @@ def index(group_type: str, is_organization: bool) -> str:
             u'sort': sort_by,
             u'type': group_type or u'group',
             u'limit': limit,
-            # u'offset': offset,
             u'include_dataset_count': True,
             u'include_member_count': True,
             u'include_extras': True,
         }
-        page_results = get_action(f'{group_type}_list')(context, data_dict)
+        action = 'group_list'
+        page_results = _action(action, is_organization)(context, data_dict)
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg: Any = e.error_dict['message']
@@ -344,7 +366,7 @@ def _update_facet_titles(
     return facets
 
 
-def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
+def _get_group_dict(id: str, is_org: bool) -> dict[str, Any]:
     u''' returns the result of group_show action or aborts if there is a
     problem '''
     context: Context = {
@@ -353,7 +375,7 @@ def _get_group_dict(id: str, group_type: str) -> dict[str, Any]:
     }
     data_dict = {'id': id, 'include_datasets': False}
     try:
-        return get_action(f'{group_type}_show')(context, data_dict)
+        return _action("group_show", is_org)(context, data_dict)
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
 
@@ -387,7 +409,7 @@ def read(
         # Do not query group members as they aren't used in the view
         data_dict['include_users'] = False
 
-        group_dict = get_action(f'{group_type}_show')(context, data_dict)
+        group_dict = _action("group_show", is_organization)(context, data_dict)
 
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
@@ -429,7 +451,7 @@ def about(id: str, group_type: str, is_organization: bool) -> str:
     context: Context = {'user': current_user.name}
 
     try:
-        group_dict = _get_group_dict(id, group_type)
+        group_dict = _get_group_dict(id, is_organization)
         group_type = group_dict['type']
     except NotFound:
         base.abort(404, _(u'Group not found'))
@@ -459,13 +481,14 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
-        assert check_access(u'group_show', context, data_dict)
+        action = 'group_show'
+        assert _check_access(action, is_organization, context, data_dict)
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
         })
         data_dict['include_datasets'] = False
-        group_dict = get_action(f'{group_type}_show')(context, data_dict)
+        group_dict = _action("group_show", is_organization)(context, data_dict)
     except NotFound:
         base.abort(404, _(u'Group not found'))
     except NotAuthorized:
@@ -499,7 +522,7 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
             u'object_type': u'user'
         })
         data_dict['include_datasets'] = False
-        group_dict = get_action(f'{group_type}_show')(context, data_dict)
+        group_dict = _action("group_show", is_organization)(context, data_dict)
     except NotFound:
         base.abort(404, _(u'Group not found'))
     except NotAuthorized:
@@ -531,7 +554,8 @@ def member_dump(id: str, group_type: str, is_organization: bool):
 
     context: Context = {'user': current_user.name}
     try:
-        check_access(f'{group_type}_member_create', context, {u'id': id})
+        action = 'group_member_create'
+        _check_access(action, is_organization, context, {u'id': id})
     except NotAuthorized:
         base.abort(404,
                    _(u'Not authorized to access {group} members download'
@@ -591,8 +615,8 @@ def member_delete(
     context: Context = {'user': current_user.name}
 
     try:
-        assert check_access(
-            f'{group_type}_member_delete', context, {u'id': id}
+        assert _check_access(
+            'group_member_delete', is_organization, context, {u'id': id}
         )
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
@@ -602,7 +626,7 @@ def member_delete(
         if not user_id:
             base.abort(404, _(u'User not found'))
         if request.method == u'POST':
-            get_action(f'{group_type}_member_delete')(context, {
+            _action('group_member_delete', is_organization)(context, {
                 u'id': id,
                 u'user_id': user_id
             })
@@ -642,7 +666,7 @@ def follow(
     }
 
     try:
-        group_dict = get_action(f'{group_type}_show')({}, data_dict)
+        group_dict = _action('group_show', is_organization)({}, data_dict)
         extra_vars[group_type] = group_dict
     except (NotFound, NotAuthorized):
         msg = _(f'{group_type} not found or you have no permission to view it')
@@ -675,7 +699,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
         'show_nums': True,
     }
     try:
-        group_dict = get_action(f'{group_type}_show')({}, data_dict)
+        group_dict = _action('group_show', is_organization)({}, data_dict)
         extra_vars[group_type] = group_dict
     except (NotFound, NotAuthorized):
         msg = _(f'{group_type} not found or you have no permission to view it')
@@ -698,10 +722,11 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
 def followers(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     context: Context = {'user': current_user.name}
-    group_dict = _get_group_dict(id, group_type)
+    group_dict = _get_group_dict(id, is_organization)
     try:
+        action = 'group_follower_list'
         followers = \
-            get_action(u'group_follower_list')(context, {u'id': id})
+            _action(action, is_organization)(context, {u'id': id})
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
 
@@ -721,7 +746,7 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
 
 def admins(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
-    group_dict = _get_group_dict(id, group_type)
+    group_dict = _get_group_dict(id, is_organization)
     admins = authz.get_group_or_org_admin_ids(id)
 
     # TODO: Remove
@@ -767,7 +792,8 @@ class BulkProcessView(MethodView):
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
         data_dict['include_datasets'] = False
         try:
-            group_dict = get_action(f'{group_type}_show')(context, data_dict)
+            action = 'group_show'
+            group_dict = _action(action, is_organization)(context, data_dict)
             group = context['group']
         except NotFound:
             base.abort(404, _(u'Group not found'))
@@ -803,7 +829,8 @@ class BulkProcessView(MethodView):
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
-            group_dict = get_action(f'{group_type}_show')(context, data_dict)
+            action = 'group_show'
+            group_dict = _action(action, is_organization)(context, data_dict)
         except NotFound:
             group_label = h.humanize_entity_type(
                 u'organization' if is_organization else u'group',
@@ -868,7 +895,7 @@ class BulkProcessView(MethodView):
 class CreateGroupView(MethodView):
     u'''Create group view '''
 
-    def _prepare(self, group_type: str) -> Context:
+    def _prepare(self, group_type: str, is_org: bool) -> Context:
         context: Context = {
             u'user': current_user.name,
             u'save': u'save' in request.args,
@@ -877,7 +904,7 @@ class CreateGroupView(MethodView):
         }
 
         try:
-            assert check_access(f'{group_type}_create', context)
+            assert _check_access('group_create', is_org, context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
 
@@ -888,7 +915,7 @@ class CreateGroupView(MethodView):
              is_organization: bool
              ) -> Union[Response, str]:
 
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, is_organization)
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
@@ -901,7 +928,8 @@ class CreateGroupView(MethodView):
         data_dict['type'] = group_type or u'group'
         data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
-            group = get_action(f'{group_type}_create')(context, data_dict)
+            action = 'group_create'
+            group = _action(action, is_organization)(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
@@ -920,7 +948,7 @@ class CreateGroupView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         extra_vars = {}
-        context = self._prepare(group_type)
+        context = self._prepare(group_type, is_organization)
         data = data or clean_dict(
             dict_fns.unflatten(
                 tuplize_dict(
@@ -958,7 +986,7 @@ class CreateGroupView(MethodView):
 class EditGroupView(MethodView):
     u''' Edit group view'''
 
-    def _prepare(self, id: Optional[str], group_type: str) -> Context:
+    def _prepare(self, id: Optional[str], is_org: bool) -> Context:
         data_dict: dict[str, Any] = {u'id': id, u'include_datasets': False}
 
         context: Context = {
@@ -970,7 +998,7 @@ class EditGroupView(MethodView):
         }
 
         try:
-            check_access(f'{group_type}_update', context, data_dict)
+            _check_access('group_update', is_org, context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
@@ -983,7 +1011,7 @@ class EditGroupView(MethodView):
              is_organization: bool,
              id: Optional[str] = None) -> Union[Response, str]:
 
-        context = self._prepare(id, group_type)
+        context = self._prepare(id, is_organization)
         try:
             data_dict = clean_dict(
                 dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
@@ -995,7 +1023,8 @@ class EditGroupView(MethodView):
         data_dict['id'] = context['id']
         context['allow_partial_update'] = True
         try:
-            group = get_action(f'{group_type}_update')(context, data_dict)
+            action = 'group_update'
+            group = _action(action, is_organization)(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
         except (NotFound, NotAuthorized):
@@ -1017,10 +1046,11 @@ class EditGroupView(MethodView):
             errors: Optional[dict[str, Any]] = None,
             error_summary: Optional[dict[str, Any]] = None) -> str:
         extra_vars = {}
-        context = self._prepare(id, group_type)
+        context = self._prepare(id, is_organization)
         data_dict: dict[str, Any] = {u'id': id, u'include_datasets': False}
         try:
-            group_dict = get_action(f'{group_type}_show')(context, data_dict)
+            action = 'group_show'
+            group_dict = _action(action, is_organization)(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         data = data or group_dict
@@ -1055,10 +1085,10 @@ class EditGroupView(MethodView):
 class DeleteGroupView(MethodView):
     u'''Delete group view '''
 
-    def _prepare(self, group_type: str, id: Optional[str] = None) -> Context:
+    def _prepare(self, is_org: bool, id: Optional[str] = None) -> Context:
         context: Context = {'user': current_user.name}
         try:
-            assert check_access(f'{group_type}_delete', context, {u'id': id})
+            assert _check_access('group_delete', is_org, context, {u'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         return context
@@ -1068,9 +1098,9 @@ class DeleteGroupView(MethodView):
              is_organization: bool,
              id: Optional[str] = None) -> Response:
 
-        context = self._prepare(group_type, id)
+        context = self._prepare(is_organization, id)
         try:
-            get_action(f'{group_type}_delete')(context, {u'id': id})
+            _action('group_delete', is_organization)(context, {u'id': id})
             group_label = h.humanize_entity_type(
                 u'group',
                 group_type,
@@ -1091,8 +1121,9 @@ class DeleteGroupView(MethodView):
             is_organization: bool,
             id: Optional[str] = None) -> Union[str, Response]:
 
-        context = self._prepare(group_type, id)
-        group_dict = get_action(f'{group_type}_show')(context, {u'id': id})
+        context = self._prepare(is_organization, id)
+        action = 'group_show'
+        group_dict = _action(action, is_organization)(context, {u'id': id})
         if u'cancel' in request.args:
             return h.redirect_to(u'{}.edit'.format(group_type), id=id)
 
@@ -1108,11 +1139,11 @@ class DeleteGroupView(MethodView):
 class MembersGroupView(MethodView):
     u'''New members group view'''
 
-    def _prepare(self, group_type: str, id: Optional[str] = None) -> Context:
+    def _prepare(self, is_org: bool, id: Optional[str] = None) -> Context:
         context: Context = {'user': current_user.name}
-        action = f'{group_type}_member_create'
+        action = 'group_member_create'
         try:
-            assert check_access(action, context, {u'id': id})
+            assert _check_access(action, is_org, context, {u'id': id})
         except NotAuthorized:
             base.abort(403,
                        _(u'Unauthorized to create group %s members') % u'')
@@ -1124,7 +1155,7 @@ class MembersGroupView(MethodView):
              is_organization: bool,
              id: Optional[str] = None) -> Response:
 
-        context = self._prepare(group_type, id)
+        context = self._prepare(is_organization, id)
         data_dict = clean_dict(
             dict_fns.unflatten(tuplize_dict(parse_params(request.form))))
         data_dict['id'] = id
@@ -1150,8 +1181,7 @@ class MembersGroupView(MethodView):
             data_dict['username'] = user_dict['name']
 
         try:
-            action = f"{group_type}_member_create"
-            group_dict = get_action(action)(context, data_dict)
+            group_dict = _action('group_member_create', is_organization)(context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
@@ -1172,11 +1202,11 @@ class MembersGroupView(MethodView):
             id: Optional[str] = None) -> str:
         extra_vars: dict[str, Any] = {}
 
-        context = self._prepare(group_type, id)
+        context = self._prepare(is_organization, id)
         user = request.args.get(u'user')
         data_dict: dict[str, Any] = {u'id': id}
         data_dict['include_datasets'] = False
-        group_dict = get_action(f'{group_type}_show')(context, data_dict)
+        group_dict = _action('group_show', is_organization)(context, data_dict)
         roles = get_action(u'member_roles_list')(context, {
             u'group_type': group_type
         })
