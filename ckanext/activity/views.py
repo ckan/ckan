@@ -498,13 +498,17 @@ def group_activity(id: str, group_type: str) -> str:
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
     context: Context = {"user": tk.g.user, "for_view": True}
+    breakpoint()
+    is_org = group_type == "organization"
 
     try:
-        group_dict = _get_group_dict(id, group_type)
+        group_dict = _get_group_dict(id, is_org)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
-    action_name = f"{group_type}_activity_list"
+    action_name = (
+        "organization_activity_list" if is_org else "group_activity_list"
+    )
     activity_type = tk.request.args.get("activity_type")
     activity_types = [activity_type] if activity_type else None
 
