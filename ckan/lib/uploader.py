@@ -15,7 +15,7 @@ from werkzeug.datastructures import FileStorage as FlaskFileStorage
 import ckan.lib.munge as munge
 import ckan.logic as logic
 import ckan.plugins as plugins
-from ckan.common import config
+from ckan.common import config, asint
 from ckan.types import ErrorDict, PUploader, PResourceUploader
 
 ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
@@ -93,7 +93,7 @@ def get_max_image_size() -> int:
 
 
 def get_max_resource_size() -> int:
-    return config.get('ckan.max_resource_size')
+    return asint(config.get('ckan.max_resource_size'))
 
 
 class Upload(object):
