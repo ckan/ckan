@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+
+import itertools
+
 from typing_extensions import TypeAlias
 
-import sqlalchemy.exc
 from sqlalchemy.engine.base import Engine
+from sqlalchemy.dialects.postgresql import REGCLASS
 from ckan.types import Context, ErrorDict
 import copy
 import logging
@@ -11,7 +14,7 @@ import sys
 from typing import (
     Any, Callable, Container, Dict, Iterable, Optional, Set, Union,
     cast)
-import sqlalchemy
+import sqlalchemy as sa
 import os
 import pprint
 import sqlalchemy.engine.url as sa_url
@@ -52,6 +55,7 @@ log = logging.getLogger(__name__)
 _pg_types: dict[str, str] = {}
 _type_names: Set[str] = set()
 _engines: Dict[str, Engine] = {}
+WhereClauses: TypeAlias = "list[tuple[str, dict[str, Any]] | tuple[str]]"
 
 _TIMEOUT = 60000  # milliseconds
 
@@ -126,9 +130,9 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
         config.setdefault('ckan.datastore.sqlalchemy.pool_pre_ping', True)
         for key, value in kwargs.items():
             config.setdefault(key, value)
-        engine = sqlalchemy.engine_from_config(config,
-                                               'ckan.datastore.sqlalchemy.',
-                                               **extras)
+        engine = sa.engine_from_config(config,
+                                       'ckan.datastore.sqlalchemy.',
+                                       **extras)
         _engines[connection_url] = engine
 
     # don't automatically convert to python objects
@@ -136,7 +140,7 @@ def _get_engine_from_url(connection_url: str, **kwargs: Any) -> Engine:
     # http://initd.org/psycopg/docs/extras.html#adapt-json
     _loads: Callable[[Any], Any] = lambda x: x
     register_default_json(
-        conn_or_curs=engine.raw_connection().connection,
+        conn_or_curs=engine.raw_connection().connection,  # type: ignore
         globally=False,
         loads=_loads)
 
@@ -211,8 +215,8 @@ def _result_fields(fields_types: 'OrderedDict[str, str]',
     return result_fields
 
 
-def _get_type(connection: Any, oid: str) -> str:
-    _cache_types(connection)
+def _get_type(engine: Engine, oid: str) -> str:
+    _cache_types(engine)
     return _pg_types[oid]
 
 
@@ -249,7 +253,7 @@ def _guess_type(field: Any):
 
 
 def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
-    sql_get_unique_key = '''
+    sql_get_unique_key = sa.text("""
     SELECT
         a.attname AS column_names
     FROM
@@ -263,17 +267,20 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
         AND t.relkind = 'r'
         AND idx.indisunique = true
         AND idx.indisprimary = false
-        AND t.relname = %s
-    '''
-    key_parts = context['connection'].execute(sql_get_unique_key,
-                                              data_dict['resource_id'])
+        AND t.relname = :relname
+    """)
+
+    key_parts = context['connection'].execute(
+        sql_get_unique_key,
+        {"relname": data_dict['resource_id']},
+    )
     return [x[0] for x in key_parts]
 
 
 def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
     u'''return a dictionary mapping column names to their info data,
     when present'''
-    qtext = sqlalchemy.text(u'''
+    qtext = sa.text(u'''
         select pa.attname as name, pd.description as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
@@ -283,7 +290,7 @@ def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in
-            connection.execute(qtext, res_id=resource_id).fetchall())
+            connection.execute(qtext, {"res_id": resource_id}).fetchall())
     except ValueError:  # don't die on non-json comments
         return {}
 
@@ -294,50 +301,60 @@ def _get_fields(connection: Any, resource_id: str):
     for the passed resource_id, excluding '_'-prefixed columns.
     '''
     fields: list[dict[str, Any]] = []
-    all_fields = connection.execute(
-        u'SELECT * FROM "{0}" LIMIT 1'.format(resource_id)
-    )
+    all_fields = connection.execute(sa.select(
+        sa.text("*")
+    ).select_from(sa.table(resource_id)).limit(1))
+
     for field in all_fields.cursor.description:
         if not field[0].startswith('_'):
             fields.append({
                 'id': str(field[0]),
-                'type': _get_type(connection, field[1])
+                'type': _get_type(connection.engine, field[1])
             })
     return fields
 
 
-def _cache_types(connection: Any) -> None:
+def _cache_types(engine: Engine) -> None:
     if not _pg_types:
-        results = connection.execute(
-            'SELECT oid, typname FROM pg_type;'
-        )
+        with engine.begin() as conn:
+            results = conn.execute(sa.text(
+                'SELECT oid, typname FROM pg_type;'
+            ))
         for result in results:
             _pg_types[result[0]] = result[1]
             _type_names.add(result[1])
         if 'nested' not in _type_names:
-            native_json = _pg_version_is_at_least(connection, '9.2')
+            with engine.begin() as conn:
+                native_json = _pg_version_is_at_least(conn, '9.2')
 
             log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
             backend = DatastorePostgresqlBackend.get_active_backend()
-            engine: Engine = backend._get_write_engine()  # type: ignore
-            with cast(Any, engine.begin()) as write_connection:
-                write_connection.execute(
+            write_engine: Engine = backend._get_write_engine()  # type: ignore
+            with write_engine.begin() as write_connection:
+                write_connection.execute(sa.text(
                     'CREATE TYPE "nested" AS (json {0}, extra text)'.format(
-                        'json' if native_json else 'text'))
+                        'json' if native_json else 'text')))
             _pg_types.clear()
 
             # redo cache types with json now available.
-            return _cache_types(connection)
+            return _cache_types(engine)
 
-        register_composite('nested', connection.connection.connection, True)
+        with engine.connect() as conn:
+            register_composite(
+                'nested',
+                conn.connection.connection,
+                True
+            )
 
 
 def _pg_version_is_at_least(connection: Any, version: Any):
     try:
         v = distutils.version.LooseVersion(version)
-        pg_version = connection.execute('select version();').fetchone()
+        pg_version = connection.execute(
+            sa.text('select version();')
+        ).fetchone()
         pg_version_number = pg_version[0].split()[1]
         pv = distutils.version.LooseVersion(pg_version_number)
         return v <= pv
@@ -369,24 +386,32 @@ def _validate_record(record: Any, num: int, field_names: Iterable[str]):
 
 def _where_clauses(
         data_dict: dict[str, Any], fields_types: dict[str, Any]
-) -> list[Any]:
+) -> WhereClauses:
     filters = data_dict.get('filters', {})
-    clauses: list[Any] = []
+    clauses: WhereClauses = []
+
+    idx_gen = itertools.count()
 
     for field, value in filters.items():
         if field not in fields_types:
             continue
         field_array_type = _is_array_type(fields_types[field])
-        # "%" needs to be escaped as "%%" in any query going to
-        # connection.execute, otherwise it will think the "%" is for
-        # substituting a bind parameter
-        field = field.replace('%', '%%')
+
         if isinstance(value, list) and not field_array_type:
-            clause_str = (u'"{0}" in ({1})'.format(field,
-                          ','.join(['%s'] * len(value))))
-            clause = (clause_str,) + tuple(value)
+            placeholders = [
+                f"value_{next(idx_gen)}" for _ in value
+            ]
+            clause_str = ('{0} in ({1})'.format(
+                sa.column(field),
+                ','.join(f":{p}" for p in placeholders)
+            ))
+            clause = (clause_str, dict(zip(placeholders, value)))
         else:
-            clause: tuple[Any, ...] = (u'"{0}" = %s'.format(field), value)
+            placeholder = f"value_{next(idx_gen)}"
+            clause: tuple[Any, ...] = (
+                f'{sa.column(field)} = :{placeholder}',
+                {placeholder: value}
+            )
         clauses.append(clause)
 
     # add full-text search where clause
@@ -437,7 +462,8 @@ def _where_clauses(
 
 def _update_where_clauses_on_q_dict(
         data_dict: dict[str, str], fields_types: dict[str, str],
-        q: dict[str, str], clauses: list[tuple[str]]) -> None:
+        q: dict[str, str],
+        clauses: WhereClauses) -> None:
     lang = _fts_lang(data_dict.get('language'))
     for field, _ in q.items():
         if field not in fields_types:
@@ -585,20 +611,24 @@ def _ts_query_alias(field: Optional[str] = None):
 def _get_aliases(context: Context, data_dict: dict[str, Any]):
     '''Get a list of aliases for a resource.'''
     res_id = data_dict['resource_id']
-    alias_sql = sqlalchemy.text(
+    alias_sql = sa.text(
         u'SELECT name FROM "_table_metadata" WHERE alias_of = :id')
-    results = context['connection'].execute(alias_sql, id=res_id).fetchall()
-    return [x[0] for x in results]
+    return [
+        item[0] for item in
+        context['connection'].execute(alias_sql, {"id": res_id})
+    ]
 
 
 def _get_resources(context: Context, alias: str):
     '''Get a list of resources for an alias. There could be more than one alias
     in a resource_dict.'''
-    alias_sql = sqlalchemy.text(
+    alias_sql = sa.text(
         u'''SELECT alias_of FROM "_table_metadata"
         WHERE name = :alias AND alias_of IS NOT NULL''')
-    results = context['connection'].execute(alias_sql, alias=alias).fetchall()
-    return [x[0] for x in results]
+    return [
+        item[0] for item in
+        context['connection'].execute(alias_sql, {"alias": alias})
+    ]
 
 
 def create_alias(context: Context, data_dict: dict[str, Any]):
@@ -610,7 +640,7 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
         previous_aliases = _get_aliases(context, data_dict)
         for alias in previous_aliases:
             sql_alias_drop_string = u'DROP VIEW "{0}"'.format(alias)
-            context['connection'].execute(sql_alias_drop_string)
+            context['connection'].execute(sa.text(sql_alias_drop_string))
 
         try:
             for alias in aliases:
@@ -627,7 +657,9 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                             alias)]
                     })
 
-                context['connection'].execute(sql_alias_string)
+                context['connection'].execute(sa.text(
+                    sql_alias_string
+                ))
         except DBAPIError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
@@ -683,7 +715,7 @@ def _build_fts_indexes(
 
 def _drop_indexes(context: Context, data_dict: dict[str, Any],
                   unique: bool = False):
-    sql_drop_index = u'DROP INDEX "{0}" CASCADE'
+    sql_drop_index = u'DROP INDEX {0} CASCADE'
     sql_get_index_string = u"""
         SELECT
             i.relname AS index_name
@@ -697,17 +729,20 @@ def _drop_indexes(context: Context, data_dict: dict[str, Any],
             AND t.relkind = 'r'
             AND idx.indisunique = {unique}
             AND idx.indisprimary = false
-            AND t.relname = %s
+            AND t.relname = :relname
         """.format(unique='true' if unique else 'false')
     indexes_to_drop = context['connection'].execute(
-        sql_get_index_string, data_dict['resource_id']).fetchall()
+        sa.text(sql_get_index_string),
+        {"relname": data_dict['resource_id']}
+    ).fetchall()
     for index in indexes_to_drop:
-        context['connection'].execute(
-            sql_drop_index.format(index[0]).replace('%', '%%'))
+        context['connection'].execute(sa.text(
+            sql_drop_index.format(sa.column(index[0]))
+        ))
 
 
 def _get_index_names(connection: Any, resource_id: str):
-    sql = u"""
+    sql = sa.text("""
         SELECT
             i.relname AS index_name
         FROM
@@ -718,9 +753,9 @@ def _get_index_names(connection: Any, resource_id: str):
             t.oid = idx.indrelid
             AND i.oid = idx.indexrelid
             AND t.relkind = 'r'
-            AND t.relname = %s
-        """
-    results = connection.execute(sql, resource_id).fetchall()
+            AND t.relname = :relname
+        """)
+    results = connection.execute(sql, {"relname": resource_id}).fetchall()
     return [result[0] for result in results]
 
 
@@ -730,7 +765,10 @@ def _is_valid_pg_type(context: Context, type_name: str):
     else:
         connection = context['connection']
         try:
-            connection.execute('SELECT %s::regtype', type_name)
+            connection.execute(
+                sa.text('SELECT cast(:type as regtype)'),
+                {"type": type_name}
+            )
         except ProgrammingError as e:
             if e.orig.pgcode in [_PG_ERR_CODE['undefined_object'],
                                  _PG_ERR_CODE['syntax_error']]:
@@ -741,13 +779,20 @@ def _is_valid_pg_type(context: Context, type_name: str):
 
 
 def _execute_single_statement(
-        context: Context, sql_string: str, where_values: Any):
+        context: Context, sql_string: str, where_values: list[dict[str, Any]]):
     if not datastore_helpers.is_single_statement(sql_string):
         raise ValidationError({
             'query': ['Query is not a single statement.']
         })
 
-    results = context['connection'].execute(sql_string, [where_values])
+    params = {}
+    for chunk in where_values:
+        params.update(chunk)
+
+    results = context['connection'].execute(
+        sa.text(sql_string),
+        params
+    )
 
     return results
 
@@ -791,20 +836,20 @@ def _insert_links(data_dict: dict[str, Any], limit: int, offset: int):
 
 
 def _where(
-        where_clauses_and_values: list[tuple[Any, ...]]
-) -> tuple[str, list[Any]]:
+        where_clauses_and_values: WhereClauses
+) -> tuple[str, list[dict[str, Any]]]:
     '''Return a SQL WHERE clause from list with clauses and values
 
     :param where_clauses_and_values: list of tuples with format
-        (where_clause, param1, ...)
+        (where_clause, {placeholder_name_1: param1, ...})
     :type where_clauses_and_values: list of tuples
 
     :returns: SQL WHERE string with placeholders for the parameters, and list
         of parameters
     :rtype: string
     '''
-    where_clauses = []
-    values: list[Any] = []
+    where_clauses: list[str] = []
+    values: list[dict[str, Any]] = []
 
     for clause_and_values in where_clauses_and_values:
         where_clauses.append('(' + clause_and_values[0] + ')')
@@ -901,9 +946,9 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
                             index)]
                 })
         fields_string = u', '.join(
-            ['(("{0}").json::text)'.format(field)
+            ['(({0}).json::text)'.format(identifier(field))
                 if field in json_fields else
-                '"%s"' % field
+                identifier(field)
                 for field in index_fields])
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
@@ -911,14 +956,13 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
             name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
-    sql_index_strings = [x.replace('%', '%%') for x in sql_index_strings]
     current_indexes = _get_index_names(context['connection'],
                                        data_dict['resource_id'])
     for sql_index_string in sql_index_strings:
         has_index = [c for c in current_indexes
                      if sql_index_string.find(c) != -1]
         if not has_index:
-            connection.execute(sql_index_string)
+            connection.execute(sa.text(sql_index_string))
 
 
 def create_table(context: Context, data_dict: dict[str, Any]):
@@ -1012,8 +1056,8 @@ def create_table(context: Context, data_dict: dict[str, Any]):
                 literal_string(
                     json.dumps(info, ensure_ascii=False))))
 
-    context['connection'].execute(
-        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%'))
+    context['connection'].execute(sa.text(
+        sql_string + u';'.join(info_sql)))
 
 
 def alter_table(context: Context, data_dict: dict[str, Any]):
@@ -1102,8 +1146,9 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
             identifier(id_)))
 
     if alter_sql:
-        context['connection'].execute(
-            u';'.join(alter_sql).replace(u'%', u'%%'))
+        context['connection'].execute(sa.text(
+            ';'.join(alter_sql)
+        ))
 
 
 def insert_data(context: Context, data_dict: dict[str, Any]):
@@ -1131,26 +1176,28 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
         for num, record in enumerate(records):
             _validate_record(record, num, field_names)
 
-            row = []
-            for field in fields:
+            row = {}
+            for idx, field in enumerate(fields):
                 value = record.get(field['id'])
                 if value is not None and field['type'].lower() == 'nested':
                     # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 elif value == '' and field['type'] != 'text':
                     value = None
-                row.append(value)
+                row[f"val_{idx}"] = value
             rows.append(row)
 
-        sql_string = u'''INSERT INTO {res_id} ({columns})
+        sql_string = '''INSERT INTO {res_id} ({columns})
             VALUES ({values});'''.format(
             res_id=identifier(data_dict['resource_id']),
-            columns=sql_columns.replace('%', '%%'),
-            values=', '.join(['%s' for _ in field_names])
+            columns=sql_columns,
+            values=', '.join([
+                f":val_{idx}" for idx in range(0, len(field_names))
+            ])
         )
 
         try:
-            context['connection'].execute(sql_string, rows)
+            context['connection'].execute(sa.text(sql_string), rows)
         except (DatabaseError, DataError) as err:
             raise ValidationError({
                 'records': [_programming_error_summary(err)],
@@ -1195,21 +1242,36 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                         ', '.join(non_existing_field_names))]
                 })
 
-            if '_id' in record:
-                unique_values = [record['_id']]
-                pk_sql = '"_id"'
-                pk_values_sql = '%s'
-            else:
-                unique_values = [record[key] for key in unique_keys]
-                pk_sql = ','.join([identifier(part) for part in unique_keys])
-                pk_values_sql = ','.join(['%s'] * len(unique_keys))
+            idx_gen = itertools.count()
 
             used_fields = [field for field in fields
                            if field['id'] in record]
 
             used_field_names = _pluck('id', used_fields)
 
-            used_values = [record[field] for field in used_field_names]
+            value_placeholders = [
+                f"val_{next(idx_gen)}" for _ in used_field_names
+            ]
+            values = [":" + p for p in value_placeholders]
+            used_values = dict(zip(
+                value_placeholders,
+                [record[field] for field in used_field_names]
+            ))
+
+            if '_id' in record:
+                placeholder = f'val_{next(idx_gen)}'
+                unique_values = {placeholder: record['_id']}
+                pk_sql = '"_id"'
+                pk_values_sql = ":" + placeholder
+            else:
+                placeholders = [
+                    f"val_{next(idx_gen)}" for _ in range(len(unique_keys))
+                ]
+                unique_values = dict(zip(
+                    placeholders, [record[key] for key in unique_keys]
+                ))
+                pk_sql = ','.join([identifier(part) for part in unique_keys])
+                pk_values_sql = ','.join([":" + p for p in placeholders])
 
             if method == _UPDATE:
                 sql_string = u'''
@@ -1220,16 +1282,16 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
-                         for field in used_field_names]).replace('%', '%%'),
-                    values=u', '.join(
-                        ['%s' for _ in used_field_names]),
-                    primary_key=pk_sql.replace('%', '%%'),
+                         for field in used_field_names]),
+                    values=u', '.join(values),
+                    primary_key=pk_sql,
                     primary_value=pk_values_sql,
                 )
                 try:
                     results = context['connection'].execute(
-                        sql_string, used_values + unique_values)
-                except sqlalchemy.exc.DatabaseError as err:
+                        sa.text(sql_string),
+                        {**used_values, **unique_values})
+                except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
                         'records_row': num,
@@ -1242,30 +1304,40 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
                     })
 
             elif method == _UPSERT:
-                sql_string = u'''
-                    UPDATE {res_id}
-                    SET ({columns}, "_full_text") = ({values}, NULL)
-                    WHERE ({primary_key}) = ({primary_value});
-                    INSERT INTO {res_id} ({columns})
-                           SELECT {values}
-                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
-                                    WHERE ({primary_key}) = ({primary_value}));
-                '''.format(
+                format_params = dict(
                     res_id=identifier(data_dict['resource_id']),
                     columns=u', '.join(
                         [identifier(field)
-                         for field in used_field_names]).replace('%', '%%'),
-                    values=u', '.join(['%s::nested'
-                                       if field['type'] == 'nested' else '%s'
-                                       for field in used_fields]),
-                    primary_key=pk_sql.replace('%', '%%'),
+                         for field in used_field_names]),
+                    values=u', '.join([
+                        f'cast(:{p} as nested)'
+                        if field['type'] == 'nested' else ":" + p
+                        for p, field in zip(value_placeholders, used_fields)
+                    ]),
+                    primary_key=pk_sql,
                     primary_value=pk_values_sql,
                 )
+
+                update_string = """
+                    UPDATE {res_id}
+                    SET ({columns}, "_full_text") = ({values}, NULL)
+                    WHERE ({primary_key}) = ({primary_value})
+                """.format(**format_params)
+
+                insert_string = """
+                    INSERT INTO {res_id} ({columns})
+                           SELECT {values}
+                           WHERE NOT EXISTS (SELECT 1 FROM {res_id}
+                                    WHERE ({primary_key}) = ({primary_value}))
+                """.format(**format_params)
+
+                values = {**used_values, **unique_values}
                 try:
                     context['connection'].execute(
-                        sql_string,
-                        (used_values + unique_values) * 2)
-                except sqlalchemy.exc.DatabaseError as err:
+                        sa.text(update_string), values)
+                    context['connection'].execute(
+                        sa.text(insert_string), values)
+                except DatabaseError as err:
                     raise ValidationError({
                         'records': [_programming_error_summary(err)],
                         'records_row': num,
@@ -1338,9 +1410,9 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select']).replace('%', '%%')
-    ts_query = cast(str, query_dict['ts_query']).replace('%', '%%')
-    resource_id = data_dict['resource_id'].replace('%', '%%')
+    select_columns = ', '.join(query_dict['select'])
+    ts_query = cast(str, query_dict['ts_query'])
+    resource_id = data_dict['resource_id']
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
@@ -1354,7 +1426,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
         sort = ['_id']
 
     if sort:
-        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
+        sort_clause = 'ORDER BY {}'.format(', '.join(sort))
     else:
         sort_clause = ''
 
@@ -1369,7 +1441,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
     elif records_format == u'lists':
         select_columns = u" || ',' || ".join(
             s for s in query_dict['select']
-        ).replace('%', '%%')
+        )
         sql_fmt = u'''
             SELECT '[' || array_to_string(array_agg(j.v), ',') || ']' FROM (
                 SELECT {distinct} '[' || {select} || ']' v
@@ -1436,13 +1508,15 @@ def search_data(context: Context, data_dict: dict[str, Any]):
             # See: https://wiki.postgresql.org/wiki/Count_estimate
             # (We also tried using the EXPLAIN to estimate filtered queries but
             #  it didn't estimate well in tests)
-            analyze_count_sql = sqlalchemy.text('''
+            analyze_count_sql = sa.text('''
             SELECT reltuples::BIGINT AS approximate_row_count
             FROM pg_class
             WHERE relname=:resource;
             ''')
-            count_result = context['connection'].execute(analyze_count_sql,
-                                                         resource=resource_id)
+            count_result = context['connection'].execute(
+                analyze_count_sql,
+                {"resource": resource_id},
+            )
             try:
                 estimated_total = count_result.fetchall()[0][0]
             except ValueError:
@@ -1479,7 +1553,7 @@ def search_data(context: Context, data_dict: dict[str, Any]):
 
 def _execute_single_statement_copy_to(
         context: Context, sql_string: str,
-        where_values: Any, buf: Any):
+        where_values: list[dict[str, Any]], buf: Any):
     if not datastore_helpers.is_single_statement(sql_string):
         raise ValidationError({
             'query': ['Query is not a single statement.']
@@ -1495,15 +1569,16 @@ def format_results(context: Context, results: Any, data_dict: dict[str, Any]):
     for field in results.cursor.description:
         result_fields.append({
             'id': str(field[0]),
-            'type': _get_type(context['connection'], field[1])
+            'type': _get_type(context['connection'].engine, field[1])
         })
 
     records = []
+
     for row in results:
         converted_row = {}
         for field in result_fields:
-            converted_row[field['id']] = convert(row[field['id']],
-                                                 field['type'])
+            converted_row[field['id']] = convert(
+                row._mapping[field['id']], field['type'])
         records.append(converted_row)
     data_dict['records'] = records
     if data_dict.get('records_truncated', False):
@@ -1545,9 +1620,16 @@ def _create_triggers(connection: Any, resource_id: str,
     or "for_each" parameters from triggers list.
     '''
     existing = connection.execute(
-        u"""SELECT tgname FROM pg_trigger
-        WHERE tgrelid = %s::regclass AND tgname LIKE 't___'""",
-        resource_id)
+        sa.select(
+            sa.column("tgname")
+        ).select_from(sa.table("pg_trigger")).where(
+            sa.column("tgrelid") == sa.cast(
+                resource_id,  # type: ignore
+                REGCLASS
+            ),
+            sa.column("tgname").like("t___")
+        )
+    )
     sql_list = (
         [u'DROP TRIGGER {name} ON {table}'.format(
             name=identifier(r[0]),
@@ -1563,17 +1645,17 @@ def _create_triggers(connection: Any, resource_id: str,
          for i, t in enumerate(triggers)])
     try:
         if sql_list:
-            connection.execute(u';\n'.join(sql_list))
+            connection.execute(sa.text(";\n".join(sql_list)))
     except ProgrammingError as pe:
         raise ValidationError({u'triggers': [_programming_error_summary(pe)]})
 
 
 def _create_fulltext_trigger(connection: Any, resource_id: str):
-    connection.execute(
+    connection.execute(sa.text(
         u'''CREATE TRIGGER zfulltext
         BEFORE INSERT OR UPDATE ON {table}
         FOR EACH ROW EXECUTE PROCEDURE populate_full_text_trigger()'''.format(
-            table=identifier(resource_id)))
+            table=identifier(resource_id))))
 
 
 def upsert(context: Context, data_dict: dict[str, Any]):
@@ -1592,8 +1674,8 @@ def upsert(context: Context, data_dict: dict[str, Any]):
     trans: Any = context['connection'].begin()
     try:
         # check if table already existes
-        context['connection'].execute(
-            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
+        context['connection'].execute(sa.text(
+            f"SET LOCAL statement_timeout TO {timeout}"))
         upsert_data(context, data_dict)
         if data_dict.get(u'dry_run', False):
             trans.rollback()
@@ -1633,13 +1715,14 @@ def upsert(context: Context, data_dict: dict[str, Any]):
 def search(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_read_engine()  # type: ignore
+    _cache_types(engine)
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
 
     try:
-        context['connection'].execute(
-            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
+        context['connection'].execute(sa.text(
+            f"SET LOCAL statement_timeout TO {timeout}"
+        ))
         return search_data(context, data_dict)
     except DBAPIError as e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
@@ -1661,12 +1744,12 @@ def search(context: Context, data_dict: dict[str, Any]):
 def search_sql(context: Context, data_dict: dict[str, Any]):
     backend = DatastorePostgresqlBackend.get_active_backend()
     engine = backend._get_read_engine()  # type: ignore
+    _cache_types(engine)
 
     context['connection'] = engine.connect()
     timeout = context.get('query_timeout', _TIMEOUT)
-    _cache_types(context['connection'])
 
-    sql = data_dict['sql'].replace('%', '%%')
+    sql = data_dict['sql']
 
     # limit the number of results to ckan.datastore.search.rows_max + 1
     # (the +1 is so that we know if the results went over the limit or not)
@@ -1675,8 +1758,9 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
 
     try:
 
-        context['connection'].execute(
-            u'SET LOCAL statement_timeout TO {0}'.format(timeout))
+        context['connection'].execute(sa.text(
+            f"SET LOCAL statement_timeout TO {timeout}"
+        ))
 
         get_names = datastore_helpers.get_table_and_function_names_from_sql
         table_names, function_names = get_names(context, sql)
@@ -1700,7 +1784,7 @@ def search_sql(context: Context, data_dict: dict[str, Any]):
                     'Not authorized to call function {}'.format(f)
                 )
 
-        results: Any = context['connection'].execute(sql)
+        results: Any = context['connection'].execute(sa.text(sql))
 
         if results.rowcount == rows_max + 1:
             data_dict['records_truncated'] = True
@@ -1778,8 +1862,9 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         for url in [self.ckan_url, self.write_url, self.read_url]:
             connection = _get_engine_from_url(url).connect()
             try:
-                sql = u"SELECT has_schema_privilege('public', 'CREATE')"
-                is_writable: bool = connection.execute(sql).one()[0]
+                is_writable: bool = connection.scalar(sa.select(
+                    sa.func.has_schema_privilege("public", "CREATE")
+                ))
             finally:
                 connection.close()
             if is_writable:
@@ -1803,26 +1888,30 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         only user. A table is created by the write user to test the
         read only user.
         '''
-        write_connection = self._get_write_engine().connect()
         read_connection_user = sa_url.make_url(self.read_url).username
 
-        drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
+        drop_foo_sql = sa.text("DROP TABLE IF EXISTS _foo")
 
-        write_connection.execute(drop_foo_sql)
-
+        engine = self._get_write_engine()
         try:
-            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
-            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
-                have_privilege: bool = write_connection.execute(
-                    privilege_sql,
-                    (read_connection_user, privilege)
-                ).one()[0]
-                if have_privilege:
-                    return False
+            with engine.begin() as conn:
+                conn.execute(drop_foo_sql)
+                conn.execute(sa.text("CREATE TEMP TABLE _foo ()"))
+
+                for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                    have_privilege: bool = conn.scalar(sa.select(
+                        sa.func.has_table_privilege(
+                            read_connection_user,
+                            "_foo",
+                            privilege
+                        )
+                    ))
+                    if have_privilege:
+                        return False
         finally:
-            write_connection.execute(drop_foo_sql)
-            write_connection.close()
+            with engine.begin() as conn:
+                conn.execute(drop_foo_sql)
+
         return True
 
     def configure(self, config: CKANConfig):
@@ -1965,27 +2054,19 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
     def delete(self, context: Context, data_dict: dict[str, Any]):
         engine = self._get_write_engine()
-        context['connection'] = engine.connect()
-        _cache_types(context['connection'])
+        _cache_types(engine)
 
-        trans = context['connection'].begin()
-        try:
+        with engine.begin() as conn:
+            context["connection"] = conn
             # check if table exists
             if 'filters' not in data_dict:
-                context['connection'].execute(
-                    u'DROP TABLE "{0}" CASCADE'.format(
-                        data_dict['resource_id'])
-                )
+                conn.execute(sa.text('DROP TABLE {0} CASCADE'.format(
+                    identifier(data_dict['resource_id'])
+                )))
             else:
                 delete_data(context, data_dict)
 
-            trans.commit()
             return _unrename_json_field(data_dict)
-        except Exception:
-            trans.rollback()
-            raise
-        finally:
-            context['connection'].close()
 
     def create(self, context: Context, data_dict: dict[str, Any]):
         '''
@@ -2004,21 +2085,22 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         Should be transactional.
         '''
         engine = get_write_engine()
+        _cache_types(engine)
+
         context['connection'] = engine.connect()
         timeout = context.get('query_timeout', _TIMEOUT)
-        _cache_types(context['connection'])
 
         _rename_json_field(data_dict)
 
         trans = context['connection'].begin()
         try:
             # check if table already exists
-            context['connection'].execute(
-                u'SET LOCAL statement_timeout TO {0}'.format(timeout))
-            result = context['connection'].execute(
-                u'SELECT * FROM pg_tables WHERE tablename = %s',
-                data_dict['resource_id']
-            ).fetchone()
+            context['connection'].execute(sa.text(
+                f"SET LOCAL statement_timeout TO {timeout}"
+            ))
+            result = context['connection'].execute(sa.text(
+                'SELECT * FROM pg_tables WHERE tablename = :table'
+            ), {"table": data_dict['resource_id']}).fetchone()
             if not result:
                 create_table(context, data_dict)
                 _create_fulltext_trigger(
@@ -2084,22 +2166,24 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         return search_sql(context, data_dict)
 
     def resource_exists(self, id: str) -> bool:
-        resources_sql = sqlalchemy.text(
-            u'''SELECT 1 FROM "_table_metadata"
+        resources_sql = sa.text(
+            '''SELECT 1 FROM "_table_metadata"
             WHERE name = :id AND alias_of IS NULL''')
-        results = self._get_read_engine().execute(resources_sql, id=id)
+        with self._get_read_engine().connect() as conn:
+            results = conn.execute(resources_sql, {"id": id})
         res_exists = results.rowcount > 0
         return res_exists
 
     def resource_id_from_alias(self, alias: str) -> tuple[bool, Optional[str]]:
         real_id: Optional[str] = None
-        resources_sql = sqlalchemy.text(
+        resources_sql = sa.text(
             u'''SELECT alias_of FROM "_table_metadata" WHERE name = :id''')
-        results = self._get_read_engine().execute(resources_sql, id=alias)
+        with self._get_read_engine().connect() as conn:
+            results = conn.execute(resources_sql, {"id": alias})
 
         res_exists = results.rowcount > 0
-        if res_exists:
-            real_id = results.fetchone()[0]  # type: ignore
+        if res_exists and (row := results.fetchone()):
+            real_id = row[0]
         return res_exists, real_id
 
     # def resource_info(self, id):
@@ -2116,54 +2200,60 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['id'] = id
 
             # count of rows in table
-            meta_sql = sqlalchemy.text(
-                u'SELECT count(_id) FROM "{0}"'.format(id))
-            meta_results = engine.execute(meta_sql)
-            info['meta']['count'] = meta_results.fetchone()[0]  # type: ignore
+            meta_sql = sa.text(
+                u'SELECT count(_id) FROM {0}'.format(identifier(id)))
+            with engine.connect() as conn:
+                meta_results = conn.execute(meta_sql)
+            info['meta']['count'] = meta_results.one()[0]
 
             # table_type - BASE TABLE, VIEW, FOREIGN TABLE, MATVIEW
-            tabletype_sql = sqlalchemy.text(u'''
+            tabletype_sql = sa.text(f'''
                 SELECT table_type FROM INFORMATION_SCHEMA.TABLES
-                WHERE table_name = '{0}'
-                '''.format(id))
-            tabletype_results = engine.execute(tabletype_sql)
+                WHERE table_name = {literal_string(id)}
+                ''')
+            with engine.connect() as conn:
+                tabletype_results = conn.execute(tabletype_sql)
             info['meta']['table_type'] = \
-                tabletype_results.fetchone()[0]  # type: ignore
+                tabletype_results.one()[0]
             # MATERIALIZED VIEWS show as BASE TABLE, so
             # we check pg_matviews
-            matview_sql = sqlalchemy.text(u'''
+            matview_sql = sa.text(f'''
                 SELECT count(*) FROM pg_matviews
-                WHERE matviewname = '{0}'
-                '''.format(id))
-            matview_results = engine.execute(matview_sql)
-            if matview_results.fetchone()[0]:  # type: ignore
+                WHERE matviewname = {literal_string(id)}
+                ''')
+            with engine.connect() as conn:
+                matview_results = conn.execute(matview_sql)
+            if matview_results.one()[0]:
                 info['meta']['table_type'] = 'MATERIALIZED VIEW'
 
             # SIZE - size of table in bytes
-            size_sql = sqlalchemy.text(
-                u"SELECT pg_relation_size('{0}')".format(id))
-            size_results = engine.execute(size_sql)
-            info['meta']['size'] = size_results.fetchone()[0]  # type: ignore
+            size_sql = sa.text(
+                f"SELECT pg_relation_size({literal_string(id)})")
+            with engine.connect() as conn:
+                size_results = conn.execute(size_sql)
+            info['meta']['size'] = size_results.one()[0]
 
             # DB_SIZE - size of database in bytes
-            dbsize_sql = sqlalchemy.text(
+            dbsize_sql = sa.text(
                 u"SELECT pg_database_size(current_database())")
-            dbsize_results = engine.execute(dbsize_sql)
-            info['meta']['db_size'] = \
-                dbsize_results.fetchone()[0]  # type: ignore
+            with engine.connect() as conn:
+                dbsize_results = conn.execute(dbsize_sql)
+            info['meta']['db_size'] = dbsize_results.one()[0]
 
             # IDXSIZE - size of all indices for table in bytes
-            idxsize_sql = sqlalchemy.text(
-                u"SELECT pg_indexes_size('{0}')".format(id))
-            idxsize_results = engine.execute(idxsize_sql)
-            info['meta']['idx_size'] = \
-                idxsize_results.fetchone()[0]  # type: ignore
+            idxsize_sql = sa.text(
+                f"SELECT pg_indexes_size({literal_string(id)})")
+            with engine.connect() as conn:
+                idxsize_results = conn.execute(idxsize_sql)
+            info['meta']['idx_size'] = idxsize_results.one()[0]
 
             # all the aliases for this resource
-            alias_sql = sqlalchemy.text(u'''
-                SELECT name FROM "_table_metadata" WHERE alias_of = '{0}'
-            '''.format(id))
-            alias_results = engine.execute(alias_sql)
+            alias_sql = sa.text(f'''
+                SELECT name FROM "_table_metadata"
+                WHERE alias_of = {literal_string(id)}
+            ''')
+            with engine.connect() as conn:
+                alias_results = conn.execute(alias_sql)
             aliases = []
             for alias in alias_results.fetchall():
                 aliases.append(alias[0])
@@ -2172,7 +2262,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             # get the data dictionary for the resource
             data_dictionary = datastore_helpers.datastore_dictionary(id)
 
-            schema_sql = sqlalchemy.text(u'''
+            schema_sql = sa.text(f'''
                 SELECT
                 f.attname AS column_name,
                 pg_catalog.format_type(f.atttypid,f.atttypmod) AS native_type,
@@ -2196,11 +2286,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                           AND c.oid = f.attrelid AND c.oid = ix.indrelid
                 LEFT JOIN pg_class AS i ON ix.indexrelid = i.oid
                 WHERE c.relkind = 'r'::char
-                      AND c.relname = '{0}'
+                      AND c.relname = {literal_string(id)}
                       AND f.attnum > 0
                 ORDER BY c.relname,f.attnum;
-            '''.format(id))
-            schema_results = engine.execute(schema_sql)
+            ''')
+            with engine.connect() as conn:
+                schema_results = conn.execute(schema_sql)
             schemainfo = {}
             for row in schema_results.fetchall():
                 row: Any  # Row has incomplete type definition
@@ -2222,12 +2313,15 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             pass
         return info
 
-    def get_all_ids(self):
-        resources_sql = sqlalchemy.text(
+    def get_all_ids(self) -> list[str]:
+        resources_sql = sa.text(
             u'''SELECT name FROM "_table_metadata"
             WHERE alias_of IS NULL''')
-        query = self._get_read_engine().execute(resources_sql)
-        return [q[0] for q in query.fetchall()]
+        with self._get_read_engine().connect() as conn:
+            return [
+                item for item in
+                conn.scalars(resources_sql)
+            ]
 
     def create_function(self, *args: Any, **kwargs: Any):
         return create_function(*args, **kwargs)
@@ -2246,12 +2340,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         Postgresql's pg_stat_user_tables. This number will be used when
         specifying `total_estimation_threshold`
         '''
-        connection = get_write_engine().connect()
-        sql = 'ANALYZE "{}"'.format(resource_id)
-        try:
-            connection.execute(sql)
-        except sqlalchemy.exc.DatabaseError as err:
-            raise DatastoreException(err)
+        sql = f'ANALYZE {identifier(resource_id)}'
+        with get_write_engine().connect() as conn:
+            try:
+                conn.execute(sa.text(sql))
+            except DatabaseError as err:
+                raise DatastoreException(err)
 
 
 def create_function(name: str, arguments: Iterable[dict[str, Any]],
@@ -2295,18 +2389,8 @@ def drop_function(name: str, if_exists: bool):
 
 
 def _write_engine_execute(sql: str):
-    connection = get_write_engine().connect()
-    # No special meaning for '%' in sql parameter:
-    connection: Any = connection.execution_options(no_parameters=True)
-    trans = connection.begin()
-    try:
-        connection.execute(sql)
-        trans.commit()
-    except Exception:
-        trans.rollback()
-        raise
-    finally:
-        connection.close()
+    with get_write_engine().begin() as conn:
+        conn.execute(sa.text(sql))
 
 
 def _programming_error_summary(pe: Any):

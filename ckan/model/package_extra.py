@@ -14,6 +14,7 @@ import ckan.model.types as _types
 
 __all__ = ['PackageExtra', 'package_extra_table']
 
+Mapped = orm.Mapped
 package_extra_table = Table('package_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     # NB: only (package, key) pair is unique
@@ -25,11 +26,11 @@ package_extra_table = Table('package_extra', meta.metadata,
 
 
 class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
-    id: str
-    package_id: str
-    key: str
-    value: str
-    state: str
+    id: Mapped[str]
+    package_id: Mapped[str]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     package: _package.Package
 
@@ -37,9 +38,8 @@ class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
         return [self.package]
 
 
-# type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(PackageExtra, package_extra_table, properties={
-    'package': orm.relation(_package.Package,
+meta.registry.map_imperatively(PackageExtra, package_extra_table, properties={
+    'package': orm.relationship(_package.Package,
         backref=orm.backref('_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),  # type: ignore
             cascade='all, delete, delete-orphan',

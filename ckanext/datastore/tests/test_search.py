@@ -2,6 +2,7 @@
 
 import json
 import pytest
+import sqlalchemy as sa
 import sqlalchemy.orm as orm
 import decimal
 
@@ -129,7 +130,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": 50,
@@ -153,7 +155,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "filters": {u"the year": 1901},
@@ -179,7 +182,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "fields": ["the year"],
@@ -226,7 +230,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": 0,
@@ -251,7 +256,8 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
         search_data = {
             "resource_id": resource["id"],
             "total_estimation_threshold": None,
@@ -275,7 +281,9 @@ class TestDatastoreSearch(object):
             """.format(
             resource=resource["id"]
         )
-        db.get_write_engine().execute(analyze_sql)
+        with db.get_write_engine().connect() as conn:
+            conn.execute(sa.text(analyze_sql))
+
         search_data = {
             "resource_id": resource["id"],
             # don't specify total_estimation_threshold

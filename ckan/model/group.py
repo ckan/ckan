@@ -23,6 +23,7 @@ __all__ = ['group_table', 'Group',
            'Member',
            'member_table']
 
+Mapped = orm.Mapped
 
 member_table = Table('member', meta.metadata,
                      Column('id', types.UnicodeText,
@@ -78,12 +79,12 @@ class Member(core.StatefulObjectMixin,
               in a hierarchy.
                  - capacity is 'parent'
     '''
-    id: str
-    table_name: Optional[str]
-    table_id: Optional[str]
-    capacity: str
-    group_id: Optional[str]
-    state: str
+    id: Mapped[str]
+    table_name: Mapped[Optional[str]]
+    table_id: Mapped[Optional[str]]
+    capacity: Mapped[str]
+    group_id: Mapped[Optional[str]]
+    state: Mapped[str]
 
     group: Optional['Group']
 
@@ -156,20 +157,20 @@ class Member(core.StatefulObjectMixin,
 class Group(core.StatefulObjectMixin,
             domain_object.DomainObject):
 
-    id: str
-    name: str
-    title: str | None
-    type: str
-    description: str
-    image_url: str
-    created: datetime.datetime
-    is_organization: bool
-    approval_status: str
-    state: str
+    id: Mapped[str]
+    name: Mapped[str]
+    title: Mapped[str | None]
+    type: Mapped[str]
+    description: Mapped[str]
+    image_url: Mapped[str]
+    created: Mapped[datetime.datetime]
+    is_organization: Mapped[bool]
+    approval_status: Mapped[str]
+    state: Mapped[str]
 
-    _extras: dict[str, Any]  # list['GroupExtra']
+    _extras: Mapped[dict[str, Any]]
     extras: AssociationProxy
-    member_all: list[Member]
+    member_all: Mapped[list[Member]]
 
     def __init__(self, name: str = u'', title: str = u'',
                  description: str = u'', image_url: str = u'',
@@ -208,8 +209,7 @@ class Group(core.StatefulObjectMixin,
         """
         q = meta.Session.query(cls)
         if state:
-            # type_ignore_reason: incomplete SQLAlchemy types
-            q = q.filter(cls.state.in_(state))  # type: ignore
+            q = q.filter(cls.state.in_(state))
 
         if group_type:
             q = q.filter(cls.type == group_type)
@@ -298,7 +298,7 @@ class Group(core.StatefulObjectMixin,
                            Member.table_name == 'group',
                            Member.state == 'active')).\
             filter(
-                Member.id == None  # type: ignore
+                Member.id.is_(None)
             ).filter(Group.type == type).\
             filter(Group.state == 'active').\
             order_by(Group.title).all()
@@ -407,10 +407,9 @@ class Group(core.StatefulObjectMixin,
             cls, text_query: str, group_type: Optional[str] = None,
             is_org: bool = False, limit: int = 20) -> Query[Self]:
         text_query = text_query.strip().lower()
-        # type_ignore_reason: incomplete SQLAlchemy types
         q = meta.Session.query(cls) \
-            .filter(or_(cls.name.contains(text_query),  # type: ignore
-                        cls.title.ilike('%' + text_query + '%')))  # type: ignore
+            .filter(or_(cls.name.contains(text_query),
+                        cls.title.ilike('%' + text_query + '%')))
         if is_org:
             q = q.filter(cls.type == 'organization')
         else:
@@ -435,12 +434,13 @@ class Group(core.StatefulObjectMixin,
     def __repr__(self):
         return '<Group %s>' % self.name
 
-meta.mapper(Group, group_table)
+meta.registry.map_imperatively(Group, group_table)
 
-meta.mapper(Member, member_table, properties={
-    'group': orm.relation(Group,
+meta.registry.map_imperatively(Member, member_table, properties={
+    'group': orm.relationship(Group,
                           backref=orm.backref('member_all',
-                                              cascade='all, delete-orphan')),
+                                              cascade='all, delete-orphan',
+                                              cascade_backrefs=False)),
 })
 
 

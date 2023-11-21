@@ -53,7 +53,7 @@ class BasePage(List[Any]):
 
     - a sequence
     - an SQLAlchemy query - e.g.: Session.query(MyModel)
-    - an SQLAlchemy select - e.g.: sqlalchemy.select([my_table])
+    - an SQLAlchemy select - e.g.: sqlalchemy.select(my_table)
 
     A "Page" instance maintains pagination logic associated with each
     page, where it begins, what the first/last item on the page is, etc.

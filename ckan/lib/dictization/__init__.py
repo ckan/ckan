@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterable
 
 import sqlalchemy
 from sqlalchemy import Table
-from sqlalchemy.engine import Row  # type: ignore
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
@@ -27,7 +27,7 @@ def table_dictize(obj: Any, context: Context, **kw: Any) -> dict[str, Any]:
     result_dict: dict[str, Any] = {}
 
     if isinstance(obj, Row):
-        fields = obj.keys()
+        fields = obj._fields
     else:
         ModelClass = obj.__class__
         table = class_mapper(ModelClass).persist_selectable
