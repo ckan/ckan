@@ -1,6 +1,7 @@
 {% extends "package/base.html" %}
 
 {% set res = resource %}
+{% set datastore_active = res.datastore_active and h.plugin_loaded("datastore") %}
 
 {% block head_extras -%}
   {{ super() }}
@@ -49,7 +50,7 @@
                   {% endif %}
                 </a>
                 {% block download_resource_button %}
-                  {% if res.datastore_active %}
+                {% if datastore_active %}
                 <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
                     <span class="caret"></span>
                   </button>
