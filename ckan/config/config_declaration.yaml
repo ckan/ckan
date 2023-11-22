@@ -1156,14 +1156,6 @@ groups:
           group and datasets on the home page in the default templates (1 group and 2
           datasets are displayed).
 
-      - key: ckan.featured_orgs
-        type: list
-        example: org_one
-        description: |
-          Defines a list of organization names or ids. This setting is used to display
-          an organization and datasets on the home page in the default templates (1
-          group and 2 datasets are displayed).
-
       - key: ckan.default_group_sort
         default: title
         example: name
