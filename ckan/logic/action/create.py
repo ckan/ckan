@@ -1043,7 +1043,7 @@ def user_create(context: Context,
     if with_apitoken:
         # Create apitoken for user.
         api_token = _get_action("api_token_create")(
-            context, {"user": user.name, "name": "test"}
+            context, {"user": user.name, "name": "default"}
         )
         user_dict["token"] = api_token["token"]
 
