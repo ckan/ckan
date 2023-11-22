@@ -16,7 +16,7 @@
         <ul class="user-list">
           {% block users_list_inner %}
             {% for user in page.items %}
-              <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
+              <li>{{ h.linked_user(user.name, maxlength=20) }}</li>
             {% endfor %}
           {% endblock %}
         </ul>

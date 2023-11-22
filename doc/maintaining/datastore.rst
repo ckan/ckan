@@ -11,7 +11,7 @@ the DataStore.
 
 When a resource is added to the DataStore, you get:
 
-* Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
+* Automatic data previews on the resource's page, using for instance the :ref:`DataTables view extension <datatables-view>`
 * `The Data API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
@@ -283,7 +283,7 @@ expect from a powerful database management system.
 
 A DataStore resource can not be created on its own. It is always required to have an
 associated CKAN resource. If data is stored in the DataStore, it can automatically be
-previewed by a :ref:`preview extension <data-explorer>`.
+previewed by a :ref:`preview extension <datatables-view>`.
 
 
 Making a Data API request

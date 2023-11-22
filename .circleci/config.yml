@@ -37,6 +37,8 @@ defaults:
       CKAN_POSTGRES_PWD: pass
       PGPASSWORD: ckan
       PYTEST_COMMON_OPTIONS: -v --ckan-ini=test-core-circle-ci.ini --cov=ckan --cov=ckanext --junitxml=~/junit/result/junit.xml
+      # report usage of deprecated features
+      SQLALCHEMY_WARN_20: 1
   pg_image: &pg_image
     image: postgres:10
     environment:

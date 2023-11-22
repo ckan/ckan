@@ -33,18 +33,16 @@ class SampleDataStorePlugin(p.SingletonPlugin):
             age_between = filters["age_between"]
 
             clause = (
-                '"age" >= %s AND "age" <= %s',
-                age_between[0],
-                age_between[1],
+                '"age" >= :min AND "age" <= :max',
+                {"min": age_between[0], "max": age_between[1]},
             )
             where_clauses.append(clause)
         if "age_not_between" in filters:
             age_not_between = filters["age_not_between"]
 
             clause = (
-                '"age" < %s OR "age" > %s',
-                age_not_between[0],
-                age_not_between[1],
+                '"age" < :min OR "age" > :max',
+                {"min": age_not_between[0], "max": age_not_between[1]},
             )
             where_clauses.append(clause)
         if "insecure_filter" in filters:

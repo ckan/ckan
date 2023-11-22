@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any, Collection, Optional
 
 import sqlalchemy as sa
+from sqlalchemy.orm import Mapped
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -28,13 +29,13 @@ resource_view_table = sa.Table(
 
 
 class ResourceView(domain_object.DomainObject):
-    id: str
-    resource_id: str
-    title: Optional[str]
-    description: Optional[str]
-    view_type: str
-    order: int
-    config: dict[str, Any]
+    id: Mapped[str]
+    resource_id: Mapped[str]
+    title: Mapped[Optional[str]]
+    description: Mapped[Optional[str]]
+    view_type: Mapped[str]
+    order: Mapped[int]
+    config: Mapped[dict[str, Any]]
 
     @classmethod
     def get(cls, reference: str) -> Optional[Self]:
@@ -56,18 +57,16 @@ class ResourceView(domain_object.DomainObject):
         view_type = cls.view_type
         query: 'Query[tuple[str, int]]' = meta.Session.query(
             view_type, sa.func.count(cls.id)).group_by(view_type).filter(
-                # type_ignore_reason: incomplete SQLAlchemy types
-                sa.not_(view_type.in_(view_types)))  # type: ignore
+                sa.not_(view_type.in_(view_types)))
 
         return query.all()
 
     @classmethod
     def delete_not_in_view_types(cls, view_types: Collection[str]) -> int:
         '''Delete the Resource Views not in the received view types list'''
-        query = meta.Session.query(cls) \
-                    .filter(sa.not_(
-                        # type_ignore_reason: incomplete SQLAlchemy types
-                        cls.view_type.in_(view_types)))  # type: ignore
+        query = meta.Session.query(cls).filter(
+            sa.not_(cls.view_type.in_(view_types))
+        )
 
         return query.delete(synchronize_session='fetch')
 
@@ -77,11 +76,9 @@ class ResourceView(domain_object.DomainObject):
         query = meta.Session.query(cls)
 
         if view_types:
-            query = query.filter(
-                # type_ignore_reason: incomplete SQLAlchemy types
-                cls.view_type.in_(view_types))  # type: ignore
+            query = query.filter(cls.view_type.in_(view_types))
 
         return query.delete(synchronize_session='fetch')
 
 
-meta.mapper(ResourceView, resource_view_table)
+meta.registry.map_imperatively(ResourceView, resource_view_table)

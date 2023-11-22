@@ -55,7 +55,7 @@ import ckan.plugins as p
 import ckan
 
 
-from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
+from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
@@ -717,7 +717,7 @@ def flash_error(message: Any, allow_html: bool = False) -> None:
         message = Markup(message)
     else:
         message = escape(message)
-    flash(message, category='alert-error')
+    flash(message, category='alert-danger')
 
 
 @core_helper
@@ -772,10 +772,12 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
+    title = kwargs.pop('title', kwargs.pop('title_', None))
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        cls=cls
+        cls=cls,
+        title=title
     )
 
 
@@ -1104,7 +1106,7 @@ def get_facet_items_dict(
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1146,7 +1148,7 @@ def has_more_facets(facet: str,
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
