@@ -899,3 +899,18 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_email_validator_case_sensitivity(app):
+    with app.flask_app.test_request_context():
+
+        user1 = factories.User(email="test@email.com")
+        with pytest.raises(logic.ValidationError):
+            factories.User(email="Test@email.com")
+
+        factories.User(email="USER@email.com")
+        user1["email"] = "User@email.com"
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("user_update", **user1)
