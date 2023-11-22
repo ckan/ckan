@@ -1034,7 +1034,7 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
-    breakpoint()
+
     users = session.query(model.User) \
         .filter(model.User.email == data[key]) \
         .filter(model.User.state == 'active').all()
