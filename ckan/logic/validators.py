@@ -1036,7 +1036,7 @@ def email_validator(value: Any, context: Context) -> Any:
     if value:
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
-    return value
+    return value.lower()
 
 def collect_prefix_validate(prefix: str, *validator_names: str) -> Validator:
     """
@@ -1087,7 +1087,7 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
     '''Validate email is unique'''
     model = context['model']
     session = context['session']
-
+    breakpoint()
     users = session.query(model.User) \
         .filter(model.User.email == data[key]) \
         .filter(model.User.state == 'active').all()
