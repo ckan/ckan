@@ -1270,6 +1270,41 @@ class TestUserCreate(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_show", id=user_dict["name"])
 
+    def test_create_user_with_apitoken(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+            "with_apitoken": True
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert user["token"]
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert len(token) == 1
+
+    def test_create_user_with_apitoken_missing_flag(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert "token" not in user
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert not token
+
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
