@@ -1,0 +1,3 @@
+Remove ckan.featured_groups from ckan/config/config_declaration.yaml
+and ckan/lib/helpers.py
+featured_group.html template also removed from ckan/templates/home/snippets/

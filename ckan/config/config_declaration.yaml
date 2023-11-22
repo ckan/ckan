@@ -1148,14 +1148,6 @@ groups:
           This has been effective at preventing bots registering users and creating spam
           packages.
 
-      - key: ckan.featured_groups
-        type: list
-        example: group_one
-        description: |
-          Defines a list of group names or group ids. This setting is used to display a
-          group and datasets on the home page in the default templates (1 group and 2
-          datasets are displayed).
-
       - key: ckan.featured_orgs
         type: list
         example: org_one
