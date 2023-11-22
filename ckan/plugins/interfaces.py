@@ -893,7 +893,7 @@ class IValidators(Interface):
 
         .. note:: Custom config option may remain not normalized/valid at this
             point. Manually normaize any custom option that affects the result
-            of this methid::
+            of this method::
 
                 validators = {}
                 use_fancy = tk.asbool(
