@@ -2388,19 +2388,6 @@ def uploads_enabled() -> bool:
 
 
 @core_helper
-def get_featured_organizations(count: int = 1) -> list[dict[str, Any]]:
-    '''Returns a list of favourite organization in the form
-    of organization_list action function
-    '''
-    config_orgs = config.get('ckan.featured_orgs')
-    orgs = featured_group_org(get_action='organization_show',
-                              list_action='organization_list',
-                              count=count,
-                              items=config_orgs)
-    return orgs
-
-
-@core_helper
 def get_featured_groups(count: int = 1) -> list[dict[str, Any]]:
     '''Returns a list of favourite group the form
     of organization_list action function
