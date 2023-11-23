@@ -13,7 +13,7 @@ from typing import Any, Optional, Union, cast
 
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
-from flask.sessions import SessionInterface
+from flask_session import Session, FileSystemSessionInterface
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -25,7 +25,7 @@ from werkzeug.local import LocalProxy
 
 from flask_babel import Babel
 
-from beaker.middleware import SessionMiddleware
+# from beaker.middleware import SessionMiddleware
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from ckan.common import CKANConfig, asbool, session, current_user
@@ -85,15 +85,6 @@ def _ungettext_alias():
     compatibility
     '''
     return dict(ungettext=ungettext)
-
-
-class BeakerSessionInterface(SessionInterface):
-    def open_session(self, app: Any, request: Any):
-        if 'beaker.session' in request.environ:
-            return request.environ['beaker.session']
-
-    def save_session(self, app: Any, session: Any, response: Any):
-        session.save()
 
 
 def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
@@ -164,19 +155,10 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
         from werkzeug.debug import DebuggedApplication
         app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
-    namespace = 'beaker.session.'
-    session_opts = {k.replace('beaker.', ''): v
-                    for k, v in config.items()
-                    if k.startswith(namespace)}
-    if (not session_opts.get('session.data_dir') and
-            session_opts.get('session.type', 'file') == 'file'):
-        cache_dir = conf.get('cache_dir') or conf.get('cache.dir')
-        session_opts['session.data_dir'] = '{data_dir}/sessions'.format(
-            data_dir=cache_dir)
+    sess = Session()
+    sess.init_app(app)
 
     app.wsgi_app = RootPathMiddleware(app.wsgi_app)
-    app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
-    app.session_interface = BeakerSessionInterface()
 
     # Add Jinja2 extensions and filters
     app.jinja_env.filters['empty_and_escape'] = \
@@ -443,7 +425,7 @@ class CKANFlask(MultiStaticFlask):
 
     app_name: str = 'flask_app'
     static_folder: list[str]
-    session_interface: SessionInterface
+    session_interface: FileSystemSessionInterface
 
 
 def _register_plugins_blueprints(app: CKANApp):

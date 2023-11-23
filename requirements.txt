@@ -177,3 +177,5 @@ zope-interface==6.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+Flask-Session==0.5.0
+    # via -r requirements.in

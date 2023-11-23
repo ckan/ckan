@@ -37,3 +37,4 @@ tzlocal==5.0.1
 webassets==2.0
 Werkzeug[watchdog]==2.3.7
 zope.interface==6.0
+Flask-Session==0.5.0
