@@ -10,6 +10,9 @@ babel==2.10.3
     # via
     #   -r requirements.in
     #   flask-babel
+backports-zoneinfo==0.2.1; python_version < '3.9'
+    # via
+    #   -r requirements.in
 beaker==1.11.0
     # via -r requirements.in
 bleach==5.0.1
@@ -46,8 +49,10 @@ flask-multistatic==1.0
     # via -r requirements.in
 flask-wtf==1.0.1
     # via -r requirements.in
-greenlet==1.1.2
-    # via sqlalchemy
+greenlet==2.0.2
+    # via
+    #   -r requirements.in
+    #   sqlalchemy
 idna==3.3
     # via requests
 importlib-metadata==4.11.3
