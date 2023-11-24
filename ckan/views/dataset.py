@@ -16,7 +16,8 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -315,7 +316,7 @@ def search(package_type: str) -> str:
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
 
-        extra_vars[u'page'] = h.Page(
+        extra_vars[u'page'] = Page(
             collection=query[u'results'],
             page=page,
             url=pager_url,
@@ -341,7 +342,7 @@ def search(package_type: str) -> str:
         log.error(u'Dataset search error: %r', se.args)
         extra_vars[u'query_error'] = True
         extra_vars[u'search_facets'] = {}
-        extra_vars[u'page'] = h.Page(collection=[])
+        extra_vars[u'page'] = Page(collection=[])
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
@@ -643,7 +644,7 @@ class CreateView(MethodView):
                 )
             )
         )
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
             data[u'tag_string'] = u', '.join(
@@ -676,7 +677,7 @@ class CreateView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'new'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.resources_json = resources_json
@@ -787,7 +788,7 @@ class EditView(MethodView):
             )
 
         pkg = context.get(u"package")
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         user = current_user.name
         try:
             check_access(
@@ -817,7 +818,7 @@ class EditView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'edit'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.pkg = pkg
