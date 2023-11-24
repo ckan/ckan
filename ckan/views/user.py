@@ -15,6 +15,7 @@ import ckan.lib.base as base
 import ckan.lib.captcha as captcha
 from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import Page
+from ckan.lib.dictization import model_dictize
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -87,6 +88,10 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
+    offset = page_number * limit - limit
+
+    # get SQLAlchemy Query object from the action to avoid dictizing all
+    # existing users at once
     context: Context = {
         u'return_query': True,
         u'user': current_user.name,
@@ -94,8 +99,8 @@ def index():
     }
 
     data_dict = {
-        u'q': q,
-        u'order_by': order_by
+        'q': q,
+        'order_by': order_by,
     }
 
     try:
@@ -105,9 +110,18 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
+    # in template we don't need complex row objects from query. Let's dictize
+    # subset of users that are shown on the current page
+    users = [
+        model_dictize.user_dictize(user[0], context)
+        for user in
+        users_list.limit(limit).offset(offset)
+    ]
+
     page = Page(
-        collection=users_list,
+        collection=users,
         page=page_number,
+        presliced_list=True,
         url=h.pager_url,
         item_count=users_list.count(),
         items_per_page=limit)

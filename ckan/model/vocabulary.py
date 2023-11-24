@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import types, Column, Table
+from sqlalchemy.orm import Mapped
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -27,8 +28,8 @@ vocabulary_table = Table(
 
 
 class Vocabulary(domain_object.DomainObject):
-    id: str
-    name: str
+    id: Mapped[str]
+    name: Mapped[str]
 
     def __init__(self, name: str) -> None:
         self.id = _types.make_uuid()
@@ -51,4 +52,4 @@ class Vocabulary(domain_object.DomainObject):
         query = meta.Session.query(tag.Tag)
         return query.filter(tag.Tag.vocabulary_id == self.id)
 
-meta.mapper(Vocabulary, vocabulary_table)
+meta.registry.map_imperatively(Vocabulary, vocabulary_table)

@@ -60,6 +60,8 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     :type aliases: list or comma separated string
     :param fields: fields/columns and their extra metadata. (optional)
     :type fields: list of dictionaries
+    :param delete_fields: set to True to remove existing fields not passed
+    :type delete_fields: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a", "b"]}]
                     (optional)
     :type records: list of dictionaries

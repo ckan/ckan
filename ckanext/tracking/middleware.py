@@ -1,6 +1,9 @@
 import hashlib
+from typing import cast
 
 from urllib.parse import unquote
+
+import sqlalchemy as sa
 
 from ckan.model.meta import engine
 from ckan.common import request
@@ -33,8 +36,13 @@ def track_request(response: Response) -> Response:
         # store key/data here
         sql = '''INSERT INTO tracking_raw
                     (user_key, url, tracking_type)
-                    VALUES (%s, %s, %s)'''
-        engine.execute(  # type: ignore
-            sql, key, data.get('url'), data.get('type')
-            )
+                     VALUES (:key, :url, :type)'''
+
+        with cast(sa.engine.Engine, engine).begin() as conn:
+            conn.execute(sa.text(sql), {
+                "key": key,
+                "url": data.get("url"),
+                "type": data.get("type"),
+            })
+
     return response
