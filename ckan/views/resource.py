@@ -9,7 +9,7 @@ from flask.views import MethodView
 import six
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
@@ -791,7 +791,7 @@ def _parse_recline_state(params):
     recline_state = {}
     for k, v in request.args.items():
         try:
-            v = h.json.loads(v)
+            v = h.load_json(v)
         except ValueError:
             pass
         recline_state[k] = v
@@ -837,7 +837,7 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
     try:
         resource = get_action(u'resource_show')(context, {u'id': resource_id})
         package = get_action(u'package_show')(context, {u'id': id})
-        resource_json = h.json.dumps(resource)
+        resource_json = h.dump_json(resource)
 
         # double check that the resource belongs to the specified package
         if not resource[u'id'] in [r[u'id'] for r in package[u'resources']]:
@@ -858,7 +858,7 @@ def embedded_dataviewer(package_type, id, resource_id, width=500, height=500):
             )
         )
 
-    recline_state = h.json.dumps(recline_state)
+    recline_state = h.dump_json(recline_state)
 
     width = max(int(request.args.get(u'width', width)), 100)
     height = max(int(request.args.get(u'height', height)), 100)

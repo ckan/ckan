@@ -8,7 +8,7 @@ from six import text_type
 
 import ckan.lib.base as base
 import ckan.model as model
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.authz as authz
 import ckan.logic as logic
 import ckan.logic.schema as schema
