@@ -415,8 +415,11 @@ def ckan_after_request(response: Response) -> Response:
     starts = any(url.startswith(s) for s in skip_startswith)
     ends = any(url.endswith(s) for s in skip_endswith)
     if not starts and not ends:
+        view_func = current_app.view_functions.get(request.endpoint)
         log.info(
-            ' %s %s render time %.3f seconds' % (status_code, url, r_time)
+            ' %s %s render time %.3f seconds [view %s]' % (
+                status_code, url, r_time, view_func
+            )
         )
 
     return response
