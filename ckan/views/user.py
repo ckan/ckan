@@ -13,7 +13,7 @@ import dominate.tags as dom_tags
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
-from ckan.plugins.toolkit import h
+from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import Page
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain

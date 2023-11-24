@@ -13,7 +13,7 @@ from io import StringIO
 from codecs import BOM_UTF8
 
 import ckan.lib.base as base
-from ckan.plugins.toolkit import h
+from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic

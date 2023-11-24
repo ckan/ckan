@@ -13,7 +13,7 @@ from flask import Blueprint, make_response
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
 from ckan.common import _, config, request, current_user
-from ckan.plugins.toolkit import h
+from ckan.lib.helpers import helper_functions as h
 from ckan.lib.helpers import _url_with_params
 import ckan.lib.base as base
 import ckan.logic as logic
