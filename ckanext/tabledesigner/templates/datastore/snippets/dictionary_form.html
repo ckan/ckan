@@ -6,21 +6,12 @@
   {% else %}
     <h3>{{ _("Field {num}.").format(num=position) }}
       {{ field.id or '' }}
-      ({{ h.tabledesigner_column_type(field.info.tdtype or field.type).label }})
+      ({{ h.tabledesigner_column_type(field).label }})
     </h3>
-    {% call form.select(
-      'info__' ~ position ~ '__pkreq',
-      id='field-f' ~ position ~ 'choices',
-      label=_("Primary Key / Required"),
-      options=[
-        {'value': '', 'text': ''},
-        {'value': 'pk', 'text': _('Primary Key')},
-        {'value': 'req', 'text': _('Required')},
-      ],
-      classes=['control-full'],
-      selected=field.get('info', {}).get('pkreq', '')) %}
-    {% endcall %}
-
+    {% if field.id %}
+      <input type="hidden" name="info__{{ position }}__id" value="{{ field.id }}">
+    {% endif %}
+    <input type="hidden" name="info__{{ position }}__tdtype" value="{{ field.info.tdtype or field.type }}">
     {% if not field.id %}
       {% call form.input('info__' ~ position ~ '__id',
         is_required=true,
@@ -30,22 +21,47 @@
         )}}
       {% endcall %}
     {% endif %}
+    {% call form.select(
+      'info__' ~ position ~ '__pkreq',
+      id='field-f' ~ position ~ 'choices',
+      label=_("Obligation"),
+      options=[
+        {'value': '', 'text': _('Optional')},
+        {'value': 'req', 'text': _('Required')},
+        {'value': 'pk', 'text': _('Primary Key')},
+      ],
+      classes=['control-full'],
+      selected=field.get('info', {}).get('pkreq', '')) %}
+    {% endcall %}
   {% endif %}
 {% endblock %}
 
 {% block datapusher_xloader_fields %}
-  {# datapusher fields don't apply to our resources #}
-  {% if res.url_type != 'tabledesigner' %}
+  {% if res.url_type == 'tabledesigner' %}
+    {% if field.info %}
+      {% set ct = h.tabledesigner_column_type(field) %}
+      {% if ct.design_snippet %}
+        {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
+          column_type=ct,
+          position=position,
+          field=field,
+          form=form
+        %}
+      {% endif %}
+      {% for cc in ct.column_constraints() %}
+        {% if cc.constraint_snippet %}
+          {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
+            column_type=ct,
+            column_constraint=cc,
+            position=position,
+            field=field,
+            form=form
+          %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {# datapusher fields don't apply to our resources #}
+  {% else %}
     {{ super() }}
-  {% endif %}
-
-  {% if field.info.tdtype == 'choice' %}
-    {% call form.input('info__' ~ position ~ '__choices',
-      label=_('Choices'), id='field-f' ~ position ~ 'choices',
-      value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
-      {{ form.info(
-        text=_('Comma-separated list of options, e.g. <code>aa,b1,b2</code>')
-      )}}
-    {% endcall %}
   {% endif %}
 {% endblock %}

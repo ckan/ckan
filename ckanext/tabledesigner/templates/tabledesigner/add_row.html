@@ -12,15 +12,18 @@
   <form method="post" action="{{ action }}" >
     {% block add_row %}
       {% for field in fields %}
-          {% snippet "tabledesigner/snippets/row_field.html",
-            field=field,
-            position=loop.index,
-            res=res,
-            value=row.get(field.id),
-            errors=errors,
-            pk=field.get('info', {}).get('pkreq') == 'pk',
-            is_required=field.get('info', {}).get('pkreq', '') != ''
-          %}
+        {% set ct = h.tabledesigner_column_type(field) %}
+        {% set form_snippet = 'tabledesigner/form_snippets/' + ct.form_snippet %}
+        {% snippet form_snippet,
+          field=field,
+          position=loop.index,
+          res=res,
+          value=row.get(field.id),
+          column_type=ct,
+          errors=errors,
+          pk=field.get('info', {}).get('pkreq') == 'pk',
+          is_required=field.get('info', {}).get('pkreq', '') != ''
+        %}
       {% endfor %}
     {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">

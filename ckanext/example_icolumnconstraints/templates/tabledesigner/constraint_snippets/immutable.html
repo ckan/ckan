@@ -1,0 +1,13 @@
+{%- call
+  form.checkbox('info__' ~ position ~ '__immutable',
+    label=_('Immutable'),
+    id='field-f' ~ position ~ 'immutable',
+    checked=field.get('info', {}).get('immutable', ''),
+    value='immutable',
+    classes=['control-full']
+  )
+  -%}
+  {{ form.info(
+    text=_('The value may be set once then not changed afterwards')
+  )}}
+{%- endcall %}

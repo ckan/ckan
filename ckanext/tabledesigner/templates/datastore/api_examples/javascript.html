@@ -10,6 +10,7 @@
     {% endfor %}
   {%- endmacro %}
 
+  {% if examples %}
   {% call register_example('javascript', 'request_filter_custom') %}
 <pre class="example-javascript"><code class="language-javascript"
 >const resp = await fetch(`{{
@@ -99,4 +100,5 @@ await resp.json()</code></pre>
     })
 await resp.json()</code></pre>
   {% endcall %}
+  {% endif %}
 {% endblock %}

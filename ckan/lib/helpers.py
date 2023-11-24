@@ -734,7 +734,7 @@ class Message(object):
 class _Flash(object):
 
     # List of allowed categories.  If None, allow any category.
-    categories = ["", "alert-info", "alert-error", "alert-success"]
+    categories = ["", "alert-info", "alert-danger", "alert-success"]
 
     # Default category if none is specified.
     default_category = ""
@@ -797,7 +797,7 @@ def flash_notice(message, allow_html=False):
 @core_helper
 def flash_error(message, allow_html=False):
     ''' Show a flash message of type error '''
-    flash(message, category='alert-error', allow_html=allow_html)
+    flash(message, category='alert-danger', allow_html=allow_html)
 
 
 @core_helper
@@ -2999,7 +2999,7 @@ def can_update_owner_org(package_dict, user_orgs=None):
 
     return False
 
-  
+
 @core_helper
 def decode_view_request_filters():
     filterString = request.args.get('filters')

@@ -2545,7 +2545,7 @@ def package_activity_list(context, data_dict):
     '''
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    data_dict['include_data'] = False
+    data_dict['include_data'] = data_dict.get('include_data', False)
     include_hidden_activity = data_dict.get('include_hidden_activity', False)
     _check_access('package_activity_list', context, data_dict)
 

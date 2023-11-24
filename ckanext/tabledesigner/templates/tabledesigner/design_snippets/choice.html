@@ -1,0 +1,7 @@
+{% call form.input('info__' ~ position ~ '__choices',
+  label=_('Choices'), id='field-f' ~ position ~ 'choices',
+  value=field.get('info', {}).get('choices', ''), classes=['control-full']) %}
+  {{ form.info(
+    text=_('Comma-separated list of options, e.g. <code>aa,b1,b2</code>')
+  )}}
+{% endcall %}
