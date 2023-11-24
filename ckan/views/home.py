@@ -6,7 +6,7 @@ import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.search as search
-from ckan.plugins.toolkit import h
+from ckan.lib.helpers import helper_functions as h
 
 from ckan.common import g, config, _
 
