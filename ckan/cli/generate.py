@@ -108,7 +108,6 @@ def extension(output_dir: str):
         "_source": "cli",
     }
 
-
     if output_dir == u'.':
         os.chdir(u'../../../..')
         output_dir = os.getcwd()
