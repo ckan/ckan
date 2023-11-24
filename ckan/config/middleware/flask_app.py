@@ -403,7 +403,21 @@ def ckan_after_request(response: Response) -> Response:
     url = request.environ['PATH_INFO']
     status_code = response.status_code
 
-    log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
+    # Drop annoying static logs
+    skip_startswith = (
+        '/static/', '/base/', '/webassets/', '/_debug_toolbar/',
+        '/api/i18n/', '/fonts/',
+    )
+    skip_endswith = (
+        '.css', '.js', '.png', '.gif', '.jpg', '.ico', '.svg',
+        '.ttf', '.woff', '.woff2', '.eot',
+    )
+    starts = any(url.startswith(s) for s in skip_startswith)
+    ends = any(url.endswith(s) for s in skip_endswith)
+    if not starts and not ends:
+        log.info(
+            ' %s %s render time %.3f seconds' % (status_code, url, r_time)
+        )
 
     return response
 
