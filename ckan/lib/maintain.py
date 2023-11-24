@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
+
+import functools
 import inspect
 import time
 import logging
@@ -29,6 +31,7 @@ def deprecated(message=''):
                             'It must include the word `deprecated`.'
                             % (fn.__name__, fn.__module__))
 
+        @functools.wraps(fn)
         def wrapped(*args, **kw):
             log.warning('Function %s() in module %s has been deprecated '
                         'and will be removed in a later release of ckan. %s'
