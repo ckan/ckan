@@ -75,7 +75,7 @@ class DatapusherPlugin(p.SingletonPlugin):
         # extension will call resource_patch and this method should
         # be called again. However, url_changed will not be in the entity
         # once Validation does the patch.
-        if p.toolkit.h.plugin_loaded('validation') and \
+        if _is_validation_plugin_loaded() and \
            p.toolkit.asbool(p.toolkit.config.get(
                                 'ckan.datapusher.requires_validation')):
             if entity.__dict__.get(
@@ -100,7 +100,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def after_resource_create(
             self, context: Context, resource_dict: dict[str, Any]):
 
-        if p.toolkit.h.plugin_loaded('validation') and \
+        if _is_validation_plugin_loaded() and \
            p.toolkit.asbool(p.toolkit.config.get(
                                 'ckan.datapusher.requires_validation')) and \
            resource_dict.get('validation_status', None) != 'success':
@@ -113,7 +113,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def after_update(
             self, context: Context, resource_dict: dict[str, Any]):
 
-        if p.toolkit.h.plugin_loaded('validation') and \
+        if _is_validation_plugin_loaded() and \
            p.toolkit.asbool(p.toolkit.config.get(
                                 'ckan.datapusher.requires_validation')) and \
            resource_dict.get('validation_status', None) != 'success':
@@ -203,3 +203,15 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def get_blueprint(self):
         return views.get_blueprints()
+
+
+def _is_validation_plugin_loaded():
+    """
+    Checks the existance of a logic action from the ckanext-validation
+    plugin, thus supporting any extending of the Validation Plugin class.
+    """
+    try:
+        p.toolkit.get_action('resource_validation_show')
+    except KeyError:
+        return False
+    return True
