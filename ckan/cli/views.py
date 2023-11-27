@@ -223,7 +223,7 @@ def _get_view_plugins(view_plugin_types: list[str],
 
 
 def _search_datasets(
-        context: Context = {},
+        context: Context,
         page: int = 1, view_types: Optional[list[str]] = None,
         dataset: Optional[list[str]] = None, search: str = u"",
         no_default_filters: bool = False
