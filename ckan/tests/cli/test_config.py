@@ -105,7 +105,7 @@ class TestDescribe(object):
                         },
                         {
                             "key": "ckan.datapusher.requires_validation",
-                            "default": True,
+                            "default": False,
                             "validators": "boolean_validator",
                             "description": mock.ANY,
                         },
