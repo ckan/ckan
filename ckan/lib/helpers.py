@@ -1912,6 +1912,11 @@ def dump_json(obj, **kw):
 
 
 @core_helper
+def load_json(string, **kw):
+    return json.loads(string, **kw)
+
+
+@core_helper
 def auto_log_message():
     if (c.action == 'new'):
         return _('Created new dataset.')

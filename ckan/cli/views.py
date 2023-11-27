@@ -58,7 +58,7 @@ def create(ctx, types, dataset, no_default_filters, search, yes):
     page = 1
     while True:
         query = _search_datasets(
-            page, loaded_view_plugins, dataset, search, no_default_filters
+            context, page, loaded_view_plugins, dataset, search, no_default_filters
         )
         if query is None:
             return
@@ -217,7 +217,8 @@ def _get_view_plugins(view_plugin_types, get_datastore_views=False):
 
 
 def _search_datasets(
-    page=1, view_types=[], dataset=[], search=u"", no_default_filters=False
+    context={}, page=1, view_types=[], dataset=[], search=u"",
+    no_default_filters=False
 ):
     """
     Perform a query with `package_search` and return the result
@@ -253,12 +254,12 @@ def _search_datasets(
 
     elif not no_default_filters:
 
-        _add_default_filters(search_data_dict, view_types)
+        search_data_dict = _add_default_filters(search_data_dict, view_types)
 
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = p.toolkit.get_action(u"package_search")({}, search_data_dict)
+    query = p.toolkit.get_action(u"package_search")(context, search_data_dict)
 
     return query
 

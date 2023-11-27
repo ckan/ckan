@@ -7,7 +7,7 @@ from flask.views import MethodView
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model

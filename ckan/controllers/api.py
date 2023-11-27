@@ -10,7 +10,7 @@ from six.moves.urllib.parse import unquote_plus
 import ckan.model as model
 import ckan.logic as logic
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp

@@ -3,7 +3,7 @@
 from ckan.common import config
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.plugins.toolkit import h
 import ckan.lib.app_globals as app_globals
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
