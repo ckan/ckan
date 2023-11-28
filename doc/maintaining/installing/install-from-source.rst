@@ -14,7 +14,7 @@ If you install CKAN from source on your own operating system, please share your
 experiences on our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
-**For Python 3 installations, the minimum Python version required is 3.9**
+**The minimum Python version required is 3.9**
 
 From source is also the right installation method for developers who want to
 work on CKAN.
