@@ -52,7 +52,7 @@
   notify.initialize = function (element) {
     element = element instanceof jQuery ? element : jQuery(element);
     element.append(jQuery('<button type="button" class="btn-close close" data-bs-dismiss="alert" aria-label="Close"></button>'));
-    element.find('.btn-close').attr("aria-label", this._('Close'));
+    element.find('.btn-close').attr("aria-label", ckan.i18n._('Close'));
     return element
   };
 
