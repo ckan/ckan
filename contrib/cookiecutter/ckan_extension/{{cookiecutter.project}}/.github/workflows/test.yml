@@ -7,7 +7,7 @@ jobs:
       # The CKAN version tag of the Solr and Postgres containers should match
       # the one of the container the tests run on.
       # You can switch this base image with a custom image tailored to your project
-      image: ckan/ckan-dev:2.10.1
+      image: ckan/ckan-dev:{{ cookiecutter.ckan_version }}
     services:
       solr:
         image: ckan/ckan-solr:{{ cookiecutter.ckan_version }}-solr9
