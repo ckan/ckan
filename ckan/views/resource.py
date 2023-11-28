@@ -12,7 +12,7 @@ from flask.views import MethodView
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
