@@ -96,7 +96,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     try:
         package[u'isopen'] = model.Package.get_license_register()[license_id
                                                                   ].isopen()
-    except KeyError:
+    except (KeyError, AttributeError):
         package[u'isopen'] = False
 
     resource_views = get_action(u'resource_view_list')(
