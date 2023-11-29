@@ -155,8 +155,6 @@ groups:
     options:
       - key: use
         placeholder: egg:ckan
-        validators: not_empty
-        required: true
 
       - key: SECRET_KEY
         validators: not_empty
@@ -348,7 +346,6 @@ groups:
 
       - key: beaker.session.samesite
         default: Lax
-        required: True
         validators: OneOf(["Strict","Lax","None"])
         description: |
           Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
@@ -359,7 +356,6 @@ groups:
     options:
       - key: sqlalchemy.url
         placeholder: postgresql://ckan_default:pass@localhost/ckan_default
-        validators: not_empty
         required: true
         example: postgres://tester:pass@localhost/ckantest3
         description: |
@@ -390,7 +386,6 @@ groups:
   - annotation: Site Settings
     options:
       - key: ckan.site_url
-        validators: not_empty
         required: true
         placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
@@ -858,7 +853,6 @@ groups:
 
       - key: solr_url
         placeholder: http://127.0.0.1:8983/solr/ckan
-        validators: not_empty
         required: true
         example: http://solr.okfn.org:8983/solr/ckan-schema-2.0
         description: |
@@ -1017,7 +1011,6 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
-        required: true
         type: list
         placeholder: activity
         example: activity scheming_datasets datatables_view datastore xloader
