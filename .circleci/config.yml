@@ -57,7 +57,7 @@ defaults:
 jobs:
   test-python-3:
     docker:
-      - image: python:3.8-bullseye
+      - image: python:3.9-bullseye
         <<: *ckan_env
       - <<: *pg_image
       - <<: *redis_image
