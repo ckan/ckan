@@ -34,7 +34,7 @@ def assert_group_link_in_response(group, response):
     )
 
 
-@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.ckan_config("ckan.plugins", "activity example_igroupform")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganization(object):
     def test_simple(self, app):
@@ -46,6 +46,18 @@ class TestOrganization(object):
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the organization" in response
+        assert_group_link_in_response(org, response)
+
+    def test_simple_for_custom_org_type(self, app):
+        """Checking the template shows the activity stream."""
+        user = factories.User()
+        org = factories.Organization(user=user, type="grup")
+
+        url = url_for("activity.organization_activity", id=org["id"])
+        response = app.get(url)
+        assert user["fullname"] in response
+        assert "created the organization" in response
+        assert_group_link_in_response(org, response)
 
     def test_create_organization(self, app):
         user = factories.User()
