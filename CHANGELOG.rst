@@ -9,12 +9,107 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.2 2023-12-xx
+===================
+
+
+Minor changes
+-------------
+
+- Skip interactive mode of ``ckan user setpass`` using ``-p``/``--password``
+  option. (`#7530 <https://github.com/ckan/ckan/pull/7530>`_)
+- Added support for Solr 9. Users of the `official Docker images
+  <https://github.com/ckan/ckan-solr>`_ can use the
+  ``ckan/ckan-solr:2.10-solr9`` tag. (`#7693
+  <https://github.com/ckan/ckan/pull/7693>`_)
+- Update requirements to support more Python versions (`#7935
+  <https://github.com/ckan/ckan/issues/7935>`_)
+- Add tooltips when links are truncated, to show the full text. (`#7743
+  <https://github.com/ckan/ckan/pull/7743>`_)
+- Added pages to confirm User delete and Dataset Collaborator delete.
+  Fixed cancellation of Group Member delete. (`#7813
+  <https://github.com/ckan/ckan/pull/7813>`_)
+- The ``validators`` attribute of a declared config option makes tries to parse
+  arguments to validators as python literals. If **all** arguments can be
+  parsed, they are passed to a validator factory with original types. If at least one
+  argument is not a valid Python literal, all values are passed as a string
+  (this was the previous behavior). Space characters are still not allowed inside
+  arguments, use the ``\\x20`` symbol if you need a space in a literal::
+
+      # Not changed
+      `validators: v(xxx)` # v("xxx")
+      `validators: v("xxx",yyy)` # v("xxx", "yyy")
+      `validators: v(1,2,none)` # v("1", "2", "none")
+      `validators: v("hello\\x20world")` # v("hello world")
+
+      # Changed
+      `validators: v("xxx")` # v("xxx")
+      `validators: v("xxx",1)` # v("xxx", 1)
+      `validators: v(1,2,None)` # v(1, 2, None)
+  (`#7615 <https://github.com/ckan/ckan/pull/7615>`_)
+- Automatically add the ``not_empty`` validator to any config option declared
+  with ``required: true`` (`#7658 <https://github.com/ckan/ckan/pull/7658>`_)
+
+
+Bugfixes
+--------
+- Fix ``deprecated`` decorator (`#7939
+  <https://github.com/ckan/ckan/pull/7939>`_)
+- Fix for missing Tag facets on Home page (`#7520
+  <https://github.com/ckan/ckan/pull/7520>`_)
+- Fix errors when running the `ckan db upgrade` command (`#7681
+  <https://github.com/ckan/ckan/pull/7681>`_)
+- Fix datastore_search + downloading datastore resources as json with null
+  values (`#6713 <https://github.com/ckan/ckan/pull/6713>`_)
+- ``CONFIG_FROM_ENV_VARS`` takes precedence over config file and extensions but
+  those settings are not normalized. (`#7502
+  <https://github.com/ckan/ckan/pull/7502>`_)
+- Fixed server not recognizing SSL settings in configuration .ini file
+  (`#7758 <https://github.com/ckan/ckan/pull/7758>`_)
+- Fix error when indexing a full ISO date with timezone info (`#7775
+  <https://github.com/ckan/ckan/pull/7775>`_)
+- Aligned `member_create` with `group_member_save` to prevent possible member
+  duplication. (`#7804 <https://github.com/ckan/ckan/pull/7804>`_)
+- datastore-only resources now have a visible download button on the resource
+  page (`#7806 <https://github.com/ckan/ckan/pull/7806>`_)
+- update resource ``datastore_active`` with a single statement on
+  ``datastore_create/delete`` (`#7832 <https://github.com/ckan/ckan/pull/7832>`_)
+- Fixed Octet Streaming for Datastore Dump requests. (`#7839
+  <https://github.com/ckan/ckan/pull/7839>`_)
+- Fixed restricting anonymous users in actions to check user in context.
+  (`#7871 <https://github.com/ckan/ckan/pull/7871>`_)
+- Empty string in ``beaker.session.timeout`` produces an error instead of
+  never-expiring session (`#7881 <https://github.com/ckan/ckan/pull/7881>`_)
+- Updated Bootstrap alert-error class to alert-danger (`#7901
+  <https://github.com/ckan/ckan/pull/7901>`_)
+- Changed dataset query to check for ``+state:`` in the ``fq_list`` as well as the
+  `fq` parameter before forcing ``state:active`` (`#7905
+  <https://github.com/ckan/ckan/pull/7905>`_)
+- View modules use pluggable ``ckan.plugins.toolkit.h`` instead of
+  `ckan.lib.helpers` (`#7923 <https://github.com/ckan/ckan/pull/7923>`_)
+- Fix HTML5 validation failing on resource uploads (`#7925
+  <https://github.com/ckan/ckan/pull/7925>`_)
+- Fixed issues with the ``ckan views create`` CLI sub-command. (`#7944
+  <https://github.com/ckan/ckan/pull/7944>`_)
+- Improve handling of date fields in Solr (`#7775
+  <https://github.com/ckan/ckan/pull/7775>`_)
+- Fix URL validator does not support ":" for specifying ports (`#7891
+  <https://github.com/ckan/ckan/pull/7891>`_)
+- Fix user_show for ckan.auth.public_user_details (`#7866
+  <https://github.com/ckan/ckan/pull/7866>`_)
+- Fix activt links for custom organizations (`#7943
+  <https://github.com/ckan/ckan/pull/7943>`_)
+- Add missing translations to aria-label attributes (`#7947
+  <https://github.com/ckan/ckan/pull/7947>`_)
+- Catch AttributeErrors in license retrieval (`#7931
+  <https://github.com/ckan/ckan/pull/7948>`_)
+
 v.2.10.1 2023-05-24
 ===================
 
 Bug fixes
 ---------
-- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix 
+- `CVE-2023-32321 <https://github.com/ckan/ckan/security/advisories/GHSA-446m-hmmm-hm8m>`_: fix
   potential path traversal, remote code execution, information disclosure and
   DOS vulnerabilities via crafted resource ids.
 - Redirect on password reset form error now maintains root_path and locale (`#7006 <https://github.com/ckan/ckan/pull/7006>`_)
