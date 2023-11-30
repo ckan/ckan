@@ -69,7 +69,7 @@ Teardown
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Vitrual Environment based tests
+Virtual Environment based tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
