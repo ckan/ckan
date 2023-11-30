@@ -31,6 +31,7 @@ __all__ = [
     'load', 'load_all', 'unload', 'unload_all',
     'get_plugin', 'plugins_update',
     'use_plugin', 'plugin_loaded',
+    'unload_non_system_plugins',
 ]
 
 TInterface = TypeVar('TInterface', bound=interfaces.Interface)
@@ -325,6 +326,25 @@ def find_system_plugins() -> list[str]:
         ep.load()
         eps.append(ep.name)
     return eps
+
+
+def unload_non_system_plugins():
+    """Unload all plugins except for system plugins.
+
+    System plugins must remain available because they provide essential CKAN
+    functionality.
+
+    At the moment we have only one system plugin - synchronous_search - which
+    automatically sends all datasets to Solr after modifications. Without it
+    you have to indexed datasets manually after any `package_*` action.
+
+    """
+    system_plugins = find_system_plugins()
+    plugins_to_unload = [
+        p for p in reversed(_PLUGINS)
+        if p not in system_plugins
+    ]
+    unload(*plugins_to_unload)
 
 
 def _get_service(plugin_name: Union[str, Any]) -> SingletonPlugin:

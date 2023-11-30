@@ -35,10 +35,21 @@ def test_ckan_config_mark_without_explicit_config_fixture():
     assert config[u"some.new.config"] == u"exists"
 
 
-@pytest.mark.ckan_config(u"ckan.plugins", u"stats")
-@pytest.mark.usefixtures(u"with_plugins")
-def test_with_plugins_is_able_to_run_with_stats():
-    assert plugins.plugin_loaded(u"stats")
+class TestWithPlugins:
+    @pytest.fixture()
+    def load_example_helpers(self):
+        plugins.unload_all()
+        plugins.load("example_itemplatehelpers")
+
+    @pytest.mark.ckan_config(u"ckan.plugins", u"stats")
+    @pytest.mark.usefixtures(u"with_plugins")
+    def test_with_plugins_is_able_to_run_with_stats(self):
+        assert plugins.plugin_loaded(u"stats")
+
+    def test_with_plugins_unloads_enabled_plugins(
+            self, load_example_helpers, with_plugins
+    ):
+        assert "example_helper" not in plugins.toolkit.h
 
 
 @pytest.mark.ckan_config("ckan.site_url", "https://example.org")
