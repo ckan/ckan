@@ -51,7 +51,7 @@
                     {% endif %}
                     {% block download_resource_button %}
                       {% if res.datastore_active %}
-                        <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
+                        <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ _('List of downloadable formats') }}">
                           {% if not res.url or not h.is_url(res.url) %}
                             {{ _('Download') }}&nbsp;
                           {% endif %}

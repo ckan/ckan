@@ -4,7 +4,7 @@ from __future__ import annotations
 import contextlib
 import os
 import json
-from packaging.version import parse as version_parse
+from packaging.version import Version
 import shutil
 from typing import Optional
 
@@ -90,8 +90,7 @@ def extension(output_dir: str):
 
     include_examples = int(click.confirm(
         "Do you want to include code examples?"))
-
-    full_ckan_version = version_parse(ckan.__version__)
+    full_ckan_version: Version = Version(ckan.__version__)
     ckan_version = f"{full_ckan_version.major}.{full_ckan_version.minor}"
 
     context = {
