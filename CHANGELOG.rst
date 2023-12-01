@@ -15,6 +15,13 @@ v.2.10.2 2023-12-xx
 
 Minor changes
 -------------
+- New sites now default to cookie-based sessions (the default value for ``beaker.session.type``
+  is now ``cookie``. The ``beaker.session.samesite`` configuration option has been introduced,
+  allowing you to specify the ``SameSite`` attribute for session cookies. This attribute determines
+  how cookies are sent in cross-origin requests, enhancing security and privacy. 
+  
+  .. note:: When using cookie-based sessions, it is now required to
+    set ``beaker.session.validate_key`` appropriately.
 
 - Skip interactive mode of ``ckan user setpass`` using ``-p``/``--password``
   option. (`#7530 <https://github.com/ckan/ckan/pull/7530>`_)
@@ -34,7 +41,8 @@ Minor changes
   parsed, they are passed to a validator factory with original types. If at least one
   argument is not a valid Python literal, all values are passed as a string
   (this was the previous behavior). Space characters are still not allowed inside
-  arguments, use the ``\\x20`` symbol if you need a space in a literal::
+  arguments, use the ``\\x20`` symbol if you need a space in a literal (`#7615
+  <https://github.com/ckan/ckan/pull/7615>`_)::
 
       # Not changed
       `validators: v(xxx)` # v("xxx")
@@ -46,7 +54,7 @@ Minor changes
       `validators: v("xxx")` # v("xxx")
       `validators: v("xxx",1)` # v("xxx", 1)
       `validators: v(1,2,None)` # v(1, 2, None)
-  (`#7615 <https://github.com/ckan/ckan/pull/7615>`_)
+  
 - Automatically add the ``not_empty`` validator to any config option declared
   with ``required: true`` (`#7658 <https://github.com/ckan/ckan/pull/7658>`_)
 
