@@ -17,7 +17,7 @@
     {{ remove_button() }}
     <label>{{ _('Table Designer') }}</label>
     {% if not data %}
-      <p>{{ _('Create this resource then design the table from the Data Dictionary tab.') }}</p>
+      <p>{{ _('Create this resource then, design the table from the Data Dictionary tab') }}</p>
     {% else %}
       <p>{% trans url=h.url_for('datastore.dictionary', id=data.package_id, resource_id=data.id) -%}
         Use the <a href="{{ url }}">Data Dictionary</a> tab to customize this table.
