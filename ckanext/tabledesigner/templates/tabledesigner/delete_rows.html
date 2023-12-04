@@ -3,11 +3,11 @@
 {% set num = records | count %}
 
 {% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }} -
-{{ungettext('Delete Row', 'Delete Rows', num)}} {% endblock %}
+{{ungettext('Delete row', 'Delete rows', num)}} {% endblock %}
 
 {% block primary_content_inner %}
 
-  <h1>{{ ungettext('Delete Row', 'Delete Rows', num) }}</h1>
+  <h1>{{ ungettext('Delete row', 'Delete rows', num) }}</h1>
 
   <p>{{ungettext('Delete {num} row?', 'Delete {num} rows?', num).format(num=num) }}</p>
 
