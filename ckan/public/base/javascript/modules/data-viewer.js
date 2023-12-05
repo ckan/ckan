@@ -5,7 +5,9 @@ this.ckan.module('data-viewer', function (jQuery) {
     options: {
       timeout: 200,
       minHeight: 400,
-      padding: 30
+      padding: 30,
+      delay: 0,
+      framesource: '',
     },
 
     initialize: function () {
@@ -13,6 +15,16 @@ this.ckan.module('data-viewer', function (jQuery) {
       this.el.on('load', this._onLoad);
       this._FirefoxFix();
       this.sandbox.subscribe('data-viewer-error', this._onDataViewerError);
+      // dynamically set the iFrame source
+      // TODO: upstream contribution??
+      let delay = this.options.delay;
+      let framesource = this.options.framesource;
+      let element = this.el;
+      if( framesource.length > 0 ){
+        setTimeout(function(){
+          $(element).attr('src', framesource);
+        }, delay);
+      }
     },
 
     _onDataViewerError: function(message) {
