@@ -13,7 +13,7 @@ Flask==2.3.3
 Flask-Babel==3.1.0
 Flask-Login==0.6.2
 Flask-WTF==1.1.1
-greenlet>=2.0.2
+greenlet>=3.0.1
 Jinja2==3.1.2
 Markdown==3.4.4
 passlib==1.7.4
