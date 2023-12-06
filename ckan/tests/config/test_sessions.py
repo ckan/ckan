@@ -89,12 +89,10 @@ class FlashMessagePlugin(p.SingletonPlugin):
 class TestSessionTypes:
     @pytest.mark.usefixtures("clean_redis")
     @pytest.mark.ckan_config("SESSION_TYPE", "redis")
-    def test_redis_storage(self, make_app, ckan_config, monkeypatch):
+    def test_redis_storage(self, app, ckan_config, monkeypatch):
         """Redis session interface creates a record in redis upon request.
         """
         redis = connect_to_redis()
-        monkeypatch.setitem(ckan_config, "SESSION_REDIS", redis)
-        app = make_app()
 
         assert not redis.keys("*")
         response = app.get("/")
