@@ -10,7 +10,7 @@ import ckan.tests.factories as factories
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins", "reset_index")
+@pytest.mark.usefixtures("with_plugins", "clean_db", "reset_index")
 @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
 @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
 class TestPagination():

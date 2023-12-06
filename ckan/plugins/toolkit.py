@@ -15,6 +15,7 @@ from typing import Any, Optional, Union
 import ckan
 import ckan.lib.base as base
 from ckan.lib.base import render, abort
+import packaging.version as pv
 
 from ckan.logic import (  # noqa: re-export
     get_action,
@@ -190,15 +191,6 @@ def add_resource(path: str, name: str):
     create_library(name, absolute_path)
 
 
-def _version_str_2_list(v_str: str):
-    """convert a version string into a list of ints
-    eg 1.6.1b --> [1, 6, 1]"""
-    import re
-
-    v_str = re.sub(r"[^0-9.]", "", v_str)
-    return [int(part) for part in v_str.split(".")]
-
-
 def check_ckan_version(
         min_version: Optional[str] = None, max_version: Optional[str] = None):
     """Return ``True`` if the CKAN version is greater than or equal to
@@ -220,17 +212,27 @@ def check_ckan_version(
     :type max_version: string
 
     """
-    current = _version_str_2_list(ckan.__version__)
+    current = pv.parse(ckan.__version__)
+    try:
+        at_least_min = (
+            min_version is None
+            or current >= pv.parse(min_version)
+        )
+    except pv.InvalidVersion:
+        raise ValueError(
+            f"min_version '{min_version}' is not a valid version identifier"
+        )
 
-    if min_version:
-        min_required = _version_str_2_list(min_version)
-        if current < min_required:
-            return False
-    if max_version:
-        max_required = _version_str_2_list(max_version)
-        if current > max_required:
-            return False
-    return True
+    try:
+        at_most_max = (
+            max_version is None
+            or current <= pv.parse(max_version)
+        )
+    except pv.InvalidVersion:
+        raise ValueError(
+            f"max_version '{max_version}' is not a valid version identifier"
+        )
+    return at_least_min and at_most_max
 
 
 def requires_ckan_version(min_version: str, max_version: Optional[str] = None):

@@ -81,7 +81,7 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
     package_table = model.package_table
     col = (package_table.c["id"]
            if api == 2 else package_table.c["name"])
-    query = _select([col])
+    query = _select(col)
     query = query.where(_and_(
         package_table.c["state"] == 'active',
         package_table.c["private"] == False,
@@ -97,7 +97,9 @@ def package_list(context: Context, data_dict: DataDict) -> ActionResult.PackageL
         query = query.offset(offset)
 
     ## Returns the first field in each result record
-    return [r[0] for r in query.execute() or []]
+    return context["session"].scalars(
+        query
+    ).all()
 
 
 @logic.validate(ckan.logic.schema.default_package_list_schema)
@@ -385,15 +387,13 @@ def _group_or_org_list(
     query = query.filter(model.Group.state == 'active')
 
     if groups:
-        # type_ignore_reason: incomplete SQLAlchemy types
-        query = query.filter(model.Group.name.in_(groups))  # type: ignore
+        query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Group.name.ilike(q),  # type: ignore
-            model.Group.title.ilike(q),  # type: ignore
-            model.Group.description.ilike(q),  # type: ignore
+            model.Group.name.ilike(q),
+            model.Group.title.ilike(q),
+            model.Group.description.ilike(q),
         ))
 
     query = query.filter(model.Group.is_organization == is_org)
@@ -592,8 +592,7 @@ def group_list_authz(context: Context,
         q: Any = model.Session.query(model.Member.group_id) \
             .filter(model.Member.table_name == 'user') \
             .filter(
-                # type_ignore_reason: incomplete SQLAlchemy types
-                model.Member.capacity.in_(roles)  # type: ignore
+                model.Member.capacity.in_(roles)
             ).filter(model.Member.table_id == user_id) \
             .filter(model.Member.state == 'active')
         group_ids = []
@@ -608,8 +607,7 @@ def group_list_authz(context: Context,
         .filter(model.Group.state == 'active')
 
     if not sysadmin or am_member:
-        # type_ignore_reason: incomplete SQLAlchemy types
-        q = q.filter(model.Group.id.in_(group_ids))  # type: ignore
+        q = q.filter(model.Group.id.in_(group_ids))
 
     groups = q.all()
 
@@ -702,8 +700,7 @@ def organization_list_for_user(context: Context,
         q: Query[tuple[model.Member, model.Group]] = model.Session.query(model.Member, model.Group) \
             .filter(model.Member.table_name == 'user') \
             .filter(
-                # type_ignore_reason: incomplete SQLAlchemy types
-                model.Member.capacity.in_(roles)  # type: ignore
+                model.Member.capacity.in_(roles)
             ) \
             .filter(model.Member.table_id == user_id) \
             .filter(model.Member.state == 'active') \
@@ -731,8 +728,7 @@ def organization_list_for_user(context: Context,
         if not group_ids:
             return []
 
-        # type_ignore_reason: incomplete SQLAlchemy types
-        orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))  # type: ignore
+        orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
         orgs_and_capacities = [
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
@@ -848,18 +844,16 @@ def user_list(
     if all_fields:
         query: 'Query[Any]' = model.Session.query(
             model.User,
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.User.name.label('name'),  # type: ignore
-            model.User.fullname.label('fullname'),  # type: ignore
-            model.User.about.label('about'),  # type: ignore
-            model.User.email.label('email'),  # type: ignore
-            model.User.created.label('created'),  # type: ignore
-            _select([_func.count(model.Package.id)],
-                    _and_(
-                        model.Package.creator_user_id == model.User.id,
-                        model.Package.state == 'active',
-                        model.Package.private == False,
-                    )).label('number_created_packages')
+            model.User.name.label('name'),
+            model.User.fullname.label('fullname'),
+            model.User.about.label('about'),
+            model.User.email.label('email'),
+            model.User.created.label('created'),
+            _select(_func.count(model.Package.id)).where(
+                model.Package.creator_user_id == model.User.id,
+                model.Package.state == 'active',
+                model.Package.private == False,
+            ).label('number_created_packages')
         )
     else:
         query = model.Session.query(model.User.name)
@@ -887,16 +881,10 @@ def user_list(
             pass
     if order_by == 'display_name' or order_by_field is None:
         query = query.order_by(
-            _case(
-                [(
-                    _or_(
-                        model.User.fullname == None,
-                        model.User.fullname == ''
-                    ),
-                    model.User.name
-                )],
-                else_=model.User.fullname
-            )
+            _case((_or_(
+                model.User.fullname.is_(None),
+                model.User.fullname == ''
+            ), model.User.name), else_=model.User.fullname)
         )
     elif order_by_field == 'number_created_packages' \
          or order_by_field == 'fullname' \
@@ -1444,13 +1432,13 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     else:
         user_obj = None
 
-    if not user_obj:
-        raise NotFound
-
-    context['user_obj'] = user_obj
+    if user_obj:
+        context['user_obj'] = user_obj
 
     _check_access('user_show', context, data_dict)
 
+    if not user_obj:
+        raise NotFound
 
     # include private and draft datasets?
     requester = context.get('user')
@@ -1593,8 +1581,7 @@ def format_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.F
         .filter(_and_(
             model.Resource.state == 'active',
         ))
-        # type_ignore_reason: incomplete SQLAlchemy types
-        .filter(model.Resource.format.ilike(like_q))  # type: ignore
+        .filter(model.Resource.format.ilike(like_q))
         .group_by(model.Resource.format)
         .order_by(text('total DESC'))
         .limit(limit))
@@ -1967,9 +1954,8 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
         group_names.extend(facets.get(field_name, {}).keys())
 
     groups = (session.query(model.Group.name, model.Group.title)
-                    # type_ignore_reason: incomplete SQLAlchemy types
-                    .filter(model.Group.name.in_(group_names))  # type: ignore
-                    .all()
+              .filter(model.Group.name.in_(group_names))
+              .all()
               if group_names else [])
     group_titles_by_name = dict(groups)
 
@@ -2206,7 +2192,7 @@ def _tag_search(
         q = q.filter(model.Tag.vocabulary_id == vocab.id)
     else:
         # If no vocabulary_name in data dict then show free tags only.
-        q = q.filter(model.Tag.vocabulary_id == None)
+        q = q.filter(model.Tag.vocabulary_id.is_(None))
         # If we're searching free tags, limit results to tags that are
         # currently applied to a package.
         q: Query[model.Tag] = q.distinct().join(model.Tag.package_tags)
@@ -2221,9 +2207,7 @@ def _tag_search(
     for term in terms:
         escaped_term = misc.escape_sql_like_special_characters(
             term, escape='\\')
-        q = q.filter(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Tag.name.ilike('%' + escaped_term + '%'))  # type: ignore
+        q = q.filter(model.Tag.name.ilike('%' + escaped_term + '%'))
 
     count = q.count()
     q = q.offset(offset)
@@ -2367,7 +2351,7 @@ def term_translation_show(
 
     trans_table = model.term_translation_table
 
-    q = _select([trans_table])
+    q = _select(trans_table)
 
     if 'terms' not in data_dict:
         raise ValidationError({'terms': 'terms not in data'})

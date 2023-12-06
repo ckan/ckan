@@ -10,7 +10,7 @@ from hashlib import sha1, md5
 import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
-from sqlalchemy.orm import synonym
+from sqlalchemy.orm import synonym, Mapped
 from sqlalchemy import types, Column, Table, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
@@ -65,22 +65,22 @@ user_table = Table('user', meta.metadata,
 
 class User(core.StatefulObjectMixin,
            domain_object.DomainObject):
-    id: str
-    name: str
+    id: Mapped[str]
+    name: Mapped[str]
     # password: str
-    fullname: Optional[str]
-    email: Optional[str]
-    apikey: Optional[str]
-    created: datetime.datetime
-    reset_key: str
-    about: str
-    activity_streams_email_notifications: bool
-    sysadmin: bool
-    state: str
-    image_url: str
-    plugin_extras: dict[str, Any]
+    fullname: Mapped[Optional[str]]
+    email: Mapped[Optional[str]]
+    apikey: Mapped[Optional[str]]
+    created: Mapped[datetime.datetime]
+    reset_key: Mapped[str]
+    about: Mapped[str]
+    activity_streams_email_notifications: Mapped[bool]
+    sysadmin: Mapped[bool]
+    state: Mapped[str]
+    image_url: Mapped[str]
+    plugin_extras: Mapped[dict[str, Any]]
 
-    api_tokens: list['ApiToken']
+    api_tokens: Mapped[list['ApiToken']]
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(r':\/([^/])')
@@ -230,8 +230,8 @@ class User(core.StatefulObjectMixin,
             q = q.filter_by(state='active', private=False)
 
         result: int = meta.Session.execute(
-            q.statement.with_only_columns(
-                [func.count()]
+            q.statement.with_only_columns(  # type: ignore
+                func.count()
             ).order_by(
                 None
             )
@@ -300,15 +300,13 @@ class User(core.StatefulObjectMixin,
             query = sqlalchemy_query
         qstr = '%' + querystr + '%'
         filters: list[Any] = [
-            # type_ignore_reason: incomplete SQLAlchemy types
-            cls.name.ilike(qstr),  # type: ignore
-            cls.fullname.ilike(qstr),  # type: ignore
+            cls.name.ilike(qstr),
+            cls.fullname.ilike(qstr),
         ]
         # sysadmins can search on user emails
         import ckan.authz as authz
         if user_name and authz.is_sysadmin(user_name):
-            # type_ignore_reason: incomplete SQLAlchemy types
-            filters.append(cls.email.ilike(qstr))  # type: ignore
+            filters.append(cls.email.ilike(qstr))
 
         query = query.filter(or_(*filters))
         return query
@@ -320,9 +318,8 @@ class User(core.StatefulObjectMixin,
         names or ids
         '''
         query: Any = meta.Session.query(cls.id)
-        # type_ignore_reason: incomplete SQLAlchemy types
-        query = query.filter(or_(cls.name.in_(user_list),  # type: ignore
-                                 cls.id.in_(user_list)))  # type: ignore
+        query = query.filter(or_(cls.name.in_(user_list),
+                                 cls.id.in_(user_list)))
         return [user.id for user in query.all()]
 
     def get_id(self) -> str:
@@ -364,7 +361,7 @@ class AnonymousUser(AnonymousUserMixin):
     email: str = ""
 
 
-meta.mapper(
+meta.registry.map_imperatively(
     User, user_table,
     properties={'password': synonym('_password', map_column=True)}
     )

@@ -401,8 +401,7 @@ def resource_view_create(
     last_view = model.Session.query(model.ResourceView)\
         .filter_by(resource_id=resource_id) \
         .order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.ResourceView.order.desc()  # type: ignore
+            model.ResourceView.order.desc()
         ).first()
 
     if not last_view:
@@ -610,10 +609,7 @@ def member_create(context: Context,
         filter(model.Member.table_name == obj_type).\
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
-        order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Member.state.asc()  # type: ignore
-        ).first()
+        order_by(model.Member.state.asc()).first()
     if member:
         user_obj = model.User.get(user)
         if user_obj and member.table_name == u'user' and \

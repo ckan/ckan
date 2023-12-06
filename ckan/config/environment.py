@@ -252,4 +252,4 @@ def update_config() -> None:
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on
     model.Session.remove()
-    model.Session.bind.dispose()
+    model.Session.bind.dispose()  # type: ignore

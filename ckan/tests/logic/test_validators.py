@@ -899,3 +899,41 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+
+def test_url_validator():
+    key = ("url",)
+    errors = {(key): []}
+
+    # Test with a valid URL without a port
+    url = {("url",): "https://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with a valid URL with a port
+    url = {("url",): "https://example.com:8080"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with an invalid URL (invalid characters in hostname)
+    url = {("url",): "https://exa$mple.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (invalid port)
+    url = {("url",): "https://example.com:80a80"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (no scheme)
+    url = {("url",): "example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (unsupported scheme)
+    url = {("url",): "ftp://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']

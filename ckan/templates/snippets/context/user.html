@@ -3,7 +3,7 @@
 <div class="context-info">
   {% if about != 'null' %}
     {% set about = about|striptags %}
-    <p class="about">
+    <p class="about" title="{{ about }}">
       {{ about|truncate(160) }}
     </p>
   {% endif %}
