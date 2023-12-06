@@ -28,7 +28,7 @@
     'col__' ~ position ~ '__value',
     id='field-' ~ position,
     label=info.get('label', '') or field.id
-      ~ (_(' (Primary Key)') if pk else ''), classes=['control-full'],
+      ~ (_(' (Primary key)') if pk else ''), classes=['control-full'],
     options=options,
     selected=value,
     error=errors.get(field.id),

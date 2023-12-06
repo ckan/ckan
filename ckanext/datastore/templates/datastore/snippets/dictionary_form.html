@@ -2,7 +2,7 @@
 
 {% block field_heading %}
   <h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }}
-    {%- if field.schema and field.schema.is_index %}, {{ _("Primary Key") }}{% endif -%})
+    {%- if field.schema and field.schema.is_index %}, {{ _("Primary key") }}{% endif -%})
   </h3>
 {% endblock %}
 
