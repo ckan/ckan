@@ -290,6 +290,15 @@ groups:
               SESSION_TYPE = my_custom_interface
               ckan.session.custom_type.my_custom_interface.import_path = ckanext.my_module.session:CustomInterface
 
+            Example of custom session interface that extends redis interface
+            but uses ``json`` instead of ``pickle``::
+
+              import json
+              from ckan.config.middleware import CKANRedisSessionInterface
+
+              class JsonRedisSessionInterface(CKANRedisSessionInterface):
+                serializer = json
+
       - key: SESSION_COOKIE_NAME
         default: ckan
         description: |
