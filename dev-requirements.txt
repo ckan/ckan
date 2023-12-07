@@ -6,7 +6,7 @@ coveralls   #Let Unpinned - Requires latest coveralls
 docutils==0.18.1 # Needed until sphinx-rtd-theme 2.0 is out
 Faker==19.6.2
 factory-boy==3.3.0
-flask-debugtoolbar==0.13.1
+flask-debugtoolbar==0.14.0
 freezegun==1.2.2
 ipdb==0.13.13
 pip-tools==7.3.0

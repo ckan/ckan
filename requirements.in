@@ -9,10 +9,10 @@ certifi>=2023.7.22
 click==8.1.7
 dominate==2.8.0
 feedgen==0.9.0
-Flask==2.3.3
-Flask-Babel==3.1.0
-Flask-Login==0.6.2
-Flask-WTF==1.1.1
+Flask==3.0.0
+Flask-Babel==4.0.0
+Flask-Login==0.6.3
+Flask-WTF==1.2.0
 greenlet>=2.0.2
 Jinja2==3.1.2
 Markdown==3.4.4
@@ -34,5 +34,5 @@ sqlparse==0.4.4
 typing_extensions==4.8.0
 tzlocal==5.0.1
 webassets==2.0
-Werkzeug[watchdog]==2.3.7
+Werkzeug[watchdog]==3.0.1
 zope.interface==6.0
