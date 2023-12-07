@@ -186,7 +186,8 @@ def package_create(
             if hasattr(upload, 'filesize'):
                 new_resource['size'] = upload.filesize
 
-        for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        for plugin in plugins.PluginImplementations(
+          plugins.IResourceController):
 
             plugin.before_resource_create(context, new_resource)
 
@@ -245,7 +246,7 @@ def package_create(
         for new_resource in pkg.resources:
             plugin.after_resource_create(context,
                                          model_dictize.resource_dictize(
-                                             new_resource ,context))
+                                             new_resource, context))
 
     if not context.get('defer_commit'):
         model.repo.commit()

@@ -315,11 +315,14 @@ def package_update(
                 if updating_resource_id and \
                    resource_id != updating_resource_id:
                     continue
-                plugin.before_resource_update(context,
-                                              model_dictize.resource_dictize(
-                                               model.Resource.get(resource_id),
-                                               context),
-                                              new_resource)
+                resource = model.Resource.get(resource_id)
+                if resource:
+                    plugin.before_resource_update(
+                        context,
+                        model_dictize.resource_dictize(
+                            resource,
+                            context),
+                        new_resource)
             else:
                 plugin.before_resource_create(context, new_resource)
 
