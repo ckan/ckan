@@ -36,7 +36,7 @@ class Vocabulary(domain_object.DomainObject):
         self.name = name
 
     @classmethod
-    def get(cls, id_or_name: str) -> Optional[Self]:
+    def get(cls, id_or_name: str) -> Optional[Vocabulary]:
         '''Return a Vocabulary object referenced by its id or name, or
         None if there is no vocabulary with the given id or name. '''
         query = meta.Session.query(Vocabulary)
