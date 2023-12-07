@@ -265,7 +265,7 @@ def package_update(
 
     resource_uploads = []
     updated_resource_ids = []
-    old_resource_formats = []
+    old_resource_formats = {}
     for resource in data_dict.get('resources', []):
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
@@ -304,7 +304,8 @@ def package_update(
         for resource_id in deleted_resource_ids:
             plugin.before_resource_delete(context,
                                           {"id": resource_id},
-                                          pkg.resources)
+                                          model_dictize.resource_list_dictize(
+                                              pkg.resources, context))
 
         for new_resource in data_dict.get('resources', []):
 
@@ -375,25 +376,27 @@ def package_update(
                resource.id != updating_resource_id:
                 continue
             if resource.id in old_resource_formats \
-               and old_resource_formats[resource_id] != resource.format:
+               and old_resource_formats[resource.id] != resource.format:
                 # Add the default views for the new resource format
                 _get_action('resource_create_default_resource_views')(
                     {'model': context['model'], 'user': context['user'],
                      'ignore_auth': True},
                     {'package': data,
-                     'resource': model_dictize.resource_dictize(resource)})
+                     'resource': model_dictize.resource_dictize(resource, context)})
         else:
             # Add the default views to the new resource
             _get_action('resource_create_default_resource_views')(
                 {'model': context['model'], 'user': context['user'],
                  'ignore_auth': True},
-                {'resource': model_dictize.resource_dictize(resource),
+                {'resource': model_dictize.resource_dictize(resource, context),
                  'package': data})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
 
         for resource_id in deleted_resource_ids:
-            plugin.after_resource_delete(context, pkg.resources)
+            plugin.after_resource_delete(context,
+                                         model_dictize.resource_list_dictize(
+                                            pkg.resources, context))
 
         for resource in pkg.resources:
 
