@@ -181,10 +181,6 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_delete(context, data_dict,
-                                      pkg_dict.get('resources', []))
-
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(
         package_show_context, {'id': package_id})
@@ -197,9 +193,6 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
     except ValidationError as e:
         errors = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
         raise ValidationError(errors)
-
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_resource_delete(context, pkg_dict.get('resources', []))
 
     model.repo.commit()
 

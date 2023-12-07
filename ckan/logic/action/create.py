@@ -174,6 +174,22 @@ def package_create(
 
     _check_access('package_create', context, data_dict)
 
+    for new_resource in data_dict.get('resources', []):
+
+        upload = uploader.get_resource_uploader(new_resource)
+
+        if 'mimetype' not in new_resource:
+            if hasattr(upload, 'mimetype'):
+                new_resource['mimetype'] = upload.mimetype
+
+        if 'size' not in new_resource:
+            if hasattr(upload, 'filesize'):
+                new_resource['size'] = upload.filesize
+
+        for plugin in plugins.PluginImplementations(plugins.IResourceController):
+
+            plugin.before_resource_create(context, new_resource)
+
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
@@ -223,6 +239,13 @@ def package_create(
             {'model': context['model'], 'user': context['user'],
              'ignore_auth': True},
             {'package': data})
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+
+        for new_resource in pkg.resources:
+            plugin.after_resource_create(context,
+                                         model_dictize.resource_dictize(
+                                             new_resource ,context))
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -290,21 +313,8 @@ def resource_create(context: Context,
 
     _check_access('resource_create', context, data_dict)
 
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_create(context, data_dict)
-
     if 'resources' not in pkg_dict:
         pkg_dict['resources'] = []
-
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
 
     pkg_dict['resources'].append(data_dict)
 
@@ -324,27 +334,12 @@ def resource_create(context: Context,
     # package_show until after commit
     package = context['package']
     assert package
-    upload.upload(package.resources[-1].id,
-                  uploader.get_max_resource_size())
 
     model.repo.commit()
 
     #  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
-
-    #  Add the default views to the new resource
-    logic.get_action('resource_create_default_resource_views')(
-        {'model': context['model'],
-         'user': context['user'],
-         'ignore_auth': True
-         },
-        {'resource': resource,
-         'package': updated_pkg_dict
-         })
-
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_resource_create(context, resource)
 
     return resource
 
