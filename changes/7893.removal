@@ -1,0 +1,15 @@
+Remove ``beaker`` and use ``Flask-Session`` instead. This update implies
+changes in configuration. Rename the following option:
+
+* ``beaker.session.key`` becomes ``SESSION_COOKIE_NAME``
+* ``beaker.session.cookie_expires`` becomes ``SESSION_PERMANENT`` with opposite value
+* ``beaker.session.cookie_domain`` becomes ``SESSION_COOKIE_DOMAIN``
+* ``beaker.session.secure`` becomes ``SESSION_COOKIE_SECURE``
+* ``beaker.session.timeout`` becomes ``PERMANENT_SESSION_LIFETIME``. It supports only integer values and you cannot configure session that never expires. Default value set to 1 year.
+* ``beaker.session.type`` becomes ``SESSION_TYPE``
+* ``beaker.session.httponly`` becomes ``SESSION_COOKIE_HTTPONLY``
+* ``beaker.session.samesite`` becomes ``SESSION_COOKIE_SAMESITE``
+
+Documentation of
+[Flask-Session](https://flask-session.readthedocs.io/en/latest/config.html)
+contains additional details about ``SESSION_TYPE`` specific options.

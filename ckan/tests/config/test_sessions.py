@@ -1,10 +1,12 @@
 # encoding: utf-8
 
+import re
 import pytest
 from flask import Blueprint, render_template
 
 import ckan.lib.helpers as h
 import ckan.plugins as p
+from ckan.lib.redis import connect_to_redis
 from ckan.tests.helpers import body_contains
 
 
@@ -84,19 +86,39 @@ class FlashMessagePlugin(p.SingletonPlugin):
         return blueprint
 
 
-@pytest.mark.parametrize("timeout,normalized", [
-    (None, None),
-    ("", None),
-    ("123", 123),
-    ("1_000_000", 1_000_000),
-    ("-1", -1),
-])
-def test_beaker_session_timeout(
-        monkeypatch, ckan_config, make_app, timeout, normalized
-):
-    """Beaker timeout accepts `None`(never expires) and int(expires in
-    n-seconds) values.
+class TestSessionTypes:
+    @pytest.mark.usefixtures("clean_redis")
+    @pytest.mark.ckan_config("SESSION_TYPE", "redis")
+    def test_redis_storage(self, app, ckan_config, monkeypatch):
+        """Redis session interface creates a record in redis upon request.
+        """
+        redis = connect_to_redis()
 
-    """
-    monkeypatch.setitem(ckan_config, "beaker.session.timeout", timeout)
-    make_app()
+        assert not redis.keys("*")
+        response = app.get("/")
+
+        cookie = re.match(r'ckan=([^;]+)', response.headers['set-cookie'])
+        assert cookie
+
+        assert redis.keys("*") == [f"session:{cookie.group(1)}".encode()]
+
+    @pytest.mark.usefixtures("test_request_context")
+    def test_cookie_storage(self, app, user_factory, faker):
+        """User's ID added to session cookie upon login
+        """
+        password = faker.password()
+        user = user_factory(password=password)
+
+        response = app.post(h.url_for("user.login"), data={
+            "login": user["name"],
+            "password": password
+        })
+
+        cookie = re.match(r'ckan=([^;]+)', response.headers['set-cookie'])
+        assert cookie
+
+        serializer = app.flask_app.session_interface.get_signing_serializer(
+            app.flask_app
+        )
+        data = serializer.loads(cookie.group(1))
+        assert data["_user_id"] == user["id"]
