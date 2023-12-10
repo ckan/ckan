@@ -43,6 +43,11 @@ def make_app(conf: Union[Config, CKANConfig]) -> CKANApp:
 
 class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
     """Flask cookie-based sessions with expiration support.
+
+    Parent class supports only cookies stored till the end of the browser's
+    session. Current class extends its functionality and adds support of
+    permanent sessions.
+
     """
 
     def __init__(self, app: CKANApp):
@@ -63,6 +68,11 @@ class CKANSecureCookieSessionInterface(SecureCookieSessionInterface):
 
 class CKANRedisSessionInterface(RedisSessionInterface):
     """Flask-Session redis-based sessions with CKAN's Redis connection.
+
+    Parent class connects to Redis instance running on localhost:6379. This
+    class initializes session with the connection to the Redis instance
+    configured by `ckan.redis.url` option.
+
     """
 
     def __init__(self, app: CKANApp):
