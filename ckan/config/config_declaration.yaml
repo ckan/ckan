@@ -275,7 +275,7 @@ groups:
             By default, attempt to use non-existing ``SESSION_TYPE`` cause a
             runtime error upon visiting any endpoint. But if
             ``ckan.session.custom_type.<TYPE NAME>.import_path`` config option
-            is present, its value used as an import path for the custom session
+            is present, its value is used as an import path for the custom session
             interface implementation. This feature is required in following scenarios:
 
               * application requires a brand new session interface that uses
