@@ -147,6 +147,9 @@ def test_tuplize_dict_random_indexes():
         "extras__245566546__value": "value3",
         "groups__13__id": "group2",
         "groups__1__id": "group1",
+        "groups__13__nested__7__name": "latter",
+        "groups__13__nested__2__name": "former",
+
     }
 
     expected = {
@@ -158,6 +161,8 @@ def test_tuplize_dict_random_indexes():
         ("extras", 2, "value"): "value3",
         ("groups", 0, "id"): "group1",
         ("groups", 1, "id"): "group2",
+        ("groups", 1, "nested", 0, "name"): "former",
+        ("groups", 1, "nested", 1, "name"): "latter",
     }
 
     assert logic.tuplize_dict(data_dict) == expected
