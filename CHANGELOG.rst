@@ -18,8 +18,8 @@ Minor changes
 - New sites now default to cookie-based sessions (the default value for ``beaker.session.type``
   is now ``cookie``. The ``beaker.session.samesite`` configuration option has been introduced,
   allowing you to specify the ``SameSite`` attribute for session cookies. This attribute determines
-  how cookies are sent in cross-origin requests, enhancing security and privacy. 
-  
+  how cookies are sent in cross-origin requests, enhancing security and privacy.
+
   .. note:: When using cookie-based sessions, it is now required to
     set ``beaker.session.validate_key`` appropriately.
 
@@ -54,13 +54,14 @@ Minor changes
       `validators: v("xxx")` # v("xxx")
       `validators: v("xxx",1)` # v("xxx", 1)
       `validators: v(1,2,None)` # v(1, 2, None)
-  
+
 - Automatically add the ``not_empty`` validator to any config option declared
   with ``required: true`` (`#7658 <https://github.com/ckan/ckan/pull/7658>`_)
 
 
 Bugfixes
 --------
+- `CVE-2023-XXXX <https://github.com/ckan/ckan/security/advisories/GHSA-XXXX>`_:
 - Fix ``deprecated`` decorator (`#7939
   <https://github.com/ckan/ckan/pull/7939>`_)
 - Fix for missing Tag facets on Home page (`#7520
@@ -103,14 +104,16 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/7775>`_)
 - Fix URL validator does not support ":" for specifying ports (`#7891
   <https://github.com/ckan/ckan/pull/7891>`_)
-- Fix user_show for ckan.auth.public_user_details (`#7866
+- Fix user_show for ``ckan.auth.public_user_details`` (`#7866
   <https://github.com/ckan/ckan/pull/7866>`_)
-- Fix activt links for custom organizations (`#7943
+- Fix activity links for custom organizations (`#7943
   <https://github.com/ckan/ckan/pull/7943>`_)
 - Add missing translations to aria-label attributes (`#7947
   <https://github.com/ckan/ckan/pull/7947>`_)
 - Catch AttributeErrors in license retrieval (`#7931
   <https://github.com/ckan/ckan/pull/7948>`_)
+- Fix downloading datastore resources as json with null values in json columns
+  (`#7545 <https://github.com/ckan/ckan/pull/7545>`_)
 
 v.2.10.1 2023-05-24
 ===================
