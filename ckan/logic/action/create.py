@@ -724,7 +724,7 @@ def _group_or_org_create(context: Context,
     group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
-        schema: Schema = group_plugin.form_to_db_schema_options({
+        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
             'type': 'create', 'api': 'api_version' in context,
             'context': context})
     except AttributeError:

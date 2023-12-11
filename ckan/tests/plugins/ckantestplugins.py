@@ -66,10 +66,7 @@ class MockPackageControllerPlugin(p.SingletonPlugin):
     def delete(self, entity):
         self.calls["delete"] += 1
 
-    # this method deliberately uses deprecated `before_search` name instead of
-    # `before_dataset_search`. Change the name after support for deprecated
-    # names is dropped.
-    def before_search(self, search_params):
+    def before_dataset_search(self, search_params):
         self.calls["before_dataset_search"] += 1
         return search_params
 
