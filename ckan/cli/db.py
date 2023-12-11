@@ -64,12 +64,12 @@ def clean():
 @click.pass_context
 @applies_to_plugin
 def upgrade(
-        ctx: click.Context, version: str, plugin: str,
+        ctx: click.Context, version: str, plugin: str | None,
         skip_core: bool, skip_plugins: bool
 ):
     """Upgrade the database.
     """
-    if not skip_core:
+    if not skip_core or plugin:
         _run_migrations(plugin, version)
 
     if not skip_plugins and not plugin:
@@ -79,6 +79,9 @@ def upgrade(
 
 
 def _migrate_plugins(apply: bool):
+    """Search and optionally apply all migrations from all enabled plugins.
+
+    """
     pending = _get_pending_plugins()
     for plugin, n in sorted(pending.items()):
         click.secho("{n} unapplied migrations for {p}".format(
@@ -135,7 +138,15 @@ def _get_pending_plugins() -> dict[str, int]:
     return pending
 
 
-def _run_migrations(plugin: str, version: str = "head", forward: bool = True):
+def _run_migrations(
+        plugin: str | None, version: str = "head", forward: bool = True
+):
+    """Apply/revert migrations till she specified version.
+
+    If plugin is empty, work with core migrations. Otherwise, work with
+    plugin's migrations.
+
+    """
     if not version:
         version = "head" if forward else "base"
     with _repo_for_plugin(plugin) as repo:
@@ -210,7 +221,12 @@ def _version_hash_to_ordinal(version: str):
         version, versions_dir))
 
 
-def _resolve_alembic_config(plugin: str):
+def _resolve_alembic_config(plugin: str | None):
+    """Locate alembic config file.
+
+    Non-empty `plugin` searches for plugin's migration repository, while empty
+    returns default location of CKAN core migrations.
+    """
     if plugin:
         plugin_obj = p.get_plugin(plugin)
         if plugin_obj is None:
@@ -234,7 +250,12 @@ def _resolve_alembic_config(plugin: str):
 
 
 @contextlib.contextmanager
-def _repo_for_plugin(plugin: str):
+def _repo_for_plugin(plugin: str | None):
+    """Temporarily switch model's Repository to given alembic configuration.
+
+    Non-empty `plugin` enables plugin's config; empty `plugin` enables CKAN
+    core configuration.
+    """
     original = model.repo._alembic_ini
     model.repo._alembic_ini = _resolve_alembic_config(plugin)
     try:
