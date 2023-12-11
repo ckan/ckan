@@ -161,3 +161,7 @@ CKAN database's schema using the ``ckan db upgrade`` command:
 .. parsed-literal::
 
     ckan -c |ckan.ini| db upgrade
+
+This command applies all CKAN core migrations and all unapplied migrations from
+enabled plugins. ``--skip-core`` and ``--skip-plugins`` flags can be used to
+run either only core migration, or only migrations from enabled plugins.
