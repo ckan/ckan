@@ -24,8 +24,9 @@ import ckan.lib.signals as signals
 from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction,
-    ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict, FlattenKey,
-    Schema, Validator, ValidatorFactory)
+    ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
+    FlattenKey, Schema, Validator, ValidatorFactory
+)
 
 Decorated = TypeVar("Decorated")
 
