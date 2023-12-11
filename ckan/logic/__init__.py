@@ -258,24 +258,30 @@ def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
 
     # Sanitize key indexes to make sure they are sequential
     seq_tuplized_dict: FlattenDataDict = {}
-    new_index = -1
-    last_group = None
-    last_index = None
-    tuple_key: FlattenKey
-    for tuple_key in sorted(tuplized_dict.keys()):
-        if len(tuple_key) != 3:
-            seq_tuplized_dict[tuple_key] = tuplized_dict[tuple_key]
-        else:
-            if last_group != tuple_key[0]:
-                new_index = 0
-            elif last_index != tuple_key[1]:
-                new_index += 1
+    # sequential field indexes grouped by common prefix
+    groups: dict[FlattenKey, dict[FlattenKey, int]] = defaultdict(dict)
+    for key in sorted(tuplized_dict.keys()):
+        new_key = key
 
-            new_key = (tuple_key[0], new_index, tuple_key[2])
-            seq_tuplized_dict[new_key] = tuplized_dict[tuple_key]
+        # iterate over even(numeric) parts of the key
+        for idx in range(1, len(key), 2):
+            # narrow down scope by common prefix
+            group = groups[key[:idx]]
 
-            last_group = tuple_key[0]
-            last_index = tuple_key[1]
+            # if the identifier(i.e `(extra, 123)`, `(resource, 9)`) is met for
+            # the first time, generate for it next number in the index
+            # sequence. Index of the latest added item is always equals to the
+            # number of unique identifiers minus one(because list indexation
+            # starts from 0 in Python). If identifier already present(i.e, we
+            # process `(extra, 10, VALUE)` after processing `(extra, 10,
+            # KEY)`), reuse sequential index of this identifier
+            seq_index = group.setdefault(key[idx-1:idx+1], len(group))
+
+            # replace the currently processed key segment with computed
+            # sequential index
+            new_key = new_key[:idx] + (seq_index,) + new_key[idx+1:]
+
+        seq_tuplized_dict[new_key] = tuplized_dict[key]
 
     return seq_tuplized_dict
 
