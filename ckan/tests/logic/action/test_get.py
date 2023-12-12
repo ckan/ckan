@@ -2912,7 +2912,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2928,7 +2928,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
     @pytest.mark.ckan_config("ckan.plugins", "stats")
@@ -2944,7 +2944,7 @@ class TestStatusShow(object):
         assert status["site_description"] == ""
         assert status["locale_default"] == "en"
 
-        assert type(status["extensions"]) == list
+        assert isinstance(status["extensions"], list)
         assert status["extensions"] == ["stats"]
 
 

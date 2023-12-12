@@ -720,7 +720,7 @@ def flash_error(message: Any, allow_html: bool = False) -> None:
         message = Markup(message)
     else:
         message = escape(message)
-    flash(message, category='alert-error')
+    flash(message, category='alert-danger')
 
 
 @core_helper
@@ -775,10 +775,12 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
+    title = kwargs.pop('title', kwargs.pop('title_', None))
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        cls=cls
+        cls=cls,
+        title=title
     )
 
 

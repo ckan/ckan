@@ -295,7 +295,7 @@ class TestGroupDictize:
 
         org = model_dictize.group_dictize(group_obj, context)
 
-        assert type(org["packages"]) == list
+        assert isinstance(org["packages"], list)
         assert len(org["packages"]) == 1
         assert org["packages"][0]["name"] == package["name"]
 

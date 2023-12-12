@@ -13,7 +13,8 @@ import dominate.tags as dom_tags
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -123,7 +124,7 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
-    page = h.Page(
+    page = Page(
         collection=users_list,
         page=page_number,
         url=h.pager_url,
@@ -596,18 +597,37 @@ def delete(id: str) -> Union[Response, Any]:
     })
     data_dict = {u'id': id}
 
+    if u'cancel' in request.form:
+        return h.redirect_to(u'user.edit', id=id)
+
     try:
-        logic.get_action(u'user_delete')(context, data_dict)
+        if request.method == u'POST':
+            logic.get_action(u'user_delete')(context, data_dict)
+        user_dict = logic.get_action(u'user_show')(context, {u'id': id})
     except logic.NotAuthorized:
         msg = _(u'Unauthorized to delete user with id "{user_id}".')
-        base.abort(403, msg.format(user_id=id))
+        return base.abort(403, msg.format(user_id=id))
+    except logic.NotFound as e:
+        return base.abort(404, _(e.message))
 
-    if current_user.is_authenticated:
+    if request.method == 'POST' and current_user.is_authenticated:
         if current_user.id == id:  # type: ignore
             return logout()
         else:
             user_index = h.url_for(u'user.index')
             return h.redirect_to(user_index)
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.user_dict = user_dict
+    g.user_id = id
+
+    extra_vars = {
+        u"user_id": id,
+        u"user_dict": user_dict
+    }
+    return base.render(u'user/confirm_delete.html', extra_vars)
 
 
 class RequestResetView(MethodView):
@@ -918,7 +938,7 @@ user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
 user.add_url_rule(u'/_logout', view_func=logout)
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
-user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', ))
+user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))
 
 user.add_url_rule(
     u'/reset', view_func=RequestResetView.as_view(str(u'request_reset')))

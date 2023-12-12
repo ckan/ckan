@@ -1,0 +1,51 @@
+{% call register_example('r', 'button_label') %}
+R
+{% endcall %}
+
+
+{% call register_example('r', 'request_limit') %}
+<pre class="example-r"><code class="language-r"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id = '{{ resource_id }}',
+        limit = 5,
+        q = 'jones'))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+{% endcall %}
+
+
+{% call register_example('r', 'request_filter') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %>% 
+    req_body_json(list(
+        resource_id='{{ resource_id }}', 
+        filters = list(
+            subject = list("watershed", "survey"), 
+            stage = "active")))
+    req_perform %&gt;% 
+    resp_body_json</code></pre>
+{% endcall %}
+
+
+{% call register_example('r', 'request_sql') %}
+<pre class="example-r"><code class="language-bash"
+>library(httr2)
+
+req &lt;- request("{{ h.url_for('api.action', logic_function='datastore_search_sql', qualified=True) }}")
+result &lt;- req %&gt;% 
+    req_headers(Authorization = API_TOKEN) %&gt;% 
+    req_body_json(list(
+        sql = "SELECT * FROM \"{{resource_id}}\" WHERE title LIKE 'jones'"))
+    req_perform %&gt;% 
+    resp_body_json
+</code></pre>
+{% endcall %}

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import cast
+from typing import Optional, cast
 
 import six
 import click
@@ -124,24 +124,28 @@ def show_user(username: str):
     click.secho(u'User: %s' % user)
 
 
-@user.command(u'setpass', short_help=u'Set password for the user')
-@click.argument(u'username')
-def set_password(username: str):
-    import ckan.model as model
-    if not username:
-        error_shout(u'Need name of the user.')
-        return
+@user.command("setpass")
+@click.argument("username")
+@click.option("-p", "--password", help="New password")
+def set_password(username: str, password: Optional[str]):
+    """Set password for the user."""
     user = model.User.get(username)
     if not user:
-        error_shout(u"User not found!")
-        return
-    click.secho(u'Editing user: %r' % user.name, fg=u'yellow')
+        error_shout("User not found!")
+        raise click.Abort()
 
-    password = click.prompt(u'Password', hide_input=True,
-                            confirmation_prompt=True)
+    click.secho(f"Editing user: {user.name}", fg="yellow")
+
+    if not password:
+        password = click.prompt(
+            "Password",
+            hide_input=True,
+            confirmation_prompt=True,
+        )
+
     user.password = password
     model.repo.commit_and_remove()
-    click.secho(u'Password updated!', fg=u'green', bold=True)
+    click.secho("Password updated!", fg="green", bold=True)
 
 
 @user.group()

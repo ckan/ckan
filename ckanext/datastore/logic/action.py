@@ -4,11 +4,14 @@ from __future__ import annotations
 from ckan.types import Context
 import logging
 from typing import Any, cast
+import json
 
 import sqlalchemy
 import sqlalchemy.exc
 import six
-
+from sqlalchemy.dialects.postgresql import TEXT, JSONB
+from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.functions import coalesce
 
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
@@ -630,22 +633,28 @@ def set_datastore_active_flag(
 
     Called after creation or deletion of DataStore table.
     '''
-    # We're modifying the resource extra directly here to avoid a
-    # race condition, see issue #3245 for details and plan for a
-    # better fix
     model = context['model']
-    update_dict = {'datastore_active': flag}
+    resource = model.Resource.get(data_dict['resource_id'])
+    assert resource
 
-    q = model.Session.query(model.Resource). \
-        filter(model.Resource.id == data_dict['resource_id'])
-    resource = q.one()
-
-    # update extras in database for record
-    extras = resource.extras
-    extras.update(update_dict)
-    q.update({'extras': extras}, synchronize_session=False)
-
+    # update extras json with a single statement
+    model.Session.query(model.Resource).filter(
+        model.Resource.id == data_dict['resource_id']
+    ).update(
+        {
+            'extras': func.jsonb_set(
+                coalesce(
+                    model.resource_table.c.extras,
+                    '{}',
+                ).cast(JSONB),
+                '{datastore_active}',
+                json.dumps(flag),
+            ).cast(TEXT)
+        },
+        synchronize_session='fetch',
+    )
     model.Session.commit()
+    model.Session.expire(resource, ['extras'])
 
     # get package with  updated resource from package_show
     # find changed resource, patch it and reindex package
@@ -656,7 +665,7 @@ def set_datastore_active_flag(
         })
         for resource in _data_dict['resources']:
             if resource['id'] == data_dict['resource_id']:
-                resource.update(update_dict)
+                resource['datastore_active'] = flag
                 psi.index_package(_data_dict)
                 break
     except (logic.NotAuthorized, logic.NotFound) as e:

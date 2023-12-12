@@ -16,7 +16,8 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -328,7 +329,7 @@ def search(package_type: str) -> str:
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
 
-        extra_vars[u'page'] = h.Page(
+        extra_vars[u'page'] = Page(
             collection=query[u'results'],
             page=page,
             url=pager_url,
@@ -354,7 +355,7 @@ def search(package_type: str) -> str:
         log.error(u'Dataset search error: %r', se.args)
         extra_vars[u'query_error'] = True
         extra_vars[u'search_facets'] = {}
-        extra_vars[u'page'] = h.Page(collection=[])
+        extra_vars[u'page'] = Page(collection=[])
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
@@ -655,7 +656,7 @@ class CreateView(MethodView):
                 )
             )
         )
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
             data[u'tag_string'] = u', '.join(
@@ -688,7 +689,7 @@ class CreateView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'new'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.resources_json = resources_json
@@ -802,7 +803,7 @@ class EditView(MethodView):
             )
 
         pkg = context.get(u"package")
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         user = current_user.name
         try:
             check_access(u'package_update', context)
@@ -828,7 +829,7 @@ class EditView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'edit'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.pkg = pkg
@@ -1113,23 +1114,47 @@ def collaborators_read(package_type: str, id: str) -> Union[Response, str]:  # n
         u'pkg_dict': pkg_dict})
 
 
-def collaborator_delete(package_type: str, id: str, user_id: str) -> Response:  # noqa
-    context = cast(Context, {u'model': model, u'user': current_user.name})
+def collaborator_delete(package_type: str,
+                        id: str, user_id: str) -> Union[Response, str]:  # noqa
+    context: Context = {'user': current_user.name}
+
+    if u'cancel' in request.form:
+        return h.redirect_to(u'{}.collaborators_read'
+                             .format(package_type), id=id)
 
     try:
-        get_action(u'package_collaborator_delete')(context, {
-            u'id': id,
-            u'user_id': user_id
-        })
+        if request.method == u'POST':
+            get_action(u'package_collaborator_delete')(context, {
+                u'id': id,
+                u'user_id': user_id
+            })
+        user_dict = logic.get_action(u'user_show')(context, {u'id': user_id})
     except NotAuthorized:
         message = _(u'Unauthorized to delete collaborators {}').format(id)
         return base.abort(401, _(message))
     except NotFound as e:
         return base.abort(404, _(e.message))
 
-    h.flash_success(_(u'User removed from collaborators'))
+    if request.method == u'POST':
+        h.flash_success(_(u'User removed from collaborators'))
 
-    return h.redirect_to(u'dataset.collaborators_read', id=id)
+        return h.redirect_to(u'dataset.collaborators_read', id=id)
+
+    # TODO: Remove
+    # ckan 2.9: Adding variables that were removed from c object for
+    # compatibility with templates in existing extensions
+    g.user_dict = user_dict
+    g.user_id = user_id
+    g.package_id = id
+
+    extra_vars = {
+        u"user_id": user_id,
+        u"user_dict": user_dict,
+        u"package_id": id,
+        u"package_type": package_type
+    }
+    return base.render(
+        u'package/collaborators/confirm_delete.html', extra_vars)
 
 
 class CollaboratorEditView(MethodView):
@@ -1253,7 +1278,7 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
 
         blueprint.add_url_rule(
             rule=u'/collaborators/<id>/delete/<user_id>',
-            view_func=collaborator_delete, methods=['POST', ]
+            view_func=collaborator_delete, methods=['POST', 'GET']
         )
 
 

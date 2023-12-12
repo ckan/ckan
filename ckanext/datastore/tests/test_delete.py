@@ -51,6 +51,10 @@ class TestDatastoreDelete(object):
         data = {"resource_id": resource["id"], "force": True}
         helpers.call_action("datastore_delete", **data)
 
+        # regression test for #7832
+        resobj = model.Resource.get(data["resource_id"])
+        assert resobj.extras.get('datastore_active') is False
+
         results = execute_sql(
             u"select 1 from pg_views where viewname = %s", u"b\xfck2"
         )

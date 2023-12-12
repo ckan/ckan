@@ -10,7 +10,7 @@ from flask.wrappers import Response
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -243,7 +243,8 @@ class TrashView(MethodView):
 
     def purge_entity(self, ent_type: str):
         entities = self.deleted_entities[ent_type]
-        number = len(entities) if type(entities) == list else entities.count()
+        number = len(entities) if isinstance(entities, list) \
+            else entities.count()
 
         for ent in entities:
             entity_id = ent.id if hasattr(ent, 'id') else ent['id']
