@@ -46,11 +46,13 @@
   {% endblock %}
 
   {% block search_title %}
+    <h1>
     {% if not error %}
-      <h1>{% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}</h1>
+      {% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}
     {% else %}
-      <h2>Error</h2>
+      Error
     {% endif %}
+    </h1>
   {% endblock %}
 
   {% block search_facets %}

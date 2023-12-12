@@ -1,21 +1,21 @@
 # The file contains the direct ckan requirements (python3).
 # Use pip-compile to create a requirements.txt file from this
-alembic==1.12.0
-Babel==2.12.1
+alembic==1.13.0
+Babel==2.13.1
 Beaker==1.12.1
-bleach==6.0.0
-blinker==1.6.2
+bleach==6.1.0
+blinker==1.7.0
 certifi>=2023.7.22
 click==8.1.7
-dominate==2.8.0
+dominate==2.9.0
 feedgen==0.9.0
-Flask==2.3.3
-Flask-Babel==3.1.0
-Flask-Login==0.6.2
-Flask-WTF==1.1.1
+Flask==3.0.0
+Flask-Babel==4.0.0
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
 greenlet>=3.0.1
 Jinja2==3.1.2
-Markdown==3.4.4
+Markdown==3.5.1
 passlib==1.7.4
 polib==1.2.0
 psycopg2==2.9.7
@@ -28,11 +28,11 @@ PyUtilib==6.0.0
 pyyaml==6.0.1
 requests==2.31.0
 rq==1.15.1
-simplejson==3.19.1
+simplejson==3.19.2
 SQLAlchemy[mypy]==1.4.49
 sqlparse==0.4.4
 typing_extensions==4.8.0
 tzlocal==5.0.1
 webassets==2.0
-Werkzeug[watchdog]==2.3.7
+Werkzeug[watchdog]==3.0.1
 zope.interface==6.0

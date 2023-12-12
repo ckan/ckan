@@ -4,17 +4,17 @@
 #
 #    pip-compile requirements.in
 #
-alembic==1.12.0
+alembic==1.13.0
     # via -r requirements.in
-babel==2.12.1
+babel==2.13.1
     # via
     #   -r requirements.in
     #   flask-babel
 beaker==1.12.1
     # via -r requirements.in
-bleach==6.0.0
+bleach==6.1.0
     # via -r requirements.in
-blinker==1.6.2
+blinker==1.7.0
     # via
     #   -r requirements.in
     #   flask
@@ -31,21 +31,21 @@ click==8.1.7
     #   rq
 deprecated==1.2.13
     # via redis
-dominate==2.8.0
+dominate==2.9.0
     # via -r requirements.in
 feedgen==0.9.0
     # via -r requirements.in
-flask==2.3.3
+flask==3.0.0
     # via
     #   -r requirements.in
     #   flask-babel
     #   flask-login
     #   flask-wtf
-flask-babel==3.1.0
+flask-babel==4.0.0
     # via -r requirements.in
-flask-login==0.6.2
+flask-login==0.6.3
     # via -r requirements.in
-flask-wtf==1.1.1
+flask-wtf==1.2.1
     # via -r requirements.in
 greenlet==3.0.1
     # via
@@ -70,7 +70,7 @@ lxml==4.9.3
     # via feedgen
 mako==1.2.2
     # via alembic
-markdown==3.4.4
+markdown==3.5.1
     # via -r requirements.in
 markupsafe==2.1.1
     # via
@@ -120,7 +120,7 @@ requests==2.31.0
     #   pysolr
 rq==1.15.1
     # via -r requirements.in
-simplejson==3.19.1
+simplejson==3.19.2
     # via -r requirements.in
 six==1.16.0
     # via
@@ -154,7 +154,7 @@ webassets==2.0
     # via -r requirements.in
 webencodings==0.5.1
     # via bleach
-werkzeug[watchdog]==2.3.7
+werkzeug[watchdog]==3.0.1
     # via
     #   -r requirements.in
     #   flask

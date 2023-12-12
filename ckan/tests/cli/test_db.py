@@ -10,6 +10,7 @@ import ckanext.example_database_migrations.plugin as example_plugin
 
 import ckan.model as model
 import ckan.cli.db as db
+from ckan.cli.cli import ckan
 
 
 @pytest.fixture
@@ -98,3 +99,21 @@ class TestMigrations:
         assert db._get_pending_plugins() == {"example_database_migrations": 1}
         db._run_migrations(u'example_database_migrations')
         assert db._get_pending_plugins() == {}
+
+    @pytest.mark.usefixtures("with_extended_cli")
+    def test_upgrade_applies_plugin_migrations(self, cli):
+        """`db upgrade` command automatically applies all pending migrations
+        from plugins.
+
+        """
+        cli.invoke(ckan, ["db", "upgrade"])
+        assert db._get_pending_plugins() == {}
+
+    @pytest.mark.usefixtures("with_extended_cli")
+    def test_upgrade_skips_plugin_migrations(self, cli):
+        """`db upgrade` command can ignore pending migrations from plugins if
+        `--skip-plugins` flag is enabled.
+
+        """
+        cli.invoke(ckan, ["db", "upgrade", "--skip-plugins"])
+        assert db._get_pending_plugins() == {"example_database_migrations": 2}
