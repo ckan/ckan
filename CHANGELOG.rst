@@ -15,7 +15,8 @@ v.2.9.10 2023-12-13
 Bugfixes
 --------
 
-- `CVE-2023-XXXX <https://github.com/ckan/ckan/security/advisories/GHSA-XXXX>`_:
+- `CVE-2023-50248 <https://github.com/ckan/ckan/security/advisories/GHSA-7fgc-89cx-w8j5>`_: fix potential
+  out of memory error when submitting the dataset form with a specially-crafted field.
 - Update resource datastore_active with a single statement (`#7833 <https://github.com/ckan/ckan/pull/7833>`_)
 - Fix downloading datastore resources as json with null values in json columns
   (`#7545 <https://github.com/ckan/ckan/pull/7545>`_)
