@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2020
-# Yaron Shahrabani <sh.yaron@gmail.com>, 2020
+# Adrià Mercader <amercadero@gmail.com>, 2020
+# Yaron Shahrabani <sh.yaron@gmail.com>, 2023
 # 
 #, fuzzy
 msgid ""
@@ -14,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-09 15:55+0100\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2020\n"
-"Language-Team: Hebrew (https://www.transifex.com/okfn/teams/11162/he/)\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2023\n"
+"Language-Team: Hebrew (https://app.transifex.com/okfn/teams/11162/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,15 +30,15 @@ msgstr "פונקציית האימות לא נמצאה: %s"
 
 #: ckan/authz.py:247 ckan/templates/header.html:11
 msgid "Admin"
-msgstr "מנהל"
+msgstr "הנהלה"
 
 #: ckan/authz.py:251
 msgid "Editor"
-msgstr "עורך"
+msgstr "עריכה"
 
 #: ckan/authz.py:255
 msgid "Member"
-msgstr "חבר"
+msgstr "חברות"
 
 #: ckan/controllers/admin.py:33 ckan/views/admin.py:77
 msgid "Need to be system administrator to administer"
@@ -256,7 +256,7 @@ msgstr "למשתמש %r אין הרשאה לערוך את %s"
 
 #: ckan/controllers/group.py:455 ckan/views/group.py:821
 msgid "Not authorized to perform bulk update"
-msgstr "אין הרשאה לעדכן בכמות גדולה (bulk update)"
+msgstr "אין הרשאה לעדכן במרוכז (bulk update)"
 
 #: ckan/controllers/group.py:473 ckan/views/group.py:848
 #: ckan/views/group.py:937
@@ -368,7 +368,7 @@ msgstr "נא <a href=\"%s\">לעדכן את הפרופיל</a> ואת כתובת
 #: ckan/controllers/home.py:75 ckan/views/home.py:63
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr "%s משתמש בכתובת הדוא״ל שלך, אם יהיה עליך לאפס את ססמתך"
+msgstr "%s משתמש בכתובת הדוא״ל שלך, אם יהיה עליך לאפס את סיסמתך"
 
 #: ckan/controllers/package.py:304 ckan/views/dataset.py:336
 msgid "Invalid search query: {error_message}"
@@ -614,24 +614,24 @@ msgstr "אין הרשאה לעריכת משתמש."
 
 #: ckan/controllers/user.py:375 ckan/views/user.py:302
 msgid "Password entered was incorrect"
-msgstr "הססמה שהוקלדה שגויה"
+msgstr "הסיסמה שהוקלדה שגויה"
 
 #: ckan/controllers/user.py:376 ckan/templates/user/edit_user_form.html:34
 #: ckan/views/user.py:304
 msgid "Old Password"
-msgstr "ססמה ישנה"
+msgstr "סיסמה ישנה"
 
 #: ckan/controllers/user.py:376 ckan/views/user.py:304 ckan/views/user.py:306
 msgid "incorrect password"
-msgstr "ססמה שגויה"
+msgstr "סיסמה שגויה"
 
 #: ckan/controllers/user.py:416 ckan/views/user.py:482
 msgid "Login failed. Bad username or password."
-msgstr "הכניסה נכשלה. שם משתמש או ססמה שגויים."
+msgstr "הכניסה נכשלה. שם משתמש או סיסמה שגויים."
 
 #: ckan/controllers/user.py:449 ckan/views/user.py:608
 msgid "Unauthorized to request reset password."
-msgstr "אין הרשאה לבקש איפוס ססמה."
+msgstr "אין הרשאה לבקש איפוס סיסמה."
 
 #: ckan/controllers/user.py:454 ckan/views/user.py:614
 msgid "Email is required"
@@ -653,7 +653,7 @@ msgstr "נשלח אליך קישור לאיפוס (אלא אם כן החשבון
 
 #: ckan/controllers/user.py:514 ckan/views/user.py:696
 msgid "Unauthorized to reset password."
-msgstr "אין הרשאה לאיפוס ססמה."
+msgstr "אין הרשאה לאיפוס סיסמה."
 
 #: ckan/controllers/user.py:526 ckan/views/user.py:705
 msgid "Invalid reset key. Please try again."
@@ -661,19 +661,19 @@ msgstr "מפתח איפוס שגוי. נא לנסות שוב."
 
 #: ckan/controllers/user.py:543 ckan/views/user.py:749
 msgid "Your password has been reset."
-msgstr "הססמה שלך אופסה."
+msgstr "הסיסמה שלך אופסה."
 
 #: ckan/controllers/user.py:565
 msgid "Your password must be 4 characters or longer."
-msgstr "הססמה חייבת להכיל לפחות ארבעה תווים."
+msgstr "הסיסמה חייבת להכיל לפחות ארבעה תווים."
 
 #: ckan/controllers/user.py:568 ckan/views/user.py:720
 msgid "The passwords you entered do not match."
-msgstr "הססמאות שמילאת אינן תואמות."
+msgstr "הסיסמאות שמילאת אינן תואמות."
 
 #: ckan/controllers/user.py:571 ckan/views/user.py:723
 msgid "You must provide a password"
-msgstr "יש לספק ססמה"
+msgstr "יש לספק סיסמה"
 
 #: ckan/controllers/user.py:639 ckan/views/dashboard.py:62
 msgid "Follow item not found"
@@ -1028,19 +1028,19 @@ msgstr "לא ניתן לערוך את שם הכניסה הזה."
 
 #: ckan/logic/validators.py:603
 msgid "Please enter both passwords"
-msgstr "נא להקליד את שתי הססמאות"
+msgstr "נא להקליד את שתי הסיסמאות"
 
 #: ckan/logic/validators.py:611
 msgid "Passwords must be strings"
-msgstr "הססמאות חייבות להיות מחרוזות"
+msgstr "הסיסמאות חייבות להיות מחרוזות"
 
 #: ckan/logic/validators.py:615
 msgid "Your password must be 8 characters or longer"
-msgstr "על הססמה שלך להיות באורך של 8 תווים לפחות"
+msgstr "על הסיסמה שלך להיות באורך של 8 תווים לפחות"
 
 #: ckan/logic/validators.py:624
 msgid "The passwords you entered do not match"
-msgstr "הססמאות שהקלדת אינן תואמות"
+msgstr "הסיסמאות שהקלדת אינן תואמות"
 
 #: ckan/logic/validators.py:644
 msgid ""
@@ -1187,7 +1187,7 @@ msgstr "הדירוג חייב להיות בין %i ל־%i."
 msgid ""
 "Error sending the invite email,                 the user was not created: "
 "{0}"
-msgstr ""
+msgstr "שגיאה בשליחת הודעת ההזמנה בדוא״ל,                 המשתמש לא נוצר: {0}"
 
 #: ckan/logic/action/create.py:1358 ckan/logic/action/create.py:1365
 msgid "You must be logged in to follow users"
@@ -1842,7 +1842,7 @@ msgstr "בחירת שדה"
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:40
 #: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
 msgid "Reorder resource view"
-msgstr ""
+msgstr "סידור תצוגת משאבים מחדש"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.min.js:2
@@ -1857,12 +1857,12 @@ msgstr ""
 #: ckan/templates/package/resource_edit_base.html:12
 #: ckan/templates/package/snippets/resource_item.html:70
 msgid "Edit"
-msgstr "לערוך"
+msgstr "עריכה"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:25
 #: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
 msgid "Show more"
-msgstr "להציג עוד"
+msgstr "הצגה של עוד"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:26
 #: ckan/public/base/javascript/modules/table-toggle-more.min.js:1
@@ -1876,7 +1876,7 @@ msgstr "שגיאה %(error_code)s"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
-msgstr "על אודות {0}"
+msgstr "על {0}"
 
 #: ckan/templates/footer.html:15
 msgid "CKAN API"
@@ -1938,7 +1938,7 @@ msgstr "הרשמה"
 
 #: ckan/templates/header.html:69
 msgid "Toggle navigation"
-msgstr ""
+msgstr "החלפת מצב ניווט"
 
 #: ckan/templates/group/read_base.html:17
 #: ckan/templates/group/snippets/info.html:38 ckan/templates/header.html:90
@@ -2148,7 +2148,7 @@ msgstr "הורדת משאב"
 #: ckan/templates/package/snippets/resource_view.html:62
 #: ckanext/webpageview/theme/templates/webpage_view.html:2
 msgid "Your browser does not support iframes."
-msgstr "הדפדפן שלך לא תומך ב-iframes."
+msgstr "הדפדפן שלך לא תומך ב־iframes."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
@@ -2235,11 +2235,16 @@ msgid ""
 "password at: %(reset_link)s Have a nice day. -- Message sent by "
 "%(site_title)s (%(site_url)s)"
 msgstr ""
+"%(user_name)s, הוזמנת אל %(site_title)s. כבר נוצר עבורך משתמש עם השם "
+"%(user_name)s. אפשר לשנות אותו בהמשך. נוספת אל %(group_type)s "
+"%(group_title)s עם התפקיד הבא: %(role_name)s. כדי לקבל את ההזמנה, נא לאפס את"
+" הסיסמה שלך בכתובת: %(reset_link)s המשך יום נעים. -- ההודעה נשלחה על ידי "
+"%(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
 msgid "Invite for %(site_title)s"
-msgstr ""
+msgstr "הזמנה אל %(site_title)s"
 
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
@@ -2249,11 +2254,14 @@ msgid ""
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
+" %(user_name)s, ביקשת לאפס את הסיסמה שלך באתר %(site_title)s. נא ללחוץ על "
+"הקישור הבא כדי לאשר את הבקשה הזאת: %(reset_link)s המשך יום נעים. -- ההודעה "
+"נשלחה על ידי %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/reset_password_subject.txt:1
 #, python-format
 msgid "Reset your password - %(site_title)s"
-msgstr ""
+msgstr "איפוס הסיסמה שלך - %(site_title)s"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:8
@@ -2416,7 +2424,7 @@ msgstr "משתמש חדש"
 #: ckan/templates/group/member_new.html:50
 #: ckan/templates/organization/member_new.html:52
 msgid "If you wish to invite a new user, enter their email address."
-msgstr "אם ברצונך להזמין משתמש חדש, נא למלא את כתובת הדוא״ל של המשתמש."
+msgstr "כדי להזמין משתמש חדש, נא למלא את כתובת הדוא״ל שלו."
 
 #: ckan/templates/group/member_new.html:62
 #: ckan/templates/group/member_new.html:66
@@ -4347,11 +4355,11 @@ msgstr "כתובת תמונת פרופיל"
 
 #: ckan/templates/user/edit_user_form.html:31
 msgid "Change password"
-msgstr "החלפת ססמה"
+msgstr "החלפת סיסמה"
 
 #: ckan/templates/user/edit_user_form.html:34 ckan/views/user.py:306
 msgid "Sysadmin Password"
-msgstr "ססמת מנהל המערכת"
+msgstr "סיסמת מנהל המערכת"
 
 #: ckan/templates/user/edit_user_form.html:42
 #: ckan/templates/user/logout_first.html:11
@@ -4359,11 +4367,11 @@ msgstr "ססמת מנהל המערכת"
 #: ckan/templates/user/perform_reset.html:25
 #: ckan/templates/user/snippets/login_form.html:22
 msgid "Password"
-msgstr "ססמה"
+msgstr "סיסמה"
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Confirm Password"
-msgstr "אישור ססמה"
+msgstr "אישור סיסמה"
 
 #: ckan/templates/user/edit_user_form.html:50
 msgid "Are you sure you want to delete this User?"
@@ -4406,15 +4414,15 @@ msgstr "יצירת חשבון"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr "שכחת ססמה?"
+msgstr "שכחת סיסמה?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
-msgstr "אין בעיה, ניתן להשתמש בטופס שחזור הססמה שלנו כדי לאפס אותה."
+msgstr "אין בעיה, ניתן להשתמש בטופס שחזור הסיסמה שלנו כדי לאפס אותה."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
-msgstr "שכחת ססמה?"
+msgstr "שכחת סיסמה?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
@@ -4480,12 +4488,12 @@ msgstr "יצירת חשבון"
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:15
 msgid "Reset Your Password"
-msgstr "איפוס הססמה שלך"
+msgstr "איפוס הסיסמה שלך"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr "איפוס ססמה"
+msgstr "איפוס סיסמה"
 
 #: ckan/templates/user/perform_reset.html:21
 msgid "You can also change username. It can not be modified later."
@@ -4493,7 +4501,7 @@ msgstr "ניתן גם לשנות את שם המשתמש. לא ניתן לשנו�
 
 #: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
-msgstr "עדכון ססמה"
+msgstr "עדכון סיסמה"
 
 #: ckan/templates/user/perform_reset.html:43
 #: ckan/templates/user/request_reset.html:36
@@ -4502,7 +4510,7 @@ msgstr "איך זה עובד?"
 
 #: ckan/templates/user/perform_reset.html:45
 msgid "Simply enter a new password and we'll update your account"
-msgstr "עליך פשוט להקליד ססמה חדשה ואנו נעדכן את החשבון שלך"
+msgstr "עליך פשוט להקליד סיסמה חדשה ואנו נעדכן את החשבון שלך"
 
 #: ckan/templates/user/read.html:27
 msgid "User hasn't created any datasets."
@@ -4535,7 +4543,7 @@ msgstr "מפתח API"
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
 msgid "Reset your password"
-msgstr "איפוס הססמה שלך"
+msgstr "איפוס הסיסמה שלך"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Email or username"
@@ -4551,7 +4559,7 @@ msgid ""
 "email with a link to enter a new password."
 msgstr ""
 "נא למלא את כתובת הדוא״ל או את שם המשתמש בתיבה ואנו נשלח לך הודעת דוא״ל עם "
-"קישור למלא ססמה חדשה."
+"קישור למלא סיסמה חדשה."
 
 #: ckan/templates/user/snippets/api_token_list.html:13
 msgid "Token"
@@ -4598,39 +4606,39 @@ msgstr "חיפוש משתמשים"
 
 #: ckan/views/admin.py:159
 msgid "Are you sure you want to purge datasets?"
-msgstr ""
+msgstr "למחוק את סדרות הנתונים האלו לחלוטין?"
 
 #: ckan/views/admin.py:161
 msgid "Are you sure you want to purge organizations?"
-msgstr ""
+msgstr "למחוק את הארגונים האלה לחלוטין?"
 
 #: ckan/views/admin.py:162
 msgid "Are you sure you want to purge groups?"
-msgstr ""
+msgstr "למחוק את הקבוצות האלו לחלוטין?"
 
 #: ckan/views/admin.py:165
 msgid "{number} datasets have been purged"
-msgstr ""
+msgstr "{number} סדרות נתונים נמחקו לחלוטין"
 
 #: ckan/views/admin.py:166
 msgid "{number} organizations have been purged"
-msgstr ""
+msgstr "{number} ארגונים נמחקו לחלוטין"
 
 #: ckan/views/admin.py:167
 msgid "{number} groups have been purged"
-msgstr ""
+msgstr "{number} קבוצות נמחקו לחלוטין"
 
 #: ckan/views/admin.py:170
 msgid "There are no datasets to purge"
-msgstr ""
+msgstr "אין סדרות נתונים למחיקה לחלוטין"
 
 #: ckan/views/admin.py:171
 msgid "There are no organizations to purge"
-msgstr ""
+msgstr "אין ארגונים למחיקה לחלוטין"
 
 #: ckan/views/admin.py:172
 msgid "There are no groups to purge"
-msgstr ""
+msgstr "אין קבוצות למחיקה לחלוטין"
 
 #: ckan/views/admin.py:215
 msgid "Massive purge complete"
@@ -4681,11 +4689,11 @@ msgstr "המשתמש נוסף למשתתפים"
 
 #: ckan/views/group.py:717
 msgid "Unauthorized to access"
-msgstr ""
+msgstr "הגישה אסורה"
 
 #: ckan/views/resource.py:172
 msgid "Not authorized to download resource"
-msgstr ""
+msgstr "הורדת המשאב אסורה"
 
 #: ckan/views/user.py:169
 msgid "Unauthorized to view API tokens."
@@ -4710,7 +4718,7 @@ msgstr "אין הרשאה לשלול אסימוני API."
 
 #: ckan/views/user.py:716
 msgid "Your password must be 8 characters or longer."
-msgstr "על הססמה שלך להיות באורך של 8 תווים לפחות."
+msgstr "על הסיסמה שלך להיות באורך של 8 תווים לפחות."
 
 #: ckan/views/util.py:28
 msgid "Redirecting to external site is not allowed."
@@ -4903,7 +4911,7 @@ msgstr "דוגמה לשאילתה (תוצאות שכוללות ‚jones’)"
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:80
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:82
 msgid "Query example (via SQL statement)"
-msgstr "דוגמה לשאילתה (באמצעות מידע SQL)"
+msgstr "דוגמה לשאילתה (באמצעות הכרזת SQL)"
 
 #: ckanext/datastore/templates-bs2/ajax_snippets/api_info.html:91
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:93

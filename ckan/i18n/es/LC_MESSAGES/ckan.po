@@ -5,8 +5,8 @@
 # 
 # Translators:
 # David Portoles <dportoles@idearium-consultores.com>, 2020
-# Adrià Mercader <adria.mercader@okfn.org>, 2022
 # Julián Rodriguez Orihuela <julianrod@gmail.com>, 2022
+# Adrià Mercader <amercadero@gmail.com>, 2023
 # 
 #, fuzzy
 msgid ""
@@ -15,8 +15,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-09 15:55+0100\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Julián Rodriguez Orihuela <julianrod@gmail.com>, 2022\n"
-"Language-Team: Spanish (https://www.transifex.com/okfn/teams/11162/es/)\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2023\n"
+"Language-Team: Spanish (https://app.transifex.com/okfn/teams/11162/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -971,7 +971,7 @@ msgstr "Debe tener al menos %s caracteres de longitud"
 #: ckan/logic/validators.py:369 ckan/logic/validators.py:656
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr "El nonbre no puede tener más de %i caracteres de largo"
+msgstr "El nombre no puede tener más de %i caracteres de largo"
 
 #: ckan/logic/validators.py:372
 msgid ""
