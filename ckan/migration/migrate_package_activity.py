@@ -35,6 +35,7 @@ from collections import defaultdict
 from six.moves import input
 from six import text_type
 
+
 # not importing anything from ckan until after the arg parsing, to fail on bad
 # args quickly.
 
@@ -274,6 +275,8 @@ if __name__ == u'__main__':
     args = parser.parse_args()
     assert args.config, u'You must supply a --config'
     print(u'Loading config')
+
+    from ckan.plugins import plugin_loaded
     try:
         from ckan.cli import load_config
         from ckan.config.middleware import make_app
@@ -291,6 +294,12 @@ if __name__ == u'__main__':
             cmd._load_config()
             return
         load_config(args.config)
+
+    if not plugin_loaded("activity"):
+        print(
+            "Please add the `activity` plugin to your `ckan.plugins` setting")
+        sys.exit(1)
+
     if not args.dataset:
         migrate_all_datasets()
         wipe_activity_detail(delete_activity_detail=args.delete)

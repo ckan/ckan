@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2020
-# trendspotter <jirka.p@volny.cz>, 2022
+# Adrià Mercader <amercadero@gmail.com>, 2020
+# Jiří Podhorecký, 2023
 # 
 #, fuzzy
 msgid ""
@@ -14,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-09 15:55+0100\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: trendspotter <jirka.p@volny.cz>, 2022\n"
-"Language-Team: Czech (Czech Republic) (https://www.transifex.com/okfn/teams/11162/cs_CZ/)\n"
+"Last-Translator: Jiří Podhorecký, 2023\n"
+"Language-Team: Czech (Czech Republic) (https://app.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2259,11 +2259,17 @@ msgid ""
 "password at: %(reset_link)s Have a nice day. -- Message sent by "
 "%(site_title)s (%(site_url)s)"
 msgstr ""
+"Vážený %(user_name)s, byl jste pozván na %(site_title)s. Již pro Vás byl "
+"vytvořen uživatel s uživatelským jménem %(user_name)s. Později si jej můžete"
+" změnit. Byl jste přidán do %(group_type)s %(group_title)ss následující "
+"rolí: %(role_name)s. Chcete-li tuto pozvánku přijmout, změňte prosím své "
+"heslo na adrese :%(reset_link)s Přejeme vám hezký den. -- Zprávu odeslána z "
+"%(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
 msgid "Invite for %(site_title)s"
-msgstr ""
+msgstr "Pozvánka na %(site_title)s"
 
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
@@ -2273,6 +2279,9 @@ msgid ""
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
+"Vážený %(user_name)s , požádal jste o obnovení hesla na %(site_title)s. Pro "
+"potvrzení této žádosti klikněte na následující odkaz: %(reset_link)sPřejeme "
+"vám hezký den. -- Zpráva odeslána z %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/reset_password_subject.txt:1
 #, python-format

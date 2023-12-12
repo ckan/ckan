@@ -337,7 +337,7 @@ class PackageSearchQuery(SearchQuery):
         fq.append('+site_id:%s' % solr_literal(config.get('ckan.site_id')))
 
         # filter for package status
-        if not '+state:' in query.get('fq', ''):
+        if not any('+state:' in _item for _item in fq):
             fq.append('+state:active')
 
         # only return things we should be able to see

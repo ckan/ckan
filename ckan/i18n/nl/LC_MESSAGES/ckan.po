@@ -4,7 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2020
+# Adrià Mercader <amercadero@gmail.com>, 2020
+# Mathieu Ronkes Agerbeek, 2023
 # 
 #, fuzzy
 msgid ""
@@ -13,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-09 15:55+0100\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2020\n"
-"Language-Team: Dutch (https://www.transifex.com/okfn/teams/11162/nl/)\n"
+"Last-Translator: Mathieu Ronkes Agerbeek, 2023\n"
+"Language-Team: Dutch (https://app.transifex.com/okfn/teams/11162/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -99,8 +100,8 @@ msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
 msgstr ""
-"Can package %s niet verwijderen omdat revisie %s niet gedelete packages %s "
-"bevat"
+"Kan package %s niet definitief verwijderen omdat bijbehorende revisie %s "
+"niet-verwijderde packages %s bevat"
 
 #: ckan/controllers/admin.py:182
 #, python-format
@@ -305,7 +306,7 @@ msgstr "Gebruiker %r is niet gemachtigd om leden van %s aan te passen"
 #: ckan/controllers/group.py:682 ckan/views/group.py:1076
 #, python-format
 msgid "Unauthorized to create group %s members"
-msgstr ""
+msgstr "Niet de rechten om leden aan te maken voor groep %s"
 
 #: ckan/controllers/group.py:724 ckan/views/group.py:1110
 #, python-format
@@ -429,7 +430,7 @@ msgstr "Recente wijzigingen aan CKAN dataset:"
 
 #: ckan/controllers/package.py:521 ckan/views/dataset.py:538
 msgid "Unauthorized to create a package"
-msgstr "Niet gemachtigd om een pakket aan te maken"
+msgstr "Niet gemachtigd om een package aan te maken"
 
 #: ckan/controllers/package.py:597 ckan/views/resource.py:383
 msgid "Unauthorized to edit this resource"
@@ -475,7 +476,7 @@ msgstr "Niet de rechten om deze bron te creëren"
 
 #: ckan/controllers/package.py:739 ckan/views/resource.py:312
 msgid "Unauthorized to create a resource for this package"
-msgstr "Niet gemachtigd om een bron te creëren voor dit pakket"
+msgstr "Niet gemachtigd om een bron aan te maken voor deze package"
 
 #: ckan/controllers/package.py:953 ckan/views/dataset.py:615
 msgid "Unable to add package to search index."
@@ -494,7 +495,7 @@ msgstr "Dataset is verwijderd"
 #: ckan/views/resource.py:456
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr "Niet de rechten om dit pakket %s te verwijderen"
+msgstr "Niet de rechten om package %s te verwijderen"
 
 #: ckan/controllers/package.py:1066 ckan/views/resource.py:470
 msgid "Resource has been deleted."
@@ -639,19 +640,23 @@ msgstr "Niet gemachtigd om wachtwoord herstel aan te vragen."
 
 #: ckan/controllers/user.py:454 ckan/views/user.py:614
 msgid "Email is required"
-msgstr ""
+msgstr "E-mail is verplicht"
 
 #: ckan/controllers/user.py:492 ckan/views/user.py:666
 msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
+"Fout bij het verzenden van de e-mail. Probeer het later opnieuw of neem "
+"contact op met een beheerder voor hulp"
 
 #: ckan/controllers/user.py:500 ckan/views/user.py:674
 msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
 msgstr ""
+"Er is een resetlink naar u gemaild (tenzij het opgegeven account niet "
+"bestaat)"
 
 #: ckan/controllers/user.py:514 ckan/views/user.py:696
 msgid "Unauthorized to reset password."
@@ -850,7 +855,7 @@ msgstr "Bronnen"
 
 #: ckan/logic/__init__.py:103 ckan/logic/action/__init__.py:62
 msgid "Package resource(s) invalid"
-msgstr "Package bron ongeldig"
+msgstr "Package bron(nen) ongeldig"
 
 #: ckan/logic/__init__.py:110 ckan/logic/__init__.py:112
 #: ckan/logic/action/__init__.py:64 ckan/logic/action/__init__.py:66
@@ -892,7 +897,7 @@ msgstr "Een organisatie moet worden ingevoerd"
 
 #: ckan/logic/validators.py:68
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "U kunt deze dataset niet naar een andere organisatie verplaatsen"
 
 #: ckan/logic/validators.py:72
 msgid "Organization does not exist"
@@ -924,7 +929,7 @@ msgstr "Links zijn niet toegestaan in het logboekbericht"
 
 #: ckan/logic/validators.py:188
 msgid "Dataset id already exists"
-msgstr "Er bestaat al een gegevensset met deze sleutel"
+msgstr "Er bestaat al een dataset met deze id"
 
 #: ckan/logic/validators.py:229
 msgid "Resource"
@@ -1020,7 +1025,7 @@ msgstr "Die loginnaam is niet beschikbaar."
 
 #: ckan/logic/validators.py:592
 msgid "That login name can not be modified."
-msgstr ""
+msgstr "Deze inlognaam kan niet worden gewijzigd."
 
 #: ckan/logic/validators.py:603
 msgid "Please enter both passwords"
@@ -1032,7 +1037,7 @@ msgstr "Wachwoorden moeten strings zijn"
 
 #: ckan/logic/validators.py:615
 msgid "Your password must be 8 characters or longer"
-msgstr ""
+msgstr "Uw wachtwoord moet 8 tekens of langer zijn"
 
 #: ckan/logic/validators.py:624
 msgid "The passwords you entered do not match"
@@ -1090,7 +1095,7 @@ msgstr "Deze rol bestaat niet."
 
 #: ckan/logic/validators.py:773
 msgid "Datasets with no organization can't be private."
-msgstr "Gegevenssets zonder organisatie kunnen niet besloten zijn."
+msgstr "Datasets zonder een organisatie kunnen niet privé zijn."
 
 #: ckan/logic/validators.py:779
 msgid "Not a list"
@@ -1126,27 +1131,28 @@ msgstr "E-mail {email} is geen geldig adres"
 
 #: ckan/logic/validators.py:930
 msgid "Must be a dict"
-msgstr ""
+msgstr "Moet een dict zijn"
 
 #: ckan/logic/validators.py:952
 msgid "The email address '{email}' belongs to a registered user."
 msgstr ""
+"Het e-mailadres '{email}' behoort toe aan een geregistreerde gebruiker."
 
 #: ckan/logic/validators.py:959
 msgid "Value must be one of {}"
-msgstr ""
+msgstr "Waarde moet een van de volgende zijn: {}"
 
 #: ckan/logic/validators.py:970
 msgid "The value should be a valid JSON object"
-msgstr ""
+msgstr "De waarde moet een geldig JSON-object zijn"
 
 #: ckan/logic/validators.py:972
 msgid "Could not parse the value as a valid JSON object"
-msgstr ""
+msgstr "Kon de waarde niet ontleden als een geldig JSON-object"
 
 #: ckan/logic/validators.py:982
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr ""
+msgstr "Kon extra '{name}' niet ontleden als geldige JSON"
 
 #: ckan/logic/action/__init__.py:64 ckan/views/util.py:22
 msgid "Missing Value"
@@ -1154,12 +1160,12 @@ msgstr "Missende Waarde"
 
 #: ckan/logic/action/create.py:661
 msgid "Role must be one of \"{}\""
-msgstr ""
+msgstr "Rol moet een van de volgende zijn: \"{}\""
 
 #: ckan/logic/action/create.py:675 ckan/logic/action/delete.py:359
 #: ckan/logic/action/get.py:252 ckan/logic/action/get.py:295
 msgid "Dataset collaborators not enabled"
-msgstr ""
+msgstr "Dataset bijdragers niet geactiveerd"
 
 #: ckan/logic/action/create.py:870
 msgid "Trying to create an organization as a group"
@@ -1187,6 +1193,8 @@ msgid ""
 "Error sending the invite email,                 the user was not created: "
 "{0}"
 msgstr ""
+"Fout bij verzenden van de uitnodigingsmail, de gebruiker is niet aangemaakt:"
+" {0}"
 
 #: ckan/logic/action/create.py:1358 ckan/logic/action/create.py:1365
 msgid "You must be logged in to follow users"
@@ -1215,11 +1223,12 @@ msgstr "U moet ingelogd zijn om een groep te kunnen volgen."
 
 #: ckan/logic/action/delete.py:363 ckan/logic/action/get.py:247
 msgid "Package not found"
-msgstr ""
+msgstr "Package niet gevonden"
 
 #: ckan/logic/action/delete.py:419
 msgid "Organization cannot be deleted while it still has datasets"
 msgstr ""
+"De organisatie kan niet worden verwijderd zolang deze nog datasets bevat"
 
 #: ckan/logic/action/delete.py:636 ckan/logic/action/delete.py:662
 #: ckan/logic/action/get.py:2463 ckan/logic/action/update.py:1101
@@ -1247,11 +1256,11 @@ msgstr "U volgd {0} niet"
 
 #: ckan/logic/action/get.py:259 ckan/logic/action/get.py:307
 msgid "Capacity must be one of \"{}\""
-msgstr ""
+msgstr "Bevoegdheid moet een van de volgende zijn: \"{}\""
 
 #: ckan/logic/action/get.py:301
 msgid "Not allowed to retrieve collaborators"
-msgstr ""
+msgstr "Niet toegestaan om bijdragers op te halen"
 
 #: ckan/logic/action/get.py:1098 ckan/logic/action/update.py:76
 #: ckan/logic/action/update.py:94
@@ -1260,7 +1269,7 @@ msgstr "Bron niet gevonden."
 
 #: ckan/logic/action/get.py:1177
 msgid "Parameter is not an bool"
-msgstr ""
+msgstr "Parameter is geen boolean"
 
 #: ckan/logic/action/get.py:2061
 msgid "Do not specify if using \"query\" parameter"
@@ -1300,13 +1309,13 @@ msgstr "Gebruiker %s is niet gemachtigd om deze groepen te wijzigen"
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
 msgstr ""
-"Gebruiker %s is niet gemachtigd om gegevenssets toe te voegen aan deze "
+"Gebruiker %s is niet gemachtigd om dataset toe te voegen aan deze "
 "organisatie"
 
 #: ckan/logic/auth/create.py:61
 msgid "No dataset id provided, cannot check auth."
 msgstr ""
-"Geen sleutel voor de gegevensset ingevoerd. Machtiging kan niet worden "
+"Geen id voor de dataset ingevoerd. Autorisatie kan niet worden "
 "gecontroleerd."
 
 #: ckan/logic/auth/create.py:68 ckan/logic/auth/delete.py:34
@@ -1319,12 +1328,12 @@ msgstr ""
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
 msgstr ""
-"Gebruiker %s is niet gemachtigd om bronnen aan te maken voor gegevensset %s"
+"Gebruiker %s is niet gemachtigd om bronnen aan te maken voor dataset%s"
 
 #: ckan/logic/auth/create.py:108
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr "Gebruiker %s is niet gemachtigd om deze pakketten te wijzigen"
+msgstr "Gebruiker %s is niet gemachtigd om deze packages te wijzigen"
 
 #: ckan/logic/auth/create.py:119
 #, python-format
@@ -1363,6 +1372,7 @@ msgstr "Gebruiker %s is niet gemachtigd om groep %s te wijzigen"
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
 msgstr ""
+"Gebruiker %s niet gemachtigd om bijdragers toe te voegen aan deze dataset"
 
 #: ckan/logic/auth/delete.py:40
 #, python-format
@@ -1408,6 +1418,8 @@ msgstr "Gebruiker %s niet gemachtigd om task_status te verwijderen"
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
 msgstr ""
+"Gebruiker %s is niet gemachtigd om bijdragers uit deze dataset te "
+"verwijderen"
 
 #: ckan/logic/auth/get.py:15 ckan/logic/auth/get.py:370
 msgid "Not authorized"
@@ -1416,12 +1428,12 @@ msgstr "Geen toegang"
 #: ckan/logic/auth/get.py:108
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr "Gebruiker %s is niet gemachtigd om deze pakketten te lezen"
+msgstr "Gebruiker %s is niet gemachtigd om deze packages te lezen"
 
 #: ckan/logic/auth/get.py:124
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr "Gebruiker %s is niet gemachtigd om pakket %s te lezen "
+msgstr "Gebruiker %s is niet gemachtigd om package %s te lezen "
 
 #: ckan/logic/auth/get.py:143
 #, python-format
@@ -1441,11 +1453,12 @@ msgstr "U moet ingelogd zijn om toegang te hebben tot uw dashboard."
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
 msgstr ""
+"Gebruiker %s is niet gemachtigd om bijdragers uit deze dataset weer te geven"
 
 #: ckan/logic/auth/update.py:50
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr "Gebruiker %s is niet gemachtigd om pakket %s te wijzigen "
+msgstr "Gebruiker %s is niet gemachtigd om package %s te wijzigen "
 
 #: ckan/logic/auth/update.py:87
 #, python-format
@@ -1455,7 +1468,7 @@ msgstr "Gebruiker %s is niet gemachtigd om bron %s te veranderen"
 #: ckan/logic/auth/update.py:116
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr "Gebruiker %s is niet gemachtigd om status van pakket %s te wijzigen "
+msgstr "Gebruiker %s is niet gemachtigd om status van package %s te wijzigen "
 
 #: ckan/logic/auth/update.py:144
 #, python-format
@@ -1726,7 +1739,7 @@ msgstr "Upload"
 #: ckan/public/base/javascript/modules/image-upload.js:75
 #: ckan/public/base/javascript/modules/image-upload.min.js:5
 msgid "Please select the file to upload again"
-msgstr ""
+msgstr "Selecteer het bestand om opnieuw te uploaden"
 
 #: ckan/public/base/javascript/modules/image-upload.js:79
 #: ckan/public/base/javascript/modules/image-upload.min.js:6
@@ -1771,7 +1784,7 @@ msgstr "Bestand"
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
 msgid "Reorder resources"
-msgstr ""
+msgstr "Bronnen opnieuw ordenen"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:43
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -1780,6 +1793,10 @@ msgid ""
 "the resource to the right and place it to the desired location on the list. "
 "When you are done, click the \"Save order\" -button."
 msgstr ""
+"U kunt de bronnen opnieuw rangschikken door ze te slepen met behulp van het "
+"pijlpictogram. Sleep de bron naar rechts en plaats deze op de gewenste "
+"locatie in de lijst. Als u klaar bent, klikt u op de knop \"Bewaar "
+"sortering\"."
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:65
 #: ckan/public/base/javascript/modules/resource-reorder.min.js:1
@@ -1818,12 +1835,12 @@ msgstr "Kan de upload niet authenticeren"
 #: ckan/public/base/javascript/modules/resource-upload-field.js:263
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid "Resource uploaded"
-msgstr "De bron is geupload"
+msgstr "De bron is geüpload"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:269
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
 msgid "Unable to get data for uploaded file"
-msgstr "Kan geen data vinden voor het geuploaden bestand"
+msgstr "Kan geen data vinden voor het geüploade bestand"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:275
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:2
@@ -1831,7 +1848,7 @@ msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
 msgstr ""
-"Bestand wordt geupload. Als u deze pagina verlaat stopt de upload. Weet u "
+"Bestand wordt geüpload. Als u deze pagina verlaat stopt de upload. Weet u "
 "zeker dat u de pagina wilt verlaten?"
 
 #: ckan/public/base/javascript/modules/resource-view-filters.js:9
@@ -1848,7 +1865,7 @@ msgstr "Kies een veld"
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:40
 #: ckan/public/base/javascript/modules/resource-view-reorder.min.js:1
 msgid "Reorder resource view"
-msgstr ""
+msgstr "Bronweergave opnieuw ordenen"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/public/base/javascript/modules/slug-preview.min.js:2
@@ -1922,7 +1939,7 @@ msgstr "Dashboard"
 #: ckan/templates/header.html:33 ckan/templates/header.html:35
 #: ckan/templates/user/dashboard.html:16
 msgid "Profile settings"
-msgstr ""
+msgstr "Profielinstellingen"
 
 #: ckan/templates/header.html:40 ckan/templates/header.html:42
 msgid "Log out"
@@ -1930,7 +1947,7 @@ msgstr "Uitloggen"
 
 #: ckan/templates/header.html:49
 msgid "Account"
-msgstr ""
+msgstr "Account"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:14
 msgid "Log in"
@@ -1942,7 +1959,7 @@ msgstr "Register"
 
 #: ckan/templates/header.html:69
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Navigatie aan- of uitzetten"
 
 #: ckan/templates/group/read_base.html:17
 #: ckan/templates/group/snippets/info.html:38 ckan/templates/header.html:90
@@ -1970,11 +1987,11 @@ msgstr "Zoek"
 
 #: ckan/templates/header.html:101 ckan/templates/home/snippets/search.html:8
 msgid "Search datasets"
-msgstr ""
+msgstr "Zoek datasets"
 
 #: ckan/templates/header.html:102 ckan/templates/snippets/search_form.html:16
 msgid "Submit"
-msgstr ""
+msgstr "Versturen"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
@@ -1982,7 +1999,7 @@ msgstr "Ga verder naar de inhoud"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Broodkruimel"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -1994,7 +2011,7 @@ msgstr "laat meer zien"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:23
 msgid "No activities are within this activity stream"
-msgstr "geen resultaten binnen deze activiteit "
+msgstr "Er zijn geen activiteiten binnen deze activiteitenstroom"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
@@ -2091,16 +2108,17 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:12 ckan/views/admin.py:158
 msgid "Are you sure you want to purge everything?"
-msgstr ""
+msgstr "Weet u zeker dat u alles definitief wilt verwijderen?"
 
 #: ckan/templates/admin/trash.html:13
 msgid "Purge all"
-msgstr ""
+msgstr "Alles definitief verwijderen"
 
 #: ckan/templates/admin/trash.html:31
 msgid ""
 "Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
+"Verwijder datasets, organisaties en groepen voor altijd en onomkeerbaar."
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
 #: ckan/templates/admin/snippets/confirm_delete.html:17
@@ -2121,15 +2139,15 @@ msgstr "bevestig delete"
 
 #: ckan/templates/admin/snippets/data_type.html:7
 msgid "Deleted datasets"
-msgstr ""
+msgstr "Verwijderde datasets"
 
 #: ckan/templates/admin/snippets/data_type.html:9
 msgid "Deleted organizations"
-msgstr ""
+msgstr "Verwijderde organisaties"
 
 #: ckan/templates/admin/snippets/data_type.html:11
 msgid "Deleted groups"
-msgstr ""
+msgstr "Verwijderde groepen"
 
 #: ckan/templates/admin/snippets/data_type.html:41
 msgid "Purge"
@@ -2221,7 +2239,7 @@ msgstr "Aangepast veld"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr "afprijzen"
+msgstr "Markdown"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
@@ -2241,11 +2259,17 @@ msgid ""
 "password at: %(reset_link)s Have a nice day. -- Message sent by "
 "%(site_title)s (%(site_url)s)"
 msgstr ""
+"Beste %(user_name)s, U bent uitgenodigd voor %(site_title)s. Er is al een "
+"gebruiker voor u aangemaakt met de gebruikersnaam %(user_name)s. Je kunt "
+"deze later wijzigen. Je bent toegevoegd aan de %(group_type)s%(group_title)s"
+" met de volgende rol: %(role_name)s. Om deze uitnodiging te accepteren, moet"
+" u uw wachtwoord opnieuw instellen via: %(reset_link)s Fijne dag verder. -- "
+"Bericht verzonden door %(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/invite_user_subject.txt:1
 #, python-format
 msgid "Invite for %(site_title)s"
-msgstr ""
+msgstr "Uitnodiging voor %(site_title)s"
 
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
@@ -2255,11 +2279,15 @@ msgid ""
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
+"Beste %(user_name)s, U heeft verzocht om uw wachtwoord op %(site_title)s "
+"opnieuw in te stellen. Klik op de volgende link om dit verzoek te "
+"bevestigen: %(reset_link)s Fijne dag verder. -- Bericht verzonden door "
+"%(site_title)s (%(site_url)s)"
 
 #: ckan/templates/emails/reset_password_subject.txt:1
 #, python-format
 msgid "Reset your password - %(site_title)s"
-msgstr ""
+msgstr "Wachtwoord opnieuw instellen - %(site_title)s"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:8
@@ -2274,7 +2302,7 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:8
 #: ckan/templates/user/read_base.html:20
 msgid "Activity Stream"
-msgstr "Activiteiten stroom"
+msgstr "Activiteitenstroom"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
@@ -2674,7 +2702,7 @@ msgstr ""
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
-msgstr "Dit is een gekenmerkte sectie"
+msgstr "Dit is een uitgelichte sectie"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
@@ -2682,7 +2710,7 @@ msgstr "Bijv. omgeving"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr "Zoek gegevens"
+msgstr "Zoek data"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -2725,7 +2753,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:243
 msgid "Key"
-msgstr ""
+msgstr "Key"
 
 #: ckan/templates/macros/form.html:255
 #: ckan/templates/package/resource_read.html:180
@@ -2760,7 +2788,7 @@ msgstr "Ruim upload op"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Add an Organization"
-msgstr ""
+msgstr "Voeg een Organisatie toe"
 
 #: ckan/templates/organization/base_form_page.html:10
 msgid "Organization Form"
@@ -2785,7 +2813,7 @@ msgstr "Maak publiek"
 
 #: ckan/templates/organization/bulk_process.html:51
 msgid "Make private"
-msgstr "Maak prive"
+msgstr "Maak privé"
 
 #: ckan/templates/organization/bulk_process.html:80
 #: ckan/templates/package/read.html:26
@@ -2800,7 +2828,7 @@ msgstr "Schets"
 #: ckan/templates/snippets/private.html:2
 #: ckan/templates/user/read_base.html:81 ckan/templates/user/read_base.html:95
 msgid "Private"
-msgstr "Privë"
+msgstr "Privé"
 
 #: ckan/templates/organization/bulk_process.html:98
 msgid "This organization has no datasets associated to it"
@@ -2931,6 +2959,9 @@ msgid ""
 "Are you sure you want to delete this Organization? Note*: Deleting cannot be"
 " performed while public or private datasets belong to this organization."
 msgstr ""
+"Weet u zeker dat u deze organisatie wilt verwijderen? Opmerking*: "
+"Verwijderen kan niet worden uitgevoerd als openbare of privé datasets tot "
+"deze organisatie behoren."
 
 #: ckan/templates/organization/snippets/organization_form.html:41
 msgid "Save Organization"
@@ -2985,7 +3016,7 @@ msgstr "Wijzigen metadata"
 #: ckan/templates/package/collaborators/collaborators.html:3
 #: ckan/templates/package/edit_base.html:20
 msgid "Collaborators"
-msgstr ""
+msgstr "Bijdragers"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
@@ -3071,6 +3102,8 @@ msgid ""
 "You're currently viewing an old version of this dataset. To see the current "
 "version, click <a href=\"%(url)s\">here</a>."
 msgstr ""
+"U bekijkt momenteel een oude versie van deze dataset. Klik <a "
+"href=\"%(url)s\">hier</a>, om de huidige versie te zien."
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "All resources"
@@ -3110,7 +3143,7 @@ msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:97
 msgid "Dataset description:"
-msgstr ""
+msgstr "Dataset beschrijving:"
 
 #: ckan/templates/package/resource_read.html:99
 #, python-format
@@ -3145,6 +3178,9 @@ msgid ""
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
 msgstr ""
+"Als een view de DataStore vereist, is de DataStore-plugin mogelijk niet "
+"ingeschakeld, zijn de data mogelijk niet naar de DataStore gepusht, of is de"
+" DataStore nog niet klaar met het verwerken van de data"
 
 #: ckan/templates/package/resource_read.html:175
 msgid "Additional Information"
@@ -3258,36 +3294,38 @@ msgstr "Voorbeeld bekijken"
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 msgid "Edit Collaborator"
-msgstr ""
+msgstr "Wijzig Bijdrager"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:5
 #: ckan/templates/package/collaborators/collaborator_new.html:10
 #: ckan/templates/package/collaborators/collaborator_new.html:50
 msgid "Add Collaborator"
-msgstr ""
+msgstr "Voeg Bijdrager toe"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:8
 msgid "Back to all collaborators"
-msgstr ""
+msgstr "Terug naar alle bijdragers"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:44
 #: ckan/templates/package/collaborators/collaborators.html:36
 msgid "Are you sure you want to delete this collaborator?"
-msgstr ""
+msgstr "Weet u zeker dat u deze bijdrager wilt verwijderen?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:46
 msgid "Update Collaborator"
-msgstr ""
+msgstr "Bijwerken Bijdrager"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:63
 msgid "What are the available roles?"
-msgstr ""
+msgstr "Wat zijn de beschikbare rollen?"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:67
 msgid ""
 "<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
 "add and remove collaborators from a dataset.</p>"
 msgstr ""
+"<p><strong>Beheerder:</strong>Naast het beheren van de dataset kunnen "
+"beheerders bijdragers toevoegen aan en verwijderen uit een dataset.</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:71
 msgid ""
@@ -3295,16 +3333,20 @@ msgid ""
 "as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
 "Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
+"<p><strong>Muteerder:</strong>Muteerders kunnen de dataset en de "
+"bijbehorende bronnen wijzigen, en ook toegang krijgen tot de dataset als "
+"deze privé is.</p><p><strong>Lid:</strong>Leden hebben toegang tot de "
+"dataset als deze privé is, maar kunnen deze niet wijzigen.</p>"
 
 #: ckan/templates/package/collaborators/collaborators.html:7
 msgid "Add Collaborators"
-msgstr ""
+msgstr "Voeg Bijdragers toe"
 
 #: ckan/templates/package/collaborators/collaborators.html:14
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} bijdrager"
+msgstr[1] "{count} bijdragers"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3337,7 +3379,7 @@ msgstr "Versie"
 #: ckan/templates/package/snippets/package_basic_fields.html:117
 #: ckan/templates/user/read_base.html:90
 msgid "State"
-msgstr "Provincie"
+msgstr "Status"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
@@ -3365,7 +3407,7 @@ msgstr ""
 #: ckan/templates/package/snippets/change_item.html:1
 #, python-format
 msgid "On %(timestamp)s, %(username)s:"
-msgstr ""
+msgstr "Op %(timestamp)s, %(username)s:"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/package/snippets/view_form.html:8
@@ -3390,14 +3432,14 @@ msgstr "vb. Economie, geestelijke gezondheidszorg, overheid"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:36
 msgid "Please select the license"
-msgstr ""
+msgstr "Selecteer de licentie"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:47
 msgid ""
 "License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
-"Defenities van licenties en aanvullende informatie is te vinden op <a "
+"Definities van licenties en aanvullende informatie is te vinden op <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:79
@@ -3429,6 +3471,12 @@ msgid ""
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 msgstr ""
+"De <i>datalicentie</i>die u hierboven selecteert, is alleen van toepassing "
+"op de inhoud van bronbestanden die u aan deze dataset toevoegt. Door dit "
+"formulier te versturen, gaat u akkoord met het vrijgeven van de "
+"metadatawaarden die u in het formulier invoert onder de <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
+"License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
@@ -3476,7 +3524,7 @@ msgstr "Data"
 
 #: ckan/templates/package/snippets/resource_form.html:26
 msgid "http://example.com/external-data.csv"
-msgstr ""
+msgstr "https://voorbeeld.nl/externe-data.csv"
 
 #: ckan/templates/package/snippets/resource_form.html:30
 msgid "eg. January 2011 Gold Prices"
@@ -3492,7 +3540,7 @@ msgstr "vb. CSV, XML of JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:42
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
+msgstr "Dit wordt automatisch geraden. Laat leeg indien gewenst"
 
 #: ckan/templates/package/snippets/resource_form.html:53
 msgid "eg. 2012-06-05"
@@ -3551,7 +3599,7 @@ msgstr "Meer informatie"
 
 #: ckan/templates/package/snippets/resource_view.html:10
 msgid "Fullscreen"
-msgstr ""
+msgstr "Volledig scherm"
 
 #: ckan/templates/package/snippets/resource_view.html:18
 msgid "Embed"
@@ -3559,17 +3607,19 @@ msgstr "Insluiten"
 
 #: ckan/templates/package/snippets/resource_view.html:32
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "Deze bronweergave is momenteel niet beschikbaar"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Embed resource view"
-msgstr ""
+msgstr "Embed bronweergave"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
+"U kunt de embedded code kopiëren en plakken in een CMS- of blogsoftware die "
+"onbewerkte HTML ondersteunt"
 
 #: ckan/templates/package/snippets/resource_view.html:78
 msgid "Width"
@@ -3593,7 +3643,7 @@ msgstr "Data en bronnen"
 
 #: ckan/templates/package/snippets/resources_list.html:31
 msgid "This dataset has no data"
-msgstr "Deze gegevensset heeft geen inhoud"
+msgstr "Deze dataset bevat geen data"
 
 #: ckan/templates/package/snippets/stages.html:23
 #: ckan/templates/package/snippets/stages.html:25
@@ -3608,11 +3658,11 @@ msgstr "Data toevoegen"
 
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "eg. My View"
-msgstr ""
+msgstr "bijv. Mijn Overzicht"
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr "b.v. informatie over mijn overzicht"
+msgstr "bv. Informatie over mijn overzicht"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
@@ -3654,7 +3704,7 @@ msgstr "Toon enkel populaire {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:92
 msgid "There are no {facet_type} that match this search"
-msgstr "Er zijn geen {facet_type} die overeenkomen met het gezochte"
+msgstr "Er zijn geen {facet_type} die overeenkomen met deze zoekopdracht"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 msgid "Home"
@@ -3677,7 +3727,7 @@ msgstr "Geen licentie verstrekt"
 
 #: ckan/templates/snippets/license.html:27
 msgid "This dataset satisfies the Open Definition."
-msgstr "Deze dataset voldoet aan de Open definitie."
+msgstr "Deze dataset voldoet aan de Open Definitie."
 
 #: ckan/templates/snippets/organization.html:50
 msgid "There is no description for this organization"
@@ -3706,6 +3756,8 @@ msgid ""
 "<p id=\"search-error\"><strong>There was an error while searching.</strong> "
 "Please try again.</p>"
 msgstr ""
+"<p id=\"search-error\"><strong>Er is een fout opgetreden tijdens het "
+"zoeken.</strong>Probeer het opnieuw.</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3805,7 +3857,7 @@ msgstr "{actor} heeft de dataset {dataset} bijgewerkt"
 #: ckan/templates/snippets/activities/changed_package.html:16
 #: ckan/templates/snippets/activities/new_package.html:15
 msgid "View this version"
-msgstr ""
+msgstr "Bekijk deze versie"
 
 #: ckan/templates/snippets/activities/changed_resource.html:4
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
@@ -3833,7 +3885,7 @@ msgstr "{actor}  heeft de bron {resource} verwijderd van dataset {dataset}"
 
 #: ckan/templates/snippets/activities/fallback.html:14
 msgid "{actor} {activity_type}"
-msgstr ""
+msgstr "{actor} {activity_type}"
 
 #: ckan/templates/snippets/activities/follow_dataset.html:4
 msgid "{actor} started following {dataset}"
@@ -4020,7 +4072,7 @@ msgstr ""
 
 #: ckan/templates/snippets/changes/new_file.html:3
 msgid "Uploaded a new file to resource {resource_link} in {pkg_link}"
-msgstr ""
+msgstr "Een nieuw bestand geüpload naar bron {resource_link} in {pkg_link}"
 
 #: ckan/templates/snippets/changes/new_resource.html:15
 msgid "Added resource {resource_link} to {pkg_link}"
@@ -4191,16 +4243,16 @@ msgstr "Zoeklabels"
 
 #: ckan/templates/user/api_tokens.html:19
 msgid "Create API Token"
-msgstr ""
+msgstr "API-Token aanmaken"
 
 #: ckan/templates/user/api_tokens.html:29
 #: ckan/templates/user/read_base.html:22
 msgid "API Tokens"
-msgstr ""
+msgstr "API Tokens"
 
 #: ckan/templates/user/api_tokens.html:37
 msgid "You haven't created any API Tokens."
-msgstr ""
+msgstr "U heeft geen API-tokens aangemaakt."
 
 #: ckan/templates/user/dashboard.html:20 ckan/templates/user/dashboard.html:39
 msgid "News feed"
@@ -4289,12 +4341,12 @@ msgstr "Notificatie e-mails ontvangen?"
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture"
-msgstr ""
+msgstr "Profielfoto"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates/user/new_user_form.html:14
 msgid "Profile picture URL"
-msgstr ""
+msgstr "URL van profielfoto"
 
 #: ckan/templates/user/edit_user_form.html:31
 msgid "Change password"
@@ -4322,7 +4374,7 @@ msgstr "Weet u zeker dat u deze gebruiker wilt verwijderen?"
 
 #: ckan/templates/user/edit_user_form.html:55
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "Weet u zeker dat u de API-key opnieuw wilt genereren?"
 
 #: ckan/templates/user/edit_user_form.html:55
 msgid "Regenerate API Key"
@@ -4444,6 +4496,8 @@ msgstr "Wachtwoord Herstel"
 #: ckan/templates/user/perform_reset.html:21
 msgid "You can also change username. It can not be modified later."
 msgstr ""
+"U kunt ook de gebruikersnaam wijzigen. Deze kan later niet meer worden "
+"gewijzigd."
 
 #: ckan/templates/user/perform_reset.html:29
 msgid "Update Password"
@@ -4493,29 +4547,31 @@ msgstr "Herstel uw wachtwoord"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Email or username"
-msgstr ""
+msgstr "E-mail of gebruikersnaam"
 
 #: ckan/templates/user/request_reset.html:22
 msgid "Request Reset"
-msgstr ""
+msgstr "Reset verzoek"
 
 #: ckan/templates/user/request_reset.html:38
 msgid ""
 "Enter your email address or username into the box and we will send you an "
 "email with a link to enter a new password."
 msgstr ""
+"Voer uw e-mailadres of gebruikersnaam in het vak in en wij sturen u een "
+"e-mail met een link om een nieuw wachtwoord in te voeren."
 
 #: ckan/templates/user/snippets/api_token_list.html:13
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: ckan/templates/user/snippets/api_token_list.html:14
 msgid "Last access"
-msgstr ""
+msgstr "Laatste toegang"
 
 #: ckan/templates/user/snippets/api_token_list.html:15
 msgid "Actions"
-msgstr ""
+msgstr "Acties"
 
 #: ckan/templates/user/snippets/api_token_list.html:32
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:56
@@ -4525,7 +4581,7 @@ msgstr "Nooit"
 
 #: ckan/templates/user/snippets/api_token_list.html:40
 msgid "Revoke"
-msgstr ""
+msgstr "Intrekken"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:15
 #: ckan/templates/user/snippets/followee_dropdown.html:16
@@ -4550,66 +4606,66 @@ msgstr "Zoek Gebruikers"
 
 #: ckan/views/admin.py:159
 msgid "Are you sure you want to purge datasets?"
-msgstr ""
+msgstr "Weet u zeker dat u datasets definitief wilt verwijderen?"
 
 #: ckan/views/admin.py:161
 msgid "Are you sure you want to purge organizations?"
-msgstr ""
+msgstr "Weet u zeker dat u organisaties definitief wilt verwijderen?"
 
 #: ckan/views/admin.py:162
 msgid "Are you sure you want to purge groups?"
-msgstr ""
+msgstr "Weet u zeker dat u groepen definitief wilt verwijderen?"
 
 #: ckan/views/admin.py:165
 msgid "{number} datasets have been purged"
-msgstr ""
+msgstr "{number} datasets zijn definitief verwijderd"
 
 #: ckan/views/admin.py:166
 msgid "{number} organizations have been purged"
-msgstr ""
+msgstr "{number} organisaties zijn definitief verwijderd"
 
 #: ckan/views/admin.py:167
 msgid "{number} groups have been purged"
-msgstr ""
+msgstr "{number} groepen zijn definitief verwijderd"
 
 #: ckan/views/admin.py:170
 msgid "There are no datasets to purge"
-msgstr ""
+msgstr "Er zijn geen datasets om definitief te verwijderen"
 
 #: ckan/views/admin.py:171
 msgid "There are no organizations to purge"
-msgstr ""
+msgstr "Er zijn geen organisaties om definitief te verwijderen"
 
 #: ckan/views/admin.py:172
 msgid "There are no groups to purge"
-msgstr ""
+msgstr "Er zijn geen groepen om definitief te verwijderen"
 
 #: ckan/views/admin.py:215
 msgid "Massive purge complete"
-msgstr ""
+msgstr "Grote definitieve verwijdering voltooid"
 
 #: ckan/views/dataset.py:361
 msgid "Parameter u\"{parameter_name}\" is not an integer"
-msgstr ""
+msgstr "Parameter u\"{parameter_name}\" is geen integer"
 
 #: ckan/views/dataset.py:452 ckan/views/dataset.py:470
 #: ckan/views/dataset.py:1133 ckan/views/dataset.py:1214
 #: ckan/views/resource.py:81
 msgid "Activity not found"
-msgstr ""
+msgstr "Activiteit niet gevonden"
 
 #: ckan/views/dataset.py:454 ckan/views/dataset.py:1135
 #: ckan/views/dataset.py:1216
 msgid "Unauthorized to view activity data"
-msgstr ""
+msgstr "Niet gemachtigd om activiteitsgegevens te bekijken"
 
 #: ckan/views/dataset.py:463
 msgid "The detail of this dataset activity is not available"
-msgstr ""
+msgstr "De details van deze datasetactiviteit zijn niet beschikbaar"
 
 #: ckan/views/dataset.py:605
 msgid "Unauthorized to read package"
-msgstr ""
+msgstr "Niet gemachtigd om package te lezen"
 
 #: ckan/views/dataset.py:1250
 msgid "Unauthorized to read collaborators {}"
@@ -4659,7 +4715,7 @@ msgstr ""
 
 #: ckan/views/user.py:716
 msgid "Your password must be 8 characters or longer."
-msgstr ""
+msgstr "Uw wachtwoord moet 8 tekens of langer zijn."
 
 #: ckan/views/util.py:28
 msgid "Redirecting to external site is not allowed."
@@ -4667,15 +4723,16 @@ msgstr "Het is niet toegestaan door te verwijzen naar externe omgevingen."
 
 #: ckanext/audioview/plugin.py:25 ckanext/audioview/plugin.py:30
 msgid "Audio"
-msgstr ""
+msgstr "Geluid"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "Audio url"
-msgstr ""
+msgstr "Geluid-URL"
 
 #: ckanext/audioview/theme/templates/audio_form.html:3
 msgid "eg. http://example.com/audio.mp3  (if blank uses resource url)"
 msgstr ""
+"bv. http://example.com/audio.mp3 (indien leeg zal bron-url gebruikt worden)"
 
 #: ckanext/audioview/theme/templates/audio_view.html:5
 #, python-format
@@ -4683,6 +4740,9 @@ msgid ""
 "Your browser does not support the <code>audio</code> element. But don't "
 "worry, you can <a href=\"%(res_url)s\" alt=\"video url\">download it</a>."
 msgstr ""
+"Uw browser ondersteunt het <code>audio</code>-element niet. Maar maak je "
+"geen zorgen, je kunt het <a href=\"%(res_url)s\" alt=\"video "
+"url\">downloaden</a>."
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Complete"
@@ -4698,7 +4758,7 @@ msgstr "Opsturen"
 
 #: ckanext/datapusher/helpers.py:29
 msgid "Not Uploaded Yet"
-msgstr "Nog niet geupload"
+msgstr "Nog niet geüpload"
 
 #: ckanext/datapusher/templates-bs2/datapusher/resource_data.html:12
 #: ckanext/datapusher/templates/datapusher/resource_data.html:12
@@ -4754,17 +4814,19 @@ msgstr "DataStore"
 
 #: ckanext/datastore/blueprint.py:89
 msgid "DataStore resource not found"
-msgstr "Datastore bron niet gevonden"
+msgstr "DataStore bron niet gevonden"
 
 #: ckanext/datastore/blueprint.py:151
 msgid ""
 "Data Dictionary saved. Any type overrides will take effect when the resource"
 " is next uploaded to DataStore"
 msgstr ""
+"Datawoordenboek opgeslagen. Eventuele typeoverschrijvingen worden van kracht"
+" wanneer de bron de volgende keer wordt geüpload naar DataStore"
 
 #: ckanext/datastore/backend/postgres.py:1073
 msgid "The data was invalid: {}"
-msgstr ""
+msgstr "De data waren ongeldig: {}"
 
 #: ckanext/datastore/logic/action.py:277 ckanext/datastore/logic/action.py:309
 #: ckanext/datastore/logic/action.py:373 ckanext/datastore/logic/action.py:509
@@ -4871,7 +4933,7 @@ msgstr "Veld {num}"
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:17
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
 msgid "Type Override"
-msgstr ""
+msgstr "Type Overschrijven"
 
 #: ckanext/datastore/templates-bs2/datastore/dictionary.html:24
 #: ckanext/datastore/templates-bs2/package/resource_read.html:20
@@ -4886,7 +4948,7 @@ msgstr "Label"
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
-msgstr "Data woordenboek"
+msgstr "Datawoordenboek"
 
 #: ckanext/datastore/templates-bs2/package/resource_read.html:18
 #: ckanext/datastore/templates/package/resource_read.html:19
@@ -4969,31 +5031,31 @@ msgstr "CKAN's data previewing tool heeft veel krachtige kenmerken"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:6
 msgid "Second"
-msgstr ""
+msgstr "Seconde"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:7
 msgid "Minute"
-msgstr ""
+msgstr "Minuut"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:8
 msgid "Hour"
-msgstr ""
+msgstr "Uur"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:9
 msgid "Day"
-msgstr ""
+msgstr "Dag"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:15
 msgid "Expires in"
-msgstr ""
+msgstr "Verloopt binnen"
 
 #: ckanext/expire_api_token/templates/user/api_tokens.html:16
 msgid "Units"
-msgstr ""
+msgstr "Eenheden"
 
 #: ckanext/expire_api_token/templates/user/snippets/api_token_list.html:5
 msgid "Expires at"
-msgstr ""
+msgstr "Verloopt op"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
@@ -5102,7 +5164,7 @@ msgstr "Objecten samenvoegen (clusteren)"
 
 #: ckanext/resourceproxy/blueprint.py:43
 msgid "Invalid URL."
-msgstr ""
+msgstr "Ongeldige URL."
 
 #: ckanext/stats/templates/ckanext/stats/index.html:11
 #: ckanext/stats/templates/ckanext/stats/index.html:107
@@ -5165,26 +5227,28 @@ msgstr "Tekst"
 #: ckanext/textview/theme/public/text_view.min.js:3
 msgid "An error occured during AJAX request. Could not load view."
 msgstr ""
+"Er is een fout opgetreden tijdens het AJAX-verzoek. Kan weergave niet laden."
 
 #: ckanext/videoview/plugin.py:25 ckanext/videoview/plugin.py:31
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "Video url"
-msgstr ""
+msgstr "Video-URL"
 
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
 msgstr ""
+"vb. http://example.com/video.mpeg (indien leeg zal bron-url gebruikt worden)"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "Poster url"
-msgstr ""
+msgstr "Poster-URL"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "eg. http://example.com/poster.jpg"
-msgstr ""
+msgstr "vb. http://example.com/poster.jpg"
 
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
@@ -5193,6 +5257,9 @@ msgid ""
 "can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
 "with your favorite video player!"
 msgstr ""
+"Sorry, uw browser ondersteunt geen embedded video's, maar maak u geen "
+"zorgen, u kunt deze <a href=\"%(res_url)s\" alt=\"video url\">downloaden</a>"
+" en bekijken met uw favoriete videospeler!"
 
 #: ckanext/webpageview/plugin.py:22 ckanext/webpageview/plugin.py:27
 msgid "Website"

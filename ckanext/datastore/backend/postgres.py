@@ -1818,26 +1818,28 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         where = _where_clauses(data_dict, fields_types)
 
         select_cols = []
-        records_format = data_dict.get(u'records_format')
+        records_format = data_dict.get('records_format')
         for field_id in field_ids:
-            fmt = u'to_json({0})' if records_format == u'lists' else u'{0}'
-            typ = fields_types.get(field_id)
-            if typ == u'nested':
-                fmt = u'({0}).json'
-            elif typ == u'timestamp':
-                fmt = u"to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
-                if records_format == u'lists':
-                    fmt = u"to_json({0})".format(fmt)
-            elif typ.startswith(u'_') or typ.endswith(u'[]'):
-                fmt = u'array_to_json({0})'
+            fmt = '{0}'
+            if records_format == 'lists':
+                fmt = "coalesce(to_json({0}),'null')"
+            typ = fields_types.get(field_id, '')
+            if typ == 'nested':
+                fmt = "coalesce(({0}).json,'null')"
+            elif typ == 'timestamp':
+                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                if records_format == 'lists':
+                    fmt = f"coalesce(to_json({fmt}), 'null')"
+            elif typ.startswith('_') or typ.endswith('[]'):
+                fmt = "coalesce(array_to_json({0}),'null')"
 
             if field_id in rank_columns:
                 select_cols.append((fmt + ' as {1}').format(
                     rank_columns[field_id], identifier(field_id)))
                 continue
 
-            if records_format == u'objects':
-                fmt += u' as {0}'
+            if records_format == 'objects':
+                fmt += ' as {0}'
             select_cols.append(fmt.format(identifier(field_id)))
 
         query_dict['distinct'] = data_dict.get('distinct', False)
