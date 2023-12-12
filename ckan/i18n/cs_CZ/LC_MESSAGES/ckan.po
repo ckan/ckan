@@ -353,7 +353,7 @@ msgstr "ID datové sady již existuje"
 
 #: ckan/logic/validators.py:234
 msgid "Resource id already exists."
-msgstr ""
+msgstr "Zdrojové ID již existuje."
 
 #: ckan/logic/validators.py:281
 msgid "Resource"
@@ -361,11 +361,11 @@ msgstr "Datový zdroj"
 
 #: ckan/logic/validators.py:288
 msgid "Invalid characters in resource id"
-msgstr ""
+msgstr "Neplatné znaky v identifikátoru zdroje"
 
 #: ckan/logic/validators.py:290
 msgid "Invalid length for resource id"
-msgstr ""
+msgstr "Neplatná délka pro identifikátor zdroje"
 
 #: ckan/logic/validators.py:344
 msgid "That group name or ID does not exist."
@@ -1038,7 +1038,7 @@ msgstr "je příbuzné s %s"
 #: ckan/public/base/javascript/notify.js:55
 #: ckan/templates/package/snippets/resource_view.html:73
 msgid "Close"
-msgstr ""
+msgstr "Zavřít"
 
 #: ckan/public-bs3/base/javascript/modules/api-info.js:96
 #: ckan/public/base/javascript/modules/api-info.js:97
@@ -1337,7 +1337,7 @@ msgstr "Registrace"
 
 #: ckan/templates/header.html:90
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Přepnout navigaci"
 
 #: ckan/templates/group/read_base.html:18
 #: ckan/templates/group/snippets/info.html:40 ckan/templates/header.html:102
@@ -1409,7 +1409,7 @@ msgstr "Odeslat"
 
 #: ckan/templates/page.html:6
 msgid "Skip to main content"
-msgstr ""
+msgstr "Přejít na hlavní obsah"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
@@ -2184,6 +2184,9 @@ msgid ""
 "bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Můžete použít <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown formátování</a> zde."
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
@@ -2503,7 +2506,7 @@ msgstr "Stáhnout"
 
 #: ckan/templates/package/resource_read.html:52
 msgid "List of downloadable formats"
-msgstr ""
+msgstr "Seznam stahovatelných formátů"
 
 #: ckan/templates/package/resource_read.html:88
 #: ckan/templates/package/resource_read.html:90
@@ -2729,7 +2732,7 @@ msgstr[3] "{count} spolupracovníků"
 
 #: ckan/templates/package/collaborators/confirm_delete.html:11
 msgid "Are you sure you want to delete collaborator - {name}?"
-msgstr ""
+msgstr "Opravdu chcete smazat spolupracovníka - {name}?"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3244,7 +3247,7 @@ msgstr "Nevytvořil jste žádné tokeny API."
 
 #: ckan/templates/user/confirm_delete.html:11
 msgid "Are you sure you want to delete user - {name}?"
-msgstr ""
+msgstr "Opravdu chcete smazat uživatele - {name}?"
 
 #: ckan/templates/user/dashboard.html:25
 #: ckan/templates/user/dashboard_datasets.html:11
@@ -4849,7 +4852,7 @@ msgstr "Požadovaný zdroj z DataStore nebyl nalezen"
 
 #: ckanext/datastore/blueprint.py:113
 msgid "Unsupported format"
-msgstr ""
+msgstr "Nepodporovaný formát"
 
 #: ckanext/datastore/blueprint.py:194
 msgid ""
@@ -5018,7 +5021,7 @@ msgstr "Datové API"
 #: ckanext/datastore/templates-bs3/datastore/api_examples/python.html:9
 #, python-format
 msgid "(using the <a href=\"%(url)s\">ckanapi</a> client library)"
-msgstr ""
+msgstr "(pomocí knihovny klienta <a href=\"%(url)s\">ckanapi</a>)"
 
 #: ckanext/datatablesview/plugin.py:89 ckanext/reclineview/plugin.py:177
 msgid "Table"
