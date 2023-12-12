@@ -108,6 +108,7 @@ class MockResourceViewExtension(mock_plugin.MockSingletonPlugin):
     p.implements(p.IResourceView)
 
     def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
         self.calls = defaultdict(int)
 
     def info(self):

@@ -10,6 +10,8 @@ class PluginException(Exception):
 
 
 class ExistingInterfaceException(PluginException):
+    """Interface with the same name already exists."""
+
     def __init__(self, name: str):
         self.name = name
 
@@ -18,7 +20,7 @@ class ExistingInterfaceException(PluginException):
 
 
 class PluginNotFoundException(PluginException):
-    """Raised when a requested plugin cannot be found."""
+    """Requested plugin cannot be found."""
 
     def __init__(self, name: str):
         self.name = name
@@ -36,14 +38,24 @@ class Interface:
     points.
 
     """
+
     # force PluginImplementations to iterate over interface in reverse order
     _reverse_iteration_order: ClassVar[bool] = False
 
+    # collection of interface-classes extending base Interface. This is used to
+    # guarantee unique names of interfaces.
     _interfaces: set[type[Interface]] = set()
 
+    # there is no practical use of `name` attribute in interface, because
+    # interfaces are never instantiated. But declaring this attribute
+    # simplifies typing when iterating over interface implementations.
     name: str
 
     def __init_subclass__(cls, **kwargs: Any):
+        """Prevent interface name duplication when interfaces are created."""
+        # `implements(inherit=True)` adds interface to the list of plugin's
+        # bases. There is no reason to disallow identical plugin-class names,
+        # so this scenario stops execution early.
         if isinstance(cls, Plugin):
             return
 
@@ -63,18 +75,27 @@ class Interface:
     def implemented_by(cls, other: type[Plugin]) -> bool:
         """Check whether the class implements the current interface."""
         try:
-            return bool(cls in other._implements)
+            return cls in other._implements
         except AttributeError:
             return False
 
 
 class PluginMeta(type):
+    """Metaclass for plugins that initializes supplementary attributes required
+    by interface implementations.
+
+    """
+
     def __new__(cls, name: str, bases: tuple[type, ...], data: dict[str, Any]):
         data.setdefault("_implements", set())
         data.setdefault("_inherited_interfaces", set())
 
+        # add all interfaces with `inherit=True` to the bases of plugin
+        # class. It adds default implementation of methods from interface to
+        # the plugin's class
         bases += tuple(data["_inherited_interfaces"] - set(bases))
         return super().__new__(cls, name, tuple(bases), data)
+
 
 class Plugin(metaclass=PluginMeta):
     """Base class for plugins which require multiple instances.
@@ -84,8 +105,18 @@ class Plugin(metaclass=PluginMeta):
 
     """
 
+    # collection of all interfaces implemented by the plugin. Used by
+    # `Interface.implemented_by` check
     _implements: ClassVar[set[type[Interface]]]
+
+    # collection of interfaces implemented with `inherit=True`. These
+    # interfaces are added as parent classes to the plugin
     _inherited_interfaces: ClassVar[set[type[Interface]]]
+
+    # name of the plugin instance. All known plugins are instances of
+    # `SingletonPlugin`, so it may be converted to ClassVar in future. Right
+    # now it's kept as instance variable for compatibility with original
+    # implementation from pyutilib
     name: str
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -93,6 +124,9 @@ class Plugin(metaclass=PluginMeta):
         if not name:
             name = self.__class__.__name__
         self.name = name
+
+    def __str__(self):
+        return f"<Plugin {self.name}>"
 
 
 class SingletonPlugin(Plugin):
@@ -102,10 +136,12 @@ class SingletonPlugin(Plugin):
     loaded. Subsequent calls to the class constructor will always return the
     same singleton instance.
     """
+
+    # memoized single instance of the plugin. Created during first
+    # initialization
     _instance: SingletonPlugin
 
     def __new__(cls, *args: Any, **kwargs: Any):
-
         if not hasattr(cls, "_instance"):
             cls._instance = super().__new__(cls)
 
