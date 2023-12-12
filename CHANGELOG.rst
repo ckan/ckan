@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.10.2 2023-12-xx
+v.2.10.2 2023-12-13
 ===================
 
 
@@ -61,7 +61,8 @@ Minor changes
 
 Bugfixes
 --------
-- `CVE-2023-XXXX <https://github.com/ckan/ckan/security/advisories/GHSA-XXXX>`_:
+- `CVE-2023-50248 <https://github.com/ckan/ckan/security/advisories/GHSA-7fgc-89cx-w8j5>`_: fix potential
+  out of memory error when submitting the dataset form with a specially-crafted field.
 - Fix ``deprecated`` decorator (`#7939
   <https://github.com/ckan/ckan/pull/7939>`_)
 - Fix for missing Tag facets on Home page (`#7520
