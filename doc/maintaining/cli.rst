@@ -94,7 +94,7 @@ with the ``--help`` option, for example:
  ckan -c |ckan.ini| user --help
 
 -------------------------------
-New CLI command: ckan shell
+CLI command: ckan shell
 -------------------------------
 The main goal to execute a ckan shell command is IPython session with the application loaded for easy debugging and dynamic coding.
 
