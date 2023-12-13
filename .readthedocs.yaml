@@ -20,5 +20,7 @@ formats: all
 
 python:
    install:
-   - requirements: requirement-setuptools.txt
-   - requirements: pip-requirements-docs.txt
+     - requirements: requirement-setuptools.txt
+     - requirements: pip-requirements-docs.txt
+     - method: pip
+        path: .     
