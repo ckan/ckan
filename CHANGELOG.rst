@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.10.2 2023-12-13
+v.2.10.3 2023-12-13
 ===================
 
 
@@ -107,14 +107,17 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/7891>`_)
 - Fix user_show for ``ckan.auth.public_user_details`` (`#7866
   <https://github.com/ckan/ckan/pull/7866>`_)
-- Fix activity links for custom organizations (`#7943
-  <https://github.com/ckan/ckan/pull/7943>`_)
 - Add missing translations to aria-label attributes (`#7947
   <https://github.com/ckan/ckan/pull/7947>`_)
 - Catch AttributeErrors in license retrieval (`#7931
   <https://github.com/ckan/ckan/pull/7948>`_)
 - Fix downloading datastore resources as json with null values in json columns
   (`#7545 <https://github.com/ckan/ckan/pull/7545>`_)
+
+v.2.10.2
+========
+
+Unreleased
 
 v.2.10.1 2023-05-24
 ===================
