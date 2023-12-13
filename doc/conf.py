@@ -85,7 +85,9 @@ rst_epilog = '''
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.todo',
     'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension',
+    'sphinx_rtd_theme',
 ]
+html_theme = 'sphinx_rtd_theme'
 autodoc_member_order = 'bysource'
 todo_include_todos = True
 
