@@ -12,6 +12,9 @@ build:
       - libmagic-dev
   tools:
     python: "3.10"
+  jobs:
+    post_checkout:
+      - git fetch --unshallow || true
 
 sphinx:
   configuration: doc/conf.py
