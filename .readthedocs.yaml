@@ -6,6 +6,8 @@ version: 2
 
 build:
   os: ubuntu-22.04
+  apt_packages:
+    - libmagic1
   tools:
     python: "3.9"
   jobs:
