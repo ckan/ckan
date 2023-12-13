@@ -107,8 +107,6 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/7891>`_)
 - Fix user_show for ``ckan.auth.public_user_details`` (`#7866
   <https://github.com/ckan/ckan/pull/7866>`_)
-- Fix activity links for custom organizations (`#7943
-  <https://github.com/ckan/ckan/pull/7943>`_)
 - Add missing translations to aria-label attributes (`#7947
   <https://github.com/ckan/ckan/pull/7947>`_)
 - Catch AttributeErrors in license retrieval (`#7931
