@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.10.2 2023-12-13
+v.2.10.3 2023-12-13
 ===================
 
 
@@ -113,6 +113,11 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/7948>`_)
 - Fix downloading datastore resources as json with null values in json columns
   (`#7545 <https://github.com/ckan/ckan/pull/7545>`_)
+
+v.2.10.2
+========
+
+Unreleased
 
 v.2.10.1 2023-05-24
 ===================
