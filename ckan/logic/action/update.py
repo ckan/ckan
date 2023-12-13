@@ -247,6 +247,7 @@ def package_update(
         raise ValidationError({'id': _('Missing value')})
 
     pkg = model.Package.get(name_or_id)
+    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
@@ -293,19 +294,27 @@ def package_update(
 
             updated_resource_ids.append(resource.get('id'))
 
+    current_resource_ids = []
+    old_resource_dicts = {}
     deleted_resource_ids = []
-    for current_resource in pkg.resources:
-        if current_resource.id not in updated_resource_ids:
-            # the resource is going to be deleted
-            deleted_resource_ids.append(current_resource.id)
+    for current_resource_dict in pkg_dict.get('resources'):
+        # we need to know the current resource ids for the after plugin hooks
+        current_resource_ids.append(current_resource_dict.get('id'))
+        # we only need the old resource dicts for resources getting updated
+        if current_resource_dict.get('id') in updated_resource_ids:
+            old_resource_dicts[current_resource_dict.get('id')] = \
+                current_resource_dict
+        if not context.get('allow_partial_update'):
+            if current_resource_dict.get('id') not in updated_resource_ids:
+                # the resource is going to be deleted
+                deleted_resource_ids.append(current_resource_dict.get('id'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
 
         for resource_id in deleted_resource_ids:
             plugin.before_resource_delete(context,
                                           {"id": resource_id},
-                                          model_dictize.resource_list_dictize(
-                                              pkg.resources, context))
+                                          pkg_dict.get('resources'))
 
         for new_resource in data_dict.get('resources', []):
 
@@ -315,13 +324,10 @@ def package_update(
                 if updating_resource_id and \
                    resource_id != updating_resource_id:
                     continue
-                resource = model.Resource.get(resource_id)
-                if resource:
+                if resource_id in old_resource_dicts:
                     plugin.before_resource_update(
                         context,
-                        model_dictize.resource_dictize(
-                            resource,
-                            context),
+                        old_resource_dicts[resource_id],
                         new_resource)
             else:
                 plugin.before_resource_create(context, new_resource)
@@ -371,49 +377,49 @@ def package_update(
 
         item.after_dataset_update(context, data)
 
-    # create resource default views
-    for resource in pkg.resources:
+    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
 
-        if resource.id in updated_resource_ids:
+    # create resource default views
+    for resource_dict in pkg_dict.get('resources'):
+
+        if resource_dict.get('id') in updated_resource_ids:
             if updating_resource_id and \
-               resource.id != updating_resource_id:
+               resource_dict.get('id') != updating_resource_id:
                 continue
-            if resource.id in old_resource_formats \
-               and old_resource_formats[resource.id] != resource.format:
+            if resource_dict.get('id') in old_resource_formats \
+               and old_resource_formats[resource_dict.get('id')] != \
+               resource_dict.get('format'):
                 # Add the default views for the new resource format
                 _get_action('resource_create_default_resource_views')(
                     {'model': context['model'], 'user': context['user'],
                      'ignore_auth': True},
                     {'package': data,
-                     'resource': model_dictize.resource_dictize(resource, context)})
-        else:
+                     'resource': resource_dict})
+        elif resource_dict.get('id') not in current_resource_ids:
             # Add the default views to the new resource
             _get_action('resource_create_default_resource_views')(
                 {'model': context['model'], 'user': context['user'],
                  'ignore_auth': True},
-                {'resource': model_dictize.resource_dictize(resource, context),
+                {'resource': resource_dict,
                  'package': data})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
 
         for resource_id in deleted_resource_ids:
             plugin.after_resource_delete(context,
-                                         model_dictize.resource_list_dictize(
-                                            pkg.resources, context))
+                                         pkg_dict.get('resources'))
 
-        for resource in pkg.resources:
+        for resource_dict in pkg_dict.get('resources'):
 
-            if resource.id in updated_resource_ids:
+            if resource_dict.get('id') in updated_resource_ids:
                 if updating_resource_id and \
-                   resource.id != updating_resource_id:
+                   resource_dict.get('id') != updating_resource_id:
                     continue
                 plugin.after_resource_update(context,
-                                             model_dictize.resource_dictize(
-                                                 resource, context))
-            else:
+                                             resource_dict)
+            elif resource_dict.get('id') not in current_resource_ids:
                 plugin.after_resource_create(context,
-                                             model_dictize.resource_dictize(
-                                                 resource, context))
+                                             resource_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
