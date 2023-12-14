@@ -98,7 +98,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     try:
         context['use_cache'] = False
-        context['_updating_resource'] = id
+        context['_updated_resource'] = id
         _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
         try:
@@ -241,16 +241,17 @@ def package_update(
 
     '''
     model = context['model']
-    updating_resource_id = context.pop('_updating_resource', None)
+    updated_resource_id = context.pop('_updated_resource', None)
+    allow_partial_update = context.get('allow_partial_update', False)
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
 
     pkg = model.Package.get(name_or_id)
-    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
+    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
 
     # immutable fields
     data_dict["id"] = pkg.id
@@ -267,47 +268,52 @@ def package_update(
     resource_uploads = []
     updated_resource_ids = []
     old_resource_formats = {}
-    for resource in data_dict.get('resources', []):
-        # file uploads/clearing
-        upload = uploader.get_resource_uploader(resource)
+    if not allow_partial_update:
+        for resource_dict in data_dict.get('resources', []):
+            # file uploads/clearing
+            upload = uploader.get_resource_uploader(resource_dict)
 
-        if 'mimetype' not in resource:
-            if hasattr(upload, 'mimetype'):
-                resource['mimetype'] = upload.mimetype
+            if 'mimetype' not in resource_dict:
+                if hasattr(upload, 'mimetype'):
+                    resource_dict['mimetype'] = upload.mimetype
 
-        if 'url_type' in resource:
-            if hasattr(upload, 'filesize'):
-                resource['size'] = upload.filesize
+            if 'url_type' in resource_dict:
+                if hasattr(upload, 'filesize'):
+                    resource_dict['size'] = upload.filesize
 
-        resource_uploads.append(upload)
+            resource_uploads.append(upload)
 
-        current_resource = model.Resource.get(resource.get('id'))
-        if current_resource:  # the resource exists in the DB
-            # Persist the datastore_active extra
-            # if already present and not provided
-            if ('datastore_active' in current_resource.extras and
-                    'datastore_active' not in resource):
-                resource['datastore_active'] = \
-                    current_resource.extras['datastore_active']
+            current_resource = model.Resource.get(resource_dict.get('id'))
+            if current_resource:  # the resource exists in the DB
+                # Persist the datastore_active extra
+                # if already present and not provided
+                if ('datastore_active' in current_resource.extras and
+                        'datastore_active' not in resource_dict):
+                    resource_dict['datastore_active'] = \
+                        current_resource.extras['datastore_active']
 
-            old_resource_formats[resource.get('id')] = current_resource.format
+                old_resource_formats[resource_dict.get('id')] = \
+                    current_resource.format
 
-            updated_resource_ids.append(resource.get('id'))
+                updated_resource_ids.append(resource_dict.get('id'))
 
     current_resource_ids = []
     old_resource_dicts = {}
     deleted_resource_ids = []
-    for current_resource_dict in pkg_dict.get('resources'):
-        # we need to know the current resource ids for the after plugin hooks
-        current_resource_ids.append(current_resource_dict.get('id'))
-        # we only need the old resource dicts for resources getting updated
-        if current_resource_dict.get('id') in updated_resource_ids:
-            old_resource_dicts[current_resource_dict.get('id')] = \
-                current_resource_dict
-        if not context.get('allow_partial_update'):
+    if not allow_partial_update:
+        for current_resource_dict in pkg_dict.get('resources'):
+            # we need to know the current
+            # resource ids for the after plugin hooks
+            current_resource_ids.append(current_resource_dict.get('id'))
+            # we only need the old resource dicts
+            # for resources getting updated
+            if current_resource_dict.get('id') in updated_resource_ids:
+                old_resource_dicts[current_resource_dict.get('id')] = \
+                    current_resource_dict
             if current_resource_dict.get('id') not in updated_resource_ids:
                 # the resource is going to be deleted
-                deleted_resource_ids.append(current_resource_dict.get('id'))
+                deleted_resource_ids.append(
+                    current_resource_dict.get('id'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
 
@@ -316,21 +322,22 @@ def package_update(
                                           {"id": resource_id},
                                           pkg_dict.get('resources'))
 
-        for new_resource in data_dict.get('resources', []):
+        if not allow_partial_update:
+            for new_resource in data_dict.get('resources', []):
 
-            resource_id = new_resource.get('id')
+                resource_id = new_resource.get('id')
 
-            if resource_id in updated_resource_ids:
-                if updating_resource_id and \
-                   resource_id != updating_resource_id:
-                    continue
-                if resource_id in old_resource_dicts:
-                    plugin.before_resource_update(
-                        context,
-                        old_resource_dicts[resource_id],
-                        new_resource)
-            else:
-                plugin.before_resource_create(context, new_resource)
+                if resource_id in updated_resource_ids:
+                    if updated_resource_id and \
+                      resource_dict.get('id') != updated_resource_id:
+                        continue
+                    if resource_id in old_resource_dicts:
+                        plugin.before_resource_update(
+                            context,
+                            old_resource_dicts[resource_id],
+                            new_resource)
+                else:
+                    plugin.before_resource_create(context, new_resource)
 
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
@@ -379,29 +386,30 @@ def package_update(
 
     pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
 
-    # create resource default views
-    for resource_dict in pkg_dict.get('resources'):
+    if not allow_partial_update:
+        # create resource default views
+        for resource_dict in pkg_dict.get('resources'):
 
-        if resource_dict.get('id') in updated_resource_ids:
-            if updating_resource_id and \
-               resource_dict.get('id') != updating_resource_id:
-                continue
-            if resource_dict.get('id') in old_resource_formats \
-               and old_resource_formats[resource_dict.get('id')] != \
-               resource_dict.get('format'):
-                # Add the default views for the new resource format
+            if resource_dict.get('id') in updated_resource_ids:
+                if updated_resource_id and \
+                  resource_dict.get('id') != updated_resource_id:
+                    continue
+                if resource_dict.get('id') in old_resource_formats \
+                and old_resource_formats[resource_dict.get('id')] != \
+                resource_dict.get('format'):
+                    # Add the default views for the new resource format
+                    _get_action('resource_create_default_resource_views')(
+                        {'model': context['model'], 'user': context['user'],
+                        'ignore_auth': True},
+                        {'package': data,
+                        'resource': resource_dict})
+            elif resource_dict.get('id') not in current_resource_ids:
+                # Add the default views to the new resource
                 _get_action('resource_create_default_resource_views')(
                     {'model': context['model'], 'user': context['user'],
-                     'ignore_auth': True},
-                    {'package': data,
-                     'resource': resource_dict})
-        elif resource_dict.get('id') not in current_resource_ids:
-            # Add the default views to the new resource
-            _get_action('resource_create_default_resource_views')(
-                {'model': context['model'], 'user': context['user'],
-                 'ignore_auth': True},
-                {'resource': resource_dict,
-                 'package': data})
+                    'ignore_auth': True},
+                    {'resource': resource_dict,
+                    'package': data})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
 
@@ -409,17 +417,18 @@ def package_update(
             plugin.after_resource_delete(context,
                                          pkg_dict.get('resources'))
 
-        for resource_dict in pkg_dict.get('resources'):
+        if not allow_partial_update:
+            for resource_dict in pkg_dict.get('resources'):
 
-            if resource_dict.get('id') in updated_resource_ids:
-                if updating_resource_id and \
-                   resource_dict.get('id') != updating_resource_id:
-                    continue
-                plugin.after_resource_update(context,
-                                             resource_dict)
-            elif resource_dict.get('id') not in current_resource_ids:
-                plugin.after_resource_create(context,
-                                             resource_dict)
+                if resource_dict.get('id') in updated_resource_ids:
+                    if updated_resource_id and \
+                      resource_dict.get('id') != updated_resource_id:
+                        continue
+                    plugin.after_resource_update(context,
+                                                resource_dict)
+                elif resource_dict.get('id') not in current_resource_ids:
+                    plugin.after_resource_create(context,
+                                                resource_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
