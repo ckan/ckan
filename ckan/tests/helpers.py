@@ -175,6 +175,10 @@ class CKANResponse(Response):
     def body(self):
         return self.get_data(as_text=True)
 
+    @property
+    def bytes(self):
+        return self.get_data(as_text=False)
+
     def __contains__(self, segment):
         return segment in self.body
 
