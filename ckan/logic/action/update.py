@@ -329,7 +329,7 @@ def package_update(
 
                 if resource_id in updated_resource_ids:
                     if updated_resource_id and \
-                      resource_dict.get('id') != updated_resource_id:
+                      new_resource.get('id') != updated_resource_id:
                         continue
                     if resource_id in old_resource_dicts:
                         plugin.before_resource_update(
