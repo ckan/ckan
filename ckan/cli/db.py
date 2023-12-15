@@ -58,13 +58,34 @@ def clean():
 
 
 @db.command()
-@click.option(u'-v', u'--version', help=u'Migration version', default=u'head')
+@click.option('-v', '--version', help='Migration version', default='head')
+@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
+@click.option('--skip-core', is_flag=True, help='Skip core migrations')
+@click.pass_context
 @applies_to_plugin
-def upgrade(version: str, plugin: str):
+def upgrade(
+        ctx: click.Context, version: str, plugin: str,
+        skip_core: bool, skip_plugins: bool
+):
     """Upgrade the database.
     """
-    _run_migrations(plugin, version)
-    click.secho(u'Upgrading DB: SUCCESS', fg=u'green', bold=True)
+    if not skip_core:
+        _run_migrations(plugin, version)
+
+    if not skip_plugins and not plugin:
+        _migrate_plugins(apply=True)
+
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
+
+
+def _migrate_plugins(apply: bool):
+    pending = _get_pending_plugins()
+    for plugin, n in sorted(pending.items()):
+        click.secho("{n} unapplied migrations for {p}".format(
+            p=click.style(plugin, bold=True),
+            n=click.style(str(n), bold=True)))
+        if apply:
+            _run_migrations(plugin)
 
 
 @db.command()
@@ -82,15 +103,13 @@ def downgrade(version: str, plugin: str):
 def pending_migrations(apply: bool):
     """List all sources with unapplied migrations.
     """
-    pending = _get_pending_plugins()
-    if not pending:
-        click.secho("All plugins are up-to-date", fg="green")
-    for plugin, n in sorted(pending.items()):
-        click.secho("{n} unapplied migrations for {p}".format(
-            p=click.style(plugin, bold=True),
-            n=click.style(str(n), bold=True)))
-        if apply:
-            _run_migrations(plugin)
+    if apply:
+        click.secho(
+            "Use `db upgrade` to run migrations for enabled plugins",
+            fg="yellow"
+        )
+    _migrate_plugins(apply)
+    click.secho('Upgrading DB: SUCCESS', fg='green', bold=True)
 
 
 def _get_pending_plugins() -> dict[str, int]:

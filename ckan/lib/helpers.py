@@ -29,10 +29,9 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash
+from flask import flash, has_request_context
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
-from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
@@ -311,7 +310,7 @@ def _get_auto_flask_context():
     from ckan.config.middleware import _internal_test_request_context
 
     # This is a normal web request, there is a request context present
-    if _request_ctx_stack.top:
+    if has_request_context():
         return None
 
     # We are outside a web request. A test web application was created
