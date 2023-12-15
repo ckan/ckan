@@ -117,11 +117,11 @@ class ChoiceColumn(ColumnType):
 
     def choices(self) -> Iterable[str] | Mapping[str, str]:
         """
-        Choices based on comma-separated info field
+        Choices based on newline-separated info field
         """
         choices = self.info.get('choices')
         if choices:
-            return [c.strip() for c in choices.split(',')]
+            return [c.strip() for c in choices.split('\n')]
         return []
 
     # \t is used when converting errors to string, remove any from data
@@ -190,7 +190,7 @@ class EmailColumn(ColumnType):
 @_standard_column('uri')
 class URIColumn(ColumnType):
     label = _('URI')
-    description = _('A uniform resource identifier (URL or URN)')
+    description = _('Uniform resource identifier (URL or URN)')
     example = 'https://example.com/page'
     datastore_type = 'text'
     table_schema_type = 'string'
@@ -200,7 +200,7 @@ class URIColumn(ColumnType):
 
 @_standard_column('uuid')
 class UUIDColumn(ColumnType):
-    label = _('UUID')
+    label = _('Universally unique identifier (UUID)')
     description = _('A universally unique identifier as hexadecimal')
     example = '213b972d-75c0-48b7-b14a-5a19eb58a1fa'
     datastore_type = 'uuid'
@@ -249,8 +249,8 @@ class BooleanColumn(ColumnType):
     def choices(self):
         from ckan.plugins.toolkit import _
         return {
-            'false': _('False'),
-            'true': _('True'),
+            'false': _('FALSE'),
+            'true': _('TRUE'),
         }
 
     def choice_value_key(self, value: bool | str) -> str:
