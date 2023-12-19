@@ -6,7 +6,7 @@
   {% else %}
     <h3>{{ _("Field {num}.").format(num=position) }}
       {{ field.id or '' }}
-      ({{ h.tabledesigner_column_type(field).label }})
+      ({{ _(h.tabledesigner_column_type(field).label) }})
     </h3>
     {% if field.id %}
       <input type="hidden" name="info__{{ position }}__id" value="{{ field.id }}">
