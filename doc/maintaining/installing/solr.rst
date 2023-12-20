@@ -83,3 +83,45 @@ If you followed any of the instructions above, the CKAN Solr core will be availa
 
 .. _Solr: https://solr.apache.org/
 .. _Docker: https://www.docker.com/
+
+About Solr Search
+====================
+
+Solr is a search server built on top of Apache Lucene, an open source, Java-based, information retrieval library. It is designed to drive powerful document retrieval applications - wherever you need to serve data to users based on their queries, Solr can work for you.
+::
+
+ In Apache Solr, the default search behavior involves a combination of default operators and query parsing rules.
+
+**The primary components of Solr search are:**
+
+**1.** Default Query Operator
+
+**2.** AND Operator
+
+**3.** Phrase Searching
+
+**4.** Boolean Operators
+
+**5.** Wildcard Searches
+
+**6.** Fuzzy Searches
+
+ 
+How Does Solr Work?
+====================
+
+Solr works by gathering, storing and indexing documents from different sources and making them searchable in near real-time. It follows a 3-step process that involves indexing, querying, and finally, ranking the results – all in near real-time, even though it can work with huge volumes of data.
+
+ **Step 1: Indexing**
+
+Solr uses Lucene to create an inverted index because it inverts a page-centric data structure (documents ⇒ words) to a keyword-centric structure (word ⇒ documents). It's like the index you see at the end of any book where you can find where certain words occur in the book. Similarly, the Solr index is a list that holds the mapping of words, terms or phrases and their corresponding places in the documents stored.
+
+Solr, therefore, achieves faster responses because it searches for keywords in the index instead of scanning the text directly.
+
+ **Step 2: Querying**
+
+One can search for various terms such as keywords, images or geolocation data, for instance. When you send a query, Solr processes it with a query request handles (or simply query handler) that works similarly to the index handler, only that is used to return documents from the Solr index instead of uploading them.
+
+ **Step 3: Ranking the Results**
+
+As it matches indexed documents to a query, Solr ranks the results by their relevance score – the most relevant hits appear at the top of the matched documents.
