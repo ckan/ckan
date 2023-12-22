@@ -5382,11 +5382,11 @@ msgstr "Adresse e-mail"
 
 #: ckanext/tabledesigner/column_types.py:159
 msgid "A single email address"
-msgstr ""
+msgstr "Une seule adresse courriel"
 
 #: ckanext/tabledesigner/column_types.py:186
 msgid "Invalid email"
-msgstr ""
+msgstr "Courriel invalide"
 
 #: ckanext/tabledesigner/column_types.py:192
 msgid "URI"
@@ -5406,7 +5406,7 @@ msgstr "Identifiant universel unique sous forme hexadécimale"
 
 #: ckanext/tabledesigner/column_types.py:214
 msgid "Numeric"
-msgstr ""
+msgstr "Numérique"
 
 #: ckanext/tabledesigner/column_types.py:215
 msgid ""
@@ -5587,6 +5587,15 @@ msgstr[2] "Supprimer {num} rangée?"
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:3
 msgid "Pattern"
 msgstr "Modèle"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:10
+msgid ""
+"Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
+"for text starting with <code>AB-</code> and ending with 6 digits"
+msgstr ""
+"Expression régulière établissant une correspondance avec le champ, p. ex. "
+"<code>AB-\d{6}</code> pour un texte commençant avec <code>AB-</code> et se "
+"terminant avec six chiffres"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
 msgid "Minimum"
