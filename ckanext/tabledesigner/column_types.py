@@ -216,8 +216,8 @@ class IntegerColumn(ColumnType):
     label = _('Integer')
     description = _('Whole numbers with no decimal')
     example = '21'
-    datastore_type = 'int4'
-    table_scema_type = 'integer'
+    datastore_type = 'int8'
+    table_schema_type = 'integer'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def excel_validate_rule(self):
