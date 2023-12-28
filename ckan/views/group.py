@@ -930,11 +930,14 @@ class BulkProcessView(MethodView):
         try:
             get_action(action_functions[action])(context, data_dict)
             if action == 'private':
-                h.flash_notice(_('Made %s dataset(s) private.') % len(datasets))
+                h.flash_notice(_('Made %s dataset(s) private.')
+                               % len(datasets))
             elif action == 'public':
-                h.flash_notice(_('Made %s dataset(s) public.') % len(datasets))
+                h.flash_notice(_('Made %s dataset(s) public.')
+                               % len(datasets))
             elif action == 'delete':
-                h.flash_notice(_('Deleted %s dataset(s).') % len(datasets))
+                h.flash_notice(_('Deleted %s dataset(s).')
+                               % len(datasets))
         except NotAuthorized:
             base.abort(403, _(u'Not authorized to perform bulk update'))
         return h.redirect_to(u'{}.bulk_process'.format(group_type), id=id)
