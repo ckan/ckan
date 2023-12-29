@@ -865,13 +865,10 @@ class CreateGroupView(MethodView):
             context['message'] = data_dict.get(u'log_message', u'')
             data_dict['users'] = [{u'name': g.user, u'capacity': u'admin'}]
             group = _action(u'group_create')(context, data_dict)
-            if group_type == u'organization':
+            if is_organization:
                 h.flash_success(_(u'Organization created.'))
-            elif group_type == u'group':
-                h.flash_success(_(u'Group created.'))
             else:
-                h.flash_success(
-                    _(u'%s created.') % _(group_type.capitalize()))
+                h.flash_success(_(u'Group created.'))
         except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
@@ -964,13 +961,10 @@ class EditGroupView(MethodView):
             group = _action(u'group_update')(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
-            if group_type == u'organization':
+            if is_organization:
                 h.flash_success(_(u'Organization updated.'))
-            elif group_type == u'group':
-                h.flash_success(_(u'Group updated.'))
             else:
-                h.flash_success(
-                    _(u'%s updated.') % _(group_type.capitalize()))
+                h.flash_success(_(u'Group updated.'))
         except (NotFound, NotAuthorized) as e:
             base.abort(404, _(u'Group not found'))
         except dict_fns.DataError:
@@ -1040,13 +1034,10 @@ class DeleteGroupView(MethodView):
         context = self._prepare(id)
         try:
             _action(u'group_delete')(context, {u'id': id})
-            if group_type == u'organization':
+            if is_organization:
                 h.flash_notice(_(u'Organization has been deleted.'))
-            elif group_type == u'group':
-                h.flash_notice(_(u'Group has been deleted.'))
             else:
-                h.flash_notice(
-                    _(u'%s has been deleted.') % _(group_type.capitalize()))
+                h.flash_notice(_(u'Group has been deleted.'))
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         except NotFound:
@@ -1122,7 +1113,7 @@ class MembersGroupView(MethodView):
         try:
             group_dict = _action(u'group_member_create')(context, data_dict)
             h.flash_success(_(u'Assigned %s as %s.') % (
-                data_dict['username'], data_dict['role']))
+                data_dict['username'], authz.trans_role(data_dict['role'])))
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
