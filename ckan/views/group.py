@@ -986,13 +986,10 @@ class CreateGroupView(MethodView):
         data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
             group = _action(u'group_create')(context, data_dict)
-            if group_type == 'organization':
+            if is_organization:
                 h.flash_success(_('Organization created.'))
-            elif group_type == 'group':
-                h.flash_success(_('Group created.'))
             else:
-                h.flash_success(
-                    _('%s created.') % _(group_type.capitalize()))
+                h.flash_success(_('Group created.'))
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
@@ -1091,13 +1088,10 @@ class EditGroupView(MethodView):
             group = _action(u'group_update')(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
-            if group_type == 'organization':
+            if is_organization:
                 h.flash_success(_('Organization updated.'))
-            elif group_type == 'group':
-                h.flash_success(_('Group updated.'))
             else:
-                h.flash_success(
-                    _('%s updated.') % _(group_type.capitalize()))
+                h.flash_success(_('Group updated.'))
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
         except ValidationError as e:
@@ -1253,7 +1247,7 @@ class MembersGroupView(MethodView):
         try:
             group_dict = _action(u'group_member_create')(context, data_dict)
             h.flash_success(_('Assigned %s as %s.') % (
-                data_dict['username'], data_dict['role']))
+                data_dict['username'], authz.trans_role(data_dict['role'])))
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
