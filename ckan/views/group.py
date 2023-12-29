@@ -1246,8 +1246,11 @@ class MembersGroupView(MethodView):
 
         try:
             group_dict = _action(u'group_member_create')(context, data_dict)
-            h.flash_success(_('Assigned %s as %s.') % (
-                data_dict['username'], authz.trans_role(data_dict['role'])))
+            messages = {'member': _('Assigned %s as a member.'),
+                        'editor': _('Assigned %s as an editor.'),
+                        'admin': _('Assigned %s as an admin.')}
+            h.flash_success(messages[data_dict['role']]
+                            % data_dict['username'])
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to add member to group %s') % u'')
         except NotFound:
