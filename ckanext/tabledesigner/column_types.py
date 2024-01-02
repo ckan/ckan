@@ -296,7 +296,7 @@ class TimestampColumn(ColumnType):
     description = _('Date and time without time zone')
     example = '2024-01-01 12:00:00'
     datastore_type = 'timestamp'
-    table_schema_type = 'time'
+    table_schema_type = 'datetime'
     table_schema_format = 'fmt:YYYY-MM--DD hh:mm:ss'
     html_input_type = 'datetime-local'
     excel_format = 'yyyy-mm-dd HH:MM:SS'
