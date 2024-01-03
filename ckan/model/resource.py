@@ -22,6 +22,7 @@ from .package import Package
 
 __all__ = ['Resource', 'resource_table']
 
+Mapped = orm.Mapped
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified',
@@ -60,29 +61,29 @@ resource_table = Table(
 
 class Resource(core.StatefulObjectMixin,
                domain_object.DomainObject):
-    id: str
-    package_id: Optional[str]
-    url: str
-    format: str
-    description: str
-    hash: str
-    position: int
-    name: str
-    resource_type: str
-    mimetype: str
-    size: int
-    created: datetime.datetime
-    last_modified: datetime.datetime
-    metadata_modified: datetime.datetime
-    cache_url: str
-    cache_last_update: datetime.datetime
-    url_type: str
+    id: Mapped[str]
+    package_id: Mapped[Optional[str]]
+    url: Mapped[str]
+    format: Mapped[str]
+    description: Mapped[str]
+    hash: Mapped[str]
+    position: Mapped[int]
+    name: Mapped[str]
+    resource_type: Mapped[str]
+    mimetype: Mapped[str]
+    size: Mapped[int]
+    created: Mapped[datetime.datetime]
+    last_modified: Mapped[datetime.datetime]
+    metadata_modified: Mapped[datetime.datetime]
+    cache_url: Mapped[str]
+    cache_last_update: Mapped[datetime.datetime]
+    url_type: Mapped[str]
     extras: dict[str, Any]
-    state: str
+    state: Mapped[str]
 
     extra_columns: ClassVar[Optional[list[str]]] = None
 
-    package: Package
+    package: Mapped[Package]
 
     url_changed: Optional[bool]
 
@@ -164,8 +165,8 @@ class Resource(core.StatefulObjectMixin,
 
 ## Mappers
 
-meta.mapper(Resource, resource_table, properties={
-    'package': orm.relation(
+meta.registry.map_imperatively(Resource, resource_table, properties={
+    'package': orm.relationship(
         Package,
         # all resources including deleted
         # formally package_resources_all

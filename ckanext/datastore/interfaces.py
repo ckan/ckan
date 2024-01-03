@@ -71,16 +71,22 @@ class IDatastore(interfaces.Interface):
 
         The ``where`` key is a special case. It's elements are on the form:
 
-            (format_string, param1, param2, ...)
+            (format_string, {placeholder_for_param_1: param_1})
 
         The ``format_string`` isn't escaped for SQL Injection attacks, so
-        everything coming from the user should be in the params list. With this
+        everything coming from the user should be in the params dict. With this
         format, you could do something like:
 
-            ('"age" BETWEEN %s AND %s', age_between[0], age_between[1])
+            (
+                '"age" BETWEEN :my_ext_min AND :my_ext_max',
+                {"my_ext_min": age_between[0], "my_ext_max": age_between[1]},
+            )
 
         This escapes the ``age_between[0]`` and ``age_between[1]`` making sure
         we're not vulnerable.
+
+        ..note:: Use unique prefix for the parameter's names to avoid conflicts
+                 with other plugins
 
         After finishing this, you should return your modified ``query_dict``.
 
@@ -97,6 +103,7 @@ class IDatastore(interfaces.Interface):
 
         :returns: the query_dict with your modifications
         :rtype: dictionary
+
         '''
         return query_dict
 

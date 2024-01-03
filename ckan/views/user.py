@@ -13,7 +13,9 @@ import dominate.tags as dom_tags
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
+from ckan.lib.dictization import model_dictize
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -86,6 +88,10 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
+    offset = page_number * limit - limit
+
+    # get SQLAlchemy Query object from the action to avoid dictizing all
+    # existing users at once
     context: Context = {
         u'return_query': True,
         u'user': current_user.name,
@@ -93,8 +99,8 @@ def index():
     }
 
     data_dict = {
-        u'q': q,
-        u'order_by': order_by
+        'q': q,
+        'order_by': order_by,
     }
 
     try:
@@ -104,9 +110,18 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
-    page = h.Page(
-        collection=users_list,
+    # in template we don't need complex row objects from query. Let's dictize
+    # subset of users that are shown on the current page
+    users = [
+        model_dictize.user_dictize(user[0], context)
+        for user in
+        users_list.limit(limit).offset(offset)
+    ]
+
+    page = Page(
+        collection=users,
         page=page_number,
+        presliced_list=True,
         url=h.pager_url,
         item_count=users_list.count(),
         items_per_page=limit)
@@ -944,7 +959,7 @@ user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
 user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
-user.add_url_rule(u'/_logout', view_func=logout)
+user.add_url_rule(u'/_logout', view_func=logout, methods=('GET', 'POST'))
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))

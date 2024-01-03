@@ -1109,8 +1109,7 @@ def _bulk_update_dataset(
     model = context['model']
     model.Session.query(model.package_table) \
         .filter(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Package.id.in_(datasets)  # type: ignore
+            model.Package.id.in_(datasets)
         ) .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 

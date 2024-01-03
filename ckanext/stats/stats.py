@@ -15,7 +15,11 @@ DATE_FORMAT = "%Y-%m-%d"
 
 
 def table(name: str):
-    return Table(name, model.meta.metadata, autoload=True)
+    return Table(
+        name,
+        model.meta.metadata,
+        autoload_with=model.meta.engine
+    )
 
 
 def datetime2date(datetime_: datetime.datetime):
@@ -33,7 +37,10 @@ class Stats(object):
         j = join(activity, package, activity.c["object_id"] == package.c["id"])
 
         s = (
-            select([package.c["owner_org"], func.count(package.c["id"])])
+            select(
+                package.c["owner_org"],
+                func.count(package.c["id"])
+            )
             .select_from(j)
             .group_by(package.c["owner_org"])
             .where(
@@ -64,21 +71,25 @@ class Stats(object):
         tag = table("tag")
         package_tag = table("package_tag")
         package = table("package")
+
         if returned_tag_info == "name":
-            from_obj = [package_tag.join(tag)]
             tag_column = tag.c["name"]
+            s = select(
+                tag_column,
+                func.count(package_tag.c["package_id"])
+            ).join(package_tag)
         else:
-            from_obj = None
             tag_column = package_tag.c["tag_id"]
+            s = select(
+                tag_column,
+                func.count(package_tag.c["package_id"])
+            )
+
         j = join(
             package_tag, package, package_tag.c["package_id"] == package.c["id"]
         )
         s = (
-            select(
-                [tag_column, func.count(package_tag.c["package_id"])],
-                from_obj=from_obj,
-            )
-            .select_from(j)
+            s.select_from(j)
             .where(
                 and_(
                     package_tag.c["state"] == "active",
@@ -130,12 +141,10 @@ class Stats(object):
 
         s = (
             select(
-                [package.c["id"], func.count(activity.c["id"])],
-                from_obj=[
-                    activity.join(
-                        package, activity.c["object_id"] == package.c["id"]
-                    )
-                ],
+                package.c["id"],
+                func.count(activity.c["id"])
+            ).select_from(activity).join(
+                package, activity.c["object_id"] == package.c["id"]
             )
             .where(
                 and_(
@@ -167,11 +176,13 @@ class Stats(object):
         package = table("package")
         activity = table("activity")
         s = select(
-            [package.c["id"], activity.c["timestamp"]],
-            from_obj=[
-                activity.join(package, activity.c["object_id"] == package.c["id"])
-            ],
-        ).order_by(activity.c["timestamp"])
+            package.c["id"],
+            activity.c["timestamp"]
+        ).select_from(activity).join(
+            package, activity.c["object_id"] == package.c["id"]
+        ).order_by(
+            activity.c["timestamp"]
+        )
         res = model.Session.execute(s).fetchall()
         return res
 
@@ -256,14 +267,15 @@ class Stats(object):
             activity = table("activity")
             s = (
                 select(
-                    [package.c["id"], func.min(activity.c["timestamp"])],
-                    from_obj=[
-                        activity.join(
-                            package, activity.c["object_id"] == package.c["id"]
-                        )
-                    ],
+                    package.c["id"],
+                    func.min(activity.c["timestamp"])
+                ).select_from(activity)
+                .join(
+                    package, activity.c["object_id"] == package.c["id"]
                 )
-                .group_by(package.c["id"])
+                .group_by(
+                    package.c["id"]
+                )
                 .order_by(func.min(activity.c["timestamp"]))
             )
             res = model.Session.execute(s).fetchall()
@@ -385,14 +397,15 @@ class Stats(object):
 
             s = (
                 select(
-                    [package.c["id"], func.min(activity.c["timestamp"])],
-                    from_obj=[
-                        activity.join(
-                            package, activity.c["object_id"] == package.c["id"]
-                        )
-                    ],
+                    package.c["id"],
+                    func.min(activity.c["timestamp"])
+                ).select_from(activity)
+                .join(
+                    package, activity.c["object_id"] == package.c["id"]
                 )
-                .where(activity.c["activity_type"] == "deleted package")
+                .where(
+                    activity.c["activity_type"] == "deleted package"
+                )
                 .group_by(package.c["id"])
                 .order_by(func.min(activity.c["timestamp"]))
             )

@@ -6,6 +6,7 @@ from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
     get_or_bust as _get_or_bust,
+    fresh_context as _fresh_context
 )
 from ckan.types import Context, DataDict
 from ckan.types.logic import ActionResult
@@ -68,13 +69,8 @@ def resource_patch(context: Context,
     '''
     _check_access('resource_patch', context, data_dict)
 
-    show_context: Context = {
-        'model': context['model'],
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
-        'for_update': True
-    }
+    show_context: Context = _fresh_context(context)
+    show_context.update({'for_update': True})
 
     resource_dict = _get_action('resource_show')(
         show_context,
@@ -99,12 +95,7 @@ def group_patch(context: Context,
     '''
     _check_access('group_patch', context, data_dict)
 
-    show_context: Context = {
-        'model': context['model'],
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
-    }
+    show_context: Context = _fresh_context(context)
 
     group_dict = _get_action('group_show')(
         show_context,
@@ -134,12 +125,7 @@ def organization_patch(
     '''
     _check_access('organization_patch', context, data_dict)
 
-    show_context: Context = {
-        'model': context['model'],
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
-    }
+    show_context: Context = _fresh_context(context)
 
     organization_dict = _get_action('organization_show')(
         show_context,
@@ -168,12 +154,7 @@ def user_patch(context: Context,
     '''
     _check_access('user_patch', context, data_dict)
 
-    show_context: Context = {
-        'model': context['model'],
-        'session': context['session'],
-        'user': context['user'],
-        'auth_user_obj': context['auth_user_obj'],
-    }
+    show_context: Context = _fresh_context(context)
 
     user_dict = _get_action('user_show')(
         show_context,
