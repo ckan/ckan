@@ -142,7 +142,7 @@ profile, so they cannot search by e-mail address.
 
 On their user profile, you will see a "Manage" button. CKAN displays the user
 settings page. You can delete the user or change any of its settings, including
-their username, name and password.
+their name and password.
 
 .. image:: /images/manage_users.jpg
 
