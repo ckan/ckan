@@ -18,6 +18,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend, InvalidDataError
 )
 from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore import interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -95,7 +96,12 @@ def datastore_create(context, data_dict):
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
-    data_dict, errors = _validate(data_dict, schema, context)
+    plugin_data: dict[int, dict[str, Any]] = {}
+    for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+        schema = plugin.update_schema(schema)
+    validate_context = p.toolkit.fresh_context(context)
+    validate_context['plugin_data'] = plugin_data
+    data_dict, errors = _validate(data_dict, schema, validate_context)
     resource_dict = None
     if records:
         data_dict['records'] = records
@@ -156,7 +162,7 @@ def datastore_create(context, data_dict):
             })
 
     try:
-        result = backend.create(context, data_dict)
+        result = backend.create(context, data_dict, plugin_data)
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(text_type(err))
 

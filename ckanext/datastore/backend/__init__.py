@@ -111,7 +111,7 @@ class DatastoreBackend:
 
         return config
 
-    def create(self, context, data_dict):
+    def create(self, context, data_dict, plugin_data):
         """Create new resourct inside datastore.
 
         Called by `datastore_create`.
