@@ -3,15 +3,23 @@
 from typing import Any
 import logging
 import os
+import json
 
 import click
+import sqlalchemy as sa
 
 from ckan.model import parse_db_config
 from ckan.common import config
 import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
-from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore.backend.postgres import (
+    identifier,
+    literal_string,
+    get_read_engine,
+    get_write_engine,
+    _get_field_info,
+)
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
 log = logging.getLogger(__name__)
@@ -175,5 +183,54 @@ def purge():
     click.echo('Dropped %s tables' % drop_count)
 
 
+@datastore.command(
+    'migrate',
+    short_help='migrate datastore field info for plugin_data support'
+)
+def migrate():
+    '''Move field info to _info so that plugins may add private information
+    to each field for their own purposes.'''
+
+    site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+
+    result = logic.get_action('datastore_search')(
+        {'user': site_user['name']},
+        {'resource_id': '_table_metadata'}
+    )
+
+    count = 0
+    skipped = 0
+    noinfo = 0
+    read_connection = get_read_engine()
+    for record in result['records']:
+        if record['alias_of']:
+            continue
+
+        raw_fields = _get_field_info(read_connection, record['name'], raw=True)
+        if any('_info' in f for f in raw_fields.values()):
+            skipped += 1
+            continue
+
+        alter_sql = []
+        with get_write_engine().begin() as connection:
+            for fid, fvalue in raw_fields.items():
+                raw = {'_info': fvalue}
+                raw_sql = literal_string(json.dumps(
+                    raw, ensure_ascii=False, separators=(',', ':')))
+                alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
+                    identifier(record['name']),
+                    identifier(fid),
+                    raw_sql))
+
+            if alter_sql:
+                connection.execute(sa.text(';'.join(alter_sql)))
+                count += 1
+            else:
+                noinfo += 1
+
+    click.echo('Migrated %d tables (%d already migrated, %d no info)' % (
+        count, skipped, noinfo))
+
+
 def get_commands():
-    return (set_permissions, dump, purge)
+    return (set_permissions, dump, purge, migrate)

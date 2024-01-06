@@ -277,11 +277,17 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
     return [x[0] for x in key_parts]
 
 
-def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
+def _get_field_info(
+        connection: Any,
+        resource_id: str,
+        raw: bool=False,
+        ) -> dict[str, Any]:
     u'''return a dictionary mapping column names to their info data,
     when present'''
     qtext = sa.text(u'''
-        select pa.attname as name, pd.description as info
+        select pa.attname as name, pd.description'''
+        + (u'' if raw else u"::json -> '_info'") +
+        u''' as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
             and pd.objsubid = pa.attnum and pc.relname = :res_id
@@ -291,7 +297,7 @@ def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
         return dict(
             (n, json.loads(v)) for (n, v) in
             connection.execute(qtext, {"res_id": resource_id}).fetchall())
-    except ValueError:  # don't die on non-json comments
+    except (TypeError, ValueError):  # don't die on non-json comments
         return {}
 
 
@@ -965,7 +971,10 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
             connection.execute(sa.text(sql_index_string))
 
 
-def create_table(context: Context, data_dict: dict[str, Any]):
+def create_table(
+        context: Context,
+        data_dict: dict[str, Any],
+        plugin_data: dict[int, dict[str, Any]]):
     '''Creates table, columns and column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
@@ -1047,20 +1056,26 @@ def create_table(context: Context, data_dict: dict[str, Any]):
     )
 
     info_sql = []
-    for f in supplied_fields:
+    for i, f in enumerate(supplied_fields):
+        ccom = plugin_data.get(i, {})
         info = f.get(u'info')
         if isinstance(info, dict):
+            ccom['_info'] = info
+        if ccom:
             info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                literal_string(
-                    json.dumps(info, ensure_ascii=False))))
+                literal_string(json.dumps(
+                        ccom, ensure_ascii=False, separators=(',', ':')))))
 
     context['connection'].execute(sa.text(
         sql_string + u';'.join(info_sql)))
 
 
-def alter_table(context: Context, data_dict: dict[str, Any]):
+def alter_table(
+        context: Context,
+        data_dict: dict[str, Any],
+        plugin_data: dict[int, dict[str, Any]]):
     '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
@@ -1127,18 +1142,28 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
             identifier(f['id']),
             f['type']))
 
-    for f in supplied_fields:
-        if u'info' in f:
-            info = f.get(u'info')
-            if isinstance(info, dict):
-                info_sql = literal_string(
-                    json.dumps(info, ensure_ascii=False))
-            else:
-                info_sql = 'NULL'
+    if any('info' in f for f in supplied_fields):
+        raw_field_info = _get_field_info(
+            context['connection'],
+            data_dict['resource_id'],
+            raw=True,
+        )
+
+        for i, f in enumerate(supplied_fields):
+            if 'info' not in f or not isinstance(f['info'], dict):
+                continue
+            raw = raw_field_info.get(f['id'], {})
+
+            raw['_info'] = f['info']
+            if i in plugin_data:
+                raw.update(plugin_data[i])
+
+            raw_sql = literal_string(json.dumps(
+                raw, ensure_ascii=False, separators=(',', ':')))
             alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                info_sql))
+                raw_sql))
 
     if data_dict['delete_fields']:
         for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
@@ -2069,7 +2094,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             return _unrename_json_field(data_dict)
 
-    def create(self, context: Context, data_dict: dict[str, Any]):
+    def create(
+            self,
+            context: Context,
+            data_dict: dict[str, Any],
+            plugin_data: dict[int, dict[str, Any]]):
         '''
         The first row will be used to guess types not in the fields and the
         guessed types will be added to the headers permanently.
@@ -2103,12 +2132,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 'SELECT * FROM pg_tables WHERE tablename = :table'
             ), {"table": data_dict['resource_id']}).fetchone()
             if not result:
-                create_table(context, data_dict)
+                create_table(context, data_dict, plugin_data)
                 _create_fulltext_trigger(
                     context['connection'],
                     data_dict['resource_id'])
             else:
-                alter_table(context, data_dict)
+                alter_table(context, data_dict, plugin_data)
             if 'triggers' in data_dict:
                 _create_triggers(
                     context['connection'],
