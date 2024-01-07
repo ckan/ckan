@@ -36,7 +36,7 @@ def recut():
     setup_template = 'setup.py'
 
     # get context
-    context = {{ cookiecutter | jsonify }}
+    context = {{ dict(cookiecutter) }}
 
     # Process keywords
     keywords = context['keywords'].strip().split()
@@ -68,6 +68,6 @@ def recut():
 
 
 if __name__ == '__main__':
-    context = {{ cookiecutter | jsonify }}
+    context = {{ dict(cookiecutter) }}
     if context['_source'] == 'local':
         recut()
