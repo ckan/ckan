@@ -746,7 +746,7 @@ class TestPackage:
         )[0]
         env = {"REMOTE_USER": user["name"]}
         response = app.get(
-            tk.url_for("activity.package_changes", id=activity.id),
+            url_for("activity.package_changes", id=activity.id),
             extra_environ=env,
         )
         assert helpers.body_contains(response, "Added resource")
