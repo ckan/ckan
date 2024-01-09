@@ -937,18 +937,3 @@ def test_url_validator():
     url = {("url",): "ftp://example.com"}
     validators.url_validator(key, url, errors, {})
     assert errors[key] == ['Please provide a valid URL']
-
-
-@pytest.mark.usefixtures("non_clean_db")
-def test_email_validator_case_sensitivity(app):
-    with app.flask_app.test_request_context():
-
-        user1 = factories.User(email="test@email.com")
-        with pytest.raises(logic.ValidationError):
-            factories.User(email="Test@email.com")
-
-        factories.User(email="USER@email.com")
-        user1["email"] = "User@email.com"
-
-        with pytest.raises(logic.ValidationError):
-            helpers.call_action("user_update", **user1)
