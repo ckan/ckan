@@ -1041,6 +1041,9 @@ def user_create(context: Context,
         model.repo.commit()
 
     if with_apitoken:
+        if not context['user']:
+            context["user"] = user.name
+
         # Create apitoken for user.
         api_token = _get_action("api_token_create")(
             context, {"user": user.name, "name": "default"}
