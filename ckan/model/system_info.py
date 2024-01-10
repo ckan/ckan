@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 from sqlalchemy import types, Column, Table
 from sqlalchemy.orm import Mapped
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, OperationalError
 
 
 import ckan.model.meta as meta
@@ -55,7 +55,7 @@ def get_system_info(key: str, default: Optional[str]=None) -> Optional[str]:
         meta.Session.commit()
         if obj:
             return obj.value
-    except ProgrammingError:
+    except (ProgrammingError,OperationalError):
         meta.Session.rollback()
     return default
 
