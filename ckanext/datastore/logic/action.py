@@ -103,7 +103,7 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     resource = data_dict.pop('resource', None)
     plugin_data: dict[int, dict[str, Any]] = {}
     for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
-        schema = plugin.update_schema(schema)
+        schema = plugin.update_datastore_create_schema(schema)
     validate_context = p.toolkit.fresh_context(context)
     validate_context['plugin_data'] = plugin_data
     data_dict, errors = _validate(data_dict, schema, validate_context)
@@ -350,7 +350,15 @@ def datastore_info(context: Context, data_dict: dict[str, Any]):
     p.toolkit.get_action('resource_show')(context, {'id': id})
 
     info = backend.resource_fields(id)
+    if not hasattr(backend, 'resource_plugin_data'):
+        return info
 
+    plugin_data = backend.resource_plugin_data(id)
+    for i, field in enumerate(info['fields']):
+        for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+            field = plugin.update_datastore_info_field(
+                field, plugin_data.get(field['id'], {}))
+        info['fields'][i] = field
     return info
 
 

@@ -137,14 +137,9 @@ class DictionaryView(MethodView):
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
             # resource_edit_base template uses these
-            pkg_dict = get_action(u'package_show')({}, {u'id': id})
-            resource = get_action(u'resource_show')({}, {u'id': resource_id})
-            rec = get_action(u'datastore_search')(
-                {}, {
-                    u'resource_id': resource_id,
-                    u'limit': 0
-                }
-            )
+            pkg_dict = get_action(u'package_show')({}, {'id': id})
+            resource = get_action(u'resource_show')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {'id': resource_id})
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
@@ -176,16 +171,20 @@ class DictionaryView(MethodView):
         if not isinstance(info, list):
             info = []
         info = info[:len(fields)]
+        custom = data.get(u'custom')
+        if not isinstance(custom, list):
+            custom = []
 
         get_action(u'datastore_create')(
             {}, {
                 u'resource_id': resource_id,
                 u'force': True,
-                u'fields': [{
-                    u'id': f[u'id'],
-                    u'type': f[u'type'],
-                    u'info': fi if isinstance(fi, dict) else {}
-                } for f, fi in zip_longest(fields, info)]
+                u'fields': [dict(
+                    cu or {},
+                    id=f['id'],
+                    type=f['type'],
+                    info=fi if isinstance(fi, dict) else {}
+                ) for f, fi, cu in zip_longest(fields, info, custom)]
             }
         )
 
