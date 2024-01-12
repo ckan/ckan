@@ -3,6 +3,7 @@ import pytest
 from ckan.lib.api_token import _get_secret
 from ckan.exceptions import CkanConfigurationException
 
+
 @pytest.mark.ckan_config("SECRET_KEY", "super_secret")
 @pytest.mark.ckan_config("api_token.jwt.encode.secret", None)
 @pytest.mark.ckan_config("api_token.jwt.decode.secret", None)
