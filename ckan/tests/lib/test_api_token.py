@@ -12,7 +12,7 @@ def test_secrets_default_to_SECRET_KEY():
 
 
 @pytest.mark.parametrize("encode", [True, False])
-@pytest.mark.ckan_config("SECRET_KEY", NONE)
+@pytest.mark.ckan_config("SECRET_KEY", None)
 @pytest.mark.ckan_config("api_token.jwt.encode.secret", None)
 @pytest.mark.ckan_config("api_token.jwt.decode.secret", None)
 def test_secrets_raise_error_if_no_fallback(encode):
