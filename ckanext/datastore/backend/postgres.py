@@ -1032,8 +1032,7 @@ def alter_table(context, data_dict, plugin_data):
             identifier(id_)))
 
     if alter_sql:
-        context['connection'].execute(
-            u';'.join(alter_sql).replace(u'%', u'%%'))
+        context['connection'].execute(';'.join(alter_sql))
 
 
 def insert_data(context, data_dict):
@@ -2022,8 +2021,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             real_id = results.fetchone()[0]
         return res_exists, real_id
 
-    # def resource_info(self, id):
-    #     pass
+    def resource_plugin_data(self, id: str) -> dict[str, Any]:
+        engine = self._get_read_engine()
+        with engine.connect() as conn:
+            return _get_field_info(conn, id, raw=True)
 
     def resource_fields(self, id):
 

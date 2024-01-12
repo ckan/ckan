@@ -27,10 +27,9 @@
     label=_('Label'), id='field-f' ~ position ~ 'label',
     value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
 
-  {{ form.markdown('info__' ~ position ~ '__notes',
-    label=_('Description'), id='field-d' ~ position ~ 'notes',
-    value=field.get('info', {}).get('notes', '')) }}
-{% endblock %}
+{{ form.markdown('info__' ~ position ~ '__notes',
+  label=_('Description'), id='field-d' ~ position ~ 'notes',
+  value=field.get('info', {}).get('notes', '')) }}
 
 {% block additional_fields %}
 {% endblock %}
