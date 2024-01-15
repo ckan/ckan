@@ -280,19 +280,19 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
 def _get_field_info(
         connection: Any,
         resource_id: str,
-        raw: bool=False,
+        raw: bool = False,
         ) -> dict[str, Any]:
-    u'''return a dictionary mapping column names to their info data,
+    '''return a dictionary mapping column names to their info data,
     when present'''
-    qtext = sa.text(u'''
-        select pa.attname as name, pd.description'''
-        + (u'' if raw else u"::json -> '_info'") +
-        u''' as info
+    qtext = sa.text(
+        '''select pa.attname as name, pd.description'''
+        + ('' if raw else "::json -> '_info'") +
+        ''' as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
             and pd.objsubid = pa.attnum and pc.relname = :res_id
-            and pa.attnum > 0
-    ''')
+            and pa.attnum > 0'''
+    )
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in

@@ -190,7 +190,8 @@ class IDatastoreBackend(interfaces.Interface):
 class IDataDictionaryForm(interfaces.Interface):
     """
     Allow data dictionary validation and per-plugin data storage by extending
-    the datastore_create schema and adding values to fields returned from datastore_info
+    the datastore_create schema and adding values to fields returned from
+    datastore_info
     """
     _reverse_iteration_order = True
 
