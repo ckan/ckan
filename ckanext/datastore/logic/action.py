@@ -297,7 +297,8 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     return result
 
 
-def datastore_info(context: Context, data_dict: dict[str, Any]):
+def datastore_info(context: Context, data_dict: dict[str, Any]
+        ) -> dict[str, Any]:
     '''
     Returns detailed metadata about a resource.
 
@@ -350,10 +351,12 @@ def datastore_info(context: Context, data_dict: dict[str, Any]):
     p.toolkit.get_action('resource_show')(context, {'id': id})
 
     info = backend.resource_fields(id)
-    if not hasattr(backend, 'resource_plugin_data'):
-        return info
 
-    plugin_data = backend.resource_plugin_data(id)
+    try:
+        plugin_data = backend.resource_plugin_data(id)
+    except NotImplementedError:
+        return {}
+
     for i, field in enumerate(info['fields']):
         for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
             field = plugin.update_datastore_info_field(

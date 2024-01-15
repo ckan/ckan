@@ -230,3 +230,6 @@ class DatastoreBackend:
         """Called by `datastore_function_delete` action.
         """
         raise NotImplementedError()
+
+    def resource_plugin_data(self, resource_id: str) -> dict[str, Any]:
+        raise NotImplementedError()
