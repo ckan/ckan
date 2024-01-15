@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from typing import Any
-from ckan.types import Validator, Schema
+from ckan.types import (
+    Schema, Context, FlattenErrorDict, FlattenDataDict, FlattenKey
+)
 from ckan.common import CKANConfig
 
 import json
@@ -28,6 +30,7 @@ class ExampleIDataDictionaryFormPlugin(plugins.SingletonPlugin):
         ignore_empty = get_validator('ignore_empty')
         int_validator = get_validator('int_validator')
 
+        assert isinstance(schema['fields'], dict)
         f = schema['fields']
         f['an_int'] = [ignore_empty, int_validator, to_plugin_data()]
         f['json_obj'] = [ignore_empty, json_obj, to_plugin_data()]
@@ -45,7 +48,7 @@ class ExampleIDataDictionaryFormPlugin(plugins.SingletonPlugin):
         return field
 
 
-def json_obj(value: Any):
+def json_obj(value: str | dict[str, Any]) -> dict[str, Any]:
     try:
         if isinstance(value, str):
             value = json.loads(value)
@@ -58,11 +61,11 @@ def json_obj(value: Any):
         raise Invalid('Not a JSON object')
 
 
-def to_plugin_data(plugin_key='example_idatadictionaryform'):
+def to_plugin_data(plugin_key: str='example_idatadictionaryform'):
     def validator(
             key: FlattenKey,
             data: FlattenDataDict,
-            errors: FlattemErrorDict,
+            errors: FlattenErrorDict,
             context: Context):
         """
         move value to plugin_data dict

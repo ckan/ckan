@@ -13,7 +13,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, c, h, Invalid
+    abort, render, c, h, Invalid, ValidationError
 )
 from ckanext.datastore.logic.schema import (
     list_of_strings_or_string,
@@ -207,16 +207,19 @@ class DictionaryView(MethodView):
         except (ObjectNotFound, NotAuthorized):
             abort(404, _(u'Resource not found'))
 
-    def get(self, id, resource_id):
+    def get(self, id, resource_id, data=None, errors=None, error_summary=None):
         u'''Data dictionary view: show field labels and descriptions'''
 
-        data_dict = self._prepare(id, resource_id)
+        template_vars = self._prepare(id, resource_id)
+        template_vars['data'] = data or {}
+        template_vars['errors'] = errors or {}
+        template_vars['error_summary'] = error_summary
 
         # global variables for backward compatibility
-        c.pkg_dict = data_dict[u'pkg_dict']
-        c.resource = data_dict[u'resource']
+        c.pkg_dict = template_vars[u'pkg_dict']
+        c.resource = template_vars[u'resource']
 
-        return render(u'datastore/dictionary.html', data_dict)
+        return render('datastore/dictionary.html', template_vars)
 
     def post(self, id, resource_id):
         u'''Data dictionary view: edit field labels and descriptions'''
@@ -227,22 +230,34 @@ class DictionaryView(MethodView):
         if not isinstance(info, list):
             info = []
         info = info[:len(fields)]
-        custom = data.get(u'custom')
+        custom = data.get(u'fields')
         if not isinstance(custom, list):
             custom = []
 
-        get_action(u'datastore_create')(
-            None, {
-                u'resource_id': resource_id,
-                u'force': True,
-                u'fields': [dict(
-                    cu or {},
-                    id=f['id'],
-                    type=f['type'],
-                    info=fi if isinstance(fi, dict) else {}
-                ) for f, fi, cu in zip_longest(fields, info, custom)]
-            }
-        )
+        try:
+            get_action('datastore_create')(
+                {}, {
+                    'resource_id': resource_id,
+                    'force': True,
+                    'fields': [dict(
+                        cu or {},
+                        id=f['id'],
+                        type=f['type'],
+                        info=fi if isinstance(fi, dict) else {}
+                    ) for f, fi, cu in zip_longest(fields, info, custom)]
+                }
+            )
+        except ValidationError as e:
+            errors = e.error_dict
+            # flatten field errors for summary
+            error_summary = {}
+            field_errors = errors.get('fields', [])
+            if isinstance(field_errors, list):
+                for i, f in enumerate(field_errors, 1):
+                    if isinstance(f, dict) and f:
+                        error_summary[_('Field %d') % i] = ', '.join(
+                            v for vals in f.values() for v in vals)
+            return self.get(id, resource_id, data, errors, error_summary)
 
         h.flash_success(
             _(
