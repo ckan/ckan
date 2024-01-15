@@ -61,7 +61,7 @@ def json_obj(value: str | dict[str, Any]) -> dict[str, Any]:
         raise Invalid('Not a JSON object')
 
 
-def to_plugin_data(plugin_key: str='example_idatadictionaryform'):
+def to_plugin_data(plugin_key: str = 'example_idatadictionaryform'):
     def validator(
             key: FlattenKey,
             data: FlattenDataDict,

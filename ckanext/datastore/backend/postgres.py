@@ -260,17 +260,17 @@ def _get_unique_key(context, data_dict):
 
 
 def _get_field_info(connection, resource_id, raw):
-    u'''return a dictionary mapping column names to their info data,
+    '''return a dictionary mapping column names to their info data,
     when present'''
-    qtext = sqlalchemy.text(u'''
-        select pa.attname as name, pd.description'''
-        + (u'' if raw else u"::json -> '_info'") +
-        u''' as info
+    qtext = sa.text(
+        '''select pa.attname as name, pd.description'''
+        + ('' if raw else "::json -> '_info'") +
+        ''' as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
             and pd.objsubid = pa.attnum and pc.relname = :res_id
-            and pa.attnum > 0
-    ''')
+            and pa.attnum > 0'''
+    )
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in
