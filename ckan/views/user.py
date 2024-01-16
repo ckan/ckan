@@ -675,7 +675,7 @@ class RequestResetView(MethodView):
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'user.request_reset')
-        log.info(u'Password reset requested for user "{}"'.format(id))
+        log.info('Password reset requested for user {!r}'.format(id))
 
         context: Context = {
             'user': current_user.name,
@@ -716,7 +716,7 @@ class RequestResetView(MethodView):
                 pass
 
         if not user_objs:
-            log.info(u'User requested reset link for unknown user: {}'
+            log.info('User requested reset link for unknown user: {!r}'
                      .format(id))
 
         for user_obj in user_objs:
