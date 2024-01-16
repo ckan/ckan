@@ -995,6 +995,16 @@ def email_validator(value: Any, context: Context) -> Any:
     if value:
         if not email_pattern.match(value):
             raise Invalid(_('Email {email} is not a valid format').format(email=value))
+
+    model = context['model']
+    session = context['session']
+    users = session.query(model.User).all()
+    if users:
+        for user in users:
+            if user.email is None:
+                pass
+            elif user.email.lower() == value.lower():
+                raise Invalid(_('Email with same name already exists'))
     return value
 
 def collect_prefix_validate(prefix: str, *validator_names: str) -> Validator:

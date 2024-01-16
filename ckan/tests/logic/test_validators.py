@@ -188,6 +188,16 @@ def test_email_is_unique_validator_with_existed_value(app):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+def test_email_case_sensitive(app):
+    with app.flask_app.test_request_context():
+        user1 = factories.User(username="user1", email="abc@local")
+
+    # try to create new user with same email_id but email is case-sensitive.
+    with pytest.raises(logic.ValidationError):
+        factories.User(username="user2", email="ABC@local")
+
+
+@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_email_unchanged():
     user = factories.User()
 
