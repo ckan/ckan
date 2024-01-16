@@ -1032,7 +1032,9 @@ def alter_table(context, data_dict, plugin_data):
             identifier(id_)))
 
     if alter_sql:
-        context['connection'].execute(';'.join(alter_sql))
+        context['connection'].execute(sa.text(
+            ';'.join(alter_sql).replace(':', r'\:')  # no bind params
+        ))
 
 
 def insert_data(context, data_dict):
