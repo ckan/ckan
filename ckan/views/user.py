@@ -25,7 +25,8 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user, session
+    _, config, g, request, current_user, login_user, logout_user, session,
+    repr_untrusted
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -675,7 +676,7 @@ class RequestResetView(MethodView):
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'user.request_reset')
-        log.info('Password reset requested for user {!r}'.format(id))
+        log.info('Password reset requested for user %s', repr_untrusted(id))
 
         context: Context = {
             'user': current_user.name,
@@ -716,8 +717,8 @@ class RequestResetView(MethodView):
                 pass
 
         if not user_objs:
-            log.info('User requested reset link for unknown user: {!r}'
-                     .format(id))
+            log.info('User requested reset link for unknown user: %s',
+                     repr_untrusted(id))
 
         for user_obj in user_objs:
             log.info(u'Emailing reset link to user: {}'
