@@ -5366,7 +5366,7 @@ msgstr "Texte Unicode de n’importe quelle longueur"
 
 #: ckanext/tabledesigner/column_types.py:86
 msgid "free-form text"
-msgstr "Rtexte libre"
+msgstr "texte libre"
 
 #: ckanext/tabledesigner/column_types.py:108
 msgid "Choice"
@@ -5382,11 +5382,11 @@ msgstr "Adresse e-mail"
 
 #: ckanext/tabledesigner/column_types.py:159
 msgid "A single email address"
-msgstr "Une seule adresse courriel"
+msgstr "Une simple adresse courriel"
 
 #: ckanext/tabledesigner/column_types.py:186
 msgid "Invalid email"
-msgstr "Courriel invalide"
+msgstr "Adresse courriel non valide"
 
 #: ckanext/tabledesigner/column_types.py:192
 msgid "URI"
