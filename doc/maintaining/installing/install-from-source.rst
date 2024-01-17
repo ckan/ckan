@@ -26,7 +26,7 @@ work on CKAN.
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server
+    sudo apt-get install python3-dev libpq-dev python3-pip python3-venv git-core redis-server libmagic1
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
