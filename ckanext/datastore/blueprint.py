@@ -14,7 +14,7 @@ from ckan.logic import (
 )
 from ckan.plugins.toolkit import (
     ObjectNotFound, NotAuthorized, get_action, get_validator, _, request,
-    abort, render, g, h
+    abort, render, g, h, ValidationError
 )
 from ckan.types import Schema, ValidatorFactory
 from ckanext.datastore.logic.schema import (
@@ -137,9 +137,9 @@ class DictionaryView(MethodView):
     def _prepare(self, id: str, resource_id: str) -> dict[str, Any]:
         try:
             # resource_edit_base template uses these
-            pkg_dict = get_action(u'package_show')({}, {u'id': id})
-            resource = get_action(u'resource_show')({}, {u'id': resource_id})
-            rec = get_action(u'datastore_info')({}, {u'id': resource_id})
+            pkg_dict = get_action(u'package_show')({}, {'id': id})
+            resource = get_action(u'resource_show')({}, {'id': resource_id})
+            rec = get_action(u'datastore_info')({}, {'id': resource_id})
             return {
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
@@ -152,16 +152,25 @@ class DictionaryView(MethodView):
         except (ObjectNotFound, NotAuthorized):
             abort(404, _(u'Resource not found'))
 
-    def get(self, id: str, resource_id: str):
+    def get(self,
+            id: str,
+            resource_id: str,
+            data: Optional[dict[str, Any]] = None,
+            errors: Optional[dict[str, Any]] = None,
+            error_summary: Optional[dict[str, Any]] = None,
+            ):
         u'''Data dictionary view: show field labels and descriptions'''
 
-        data_dict = self._prepare(id, resource_id)
+        template_vars = self._prepare(id, resource_id)
+        template_vars['data'] = data or {}
+        template_vars['errors'] = errors or {}
+        template_vars['error_summary'] = error_summary
 
         # global variables for backward compatibility
-        g.pkg_dict = data_dict[u'pkg_dict']
-        g.resource = data_dict[u'resource']
+        g.pkg_dict = template_vars['pkg_dict']
+        g.resource = template_vars['resource']
 
-        return render(u'datastore/dictionary.html', data_dict)
+        return render('datastore/dictionary.html', template_vars)
 
     def post(self, id: str, resource_id: str):
         u'''Data dictionary view: edit field labels and descriptions'''
@@ -172,18 +181,34 @@ class DictionaryView(MethodView):
         if not isinstance(info, list):
             info = []
         info = info[:len(fields)]
+        custom = data.get(u'fields')
+        if not isinstance(custom, list):
+            custom = []
 
-        get_action(u'datastore_create')(
-            {}, {
-                u'resource_id': resource_id,
-                u'force': True,
-                u'fields': [{
-                    u'id': f[u'id'],
-                    u'type': f[u'type'],
-                    u'info': fi if isinstance(fi, dict) else {}
-                } for f, fi in zip_longest(fields, info)]
-            }
-        )
+        try:
+            get_action('datastore_create')(
+                {}, {
+                    'resource_id': resource_id,
+                    'force': True,
+                    'fields': [dict(
+                        cu or {},
+                        id=f['id'],
+                        type=f['type'],
+                        info=fi if isinstance(fi, dict) else {}
+                    ) for f, fi, cu in zip_longest(fields, info, custom)]
+                }
+            )
+        except ValidationError as e:
+            errors = e.error_dict
+            # flatten field errors for summary
+            error_summary = {}
+            field_errors = errors.get('fields', [])
+            if isinstance(field_errors, list):
+                for i, f in enumerate(field_errors, 1):
+                    if isinstance(f, dict) and f:
+                        error_summary[_('Field %d') % i] = ', '.join(
+                            v for vals in f.values() for v in vals)
+            return self.get(id, resource_id, data, errors, error_summary)
 
         h.flash_success(
             _(
