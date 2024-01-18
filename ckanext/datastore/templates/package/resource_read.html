@@ -7,6 +7,30 @@
   {% endif %}
 {% endblock %}
 
+{% block download_resource_button %}
+    <button class="btn btn-primary dropdown-toggle" role="button" id="dropdownDownloadFormat" data-bs-toggle="dropdown" aria-expanded="false" aria-label="list of downloadable formats">
+        <span class="caret"></span>
+      </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownDownloadFormat">
+      <li>
+        <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
+          target="_blank" rel="noreferrer"><span>CSV</span></a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
+          target="_blank" rel="noreferrer"><span>TSV</span></a>
+      </li>
+      <li>
+          <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
+          target="_blank" rel="noreferrer"><span>JSON</span></a>
+      </li>
+      <li>
+          <a class="dropdown-item" href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
+          target="_blank" rel="noreferrer"><span>XML</span></a>
+      </li>
+    </ul>
+{% endblock download_resource_button %}
+
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
   {% block resource_data_dictionary %}
