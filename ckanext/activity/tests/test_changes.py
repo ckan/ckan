@@ -11,7 +11,8 @@ from ckan.tests import helpers
 from ckan.tests.factories import Dataset, Organization
 
 
-@pytest.mark.usefixtures("non_clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestChanges(object):
     def test_title(self):
         changes = []

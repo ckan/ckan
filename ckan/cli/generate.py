@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import os
 import json
+from packaging.version import Version
 import shutil
 from typing import Optional
 
@@ -89,17 +90,21 @@ def extension(output_dir: str):
 
     include_examples = int(click.confirm(
         "Do you want to include code examples?"))
+    full_ckan_version: Version = Version(ckan.__version__)
+    ckan_version = f"{full_ckan_version.major}.{full_ckan_version.minor}"
+
     context = {
-        u"project": name,
-        u"description": description,
-        u"author": author,
-        u"author_email": email,
-        u"keywords": keywords,
-        u"github_user_name": github,
-        u"project_shortname": project_short,
-        u"plugin_class_name": plugin_class_name,
-        u"include_examples": include_examples,
-        u"_source": u"cli",
+        "project": name,
+        "description": description,
+        "author": author,
+        "author_email": email,
+        "keywords": keywords,
+        "github_user_name": github,
+        "project_shortname": project_short,
+        "plugin_class_name": plugin_class_name,
+        "include_examples": include_examples,
+        "ckan_version": ckan_version,
+        "_source": "cli",
     }
 
     if output_dir == u'.':

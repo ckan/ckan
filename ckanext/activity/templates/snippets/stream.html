@@ -14,7 +14,7 @@
 {% endmacro %}
 
 {% macro organization(activity) %}
-  <a href="{{ h.url_for('organization.read', id=activity.object_id) }}">
+  <a href="{{ h.url_for(group_type ~ '.read', id=activity.object_id) }}">
     {{ activity.data.group.title if activity.data.group else _('unknown') }}
   </a>
 {% endmacro %}
