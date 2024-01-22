@@ -932,8 +932,9 @@ def create_table(context, data_dict, plugin_data):
                 literal_string(json.dumps(
                         ccom, ensure_ascii=False, separators=(',', ':')))))
 
-    context['connection'].execute(
-        (sql_string + u';'.join(info_sql)).replace(u'%', u'%%'))
+    context['connection'].execute(sa.text(
+        sql_string + u';'.join(info_sql).replace(':', r'\:')  # no bind params
+    ))
 
 
 def alter_table(context, data_dict, plugin_data):
@@ -1003,7 +1004,7 @@ def alter_table(context, data_dict, plugin_data):
             identifier(f['id']),
             f['type']))
 
-    if any('info' in f for f in supplied_fields):
+    if plugin_data or any('info' in f for f in supplied_fields):
         raw_field_info = _get_field_info(
             context['connection'],
             data_dict['resource_id'],
@@ -1011,11 +1012,10 @@ def alter_table(context, data_dict, plugin_data):
         )
 
         for i, f in enumerate(supplied_fields):
-            if 'info' not in f or not isinstance(f['info'], dict):
-                continue
             raw = raw_field_info.get(f['id'], {})
 
-            raw['_info'] = f['info']
+            if 'info' in f and isinstance(f['info'], dict):
+                raw['_info'] = f['info']
             if i in plugin_data:
                 raw.update(plugin_data[i])
 
