@@ -318,7 +318,7 @@ groups:
           The dbm option is not recommended as it is not thread-safe.
 
       - key: beaker.session.validate_key
-        validators: not_empty
+        validators: configured_default("beaker.session.secret",None) not_empty
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
