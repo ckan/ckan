@@ -1,11 +1,11 @@
 # encoding: utf-8
 
 import pytest
-import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 from ckan.plugins.toolkit import ValidationError
 from ckanext.datastore.backend import DatastoreBackend
+
 
 @pytest.mark.ckan_config(
     "ckan.plugins", "datastore example_idatadictionaryform")
