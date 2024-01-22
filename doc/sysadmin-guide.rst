@@ -103,9 +103,9 @@ the appropriate entry from the "organization" drop-down list, and press "Save".
 
 .. image:: /images/move_dataset_between_organizations.jpg
 
------------------------------
+-------------------------------------------------------
 Permanently deleting datasets, organizations and groups
------------------------------
+-------------------------------------------------------
 
 A dataset, organization or group which has been deleted is not permanently
 removed from CKAN; it is simply marked as 'deleted' and will no longer
