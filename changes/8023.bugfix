@@ -1,0 +1,1 @@
+CKAN does not start without ``beaker.session.validate_key`` option introduced in v2.10.3
