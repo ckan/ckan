@@ -155,6 +155,10 @@ def resource_view_list(context: Context, data_dict: DataDict) -> AuthResult:
     return authz.is_authorized('resource_show', context, data_dict)
 
 
+def resource_file_metadata_show(context: Context, data_dict: DataDict) -> AuthResult:
+    return authz.is_authorized('resource_show', context, data_dict)
+
+
 def group_show(context: Context, data_dict: DataDict) -> AuthResult:
     user = context.get('user')
     group = get_group_object(context, data_dict)
