@@ -2547,17 +2547,6 @@ def resource_view_get_fields(resource):
 
 
 @core_helper
-def get_resource_view(resource_view_id):
-    '''Returns a resource view dict for the resource_view_id
-    '''
-    try:
-        return logic.get_action('resource_view_show')(
-            {}, {'id': resource_view_id})
-    except logic.NotFound:
-        return None
-
-
-@core_helper
 def resource_view_is_iframed(resource_view):
     '''
     Returns true if the given resource view should be displayed in an iframe.
@@ -2573,12 +2562,6 @@ def resource_view_icon(resource_view):
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('icon', 'picture')
-
-
-@core_helper
-def resource_view_type(resource_view):
-    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
-    return view_plugin.info().get('title')
 
 
 @core_helper

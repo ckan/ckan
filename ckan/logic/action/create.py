@@ -435,7 +435,7 @@ def resource_view_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    # add activity for resource view create
+    # (canada fork only): add activity for resource view create
     try:
         user = context['user']
         user_id = model.User.by_name(user.decode('utf8')).id
