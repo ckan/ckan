@@ -99,12 +99,6 @@
             <dt>{{ _('State') }}</dt>
             <dd>{{ _(user.state) }}</dd>
           </dl>
-          {% if is_myself %}
-            <dl>
-              <dt class="key">{{ _('API Key') }} <span class="label label-default" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
-              <dd class="value"><code>{{ user.apikey }}</code></dd>
-            </dl>
-          {% endif %}
         </div>
         {% endblock %}
       {% endblock %}
