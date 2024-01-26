@@ -142,6 +142,91 @@ def test_validate_custom_fields():
     ]}
 
 
+@pytest.mark.ckan_config(
+    "ckan.plugins", "datastore example_idatadictionaryform")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
+def test_validators_access_current_values():
+    fields = [
+        {
+            "id": "one", "type": "text",
+            "only_up": 42, "sticky": "never give you up",
+        },
+        {
+            "id": "two", "type": "text",
+            "only_up": -4, "sticky": "let you down",
+        },
+    ]
+    resource = _create_datastore_resource(fields)
+
+    result = helpers.call_action(
+        "datastore_info", id=resource["id"]
+    )
+
+    f1 = {k: v for k, v in result['fields'][0].items() if k != 'schema'}
+    f2 = {k: v for k, v in result['fields'][1].items() if k != 'schema'}
+    assert f1 == {
+        "id": "one", "type": "text", "only_up": 42,
+        "sticky": "never give you up"}
+    assert f2 == {
+        "id": "two", "type": "text", "only_up": -4,
+        "sticky": "let you down"}
+
+    # passing nothing/empty string/null will maintain sticky values
+    # even when other values are set in the same plugin data key
+    fields = [
+        {
+            "id": "one", "type": "text",
+            "an_int": 19, "only_up": "", "sticky": None,
+        },
+        {
+            "id": "two", "type": "text",
+            "an_int": 20, "sticky": "",
+        },
+    ]
+    helpers.call_action(
+        "datastore_create",
+        resource_id=resource['id'],
+        force=True,
+        fields=fields,
+    )
+
+    result = helpers.call_action(
+        "datastore_info", id=resource["id"]
+    )
+
+    f1 = {k: v for k, v in result['fields'][0].items() if k != 'schema'}
+    f2 = {k: v for k, v in result['fields'][1].items() if k != 'schema'}
+    assert f1 == {
+        "id": "one", "type": "text", "only_up": 42, "an_int": 19,
+        "sticky": "never give you up"}
+    assert f2 == {
+        "id": "two", "type": "text", "only_up": -4, "an_int": 20,
+        "sticky": "let you down"}
+
+    fields = [
+        {
+            "id": "one", "type": "text",
+            "only_up": "17", "sticky": 20,
+        },
+        {
+            "id": "two", "type": "text",
+            "only_up": -5,
+        },
+    ]
+    with pytest.raises(ValidationError) as err:
+        helpers.call_action(
+            "datastore_create",
+            resource_id=resource['id'],
+            force=True,
+            fields=fields,
+        )
+    assert err.value.error_dict == {'fields': [
+        {'only_up': ['Value must be larger than 42'],
+         'sticky': ['Must be a Unicode string value']},
+        {'only_up': ['Value must be larger than -4']},
+    ]}
+
+
 def _create_datastore_resource(fields):
     dataset = factories.Dataset()
     resource = factories.Resource(package=dataset)
