@@ -1,1 +1,1 @@
-Update documentation for disabling nginx cache for new beaker auth cookies.
+Update documentation for disabling nginx cache for new flask-login auth cookies.
