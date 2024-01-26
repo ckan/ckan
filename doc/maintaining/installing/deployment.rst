@@ -187,8 +187,8 @@ following contents:
             proxy_set_header X-Forwarded-For $remote_addr;
             proxy_set_header Host $host;
             proxy_cache cache;
-            proxy_cache_bypass $cookie_auth_tkt;
-            proxy_no_cache $cookie_auth_tkt;
+            proxy_cache_bypass $cookie_auth_tkt $cookie_remember_token;
+            proxy_no_cache $cookie_auth_tkt $cookie_remember_token;
             proxy_cache_valid 30m;
             proxy_cache_key $host$scheme$proxy_host$request_uri;
             # In emergency comment out line to force caching
