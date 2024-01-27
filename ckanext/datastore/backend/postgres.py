@@ -280,14 +280,11 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
 def _get_field_info(
         connection: Any,
         resource_id: str,
-        raw: bool = False,
         ) -> dict[str, Any]:
     '''return a dictionary mapping column names to their info data,
     when present'''
     qtext = sa.text(
-        '''select pa.attname as name, pd.description'''
-        + ('' if raw else "::json -> '_info'") +
-        ''' as info
+        '''select pa.attname as name, pd.description::json -> '_info' as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
             and pd.objsubid = pa.attnum and pc.relname = :res_id
@@ -299,6 +296,30 @@ def _get_field_info(
             connection.execute(qtext, {"res_id": resource_id}).fetchall())
     except (TypeError, ValueError):  # don't die on non-json comments
         return {}
+
+
+def _get_raw_field_info(
+        connection: Any,
+        resource_id: str,
+        ) -> tuple[dict[str, Any], bool]:
+    '''return a dictionary mapping column names to their raw info data,
+    when present and a flag if old data schema is present (for upgrade)'''
+    qtext = sa.text(
+        '''select pa.attname as name, pd.description as info,
+            substring(pd.description for 1) = '{' as old_schema
+        from pg_class pc, pg_attribute pa, pg_description pd
+        where pa.attrelid = pc.oid and pd.objoid = pc.oid
+            and pd.objsubid = pa.attnum and pc.relname = :res_id
+            and pa.attnum > 0'''
+    )
+    try:
+        results = list(connection.execute(
+            qtext, {"res_id": resource_id}).fetchall())
+        return {
+            n: json.loads(v) for n, v, _old in results
+            }, any(old for _n, _v, old in results)
+    except (TypeError, ValueError):  # don't die on non-json comments
+        return {}, False
 
 
 def _get_fields(connection: Any, resource_id: str):
@@ -1065,11 +1086,12 @@ def create_table(
             info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                literal_string(json.dumps(
+                literal_string(' ' + json.dumps(  # ' ' prefix for data version
                         ccom, ensure_ascii=False, separators=(',', ':')))))
 
     context['connection'].execute(sa.text(
-        sql_string + u';'.join(info_sql)))
+        sql_string + u';'.join(info_sql).replace(':', r'\:')  # no bind params
+    ))
 
 
 def alter_table(
@@ -1142,23 +1164,22 @@ def alter_table(
             identifier(f['id']),
             f['type']))
 
-    if any('info' in f for f in supplied_fields):
-        raw_field_info = _get_field_info(
+    if plugin_data or any('info' in f for f in supplied_fields):
+        raw_field_info, _old = _get_raw_field_info(
             context['connection'],
             data_dict['resource_id'],
-            raw=True,
         )
 
         for i, f in enumerate(supplied_fields):
-            if 'info' not in f or not isinstance(f['info'], dict):
-                continue
             raw = raw_field_info.get(f['id'], {})
 
-            raw['_info'] = f['info']
+            if 'info' in f and isinstance(f['info'], dict):
+                raw['_info'] = f['info']
             if i in plugin_data:
                 raw.update(plugin_data[i])
 
-            raw_sql = literal_string(json.dumps(
+            # ' ' prefix for data version
+            raw_sql = literal_string(' ' + json.dumps(
                 raw, ensure_ascii=False, separators=(',', ':')))
             alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
@@ -2219,7 +2240,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
     def resource_plugin_data(self, id: str) -> dict[str, Any]:
         engine = self._get_read_engine()
         with engine.connect() as conn:
-            return _get_field_info(conn, id, raw=True)
+            plugin_data, _old = _get_raw_field_info(conn, id)
+            return plugin_data
 
     def resource_fields(self, id: str) -> dict[str, Any]:
 

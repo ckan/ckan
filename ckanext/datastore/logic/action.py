@@ -5,6 +5,7 @@ from ckan.types import Context
 import logging
 from typing import Any
 import json
+from contextlib import contextmanager
 
 import sqlalchemy
 import sqlalchemy.exc
@@ -101,12 +102,11 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
-    plugin_data: dict[int, dict[str, Any]] = {}
     for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
         schema = plugin.update_datastore_create_schema(schema)
-    validate_context = p.toolkit.fresh_context(context)
-    validate_context['plugin_data'] = plugin_data
-    data_dict, errors = _validate(data_dict, schema, validate_context)
+    with _create_validate_context(context, data_dict) as validate_context:
+        plugin_data = validate_context['plugin_data']
+        data_dict, errors = _validate(data_dict, schema, validate_context)
     resource_dict = None
     if records:
         data_dict['records'] = records
@@ -183,6 +183,53 @@ def datastore_create(context: Context, data_dict: dict[str, Any]):
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
+
+
+@contextmanager
+def _create_validate_context(context: Context, data_dict: dict[str, Any]):
+    '''
+    Populate plugin_data and resource for context to validators of
+    datastore_create data_dict. This is called before validation so nothing
+    about data_dict can be trusted.
+    '''
+    backend = DatastoreBackend.get_active_backend()
+    validate_context = p.toolkit.fresh_context(context)
+    plugin_data: dict[int, dict[str, Any]] = {}
+    validate_context['plugin_data'] = plugin_data
+    resource_id = data_dict.get('resource_id')
+    if not resource_id or not isinstance(resource_id, str):
+        yield validate_context
+        return
+
+    resource = model.Resource.get(data_dict['resource_id'])
+    if not resource:
+        yield validate_context
+        return
+    validate_context['resource'] = resource
+
+    fields = data_dict.get('fields')
+    if not fields or not isinstance(fields, list):
+        yield validate_context
+        return
+
+    try:
+        current_plugin_data = backend.resource_plugin_data(resource_id)
+    except NotImplementedError:
+        current_plugin_data = None
+    if not current_plugin_data:
+        yield validate_context
+        return
+
+    for i, field in enumerate(data_dict['fields']):
+        if not isinstance(field, dict):
+            continue
+        if field.get('id') in current_plugin_data:
+            plugin_data[i] = {'_current': current_plugin_data[field['id']]}
+    yield validate_context
+
+    # clean up _current values so they aren't saved
+    for pd in plugin_data.values():
+        pd.pop('_current', None)
 
 
 def datastore_run_triggers(context: Context, data_dict: dict[str, Any]) -> int:

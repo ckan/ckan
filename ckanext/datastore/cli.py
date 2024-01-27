@@ -18,7 +18,7 @@ from ckanext.datastore.backend.postgres import (
     literal_string,
     get_read_engine,
     get_write_engine,
-    _get_field_info,
+    _get_raw_field_info,
 )
 from ckanext.datastore.blueprint import DUMP_FORMATS, dump_to
 
@@ -184,10 +184,10 @@ def purge():
 
 
 @datastore.command(
-    'migrate',
-    short_help='migrate datastore field info for plugin_data support'
+    'upgrade',
+    short_help='upgrade datastore field info for plugin_data support'
 )
-def migrate():
+def upgrade():
     '''Move field info to _info so that plugins may add private information
     to each field for their own purposes.'''
 
@@ -206,16 +206,20 @@ def migrate():
         if record['alias_of']:
             continue
 
-        raw_fields = _get_field_info(read_connection, record['name'], raw=True)
-        if any('_info' in f for f in raw_fields.values()):
-            skipped += 1
+        raw_fields, old = _get_raw_field_info(read_connection, record['name'])
+        if not old:
+            if not raw_fields:
+                noinfo += 1
+            else:
+                skipped += 1
             continue
 
         alter_sql = []
         with get_write_engine().begin() as connection:
             for fid, fvalue in raw_fields.items():
                 raw = {'_info': fvalue}
-                raw_sql = literal_string(json.dumps(
+                # ' ' prefix for data version
+                raw_sql = literal_string(' ' + json.dumps(
                     raw, ensure_ascii=False, separators=(',', ':')))
                 alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                     identifier(record['name']),
@@ -228,9 +232,9 @@ def migrate():
             else:
                 noinfo += 1
 
-    click.echo('Migrated %d tables (%d already migrated, %d no info)' % (
+    click.echo('Upgraded %d tables (%d already upgraded, %d no info)' % (
         count, skipped, noinfo))
 
 
 def get_commands():
-    return (set_permissions, dump, purge, migrate)
+    return (set_permissions, dump, purge, upgrade)
