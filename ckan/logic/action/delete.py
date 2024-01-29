@@ -238,7 +238,7 @@ def resource_view_delete(context, data_dict):
     resource_view.delete()
     model.repo.commit()
 
-    # add activity for resource view delete
+    # (canada fork only): add activity for resource view delete
     try:
         user = context['user']
         user_id = model.User.by_name(user.decode('utf8')).id
