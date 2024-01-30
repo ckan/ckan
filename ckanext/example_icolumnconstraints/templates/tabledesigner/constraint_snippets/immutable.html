@@ -1,8 +1,9 @@
 {%- call
-  form.checkbox('info__' ~ position ~ '__immutable',
+  form.checkbox('fields__' ~ position ~ '__tdimmutable',
     label=_('Immutable'),
     id='field-f' ~ position ~ 'immutable',
-    checked=field.get('info', {}).get('immutable', ''),
+    checked=data.get('tdimmutable', field.get('tdimmutable', '')),
+    error=errors.tdimmutable,
     value='immutable',
     classes=['control-full']
   )

@@ -39,25 +39,23 @@ class _TableDesignerDictionary(MethodView):
         info = data.get('info')
         if not isinstance(info, list):
             info = []
+        custom = data.get('fields')
+        if not isinstance(custom, list):
+            return base.abort(400, _('Required fields missing'))
+        info = info[:len(custom)]
 
         flookup = {f['id']: f for f in fields}
         new_fields = []
 
-        for e in info:
-            if not e.get('tdtype') or not e.get('id'):
+        for c, fi in zip_longest(custom, info):
+            if not c.get('tdtype') or not c.get('id'):
                 return base.abort(400, _('Required fields missing'))
-            f = flookup.get(e['id'])
+            f = flookup.get(c['id'])
             if f:
                 datastore_type = f['type']
             else:
-                datastore_type = h.tabledesigner_column_type(
-                    {'info': e}
-                ).datastore_type
-            new_fields.append({
-                'id': e['id'],
-                'type': datastore_type,
-                'info': e
-            })
+                datastore_type = h.tabledesigner_column_type(c).datastore_type
+            new_fields.append(dict(c, type=datastore_type, info=fi))
 
         try:
             create_table(resource_id, new_fields)
@@ -69,14 +67,22 @@ class _TableDesignerDictionary(MethodView):
                     info=d,
                 ) for d in data['info']
             ]
-            if 'fields' in e.error_dict:
-                data_dict['error_summary'] = {
-                    'id': ', '.join(e.error_dict['fields'])
-                }
-            else:
+            errors = e.error_dict
+            field_errors = errors.get('fields')
+            if not field_errors:
                 raise
 
-            return render('datastore/dictionary.html', data_dict)
+            if field_errors and not isinstance(field_errors[0], dict):
+                error_summary = {'id': ', '.join(
+                    cast(List[str], field_errors)
+                )}
+            else:
+                error_summary = {}
+                for i, f in enumerate(field_errors, 1):
+                    if isinstance(f, dict) and f:
+                        error_summary[_('Field %d') % i] = ', '.join(
+                            v for vals in f.values() for v in vals)
+            return self.get(id, resource_id, data, errors, error_summary)
 
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(
