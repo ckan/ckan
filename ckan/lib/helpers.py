@@ -2270,7 +2270,6 @@ def resource_view_is_filterable(resource_view: dict[str, Any]) -> bool:
 @core_helper
 def resource_view_get_fields(resource: dict[str, Any]) -> list["str"]:
     '''Returns sorted list of text and time fields of a datastore resource.'''
-
     if not resource.get('datastore_active'):
         return []
 
