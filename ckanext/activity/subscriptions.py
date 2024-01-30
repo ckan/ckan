@@ -202,8 +202,9 @@ def resource_view_changed(sender: str, **kwargs: Any):
         view_dict = dictization.table_dictize(view, context)
     else:
         view_dict = data_dict
-        assert view_dict.get('id')
-        assert view_dict.get('resource_id')
+
+    assert view_dict.get('id')
+    assert view_dict.get('resource_id')
 
     resource = context["model"].Resource.get(view_dict.get('resource_id'))
     assert resource
