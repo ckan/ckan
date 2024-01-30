@@ -189,15 +189,6 @@ def resource_view_changed(sender: str, **kwargs: Any):
     else:
         id_ = result["id"]
 
-    view = context["model"].ResourceView.get(id_)
-    assert view
-
-    user_obj = context["model"].User.get(context["user"])
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = "not logged in"
-
     if sender == "resource_view_create":
         activity_type = "new resource view"
     elif sender == "resource_view_update":
@@ -205,11 +196,31 @@ def resource_view_changed(sender: str, **kwargs: Any):
     else:
         activity_type = "deleted resource view"
 
+    if activity_type != "deleted resource view":
+        view = context["model"].ResourceView.get(id_)
+        assert view
+        view_dict = dictization.table_dictize(view, context)
+    else:
+        view_dict = data_dict
+        assert view_dict.get('id')
+        assert view_dict.get('resource_id')
+
+    resource = context["model"].Resource.get(view_dict.get('resource_id'))
+    assert resource
+
+    user_obj = context["model"].User.get(context["user"])
+    if user_obj:
+        user_id = user_obj.id
+    else:
+        user_id = "not logged in"
+
+    view_dict['package_id'] = resource.package_id
+
     activity_dict = {
         "user_id": user_id,
-        "object_id": view.id,
+        "object_id": resource.package_id,
         "activity_type": activity_type,
-        "data": dictization.table_dictize(view, context),
+        "data": view_dict,
     }
     activity_create_context = tk.fresh_context(context)
     activity_create_context['ignore_auth'] = True
