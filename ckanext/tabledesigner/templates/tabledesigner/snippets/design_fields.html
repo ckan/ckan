@@ -9,6 +9,8 @@
         field=field,
         position=index,
         res=res,
+        data=data,
+        errors=errors,
         is_new=not fields
       %}
     </div>
@@ -21,7 +23,11 @@
 <fieldset name="tabledesigner-fields" class="tabledesigner-fields" data-module="tabledesigner-fields">
   <div class="tabledesigner-fields-group">
     {% for field in fields %}
-      {{ tabledesigner_field(field, loop.index) }}
+      {{ tabledesigner_field(
+        field,
+        loop.index,
+        data=data.get('fields', [{}] * loop.length)[loop.index0],
+        errors=errors.get('fields', [{}] * loop.length[loop.index0]) }}
     {% endfor %}
   </div>
   <div class="control-medium dropdown">

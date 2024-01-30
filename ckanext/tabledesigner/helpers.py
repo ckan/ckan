@@ -26,12 +26,11 @@ def tabledesigner_column_type(field: dict[str, Any]) -> ColumnType:
     """
     return column type object (fall back to text if not found)
     """
-    info = field['info']
-    tdtype = info.get('tdtype', field.get('type', 'text'))
+    tdtype = field.get('tdtype', field.get('type', 'text'))
     return plugin._column_types.get(
         tdtype,
         plugin._column_types.get('text', TextColumn)
-    )(info, plugin._column_constraints.get(tdtype, []))
+    )(field, plugin._column_constraints.get(tdtype, []))
 
 
 def tabledesigner_choices(

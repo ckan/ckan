@@ -9,11 +9,11 @@
       ({{ _(h.tabledesigner_column_type(field).label) }})
     </h3>
     {% if field.id %}
-      <input type="hidden" name="info__{{ position }}__id" value="{{ field.id }}">
+      <input type="hidden" name="fields__{{ position }}__id" value="{{ field.id }}">
     {% endif %}
-    <input type="hidden" name="info__{{ position }}__tdtype" value="{{ field.info.tdtype or field.type }}">
+    <input type="hidden" name="fields__{{ position }}__tdtype" value="{{ field.tdtype or field.type }}">
     {% if not field.id %}
-      {% call form.input('info__' ~ position ~ '__id',
+      {% call form.input('fields__' ~ position ~ '__id',
         is_required=true,
         label=_('ID'), classes=['control-full']) %}
         {{ form.info(
@@ -22,8 +22,8 @@
       {% endcall %}
     {% endif %}
     {% call form.select(
-      'info__' ~ position ~ '__pkreq',
-      id='field-f' ~ position ~ 'choices',
+      'fields__' ~ position ~ '__tdpkreq',
+      id='field-f' ~ position ~ 'tdpkreq',
       label=_("Obligation"),
       options=[
         {'value': '', 'text': _('Optional')},
@@ -31,35 +31,37 @@
         {'value': 'pk', 'text': _('Primary key')},
       ],
       classes=['control-full'],
-      selected=field.get('info', {}).get('pkreq', '')) %}
+      selected=data.get('tdpkreq', field.get('tdpkreq', ''))) %}
     {% endcall %}
   {% endif %}
 {% endblock %}
 
 {% block datapusher_xloader_fields %}
   {% if res.url_type == 'tabledesigner' %}
-    {% if field.info %}
-      {% set ct = h.tabledesigner_column_type(field) %}
-      {% if ct.design_snippet %}
-        {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
+    {% set ct = h.tabledesigner_column_type(field) %}
+    {% if ct.design_snippet %}
+      {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
+        column_type=ct,
+        position=position,
+        field=field,
+        data=data,
+        errors=errors,
+        form=form
+      %}
+    {% endif %}
+    {% for cc in ct.column_constraints() %}
+      {% if cc.constraint_snippet %}
+        {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
           column_type=ct,
+          column_constraint=cc,
           position=position,
           field=field,
+          data=data,
+          errors=errors,
           form=form
         %}
       {% endif %}
-      {% for cc in ct.column_constraints() %}
-        {% if cc.constraint_snippet %}
-          {% snippet 'tabledesigner/constraint_snippets/' + cc.constraint_snippet,
-            column_type=ct,
-            column_constraint=cc,
-            position=position,
-            field=field,
-            form=form
-          %}
-        {% endif %}
-      {% endfor %}
-    {% endif %}
+    {% endfor %}
     {# datapusher fields don't apply to our resources #}
   {% else %}
     {{ super() }}
