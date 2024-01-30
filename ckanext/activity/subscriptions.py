@@ -155,7 +155,8 @@ def resource_view_changed(sender: str, **kwargs: Any):
     assert view_dict.get('resource_id')
 
     # type_ignore_reason: is asserted above, so will have resource_id here.
-    resource = context["model"].Resource.get(view_dict.get('resource_id'))  # type: ignore
+    resource = context["model"].Resource.get(
+        view_dict.get('resource_id'))  # type: ignore
     assert resource
 
     user_obj = context["model"].User.get(context["user"])
