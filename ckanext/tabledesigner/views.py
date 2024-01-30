@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import cast, List
+from itertools import zip_longest
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -52,13 +53,13 @@ class _TableDesignerDictionary(MethodView):
         new_fields = []
 
         for c, fi in zip_longest(custom, info):
-            if not c.get('tdtype') or not c.get('id'):
+            if not c.get('tdtype'):
                 return base.abort(400, _('Required fields missing'))
-            f = flookup.get(c['id'])
-            if f:
-                datastore_type = f['type']
-            else:
-                datastore_type = h.tabledesigner_column_type(c).datastore_type
+            datastore_type = h.tabledesigner_column_type(c).datastore_type
+            if 'id' in c:
+                f = flookup.get(c['id'])
+                if f:
+                    datastore_type = f['type']
             new_fields.append(dict(c, type=datastore_type, info=fi))
 
         try:
@@ -69,7 +70,7 @@ class _TableDesignerDictionary(MethodView):
                 dict(
                     fields.get(d['id'], {}),
                     info=d,
-                ) for d in data['info']
+                ) for d in data['fields']
             ]
             errors = e.error_dict
             field_errors = errors.get('fields')
@@ -85,8 +86,10 @@ class _TableDesignerDictionary(MethodView):
                 for i, f in enumerate(field_errors, 1):
                     if isinstance(f, dict) and f:
                         error_summary[_('Field %d') % i] = ', '.join(
-                            v for vals in f.values() for v in vals)
-            return self.get(id, resource_id, data, errors, error_summary)
+                            v for vals in f.values()
+                            for v in vals)
+            return _datastore_view.get(
+                id, resource_id, data, errors, error_summary)
 
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(

@@ -7,22 +7,38 @@ from ckanext.datastore.backend.postgres import (
 )
 
 import sqlalchemy as sa
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import DataError
+
+from . import plugin
 
 
-def tabledesigner_ignore(
-        key: FlattenKey, data: FlattenDataDict,
-        errors: FlattenErrorDict, context: Context):
-    '''ignore if resource url_type is not tabledesigner'''
-    # existing resources
-    if 'resource' in context:
-        if context['resource'].url_type != 'tabledesigner':
+def tabledesigner_ignore(tdtypes: list[str]):
+    def validator(
+            key: FlattenKey, data: FlattenDataDict,
+            errors: FlattenErrorDict, context: Context):
+        """
+        ignore if resource url_type is not tabledesigner or if the key doesn't
+        apply to this tdtype (e.g. tdchoices for tdtype != 'choice')
+        """
+        # existing resources
+        if 'resource' in context:
+            if context['resource'].url_type != 'tabledesigner':
+                del data[key]
+                raise StopOnError
+        # resource passed as parameter to datastore_create
+        elif data.get(('resource',), {}).get('url_type') != 'tabledesigner':
             del data[key]
             raise StopOnError
-    # resource passed as parameter to datastore_create
-    elif data.get(('resource',), {}).get('url_type') != 'tabledesigner':
-        del data[key]
-        raise StopOnError
+
+        # does the key apply to this type?
+        if key[-1] in ('tdtype', 'tdpkreq'):
+            return
+        tdtype = data.get(key[:-1] + ('tdtype',))
+        if tdtype not in tdtypes:
+            del data[key]
+            raise StopOnError
+
+    return validator
 
 
 def tabledesigner_newline_list(value: str | list[str]):
@@ -52,7 +68,8 @@ def tabledesigner_check_pattern(value: str):
                     pattern=literal_string(value),
                 ).replace(':', r'\:')  # no bind params
             ))
-    except ProgrammingError:
+        return value
+    except DataError:
         raise Invalid(_('Invalid regular expression'))
 
 
@@ -73,7 +90,7 @@ def tabledesigner_check_type(
                     type_=identifier(type_),
                 ).replace(':', r'\:')  # no bind params
             ))
-    except ProgrammingError:
+    except DataError:
         errors[key].append(
             _('Invalid constraint for type: %s') % type_)
         raise StopOnError
@@ -92,14 +109,17 @@ def tabledesigner_compare_minimum(
         return
     max_ = data[key]
     engine = get_read_engine()
-    with engine.begin() as conn:
-        bad_range = conn.scalar(sa.text(
-            'SELECT {min_}::{type_} > {max_}::{type_}'.format(
-                min_=literal_string(min_),
-                max_=literal_string(max_),
-                type_=identifier(type_),
-            ).replace(':', r'\:')  # no bind params
-        ))
+    try:
+        with engine.begin() as conn:
+            bad_range = conn.scalar(sa.text(
+                'SELECT {min_}::{type_} > {max_}::{type_}'.format(
+                    min_=literal_string(min_),
+                    max_=literal_string(max_),
+                    type_=identifier(type_),
+                ).replace(':', r'\:')  # no bind params
+            ))
+    except DataError:
+        return  # error in converting minimum value
     if bad_range:
         errors[key].append(_('Less than minumum'))
         raise StopOnError

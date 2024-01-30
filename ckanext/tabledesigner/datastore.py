@@ -67,14 +67,7 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
             'resource_id': resource_id,
             'force': True,
             'primary_key': primary_key,
-            'fields': [{
-                'id': f['id'],
-                'type': f['type'],
-                'info': {
-                    k: v for (k, v) in f['info'].items()
-                    if k != 'id'
-                },
-            } for f in fields],
+            'fields': fields,
             'triggers': [
                 {'function': f'{resource_id}_tabledesigner_validate'}
             ] if validate_rules else [],

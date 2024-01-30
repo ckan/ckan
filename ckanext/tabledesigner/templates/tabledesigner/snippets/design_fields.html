@@ -1,4 +1,4 @@
-{% macro tabledesigner_field(field, index) %}
+{% macro tabledesigner_field(field, index, data, errors) %}
   <div class="tabledesigner-field" data-index="{{ index }}">
     {% block field_removal_button%}
       <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
@@ -27,7 +27,14 @@
         field,
         loop.index,
         data=data.get('fields', [{}] * loop.length)[loop.index0],
-        errors=errors.get('fields', [{}] * loop.length[loop.index0]) }}
+        errors=errors.get('fields', [{}] * loop.length)[loop.index0]) }}
+    {% endfor %}
+    {% for d in data.get('fields', [])[fields | length:] %}
+      {{ tabledesigner_field(
+        {'tdtype': d['tdtype']},
+        loop.index + (fields | length),
+        data=d,
+        errors=(errors.get('fields', [])[fields | length:] + [{}] * loop.length)[loop.index0]) }}
     {% endfor %}
   </div>
   <div class="control-medium dropdown">
@@ -44,8 +51,10 @@
   {% for opt in h.tabledesigner_column_type_options() %}
     <div name="tabledesigner-template" data-tdtype="{{ opt.value }}" style="display:none">
       {{ tabledesigner_field(
-        {'info': {'tdtype': opt.value}},
+        {'tdtype': opt.value},
         'TABLEDESIGNER-INDEX',
+        {},
+        {}
       )}}
     </div>
   {% endfor %}
