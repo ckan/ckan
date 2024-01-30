@@ -82,20 +82,28 @@ class TableDesignerPlugin(p.SingletonPlugin):
         not_empty = get_validator('not_empty')
         OneOf = cast(ValidatorFactory, get_validator('OneOf'))
         default = cast(ValidatorFactory, get_validator('default'))
-        td_ignore = get_validator('tabledesigner_ignore')
+        tabledesigner_ignore = cast(ValidatorFactory,
+            get_validator('tabledesigner_ignore'))
         to_datastore_plugin_data = cast(
             ValidatorFactory, get_validator('to_datastore_plugin_data'))
         td_pd = to_datastore_plugin_data('tabledesigner')
 
         f = cast(Schema, schema['fields'])
+        td_ignore = tabledesigner_ignore([])
         f['tdtype'] = [td_ignore, not_empty, OneOf(_column_types), td_pd]
         f['tdpkreq'] = [
             td_ignore, default(''), OneOf(['', 'req', 'pk']), td_pd]
-        for ct in _column_types.values():
+        for tdtype, ct in _column_types.items():
+            td_ignore = tabledesigner_ignore([tdtype])
             f.update(ct.datastore_field_schema(td_ignore, td_pd))
         for cc in dict.fromkeys(  # deduplicate column constraints
                 cc for ccl in _column_constraints.values() for cc in ccl):
+            td_ignore = tabledesigner_ignore([
+                tdtype for tdtype, ccl in _column_constraints.items()
+                if cc in ccl
+            ])
             f.update(cc.datastore_field_schema(td_ignore, td_pd))
+
         return schema
 
     def update_datastore_info_field(
