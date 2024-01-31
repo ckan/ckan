@@ -9,8 +9,6 @@ from ckanext.datastore.backend.postgres import (
 import sqlalchemy as sa
 from sqlalchemy.exc import DataError
 
-from . import plugin
-
 
 def tabledesigner_ignore(tdtypes: list[str]):
     def validator(
@@ -51,8 +49,8 @@ def tabledesigner_newline_list(value: str | list[str]):
 
 
 def tabledesigner_clean_list(value: list[str]):
-    "strip whitespace and remove dups"
-    return list(dict.fromkeys(v.strip() for v in value))
+    "strip whitespace, remove dups and empty items"
+    return list(dict.fromkeys(v.strip() for v in value if v.strip()))
 
 
 def tabledesigner_check_pattern(value: str):

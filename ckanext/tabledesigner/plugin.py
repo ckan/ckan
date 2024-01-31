@@ -82,8 +82,8 @@ class TableDesignerPlugin(p.SingletonPlugin):
         not_empty = get_validator('not_empty')
         OneOf = cast(ValidatorFactory, get_validator('OneOf'))
         default = cast(ValidatorFactory, get_validator('default'))
-        tabledesigner_ignore = cast(ValidatorFactory,
-            get_validator('tabledesigner_ignore'))
+        tabledesigner_ignore = cast(
+            ValidatorFactory, get_validator('tabledesigner_ignore'))
         to_datastore_plugin_data = cast(
             ValidatorFactory, get_validator('to_datastore_plugin_data'))
         td_pd = to_datastore_plugin_data('tabledesigner')

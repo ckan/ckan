@@ -1,6 +1,6 @@
 {% call form.textarea('fields__' ~ position ~ '__tdchoices',
   label=_('Choices'), id='field-f' ~ position ~ 'choices',
-  value=data.get('tdchoices', field.get('tdchoices', '')),
+  value=data.get('tdchoices', '\n'.join(field.get('tdchoices', []))),
   error=errors.tdchoices, classes=['control-full'],
   is_required=true) %}
   {{ form.info(
