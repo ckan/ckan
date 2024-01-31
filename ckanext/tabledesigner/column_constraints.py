@@ -84,7 +84,7 @@ class RangeConstraint(ColumnConstraint):
     def sql_constraint_rule(self) -> str:
         sql = ''
 
-        minimum = self.info.get('minimum')
+        minimum = self.info.get('tdminimum')
         if minimum:
             sql += self._SQL_CHECK_MIN.format(
                 colname=literal_string(self.colname),
@@ -93,7 +93,7 @@ class RangeConstraint(ColumnConstraint):
                 error=literal_string(_('Below minimum')),
                 type_=self.column_type.datastore_type,
             )
-        maximum = self.info.get('maximum')
+        maximum = self.info.get('tdmaximum')
         if maximum:
             sql += self._SQL_CHECK_MAX.format(
                 colname=literal_string(self.colname),
@@ -106,10 +106,10 @@ class RangeConstraint(ColumnConstraint):
 
     def excel_constraint_rule(self) -> str:
         rules = []
-        minimum = self.info.get('minimum')
+        minimum = self.info.get('tdminimum')
         if minimum:
             rules.append('0>{_value_}-' + excel_literal(minimum))
-        maximum = self.info.get('maximum')
+        maximum = self.info.get('tdmaximum')
         if maximum:
             rules.append('0<{_value_}-' + excel_literal(maximum))
             if minimum:
@@ -143,12 +143,13 @@ class PatternConstraint(ColumnConstraint):
     _SQL_CHECK_PATTERN = '''
     IF regexp_match({value}, {pattern}) IS NULL THEN
         validation.errors := validation.errors ||
-            ARRAY[{colname}, {error}];
+            ARRAY[{colname}, {error} ||': "'
+                {pattern}::text || '"'];
     END IF;
     '''
 
     def sql_constraint_rule(self) -> str:
-        pattern = self.info.get('pattern')
+        pattern = self.info.get('tdpattern')
         if not pattern:
             return ''
 

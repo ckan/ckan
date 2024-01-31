@@ -74,7 +74,7 @@ class _TableDesignerDictionary(MethodView):
             ]
             errors = e.error_dict
             field_errors = errors.get('fields')
-            if not field_errors:
+            if not field_errors or not isinstance(field_errors, list):
                 raise
 
             if field_errors and not isinstance(field_errors[0], dict):

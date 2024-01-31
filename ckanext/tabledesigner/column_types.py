@@ -77,8 +77,8 @@ class ColumnType:
         """
         error = 'Missing value'
 
-        if self.info.get('pkreq'):
-            if self.info.get('pkreq') == 'pk':
+        if self.info.get('tdpkreq'):
+            if self.info.get('tdpkreq') == 'pk':
                 error = 'Primary key must not be empty'
 
             return self._SQL_REQUIRED.format(
@@ -135,7 +135,7 @@ class TextColumn(ColumnType):
         remove surrounding whitespace from text pk fields to avoid
         accidental duplication
         '''
-        if self.info.get('pkreq') == 'pk':
+        if self.info.get('tdpkreq') == 'pk':
             return self._SQL_TRIM_PK.format(
                 value=f'NEW.{identifier(self.colname)}',
             )
@@ -158,10 +158,7 @@ class ChoiceColumn(ColumnType):
         """
         Choices based on newline-separated info field
         """
-        choices = self.info.get('choices')
-        if choices:
-            return [c.strip() for c in choices.split('\n')]
-        return []
+        return self.info.get('tdchoices', [])
 
     # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''
