@@ -135,7 +135,7 @@ class PatternConstraint(ColumnConstraint):
     constraint_snippet = 'pattern.html'
 
     _SQL_CHECK_PATTERN = '''
-    IF regexp_match({value}, {pattern}) IS NULL THEN
+    IF regexp_match({value}, '^' || {pattern} || '$') IS NULL THEN
         validation.errors := validation.errors ||
             ARRAY[{colname}, {error} ||': "'
                 {pattern}::text || '"'];
@@ -150,7 +150,7 @@ class PatternConstraint(ColumnConstraint):
         return self._SQL_CHECK_PATTERN.format(
             colname=literal_string(self.colname),
             value='NEW.' + identifier(self.colname),
-            pattern=literal_string('^' + pattern + '$'),
+            pattern=literal_string(pattern),
             error=literal_string(
                 _('Does not match pattern')),
             )

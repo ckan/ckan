@@ -136,7 +136,7 @@ class _TableDesignerAddRow(MethodView):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
-                    if f['info'].get('pkreq') == 'pk'
+                    if f.get('tdpkreq') == 'pk'
                 ]
                 errors = {
                     k: [_('Duplicate primary key exists')] for k in pk_fields
@@ -218,7 +218,7 @@ class _TableDesignerEditRow(MethodView):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
-                    if f['info'].get('pkreq') == 'pk'
+                    if f.get('tdpkreq') == 'pk'
                 ]
                 errors = {
                     k: [_('Duplicate primary key exists')] for k in pk_fields
