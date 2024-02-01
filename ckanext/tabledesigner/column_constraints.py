@@ -35,7 +35,7 @@ class ColumnConstraint:
     """
     def __init__(self, ct: column_types.ColumnType):
         self.colname = ct.colname
-        self.info = ct.info
+        self.field = ct.field
         self.column_type = ct
 
     @classmethod
@@ -80,7 +80,7 @@ class RangeConstraint(ColumnConstraint):
     def sql_constraint_rule(self):
         sql = ''
 
-        minimum = self.info.get('tdminimum')
+        minimum = self.field.get('tdminimum')
         if minimum:
             sql += self._SQL_CHECK_MIN.format(
                 colname=literal_string(self.colname),
@@ -89,7 +89,7 @@ class RangeConstraint(ColumnConstraint):
                 error=literal_string(_('Below minimum')),
                 type_=self.column_type.datastore_type,
             )
-        maximum = self.info.get('tdmaximum')
+        maximum = self.field.get('tdmaximum')
         if maximum:
             sql += self._SQL_CHECK_MAX.format(
                 colname=literal_string(self.colname),
@@ -102,10 +102,10 @@ class RangeConstraint(ColumnConstraint):
 
     def excel_constraint_rule(self):
         rules = []
-        minimum = self.info.get('tdminimum')
+        minimum = self.field.get('tdminimum')
         if minimum:
             rules.append('0>{_value_}-' + excel_literal(minimum))
-        maximum = self.info.get('tdmaximum')
+        maximum = self.field.get('tdmaximum')
         if maximum:
             rules.append('0<{_value_}-' + excel_literal(maximum))
             if minimum:
@@ -143,7 +143,7 @@ class PatternConstraint(ColumnConstraint):
     '''
 
     def sql_constraint_rule(self):
-        pattern = self.info.get('tdpattern')
+        pattern = self.field.get('tdpattern')
         if not pattern:
             return ''
 
