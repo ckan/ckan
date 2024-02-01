@@ -41,7 +41,7 @@ class StarRatingColumn(IntegerColumn):
         }
 
     def choice_value_key(self, value: int | str) -> str:
-        return str(value)
+        return str(value) if value else ''
 
     def sql_validate_rule(self):
         error = _('Rating must be between 1 and 5')

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Type, List
 
+from ckan.types import Validator, Schema
 from ckan import plugins
 from ckan.common import CKANConfig
-from ckan.plugins import toolkit
+from ckan.plugins.toolkit import add_template_directory, get_validator
 
 from ckanext.tabledesigner.interfaces import IColumnConstraints
 from ckanext.tabledesigner.column_types import ColumnType
@@ -19,7 +20,7 @@ class ExampleIColumnConstraintsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
 
     def update_config(self, config: CKANConfig):
-        toolkit.add_template_directory(config, "templates")
+        add_template_directory(config, "templates")
 
     def column_constraints(
             self,
@@ -43,7 +44,7 @@ class ImmutableConstraint(ColumnConstraint):
     constraint_snippet = 'immutable.html'
 
     def sql_constraint_rule(self):
-        if not self.info.get('immutable'):
+        if not self.field.get('tdimmutable'):
             return ''
 
         icolname = identifier(self.colname)
@@ -58,3 +59,14 @@ class ImmutableConstraint(ColumnConstraint):
                 {literal_string(self.colname)}, {literal_string(error)}]];
         END IF;
         '''
+
+    @classmethod
+    def datastore_field_schema(
+            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+        """
+        Store tdimmutable setting in field
+        """
+        boolean_validator = get_validator('boolean_validator')
+        return {
+            'tdimmutable': [td_ignore, boolean_validator, td_pd],
+        }

@@ -52,10 +52,10 @@ class ColumnType:
 
     def __init__(
             self,
-            info: dict[str, Any],
+            field: dict[str, Any],
             constraint_types: List[Type[ColumnConstraint]]):
-        self.colname = info.get('id', '')
-        self.info = info
+        self.colname = field.get('id', '')
+        self.field = field
         self._constraint_types = constraint_types
 
     def column_constraints(self) -> Iterable[ColumnConstraint]:
@@ -77,8 +77,8 @@ class ColumnType:
         """
         error = 'Missing value'
 
-        if self.info.get('tdpkreq'):
-            if self.info.get('tdpkreq') == 'pk':
+        if self.field.get('tdpkreq'):
+            if self.field.get('tdpkreq') == 'pk':
                 error = 'Primary key must not be empty'
 
             return self._SQL_REQUIRED.format(
@@ -135,7 +135,7 @@ class TextColumn(ColumnType):
         remove surrounding whitespace from text pk fields to avoid
         accidental duplication
         '''
-        if self.info.get('tdpkreq') == 'pk':
+        if self.field.get('tdpkreq') == 'pk':
             return self._SQL_TRIM_PK.format(
                 value=f'NEW.{identifier(self.colname)}',
             )
@@ -156,9 +156,9 @@ class ChoiceColumn(ColumnType):
 
     def choices(self) -> Iterable[str] | Mapping[str, str]:
         """
-        Choices based on newline-separated info field
+        Static choice list stored in the data dictionary
         """
-        return self.info.get('tdchoices', [])
+        return self.field.get('tdchoices', [])
 
     # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''
