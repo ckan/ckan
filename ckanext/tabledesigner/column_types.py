@@ -199,7 +199,7 @@ class ChoiceColumn(ColumnType):
         td_clean_list = get_validator('tabledesigner_clean_list')
 
         return {'tdchoices': [
-            td_ignore, not_empty, td_newline_list, td_clean_list, td_pd]}
+            td_ignore, td_newline_list, td_clean_list, not_empty, td_pd]}
 
 
 @_standard_column('email')

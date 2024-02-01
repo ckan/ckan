@@ -28,7 +28,7 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
     for f in fields:
         ct = h.tabledesigner_column_type(f)
 
-        if f['info'].get('pkreq') == 'pk':
+        if f['tdpkreq'] == 'pk':
             primary_key.append(ct.colname)
 
         col_validate = ct.sql_validate_rule()

@@ -21,8 +21,8 @@
           value=row.get(field.id),
           column_type=ct,
           errors=errors,
-          pk=field.get('info', {}).get('pkreq') == 'pk',
-          is_required=field.get('info', {}).get('pkreq', '') != ''
+          pk=field.get('tdpkreq') == 'pk',
+          is_required=field.get('tdpkreq', '') != ''
         %}
       {% endfor %}
     {% endblock %}
