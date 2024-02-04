@@ -255,7 +255,7 @@ databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
 Once you have set up the DataStore, you may then wish to configure the XLoader
-extensions to add data to the DataStore. To install XLoader refer to this link:
+extension to add data to the DataStore. To install XLoader refer to this link:
 https://github.com/ckan/ckanext-xloader
 
 -------------------
