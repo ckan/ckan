@@ -19,8 +19,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`Xloader <https://github.com/ckan/ckanext-xloader/>`_, which will
-quickly load data into DataStore. A replacement for DataPusher, whether
+`XLoader <https://github.com/ckan/ckanext-xloader/>`_, which will
 uploaded to CKAN's FileStore or externally linked.
 
 .. contents::
@@ -196,11 +195,11 @@ To find out more about the Data API, see `The Data API`_.
 
 
 ---------------------------------------------------
-Xloader(or Express Loader)
+XLoader(or Express Loader)
 ---------------------------------------------------
 
-Express Loader(or Xloader) is designed as a replacement for DataPusher because it offers ten
-times the speed and more robustness. You can loads CSV (and similar) data into CKAN's DataStore.
+Express Loader(or XLoader) is designed as a replacement for DataPusher because it offers ten
+times the speed and more robustness. You can load CSV (and similar) data into CKAN's DataStore.
 XLoader pipes the CSV file directly into PostgreSQL using COPY.
 
 To install this please look at the docs here: https://github.com/ckan/ckanext-xloader
