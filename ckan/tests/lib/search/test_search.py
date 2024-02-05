@@ -98,3 +98,44 @@ def test_04_delete_package_from_dict():
     model.repo.commit_and_remove()
 
     assert query.run({"q": ""})["count"] == 1
+
+
+def test_local_params_not_allowed_by_default():
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": "{!bool must=test}"})
+
+    assert str(e.value) == "Local parameters are not supported."
+
+
+@pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
+@pytest.mark.usefixtures("clean_index")
+def test_allowed_local_params_via_config_not_defined():
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": "{!something_else a=test}"})
+
+    assert str(e.value) == "Local parameters are not supported."
+
+
+@pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool knn")
+@pytest.mark.usefixtures("clean_index")
+def test_allowed_local_params_via_config():
+
+    factories.Dataset(title="A dataset about bees")
+    query = search.query_for(model.Package)
+
+    query.run({"q": "{!bool must=bees}"})
+
+    assert query.run({"q": ""})["count"] == 1
+
+    # Alternative syntax
+    query.run({"q": "{!type=knn must=bees}"})
+
+    assert query.run({"q": ""})["count"] == 1
+
+    query.run({"q": "{!must=bees type=bool}"})
+
+    assert query.run({"q": ""})["count"] == 1
