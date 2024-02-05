@@ -790,9 +790,10 @@ def update_configuration_schema():
 
 
 @validator_args
-def job_list_schema(ignore_missing, list_of_strings):
+def job_list_schema(ignore_missing, list_of_strings, int_validator):
     return {
         u'queues': [ignore_missing, list_of_strings],
+        u'limit': [ignore_missing, int_validator],
     }
 
 

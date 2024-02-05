@@ -40,13 +40,18 @@ def worker(burst, queues):
 
 
 @jobs.command(name=u"list", short_help=u"List jobs.")
+@click.option(u"-l", u"--limit",
+              help=u"Number of jobs to return. Default: %s" %
+                bg_jobs.DEFAULT_JOB_LIST_LIMIT,
+              default=bg_jobs.DEFAULT_JOB_LIST_LIMIT)
 @click.argument(u"queues", nargs=-1)
-def list_jobs(queues):
+def list_jobs(queues, limit=bg_jobs.DEFAULT_JOB_LIST_LIMIT):
     """List currently enqueued jobs from the given queues. If no queue
     names are given then the jobs from all queues are listed.
     """
     data_dict = {
         u"queues": list(queues),
+        u"limit": limit,
     }
     jobs = p.toolkit.get_action(u"job_list")({u"ignore_auth": True}, data_dict)
     if not jobs:

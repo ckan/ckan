@@ -52,8 +52,6 @@ _desc = sqlalchemy.desc
 _case = sqlalchemy.case
 _text = sqlalchemy.text
 
-DEFAULT_JOB_LIST_LIMIT = 200
-
 
 def _activity_stream_get_filtered_users():
     '''
@@ -3534,8 +3532,6 @@ def job_list(context, data_dict):
     :param list queues: Queues to list jobs from. If not given then the
         jobs from all queues are listed.
 
-    :param int offset: Number to offset the list of jobs by.
-
     :param int limit: Number to limit the list of jobs by.
 
     :param bool ids_only: Whether to return only a list if job IDs or not.
@@ -3543,29 +3539,29 @@ def job_list(context, data_dict):
     :returns: The currently enqueued background jobs.
     :rtype: list
 
+    Will return the list in the way that RQ workers will execute the jobs.
+    Thus the left most non-empty queue will be emptied firts
+    before the next right non-empty one.
+
     .. versionadded:: 2.7
     '''
     _check_access(u'job_list', context, data_dict)
     jobs_list = []
     queues = data_dict.get(u'queues')
-    offset = data_dict.get(u'offset', 0)
     limit = data_dict.get(u'limit',
                           config.get('ckan.jobs.default_list_limit',
-                                     DEFAULT_JOB_LIST_LIMIT))
+                                     jobs.DEFAULT_JOB_LIST_LIMIT))
     ids_only = asbool(data_dict.get(u'ids_only', False))
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
         queues = jobs.get_all_queues()
     for queue in queues:
-        #FIXME: how to offset/limit between queues??
         if ids_only:
-            for job_id in queue.get_job_ids(offset=offset, length=limit):
-                jobs_list.append(job_id)
+            jobs_list += queue.job_ids
         else:
-            for job_obj in queue.get_jobs(offset=offset, length=limit):
-                jobs_list.append(jobs.dictize_job(job_obj))
-    return jobs_list
+            jobs_list += [jobs.dictize_job(j) for j in queue.jobs]
+    return jobs_list[:limit]
 
 
 def job_show(context, data_dict):

@@ -38,6 +38,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
 DEFAULT_JOB_TIMEOUT = 180
+DEFAULT_JOB_LIST_LIMIT = 200
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues = {}
