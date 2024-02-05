@@ -4,10 +4,12 @@ import os
 
 import pytest
 from urllib.parse import urlparse
+from sqlalchemy import Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
+from ckan.model.base import BaseModel
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -127,3 +129,22 @@ class TestMigrateDbFor(object):
 @pytest.mark.usefixtures("non_clean_db")
 def test_non_clean_db_does_not_fail(package_factory):
     assert package_factory()
+
+
+class CustomTestModel(BaseModel):
+    __tablename__ = "test_table"
+    id = Column(Integer, primary_key=True)
+
+
+@pytest.mark.parametrize("_n", [1, 2])
+@pytest.mark.usefixtures("clean_db")
+def test_clean_db_does_not_break_with_custom_models(_n):
+    """This test verifies that `CustomTestModel` that has no corresponding
+    table in DB is ignored by `clean_db` fixture. If this test is executed
+    individually, on first run DB may be empty and `clean_db` doesn't try to
+    delete anything. So we have to run this test two times to guarantee, that
+    on the second execution tables are created and `clean_db` invokes `DELETE
+    ...` statement.
+
+    """
+    pass
