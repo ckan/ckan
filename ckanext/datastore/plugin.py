@@ -20,6 +20,7 @@ from ckanext.datastore.backend import (
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
 import ckanext.datastore.blueprint as view
+from ckanext.datastore.logic import validators
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -266,28 +267,7 @@ class DatastorePlugin(p.SingletonPlugin):
     # IValidators
 
     def get_validators(self):
-        return {'to_datastore_plugin_data': to_datastore_plugin_data}
-
-
-def to_datastore_plugin_data(plugin_key: str):
-    """
-    Return a validator that will move values from data to
-    context['plugin_data'][field_index][plugin_key][field_name]
-
-    where field_index is the field number, plugin_key (passed to this
-    function) is typically set to the plugin name and field name is the
-    original field name being validated.
-    """
-
-    def validator(
-            key: FlattenKey,
-            data: FlattenDataDict,
-            errors: FlattenErrorDict,
-            context: Context):
-        value = data.pop(key)
-        field_index = key[-2]
-        field_name = key[-1]
-        context['plugin_data'].setdefault(
-            field_index, {}).setdefault(
-            plugin_key, {})[field_name] = value
-    return validator
+        return {
+            'to_datastore_plugin_data': validators.to_datastore_plugin_data,
+            'datastore_default_current': validators.datastore_default_current,
+        }
