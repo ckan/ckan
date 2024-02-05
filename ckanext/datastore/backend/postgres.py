@@ -1078,16 +1078,17 @@ def create_table(
 
     info_sql = []
     for i, f in enumerate(supplied_fields):
-        ccom = plugin_data.get(i, {})
+        column_comment = plugin_data.get(i, {})
         info = f.get(u'info')
         if isinstance(info, dict):
-            ccom['_info'] = info
-        if ccom:
+            column_comment['_info'] = info
+        if column_comment:
             info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
                 literal_string(' ' + json.dumps(  # ' ' prefix for data version
-                        ccom, ensure_ascii=False, separators=(',', ':')))))
+                    column_comment, ensure_ascii=False, separators=(',', ':')))
+            ))
 
     context['connection'].execute(sa.text(
         sql_string + u';'.join(info_sql).replace(':', r'\:')  # no bind params
@@ -1179,12 +1180,12 @@ def alter_table(
                 raw.update(plugin_data[i])
 
             # ' ' prefix for data version
-            raw_sql = literal_string(' ' + json.dumps(
+            column_comment = literal_string(' ' + json.dumps(
                 raw, ensure_ascii=False, separators=(',', ':')))
             alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                raw_sql))
+                column_comment))
 
     if data_dict['delete_fields']:
         for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):

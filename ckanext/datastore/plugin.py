@@ -8,10 +8,7 @@ from typing import Any, Callable, Union, cast
 import ckan.plugins as p
 from ckan.model.core import State
 
-from ckan.types import (
-    Action, AuthFunction, Context, FlattenDataDict, FlattenKey,
-    FlattenErrorDict,
-)
+from ckan.types import Action, AuthFunction, Context
 from ckan.common import CKANConfig
 
 import ckanext.datastore.helpers as datastore_helpers
@@ -38,6 +35,7 @@ def sql_functions_allowlist_file():
 
 
 @p.toolkit.blanket.config_declarations
+@p.toolkit.blanket.validators
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IConfigurer)
@@ -49,7 +47,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
     p.implements(p.IBlueprint)
-    p.implements(p.IValidators)
 
     resource_show_action = None
 
@@ -286,32 +283,3 @@ class DatastorePlugin(p.SingletonPlugin):
         u'''Return a Flask Blueprint object to be registered by the app.'''
 
         return view.datastore
-
-    # IValidators
-
-    def get_validators(self):
-        return {'to_datastore_plugin_data': to_datastore_plugin_data}
-
-
-def to_datastore_plugin_data(plugin_key: str):
-    """
-    Return a validator that will move values from data to
-    context['plugin_data'][field_index][plugin_key][field_name]
-
-    where field_index is the field number, plugin_key (passed to this
-    function) is typically set to the plugin name and field name is the
-    original field name being validated.
-    """
-
-    def validator(
-            key: FlattenKey,
-            data: FlattenDataDict,
-            errors: FlattenErrorDict,
-            context: Context):
-        value = data.pop(key)
-        field_index = key[-2]
-        field_name = key[-1]
-        context['plugin_data'].setdefault(
-            field_index, {}).setdefault(
-            plugin_key, {})[field_name] = value
-    return validator
