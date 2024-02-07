@@ -126,11 +126,11 @@ def default_create_package_schema(
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
         owner_org_validator: Validator, json_object: Validator,
-        ignore_not_sysadmin: Validator) -> Schema:
+        ignore_not_sysadmin: Validator, id_validator: Validator) -> Schema:
     return {
         '__before': [duplicate_extras_key, ignore],
-        'id': [empty_if_not_sysadmin, ignore_missing, unicode_safe,
-               package_id_does_not_exist],
+        'id': [empty_if_not_sysadmin, ignore_missing, id_validator,
+               package_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode_safe],
@@ -695,7 +695,7 @@ def default_create_resource_view_schema(resource_view: Any):
 @validator_args
 def default_create_resource_view_schema_unfiltered(
         not_empty: Validator, resource_id_exists: Validator,
-        unicode_safe: Validator, ignore_missing: Validator, empty: Validator,        
+        unicode_safe: Validator, ignore_missing: Validator, empty: Validator,
         empty_if_not_sysadmin: Validator,
         ignore_empty: Validator,
         id_validator: Validator,
