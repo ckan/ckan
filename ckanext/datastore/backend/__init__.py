@@ -230,5 +230,5 @@ class DatastoreBackend:
         """
         raise NotImplementedError()
 
-    def resource_plugin_data(self, resource_id: str) -> dict[str, Any]:
+    def resource_plugin_data(self, resource_id):
         raise NotImplementedError()

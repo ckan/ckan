@@ -1,13 +1,9 @@
 # encoding: utf-8
-from __future__ import annotations
 
-from ckan.types import (
-    Context, FlattenDataDict, FlattenKey, FlattenErrorDict,
-)
 from ckan.plugins.toolkit import missing
 
 
-def to_datastore_plugin_data(plugin_key: str):
+def to_datastore_plugin_data(plugin_key):
     """
     Return a validator that will move values from data to
     context['plugin_data'][field_index][plugin_key][field_name]
@@ -17,11 +13,7 @@ def to_datastore_plugin_data(plugin_key: str):
     original field name being validated.
     """
 
-    def validator(
-            key: FlattenKey,
-            data: FlattenDataDict,
-            errors: FlattenErrorDict,
-            context: Context):
+    def validator(key, data, errors, context):
         value = data.pop(key)
         field_index = key[-2]
         field_name = key[-1]
@@ -31,9 +23,7 @@ def to_datastore_plugin_data(plugin_key: str):
     return validator
 
 
-def datastore_default_current(
-        key: FlattenKey, data: FlattenDataDict,
-        errors: FlattenErrorDict, context: Context):
+def datastore_default_current(key, data, errors, context):
     '''default to currently stored value if empty or missing'''
     value = data[key]
     if value is not None and value != '' and value is not missing:

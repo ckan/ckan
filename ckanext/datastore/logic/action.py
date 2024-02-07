@@ -185,7 +185,7 @@ def datastore_create(context, data_dict):
 
 
 @contextmanager
-def _create_validate_context(context: Context, data_dict: dict[str, Any]):
+def _create_validate_context(context, data_dict):
     '''
     Populate plugin_data and resource for context to validators of
     datastore_create data_dict. This is called before validation so nothing
@@ -193,7 +193,7 @@ def _create_validate_context(context: Context, data_dict: dict[str, Any]):
     '''
     backend = DatastoreBackend.get_active_backend()
     validate_context = p.toolkit.fresh_context(context)
-    plugin_data: dict[int, dict[str, Any]] = {}
+    plugin_data = {}
     validate_context['plugin_data'] = plugin_data
     resource_id = data_dict.get('resource_id')
     if not resource_id or not isinstance(resource_id, str):

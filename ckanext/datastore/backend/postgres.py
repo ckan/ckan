@@ -4,6 +4,7 @@ import copy
 import logging
 import sys
 import sqlalchemy
+import sqlalchemy as sa
 import os
 import pprint
 import sqlalchemy.engine.url as sa_url
@@ -298,7 +299,7 @@ def _get_raw_field_info(connection, resource_id):
         return {}, False
 
 
-def _get_fields(connection: Any, resource_id: str):
+def _get_fields(connection, resource_id):
     u'''
     return a list of {'id': column_name, 'type': column_type} dicts
     for the passed resource_id, excluding '_'-prefixed columns.
@@ -2043,7 +2044,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             real_id = results.fetchone()[0]
         return res_exists, real_id
 
-    def resource_plugin_data(self, id: str) -> dict[str, Any]:
+    def resource_plugin_data(self, id):
         engine = self._get_read_engine()
         with engine.connect() as conn:
             plugin_data, _old = _get_raw_field_info(conn, id)

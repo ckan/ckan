@@ -180,7 +180,7 @@ class IDataDictionaryForm(interfaces.Interface):
     """
     _reverse_iteration_order = True
 
-    def update_datastore_create_schema(self, schema: Schema) -> Schema:
+    def update_datastore_create_schema(self, schema):
         """
         Return a modified schema for handling field input in the data
         dictionary form and datastore_create parameters.
@@ -206,10 +206,7 @@ class IDataDictionaryForm(interfaces.Interface):
         """
         return schema
 
-    def update_datastore_info_field(
-            self,
-            field: dict[str, Any],
-            plugin_data: dict[str, Any]):
+    def update_datastore_info_field(self, field, plugin_data):
         """
         Return a modified version of the `datastore_info` field dict
         based on this field's plugin_data to provide additional

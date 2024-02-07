@@ -9,6 +9,7 @@ import sqlalchemy as sa
 
 from ckan.model import parse_db_config
 from ckan.common import config
+import ckan.logic as logic
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend.postgres import (
