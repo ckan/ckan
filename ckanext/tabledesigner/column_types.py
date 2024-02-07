@@ -158,7 +158,12 @@ class ChoiceColumn(ColumnType):
         """
         Static choice list stored in the data dictionary
         """
-        return self.field.get('tdchoices', [])
+        c = self.field.get('tdchoices', [])
+        if isinstance(c, list):
+            return c
+        # when building from form values convert from newline list
+        return get_validator('tabledesigner_clean_list')(
+            get_validator('tabledesigner_newline_list')(c))
 
     # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''
