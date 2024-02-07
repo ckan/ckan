@@ -3558,10 +3558,10 @@ def job_list(context, data_dict):
         queues = jobs.get_all_queues()
     for queue in queues:
         if ids_only:
-            jobs_list += queue.job_ids
+            jobs_list += queue.job_ids[:limit]
         else:
-            jobs_list += [jobs.dictize_job(j) for j in queue.jobs]
-    return jobs_list[:limit]
+            jobs_list += [jobs.dictize_job(j) for j in queue.jobs[:limit]]
+    return jobs_list
 
 
 def job_show(context, data_dict):
