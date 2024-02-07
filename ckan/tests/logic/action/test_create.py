@@ -178,6 +178,33 @@ class TestResourceViewCreate(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("resource_view_create", context, **params)
 
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        stub = factories.ResourceView.stub()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = stub.title
+        result = helpers.call_action("resource_view_create", context=context, **params)
+        assert result["id"] == stub.title
+
+    def test_normal_user_can_not_set_id(self):
+        user = factories.User()
+        stub = factories.ResourceView.stub()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = stub.title
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        resource_view = factories.ResourceView()
+        context = {"user": user["name"], "ignore_auth": False}
+        params = self._default_resource_view_attributes()
+        params["id"] = resource_view.pop("id")
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_view_create", context=context, **params)
+
     @mock.patch("ckan.lib.datapreview.get_view_plugin")
     def test_requires_view_type(self, get_view_plugin):
         context = {}
@@ -436,6 +463,38 @@ class TestResourceCreate:
 
         with pytest.raises(logic.ValidationError):
             helpers.call_action('resource_create', **data_dict)
+    
+    def test_sysadmin_can_set_id(self):
+        """
+        The system admin 
+        """
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Resource.stub()
+        data_dict = {
+            "id": stub.name,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        result = helpers.call_action("resource_create", context=context, **data_dict)
+        assert result["id"] == stub.name
+
+    def test_normal_user_can_not_provide_custom_id(self):
+
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Resource.stub()
+        data_dict = {
+            "id": stub.name,
+            "package_id": factories.Dataset()["id"],
+            "url": "http://data",
+            "name": "A nice resource",
+        }
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action("resource_create", context=context, **data_dict)
 
     def test_doesnt_require_url(self):
         dataset = factories.Dataset()
@@ -933,6 +992,32 @@ class TestDatasetCreate(object):
         dataset = helpers.call_action("package_show", id=dataset["id"])
         assert dataset["extras"][0]["key"] == "original media"
         assert dataset["extras"][0]["value"] == '"book"'
+    
+    def test_sysadmin_can_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        dataset = helpers.call_action(
+            "package_create",
+            context=context,
+            name=factories.Dataset.stub().name,
+            title="Test Extras",
+            extras=[{"id": factories.Dataset.stub().name, "key": "original media", "value": '"book"'}],
+        )
+        dataset = helpers.call_action("package_show", id=dataset["id"])
+        assert dataset["extras"][0]["key"] == "original media"
+    
+    def test_normal_user_can_not_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "package_create",
+                context=context,
+                name=factories.Dataset.stub().name,
+                title="Test Extras",
+                extras=[{"id": factories.Dataset.stub().name, "key": "original media", "value": '"book"'}],
+            )
+        assert "The input field id was not expected" in str(exception.value)  
 
     def test_license(self):
         dataset = helpers.call_action(
@@ -1099,7 +1184,71 @@ class TestGroupCreate(object):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+    
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            id=stub.name
+        )
 
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        result = helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            id=stub.name
+        )
+        assert result.get("id") == stub.name
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        group = helpers.call_action(
+            "group_create",
+            name=factories.Group.stub().name,
+            context=context
+        )
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                id=group["id"],
+                context=context,
+                name=factories.Group.stub().name,
+            )
+        assert "Id already exists" in str(exception.value)
+    
+    def test_normal_user_cant_set_extras_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            extras=[{"id": factories.Group.stub().name, "key": "area", "value": '"non profit"'}]
+        )
+        assert "The input field id was not expected" in str(exception.value)
+    
+    def test_sysadmin_user_cant_set_extras_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        helpers.call_action(
+            "group_create",
+            context=context,
+            name=stub.name,
+            extras=[{"id": factories.Group.stub().name, "key": "area", "value": '"non profit"'}]
+        )
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):
@@ -1182,6 +1331,43 @@ class TestOrganizationCreate(object):
         assert org["package_count"] == 0
         assert org["is_organization"]
         assert org["type"] == custom_org_type
+
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Organization.stub()
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+            "organization_create",
+            context=context,
+            name=stub.name,
+            id=stub.name
+        )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Group.stub()
+        result = helpers.call_action(
+            "organization_create",
+            context=context,
+            name=stub.name,
+            id=stub.name
+        )
+        assert result.get("id") == stub.name
+
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        group = factories.Group()
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "group_create",
+                id=group.pop("id"),
+                context=context,
+                name=group.pop("name")
+            )
+        assert "Id already exists" in str(exception.value)
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2066,6 +2252,51 @@ class TestTagCreate:
                 name=factories.Tag.stub().name,
                 vocabulary_id=factories.Vocabulary.stub().name,
             )
+    
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Tag.stub()
+        tag1 = factories.Tag.stub().name
+        vocab = factories.Vocabulary(tags=[{"name": tag1}])
+        with pytest.raises(logic.NotAuthorized):
+            helpers.call_action(
+                "tag_create",
+                id=stub.name,
+                context=context,
+                name=stub.name,            
+                vocabulary_id=vocab["id"]
+            )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        stub = factories.Tag.stub()
+        tag1 = factories.Tag.stub().name
+        vocab = factories.Vocabulary(tags=[{"name": tag1}])
+        result = helpers.call_action(
+            "tag_create",
+            id=stub.name,
+            context=context,
+            name=stub.name,            
+            vocabulary_id=vocab["id"]
+        )
+        assert result.get("id") == stub.name
+    
+    def test_id_cant_already_exist(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        tag = factories.Tag(name="first tag")
+        vocab = factories.Vocabulary(tags=[{"name": "first tag"}])
+        with pytest.raises(logic.ValidationError) as exception:
+            helpers.call_action(
+                "tag_create",
+                id=tag["id"],
+                context=context,
+                name="second tag",            
+                vocabulary_id=vocab["id"]
+            )
+        assert "Tag id already exists" in str(exception.value)
 
     @pytest.mark.usefixtures("non_clean_db")
     def test_duplicate(self):

@@ -35,10 +35,11 @@ def default_resource_schema(
         if_empty_guess_format: Validator, clean_format: Validator,
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
-        resource_id_validator: Validator,
-        resource_id_does_not_exist: Validator) -> Schema:
+        id_validator: Validator,
+        resource_id_does_not_exist: Validator,
+        empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore_empty, resource_id_validator,
+        'id': [empty_if_not_sysadmin, ignore_empty, id_validator,
                resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
@@ -98,7 +99,9 @@ def default_create_tag_schema(not_missing: Validator, not_empty: Validator,
                               unicode_safe: Validator,
                               vocabulary_id_exists: Validator,
                               tag_not_in_vocabulary: Validator,
-                              empty: Validator):
+                              empty_if_not_sysadmin: Validator, id_validator: Validator,
+                              tag_id_does_not_exist: Validator,
+                              ignore_missing: Validator):
     schema = default_tags_schema()
     # When creating a tag via the tag_create() logic action function, a
     # vocabulary_id _must_ be given (you cannot create free tags via this
@@ -106,7 +109,7 @@ def default_create_tag_schema(not_missing: Validator, not_empty: Validator,
     schema['vocabulary_id'] = [not_missing, not_empty, unicode_safe,
                                vocabulary_id_exists, tag_not_in_vocabulary]
     # You're not allowed to specify your own ID when creating a tag.
-    schema['id'] = [empty]
+    schema['id'] = [empty_if_not_sysadmin, ignore_missing, id_validator, tag_id_does_not_exist]
     return schema
 
 
@@ -209,6 +212,7 @@ def default_show_package_schema(keep_extras: Validator,
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     cast(Schema, schema['resources']).update({
+        'id': [not_empty],
         'format': [ignore_missing, clean_format, unicode_safe],
         'created': [ignore_missing],
         'position': [not_empty],
@@ -272,9 +276,11 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          group_name_validator: Validator,
                          package_id_or_name_exists: Validator,
                          no_loops_in_hierarchy: Validator,
+                         empty_if_not_sysadmin: Validator,
+                         id_validator: Validator, group_id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, unicode_safe],
+        'id': [ignore_missing, id_validator, empty_if_not_sysadmin, group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
         'title': [ignore_missing, unicode_safe],
@@ -358,9 +364,10 @@ def default_show_group_schema(
 def default_extras_schema(ignore: Validator, not_empty: Validator,
                           extra_key_not_in_root_schema: Validator,
                           unicode_safe: Validator, not_missing: Validator,
-                          ignore_missing: Validator) -> Schema:
+                          ignore_missing: Validator, id_validator: Validator,
+                          empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore],
+        'id': [empty_if_not_sysadmin, ignore_missing, id_validator],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
         'value': [not_missing],
         'state': [ignore],
@@ -422,9 +429,11 @@ def default_user_schema(
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
+        empty_if_not_sysadmin: Validator,
+        id_validator: Validator, group_id_does_not_exist: Validator,
         json_object: Validator) -> Schema:
     return {
-        'id': [ignore_missing, unicode_safe],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator, group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
@@ -686,9 +695,14 @@ def default_create_resource_view_schema(resource_view: Any):
 @validator_args
 def default_create_resource_view_schema_unfiltered(
         not_empty: Validator, resource_id_exists: Validator,
-        unicode_safe: Validator, ignore_missing: Validator, empty: Validator
+        unicode_safe: Validator, ignore_missing: Validator, empty: Validator,        
+        empty_if_not_sysadmin: Validator,
+        ignore_empty: Validator,
+        id_validator: Validator,
+        resource_view_id_does_not_exist: Validator
 ) -> Schema:
     return {
+        'id': [empty_if_not_sysadmin, ignore_empty, id_validator, resource_view_id_does_not_exist, unicode_safe],
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
