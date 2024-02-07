@@ -34,11 +34,6 @@ jobs:
         ports:
           - 8983:8983
 
-    env:
-      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@localhost/ckan_test
-      CKAN_SOLR_URL: http://localhost:8983/solr/ckan
-      CKAN_REDIS_URL: redis://localhost:6379/1
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
