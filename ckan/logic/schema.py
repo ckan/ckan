@@ -39,7 +39,7 @@ def default_resource_schema(
         resource_id_does_not_exist: Validator,
         empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [empty_if_not_sysadmin, ignore_empty, id_validator,
+        'id': [ignore_empty, empty_if_not_sysadmin, id_validator,
                resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
@@ -127,7 +127,7 @@ def default_create_package_schema(
         ignore_not_sysadmin: Validator, id_validator: Validator) -> Schema:
     return {
         '__before': [duplicate_extras_key, ignore],
-        'id': [empty_if_not_sysadmin, ignore_missing, id_validator,
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
                package_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, package_name_validator],
@@ -278,7 +278,8 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          id_validator: Validator, group_id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, id_validator, empty_if_not_sysadmin, group_id_does_not_exist, unicode_safe],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
+               group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
         'title': [ignore_missing, unicode_safe],
@@ -365,7 +366,7 @@ def default_extras_schema(ignore: Validator, not_empty: Validator,
                           ignore_missing: Validator, id_validator: Validator,
                           empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [empty_if_not_sysadmin, ignore_missing, id_validator],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
         'value': [not_missing],
         'state': [ignore],
@@ -428,10 +429,11 @@ def default_user_schema(
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
         empty_if_not_sysadmin: Validator,
-        id_validator: Validator, group_id_does_not_exist: Validator,
+        id_validator: Validator, user_id_does_not_exist: Validator,
         json_object: Validator) -> Schema:
     return {
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator, group_id_does_not_exist, unicode_safe],
+        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
+               user_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
         'fullname': [ignore_missing, unicode_safe],
@@ -700,7 +702,8 @@ def default_create_resource_view_schema_unfiltered(
         resource_view_id_does_not_exist: Validator
 ) -> Schema:
     return {
-        'id': [empty_if_not_sysadmin, ignore_empty, id_validator, resource_view_id_does_not_exist, unicode_safe],
+        'id': [ignore_empty, empty_if_not_sysadmin, id_validator,
+               resource_view_id_does_not_exist, unicode_safe],
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
         'description': [ignore_missing, unicode_safe],
@@ -736,10 +739,11 @@ def default_update_resource_view_schema_changes(not_missing: Validator,
                                                 unicode_safe: Validator,
                                                 resource_id_exists: Validator,
                                                 ignore: Validator,
-                                                ignore_missing: Validator
+                                                ignore_missing: Validator,
+                                                id_validator: Validator,
                                                 ) -> Schema:
     return {
-        'id': [not_missing, not_empty, unicode_safe],
+        'id': [not_missing, not_empty, id_validator, unicode_safe],
         'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode_safe],
         'view_type': [ignore],  # cannot change after create
