@@ -454,7 +454,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         const colname = thecol.textContent
         const colid = 'dtcol-' + validateId(colname) + '-' + i
         const coltype = $(thecol).data('type')
-        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''  
+        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''
         $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid + '"' +
                 placeholderText +
                 ' class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
@@ -889,6 +889,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="glyphicon glyphicon-sort-by-attributes-alt"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }
