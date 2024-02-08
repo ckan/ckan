@@ -897,6 +897,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }
