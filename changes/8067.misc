@@ -1,0 +1,2 @@
+The `get_group_or_org_admin_ids` function is old and can be easily replaced by
+the `member_list` action.
