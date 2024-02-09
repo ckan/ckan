@@ -348,6 +348,7 @@ def default_show_group_schema(
     schema = default_group_schema()
 
     # make default show schema behave like when run with no validation
+    schema['id'] = []
     schema['num_followers'] = []
     schema['created'] = []
     schema['display_name'] = []
