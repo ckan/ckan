@@ -207,6 +207,8 @@ def default_show_package_schema(keep_extras: Validator,
     schema.update({
         'tags': {'__extras': [keep_extras]}})
 
+    schema["extras"] = default_show_extras_schema()
+
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     cast(Schema, schema['resources']).update({
@@ -374,6 +376,16 @@ def default_extras_schema(ignore: Validator, not_empty: Validator,
         'revision_timestamp': [ignore],
         '__extras': [ignore],
     }
+
+
+@validator_args
+def default_show_extras_schema(ignore: Validator):
+
+    schema = default_extras_schema()
+
+    schema["id"] = [ignore]
+
+    return schema
 
 
 @validator_args
