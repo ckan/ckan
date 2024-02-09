@@ -3154,9 +3154,7 @@ def config_option_list(context: Context,
 
 
 @logic.validate(ckan.logic.schema.job_list_schema)
-def job_list(context: Context, data_dict: DataDict) \
-        -> Union[ActionResult.JobList, list[str]]:
-
+def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
     '''List enqueued background jobs.
 
     :param list queues: Queues to list jobs from. If not given then the
@@ -3176,7 +3174,7 @@ def job_list(context: Context, data_dict: DataDict) \
     .. versionadded:: 2.7
     '''
     _check_access(u'job_list', context, data_dict)
-    jobs_list: Union[ActionResult.JobList, list[str]] = []
+    jobs_list: ActionResult.JobList = []
     queues: Any = data_dict.get(u'queues')
     limit = data_dict.get('limit', config.get('ckan.jobs.default_list_limit',
                                               jobs.DEFAULT_JOB_LIST_LIMIT))
