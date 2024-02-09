@@ -277,7 +277,8 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          package_id_or_name_exists: Validator,
                          no_loops_in_hierarchy: Validator,
                          empty_if_not_sysadmin: Validator,
-                         id_validator: Validator, group_id_does_not_exist: Validator,
+                         id_validator: Validator,
+                         group_id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
         'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
@@ -317,9 +318,12 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
 
 @validator_args
 def group_form_schema(not_empty: Validator, unicode_safe: Validator,
+                      group_id_exists: Validator,
                       ignore_missing: Validator, ignore: Validator):
     schema = default_group_schema()
     # schema['extras_validation'] = [duplicate_extras_key, ignore]
+    print("YOOOOO")
+#    schema["id"] = [ignore_missing, group_id_exists, unicode_safe]
     schema['packages'] = {
         "name": [not_empty, unicode_safe],
         "title": [ignore_missing],
@@ -334,10 +338,14 @@ def group_form_schema(not_empty: Validator, unicode_safe: Validator,
 
 
 @validator_args
-def default_update_group_schema(ignore_missing: Validator,
-                                group_name_validator: Validator,
-                                unicode_safe: Validator):
+def default_update_group_schema(
+        ignore_missing: Validator,
+        not_empty: Validator,
+        group_id_exists: Validator,
+        group_name_validator: Validator,
+        unicode_safe: Validator):
     schema = default_group_schema()
+    schema["id"] = [not_empty, group_id_exists, unicode_safe]
     schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
     return schema
 
@@ -504,13 +512,13 @@ def user_edit_form_schema(
 
 @validator_args
 def default_update_user_schema(
-        not_empty: Validator, user_id_exists: Validator,
+        not_empty: Validator, user_id_or_name_exists: Validator,
         ignore_missing: Validator, name_validator: Validator,
         user_name_validator: Validator, unicode_safe: Validator,
         user_password_validator: Validator):
     schema = default_user_schema()
 
-    schema["id"] = [not_empty, user_id_exists, unicode_safe]
+    schema["id"] = [not_empty, user_id_or_name_exists, unicode_safe]
     schema['name'] = [
         ignore_missing, name_validator, user_name_validator, unicode_safe]
     schema['password'] = [
