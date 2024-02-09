@@ -1010,6 +1010,9 @@ def empty_if_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
 
     empty(key, data, errors, context)
 
+    # Prevent further validation on the field now that is empty
+    raise StopOnError()
+
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
 email_pattern = re.compile(
                             # additional pattern to reject malformed dots usage
