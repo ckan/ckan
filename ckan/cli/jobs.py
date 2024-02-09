@@ -42,13 +42,13 @@ def worker(burst: bool, queues: list[str]):
 @jobs.command(name=u"list", short_help=u"List jobs.")
 @click.option("-l", "--limit", type=click.INT,
               help="Number of jobs to return. Default: %s" %
-                bg_jobs.DEFAULT_JOB_LIST_LIMIT,
+              bg_jobs.DEFAULT_JOB_LIST_LIMIT,
               default=bg_jobs.DEFAULT_JOB_LIST_LIMIT)
 @click.option("-i", "--ids", is_flag=True, type=click.BOOL,
               help="Only return a list of job ids.", default=False)
 @click.argument(u"queues", nargs=-1)
 def list_jobs(queues: list[str],
-              limit: int=bg_jobs.DEFAULT_JOB_LIST_LIMIT, ids: bool=False):
+              limit: int = bg_jobs.DEFAULT_JOB_LIST_LIMIT, ids: bool = False):
     """List currently enqueued jobs from the given queues. If no queue
     names are given then the jobs from all queues are listed.
     """

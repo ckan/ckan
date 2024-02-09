@@ -3154,7 +3154,9 @@ def config_option_list(context: Context,
 
 
 @logic.validate(ckan.logic.schema.job_list_schema)
-def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
+def job_list(context: Context, data_dict: DataDict) \
+        -> Union[ActionResult.JobList, list[str]]:
+
     '''List enqueued background jobs.
 
     :param list queues: Queues to list jobs from. If not given then the
