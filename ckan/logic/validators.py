@@ -244,6 +244,19 @@ def group_id_does_not_exist(value: str, context: Context) -> Any:
         raise Invalid(_('Id already exists'))
     return value
 
+def user_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.User).get(value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+
 def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
     """Ensures that the value is not used as a ID or name.
     """

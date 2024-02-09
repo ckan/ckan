@@ -491,11 +491,13 @@ def user_edit_form_schema(
 
 @validator_args
 def default_update_user_schema(
+        not_empty: Validator, user_id_exists: Validator,
         ignore_missing: Validator, name_validator: Validator,
         user_name_validator: Validator, unicode_safe: Validator,
         user_password_validator: Validator):
     schema = default_user_schema()
 
+    schema["id"] = [not_empty, user_id_exists, unicode_safe]
     schema['name'] = [
         ignore_missing, name_validator, user_name_validator, unicode_safe]
     schema['password'] = [
