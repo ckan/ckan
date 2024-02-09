@@ -3160,22 +3160,35 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
     :param list queues: Queues to list jobs from. If not given then the
         jobs from all queues are listed.
 
+    :param int limit: Number to limit the list of jobs by.
+
+    :param bool ids_only: Whether to return only a list if job IDs or not.
+
     :returns: The currently enqueued background jobs.
     :rtype: list
+
+    Will return the list in the way that RQ workers will execute the jobs.
+    Thus the left most non-empty queue will be emptied first
+    before the next right non-empty one.
 
     .. versionadded:: 2.7
     '''
     _check_access(u'job_list', context, data_dict)
-    dictized_jobs: ActionResult.JobList = []
+    jobs_list: Union[ActionResult.JobList, list[str]] = []
     queues: Any = data_dict.get(u'queues')
+    limit = data_dict.get('limit', config.get('ckan.jobs.default_list_limit',
+                                              jobs.DEFAULT_JOB_LIST_LIMIT))
+    ids_only = asbool(data_dict.get('ids_only', False))
     if queues:
         queues = [jobs.get_queue(q) for q in queues]
     else:
         queues = jobs.get_all_queues()
     for queue in queues:
-        for job in queue.jobs:
-            dictized_jobs.append(jobs.dictize_job(job))
-    return dictized_jobs
+        if ids_only:
+            jobs_list += queue.job_ids[:limit]
+        else:
+            jobs_list += [jobs.dictize_job(j) for j in queue.jobs[:limit]]
+    return jobs_list
 
 
 def job_show(context: Context, data_dict: DataDict) -> ActionResult.JobShow:
