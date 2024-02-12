@@ -192,7 +192,7 @@ def _create_validate_context(context, data_dict):
     about data_dict can be trusted.
     '''
     backend = DatastoreBackend.get_active_backend()
-    validate_context = p.toolkit.fresh_context(context)
+    validate_context = dict(context)
     plugin_data = {}
     validate_context['plugin_data'] = plugin_data
     resource_id = data_dict.get('resource_id')

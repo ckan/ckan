@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-from ckan.types import Context, FlattenErrorDict, FlattenDataDict, FlattenKey
 from ckan.plugins.toolkit import _, missing, Invalid, StopOnError
 from ckanext.datastore.backend.postgres import (
     identifier, literal_string, get_read_engine,
@@ -10,10 +7,8 @@ import sqlalchemy as sa
 from sqlalchemy.exc import DataError
 
 
-def tabledesigner_ignore(tdtypes: list[str]):
-    def validator(
-            key: FlattenKey, data: FlattenDataDict,
-            errors: FlattenErrorDict, context: Context):
+def tabledesigner_ignore(tdtypes):
+    def validator(key, data, errors, context):
         """
         ignore if resource url_type is not tabledesigner or if the key doesn't
         apply to this tdtype (e.g. tdchoices for tdtype != 'choice')
@@ -39,7 +34,7 @@ def tabledesigner_ignore(tdtypes: list[str]):
     return validator
 
 
-def tabledesigner_newline_list(value: str | list[str]):
+def tabledesigner_newline_list(value):
     if isinstance(value, list):
         return value
     try:
@@ -48,12 +43,12 @@ def tabledesigner_newline_list(value: str | list[str]):
         raise Invalid(_('Must be a list or newline-separated string'))
 
 
-def tabledesigner_clean_list(value: list[str]):
+def tabledesigner_clean_list(value):
     "strip whitespace, remove dups and empty items"
     return list(dict.fromkeys(v.strip() for v in value if v.strip()))
 
 
-def tabledesigner_check_pattern(value: str):
+def tabledesigner_check_pattern(value):
     """
     Check that this value is a valid regular expression for the
     datastore regexp_match function
@@ -71,9 +66,7 @@ def tabledesigner_check_pattern(value: str):
         raise Invalid(_('Invalid regular expression'))
 
 
-def tabledesigner_check_type(
-        key: FlattenKey, data: FlattenDataDict,
-        errors: FlattenErrorDict, context: Context):
+def tabledesigner_check_type(key, data, errors, context):
     """
     Check that the type of this value can be cast to the datastore
     column type
@@ -94,9 +87,7 @@ def tabledesigner_check_type(
         raise StopOnError
 
 
-def tabledesigner_compare_minimum(
-        key: FlattenKey, data: FlattenDataDict,
-        errors: FlattenErrorDict, context: Context):
+def tabledesigner_compare_minimum(key, data, errors, context):
     """
     Check that this value is not less than the tdminimum value,
     if defined, using the correct datastore column type comparison

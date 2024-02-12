@@ -84,8 +84,7 @@ class ColumnType:
         return
 
     @classmethod
-    def datastore_field_schema(
-            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+    def datastore_field_schema(cls, td_ignore, td_pd):
         """
         Return schema with keys to add to the datastore_create
         field schema. Convention for table designer field keys:
@@ -180,8 +179,7 @@ class ChoiceColumn(ColumnType):
         return 'COUNTIF({_choice_range_},TRIM({_value_}))=0'
 
     @classmethod
-    def datastore_field_schema(
-            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+    def datastore_field_schema(cls, td_ignore, td_pd):
         """
         store choices as tdchoices list-of-strings field
         """

@@ -1,5 +1,5 @@
 # encoding: utf-8
-from itertools import zip_longest
+from itertools import izip_longest
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -49,7 +49,7 @@ class _TableDesignerDictionary(MethodView):
         flookup = {f['id']: f for f in fields}
         new_fields = []
 
-        for c, fi in zip_longest(custom, info):
+        for c, fi in izip_longest(custom, info):
             if not c.get('tdtype'):
                 return base.abort(400, _('Required fields missing'))
             datastore_type = h.tabledesigner_column_type(c).datastore_type

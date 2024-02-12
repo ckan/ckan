@@ -1,7 +1,7 @@
 # encoding: utf-8
 import ckan.plugins as p
 from ckan.plugins.toolkit import (
-    blanket, add_template_directory, add_resource, get_validator,
+    add_template_directory, add_resource, get_validator,
 )
 from ckanext.datastore.interfaces import IDataDictionaryForm
 
@@ -23,9 +23,9 @@ class TableDesignerPlugin(p.SingletonPlugin):
 
     # IConfigurer
 
-    def update_config(self, config: CKANConfig):
-        toolkit.add_template_directory(config, "templates")
-        toolkit.add_resource('assets', 'ckanext-tabledesigner')
+    def update_config(self, config):
+        add_template_directory(config, "templates")
+        add_resource('assets', 'ckanext-tabledesigner')
 
     # IActions
 
@@ -78,7 +78,7 @@ class TableDesignerPlugin(p.SingletonPlugin):
 
     # IDataDictionaryForm
 
-    def update_datastore_create_schema(self, schema: Schema):
+    def update_datastore_create_schema(self, schema):
         not_empty = get_validator('not_empty')
         OneOf = cast(ValidatorFactory, get_validator('OneOf'))
         default = cast(ValidatorFactory, get_validator('default'))
@@ -107,7 +107,7 @@ class TableDesignerPlugin(p.SingletonPlugin):
         return schema
 
     def update_datastore_info_field(
-            self, field: dict[str, Any], plugin_data: dict[str, Any]):
+            self, field, plugin_data):
         # expose all our plugin data in the field
         field.update(plugin_data.get('tabledesigner', {}))
         return field

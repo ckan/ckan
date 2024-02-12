@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from ckan.types import Validator, Schema
 from ckan.plugins.toolkit import get_validator
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
@@ -24,7 +23,6 @@ def _standard_constraint(keys):
 
 
 class ColumnConstraint:
-    def __init__(self, ct):
     """
     ColumnConstraint subclasses define:
     - pl/pgsql rules for validating data on insert/update
@@ -33,14 +31,13 @@ class ColumnConstraint:
 
     Use IColumnConstraints to add/modify column constraints available.
     """
-    def __init__(self, ct: column_types.ColumnType):
+    def __init__(self, ct):
         self.colname = ct.colname
         self.field = ct.field
         self.column_type = ct
 
     @classmethod
-    def datastore_field_schema(
-            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+    def datastore_field_schema(cls, td_ignore, td_pd):
         """
         Return schema with keys to add to the datastore_create
         field schema. Convention for table designer field keys:
@@ -113,8 +110,7 @@ class RangeConstraint(ColumnConstraint):
         return ''.join(rules)
 
     @classmethod
-    def datastore_field_schema(
-            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+    def datastore_field_schema(cls, td_ignore, td_pd):
         """
         Check for valid range and types
         """
@@ -156,8 +152,7 @@ class PatternConstraint(ColumnConstraint):
             )
 
     @classmethod
-    def datastore_field_schema(
-            cls, td_ignore: Validator, td_pd: Validator) -> Schema:
+    def datastore_field_schema(cls, td_ignore, td_pd):
         """
         Check for valid pattern
         """
