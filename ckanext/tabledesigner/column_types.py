@@ -39,7 +39,7 @@ class ColumnType:
     # used by sql_required_rule below
     _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
 
-    def __init__(self, info, constraint_types):
+    def __init__(self, field, constraint_types):
         self.colname = field.get('id', '')
         self.field = field
         self._constraint_types = constraint_types
