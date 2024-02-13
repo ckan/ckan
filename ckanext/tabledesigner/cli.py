@@ -58,10 +58,13 @@ def upgrade(dry_run: bool):
                 continue
 
             fvalue['tabledesigner'] = {'tdtype': info.pop('tdtype')}
-            for k in ('pkreq', 'choices', 'minimum', 'maximum', 'pattern',
-                      'immutable'):
+            for k in ('pkreq', 'minimum', 'maximum', 'pattern', 'immutable'):
                 if k in info:
                     fvalue['tabledesigner']['td' + k] = info.pop(k)
+            if 'choice' in info:
+                fvalue['tabledesigner']['tdchoices'] = [
+                    ch.strip() for ch in info.pop('choices').split('\n')
+                ]
 
             # ' ' prefix for data version
             raw_sql = literal_string(' ' + json.dumps(
