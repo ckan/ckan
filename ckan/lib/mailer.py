@@ -283,7 +283,7 @@ def send_invite(
 
 def create_reset_key(user: model.User):
     user.reset_key = make_key()
-    model.repo.commit_and_remove()
+    model.repo.commit()
 
 
 def make_key():
