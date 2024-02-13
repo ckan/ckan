@@ -698,9 +698,10 @@ class RequestResetView(MethodView):
                 # user, as that would reveal the existence of accounts with
                 # this email address)
                 for user_dict in user_list:
-                    # `user_list` returned the users,
-                    # so we know they exist here.
-                    user_objs.append(model.User.get(user_dict['id']))
+                    # type_ignore_reason: `user_list` returned the users,
+                    #                     so we know they exist here.
+                    user_objs.append(
+                        model.User.get(user_dict['id']))  # type: ignore
 
         else:
             # Search by user name
