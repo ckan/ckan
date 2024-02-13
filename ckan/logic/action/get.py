@@ -3187,7 +3187,9 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
         if ids_only:
             jobs_list += queue.job_ids[:limit]
         else:
-            jobs_list += [jobs.dictize_job(j) for j in queue.jobs[:limit]]
+            # type_ignore_reason: pyright does not know return from queue.jobs
+            jobs_list += [jobs.dictize_job(j)  # type: ignore
+                          for j in queue.jobs[:limit]]
     return jobs_list
 
 
