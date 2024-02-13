@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type, Callable, Any, List
+from typing import Type, Callable, Any, List, cast
 from collections.abc import Iterable, Mapping
 
 from ckan.types import Validator, Schema
@@ -162,8 +162,13 @@ class ChoiceColumn(ColumnType):
         if isinstance(c, list):
             return c
         # when building from form values convert from newline list
-        return get_validator('tabledesigner_clean_list')(
-            get_validator('tabledesigner_newline_list')(c))
+        cleanlist = cast(
+            Callable[[list[str]], list[str]],
+            get_validator('tabledesigner_clean_list'))
+        newlinelist = cast(
+            Callable[[str], list[str]],
+            get_validator('tabledesigner_newline_list'))
+        return cleanlist(newlinelist(c))
 
     # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''

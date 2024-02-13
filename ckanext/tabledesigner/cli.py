@@ -21,7 +21,7 @@ def tabledesigner():
 
 @tabledesigner.command(short_help='upgrade Table Designer data schemas')
 @click.option('-d', '--dry-run', is_flag=True, help='make no changes')
-def upgrade(dry_run):
+def upgrade(dry_run: bool):
     '''
     Upgrade Table Designer data schemas by moving keys that were stored in
     field 'info' to plugin_data.
@@ -50,7 +50,7 @@ def upgrade(dry_run):
         alter_sql = []
         for fid, fvalue in raw_fields.items():
             if 'tabledesigner' in fvalue:
-                skipped +=1
+                skipped += 1
                 break
 
             info = fvalue.get('_info', {})
@@ -74,8 +74,9 @@ def upgrade(dry_run):
         if alter_sql:
             if not dry_run:
                 with get_write_engine().begin() as connection:
-                    connection.execute(sa.text(';'.join(alter_sql
-                        ).replace(':', r'\:')  # no bind params
+                    connection.execute(sa.text(
+                        ';'.join(alter_sql)
+                        .replace(':', r'\:')  # no bind params
                     ))
             count += 1
         else:
@@ -86,4 +87,3 @@ def upgrade(dry_run):
             count, skipped, noinfo
         )
     )
-
