@@ -665,13 +665,9 @@ class RequestResetView(MethodView):
             # (this is helpful as an option for a user who has multiple
             # accounts with the same email address and they want to be
             # specific)
-            try:
-                # do `user_show` to check for user existing
-                user_dict = logic.get_action(u'user_show')(context,
-                                                           {u'id': id})
-                user_objs.append(model.User.get(user_dict['id']))
-            except logic.NotFound:
-                pass
+            user_obj = model.User.get(id)
+            if user_obj:
+                user_objs.append(user_obj)
 
         if not user_objs:
             log.info(u'User requested reset link for unknown user: {}'
