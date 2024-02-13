@@ -656,11 +656,9 @@ class RequestResetView(MethodView):
                 # user, as that would reveal the existence of accounts with
                 # this email address)
                 for user_dict in user_list:
-                    # This is ugly, but we need the user object for the mailer,
-                    # and user_list does not return them
-                    logic.get_action(u'user_show')(
-                        context, {u'id': user_dict[u'id']})
-                    user_objs.append(context[u'user_obj'])
+                    # `user_list` returned the users,
+                    # so we know they exist here.
+                    user_objs.append(model.User.get(user_dict['id']))
 
         else:
             # Search by user name
@@ -668,8 +666,10 @@ class RequestResetView(MethodView):
             # accounts with the same email address and they want to be
             # specific)
             try:
-                logic.get_action(u'user_show')(context, {u'id': id})
-                user_objs.append(context[u'user_obj'])
+                # do `user_show` to check for user existing
+                user_dict = logic.get_action(u'user_show')(context,
+                                                           {u'id': id})
+                user_objs.append(model.User.get(user_dict['id']))
             except logic.NotFound:
                 pass
 
@@ -691,6 +691,8 @@ class RequestResetView(MethodView):
                                 'or contact an administrator for help'))
                 log.exception(e)
                 return h.redirect_to(u'home.index')
+        # commit any final changes and remove session
+        model.repo.commit_and_remove()
 
         # always tell the user it succeeded, because otherwise we reveal
         # which accounts exist or not
