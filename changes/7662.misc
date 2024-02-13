@@ -1,0 +1,1 @@
+Refactors `facet_list.html` template to use native Bootstrap 5 classes. It also moves the `Show more...` functionality from the view to the template.

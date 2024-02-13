@@ -118,13 +118,9 @@
     }
 }
 
-.nav-item{
-    .facet-close {
-        float: right;
-		position: relative;
-		transform: translateY(0);
-		left: 10px;
-    }
+[aria-expanded="false"] > .expanded,
+[aria-expanded="true"] > .collapsed {
+  display: none;
 }
 
 // STACKED NAV
