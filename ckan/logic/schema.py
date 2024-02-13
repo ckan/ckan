@@ -65,8 +65,13 @@ def default_resource_schema(
 
 
 @validator_args
-def default_update_resource_schema():
+def default_update_resource_schema(ignore_empty: Validator,
+        resource_id_exists: Validator, unicode_safe: Validator):
     schema = default_resource_schema()
+    schema["id"] = [
+        ignore_empty, resource_id_exists, unicode_safe
+    ]
+
     return schema
 
 
