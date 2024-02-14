@@ -35,11 +35,11 @@ def default_resource_schema(
         if_empty_guess_format: Validator, clean_format: Validator,
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
-        id_validator: Validator,
+        uuid_validator: Validator,
         resource_id_does_not_exist: Validator,
         empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore_empty, empty_if_not_sysadmin, id_validator,
+        'id': [ignore_empty, empty_if_not_sysadmin, uuid_validator,
                resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
@@ -129,10 +129,10 @@ def default_create_package_schema(
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
         owner_org_validator: Validator, json_object: Validator,
-        ignore_not_sysadmin: Validator, id_validator: Validator) -> Schema:
+        ignore_not_sysadmin: Validator, uuid_validator: Validator) -> Schema:
     return {
         '__before': [duplicate_extras_key, ignore],
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
+        'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
                package_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, package_name_validator],
@@ -282,11 +282,11 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
                          package_id_or_name_exists: Validator,
                          no_loops_in_hierarchy: Validator,
                          empty_if_not_sysadmin: Validator,
-                         id_validator: Validator,
+                         uuid_validator: Validator,
                          group_id_does_not_exist: Validator,
                          ignore_not_group_admin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
+        'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
                group_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, unicode_safe, name_validator, group_name_validator],
@@ -327,8 +327,6 @@ def group_form_schema(not_empty: Validator, unicode_safe: Validator,
                       ignore_missing: Validator, ignore: Validator):
     schema = default_group_schema()
     # schema['extras_validation'] = [duplicate_extras_key, ignore]
-    print("YOOOOO")
-#    schema["id"] = [ignore_missing, group_id_exists, unicode_safe]
     schema['packages'] = {
         "name": [not_empty, unicode_safe],
         "title": [ignore_missing],
@@ -379,10 +377,10 @@ def default_show_group_schema(
 def default_extras_schema(ignore: Validator, not_empty: Validator,
                           extra_key_not_in_root_schema: Validator,
                           unicode_safe: Validator, not_missing: Validator,
-                          ignore_missing: Validator, id_validator: Validator,
+                          ignore_missing: Validator, uuid_validator: Validator,
                           empty_if_not_sysadmin: Validator) -> Schema:
     return {
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator],
+        'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
         'value': [not_missing],
         'state': [ignore],
@@ -455,10 +453,10 @@ def default_user_schema(
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
         empty_if_not_sysadmin: Validator,
-        id_validator: Validator, user_id_does_not_exist: Validator,
+        uuid_validator: Validator, user_id_does_not_exist: Validator,
         json_object: Validator) -> Schema:
     return {
-        'id': [ignore_missing, empty_if_not_sysadmin, id_validator,
+        'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
                user_id_does_not_exist, unicode_safe],
         'name': [
             not_empty, name_validator, user_name_validator, unicode_safe],
@@ -726,11 +724,11 @@ def default_create_resource_view_schema_unfiltered(
         unicode_safe: Validator, ignore_missing: Validator, empty: Validator,
         empty_if_not_sysadmin: Validator,
         ignore_empty: Validator,
-        id_validator: Validator,
+        uuid_validator: Validator,
         resource_view_id_does_not_exist: Validator
 ) -> Schema:
     return {
-        'id': [ignore_empty, empty_if_not_sysadmin, id_validator,
+        'id': [ignore_empty, empty_if_not_sysadmin, uuid_validator,
                resource_view_id_does_not_exist, unicode_safe],
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode_safe],
@@ -768,10 +766,10 @@ def default_update_resource_view_schema_changes(not_missing: Validator,
                                                 resource_id_exists: Validator,
                                                 ignore: Validator,
                                                 ignore_missing: Validator,
-                                                id_validator: Validator,
+                                                uuid_validator: Validator,
                                                 ) -> Schema:
     return {
-        'id': [not_missing, not_empty, id_validator, unicode_safe],
+        'id': [not_missing, not_empty, uuid_validator, unicode_safe],
         'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode_safe],
         'view_type': [ignore],  # cannot change after create

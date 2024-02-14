@@ -8,6 +8,7 @@ import re
 import mimetypes
 import string
 import json
+import uuid
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
@@ -318,12 +319,11 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     return value
 
 
-def id_validator(value: Any) -> Any:
-    pattern = re.compile("[^0-9a-zA-Z _-]")
-    if pattern.search(value):
-        raise Invalid(_('Invalid characters in id'))
-    if len(value) < 7 or len(value) > 100:
-        raise Invalid(_('Invalid length for id'))
+def uuid_validator(value: Any) -> Any:
+    try:
+        uuid.UUID(value, version=4)
+    except ValueError:
+        raise Invalid(_("Invalid id provided"))
     return value
 
 
