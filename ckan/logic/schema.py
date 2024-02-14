@@ -783,12 +783,12 @@ def update_configuration_schema():
 @validator_args
 def job_list_schema(
         ignore_missing: Validator, list_of_strings: Validator,
-        int_validator: Validator, bool_validator: Validator
+        int_validator: Validator, boolean_validator: Validator
 ) -> Schema:
     return {
         u'queues': [ignore_missing, list_of_strings],
         'limit': [ignore_missing, int_validator],
-        'ids_only': [ignore_missing, bool_validator],
+        'ids_only': [ignore_missing, boolean_validator],
     }
 
 
