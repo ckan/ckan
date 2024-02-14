@@ -1,5 +1,7 @@
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
+from ckan.plugins.toolkit import get_validator
+
 
 def _(x):
     return x

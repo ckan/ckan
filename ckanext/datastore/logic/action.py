@@ -11,6 +11,7 @@ from six import text_type
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 from ckan.common import config
 import ckanext.datastore.logic.schema as dsschema
@@ -170,7 +171,6 @@ def datastore_create(context, data_dict):
         backend.calculate_record_count(data_dict['resource_id'])
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(context, 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
     if resobj.extras.get('datastore_active') is not True:
         log.debug(
@@ -196,7 +196,7 @@ def _create_validate_context(context, data_dict):
     plugin_data = {}
     validate_context['plugin_data'] = plugin_data
     resource_id = data_dict.get('resource_id')
-    if not resource_id or not isinstance(resource_id, str):
+    if not resource_id:
         yield validate_context
         return
 

@@ -5,7 +5,7 @@ from ckan.plugins.toolkit import (
 )
 from ckanext.datastore.interfaces import IDataDictionaryForm
 
-from . import views, interfaces, validators, helpers, actions
+from . import views, interfaces, validators, helpers, actions, validators
 from .column_types import ColumnType, _standard_column_types
 from .column_constraints import ColumnConstraint, _standard_column_constraints
 
@@ -19,6 +19,7 @@ class TableDesignerPlugin(p.SingletonPlugin):
     p.implements(p.IBlueprint)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IConfigurable)
+    p.implements(p.IValidators)
     p.implements(IDataDictionaryForm)
 
     # IConfigurer
@@ -76,19 +77,25 @@ class TableDesignerPlugin(p.SingletonPlugin):
         _column_constraints.clear()
         _column_constraints.update(colcons)
 
+    # IValidators
+
+    def get_validators(self):
+        return {
+            k: v for k, v in validators.__dict__.items()
+            if k.startswith('tabledesigner_')
+        }
+
     # IDataDictionaryForm
 
     def update_datastore_create_schema(self, schema):
         not_empty = get_validator('not_empty')
-        OneOf = cast(ValidatorFactory, get_validator('OneOf'))
-        default = cast(ValidatorFactory, get_validator('default'))
-        tabledesigner_ignore = cast(
-            ValidatorFactory, get_validator('tabledesigner_ignore'))
-        to_datastore_plugin_data = cast(
-            ValidatorFactory, get_validator('to_datastore_plugin_data'))
+        OneOf = get_validator('OneOf')
+        default = get_validator('default')
+        tabledesigner_ignore = get_validator('tabledesigner_ignore')
+        to_datastore_plugin_data = get_validator('to_datastore_plugin_data')
         td_pd = to_datastore_plugin_data('tabledesigner')
 
-        f = cast(Schema, schema['fields'])
+        f = schema['fields']
         td_ignore = tabledesigner_ignore([])
         f['tdtype'] = [td_ignore, not_empty, OneOf(_column_types), td_pd]
         f['tdpkreq'] = [
