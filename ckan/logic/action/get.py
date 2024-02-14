@@ -3190,6 +3190,10 @@ def job_list(context: Context, data_dict: DataDict) -> ActionResult.JobList:
             # type_ignore_reason: pyright does not know return from queue.jobs
             jobs_list += [jobs.dictize_job(j)  # type: ignore
                           for j in queue.jobs[:limit]]
+        if limit > 0 and len(jobs_list) > limit:
+            # we need to return here if there is a limit
+            # and it has been surpassed
+            return jobs_list[:limit]
     return jobs_list
 
 
