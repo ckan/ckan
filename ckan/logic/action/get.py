@@ -3561,6 +3561,10 @@ def job_list(context, data_dict):
             jobs_list += queue.job_ids[:limit]
         else:
             jobs_list += [jobs.dictize_job(j) for j in queue.jobs[:limit]]
+        if limit > 0 and len(jobs_list) > limit:
+            # we need to return here if there is a limit
+            # and it has been surpassed
+            return jobs_list[:limit]
     return jobs_list
 
 
