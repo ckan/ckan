@@ -24,7 +24,7 @@ def create_table(resource_id, fields):
     for f in fields:
         ct = h.tabledesigner_column_type(f)
 
-        if f['info'].get('pkreq') == 'pk':
+        if f['tdpkreq'] == 'pk':
             primary_key.append(ct.colname)
 
         col_validate = ct.sql_validate_rule()
@@ -62,14 +62,7 @@ def create_table(resource_id, fields):
             'resource_id': resource_id,
             'force': True,
             'primary_key': primary_key,
-            'fields': [{
-                'id': f['id'],
-                'type': f['type'],
-                'info': {
-                    k: v for (k, v) in f['info'].items()
-                    if k != 'id'
-                },
-            } for f in fields],
+            'fields': fields,
             'triggers': [
                 {'function': u'{0}_tabledesigner_validate'.format(resource_id)}
             ] if validate_rules else [],

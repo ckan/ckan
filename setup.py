@@ -53,6 +53,7 @@ entry_points = {
     'ckan.click_command': [
         'datastore = ckanext.datastore.cli:datastore',
         'datapusher = ckanext.datapusher.cli:datapusher',
+        'tabledesigner = ckanext.tabledesigner.cli:tabledesigner',
     ],
     'paste.paster_create_template': [
         'ckanext = ckan.pastertemplates:CkanextTemplate',

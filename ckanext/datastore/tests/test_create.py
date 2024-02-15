@@ -837,7 +837,7 @@ class TestDatastoreCreate(object):
         )
         res_dict = json.loads(res.data)
 
-        assert res_dict["success"] is True
+        assert res_dict["success"] is True, res_dict
 
         c = self.Session.connection()
         results = c.execute('select * from "{0}"'.format(resource.id))

@@ -1,8 +1,9 @@
 {%- call
-  form.input('info__' ~ position ~ '__minimum',
+  form.input('fields__' ~ position ~ '__tdminimum',
     label=_('Minimum'),
     id='field-f' ~ position ~ 'minimum',
-    value=field.get('info', {}).get('minimum', ''),
+    value=data.get('tdminimum', field.get('tdminimum', '')),
+    error=errors.tdminimum,
     type=column_type.html_input_type,
     classes=['control-full']
   )
@@ -13,10 +14,11 @@
 {%- endcall %}
 
 {%- call
-  form.input('info__' ~ position ~ '__maximum',
+  form.input('fields__' ~ position ~ '__tdmaximum',
     label=_('Maximum'),
     id='field-f' ~ position ~ 'maximum',
-    value=field.get('info', {}).get('maximum', ''),
+    value=data.get('tdmaximum', field.get('tdmaximum', '')),
+    error=errors.tdmaximum,
     type=column_type.html_input_type,
     classes=['control-full']
   )
