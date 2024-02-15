@@ -6,12 +6,9 @@
   {% else %}
     {% snippet "tabledesigner/snippets/design_fields.html",
       fields=fields,
+      data=data,
+      errors=errors,
       res=res
     %}
   {% endif %}
-{% endblock %}
-
-{% block primary_content_inner %}
-  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
-  {{ super() }}
 {% endblock %}

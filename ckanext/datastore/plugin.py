@@ -20,6 +20,7 @@ from ckanext.datastore.backend import (
 )
 from ckanext.datastore.backend.postgres import DatastorePostgresqlBackend
 import ckanext.datastore.blueprint as view
+from ckanext.datastore.logic import validators
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -41,6 +42,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
     p.implements(interfaces.IDatastoreBackend, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IValidators)
 
     resource_show_action = None
 
@@ -261,3 +263,11 @@ class DatastorePlugin(p.SingletonPlugin):
         u'''Return a Flask Blueprint object to be registered by the app.'''
 
         return view.datastore
+
+    # IValidators
+
+    def get_validators(self):
+        return {
+            'to_datastore_plugin_data': validators.to_datastore_plugin_data,
+            'datastore_default_current': validators.datastore_default_current,
+        }

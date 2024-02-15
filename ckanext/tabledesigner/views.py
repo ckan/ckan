@@ -1,4 +1,6 @@
 # encoding: utf-8
+from itertools import izip_longest
+
 from flask import Blueprint
 from flask.views import MethodView
 
@@ -39,25 +41,23 @@ class _TableDesignerDictionary(MethodView):
         info = data.get('info')
         if not isinstance(info, list):
             info = []
+        custom = data.get('fields')
+        if not isinstance(custom, list):
+            return base.abort(400, _('Required fields missing'))
+        info = info[:len(custom)]
 
         flookup = {f['id']: f for f in fields}
         new_fields = []
 
-        for e in info:
-            if not e.get('tdtype') or not e.get('id'):
+        for c, fi in izip_longest(custom, info):
+            if not c.get('tdtype'):
                 return base.abort(400, _('Required fields missing'))
-            f = flookup.get(e['id'])
-            if f:
-                datastore_type = f['type']
-            else:
-                datastore_type = h.tabledesigner_column_type(
-                    {'info': e}
-                ).datastore_type
-            new_fields.append({
-                'id': e['id'],
-                'type': datastore_type,
-                'info': e
-            })
+            datastore_type = h.tabledesigner_column_type(c).datastore_type
+            if 'id' in c:
+                f = flookup.get(c['id'])
+                if f:
+                    datastore_type = f['type']
+            new_fields.append(dict(c, type=datastore_type, info=fi))
 
         try:
             create_table(resource_id, new_fields)
@@ -67,16 +67,26 @@ class _TableDesignerDictionary(MethodView):
                 dict(
                     fields.get(d['id'], {}),
                     info=d,
-                ) for d in data['info']
+                ) for d in data['fields']
             ]
-            if 'fields' in e.error_dict:
-                data_dict['error_summary'] = {
-                    'id': ', '.join(e.error_dict['fields'])
-                }
-            else:
+            errors = e.error_dict
+            field_errors = errors.get('fields')
+            if not field_errors or not isinstance(field_errors, list):
                 raise
 
-            return render('datastore/dictionary.html', data_dict)
+            if field_errors and not isinstance(field_errors[0], dict):
+                error_summary = {'id': ', '.join(
+                    cast(List[str], field_errors)
+                )}
+            else:
+                error_summary = {}
+                for i, f in enumerate(field_errors, 1):
+                    if isinstance(f, dict) and f:
+                        error_summary[_('Field %d') % i] = ', '.join(
+                            v for vals in f.values()
+                            for v in vals)
+            return _datastore_view.get(
+                id, resource_id, data, errors, error_summary)
 
         h.flash_success(_('Table Designer fields updated.'))
         return h.redirect_to(
@@ -126,7 +136,7 @@ class _TableDesignerAddRow(MethodView):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
-                    if f['info'].get('pkreq') == 'pk'
+                    if f.get('tdpkreq') == 'pk'
                 ]
                 errors = {
                     k: [_('Duplicate primary key exists')] for k in pk_fields
@@ -208,7 +218,7 @@ class _TableDesignerEditRow(MethodView):
                 info = get_action('datastore_info')(None, {'id': resource_id})
                 pk_fields = [
                     f['id'] for f in info['fields']
-                    if f['info'].get('pkreq') == 'pk'
+                    if f.get('tdpkreq') == 'pk'
                 ]
                 errors = {
                     k: [_('Duplicate primary key exists')] for k in pk_fields

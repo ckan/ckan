@@ -1,6 +1,7 @@
-{% call form.textarea('info__' ~ position ~ '__choices',
+{% call form.textarea('fields__' ~ position ~ '__tdchoices',
   label=_('Choices'), id='field-f' ~ position ~ 'choices',
-  value=field.get('info', {}).get('choices', ''), classes=['control-full'],
+  value=data.get('tdchoices', '\n'.join(field.get('tdchoices', []))),
+  error=errors.tdchoices, classes=['control-full'],
   is_required=true) %}
   {{ form.info(
     text=_('Add one option per line (press enter after each option is entered)')

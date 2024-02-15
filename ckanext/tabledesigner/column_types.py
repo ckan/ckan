@@ -1,5 +1,7 @@
 from ckanext.datastore.backend.postgres import identifier, literal_string
 
+from ckan.plugins.toolkit import get_validator
+
 
 def _(x):
     return x
@@ -15,23 +17,40 @@ def _standard_column(key):
 
 
 class ColumnType:
+    """
+    ColumnType subclasses define:
+    - postgresl column type used to store data
+    - label, description and example value
+    - pl/pgsql rules for validating data on insert/update
+    - snippets for data dictionary field definitions and form entry
+    - validators for data dictionary field values
+    - choice lists for choice fields
+    - excel format and validation rules for ckanext-excelforms
+
+    Use IColumnTypes to add/modify the column types available.
+    """
     label = 'undefined'
-    # some defaults to save repetition in subclasses
+    # some defaults to save repetition in subclasses:
     datastore_type = 'text'
+    # snippet used for adding/editing individual records
     form_snippet = 'text.html'
+    # text.html form snippet input tag type attribute value
     html_input_type = 'text'
+    # ckanext-excelforms column format
     excel_format = 'General'
+    # used by sql_required_rule below
     _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
 
-    def __init__(self, info, constraint_types):
-        self.colname = info.get('id', '')
-        self.info = info
+    def __init__(self, field, constraint_types):
+        self.colname = field.get('id', '')
+        self.field = field
         self._constraint_types = constraint_types
 
     def column_constraints(self):
         for cct in self._constraint_types:
             yield cct(self)
 
+    # sql_required_rule format string
     _SQL_REQUIRED = '''
     IF {condition} THEN
         errors := errors || ARRAY[
@@ -46,8 +65,8 @@ class ColumnType:
         """
         error = 'Missing value'
 
-        if self.info.get('pkreq'):
-            if self.info.get('pkreq') == 'pk':
+        if self.field.get('tdpkreq'):
+            if self.field.get('tdpkreq') == 'pk':
                 error = 'Primary key must not be empty'
 
             return self._SQL_REQUIRED.format(
@@ -65,6 +84,25 @@ class ColumnType:
         For constraints use ColumnConstraint subclasses instead
         """
         return
+
+    @classmethod
+    def datastore_field_schema(cls, td_ignore, td_pd):
+        """
+        Return schema with keys to add to the datastore_create
+        field schema. Convention for table designer field keys:
+        - prefix keys with 'td' to avoid name conflicts with other
+          extensions using IDataDictionaryForm
+        - use td_ignore validator first to ignore input when not
+          editing a table designer resource (schema applies to
+          all data data dictionaries not only table designer ones)
+        - use td_pd validator last to store values as table designer
+          plugin data so they can be read from datastore_info later
+
+        e.g.
+        return {'tdmykey': [td_ignore, my_validator, td_pd]}
+        #        ^ prefix   ^ ignore non-td          ^ store value
+        """
+        return {}
 
 
 @_standard_column('text')
@@ -84,7 +122,7 @@ class TextColumn(ColumnType):
         remove surrounding whitespace from text pk fields to avoid
         accidental duplication
         '''
-        if self.info.get('pkreq') == 'pk':
+        if self.field.get('tdpkreq') == 'pk':
             return self._SQL_TRIM_PK.format(
                 value='NEW.' + identifier(self.colname),
             )
@@ -105,12 +143,14 @@ class ChoiceColumn(ColumnType):
 
     def choices(self):
         """
-        Choices based on newline-separated info field
+        Static choice list stored in the data dictionary
         """
-        choices = self.info.get('choices')
-        if choices:
-            return [c.strip() for c in choices.split('\n')]
-        return []
+        c = self.field.get('tdchoices', [])
+        if isinstance(c, list):
+            return c
+        # when building from form values convert from newline list
+        return get_validator('tabledesigner_clean_list')(
+            get_validator('tabledesigner_newline_list')(c))
 
     # \t is used when converting errors to string, remove any from data
     _SQL_VALIDATE = '''
@@ -139,6 +179,18 @@ class ChoiceColumn(ColumnType):
         excelforms provides {_choice_range_} cells with all choice values
         """
         return 'COUNTIF({_choice_range_},TRIM({_value_}))=0'
+
+    @classmethod
+    def datastore_field_schema(cls, td_ignore, td_pd):
+        """
+        store choices as tdchoices list-of-strings field
+        """
+        not_empty = get_validator('not_empty')
+        td_newline_list = get_validator('tabledesigner_newline_list')
+        td_clean_list = get_validator('tabledesigner_clean_list')
+
+        return {'tdchoices': [
+            td_ignore, td_newline_list, td_clean_list, not_empty, td_pd]}
 
 
 @_standard_column('email')

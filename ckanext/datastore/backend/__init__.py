@@ -111,7 +111,7 @@ class DatastoreBackend:
 
         return config
 
-    def create(self, context, data_dict):
+    def create(self, context, data_dict, plugin_data):
         """Create new resourct inside datastore.
 
         Called by `datastore_create`.
@@ -228,4 +228,7 @@ class DatastoreBackend:
     def drop_function(self, *args, **kwargs):
         """Called by `datastore_function_delete` action.
         """
+        raise NotImplementedError()
+
+    def resource_plugin_data(self, resource_id):
         raise NotImplementedError()

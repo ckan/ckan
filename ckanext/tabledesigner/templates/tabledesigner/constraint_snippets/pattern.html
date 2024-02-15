@@ -1,8 +1,9 @@
 {%- call
-  form.input('info__' ~ position ~ '__pattern',
+  form.input('fields__' ~ position ~ '__tdpattern',
     label=_('Pattern'),
     id='field-f' ~ position ~ 'pattern',
-    value=field.get('info', {}).get('pattern', ''),
+    value=data.get('tdpattern', field.get('tdpattern', '')),
+    error=errors.tdpattern,
     classes=['control-full']
   )
   -%}

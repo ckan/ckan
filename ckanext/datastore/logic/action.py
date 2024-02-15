@@ -2,6 +2,7 @@
 
 import logging
 import json
+from contextlib import contextmanager
 
 import sqlalchemy
 import six
@@ -10,6 +11,7 @@ from six import text_type
 import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
+import ckan.model as model
 import ckan.plugins as p
 from ckan.common import config
 import ckanext.datastore.logic.schema as dsschema
@@ -18,6 +20,7 @@ from ckanext.datastore.backend import (
     DatastoreBackend, InvalidDataError
 )
 from ckanext.datastore.backend.postgres import identifier
+from ckanext.datastore import interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -95,7 +98,11 @@ def datastore_create(context, data_dict):
     schema = context.get('schema', dsschema.datastore_create_schema())
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
-    data_dict, errors = _validate(data_dict, schema, context)
+    for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+        schema = plugin.update_datastore_create_schema(schema)
+    with _create_validate_context(context, data_dict) as validate_context:
+        plugin_data = validate_context['plugin_data']
+        data_dict, errors = _validate(data_dict, schema, validate_context)
     resource_dict = None
     if records:
         data_dict['records'] = records
@@ -156,7 +163,7 @@ def datastore_create(context, data_dict):
             })
 
     try:
-        result = backend.create(context, data_dict)
+        result = backend.create(context, data_dict, plugin_data)
     except InvalidDataError as err:
         raise p.toolkit.ValidationError(text_type(err))
 
@@ -164,7 +171,6 @@ def datastore_create(context, data_dict):
         backend.calculate_record_count(data_dict['resource_id'])
 
     # Set the datastore_active flag on the resource if necessary
-    model = _get_or_bust(context, 'model')
     resobj = model.Resource.get(data_dict['resource_id'])
     if resobj.extras.get('datastore_active') is not True:
         log.debug(
@@ -176,6 +182,53 @@ def datastore_create(context, data_dict):
     result.pop('connection_url', None)
     result.pop('records', None)
     return result
+
+
+@contextmanager
+def _create_validate_context(context, data_dict):
+    '''
+    Populate plugin_data and resource for context to validators of
+    datastore_create data_dict. This is called before validation so nothing
+    about data_dict can be trusted.
+    '''
+    backend = DatastoreBackend.get_active_backend()
+    validate_context = dict(context)
+    plugin_data = {}
+    validate_context['plugin_data'] = plugin_data
+    resource_id = data_dict.get('resource_id')
+    if not resource_id:
+        yield validate_context
+        return
+
+    resource = model.Resource.get(data_dict['resource_id'])
+    if not resource:
+        yield validate_context
+        return
+    validate_context['resource'] = resource
+
+    fields = data_dict.get('fields')
+    if not fields or not isinstance(fields, list):
+        yield validate_context
+        return
+
+    try:
+        current_plugin_data = backend.resource_plugin_data(resource_id)
+    except NotImplementedError:
+        current_plugin_data = None
+    if not current_plugin_data:
+        yield validate_context
+        return
+
+    for i, field in enumerate(data_dict['fields']):
+        if not isinstance(field, dict):
+            continue
+        if field.get('id') in current_plugin_data:
+            plugin_data[i] = {'_current': current_plugin_data[field['id']]}
+    yield validate_context
+
+    # clean up _current values so they aren't saved
+    for pd in plugin_data.values():
+        pd.pop('_current', None)
 
 
 def datastore_run_triggers(context, data_dict):
@@ -342,6 +395,16 @@ def datastore_info(context, data_dict):
 
     info = backend.resource_fields(id)
 
+    try:
+        plugin_data = backend.resource_plugin_data(id)
+    except NotImplementedError:
+        return {}
+
+    for i, field in enumerate(info['fields']):
+        for plugin in p.PluginImplementations(interfaces.IDataDictionaryForm):
+            field = plugin.update_datastore_info_field(
+                field, plugin_data.get(field['id'], {}))
+        info['fields'][i] = field
     return info
 
 
