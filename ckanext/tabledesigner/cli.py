@@ -61,7 +61,7 @@ def upgrade(dry_run):
             for k in ('pkreq', 'minimum', 'maximum', 'pattern', 'immutable'):
                 if k in info:
                     fvalue['tabledesigner']['td' + k] = info.pop(k)
-            if 'choice' in info:
+            if 'choices' in info:
                 fvalue['tabledesigner']['tdchoices'] = [
                     ch.strip() for ch in info.pop('choices').split('\n')
                 ]
@@ -73,16 +73,16 @@ def upgrade(dry_run):
                 identifier(record['name']),
                 identifier(fid),
                 raw_sql))
-
-        if alter_sql:
-            if not dry_run:
-                with get_write_engine().begin() as connection:
-                    connection.execute(sa.text(';'.join(alter_sql
-                        ).replace(':', r'\:')  # no bind params
-                    ))
-            count += 1
         else:
-            noinfo += 1
+            if alter_sql:
+                if not dry_run:
+                    with get_write_engine().begin() as connection:
+                        connection.execute(sa.text(';'.join(alter_sql
+                            ).replace(':', r'\:')  # no bind params
+                        ))
+                count += 1
+            else:
+                noinfo += 1
 
     click.echo(
         'Upgraded %d tables (%d already upgraded, %d not table designer)' % (
