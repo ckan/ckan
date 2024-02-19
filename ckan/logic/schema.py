@@ -4,6 +4,7 @@ import inspect
 from functools import wraps
 from typing import Any, Callable, Iterable, cast
 
+from ckan.lib.maintain import deprecated
 import ckan.model
 import ckan.plugins as plugins
 from ckan.logic import get_validator
@@ -274,17 +275,27 @@ def default_show_package_schema(keep_extras: Validator,
     return schema
 
 
+@deprecated(
+    "Use the relevant `default_{create|update|show}_group_schema` instead",
+    since="2.11.0"
+)
+def default_group_schema():
+    """ Deprecated """
+    return default_create_group_schema()
+
+
 @validator_args
-def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
-                         ignore: Validator, not_empty: Validator,
-                         name_validator: Validator,
-                         group_name_validator: Validator,
-                         package_id_or_name_exists: Validator,
-                         no_loops_in_hierarchy: Validator,
-                         empty_if_not_sysadmin: Validator,
-                         uuid_validator: Validator,
-                         group_id_does_not_exist: Validator,
-                         ignore_not_group_admin: Validator) -> Schema:
+def default_create_group_schema(
+        ignore_missing: Validator, unicode_safe: Validator,
+        ignore: Validator, not_empty: Validator,
+        name_validator: Validator,
+        group_name_validator: Validator,
+        package_id_or_name_exists: Validator,
+        no_loops_in_hierarchy: Validator,
+        empty_if_not_sysadmin: Validator,
+        uuid_validator: Validator,
+        group_id_does_not_exist: Validator,
+        ignore_not_group_admin: Validator) -> Schema:
     return {
         'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
                group_id_does_not_exist, unicode_safe],
@@ -322,32 +333,13 @@ def default_group_schema(ignore_missing: Validator, unicode_safe: Validator,
 
 
 @validator_args
-def group_form_schema(not_empty: Validator, unicode_safe: Validator,
-                      group_id_exists: Validator,
-                      ignore_missing: Validator, ignore: Validator):
-    schema = default_group_schema()
-    # schema['extras_validation'] = [duplicate_extras_key, ignore]
-    schema['packages'] = {
-        "name": [not_empty, unicode_safe],
-        "title": [ignore_missing],
-        "__extras": [ignore]
-    }
-    schema['users'] = {
-        "name": [not_empty, unicode_safe],
-        "capacity": [ignore_missing],
-        "__extras": [ignore]
-    }
-    return schema
-
-
-@validator_args
 def default_update_group_schema(
         ignore_missing: Validator,
         not_empty: Validator,
         group_id_exists: Validator,
         group_name_validator: Validator,
         unicode_safe: Validator):
-    schema = default_group_schema()
+    schema = default_create_group_schema()
     schema["id"] = [not_empty, group_id_exists, unicode_safe]
     schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
     return schema
@@ -356,7 +348,7 @@ def default_update_group_schema(
 @validator_args
 def default_show_group_schema(
         keep_extras: Validator, ignore_missing: Validator):
-    schema = default_group_schema()
+    schema = default_create_group_schema()
 
     # make default show schema behave like when run with no validation
     schema['id'] = []
