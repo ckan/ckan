@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import uuid
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -99,8 +101,8 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        name = factories.Organization.stub().name
-        org = factories.Organization(id=name, name=name)
+        id_ = str(uuid.uuid4())
+        org = factories.Organization(id=id_, name=id_)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
