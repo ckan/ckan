@@ -1829,7 +1829,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             elif typ == 'timestamp':
                 fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
                 if records_format == 'lists':
-                    fmt = f"coalesce(to_json({fmt}), 'null')"
+                    fmt = "coalesce(to_json({fmt}), 'null')".format(fmt=fmt)
             elif typ.startswith('_') or typ.endswith('[]'):
                 fmt = "coalesce(array_to_json({0}),'null')"
 
