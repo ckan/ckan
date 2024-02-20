@@ -2670,6 +2670,7 @@ class TestDeferCommitOnCreate(object):
 
         assert model.Session.query(Activity).count() == 0
 
+
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestActivityCreate:
@@ -2695,7 +2696,7 @@ class TestActivityCreate:
         }
         with pytest.raises(tk.NotAuthorized):
             helpers.call_action("activity_create", **activity_dict)
-        
+
     def test_sysadmin_user_cant_set_id(self):
         user = factories.Sysadmin()
         context = {"user": user["name"], "ignore_auth": False}

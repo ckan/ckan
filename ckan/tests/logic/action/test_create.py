@@ -1195,11 +1195,11 @@ class TestGroupCreate(object):
         _id = str(uuid.uuid4())
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-            "group_create",
-            context=context,
-            name=f"test-group-{_id}",
-            id=_id
-        )
+                "group_create",
+                context=context,
+                name=f"test-group-{_id}",
+                id=_id
+            )
 
     def test_sysadmin_can_set_id(self):
         user = factories.Sysadmin()
@@ -1236,11 +1236,11 @@ class TestGroupCreate(object):
         _id = str(uuid.uuid4())
         with pytest.raises(logic.ValidationError) as exception:
             helpers.call_action(
-            "group_create",
-            context=context,
-            name=f"test-group-{_id}",
-            extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
-        )
+                "group_create",
+                context=context,
+                name=f"test-group-{_id}",
+                extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
+            )
         assert "The input field id was not expected" in str(exception.value)
 
     def test_sysadmin_user_cant_set_extras_id(self):
@@ -1253,6 +1253,7 @@ class TestGroupCreate(object):
             name=f"test-group-{_id}",
             extras=[{"id": _id, "key": "area", "value": '"non profit"'}]
         )
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationCreate(object):
@@ -1342,11 +1343,11 @@ class TestOrganizationCreate(object):
         _id = str(uuid.uuid4())
         with pytest.raises(logic.ValidationError):
             helpers.call_action(
-            "organization_create",
-            context=context,
-            name=f"test-org-{_id}",
-            id=_id
-        )
+                "organization_create",
+                context=context,
+                name=f"test-org-{_id}",
+                id=_id
+            )
 
     def test_sysadmin_can_set_id(self):
         user = factories.Sysadmin()

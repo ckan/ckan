@@ -222,7 +222,7 @@ class TestGroupRead(object):
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
         _id = str(uuid.uuid4())
-        group = factories.Group(id=_id, name=_id)
+        factories.Group(id=_id, name=_id)
 
         # 200 == no redirect
         app.get(url_for("group.read", id=_id), status=200)

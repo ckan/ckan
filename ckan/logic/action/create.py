@@ -724,7 +724,8 @@ def _group_or_org_create(context: Context,
     group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
 
-    schema: Schema = context.get("schema") or group_plugin.create_group_schema()
+    schema: Schema = context.get(
+        "schema") or group_plugin.create_group_schema()
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
