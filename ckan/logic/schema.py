@@ -37,10 +37,9 @@ def default_resource_schema(
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
         uuid_validator: Validator,
-        resource_id_does_not_exist: Validator,
-        empty_if_not_sysadmin: Validator) -> Schema:
+        resource_id_does_not_exist: Validator) -> Schema:
     return {
-        'id': [ignore_empty, empty_if_not_sysadmin, uuid_validator,
+        'id': [ignore_empty, uuid_validator,
                resource_id_does_not_exist, unicode_safe],
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
@@ -66,12 +65,10 @@ def default_resource_schema(
 
 
 @validator_args
-def default_update_resource_schema(ignore_empty: Validator,
+def default_update_resource_schema(
+        ignore_empty: Validator,
         resource_id_exists: Validator, unicode_safe: Validator):
     schema = default_resource_schema()
-    schema["id"] = [
-        ignore_empty, resource_id_exists, unicode_safe
-    ]
 
     return schema
 
