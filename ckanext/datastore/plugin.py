@@ -35,6 +35,7 @@ def sql_functions_allowlist_file():
 
 
 @p.toolkit.blanket.config_declarations
+@p.toolkit.blanket.validators
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IConfigurer)

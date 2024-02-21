@@ -132,6 +132,7 @@ class Context(TypedDict, total=False):
     with_capacity: bool
 
     table_names: list[str]
+    plugin_data: dict[Any, Any]
 
 
 class AuthResult(TypedDict, total=False):
