@@ -33,6 +33,7 @@ class ExampleIDataDictionaryFormPlugin(plugins.SingletonPlugin):
         ignore_empty = get_validator('ignore_empty')
         int_validator = get_validator('int_validator')
         unicode_only = get_validator('unicode_only')
+        datastore_default_current = get_validator('datastore_default_current')
         to_datastore_plugin_data = cast(
             ValidatorFactory, get_validator('to_datastore_plugin_data'))
         to_eg_iddf = to_datastore_plugin_data('example_idatadictionaryform')
@@ -43,7 +44,7 @@ class ExampleIDataDictionaryFormPlugin(plugins.SingletonPlugin):
         f['only_up'] = [
             only_increasing, ignore_empty, int_validator, to_eg_iddf]
         f['sticky'] = [
-            default_current, ignore_empty, unicode_only, to_eg_iddf]
+            datastore_default_current, ignore_empty, unicode_only, to_eg_iddf]
 
         # use different plugin_key so that value isn't removed
         # when above fields are updated & value not exposed in
@@ -98,22 +99,4 @@ def only_increasing(
             return  # allow int_validator to handle the error
     else:
         # keep current value when empty/missing
-        data[key] = current
-
-
-def default_current(
-        key: FlattenKey, data: FlattenDataDict,
-        errors: FlattenErrorDict, context: Context):
-    '''default to currently stored value if empty or missing'''
-    value = data[key]
-    if value is not None and value != '' and value is not missing:
-        return
-    field_index = key[-2]
-    field_name = key[-1]
-    # current values for plugin_data are available as
-    # context['plugin_data'][field_index]['_current']
-    current = context['plugin_data'].get(field_index, {}).get(
-        '_current', {}).get('example_idatadictionaryform', {}).get(
-        field_name)
-    if current:
         data[key] = current

@@ -181,7 +181,7 @@ class DictionaryView(MethodView):
         if not isinstance(info, list):
             info = []
         info = info[:len(fields)]
-        custom = data.get(u'fields')
+        custom = data.get('fields')
         if not isinstance(custom, list):
             custom = []
 

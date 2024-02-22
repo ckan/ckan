@@ -319,36 +319,20 @@ Fields define the column names and the type of the data in a column. A field is 
             "label":  # human-readable label for column
             "notes":  # markdown description of column
             "type_override":  # type for datapusher to use when importing data
-            ...:  # other user-defined fields
+            ...:  # free-form user-defined values
 	}
+        ...:  # values defined and validated with IDataDictionaryForm
     }
 
 Field types not provided will be guessed based on the first row of provided data.
 Set the types to ensure that future inserts will not fail because of an incorrectly
 guessed type. See :ref:`valid-types` for details on which types are valid.
 
-Extra ``"info"`` field values will be stored along with the column. ``"label"``,
-``"notes"`` and ``"type_override"`` can be managed from the default :ref:`data_dictionary`
-form.  Additional fields can be stored by customizing the Data Dictionary form or by
-passing their values to the API directly.
+.. seealso::
 
-Example::
+   For more on custom field values and customizing the Data Dictionary form, see
+   :doc:`/extensions/custom-data-dictionary`.
 
-    [
-        {
-            "id": "code_number",
-            "type": "numeric"
-        },
-        {
-            "id": "description"
-            "type": "text",
-            "info": {
-                "label": "Description",
-                "notes": "A brief usage description for this code",
-                "example": "Used for temporary service interruptions"
-            }
-        }
-    ]
 
 .. _records:
 
