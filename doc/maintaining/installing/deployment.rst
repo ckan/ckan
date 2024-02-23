@@ -13,7 +13,7 @@ deployment configurations, however the CKAN project has now standardized on one 
 
 .. _uwsgi: https://uwsgi-docs.readthedocs.io/en/latest/
 .. _NGINX: http://nginx.org/
-.. _Supervisor: http://http://supervisord.org/
+.. _Supervisor: http://supervisord.org/
 
 This guide explains how to deploy CKAN using a uwsgi web server and proxied
 with NGINX on an Ubuntu server. These instructions have been tested on Ubuntu
