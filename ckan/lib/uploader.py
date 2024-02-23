@@ -220,7 +220,7 @@ class Upload(object):
         if not mimetypes and not types:
             return
 
-        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        actual = magic.from_buffer(self.upload_file.read(2048), mime=True)
         self.upload_file.seek(0, os.SEEK_SET)
         err = {self.file_field: [
             "Unsupported upload type: {actual}".format(actual=actual)]}
