@@ -1,4 +1,3 @@
-{% set dataset_type = request.view_args.package_type or pkg_dict['type'] or 'dataset' %}
 {% set pkg_url = h.url_for(dataset_type ~ '.read', id=change.pkg_id) %}
 {% set resource_url = h.url_for(dataset_type ~ '_resource.read', id=change.pkg_id, resource_id = change.resource_id, qualified=True) %}
 
