@@ -96,7 +96,7 @@ Creating fields with the Data Dictionary
 A newly created resource will have no fields defined. Use the "Add Field" button
 in the Data Dictionary form to add fields for your data.
 
-.. image:: /images/table_designer_add_field.png
+Customize each field with an ID, an obligation, a label and description.
 
 ID
 ==
@@ -110,14 +110,14 @@ other formats.
 We recommend using a single convention for all IDs e.g. ``lowercase_with_underscores`` to
 simplify accessing data from external systems.
 
-.. image:: /images/table_designer_obligation.png
-
 Obligation
 ==========
 
+The field obligation defaults to optional.
+
 Optional
    no restrictions
-   
+
 Required
    may not be NULL or blank
 
@@ -127,6 +127,18 @@ Primary Key
 When multiple fields are marked as primary keys the combination of values in each row is used
 to determine uniqueness.
 
+Label
+=====
+
+The field label is a human-friendly version of the ID, used when displaying data in the data
+table preview, the data dictionary, in forms and in Excel templates.
+
+Description
+===========
+
+The field description is markdown displayed in the data dictionary, as help text forms and
+in Excel templates.
+
 
 -----------
 Field Types
@@ -134,6 +146,9 @@ Field Types
 
 Table Designer offers some common fields types by default. To customize the
 types available see :ref:FIXME
+
+.. image:: /images/table_designer_add_field.png
+
 
 Text
 ====
@@ -217,13 +232,13 @@ Creating and updating rows with the web form
 
 Table Designer offers a web form for interactively creating or updating individual rows.
 
-Web forms are generated based on the fields defined. Labels are shown instead of ids when
-given. Field descriptions are displayed as help text and may include markdown with links,
+The fields you define generate the web forms. Labels for fields are shown instead of ids when
+given, and field descriptions are displayed as help text and may include markdown with links,
 tables or other information.
 
 .. image:: /images/table_designer_form.png
 
-The input widget for each field is determined by the field type. For custom types and input
+The field type determines the input widget shown for each field. For custom types and input
 widgets see: :ref:FIXME
 
 Creating rows
@@ -240,9 +255,8 @@ above the table.
 Validation errors
 =================
 
-If any required values are missing, any values fail validation or
-cause conflicts with existing rows then errors will appear on the form after
-clicking "Save".
+Errors will appear on the form after clicking "Save" if any values fail validation or cause
+conflicts with existing rows.
 
 .. image:: /images/table_designer_form_errors.png
 
@@ -266,13 +280,13 @@ Creating and updating rows
 ==========================
 
 Below the data preview under "Table Designer" click the "Excel template" button to download
-a blank template ``xlsx`` file. Open the template in Excel, LibreOffice, Google Docs or other
+a clean template ``xlsx`` file. Open the template in Excel, LibreOffice, Google Docs or other
 Excel-compatible spreadsheet application.
 
 .. image:: /images/table_designer_excelforms.png
 
-The template header, here "Bicycle Counters", is set based on the resource name. Each column
-corresponds to one of the fields defined. Enter data into the rows starting right of the "▶". 
+The template header (here "Bicycle Counters") is set based on the resource name. Each column
+corresponds to one of the fields defined. Enter data into the rows starting right of the "▶".
 
 .. note:: Use "paste special: values only" when pasting data into the template or the
  error highlighting and column formatting will be removed.
@@ -296,7 +310,10 @@ to jump directly to the next error or missing value in that row/column. This is
 useful when navigating a large template to quickly find errors or missing values.
 
 Once errors are corrected, save the template and upload it with the file selection input
-next to the "Excel template" button below the preview. Click "Submit".
+next to the "Excel template" button below the preview.
+
+Click "Submit" to upload the data or "Check for Errors" to validate the data server-side
+without creating or updating rows.
 
 .. note:: If you have primary key fields defined, rows submitted here will *replace values for
  rows with the same primary key* in the DataStore database.
@@ -310,7 +327,7 @@ to download an Excel template populated with data.
 
 .. image:: /images/table_designer_excelforms_edit_button.png
 
-This template is just like the blank one above except:
+This template is just like the clean one above except:
 
  - the template includes a read-only ``_id`` column at the left
  - the template has no additional rows for adding data
@@ -328,4 +345,4 @@ Select one or more rows in the data table preview then click "Delete rows" above
 
 .. image:: /images/table_designer_excelforms_delete.png
 
-The data to be delete will be displayed. Click "Delete".
+Click "Delete" to confirm deletion of the data shown.
