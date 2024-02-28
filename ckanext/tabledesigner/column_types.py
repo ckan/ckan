@@ -28,7 +28,8 @@ def _standard_column(
 class ColumnType:
     """
     ColumnType subclasses define:
-    - postgresl column type used to store data
+
+    - PostgreSQL column type used to store data
     - label, description and example value
     - pl/pgsql rules for validating data on insert/update
     - snippets for data dictionary field definitions and form entry
@@ -38,14 +39,17 @@ class ColumnType:
 
     Use IColumnTypes to add/modify the column types available.
     """
+    #:
     label = 'undefined'
-    # some defaults to save repetition in subclasses:
+    #:
+    description = 'undefined'
+    #: DataStore PostgreSQL column type
     datastore_type = 'text'
-    # snippet used for adding/editing individual records
+    #: snippet used for adding/editing individual records
     form_snippet = 'text.html'
-    # text.html form snippet input tag type attribute value
+    #: text.html form snippet input tag ``type`` attribute value
     html_input_type = 'text'
-    # ckanext-excelforms column format
+    #: ckanext-excelforms column format
     excel_format = 'General'
     # used by sql_required_rule below
     _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
@@ -73,7 +77,8 @@ class ColumnType:
 
     def sql_required_rule(self):
         """
-        Primary keys and required fields must not be empty
+        return SQL to enforce that primary keys and required fields are
+        not empty.
         """
         error = 'Missing value'
 
@@ -91,9 +96,8 @@ class ColumnType:
 
     def sql_validate_rule(self):
         """
-        Override when type-related validation is required
-
-        For constraints use ColumnConstraint subclasses instead
+        Override to return type-related SQL validation.
+        For constraints use ColumnConstraint subclasses instead.
         """
         return
 
@@ -103,6 +107,7 @@ class ColumnType:
         """
         Return schema with keys to add to the datastore_create
         field schema. Convention for table designer field keys:
+
         - prefix keys with 'td' to avoid name conflicts with other
           extensions using IDataDictionaryForm
         - use td_ignore validator first to ignore input when not
@@ -111,17 +116,21 @@ class ColumnType:
         - use td_pd validator last to store values as table designer
           plugin data so they can be read from datastore_info later
 
-        e.g.
-        return {'tdmykey': [td_ignore, my_validator, td_pd]}
-        #        ^ prefix   ^ ignore non-td          ^ store value
+        e.g.::
+
+         return {'tdmykey': [td_ignore, my_validator, td_pd]}
+         #        ^ prefix   ^ ignore non-td          ^ store value
         """
         return {}
 
 
 @_standard_column('text')
 class TextColumn(ColumnType):
+    #:
     label = _('Text')
+    #:
     description = _('Unicode text of any length')
+    #:
     example = _('free-form text')
     table_schema_type = 'string'
     table_schema_format = 'default'
@@ -132,8 +141,8 @@ class TextColumn(ColumnType):
 
     def sql_validate_rule(self):
         '''
-        remove surrounding whitespace from text pk fields to avoid
-        accidental duplication
+        Return an SQL rule to remove surrounding whitespace from text
+        pk fields to avoid accidental duplication.
         '''
         if self.field.get('tdpkreq') == 'pk':
             return self._SQL_TRIM_PK.format(
@@ -144,19 +153,24 @@ class TextColumn(ColumnType):
 
 @_standard_column('choice')
 class ChoiceColumn(ColumnType):
+    #:
     label = _('Choice')
+    #:
     description = _('Choose one option from a fixed list')
+    #:
     example = 'b1'
     datastore_type = 'text'
     table_schema_type = 'string'
     table_schema_format = 'default'
     table_schema_constraint = 'enum'
+    #: render a select input based on self.choices()
     form_snippet = 'choice.html'
+    #: render a textarea input for valid options
     design_snippet = 'choice.html'
 
     def choices(self) -> Iterable[str] | Mapping[str, str]:
         """
-        Static choice list stored in the data dictionary
+        Return a choice list from the field data.
         """
         c = self.field.get('tdchoices', [])
         if isinstance(c, list):
@@ -182,7 +196,7 @@ class ChoiceColumn(ColumnType):
 
     def sql_validate_rule(self):
         """
-        Copy choices into validation rule as a literal string array
+        Return SQL to validate an option against self.choices()
         """
         return self._SQL_VALIDATE.format(
             value=f'NEW.{identifier(self.colname)}',
@@ -194,15 +208,17 @@ class ChoiceColumn(ColumnType):
 
     def excel_validate_rule(self):
         """
-        excelforms provides {_choice_range_} cells with all choice values
+        Return an Excel formula to validate options against self.choices()
         """
+        # excelforms provides {_choice_range_} cells with all choice values
         return 'COUNTIF({_choice_range_},TRIM({_value_}))=0'
 
     @classmethod
     def datastore_field_schema(
             cls, td_ignore: Validator, td_pd: Validator) -> Schema:
         """
-        store choices as tdchoices list-of-strings field
+        Return schema to store ``tdchoices`` in the field data as a list of
+        strings.
         """
         not_empty = get_validator('not_empty')
         td_newline_list = get_validator('tabledesigner_newline_list')
@@ -214,8 +230,11 @@ class ChoiceColumn(ColumnType):
 
 @_standard_column('email')
 class EmailColumn(ColumnType):
+    #:
     label = _('Email Address')
+    #:
     description = _('A single email address')
+    #:
     example = 'user@example.com'
     datastore_type = 'text'
     table_schema_type = 'string'
@@ -238,6 +257,9 @@ class EmailColumn(ColumnType):
     )
 
     def sql_validate_rule(self):
+        """
+        Return SQL rule to check value against the email regex.
+        """
         return self._SQL_VALIDATE.format(
             value=f'NEW.{identifier(self.colname)}',
             pattern=literal_string(self._EMAIL_PATTERN),
@@ -248,8 +270,11 @@ class EmailColumn(ColumnType):
 
 @_standard_column('uri')
 class URIColumn(ColumnType):
+    #:
     label = _('URI')
+    #:
     description = _('Uniform resource identifier (URL or URN)')
+    #:
     example = 'https://example.com/page'
     datastore_type = 'text'
     table_schema_type = 'string'
@@ -259,8 +284,11 @@ class URIColumn(ColumnType):
 
 @_standard_column('uuid')
 class UUIDColumn(ColumnType):
+    #:
     label = _('Universally unique identifier (UUID)')
+    #:
     description = _('A universally unique identifier as hexadecimal')
+    #:
     example = '213b972d-75c0-48b7-b14a-5a19eb58a1fa'
     datastore_type = 'uuid'
     table_schema_type = 'string'
@@ -270,35 +298,50 @@ class UUIDColumn(ColumnType):
 
 @_standard_column('numeric')
 class NumericColumn(ColumnType):
+    #:
     label = _('Numeric')
+    #:
     description = _('Number with arbitrary precision (any number of '
                     'digits before and after the decimal)')
+    #:
     example = '2.01'
     datastore_type = 'numeric'
     table_schema_type = 'number'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def excel_validate_rule(self):
+        """
+        Return an Excel formula to check for numbers.
+        """
         return 'NOT(ISNUMBER({_value_}))'
 
 
 @_standard_column('integer')
 class IntegerColumn(ColumnType):
+    #:
     label = _('Integer')
+    #:
     description = _('Whole numbers with no decimal')
+    #:
     example = '21'
     datastore_type = 'int8'
     table_schema_type = 'integer'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def excel_validate_rule(self):
+        """
+        Return an Excel formula to check for integers.
+        """
         return 'NOT(IFERROR(INT({_value_})=VALUE({_value_}),FALSE))'
 
 
 @_standard_column('boolean')
 class BooleanColumn(ColumnType):
+    #:
     label = _('Boolean')
+    #:
     description = _('True or false values')
+    #:
     example = 'false'
     datastore_type = 'boolean'
     table_schema_type = 'boolean'
@@ -306,6 +349,10 @@ class BooleanColumn(ColumnType):
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def choices(self):
+        """
+        Return TRUE/FALSE choices.
+        """
+        # We have a request context here so return labels in user's language
         from ckan.plugins.toolkit import _
         return {
             'false': _('FALSE'),
@@ -314,19 +361,26 @@ class BooleanColumn(ColumnType):
 
     def choice_value_key(self, value: bool | str) -> str:
         """
-        convert bool to string for matching choice keys
+        Convert bool to string for matching choice keys in the choice.html form
+        snippet.
         """
         return 'true' if value else 'false' if isinstance(
             value, bool) else value
 
     def excel_validate_rule(self):
+        """
+        Return an Excel formula to check for TRUE/FALSE.
+        """
         return 'AND({_value_}<>TRUE,{_value_}<>FALSE)'
 
 
 @_standard_column('json')
 class JSONColumn(ColumnType):
+    #:
     label = _('JSON')
+    #:
     description = _('A JSON object')
+    #:
     example = '{"key": "value"}'
     datastore_type = 'json'
     table_schema_type = 'object'
@@ -335,8 +389,11 @@ class JSONColumn(ColumnType):
 
 @_standard_column('date')
 class DateColumn(ColumnType):
+    #:
     label = _('Date')
+    #:
     description = _('Date without time of day')
+    #:
     example = '2024-01-01'
     datastore_type = 'date'
     table_schema_type = 'date'
@@ -346,20 +403,35 @@ class DateColumn(ColumnType):
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def excel_validate_rule(self):
-        return 'NOT(ISNUMBER({_value_}+0))'
+        """
+        Return an Excel formula to check for a date.
+        """
+        # excel represents timestamps as numbers, integers are dates
+        return (
+            'OR(NOT(ISNUMBER({_value_}+0)),'
+            'NOT(IFERROR(INT({_value_}+0)=VALUE({_value_}+0),FALSE)))'
+        )
 
 
 @_standard_column('timestamp')
 class TimestampColumn(ColumnType):
+    #:
     label = _('Timestamp')
+    #:
     description = _('Date and time without time zone')
+    #:
     example = '2024-01-01 12:00:00'
     datastore_type = 'timestamp'
     table_schema_type = 'datetime'
     table_schema_format = 'fmt:YYYY-MM--DD hh:mm:ss'
     html_input_type = 'datetime-local'
+
     excel_format = 'yyyy-mm-dd HH:MM:SS'
     _SQL_IS_EMPTY = "{value} IS NULL"
 
     def excel_validate_rule(self):
+        """
+        Return an Excel formula to check for a timestamp.
+        """
+        # excel represents timestamps as numbers
         return 'NOT(ISNUMBER({_value_}+0))'

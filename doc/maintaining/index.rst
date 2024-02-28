@@ -18,7 +18,7 @@ installing, upgrading and configuring CKAN and its features and extensions.
    data-viewer
    filestore
    datastore
-   tabledesigner
+   table-designer
    apps-ideas
    tag-vocabularies
    form-integration

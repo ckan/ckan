@@ -1,4 +1,4 @@
-.. _tabledesigner:
+.. _table-designer:
 
 ========================
 Table Designer extension
@@ -145,7 +145,7 @@ Field Types
 -----------
 
 Table Designer offers some common fields types by default. To customize the
-types available see :ref:FIXME
+types available see :ref:`custom-columns-constraints`.
 
 .. image:: /images/table_designer_add_field.png
 
@@ -239,7 +239,7 @@ tables or other information.
 .. image:: /images/table_designer_form.png
 
 The field type determines the input widget shown for each field. For custom types and input
-widgets see: :ref:FIXME
+widgets see: :ref:`custom-columns-constraints`
 
 Creating rows
 =============

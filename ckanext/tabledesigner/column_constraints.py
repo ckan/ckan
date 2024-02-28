@@ -31,6 +31,7 @@ def _standard_constraint(
 class ColumnConstraint:
     """
     ColumnConstraint subclasses define:
+
     - pl/pgsql rules for validating data on insert/update
     - validators for data dictionary field values
     - excel validation rules for ckanext-excelforms
@@ -48,6 +49,7 @@ class ColumnConstraint:
         """
         Return schema with keys to add to the datastore_create
         field schema. Convention for table designer field keys:
+
         - prefix keys with 'td' to avoid name conflicts with other
           extensions using IDataDictionaryForm
         - use td_ignore validator first to ignore input when not
@@ -56,9 +58,10 @@ class ColumnConstraint:
         - use td_pd validator last to store values as table designer
           plugin data so they can be read from datastore_info later
 
-        e.g.
-        return {'tdmykey': [td_ignore, my_validator, td_pd]}
-        #        ^ prefix   ^ ignore non-td          ^ store value
+        e.g.::
+
+         return {'tdmykey': [td_ignore, my_validator, td_pd]}
+         #        ^ prefix   ^ ignore non-td          ^ store value
         """
         return {}
 
