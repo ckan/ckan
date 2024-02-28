@@ -73,7 +73,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     if resource is None:
         raise NotFound('Resource was not found.')
     context["resource"] = resource
-    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -95,20 +94,12 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
 
-    # Persist the datastore_active extra if already present and not provided
-    if ('datastore_active' in resource.extras and
-            'datastore_active' not in data_dict):
-        data_dict['datastore_active'] = resource.extras['datastore_active']
-
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_update(context, pkg_dict['resources'][n],
-                                      data_dict)
-
     resources[n] = data_dict
 
     try:
         context['use_cache'] = False
-        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context['_updated_resource'] = id
+        _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[n]
@@ -117,16 +108,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         raise ValidationError(error_dict)
 
     resource = _get_action('resource_show')(context, {'id': id})
-
-    if old_resource_format != resource['format']:
-        _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': updated_pkg_dict,
-             'resource': resource})
-
-    for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.after_resource_update(context, resource)
 
     return resource
 
@@ -260,6 +241,8 @@ def package_update(
 
     '''
     model = context['model']
+    updated_resource_id = context.pop('_updated_resource', None)
+    allow_partial_update = context.get('allow_partial_update', False)
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -268,6 +251,7 @@ def package_update(
     if pkg is None:
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
+    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
 
     # immutable fields
     data_dict["id"] = pkg.id
@@ -282,19 +266,78 @@ def package_update(
     schema = context.get('schema') or package_plugin.update_package_schema()
 
     resource_uploads = []
-    for resource in data_dict.get('resources', []):
-        # file uploads/clearing
-        upload = uploader.get_resource_uploader(resource)
+    updated_resource_ids = []
+    old_resource_formats = {}
+    if not allow_partial_update:
+        for resource_dict in data_dict.get('resources', []):
+            # file uploads/clearing
+            upload = uploader.get_resource_uploader(resource_dict)
 
-        if 'mimetype' not in resource:
-            if hasattr(upload, 'mimetype'):
-                resource['mimetype'] = upload.mimetype
+            if 'mimetype' not in resource_dict:
+                if hasattr(upload, 'mimetype'):
+                    resource_dict['mimetype'] = upload.mimetype
 
-        if 'url_type' in resource:
-            if hasattr(upload, 'filesize'):
-                resource['size'] = upload.filesize
+            if 'url_type' in resource_dict:
+                if hasattr(upload, 'filesize'):
+                    resource_dict['size'] = upload.filesize
 
-        resource_uploads.append(upload)
+            resource_uploads.append(upload)
+
+            current_resource = model.Resource.get(resource_dict.get('id'))
+            if current_resource:  # the resource exists in the DB
+                # Persist the datastore_active extra
+                # if already present and not provided
+                if ('datastore_active' in current_resource.extras and
+                        'datastore_active' not in resource_dict):
+                    resource_dict['datastore_active'] = \
+                        current_resource.extras['datastore_active']
+
+                old_resource_formats[resource_dict.get('id')] = \
+                    current_resource.format
+
+                updated_resource_ids.append(resource_dict.get('id'))
+
+    current_resource_ids = []
+    old_resource_dicts = {}
+    deleted_resource_ids = []
+    if not allow_partial_update:
+        for current_resource_dict in pkg_dict.get('resources'):
+            # we need to know the current
+            # resource ids for the after plugin hooks
+            current_resource_ids.append(current_resource_dict.get('id'))
+            # we only need the old resource dicts
+            # for resources getting updated
+            if current_resource_dict.get('id') in updated_resource_ids:
+                old_resource_dicts[current_resource_dict.get('id')] = \
+                    current_resource_dict
+            if current_resource_dict.get('id') not in updated_resource_ids:
+                # the resource is going to be deleted
+                deleted_resource_ids.append(
+                    current_resource_dict.get('id'))
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+
+        for resource_id in deleted_resource_ids:
+            plugin.before_resource_delete(context,
+                                          {"id": resource_id},
+                                          pkg_dict.get('resources'))
+
+        if not allow_partial_update:
+            for new_resource in data_dict.get('resources', []):
+
+                resource_id = new_resource.get('id')
+
+                if resource_id in updated_resource_ids:
+                    if updated_resource_id and \
+                      new_resource.get('id') != updated_resource_id:
+                        continue
+                    if resource_id in old_resource_dicts:
+                        plugin.before_resource_update(
+                            context,
+                            old_resource_dicts[resource_id],
+                            new_resource)
+                else:
+                    plugin.before_resource_create(context, new_resource)
 
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
@@ -340,6 +383,52 @@ def package_update(
         item.edit(pkg)
 
         item.after_dataset_update(context, data)
+
+    pkg_dict = _get_action('package_show')(context, {"id": pkg.id})
+
+    if not allow_partial_update:
+        # create resource default views
+        for resource_dict in pkg_dict.get('resources'):
+
+            if resource_dict.get('id') in updated_resource_ids:
+                if updated_resource_id and \
+                  resource_dict.get('id') != updated_resource_id:
+                    continue
+                if resource_dict.get('id') in old_resource_formats \
+                and old_resource_formats[resource_dict.get('id')] != \
+                resource_dict.get('format'):
+                    # Add the default views for the new resource format
+                    _get_action('resource_create_default_resource_views')(
+                        {'model': context['model'], 'user': context['user'],
+                        'ignore_auth': True},
+                        {'package': data,
+                        'resource': resource_dict})
+            elif resource_dict.get('id') not in current_resource_ids:
+                # Add the default views to the new resource
+                _get_action('resource_create_default_resource_views')(
+                    {'model': context['model'], 'user': context['user'],
+                    'ignore_auth': True},
+                    {'resource': resource_dict,
+                    'package': data})
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+
+        for resource_id in deleted_resource_ids:
+            plugin.after_resource_delete(context,
+                                         pkg_dict.get('resources'))
+
+        if not allow_partial_update:
+            for resource_dict in pkg_dict.get('resources'):
+
+                if resource_dict.get('id') in updated_resource_ids:
+                    if updated_resource_id and \
+                      resource_dict.get('id') != updated_resource_id:
+                        continue
+                    plugin.after_resource_update(context,
+                                                resource_dict)
+                elif resource_dict.get('id') not in current_resource_ids:
+                    plugin.after_resource_create(context,
+                                                resource_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()

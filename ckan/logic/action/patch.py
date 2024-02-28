@@ -49,6 +49,10 @@ def package_patch(
         show_context,
         {'id': _get_or_bust(data_dict, 'id')})
 
+    if 'resources' not in data_dict:
+        package_dict.pop('resources', None)
+        context['allow_partial_update'] = True
+
     patched = dict(package_dict)
     patched.update(data_dict)
     patched['id'] = package_dict['id']
