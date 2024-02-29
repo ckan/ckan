@@ -226,6 +226,8 @@ Timestamp fields accept any ``YYYY-MM-DD hh:mm:ss.ssssss`` value from 4713 BCE t
 Minimum and maximum constraints may be set to limit the range of values accepted.
 
 
+.. _table-designer-web-forms:
+
 --------------------------------------------
 Creating and updating rows with the web form
 --------------------------------------------
@@ -262,6 +264,8 @@ conflicts with existing rows.
 
 Correct the highlighted errors and click "Save" again.
 
+
+.. _table-designer-excelforms:
 
 --------------------------------------------------
 Creating and updating rows with ckanext-excelforms

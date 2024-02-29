@@ -85,6 +85,10 @@ class RangeConstraint(ColumnConstraint):
     '''
 
     def sql_constraint_rule(self) -> str:
+        """
+        Return SQL to check if the value is between the
+        minimum and maximum settings (when set).
+        """
         sql = ''
 
         minimum = self.field.get('tdminimum')
@@ -108,6 +112,10 @@ class RangeConstraint(ColumnConstraint):
         return sql
 
     def excel_constraint_rule(self) -> str:
+        """
+        Return an Excel formula to check if the value is between the
+        minumum and maximum settings (when set).
+        """
         rules = []
         minimum = self.field.get('tdminimum')
         if minimum:
@@ -125,7 +133,8 @@ class RangeConstraint(ColumnConstraint):
     def datastore_field_schema(
             cls, td_ignore: Validator, td_pd: Validator) -> Schema:
         """
-        Check for valid range and types
+        Return schema to store ``tdminimum`` and ``tdmaximum`` values
+        of the correct type in the field data.
         """
         ignore_empty = get_validator('ignore_empty')
         td_check_type = get_validator('tabledesigner_check_type')
@@ -152,6 +161,9 @@ class PatternConstraint(ColumnConstraint):
     '''
 
     def sql_constraint_rule(self) -> str:
+        """
+        Return SQL to check if the value matches the regular expression set.
+        """
         pattern = self.field.get('tdpattern')
         if not pattern:
             return ''
@@ -168,7 +180,7 @@ class PatternConstraint(ColumnConstraint):
     def datastore_field_schema(
             cls, td_ignore: Validator, td_pd: Validator) -> Schema:
         """
-        Check for valid pattern
+        Return schema to store ``tdpattern`` regular expression.
         """
         ignore_empty = get_validator('ignore_empty')
         td_check_pattern = get_validator('tabledesigner_check_pattern')
