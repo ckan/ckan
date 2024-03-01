@@ -56,6 +56,8 @@ Custom Column Type Example
 
 Let's create a new type for storing a user rating from 1-5.
 
+.. image:: /images/table_designer_star_rating.png
+
 .. literalinclude:: ../../ckanext/example_icolumntypes/plugin.py
  :pyobject: StarRatingColumn
 
@@ -118,8 +120,6 @@ Next we need to register our new column type with an
 with a ``tdtype`` value of ``"star_rating"``. Enable our plugin
 and add a new star rating field to a Table Designer resource.
 
-.. image:: /images/table_designer_star_rating.png
-
 
 --------------------------------
 Custom Column Constraint Example
@@ -127,6 +127,8 @@ Custom Column Constraint Example
 
 Let's create a constraint that can prevent any field from being
 modified after it is first set to a non-empty value.
+
+.. image:: /images/table_designer_immutable_checkbox.png
 
 We create a
 ``templates/tabledesigner/constraint_snippets/immutable.html``
@@ -140,15 +142,20 @@ When checked the ``ImmutableConstraint`` will apply for that field:
 .. literalinclude:: ../../ckanext/example_icolumnconstraints/plugin.py
  :pyobject: ImmutableConstraint
 
-Within a data change trigger in ``sql_constraint_rule()`` we access
-the old value for a cell using ``OLD.(colname)`` and the
-``_SQL_IS_EMPTY`` format string from the current column type to
-check if a value was set previously. If it was not empty and the
-``NEW.(colname)`` is different we add an error message to the
-``errors`` array.
-
 We store the ``tdimmutable`` Data Dictionary field checkbox setting
 with ``datastore_field_schema()``.
+
+In ``sql_constraint_rule()`` we return SQL to access
+the old value for a cell using ``OLD.(colname)``.
+:py:class:`~ckanext.tabledesigner.column_types.ColumnType` subclasses
+have an ``_SQL_IS_EMPTY`` format string used to enforce
+:py:method:`~ckanext.tabledesigner.column_types.ColumnType.sql_required_rule`.
+We can use that string to check if a value was set previously.
+
+We add an error message to the ``errors`` array if the old value was not
+empty and the new value ``NEW.(colname)`` is different.
+
+.. image:: /images/table_designer_immutable_error.png
 
 Next we need to register our new column constraint and have it apply
 to *all* the current column types:
