@@ -18,6 +18,18 @@ from ckan.lib.datapreview import (
 
 _page_size = 100
 
+DEFAULT_FORMATS = [
+    u'csv',
+    u'xls',
+    u'xlsx',
+    u'tsv',
+    u'application/csv',
+    u'application/vnd.ms-excel',
+    u'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    u'ods',
+    u'application/vnd.oasis.opendocument.spreadsheet',
+]
+
 
 @click.group(short_help=u"Manage resource views.")
 def views():
@@ -284,7 +296,9 @@ def _add_default_filters(search_data_dict, view_types):
 
     from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
-    from ckanext.datapusher.plugin import DEFAULT_FORMATS as datapusher_formats
+
+    datapusher_formats = p.toolkit.config.get("ckan.datapusher.formats",
+                                              DEFAULT_FORMATS)
 
     filter_formats = []
 
