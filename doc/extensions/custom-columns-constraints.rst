@@ -82,7 +82,7 @@ We enforce validation server-side with ``sql_validate_rule()``. Here
 we return SQL that checks that our value is ``BETWEEN 1 AND 5``.
 If not it adds an error message to an ``errors`` array.
 This array is used to return errors
-from :meth:`~ckanext.datastore.logic.action.datastore_upsert` and to
+from :func:`~ckanext.datastore.logic.action.datastore_upsert` and to
 display errors in the :ref:`web forms<table-designer-web-forms>`.
 
 .. warning:: Generating SQL with string operations and user-provided
@@ -148,9 +148,12 @@ with ``datastore_field_schema()``.
 In ``sql_constraint_rule()`` we return SQL to access
 the old value for a cell using ``OLD.(colname)``.
 :py:class:`~ckanext.tabledesigner.column_types.ColumnType` subclasses
-have an ``_SQL_IS_EMPTY`` format string used to enforce
-:py:method:`~ckanext.tabledesigner.column_types.ColumnType.sql_required_rule`.
-We can use that string to check if a value was set previously.
+have an
+:py:attr:`~ckanext.tabledesigner.column_types.ColumnType._SQL_IS_EMPTY`
+format string, normally used to enforce
+:py:meth:`~ckanext.tabledesigner.column_types.ColumnType.sql_required_rule`.
+We can use that string to check if a value was set previously for this
+column type.
 
 We add an error message to the ``errors`` array if the old value was not
 empty and the new value ``NEW.(colname)`` is different.
@@ -196,6 +199,7 @@ ColumnType base class
 
 .. autoclass:: ckanext.tabledesigner.column_types.ColumnType
    :members:
+   :private-members: _SQL_IS_EMPTY
 
 TextColumn ``tdtype = "text"``
 ==============================
@@ -230,6 +234,7 @@ UUIDColumn ``tdtype = "uuid"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.UUIDColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 NumericColumn ``tdtype = "numeric"``
@@ -237,6 +242,7 @@ NumericColumn ``tdtype = "numeric"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.NumericColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 IntegerColumn ``tdtype = "integer"``
@@ -244,6 +250,7 @@ IntegerColumn ``tdtype = "integer"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.IntegerColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 BooleanColumn ``tdtype = "boolean"``
@@ -251,6 +258,7 @@ BooleanColumn ``tdtype = "boolean"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.BooleanColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 JSONColumn ``tdtype = "json"``
@@ -258,6 +266,7 @@ JSONColumn ``tdtype = "json"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.JSONColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 DateColumn ``tdtype = "date"``
@@ -265,6 +274,7 @@ DateColumn ``tdtype = "date"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.DateColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 TimestampColumn ``tdtype = "timestamp"``
@@ -272,6 +282,7 @@ TimestampColumn ``tdtype = "timestamp"``
 
 .. autoclass:: ckanext.tabledesigner.column_types.TimestampColumn
    :members:
+   :private-members: _SQL_IS_EMPTY
    :show-inheritance:
 
 

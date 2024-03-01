@@ -51,7 +51,7 @@ class ColumnType:
     html_input_type = 'text'
     #: ckanext-excelforms column format
     excel_format = 'General'
-    # used by sql_required_rule below
+    #: used by sql_required_rule
     _SQL_IS_EMPTY = "({value} = '') IS NOT FALSE"
 
     def __init__(
