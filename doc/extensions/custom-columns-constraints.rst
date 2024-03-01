@@ -49,11 +49,12 @@ New constraints may be defined and existing constraints may be applied to
 new types or removed from existing types by a extension implementing the
 :py:class:`~ckanext.tabledesigner.interfaces.IColumnConstraints` interface.
 
--------------------
-Star Rating Example
--------------------
 
-Let's start by creating a new type for storing a user rating from 1-5.
+--------------------------
+Custom Column Type Example
+--------------------------
+
+Let's create a new type for storing a user rating from 1-5.
 
 .. literalinclude:: ../../ckanext/example_icolumntypes/plugin.py
  :pyobject: StarRatingColumn
@@ -93,7 +94,79 @@ display errors in the :ref:`web forms<table-designer-web-forms>`.
 SQL rules from all the column types and constraints in a table
 are combined into a trigger that is executed as a
 `data change trigger <https://www.postgresql.org/docs/current/plpgsql-trigger.html#PLPGSQL-DML-TRIGGER>`_
-in the DataStore database.
+in the DataStore database. Almost any business logic can be
+implemented including validation across columns or tables and
+by using PostgreSQL extensions like PostGIS or foreign data
+wrappers.
+
+.. note::
+
+  For column types and constraints we use a dummy gettext function
+  ``_()`` because strings defined at the module level are translated
+  when rendered later.
+
+  .. literalinclude:: ../../ckanext/example_icolumntypes/plugin.py
+   :pyobject: _
+
+Next we need to register our new column type with an
+:class:`~ckanext.tabledesigner.interfaces.IColumnTypes` plugin:
+
+.. literalinclude:: ../../ckanext/example_icolumntypes/plugin.py
+ :pyobject: ExampleIColumnTypesPlugin
+
+``column_types()`` adds our new column type to the existing ones
+with a ``tdtype`` value of ``"star_rating"``. Enable our plugin
+and add a new star rating field to a Table Designer resource.
+
+.. image:: /images/table_designer_star_rating.png
+
+
+--------------------------------
+Custom Column Constraint Example
+--------------------------------
+
+Let's create a constraint that can prevent any field from being
+modified after it is first set to a non-empty value.
+
+We create a
+``templates/tabledesigner/constraint_snippets/immutable.html``
+snippet to render an "Immutable" checkbox in the Data Dictionary form:
+
+.. literalinclude:: ../../ckanext/example_icolumnconstraints/templates/tabledesigner/constraint_snippets/immutable.html
+ :language: jinja
+
+When checked the ``ImmutableConstraint`` will apply for that field:
+
+.. literalinclude:: ../../ckanext/example_icolumnconstraints/plugin.py
+ :pyobject: ImmutableConstraint
+
+Within a data change trigger in ``sql_constraint_rule()`` we access
+the old value for a cell using ``OLD.(colname)`` and the
+``_SQL_IS_EMPTY`` format string from the current column type to
+check if a value was set previously. If it was not empty and the
+``NEW.(colname)`` is different we add an error message to the
+``errors`` array.
+
+We store the ``tdimmutable`` Data Dictionary field checkbox setting
+with ``datastore_field_schema()``.
+
+Next we need to register our new column constraint and have it apply
+to *all* the current column types:
+
+.. literalinclude:: ../../ckanext/example_icolumnconstraints/plugin.py
+ :pyobject: ExampleIColumnConstraintsPlugin
+
+We add our extension's template directory from ``update_config()``
+so that the checkbox snippet can be found.
+
+In ``column_constraints()`` we append our ``ImmutableConstraint`` to
+the constraints for all existing column types.
+
+.. note::
+
+  Plugin order matters here. If we want the ``ImmutableConstraint`` to
+  apply to a new column type this plugin needs to come *before* the
+  plugin that defines the type.
 
 
 -------------------
