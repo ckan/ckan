@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This is a collection of pytest fixtures for use in tests.
 
 All fixtures below available anywhere under the root of CKAN
@@ -27,10 +26,12 @@ Deeper explanation can be found in `official documentation
 <https://docs.pytest.org/en/latest/fixture.html>`_
 
 """
+from __future__ import annotations
 
 import smtplib
 
 from io import BytesIO
+from typing import Any, IO
 import copy
 
 import pytest
@@ -45,6 +46,7 @@ import ckan.tests.factories as factories
 import ckan.plugins
 import ckan.cli
 import ckan.model as model
+from ckan import types
 from ckan.common import config
 from ckan.lib import redis, search
 
@@ -471,12 +473,8 @@ def non_clean_db(reset_db_once):
 
 
 class FakeFileStorage(FlaskFileStorage):
-    content_type = None
-
-    def __init__(self, stream, filename):
-        self.stream = stream
-        self.filename = filename
-        self.name = u"upload"
+    def __init__(self, stream: IO[bytes], filename: str):
+        super(FakeFileStorage, self).__init__(stream, filename, "uplod")
 
 
 @pytest.fixture
@@ -509,11 +507,18 @@ def create_with_upload(clean_db, ckan_config, monkeypatch, tmpdir):
     """
     monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
 
-    def factory(data, filename, context={}, **kwargs):
+    def factory(
+            data: str | bytes,
+            filename: str,
+            context: types.Context | None = None,
+            **kwargs: Any
+    ):
+        if context is None:
+            context = {}
         action = kwargs.pop("action", "resource_create")
         field = kwargs.pop("upload_field_name", "upload")
         test_file = BytesIO()
-        if not isinstance(data, bytes):
+        if isinstance(data, str):
             data = bytes(data, encoding="utf-8")
         test_file.write(data)
         test_file.seek(0)
