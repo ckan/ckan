@@ -6,14 +6,18 @@ import six
 from six import text_type
 from xml.etree.cElementTree import Element, SubElement, ElementTree
 
-import unicodecsv
-
 from codecs import BOM_UTF8
 
+from io import BytesIO
+
 if six.PY2:
+    import unicodecsv as csv
     from cStringIO import StringIO
 else:
+    import csv
     from io import StringIO
+
+BOM = "\N{bom}"
 
 
 @contextmanager
@@ -26,9 +30,9 @@ def csv_writer(fields, bom=False):
     output = StringIO()
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM)
 
-    unicodecsv.writer(output).writerow(
+    csv.writer(output).writerow(
         f['id'] for f in fields)
     yield TextWriter(output)
 
@@ -43,11 +47,11 @@ def tsv_writer(fields, bom=False):
     output = StringIO()
 
     if bom:
-        output.write(BOM_UTF8)
+        output.write(BOM)
 
-    unicodecsv.writer(
+    csv.writer(
         output,
-        dialect=unicodecsv.excel_tab).writerow(
+        dialect=csv.excel_tab).writerow(
             f['id'] for f in fields)
     yield TextWriter(output)
 
@@ -124,12 +128,13 @@ def xml_writer(fields, bom=False):
     :param fields: list of datastore fields
     :param bom: True to include a UTF-8 BOM at the start of the file
     '''
-    output = StringIO()
+    output = BytesIO()
 
     if bom:
         output.write(BOM_UTF8)
 
-    output.write(u'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    output.write(b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+
     yield XMLWriter(output, [f[u'id'] for f in fields])
 
 
@@ -169,10 +174,10 @@ class XMLWriter(object):
                 root.attrib[u'_id'] = text_type(r[u'_id'])
             for c in self.columns:
                 self._insert_node(root, c, r[c])
-            ElementTree(root).write(self.output)
+            ElementTree(root).write(self.output, encoding='utf-8')
             self.output.write(b'\n')
         self.output.seek(0)
-        output = self.output.read().encode(u'utf-8')
+        output = self.output.read()
         self.output.truncate(0)
         self.output.seek(0)
         return output

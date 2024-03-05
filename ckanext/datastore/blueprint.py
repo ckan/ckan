@@ -56,7 +56,7 @@ def dump_schema():
 
 
 def dump(resource_id):
-    try:  # trigger tests...
+    try:
         get_action('datastore_search')({}, {u'resource_id': resource_id,
                                             u'limit': 0})
     except ObjectNotFound:
