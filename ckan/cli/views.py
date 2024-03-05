@@ -15,6 +15,7 @@ from ckan.lib.datapreview import (
     get_default_view_plugins,
 )
 
+tk = p.toolkit
 
 _page_size = 100
 
@@ -270,7 +271,7 @@ def _search_datasets(
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = p.toolkit.get_action(u"package_search")({}, search_data_dict)
+    query = tk.get_action(u"package_search")({}, search_data_dict)
 
     return query
 
@@ -297,8 +298,8 @@ def _add_default_filters(search_data_dict, view_types):
     from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
 
-    datapusher_formats = p.toolkit.config.get("ckan.datapusher.formats",
-                                              DEFAULT_FORMATS)
+    datapusher_formats = tk.aslist(
+        tk.config.get("ckan.datapusher.formats")) or DEFAULT_FORMATS
 
     filter_formats = []
 
@@ -321,6 +322,7 @@ def _add_default_filters(search_data_dict, view_types):
             u"recline_grid_view",
             u"recline_graph_view",
             u"recline_map_view",
+            u"datatablesplus_view",
         ]:
 
             if datapusher_formats[0] in filter_formats:
