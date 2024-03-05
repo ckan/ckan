@@ -13,6 +13,7 @@ _standard_column_types = {}
 def _standard_column(key):
     def register(cls):
         _standard_column_types[key] = cls
+        return cls
     return register
 
 
