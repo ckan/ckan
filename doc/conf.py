@@ -570,6 +570,6 @@ latex_documents = [
 #latex_use_modindex = True
 
 extlinks = {'source-blob': (
-    f'https://github.com/ckan/ckan/blob/{current_release_tag}/%s',
+    f'https://github.com/ckan/ckan/blob/{current_release_tag_value}/%s',
     'source for %s'
 )}
