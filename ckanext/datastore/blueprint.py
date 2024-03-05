@@ -91,19 +91,19 @@ def dump(resource_id):
 
     if fmt == u'csv':
         content_disposition = u'attachment; filename="{name}.csv"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/csv; charset=utf-8'
     elif fmt == u'tsv':
         content_disposition = u'attachment; filename="{name}.tsv"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/tab-separated-values; charset=utf-8'
     elif fmt == u'json':
         content_disposition = u'attachment; filename="{name}.json"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'application/json; charset=utf-8'
     elif fmt == u'xml':
         content_disposition = u'attachment; filename="{name}.xml"'.format(
-                                    name=resource_id)
+            name=resource_id)
         content_type = b'text/xml; charset=utf-8'
     else:
         abort(404, _(u'Unsupported format'))
