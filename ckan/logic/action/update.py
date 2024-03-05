@@ -8,6 +8,8 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
+import os
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -43,6 +45,42 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
+def _update_resource_upload_and_name(
+    resource: dict[str, Any], 
+    extras: dict[str, Any]
+) -> None:
+    """
+    Check if the resource upload has changes and update its format and
+    name if necessary.
+
+    """
+    format = resource["format"]
+    upload = resource["upload"]
+    name = resource["name"]
+    url = resource["url"]
+    resurce_has_changed = False
+
+    filename = upload.filename if upload else url.split("/")[-1]
+    mimetype = upload.mimetype if upload else mimetypes.guess_type(url)[0]
+
+    _, extension = os.path.splitext(name)
+
+    if extension and name != filename:
+        resource["name"] = filename
+
+    if not mimetype:
+        resource["format"] = ""
+        return
+
+    if format.lower() != mimetype.split("/")[-1].lower():
+        resource["format"] = mimetype.split("/")[-1]
+        resource["mimetype"] = mimetype
+        resurce_has_changed = True
+
+    if resurce_has_changed and extras["datastore_active"]:
+        resource["datastore_active"] = False
+
+
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
     '''Update a resource.
 
@@ -75,6 +113,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     context["resource"] = resource
     old_resource_format = resource.format
 
+    _update_resource_upload_and_name(data_dict, resource.extras)
+
     if not resource:
         log.debug('Could not find resource %s', id)
         raise NotFound(_('Resource was not found.'))
@@ -96,6 +136,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         raise NotFound(_('Resource was not found.'))
 
     # Persist the datastore_active extra if already present and not provided
+    breakpoint()
     if ('datastore_active' in resource.extras and
             'datastore_active' not in data_dict):
         data_dict['datastore_active'] = resource.extras['datastore_active']
@@ -119,6 +160,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     resource = _get_action('resource_show')(context, {'id': id})
 
     if old_resource_format != resource['format']:
+        # _get_action('resource_view_delete')()
+        breakpoint()
         _get_action('resource_create_default_resource_views')(
             {'model': context['model'], 'user': context['user'],
              'ignore_auth': True},
