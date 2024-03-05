@@ -85,7 +85,7 @@ rst_epilog = '''
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.todo',
     'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension',
-    'sphinx_rtd_theme',
+    'sphinx_rtd_theme', 'sphinx.ext.extlinks',
 ]
 html_theme = 'sphinx_rtd_theme'
 autodoc_member_order = 'bysource'
@@ -568,3 +568,8 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+extlinks = {'source-blob': (
+    f'https://github.com/ckan/ckan/blob/{current_release_version}/%s',
+    'source for %s'
+)}

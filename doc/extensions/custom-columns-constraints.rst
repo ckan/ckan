@@ -194,6 +194,9 @@ Interface Reference
 Column Type Reference
 ---------------------
 
+.. seealso::
+   :source-blob:`Complete source code of these column type classes <ckanext/tabledesigner/column_types.py>`
+
 ColumnType base class
 =====================
 
@@ -289,6 +292,9 @@ TimestampColumn ``tdtype = "timestamp"``
 ---------------------------
 Column Constraint Reference
 ---------------------------
+
+.. seealso::
+   :source-blob:`Complete source code of these column constraint classes <ckanext/tabledesigner/column_constraints.py>`
 
 ColumnConstraint base class
 ===========================
