@@ -522,7 +522,7 @@ def datastore_records_delete(context, data_dict):
         raise p.toolkit.ValidationError(errors)
     # (canada fork only): need to call auth check in < upstream:2.10|master
     p.toolkit.check_access('datastore_records_delete', context, data_dict)
-    return datastore_delete(context, data_dict)
+    return p.toolkit.get_action('datastore_delete')(context, data_dict)
 
 
 @logic.side_effect_free
