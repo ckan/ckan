@@ -8,7 +8,7 @@ import re
 from time import sleep
 from typing import Any, Optional
 
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, delete, inspect
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -250,7 +250,7 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection: Any = self.session.connection()
-        inspector = sa.inspect(connection)
+        inspector = inspect(connection)
         tables = reversed(self.metadata.sorted_tables)
         for table in tables:
             # `alembic_version` contains current migration version of the
@@ -266,7 +266,8 @@ class Repository():
             if not inspector.has_table(table):
                 continue
 
-            connection.execute(sa.delete(table))
+            connection.execute(delete(table))
+
         self.session.commit()
         log.info('Database table data deleted')
 
