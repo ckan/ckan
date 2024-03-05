@@ -133,8 +133,8 @@ def xml_writer(fields, bom=False):
     if bom:
         output.write(BOM_UTF8)
 
-    output.write(b'<data '
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
+    output.write(
+        b'<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n')
 
     yield XMLWriter(output, [f[u'id'] for f in fields])
 
