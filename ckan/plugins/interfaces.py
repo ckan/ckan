@@ -278,7 +278,7 @@ class IResourceView(Interface):
         :returns: a dictionary with the view type configuration
         :rtype: dict
 
-        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
+        .. _Font Awesome: https://fontawesome.com/search
         '''
         return {u'name': self.__class__.__name__}
 
