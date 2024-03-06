@@ -322,7 +322,7 @@ def _add_default_filters(search_data_dict, view_types):
             u"recline_grid_view",
             u"recline_graph_view",
             u"recline_map_view",
-            u"datatablesplus_view",
+            u"datatables_view",
         ]:
 
             if datapusher_formats[0] in filter_formats:
