@@ -108,6 +108,12 @@ def test_local_params_not_allowed_by_default():
 
     assert str(e.value) == "Local parameters are not supported."
 
+def test_local_params_with_whitespace_not_allowed_by_default():
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"q": " {!bool must=test}"})
+
+    assert str(e.value) == "Local parameters are not supported."
+
 
 @pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
 @pytest.mark.usefixtures("clean_index")
@@ -125,17 +131,14 @@ def test_allowed_local_params_via_config_not_defined():
 def test_allowed_local_params_via_config():
 
     factories.Dataset(title="A dataset about bees")
+    factories.Dataset(title="A dataset about butterflies")
     query = search.query_for(model.Package)
 
-    query.run({"q": "{!bool must=bees}"})
+    assert query.run({"q": "{!bool must=bees}", "defType": "lucene"})["count"] == 1
 
-    assert query.run({"q": ""})["count"] == 1
+    assert query.run({"q": " {!bool must=bees}", "defType": "lucene"})["count"] == 1
 
     # Alternative syntax
-    query.run({"q": "{!type=knn must=bees}"})
+    assert query.run({"q": "{!type=bool must=beetles}", "defType": "lucene"})["count"] == 0
 
-    assert query.run({"q": ""})["count"] == 1
-
-    query.run({"q": "{!must=bees type=bool}"})
-
-    assert query.run({"q": ""})["count"] == 1
+    assert query.run({"q": "{!must=bees type=bool}", "defType": "lucene"})["count"] == 1

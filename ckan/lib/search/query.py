@@ -95,6 +95,7 @@ def _get_local_query_parser(q: str) -> str:
     local parameters, .e.g. q={!child ...}...
     """
     qp_type = ""
+    q = q.strip()
     if not q.startswith("{!"):
         return qp_type
 
@@ -412,7 +413,7 @@ class PackageSearchQuery(SearchQuery):
         query.setdefault("df", "text")
         query.setdefault("q.op", "AND")
         try:
-            if query["q"].startswith("{!"):
+            if query["q"].strip().startswith("{!"):
                if not _get_local_query_parser(query["q"]) in config["ckan.search.solr_allowed_query_parsers"]:
                 raise SearchError("Local parameters are not supported.")
         except KeyError:
