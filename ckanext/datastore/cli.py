@@ -7,6 +7,7 @@ import click
 
 from ckan.model import parse_db_config
 from ckan.common import config
+from ckan.logic import get_action
 
 import ckanext.datastore as datastore_module
 from ckanext.datastore.backend.postgres import identifier
@@ -83,23 +84,23 @@ def permissions_sql(maindb, datastoredb, mainuser, writeuser, readuser):
 @click.option(u'--format', default=u'csv', type=click.Choice(DUMP_FORMATS))
 @click.option(u'--offset', type=click.IntRange(0, None), default=0)
 @click.option(u'--limit', type=click.IntRange(0))
-@click.option(u'--bom', is_flag=True)  # FIXME: options based on format
+@click.option(u'--bom', is_flag=True)
 @click.pass_context
 def dump(ctx, resource_id, output_file, format, offset, limit, bom):
     u'''Dump a datastore resource.
     '''
     flask_app = ctx.meta['flask_app']
+    user = get_action('get_site_user')({'ignore_auth': True}, {})
     with flask_app.test_request_context():
-        dump_to(
-            resource_id,
-            output_file,
-            fmt=format,
-            offset=offset,
-            limit=limit,
-            options={u'bom': bom},
-            sort=u'_id',
-            search_params={}
-        )
+        for block in dump_to(resource_id,
+                             fmt=format,
+                             offset=offset,
+                             limit=limit,
+                             options={u'bom': bom},
+                             sort=u'_id',
+                             search_params={},
+                             user=user['name']):
+            output_file.write(block)
 
 
 def _parse_db_config(config_key=u'sqlalchemy.url'):
