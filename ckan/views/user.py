@@ -18,7 +18,7 @@ import ckan.logic.schema as schema
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
-from ckan.common import _, config, g, request
+from ckan.common import _, config, g, request, repr_untrusted
 
 log = logging.getLogger(__name__)
 
@@ -613,7 +613,7 @@ class RequestResetView(MethodView):
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'/user/reset')
-        log.info(u'Password reset requested for user "{}"'.format(id))
+        log.info(u'Password reset requested for user %s', repr_untrusted(id))
 
         context = {u'model': model, u'user': g.user, u'ignore_auth': True}
         user_objs = []
@@ -647,8 +647,8 @@ class RequestResetView(MethodView):
                 user_objs.append(user_obj)
 
         if not user_objs:
-            log.info(u'User requested reset link for unknown user: {}'
-                     .format(id))
+            log.info(u'User requested reset link for unknown user: %s',
+                     repr_untrusted(id))
 
         for user_obj in user_objs:
             log.info(u'Emailing reset link to user: {}'

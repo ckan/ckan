@@ -197,6 +197,15 @@ def _get_session():
         return pylons.session
 
 
+def repr_untrusted(danger):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
+
+
 local = Local()
 
 # This a proxy to the bounded config object
