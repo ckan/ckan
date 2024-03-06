@@ -8,7 +8,7 @@ import re
 from time import sleep
 from typing import Any, Optional
 
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, delete, inspect
 from sqlalchemy.exc import ProgrammingError
 
 from alembic.command import (
@@ -250,11 +250,24 @@ class Repository():
         self.session.remove()
         ## use raw connection for performance
         connection: Any = self.session.connection()
+        inspector = inspect(connection)
         tables = reversed(self.metadata.sorted_tables)
         for table in tables:
+            # `alembic_version` contains current migration version of the
+            # DB. If we drop this information, next attempt to apply migrations
+            # will fail. Don't worry about `<PLUGIN>_alembic_version` tables
+            # created by extensions - CKAN metadata does not track them, so
+            # they'll never appear in this list.
             if table.name == 'alembic_version':
                 continue
-            connection.execute('delete from "%s"' % table.name)
+
+            # if custom model imported without migrations applied,
+            # corresponding table can be missing from DB
+            if not inspector.has_table(table):
+                continue
+
+            connection.execute(delete(table))
+
         self.session.commit()
         log.info('Database table data deleted')
 

@@ -4,10 +4,12 @@ import os
 
 import pytest
 from urllib.parse import urlparse
+from sqlalchemy import Column, Integer
 
 import ckan.plugins as plugins
 from ckan.common import config, asbool
 from ckan.tests import factories
+from ckan.model.base import BaseModel
 
 
 def test_ckan_config_fixture(ckan_config):
@@ -74,13 +76,13 @@ class TestClassLevelConfig(object):
 
 class TestCreateWithUpload(object):
 
-    def test_create_organization(self, create_with_upload, ckan_config):
+    def test_create_organization(self, create_with_upload, ckan_config, faker):
         user = factories.User()
         context = {
             u"user": user["name"]
         }
         org = create_with_upload(
-            b"\0\0\0", u"image.png",
+            faker.image(), u"image.png",
             context=context,
             action=u"organization_create",
             upload_field_name=u"image_upload",
@@ -95,7 +97,8 @@ class TestCreateWithUpload(object):
         assert os.path.isfile(image_path)
         with open(image_path, u"rb") as image:
             content = image.read()
-            assert content == b"\0\0\0"
+            # PNG signature
+            assert content.hex()[:16].upper() == '89504E470D0A1A0A'
 
     def test_create_resource(self, create_with_upload):
         dataset = factories.Dataset()
@@ -126,3 +129,22 @@ class TestMigrateDbFor(object):
 @pytest.mark.usefixtures("non_clean_db")
 def test_non_clean_db_does_not_fail(package_factory):
     assert package_factory()
+
+
+class CustomTestModel(BaseModel):
+    __tablename__ = "test_table"
+    id = Column(Integer, primary_key=True)
+
+
+@pytest.mark.parametrize("_n", [1, 2])
+@pytest.mark.usefixtures("clean_db")
+def test_clean_db_does_not_break_with_custom_models(_n):
+    """This test verifies that `CustomTestModel` that has no corresponding
+    table in DB is ignored by `clean_db` fixture. If this test is executed
+    individually, on first run DB may be empty and `clean_db` doesn't try to
+    delete anything. So we have to run this test two times to guarantee, that
+    on the second execution tables are created and `clean_db` invokes `DELETE
+    ...` statement.
+
+    """
+    pass

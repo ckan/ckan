@@ -318,7 +318,7 @@ groups:
           The dbm option is not recommended as it is not thread-safe.
 
       - key: beaker.session.validate_key
-        validators: not_empty
+        validators: configured_default("beaker.session.secret",None) not_empty
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
@@ -527,9 +527,13 @@ groups:
 
       - key: ckan.auth.create_user_via_web
         type: bool
-        default: true
+        default: false
         example: "true"
-        description: Allow new user accounts to be created via the Web.
+        description: |
+          Allow new user accounts to be created via the web UI. When ``False`` (default value), user accounts can only be created by:
+            * Being invited by an organization admin,
+            * Being created directly by a sysadmin in the ``/user/register`` endpoint, or
+            * Being created in the CLI using ``ckan user add``
 
       - key: ckan.auth.roles_that_cascade_to_sub_groups
         default:
@@ -1372,21 +1376,25 @@ groups:
     options:
       - key: ckan.upload.user.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.user.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as user's avatar. No restrictions applied when empty
 
       - key: ckan.upload.group.types
         type: list
+        default: image
         example: image text
         description: File types allowed to upload as group image. No restrictions applied when empty
 
       - key: ckan.upload.group.mimetypes
         type: list
+        default: image/png image/gif image/jpeg
         example: image/png text/svg
         description: File MIMETypes allowed to upload as group image. No restrictions applied when empty
 
