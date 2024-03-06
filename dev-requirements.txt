@@ -16,6 +16,7 @@ pip-tools==5.1.2
 pyfakefs==3.2
 Sphinx==1.8.5
 sphinx-rtd-theme==0.4.3
+alabaster==0.7.12  # Higher versions don't work with this Sphinx version
 cookiecutter==1.7.0
 
 pytest==4.6.5

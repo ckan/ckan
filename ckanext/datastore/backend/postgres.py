@@ -1315,7 +1315,7 @@ def search_data(context, data_dict):
     else:
         v = list(_execute_single_statement(
             context, sql_string, where_values))[0][0]
-        if v is None:
+        if v is None or v == '[]':
             records = []
         else:
             records = LazyJSONObject(v)
@@ -1829,7 +1829,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             elif typ == 'timestamp':
                 fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
                 if records_format == 'lists':
-                    fmt = f"coalesce(to_json({fmt}), 'null')"
+                    fmt = "coalesce(to_json({fmt}), 'null')".format(fmt=fmt)
             elif typ.startswith('_') or typ.endswith('[]'):
                 fmt = "coalesce(array_to_json({0}),'null')"
 
