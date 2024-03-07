@@ -8,6 +8,7 @@ import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.lib.search as search
 from ckan.lib.search import check_solr_schema_version, SearchError
+from ckan.lib.search.query import _get_local_query_parser
 
 root_dir = os.path.join(os.path.dirname(config.__file__), "solr")
 data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -99,6 +100,29 @@ def test_04_delete_package_from_dict():
 
     assert query.run({"q": ""})["count"] == 1
 
+@pytest.mark.parametrize("query,parser",
+    [
+        ("*:*", ""),
+        ("title:test AND organization:test-org", ""),
+        ("{!bool must=test}", "bool"),
+        (" {!bool must=test}", "bool"),
+        ("{!bool must='test string'}", "bool"),
+        ("{!bool must='test string'}solr rocks", "bool"),
+        (" {!bool must='test string'}solr rocks", "bool"),
+        (" {!bool must='test string'}", "bool"),
+        ("{!bool must='test string with \"quotes\"'}", "bool"),
+        ("{!type=bool must=test}", "bool"),
+        ("{!type=bool must='test string'}", "bool"),
+        ("{!must=test type=bool}", "bool"),
+        ("{!dismax qf=myfield}solr rocks", "dismax"),
+        ("{!type=dismax qf=myfield v='solr rocks'}", "dismax"),
+        ("{!type=lucene df=summary}solr rocks", "lucene"),
+    ]
+)
+def test_get_local_query_parser(query, parser):
+
+    assert _get_local_query_parser(query) == parser
+
 
 def test_local_params_not_allowed_by_default():
 
@@ -108,7 +132,10 @@ def test_local_params_not_allowed_by_default():
 
     assert str(e.value) == "Local parameters are not supported."
 
+
 def test_local_params_with_whitespace_not_allowed_by_default():
+
+    query = search.query_for(model.Package)
     with pytest.raises(search.common.SearchError) as e:
         query.run({"q": " {!bool must=test}"})
 
