@@ -100,7 +100,9 @@ def test_04_delete_package_from_dict():
 
     assert query.run({"q": ""})["count"] == 1
 
-@pytest.mark.parametrize("query,parser",
+
+@pytest.mark.parametrize(
+    "query,parser",
     [
         ("*:*", ""),
         ("title:test AND organization:test-org", ""),
