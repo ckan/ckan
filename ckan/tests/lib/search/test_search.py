@@ -132,7 +132,25 @@ def test_local_params_not_allowed_by_default():
     with pytest.raises(search.common.SearchError) as e:
         query.run({"q": "{!bool must=test}"})
 
-    assert str(e.value) == "Local parameters are not supported."
+    assert str(e.value) == "Local parameters are not supported in param 'q'."
+
+
+def test_local_params_not_allowed_by_default_different_field():
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"fq": "{!bool must=test} +site_id:test.ckan.net"})
+
+    assert str(e.value) == "Local parameters are not supported in param 'fq'."
+
+
+def test_local_params_not_allowed_by_default_different_field_list():
+
+    query = search.query_for(model.Package)
+    with pytest.raises(search.common.SearchError) as e:
+        query.run({"fq_list": ["+site_id:default", "{!bool must=test}"]})
+
+    assert str(e.value) == "Local parameters are not supported in param 'fq_list'."
 
 
 def test_local_params_with_whitespace_not_allowed_by_default():
@@ -141,7 +159,7 @@ def test_local_params_with_whitespace_not_allowed_by_default():
     with pytest.raises(search.common.SearchError) as e:
         query.run({"q": " {!bool must=test}"})
 
-    assert str(e.value) == "Local parameters are not supported."
+    assert str(e.value) == "Local parameters are not supported in param 'q'."
 
 
 @pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool")
@@ -152,7 +170,7 @@ def test_allowed_local_params_via_config_not_defined():
     with pytest.raises(search.common.SearchError) as e:
         query.run({"q": "{!something_else a=test}"})
 
-    assert str(e.value) == "Local parameters are not supported."
+    assert str(e.value) == "Local parameters are not supported in param 'q'."
 
 
 @pytest.mark.ckan_config("ckan.search.solr_allowed_query_parsers", "bool knn")

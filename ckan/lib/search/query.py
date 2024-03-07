@@ -412,12 +412,19 @@ class PackageSearchQuery(SearchQuery):
 
         query.setdefault("df", "text")
         query.setdefault("q.op", "AND")
-        try:
-            if query["q"].strip().startswith("{!"):
-               if not _get_local_query_parser(query["q"]) in config["ckan.search.solr_allowed_query_parsers"]:
-                raise SearchError("Local parameters are not supported.")
-        except KeyError:
-            pass
+
+        def _check_query_parser(param: str, value: Any):
+            if isinstance(value, str) and value.strip().startswith("{!"):
+                if not _get_local_query_parser(value) in config["ckan.search.solr_allowed_query_parsers"]:
+                   raise SearchError(f"Local parameters are not supported in param '{param}'.")
+
+        for param in query.keys():
+            if isinstance(query[param], str):
+                _check_query_parser(param, query[param])
+            elif isinstance(query[param], list):
+                for item in query[param]:
+                    _check_query_parser(param, item)
+
 
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
