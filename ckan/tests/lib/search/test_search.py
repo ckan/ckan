@@ -116,10 +116,13 @@ def test_04_delete_package_from_dict():
         ("{!type=bool must=test}", "bool"),
         ("{!type=bool must='test string'}", "bool"),
         ("{!must=test type=bool}", "bool"),
+        ("{!must=test type=bool}solr rocks", "bool"),
+        ("{!must='test text' type=bool}solr rocks", "bool"),
         ("{!dismax qf=myfield}solr rocks", "dismax"),
         ("{!type=dismax qf=myfield v='solr rocks'}", "dismax"),
         ("{!type=lucene df=summary}solr rocks", "lucene"),
     ]
+
 )
 def test_get_local_query_parser(query, parser):
 

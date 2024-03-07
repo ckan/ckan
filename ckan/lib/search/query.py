@@ -99,7 +99,9 @@ def _get_local_query_parser(q: str) -> str:
     if not q.startswith("{!"):
         return qp_type
 
-    parts = q.lstrip("{!").rstrip("}").split(" ")
+    local_params = q[:q.index("}")]
+
+    parts = local_params.lstrip("{!").rstrip("}").split(" ")
     if "=" not in parts[0]:
         # Most common form of defining the query parser type e.g. {!knn ...}
         qp_type = parts[0]
