@@ -524,7 +524,7 @@ def datastore_records_delete(context: Context, data_dict: dict[str, Any]):
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
-    return datastore_delete(context, data_dict)
+    return p.toolkit.get_action('datastore_delete')(context, data_dict)
 
 
 @logic.side_effect_free
