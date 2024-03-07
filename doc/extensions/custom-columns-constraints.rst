@@ -35,7 +35,7 @@ by an extension implementing the
 
 :py:class:`~ckanext.tabledesigner.column_constraints.RangeConstraint`
 adds minimum and maximum form fields to the data
-dictionary form, stores those values as ``tdminumum`` and ``tdmaximum``
+dictionary form, stores those values as ``tdminimum`` and ``tdmaximum``
 in the field and applies a rule to ensure that no values outside those
 given will be accepted by the DataStore database.
 
@@ -46,7 +46,7 @@ to allow disabling or replacing it and because it
 :ref:`applies equally to other types<range-constraint>`.
 
 New constraints may be defined and existing constraints may be applied to
-new types or removed from existing types by a extension implementing the
+new types or removed from existing types by an extension implementing the
 :py:class:`~ckanext.tabledesigner.interfaces.IColumnConstraints` interface.
 
 

@@ -114,7 +114,7 @@ class RangeConstraint(ColumnConstraint):
     def excel_constraint_rule(self) -> str:
         """
         Return an Excel formula to check if the value is between the
-        minumum and maximum settings (when set).
+        minimum and maximum settings (when set).
         """
         rules = []
         minimum = self.field.get('tdminimum')
