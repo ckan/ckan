@@ -57,6 +57,9 @@ Bugfixes
   <https://github.com/ckan/ckan/pull/8031>`_)
 - Fix `clean_db` fixtures breaking when tables are missing (`#8054
   <https://github.com/ckan/ckan/pull/8054>`_)
+- Fix JS error in flash message when adding a Member (`#8104
+  <https://github.com/ckan/ckan/pull/8104>`_)
+
 
 v.2.10.3 2023-12-13
 ===================
