@@ -24,7 +24,6 @@ python-magic==0.4.27
 pysolr==3.9.0
 python-dateutil==2.8.2
 pytz
-PyUtilib==6.0.0
 pyyaml==6.0.1
 requests==2.31.0
 rq==1.15.1

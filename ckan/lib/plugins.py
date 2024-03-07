@@ -310,8 +310,7 @@ def set_default_group_plugin() -> None:
     global _group_controllers
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
-        _default_group_plugin = cast(
-            plugins.IDatasetForm, DefaultGroupForm())
+        _default_group_plugin = cast(plugins.IGroupForm, DefaultGroupForm())
     if _default_organization_plugin is None:
         _default_organization_plugin = cast(
             plugins.IGroupForm, DefaultOrganizationForm())

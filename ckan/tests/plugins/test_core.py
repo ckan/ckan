@@ -112,8 +112,9 @@ def test_notified_on_unload(observer):
 
 @pytest.fixture(autouse=True)
 def reset_observer():
-    plugins.load("test_observer_plugin")
+    observer = plugins.load("test_observer_plugin")
     plugins.unload("test_observer_plugin")
+    observer.reset_calls()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "action_plugin")
@@ -153,19 +154,17 @@ def test_inexistent_plugin_loading():
 
 
 class TestPlugins:
-    def teardown_method(self):
-        plugins.unload_all()
-
-    def test_plugin_loading_order(self):
+    def test_plugin_loading_order(self, ckan_config, monkeypatch):
         """
         Check that plugins are loaded in the order specified in the config
         """
-        config_plugins = config["ckan.plugins"]
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin action_plugin auth_plugin"
-        plugins.load_all()
 
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin action_plugin auth_plugin"
+        )
+        plugins.load_all()
         observerplugin = plugins.get_plugin("test_observer_plugin")
 
         expected_order = _make_calls(
@@ -174,6 +173,7 @@ class TestPlugins:
         )
 
         assert observerplugin.before_load.calls[:2] == expected_order
+
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
             plugins.get_plugin("action_plugin"),
@@ -181,9 +181,13 @@ class TestPlugins:
         )
         assert observerplugin.after_load.calls[:3] == expected_order
 
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin auth_plugin action_plugin"
+        observerplugin.reset_calls()
+
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin auth_plugin action_plugin",
+        )
         plugins.load_all()
 
         expected_order = _make_calls(
@@ -197,6 +201,3 @@ class TestPlugins:
             plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
-        # cleanup
-        config["ckan.plugins"] = config_plugins
-        plugins.load_all()
