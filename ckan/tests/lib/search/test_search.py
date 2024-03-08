@@ -121,6 +121,7 @@ def test_04_delete_package_from_dict():
         ("{!dismax qf=myfield}solr rocks", "dismax"),
         ("{!type=dismax qf=myfield v='solr rocks'}", "dismax"),
         ("{!type=lucene df=summary}solr rocks", "lucene"),
+        ("{!v='lies type= here' type=dismax}", "dismax"),
     ]
 
 )

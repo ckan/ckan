@@ -4,6 +4,9 @@ from __future__ import annotations
 import re
 import logging
 from typing import Any, NoReturn, Optional, Union, cast, Dict
+from pyparsing import (
+    Word, QuotedString, Suppress, OneOrMore, Group, alphas, alphanums
+)
 import pysolr
 
 from ckan.common import asbool
@@ -89,9 +92,27 @@ def convert_legacy_parameters_to_solr(
     return solr_params
 
 
+def _parse_local_params(local_params: str) -> list[Union[str, list[str]]]:
+    """
+    Parse a local parameters section as return it as a list, eg:
+
+    {!dismax qf=myfield v='some value'} -> ['dismax', ['qf', 'myfield'], ['v', 'some value']]
+
+
+    {!type=dismax qf=myfield v='some value'} -> [['type', 'dismax'], ['qf', 'myfield'], ['v', 'some value']]
+
+    """
+    key = Word(alphas)
+    value = QuotedString('"') | QuotedString("'") | Word(alphanums)
+    pair = Group(key + Suppress("=") + value)
+    expression = Suppress("{!") + OneOrMore(pair | key) + Suppress("}")
+
+    return expression.parse_string(local_params).as_list()
+
+
 def _get_local_query_parser(q: str) -> str:
     """
-    Given a Solr `q` parameter, extract any custom query parsers used in the
+    Given a Solr parameter, extract any custom query parsers used in the
     local parameters, .e.g. q={!child ...}...
     """
     qp_type = ""
@@ -99,18 +120,19 @@ def _get_local_query_parser(q: str) -> str:
     if not q.startswith("{!"):
         return qp_type
 
-    local_params = q[:q.index("}")]
+    local_params = q[:q.index("}") + 1]
 
-    parts = local_params.lstrip("{!").rstrip("}").split(" ")
-    if "=" not in parts[0]:
+    parts = _parse_local_params(local_params)
+    if isinstance(parts[0], str):
         # Most common form of defining the query parser type e.g. {!knn ...}
         qp_type = parts[0]
     else:
         # Alternative syntax e.g. {!type=knn ...}
-        type_part = [p for p in parts if p.startswith("type=")]
+        type_part = [p for p in parts if p[0] == "type"]
         if type_part:
-            qp_type = type_part[0].split("=")[1]
+            qp_type = type_part[0][1]
     return qp_type
+
 
 class QueryOptions(Dict[str, Any]):
     """
