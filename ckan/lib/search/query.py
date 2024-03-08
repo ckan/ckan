@@ -7,6 +7,7 @@ from typing import Any, NoReturn, Optional, Union, cast, Dict
 from pyparsing import (
     Word, QuotedString, Suppress, OneOrMore, Group, alphas, alphanums
 )
+from pyparsing.exceptions import ParseException
 import pysolr
 
 from ckan.common import asbool
@@ -120,9 +121,12 @@ def _get_local_query_parser(q: str) -> str:
     if not q.startswith("{!"):
         return qp_type
 
-    local_params = q[:q.index("}") + 1]
+    try:
+        local_params = q[:q.rindex("}") + 1]
+        parts = _parse_local_params(local_params)
+    except (ParseException, ValueError) as e:
+        raise SearchQueryError(f"Could not parse incoming local parameters: {e}")
 
-    parts = _parse_local_params(local_params)
     if isinstance(parts[0], str):
         # Most common form of defining the query parser type e.g. {!knn ...}
         qp_type = parts[0]

@@ -4,6 +4,7 @@ import os
 import pytest
 
 import ckan.config as config
+from ckan.lib.search.common import SearchQueryError
 import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.lib.search as search
@@ -128,6 +129,20 @@ def test_04_delete_package_from_dict():
 def test_get_local_query_parser(query, parser):
 
     assert _get_local_query_parser(query) == parser
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "{!v='lies type= here' some params",
+        "{!v='lies type= here' v2='\\{some test \\} type=dismax}",
+    ]
+
+)
+def test_get_local_query_parser_exception(query):
+
+    with pytest.raises(SearchQueryError):
+        _get_local_query_parser(query)
 
 
 def test_local_params_not_allowed_by_default():
