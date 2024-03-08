@@ -5,7 +5,7 @@ import re
 import logging
 from typing import Any, NoReturn, Optional, Union, cast, Dict
 from pyparsing import (
-    Word, QuotedString, Suppress, OneOrMore, Group, alphas, alphanums
+    Word, QuotedString, Suppress, OneOrMore, Group, alphanums
 )
 from pyparsing.exceptions import ParseException
 import pysolr
