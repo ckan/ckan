@@ -23,3 +23,6 @@
 {{ form.markdown('info__' ~ position ~ '__notes',
   label=_('Description'), id='field-d' ~ position ~ 'notes',
   value=field.get('info', {}).get('notes', '')) }}
+
+{% block additional_fields %}
+{% endblock %}

@@ -3,6 +3,6 @@
 {% block resource_item_explore_inner %}
   {{ super() }}
   {% if res.datastore_active %}
-    <li>{% link_for _('Data Dictionary'), named_route='datastore.dictionary', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='code' %}
+    <li>{% link_for _('Data Dictionary'), named_route='datastore.dictionary', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='code' %}</li>
   {% endif %}
 {% endblock %}

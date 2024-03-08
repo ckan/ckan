@@ -31,7 +31,7 @@
                   {% if h.check_access('package_update', {'id':pkg.id }) %}
                     <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='pencil' %}</li>
                     {% block action_manage_inner %}{% endblock %}
-                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}
+                    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}</li>
                   {% endif %}
                 {% endblock action_manage %}
             {% if res.url and h.is_url(res.url) %}
@@ -72,7 +72,7 @@
             {% if not res.description and package.notes %}
               <h3>{{ _('Dataset description:') }}</h3>
               <blockquote>{{ h.markdown_extract(h.get_translated(package, 'notes')) }}</blockquote>
-              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
+              <p>{% trans dataset=h.get_translated(package, 'title'), url=h.url_for(package.type ~ '.read', id=package.name) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}<p>
             {% endif %}
           </div>
         {% endblock %}
