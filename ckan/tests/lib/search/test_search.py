@@ -123,6 +123,10 @@ def test_04_delete_package_from_dict():
         ("{!type=dismax qf=myfield v='solr rocks'}", "dismax"),
         ("{!type=lucene df=summary}solr rocks", "lucene"),
         ("{!v='lies type= here' type=dismax}", "dismax"),
+        ("{!some_parser}", "some_parser"),
+        ("{!dismax v=some_value}", "dismax"),
+        ("{!some_parser a='0.9' traversalFilter='foo:[*+TO+15]'}", "some_parser"),
+        ("{!some_parser must=$ref}", "some_parser"),
     ]
 
 )
