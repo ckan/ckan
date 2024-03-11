@@ -4,6 +4,10 @@ import re
 import logging
 import six
 import pysolr
+from pyparsing import (
+    Word, QuotedString, Suppress, OneOrMore, Group, alphanums
+)
+from pyparsing.exceptions import ParseException
 
 from ckan.common import asbool
 from werkzeug.datastructures import MultiDict
@@ -11,7 +15,7 @@ from werkzeug.datastructures import MultiDict
 import ckan.logic as logic
 import ckan.model as model
 
-from ckan.common import config
+from ckan.common import config, aslist
 from ckan.lib.search.common import (
     make_connection, SearchError, SearchQueryError
 )
@@ -82,6 +86,51 @@ def convert_legacy_parameters_to_solr(legacy_params):
         log.debug('Converted legacy search params from %r to %r',
                  legacy_params, solr_params)
     return solr_params
+
+
+def _parse_local_params(local_params):
+    """
+    Parse a local parameters section as return it as a list, eg:
+
+    {!dismax qf=myfield v='some value'} -> ['dismax', ['qf', 'myfield'], ['v', 'some value']]
+
+
+    {!type=dismax qf=myfield v='some value'} -> [['type', 'dismax'], ['qf', 'myfield'], ['v', 'some value']]
+
+    """
+    key = Word(alphanums + "_")
+    value = QuotedString('"') | QuotedString("'") | Word(alphanums + "_$")
+    pair = Group(key + Suppress("=") + value)
+    expression = Suppress("{!") + OneOrMore(pair | key) + Suppress("}")
+
+    return expression.parse_string(local_params).as_list()
+
+
+def _get_local_query_parser(q):
+    """
+    Given a Solr parameter, extract any custom query parsers used in the
+    local parameters, .e.g. q={!child ...}...
+    """
+    qp_type = ""
+    q = q.strip()
+    if not q.startswith("{!"):
+        return qp_type
+
+    try:
+        local_params = q[:q.rindex("}") + 1]
+        parts = _parse_local_params(local_params)
+    except (ParseException, ValueError) as e:
+        raise SearchQueryError(f"Could not parse incoming local parameters: {e}")
+
+    if isinstance(parts[0], str):
+        # Most common form of defining the query parser type e.g. {!knn ...}
+        qp_type = parts[0]
+    else:
+        # Alternative syntax e.g. {!type=knn ...}
+        type_part = [p for p in parts if p[0] == "type"]
+        if type_part:
+            qp_type = type_part[0][1]
+    return qp_type
 
 
 class QueryOptions(dict):
@@ -271,12 +320,6 @@ class PackageSearchQuery(SearchQuery):
             'fq': 'site_id:"%s" ' % config.get('ckan.site_id') + '+entity_type:package'
         }
 
-        try:
-            if query['q'].startswith('{!'):
-                raise SearchError('Local parameters are not supported.')
-        except KeyError:
-            pass
-
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
@@ -370,11 +413,18 @@ class PackageSearchQuery(SearchQuery):
         query.setdefault("df", "text")
         query.setdefault("q.op", "AND")
 
-        try:
-            if query['q'].startswith('{!'):
-                raise SearchError('Local parameters are not supported.')
-        except KeyError:
-            pass
+        def _check_query_parser(param, value):
+            allowed_qp = aslist(config.get("ckan.search.solr_allowed_query_parsers", []))
+            if isinstance(value, str) and value.strip().startswith("{!"):
+                if not _get_local_query_parser(value) in allowed_qp:
+                    raise SearchError("Local parameters are not supported in param '{}'.".format(param))
+
+        for param in query.keys():
+            if isinstance(query[param], str):
+                _check_query_parser(param, query[param])
+            elif isinstance(query[param], list):
+                for item in query[param]:
+                    _check_query_parser(param, item)
 
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
