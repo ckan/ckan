@@ -66,6 +66,7 @@ def create_table(resource_id: str, fields: List[dict[str, Any]]):
         {
             'resource_id': resource_id,
             'force': True,
+            'delete_fields': True,
             'primary_key': primary_key,
             'fields': fields,
             'triggers': [
