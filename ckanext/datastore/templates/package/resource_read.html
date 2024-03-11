@@ -39,6 +39,8 @@
                 {% call dictionary_field(_('Description')) %}{{
                   h.render_markdown(h.get_translated(
                   field.get('info', {}), 'notes')) }}{% endcall %}
+                {% block resource_data_dictionary_field_extras scoped %}
+                {% endblock %}
               {% endblock %}
             </dl>
 
