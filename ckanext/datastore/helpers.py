@@ -196,12 +196,11 @@ def datastore_dictionary(resource_id):
     """
     try:
         return [
-            f for f in get_action('datastore_search')(
-                None, {
-                    u'resource_id': resource_id,
-                    u'limit': 0,
-                    u'include_total': False})['fields']
-            if not f['id'].startswith(u'_')]
+            f for f in tk.get_action('datastore_info')(
+                {}, {'id': resource_id})['fields']
+            if not f['id'].startswith(u'_') and (
+                include_columns is None or f['id'] in include_columns)
+            ]
     except (ObjectNotFound, NotAuthorized):
         return []
 
