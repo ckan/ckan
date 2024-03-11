@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
 # Translators:
-# Adrià Mercader <amercadero@gmail.com>, 2020
-# Yaron Shahrabani <sh.yaron@gmail.com>, 2023
+# Adrià Mercader <amercadero@gmail.com>, 2024
+# Yaron Shahrabani <sh.yaron@gmail.com>, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,14 +14,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2022-11-09 15:55+0100\n"
 "PO-Revision-Date: 2020-07-09 15:07+0000\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2023\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2024\n"
 "Language-Team: Hebrew (https://app.transifex.com/okfn/teams/11162/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 "Language: he\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
 
 #: ckan/authz.py:228
 #, python-format
@@ -700,7 +700,6 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "פעילות חדשה מהאתר {site_title}"
 msgstr[1] "{n} פעילויות חדשות מהאתר {site_title}"
 msgstr[2] "{n} פעילויות חדשות מהאתר {site_title}"
-msgstr[3] "{n} פעילויות חדשות מהאתר {site_title}"
 
 #: ckan/lib/formatters.py:49
 msgid "Just now"
@@ -789,7 +788,6 @@ msgid_plural "{number} views"
 msgstr[0] "תצוגה אחת"
 msgstr[1] "{number} תצוגות"
 msgstr[2] "{number} תצוגות"
-msgstr[3] "{number} תצוגות"
 
 #: ckan/lib/helpers.py:2151
 msgid "{number} recent view"
@@ -797,7 +795,6 @@ msgid_plural "{number} recent views"
 msgstr[0] "תצוגה אחרונה"
 msgstr[1] "{number} תצוגות אחרונות"
 msgstr[2] "{number} תצוגות אחרונות"
-msgstr[3] "{number} תצוגות אחרונות"
 
 #: ckan/lib/mailer.py:58
 #, python-format
@@ -1649,7 +1646,6 @@ msgid_plural "Input is too short, must be at least %(num)d characters"
 msgstr[0] "הקלט קצר מדי, חייב להיות באורך של תו אחד לפחות"
 msgstr[1] "הקלט קצר מדי, חייב להיות באורך של %(num)d תווים לפחות"
 msgstr[2] "הקלט קצר מדי, חייב להיות באורך של %(num)d תווים לפחות"
-msgstr[3] "הקלט קצר מדי, חייב להיות באורך של %(num)d תווים לפחות"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.min.js:1
@@ -1909,7 +1905,6 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "לוח מחוונים (פריט %(num)d חדש)"
 msgstr[1] "לוח מחוונים (%(num)d פריטים חדשים)"
 msgstr[2] "לוח מחוונים (%(num)d פריטים חדשים)"
-msgstr[3] "לוח מחוונים (%(num)d פריטים חדשים)"
 
 #: ckan/templates/header.html:27 ckan/templates/user/dashboard.html:6
 msgid "Dashboard"
@@ -2572,7 +2567,6 @@ msgid_plural "{num} Datasets"
 msgstr[0] "סדרת נתונים אחת"
 msgstr[1] "{num} סדרות נתונים"
 msgstr[2] "{num} סדרות נתונים"
-msgstr[3] "{num} סדרות נתונים"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -2870,7 +2864,6 @@ msgid_plural "{count} members"
 msgstr[0] "חבר {count}"
 msgstr[1] "{count} חברים"
 msgstr[2] "{count} חברים"
-msgstr[3] "{count} חברים"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3317,7 +3310,6 @@ msgid_plural "{count} collaborators"
 msgstr[0] "משתתף אחד"
 msgstr[1] "{count} משתתפים"
 msgstr[2] "{count} משתתפים"
-msgstr[3] "{count} משתתפים"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3733,7 +3725,6 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "סדרת נתונים אחת נמצאה בחיפוש אחר „{query}”"
 msgstr[1] "{number} סדרות נתונים נמצאו בחיפוש אחר „{query}”"
 msgstr[2] "{number} סדרות נתונים נמצאו בחיפוש אחר „{query}”"
-msgstr[3] "{number} סדרות נתונים נמצאו בחיפוש אחר „{query}”"
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -3745,7 +3736,6 @@ msgid_plural "{number} datasets found"
 msgstr[0] "נמצאה סדרת נתונים אחת"
 msgstr[1] "נמצאו {number} סדרות נתונים"
 msgstr[2] "נמצאו {number} סדרות נתונים"
-msgstr[3] "נמצאו {number} סדרות נתונים"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -3757,7 +3747,6 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "קבוצה אחת נמצאה בחיפוש אחר „{query}”"
 msgstr[1] "{number} קבוצות נמצאו בחיפוש אחר „{query}”"
 msgstr[2] "{number} קבוצות נמצאו בחיפוש אחר „{query}”"
-msgstr[3] "{number} קבוצות נמצאו בחיפוש אחר „{query}”"
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -3769,7 +3758,6 @@ msgid_plural "{number} groups found"
 msgstr[0] "נמצאה קבוצה אחת"
 msgstr[1] "נמצאו {number} קבוצות"
 msgstr[2] "נמצאו {number} קבוצות"
-msgstr[3] "נמצאו {number} קבוצות"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3781,7 +3769,6 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "ארגון אחד נמצא בחיפוש אחר „{query}”"
 msgstr[1] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
 msgstr[2] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
-msgstr[3] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -3793,7 +3780,6 @@ msgid_plural "{number} organizations found"
 msgstr[0] "ארגון אחד נמצא"
 msgstr[1] "{number} ארגונים נמצאו"
 msgstr[2] "{number} ארגונים נמצאו"
-msgstr[3] "{number} ארגונים נמצאו"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
