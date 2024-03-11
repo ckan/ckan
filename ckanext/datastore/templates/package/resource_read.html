@@ -35,29 +35,43 @@
 
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
-  {% block resource_data_dictionary %}
-    <div class="module-content">
-      <h2>{{ _('Data Dictionary') }}</h2>
-      <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
-        <thead>
-          {% block resouce_data_dictionary_headers %}
-          <tr>
-            <th scope="col">{{ _('Column') }}</th>
-            <th scope="col">{{ _('Type') }}</th>
-            <th scope="col">{{ _('Label') }}</th>
-            <th scope="col">{{ _('Description') }}</th>
-          </tr>
-          {% endblock %}
-        </thead>
-        {% block resource_data_dictionary_data %}
-          {% set dict=h.datastore_dictionary(res.id) %}
-          {% for field in dict %}
-            {% snippet "package/snippets/dictionary_table.html", field=field %}
+
+    {% block resource_data_dictionary %}
+      <div class="module-content">
+        <h2>{{ _('Data Dictionary') }}</h2>
+
+        {% macro dictionary_field(label) %}
+          {% set content = caller() %}
+          {% if content %}
+            <dt class="col-sm-3 text-secondary">{{ label }}</dt>
+            <dd class="col-sm-9">{{ caller() }}</dd>
+          {% endif %}
+        {% endmacro %}
+
+        {% block resource_data_dictionary_data scoped %}
+          {% set ddict=h.datastore_dictionary(res.id) %}
+          {% for field in ddict %}
+
+            <h3 id="field-{{ field.id }}"><a href="#field-{{ field.id }}"
+              >{{ loop.index }}.</a> {{
+              h.get_translated(field.get('info', {}), 'label') or field.id
+              }}</a></h3>
+            <dl class="row">
+              {% block resource_data_dictionary_field scoped %}
+                {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
+                {% call dictionary_field(_('Type')) %}{{ field.type }}{% endcall %}
+                {% call dictionary_field(_('Label')) %}{{
+                  h.get_translated(field.get('info', {}), 'label') }}{% endcall %}
+                {% call dictionary_field(_('Description')) %}{{
+                  h.render_markdown(h.get_translated(
+                  field.get('info', {}), 'notes')) }}{% endcall %}
+              {% endblock %}
+            </dl>
+
           {% endfor %}
         {% endblock %}
-      </table>
-    </div>
-  {% endblock %}
+      </div>
+    {% endblock %}
   {% endif %}
   {{ super() }}
 {% endblock %}
