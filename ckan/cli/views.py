@@ -15,8 +15,21 @@ from ckan.lib.datapreview import (
     get_default_view_plugins,
 )
 
+tk = p.toolkit
 
 _page_size = 100
+
+DEFAULT_FORMATS = [
+    u'csv',
+    u'xls',
+    u'xlsx',
+    u'tsv',
+    u'application/csv',
+    u'application/vnd.ms-excel',
+    u'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    u'ods',
+    u'application/vnd.oasis.opendocument.spreadsheet',
+]
 
 
 @click.group(short_help=u"Manage resource views.")
@@ -258,7 +271,7 @@ def _search_datasets(
     if not search_data_dict.get(u"q"):
         search_data_dict[u"q"] = u"*:*"
 
-    query = p.toolkit.get_action(u"package_search")({}, search_data_dict)
+    query = tk.get_action(u"package_search")({}, search_data_dict)
 
     return query
 
@@ -284,7 +297,9 @@ def _add_default_filters(search_data_dict, view_types):
 
     from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
     from ckanext.textview.plugin import get_formats as get_text_formats
-    from ckanext.datapusher.plugin import DEFAULT_FORMATS as datapusher_formats
+
+    datapusher_formats = tk.aslist(
+        tk.config.get("ckan.datapusher.formats")) or DEFAULT_FORMATS
 
     filter_formats = []
 
@@ -307,6 +322,7 @@ def _add_default_filters(search_data_dict, view_types):
             u"recline_grid_view",
             u"recline_graph_view",
             u"recline_map_view",
+            u"datatables_view",
         ]:
 
             if datapusher_formats[0] in filter_formats:
