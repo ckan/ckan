@@ -84,7 +84,7 @@ defaults:
     name: ckan-redis
 
   solr_image: &solr_image
-    image: ckan/ckan-solr:2.9
+    image: ckan/ckan-solr:2.9-solr9
     name: ckan-solr
 
 jobs:
