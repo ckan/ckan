@@ -1084,6 +1084,24 @@ Default value:  ``true``
 
 Make ckan commit changes solr after every dataset update change. Turn this to false if on solr 4.0 and you have automatic (soft)commits enabled to improve dataset update/create speed (however there may be a slight delay before dataset gets seen in results).
 
+.. _ckan.search.solr_allowed_query_parsers:
+
+ckan.search.solr_allowed_query_parsers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.search.solr_allowed_query_parsers = bool knn
+
+Default value: None
+
+Local parameters are not allowed when passing queries to Solr. An exception to this is when passing local parameters for special query parsers, that need to be enabled explicitly using this config option. For instance, the example provided would allow sending queries like the following::
+
+   search_params["q"] = "{!bool must=test}..."
+   search_params["q"] = "{!knn field=vector topK=10}..."
+
+
+
 .. _ckan.search.show_all_types:
 
 ckan.search.show_all_types
