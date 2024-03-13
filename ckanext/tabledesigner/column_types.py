@@ -47,6 +47,8 @@ class ColumnType:
     datastore_type = 'text'
     #: snippet used for adding/editing individual records
     form_snippet = 'text.html'
+    #: snippet used for resource page data dictionary extra info
+    view_snippet = None
     #: text.html form snippet input tag ``type`` attribute value
     html_input_type = 'text'
     #: ckanext-excelforms column format
@@ -167,6 +169,8 @@ class ChoiceColumn(ColumnType):
     form_snippet = 'choice.html'
     #: render a textarea input for valid options
     design_snippet = 'choice.html'
+    #: preview choices in a table on resource page
+    view_snippet = 'choice.html'
 
     def choices(self) -> Iterable[str] | Mapping[str, str]:
         """
