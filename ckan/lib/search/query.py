@@ -11,7 +11,7 @@ from werkzeug.datastructures import MultiDict
 import ckan.logic as logic
 import ckan.model as model
 
-from ckan.common import config
+from ckan.common import config, aslist
 from ckan.lib.search.common import (
     make_connection, SearchError, SearchQueryError
 )
@@ -82,6 +82,36 @@ def convert_legacy_parameters_to_solr(legacy_params):
         log.debug('Converted legacy search params from %r to %r',
                  legacy_params, solr_params)
     return solr_params
+
+
+def _get_local_query_parser(value) -> str:
+    """
+    Given a Solr `q` parameter, extract any custom query parsers used in the
+    local parameters, .e.g. q={!child ...}...
+    """
+    qp_type = ""
+    value = value.strip()
+    if not value.startswith("{!"):
+        return qp_type
+
+    try:
+        local_params = value[:value.rindex("}")]
+    except ValueError:
+        raise SearchQueryError(f"Could not parse incoming local parameters")
+
+    if '"' in local_params or "'" in local_params:
+        raise SearchQueryError("Quotes not allowed in local params")
+
+    parts = local_params.lstrip("{!").rstrip("}").split(" ")
+    if "=" not in parts[0]:
+        # Most common form of defining the query parser type e.g. {!knn ...}
+        qp_type = parts[0]
+    else:
+        # Alternative syntax e.g. {!type=knn ...}
+        type_part = [p for p in parts if p.startswith("type=")]
+        if type_part:
+            qp_type = type_part[0].split("=")[1]
+    return qp_type
 
 
 class QueryOptions(dict):
@@ -370,11 +400,18 @@ class PackageSearchQuery(SearchQuery):
         query.setdefault("df", "text")
         query.setdefault("q.op", "AND")
 
-        try:
-            if query['q'].startswith('{!'):
-                raise SearchError('Local parameters are not supported.')
-        except KeyError:
-            pass
+        def _check_query_parser(param, value):
+            allowed_qp = aslist(config.get("ckan.search.solr_allowed_query_parsers", []))
+            if isinstance(value, str) and value.strip().startswith("{!"):
+                if not _get_local_query_parser(value) in allowed_qp:
+                   raise SearchError(f"Local parameters are not supported in param '{param}'.")
+
+        for param in query.keys():
+            if isinstance(query[param], str):
+                _check_query_parser(param, query[param])
+            elif isinstance(query[param], list):
+                for item in query[param]:
+                    _check_query_parser(param, item)
 
         conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)

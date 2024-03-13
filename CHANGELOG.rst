@@ -9,6 +9,27 @@ Changelog
 
 .. towncrier release notes start
 
+
+v.2.9.11 2024-03-13
+===================
+
+Minor changes
+-------------
+- Define allowed alternative Solr query parsers via the :ref:`ckan.search.solr_allowed_query_parsers`
+  config option (`#8053 <https://github.com/ckan/ckan/pull/8053>`_). Note that the 2.9 version of this
+  patch does not use pyparsing to parse the local parameters string, so some limitations are in place,
+  mainly that no quotes are allowed in the local paramaters definition.
+- Get default formats for DataStore views from config (`#8095 <https://github.com/ckan/ckan/pull/8095>`_)
+
+Bugfixes
+--------
+- `CVE-2024-27097 <https://github.com/ckan/ckan/security/advisories/GHSA-8g38-3m6v-232j>`_: fixed
+  potential log injection in reset user endpoint.
+- Fixed Octet Streaming for Datastore Dump requests. (`#7899 <https://github.com/ckan/ckan/pull/7899>`_)
+- Fix Password Reset Keys with multiple accounts (`#8079 <https://github.com/ckan/ckan/pull/8079>`_)
+- Detect XLSX mimetypes correctly in uploader (`#8088 <https://github.com/ckan/ckan/pull/8088>`_)
+
+
 v.2.9.10 2023-12-13
 ===================
 
