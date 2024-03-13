@@ -1,6 +1,6 @@
 {% ckan_extends %}
 
-{% block resource_data_dictionary_field_extras %}
+{% block dictionary_field_extras %}
   {{ super() }}
   {% call dictionary_field(_('An integer')) %}{{ field.an_int }}{% endcall %}
   {% call dictionary_field(_('JSON object')) %}{{ field.json_obj }}{% endcall %}
