@@ -10,7 +10,7 @@
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
     {% snippet 'datastore/snippets/dictionary_view.html',
-      ddict=h.datastore_dictionary(res.id) %}
+      ddict=h.datastore_dictionary(res.id), res=res %}
   {% endif %}
   {{ super() }}
 {% endblock %}

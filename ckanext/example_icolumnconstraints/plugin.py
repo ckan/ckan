@@ -42,6 +42,7 @@ def _(x: str):
 class ImmutableConstraint(ColumnConstraint):
     """Allow a field to be set once then not changed again"""
     constraint_snippet = 'immutable.html'
+    view_snippet = 'immutable.html'
 
     def sql_constraint_rule(self):
         if not self.field.get('tdimmutable'):
