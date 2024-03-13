@@ -9,6 +9,58 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.4 2024-03-13
+===================
+
+Migration notes
+---------------
+
+- The default format for accepted uploads for user, groups and organization
+  images is now limited to PNG, GIF anf JPG. If you need to add additional
+  foramts you can use the :ref:`ckan.upload.user.mimetypes` and
+  :ref:`ckan.upload.group.mimetypes`) (`#7028
+  <https://github.com/ckan/ckan/pull/7028>`_)
+- Public user registration is disabled by default, ie users can not create
+  new accounts from the UI. With this default value, new users can be created
+  by being invited by an organization admin, being created directly by a
+  sysadmin in the ``/user/register`` endpoint  or being created in the CLI
+  using ``ckan user add``. To allow public registration see
+  :ref:`ckan.auth.create_user_via_web`, but it's strongly encouraged to put
+  some measures in place to avoid spam. (`#7028
+  <https://github.com/ckan/ckan/pull/7028>`_) (`#7208
+  <https://github.com/ckan/ckan/pull/7208>`_)
+
+Minor changes
+-------------
+- Define allowed alternative Solr query parsers via the :ref:`ckan.search.solr_allowed_query_parsers`
+  config option (`#8053 <https://github.com/ckan/ckan/pull/8053>`_)
+
+Bugfixes
+--------
+- `CVE-2024-27097 <https://github.com/ckan/ckan/security/advisories/GHSA-8g38-3m6v-232j>`_: fixed
+  potential log injection in reset user endpoint.
+- use custom group type from the activity object if it's not supplied, eg on
+  user activity streams (`#7980 <https://github.com/ckan/ckan/pull/7980>`_)
+- Removes extra <<<HEAD from resources list template (`#7998
+  <https://github.com/ckan/ckan/pull/7998>`_)
+- CKAN does not start without ``beaker.session.validate_key`` option introduced
+  in v2.10.3 (`#8023 <https://github.com/ckan/ckan/pull/8023>`_)
+- Editing of resources unavailable from package view page. (`#8025
+  <https://github.com/ckan/ckan/pull/8025>`_)
+- Pass custom package types through to the 'new resource' activity item (`#8034
+  <https://github.com/ckan/ckan/pull/8034>`_)
+- Fix Last Modified sort parameter for bulk-process page (`#8048
+  <https://github.com/ckan/ckan/pull/8048>`_)
+- Detect XLSX mimetypes correctly in uploader (`#8088
+  <https://github.com/ckan/ckan/pull/8088>`_)
+- Remove nginx cache as configuration from documentation (`#8031
+  <https://github.com/ckan/ckan/pull/8031>`_)
+- Fix `clean_db` fixtures breaking when tables are missing (`#8054
+  <https://github.com/ckan/ckan/pull/8054>`_)
+- Fix JS error in flash message when adding a Member (`#8104
+  <https://github.com/ckan/ckan/pull/8104>`_)
+
+
 v.2.10.3 2023-12-13
 ===================
 

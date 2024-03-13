@@ -21,8 +21,8 @@ main:
     - module.js
     - pubsub.js
     - client.js
-    - notify.js
     - i18n.js
+    - notify.js
     - main.js
 
 ckan:
