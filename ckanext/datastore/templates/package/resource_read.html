@@ -9,59 +9,8 @@
 
 {% block resource_additional_information_inner %}
   {% if res.datastore_active %}
-
-    {% block resource_data_dictionary %}
-      <div class="module-content">
-        <h2>{{ _('Data Dictionary') }}</h2>
-
-        {% macro dictionary_field(label) %}
-          {% set content = caller().strip() %}
-          {% if content %}
-            <dt class="col-sm-3 text-secondary">{{ label }}</dt>
-            <dd class="col-sm-9">{{ content }}</dd>
-          {% endif %}
-        {% endmacro %}
-
-        {% block resource_data_dictionary_data scoped %}
-          {% set ddict=h.datastore_dictionary(res.id) %}
-          {% for field in ddict %}
-
-            <div class="accordion">
-              <div class="accordion-item">
-                <h3 class="accordion-header" id="field-{{ field.id }}"
-                  ><button class="accordion-button collapsed" type="button"
-                  data-bs-toggle="collapse" aria-expanded="false"
-                  data-bs-target="#collapse-{{ field.id }}"
-                  aria-controls="collapse-{{ field.id }}"
-                  ><div class="col-sm-1"
-                  >{{ loop.index }}.</div
-                  ><div class="col-sm-7">{{
-                  h.get_translated(field.get('info', {}), 'label') or field.id
-                  }}</div><div class="col-sm-4">{{ field.type }}</div></h3>
-                <div id="collapse-{{ field.id }}"
-                  class="accordion-collapse collapse"
-                  aria-labelledby="field-{{ field.id }}">
-                  <dl class="row accordion-body">
-                    {% block resource_data_dictionary_field scoped %}
-                      {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
-                      {% call dictionary_field(_('Type')) %}{{ field.type }}{% endcall %}
-                      {% call dictionary_field(_('Label')) %}{{
-                        h.get_translated(field.get('info', {}), 'label') }}{% endcall %}
-                      {% call dictionary_field(_('Description')) %}{{
-                        h.render_markdown(h.get_translated(
-                        field.get('info', {}), 'notes')) }}{% endcall %}
-                      {% block resource_data_dictionary_field_extras scoped %}
-                      {% endblock %}
-                    {% endblock %}
-                  </dl>
-                </div>
-              </div>
-            </div>
-
-          {% endfor %}
-        {% endblock %}
-      </div>
-    {% endblock %}
+    {% snippet 'datastore/snippets/dictionary_view.html',
+      ddict=h.datastore_dictionary(res.id) %}
   {% endif %}
   {{ super() }}
 {% endblock %}
