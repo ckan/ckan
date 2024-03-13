@@ -15,10 +15,10 @@
         <h2>{{ _('Data Dictionary') }}</h2>
 
         {% macro dictionary_field(label) %}
-          {% set content = caller() %}
+          {% set content = caller().strip() %}
           {% if content %}
             <dt class="col-sm-3 text-secondary">{{ label }}</dt>
-            <dd class="col-sm-9">{{ caller() }}</dd>
+            <dd class="col-sm-9">{{ content }}</dd>
           {% endif %}
         {% endmacro %}
 
