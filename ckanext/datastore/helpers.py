@@ -190,7 +190,7 @@ def _get_subquery_from_crosstab_call(ct):
     return ct.replace("''", "'")
 
 
-def datastore_dictionary(resource_id):
+def datastore_dictionary(resource_id, include_columns=None):
     """
     Return the data dictionary info for a resource
     """
