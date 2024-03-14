@@ -89,7 +89,7 @@ def render_activity_email(activities: list[dict[str, Any]]) -> str:
     globals = {"site_title": config.get("ckan.site_title")}
     template_name = "activity_streams/activity_stream_email_notifications.text"
 
-    env = Environment(**jinja_extensions.get_jinja_env_options())
+    env = Environment(**jinja_extensions.get_jinja_env_options(), autoescape=True)
     # Install the given gettext, ngettext callables into the environment
     env.install_gettext_callables(ugettext, ungettext)  # type: ignore
 
