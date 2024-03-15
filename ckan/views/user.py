@@ -872,11 +872,10 @@ def sysadmin():
         }
         data_dict = {u'id': username, u'sysadmin': status}
         user = logic.get_action(u'user_patch')(context, data_dict)
-    except logic.NotAuthorized:
-        return base.abort(
-            403,
-            _(u'Not authorized to promote user to sysadmin')
-        )
+    except logic.NotAuthorized as e:
+        # (canada fork only): output the error messages from our plugin
+        # for more specific and strict rules on sysadmin handling.
+        return base.abort(403, e)
     except logic.NotFound:
         return base.abort(404, _(u'User not found'))
 
