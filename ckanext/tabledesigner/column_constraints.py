@@ -31,6 +31,11 @@ class ColumnConstraint:
 
     Use IColumnConstraints to add/modify column constraints available.
     """
+    #: snippet used for adding/editing individual records
+    constraint_snippet = None
+    #: snippet used for resource page data dictionary extra info
+    view_snippet = None
+
     def __init__(self, ct):
         self.colname = ct.colname
         self.field = ct.field
@@ -59,6 +64,7 @@ class ColumnConstraint:
 @_standard_constraint(['numeric', 'integer', 'date', 'timestamp'])
 class RangeConstraint(ColumnConstraint):
     constraint_snippet = 'range.html'
+    view_snippet = 'range.html'
 
     _SQL_CHECK_MIN = '''
     IF {value} < {minimum}::{type_} THEN
@@ -129,6 +135,7 @@ class RangeConstraint(ColumnConstraint):
 @_standard_constraint(['text'])
 class PatternConstraint(ColumnConstraint):
     constraint_snippet = 'pattern.html'
+    view_snippet = 'pattern.html'
 
     _SQL_CHECK_PATTERN = '''
     IF regexp_match({value}, '^' || {pattern} || '$') IS NULL THEN

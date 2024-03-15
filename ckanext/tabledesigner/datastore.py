@@ -61,6 +61,7 @@ def create_table(resource_id, fields):
         None, {
             'resource_id': resource_id,
             'force': True,
+            'delete_fields': True,
             'primary_key': primary_key,
             'fields': fields,
             'triggers': [
