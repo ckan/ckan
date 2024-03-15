@@ -2112,7 +2112,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['aliases'] = aliases
 
             # get the data dictionary for the resource
-            data_dictionary = datastore_helpers.datastore_dictionary(id)
+            with engine.connect() as conn:
+                data_dictionary = _result_fields(
+                    _get_fields_types(conn, id),
+                    _get_field_info(conn, id),
+                    None
+                )
 
             schema_sql = sqlalchemy.text(u'''
                 SELECT
@@ -2156,6 +2161,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 schemainfo[colname] = colinfo
 
             for field in data_dictionary:
+                if field['id'].startswith('_'):
+                    continue
                 field.update({'schema': schemainfo[field['id']]})
                 info['fields'].append(field)
 

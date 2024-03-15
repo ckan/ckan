@@ -30,6 +30,7 @@ class StarRatingColumn(IntegerColumn):
     description = _('Rating between 1-5 stars')
     datastore_type = 'int2'  # smallest int type (16-bits)
     form_snippet = 'choice.html'
+    view_snippet = 'choice.html'
 
     def choices(self):
         return {

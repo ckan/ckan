@@ -35,7 +35,9 @@ class ColumnType:
     datastore_type = 'text'
     # snippet used for adding/editing individual records
     form_snippet = 'text.html'
-    # text.html form snippet input tag type attribute value
+    #: snippet used for resource page data dictionary extra info
+    view_snippet = None
+    #: text.html form snippet input tag ``type`` attribute value
     html_input_type = 'text'
     # ckanext-excelforms column format
     excel_format = 'General'
@@ -141,6 +143,8 @@ class ChoiceColumn(ColumnType):
     table_schema_constraint = 'enum'
     form_snippet = 'choice.html'
     design_snippet = 'choice.html'
+    #: preview choices in a table on resource page
+    view_snippet = 'choice.html'
 
     def choices(self):
         """
