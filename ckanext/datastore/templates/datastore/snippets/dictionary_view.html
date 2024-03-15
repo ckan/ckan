@@ -30,12 +30,12 @@
 
       <div class="accordion">
         <div class="accordion-item">
-          <h3 class="accordion-header" id="field-{{ loop.index }}">
+          <h3 class="accordion-header" id="field{{ prefix }}-{{ loop.index }}">
             {%- if has_extra -%}
               <button class="accordion-button collapsed" type="button"
               data-bs-toggle="collapse" aria-expanded="false"
-              data-bs-target="#collapse-{{ loop.index }}"
-              aria-controls="collapse-{{ loop.index }}">
+              data-bs-target="#collapse{{ prefix }}-{{ loop.index }}"
+              aria-controls="collapse{{ prefix }}-{{ loop.index }}">
             {%- else -%}
               <button class="accordion-button no-after" disabled>
             {%- endif -%}
@@ -47,9 +47,9 @@
             </button>
           </h3>
           {% if has_extra %}
-            <div id="collapse-{{ loop.index }}"
+            <div id="collapse{{ prefix }}-{{ loop.index }}"
               class="accordion-collapse collapse"
-              aria-labelledby="field-{{ loop.index }}">
+              aria-labelledby="field{{ prefix }}-{{ loop.index }}">
               <dl class="row accordion-body">
                 {% block resource_data_dictionary_field scoped %}
                   {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
