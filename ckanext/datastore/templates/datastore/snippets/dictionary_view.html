@@ -22,12 +22,12 @@
           <div class="panel-heading"
             ><h3 role="button" style="display:block" class="panel-title"
             data-toggle="collapse" aria-expanded="false"
-            href="#collapse-{{ field.id }}"
+            href="#collapse{{ prefix }}-{{ field.id }}"
             >{{ loop.index }}.
             {{
             h.get_translated(field.get('info', {}), 'label') or field.id
             }} ({{ field_type }}) »</a></div>
-          <div id="collapse-{{ field.id }}" role="tabpanel"
+          <div id="collapse{{ prefix }}-{{ field.id }}" role="tabpanel"
             class="panel-collapse collapse"
             aria-labelledby="field-{{ field.id }}">
             <div class="panel-body">
