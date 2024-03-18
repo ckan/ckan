@@ -362,7 +362,8 @@ class EditView(MethodView):
             # getting the identity for current logged user
             identity = {
                 u'login': current_user.name,
-                u'password': data_dict[u'old_password']
+                u'password': data_dict[u'old_password'],
+                u'check_captcha': False
             }
             auth_user = authenticator.ckan_authenticator(identity)
 
@@ -672,6 +673,14 @@ class RequestResetView(MethodView):
 
     def post(self) -> Response:
         self._prepare()
+
+        try:
+            captcha.check_recaptcha(request)
+        except captcha.CaptchaError:
+            error_msg = _(u'Bad Captcha. Please try again.')
+            h.flash_error(error_msg)
+            return h.redirect_to(u'/user/reset')
+
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
