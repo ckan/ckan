@@ -18,34 +18,47 @@
         {% set field_type %}{% block dictionary_field_type scoped
           %}{{ field.type }}{% endblock %}{% endset %}
 
-        <div class="panel panel-default">
+        {% set extra_info -%}
+          {% call dictionary_field(_('Label')) %}
+            {{ h.get_translated(field.get('info', {}), 'label') }}
+          {% endcall %}
+          {% call dictionary_field(_('Description')) %}
+            {{ h.render_markdown(h.get_translated(
+              field.get('info', {}), 'notes')) }}
+          {% endcall %}
+          {% block dictionary_field_extras scoped %}
+          {% endblock %}
+        {%- endset %}
+        {# render_markdown to strip snippet comments and whitespace #}
+        {% set has_extra=h.render_markdown(extra_info) %}
+
+        <div class="panel{% if has_extra %} panel-default{% endif %}">
           <div class="panel-heading"
-            ><h3 role="button" style="display:block" class="panel-title"
-            data-toggle="collapse" aria-expanded="false"
-            href="#collapse{{ prefix }}-{{ loop.index }}"
+            ><h3 style="display:block" class="panel-title"
+            {% if has_extra %}
+              role="button" data-toggle="collapse" aria-expanded="false"
+              href="#collapse{{ prefix }}-{{ loop.index }}"
+            {% endif %}
             >{{ loop.index }}.
             {{
             h.get_translated(field.get('info', {}), 'label') or field.id
-            }} ({{ field_type }}) »</a></div>
-          <div id="collapse{{ prefix }}-{{ loop.index }}" role="tabpanel"
-            class="panel-collapse collapse"
-            aria-labelledby="field-{{ loop.index }}">
-            <div class="panel-body">
-              <dl class="row">
-                {% block resource_data_dictionary_field scoped %}
-                  {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
-                  {% call dictionary_field(_('Type')) %}{{ field_type }}{% endcall %}
-                  {% call dictionary_field(_('Label')) %}{{
-                    h.get_translated(field.get('info', {}), 'label') }}{% endcall %}
-                  {% call dictionary_field(_('Description')) %}{{
-                    h.render_markdown(h.get_translated(
-                    field.get('info', {}), 'notes')) }}{% endcall %}
-                  {% block dictionary_field_extras scoped %}
+            }} ({{ field_type }}){% if has_extra  %} »{% endif %}</h3></div>
+          {% if has_extra %}
+            {% if field.id=='textfield' %}{{ 0/0 }}{% endif %}
+            <div id="collapse{{ prefix }}-{{ loop.index }}" role="tabpanel"
+              class="panel-collapse collapse"
+              aria-labelledby="field-{{ loop.index }}">
+              <div class="panel-body">
+                <dl class="row">
+                  {% block resource_data_dictionary_field scoped %}
+                    {% call dictionary_field(_('ID')) %}{{ field.id }}{% endcall %}
+                    {% call dictionary_field(_('Type')) %}{{ field_type }}{% endcall %}
+                    {{ extra_info }}
                   {% endblock %}
-                {% endblock %}
-              </dl>
+                </dl>
+              </div>
             </div>
-          </div>
+          {% endif %}
         </div>
 
       {% endfor %}
