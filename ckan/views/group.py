@@ -790,13 +790,17 @@ def admins(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars = {}
     set_org(is_organization)
     group_dict = _get_group_dict(id, group_type)
-    admins = authz.get_group_or_org_admin_ids(id)
+    admins = get_action('member_list')(
+        {'ignore_auth': True},
+        {'id': id, 'object_type': 'user', 'capacity': 'admin'}
+    )
+    admin_ids = [admin[0] for admin in admins]
 
     # TODO: Remove
     # ckan 2.9: Adding variables that were removed from c object for
     # compatibility with templates in existing extensions
     g.group_dict = group_dict
-    g.admins = admins
+    g.admins = admin_ids
 
     extra_vars: dict[str, Any] = {
         u"group_dict": group_dict,
