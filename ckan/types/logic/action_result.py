@@ -75,7 +75,7 @@ MemberRolesList = List[AnyDict]
 HelpShow = Optional[str]
 ConfigOptionShow = Any
 ConfigOptionList = List[str]
-JobList = List[AnyDict]
+JobList = Union[List[AnyDict], List[str]]
 JobShow = AnyDict
 ApiTokenList = List[AnyDict]
 
