@@ -7,8 +7,8 @@
     {% macro dictionary_field(label) %}
       {% set content = caller().strip() %}
       {% if content %}
-        <dt class="col-sm-3 text-secondary">{{ label }}</dt>
-        <dd class="col-sm-9">{{ content }}</dd>
+        <dt class="col-md-3 text-secondary">{{ label }}</dt>
+        <dd class="col-md-9">{{ content }}</dd>
       {% endif %}
     {% endmacro %}
 
@@ -33,16 +33,20 @@
         {% set has_extra=h.render_markdown(extra_info) %}
 
         <div class="panel{% if has_extra %} panel-default{% endif %}">
-          <div class="panel-heading"
-            ><h3 style="display:block" class="panel-title"
+          <div class="panel-heading">
+            <div class="row panel-title{% if has_extra %} collapsed{% endif %}"
             {% if has_extra %}
               role="button" data-toggle="collapse" aria-expanded="false"
               href="#collapse{{ prefix }}-{{ loop.index }}"
-            {% endif %}
-            >{{ loop.index }}.
-            {{
-            h.get_translated(field.get('info', {}), 'label') or field.id
-            }} ({{ field_type }}){% if has_extra  %} »{% endif %}</h3></div>
+            {% endif %}>
+              <div class="col-md-1">{{ loop.index }}.</div>
+              <div class="col-md-6">{{
+              h.get_translated(field.get('info', {}), 'label') or field.id
+              }}</div>
+              <div class="col-md-4">{{ field_type }}</div>
+              <div class="col-md-1">{% if has_extra  %}»{% endif %}</div>
+            </div>
+          </div>
           {% if has_extra %}
             {% if field.id=='textfield' %}{{ 0/0 }}{% endif %}
             <div id="collapse{{ prefix }}-{{ loop.index }}" role="tabpanel"
