@@ -2669,3 +2669,32 @@ class TestDeferCommitOnCreate(object):
             helpers.call_action("user_show", id=user_dict["name"])
 
         assert model.Session.query(Activity).count() == 0
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+class TestDeleteRows(object):
+    def test_sysadmin_query_rows(self):
+        sysadmin = factories.Sysadmin()
+        _clear_activities()
+        factories.Dataset(user=sysadmin)
+        context = {"user": sysadmin["name"]}
+        results = helpers.call_action("activity_range_count_show",
+                                      context=context)
+        assert results["activity_count"] == 1
+
+    def test_sysadmin_delete_rows(self):
+        sysadmin = factories.Sysadmin()
+        _clear_activities()
+        # create a couple datasets for activities
+        for _n in range(4):
+            factories.Dataset(user=sysadmin)
+        context = {"user": sysadmin["name"]}
+        data_dict = {"limit": 2}
+        results = helpers.call_action("activity_range_delete",
+                                      context=context, **data_dict)
+        assert results["deleted_activity_count"] == 2
+        # there should be some activity rows still
+        results = helpers.call_action("activity_range_count_show",
+                                      context=context)
+        assert results["activity_count"] == 2

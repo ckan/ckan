@@ -196,3 +196,15 @@ def dashboard_mark_activities_old(
     context: Context, data_dict: DataDict
 ) -> AuthResult:
     return authz.is_authorized("dashboard_activity_list", context, data_dict)
+
+
+def activity_range_count_show(context: Context,
+                              data_dict: Optional[DataDict]) -> AuthResult:
+    # Only sysadmins are authorized to read all notifications.
+    return {"success": False}
+
+
+def activity_range_delete(context: Context,
+                          data_dict: Optional[DataDict]) -> AuthResult:
+    # Only sysadmins are authorized to delete activity rows.
+    return {"success": False}

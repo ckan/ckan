@@ -14,6 +14,9 @@
   color: #999999;
   font-size: 12px;
 }
+.activity .item .date label {
+  font-size: inherit;
+}
 .activity .item.no-avatar p {
   margin-left: 40px;
 }
