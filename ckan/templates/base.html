@@ -74,29 +74,19 @@
       {% asset theme %}
     {% endblock %}
 
-    <style>
-      :root {
-        {%- block css_variables -%}
-          {% if config.get('ckan.root_path') %}
-            {# if using a root_path, get the url_for_static #}
-            --format-sprite-image: url("{{ h.url_for_static('/base/images/sprite-resource-icons.png') }}");
-            --background-image: url("{{ h.url_for_static('/base/images/bg.png') }}");
-            --table-separator-image: url("{{ h.url_for_static('/base/images/table-seperator.png') }}");
-            --footer-logo-image: url("{{ h.url_for_static('/base/images/ckan-logo-footer.png') }}");
-            --background-tile-image: url("{{ h.url_for_static('/base/images/background-tile.png') }}");
-            --dashboard-followee-image: url("{{ h.url_for_static('/base/images/dashboard-followee-related.png') }}");
-          {% else %}
-            {# not using root_path, can use relative paths #}
-            --format-sprite-image: url("../../../base/images/sprite-resource-icons.png");
-            --background-image: url("../../../base/images/bg.png");
-            --table-separator-image: url("../../../base/images/table-seperator.png");
-            --footer-logo-image: url("../../../base/images/ckan-logo-footer.png");
-            --background-tile-image: url("../../../base/images/background-tile.png");
-            --dashboard-followee-image: url("../../../base/images/dashboard-followee-related.png");
-          {% endif %}
-        {%- endblock -%}
-      }
-    </style>
+    {% if config.get('ckan.root_path') %}
+      {# if using a root_path, get the url_for_static #}
+      <style>
+        :root {
+          --format-sprite-image: url("{{ h.url_for_static('/base/images/sprite-resource-icons.png') }}");
+          --background-image: url("{{ h.url_for_static('/base/images/bg.png') }}");
+          --table-separator-image: url("{{ h.url_for_static('/base/images/table-seperator.png') }}");
+          --footer-logo-image: url("{{ h.url_for_static('/base/images/ckan-logo-footer.png') }}");
+          --background-tile-image: url("{{ h.url_for_static('/base/images/background-tile.png') }}");
+          --dashboard-followee-image: url("{{ h.url_for_static('/base/images/dashboard-followee-related.png') }}");
+        }
+      </style>
+    {% endif %}
 
     {# render all assets included in styles block #}
     {{ h.render_assets('style') }}

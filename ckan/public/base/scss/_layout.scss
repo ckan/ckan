@@ -44,7 +44,7 @@
 
 .main {
     padding: 20px 0;
-    background: $layoutBackgroundColor url("#{$bgPath}");
+    background: $layoutBackgroundColor var(--background-image);
 }
 
 .main:after,
@@ -167,7 +167,7 @@
 
 @include media-breakpoint-up(sm) {
     .hero {
-        background: url("#{$imagePath}/background-tile.png");
+        background: var(--background-tile-image);
     }
 }
 

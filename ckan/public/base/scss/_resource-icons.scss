@@ -23,7 +23,7 @@ $icon-position: (
 
 .format-label {
     text-indent: -900em;
-    background: url("#{$imagePath}/sprite-resource-icons.png") no-repeat 0 0;
+    background: var(--format-sprite-image) no-repeat 0 0;
 }
 
 .format-label {

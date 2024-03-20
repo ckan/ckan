@@ -57,6 +57,12 @@
   --bs-body-line-height: 1.5;
   --bs-body-color: #333333;
   --bs-body-bg: #fff;
+  --format-sprite-image: url("../../../base/images/sprite-resource-icons.png");
+  --background-image: url("../../../base/images/bg.png");
+  --table-separator-image: url("../../../base/images/table-seperator.png");
+  --footer-logo-image: url("../../../base/images/ckan-logo-footer.png");
+  --background-tile-image: url("../../../base/images/background-tile.png");
+  --dashboard-followee-image: url("../../../base/images/dashboard-followee-related.png");
 }
 
 *,
