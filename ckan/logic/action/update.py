@@ -8,6 +8,8 @@ import logging
 import datetime
 import time
 import json
+import mimetypes
+import os
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -43,6 +45,45 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
+def _update_resource_upload_and_name(
+    resource: dict[str, Any], 
+    extras: dict[str, Any]
+) -> None:
+    """
+    Check for changes in resource upload, update format and name as needed,
+    and delete datastore if active and resource has changed.
+
+    """
+    breakpoint()
+    format = resource["format"]
+    upload = resource.get("upload")
+    name = resource["name"]
+    url = resource["url"]
+    resurce_has_changed = False
+
+    filename = upload.filename if upload else url.split("/")[-1]
+    mimetype = upload.mimetype if upload else mimetypes.guess_type(url)[0]
+
+    _, extension = os.path.splitext(name)
+
+    if extension and name != filename:
+        resource["name"] = filename
+        resurce_has_changed = True
+
+    if not mimetype:
+        resource["format"] = ""
+        return
+
+    if format.lower() != mimetype.split("/")[-1].lower():
+        resource["format"] = mimetype.split("/")[-1]
+        resource["mimetype"] = mimetype
+        resurce_has_changed = True
+
+    if resurce_has_changed and extras.get("datastore_active"):
+        data_dict = {"force": True, "resource_id": resource["id"]}
+        _get_action("datastore_delete")({"ignore_auth": True}, data_dict)
+
+
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
     '''Update a resource.
 
@@ -74,6 +115,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         raise NotFound('Resource was not found.')
     context["resource"] = resource
     old_resource_format = resource.format
+
+    _update_resource_upload_and_name(data_dict, resource.extras)
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -118,12 +161,29 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if old_resource_format != resource['format']:
-        _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': updated_pkg_dict,
-             'resource': resource})
+    if old_resource_format != resource["format"]:
+        breakpoint()
+        res_view_ids = (
+            context["session"]
+            .query(model.ResourceView.id)
+            .filter(model.ResourceView.resource_id == id)
+            .all()
+        )
+        res_view_context = {
+            "model": context["model"],
+            "user": context["user"],
+            "ignore_auth": True,
+        }
+        if res_view_ids:
+            for view in res_view_ids:
+                _get_action("resource_view_delete")(
+                    res_view_context,
+                    {"id": view},
+                )
+        _get_action("resource_create_default_resource_views")(
+            res_view_context,
+            {"package": updated_pkg_dict, "resource": resource},
+        )
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_resource_update(context, resource)
