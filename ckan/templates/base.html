@@ -72,6 +72,16 @@
       {# TODO: store just name of asset instead of path to it. #}
       {% set theme = h.get_rtl_theme() if h.is_rtl_language() else g.theme %}
       {% asset theme %}
+      <style>
+        :root {
+          --format-sprite-image: url("{{ h.url_for_static('/base/images/sprite-resource-icons.png') }}");
+          --background-image: url("{{ h.url_for_static('/base/images/bg.png') }}");
+          --table-separator-image: url("{{ h.url_for_static('/base/images/table-seperator.png') }}");
+          --footer-logo-image: url("{{ h.url_for_static('/base/images/ckan-logo-footer.png') }}");
+          --background-tile-image: url("{{ h.url_for_static('/base/images/background-tile.png') }}");
+          --dashboard-followee-image: url("{{ h.url_for_static('/base/images/dashboard-followee-related.png') }}");
+        }
+      </style>
     {% endblock %}
 
     {# render all assets included in styles block #}

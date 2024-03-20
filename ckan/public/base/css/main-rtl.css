@@ -11385,7 +11385,7 @@ a.tag:hover {
   padding-left: 0px;
   min-height: 205px;
   padding-top: 0.75rem;
-  background: #fbfbfb url("../../../base/images/bg.png");
+  background: #fbfbfb var(--background-image);
   border: 1px solid #ddd;
   border-width: 1px 0;
 }
@@ -13108,7 +13108,7 @@ td.diff_header {
 
 .main {
   padding: 20px 0;
-  background: #eee url("../../../base/images/bg.png");
+  background: #eee var(--background-image);
 }
 
 .main:after,
@@ -13230,7 +13230,7 @@ td.diff_header {
 
 @media (min-width: 576px) {
   .hero {
-    background: url("../../../base/images/background-tile.png");
+    background: var(--background-tile-image);
   }
 }
 .hero:after {
@@ -13339,7 +13339,7 @@ td.diff_header {
 }
 
 .homepage .hero {
-  background: url("../../../base/images/background-tile.png");
+  background: var(--background-tile-image);
   padding: 20px 0;
 }
 .homepage .module-promotion {
@@ -13390,7 +13390,7 @@ td.diff_header {
 }
 .homepage .module-feeds {
   padding: 2rem 0;
-  background: #eee url("../../../base/images/bg.png");
+  background: #eee var(--background-image);
 }
 
 @media (max-width: 767.98px) {
@@ -13405,7 +13405,7 @@ td.diff_header {
 .account-masthead {
   min-height: 30px;
   color: #fff;
-  background: #003647 url("../../../base/images/bg.png");
+  background: #003647 var(--background-image);
 }
 .account-masthead .account {
   float: right;
@@ -13470,7 +13470,7 @@ td.diff_header {
 }
 
 .masthead {
-  background: #005d7a url("../../../base/images/bg.png");
+  background: #005d7a var(--background-image);
 }
 .masthead .debug {
   position: fixed;
@@ -13565,7 +13565,7 @@ td.diff_header {
   }
 }
 .site-footer {
-  background: #005d7a url("../../../base/images/bg.png");
+  background: #005d7a var(--background-image);
   padding: 20px 0;
 }
 .site-footer label,
@@ -13591,7 +13591,7 @@ td.diff_header {
   width: 68px;
   height: 21px;
   margin-top: 2px;
-  background: url("../../../base/images/ckan-logo-footer.png") no-repeat top left;
+  background: var(--footer-logo-image) no-repeat top left;
   text-indent: -900em;
 }
 .site-footer .lang-select .form-group {
@@ -13648,7 +13648,7 @@ td.diff_header {
 .js .table-toggle-more .toggle-seperator td {
   height: 11px;
   padding: 0;
-  background-image: url("../../../base/images/table-seperator.png");
+  background-image: var(--table-separator-image);
 }
 .js .table .toggle-show td {
   background: none;
@@ -13705,7 +13705,7 @@ td.diff_header {
   right: -10px;
   width: 10px;
   height: 21px;
-  background: transparent url("${imagePath}/dashboard-followee-related.png");
+  background: transparent var(--dashboard-followee-image);
 }
 
 .followee-container {
@@ -13892,7 +13892,7 @@ td.diff_header {
 
 .format-label {
   text-indent: -900em;
-  background: url("../../../base/images/sprite-resource-icons.png") no-repeat 0 0;
+  background: var(--format-sprite-image) no-repeat 0 0;
 }
 
 .format-label {
