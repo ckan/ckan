@@ -16,10 +16,11 @@ def default_create_activity_schema(
     object_id_validator: Validator,
     activity_type_exists: Validator,
     ignore_empty: Validator,
-    ignore_missing: Validator,
+    ignore_missing: Validator, empty_if_not_sysadmin: Validator,
+    id_validator: Validator
 ) -> Schema:
     return {
-        "id": [ignore],
+        "id": [ignore, empty_if_not_sysadmin, id_validator],
         "timestamp": [ignore],
         "user_id": [
             not_missing,

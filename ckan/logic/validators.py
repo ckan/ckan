@@ -215,7 +215,6 @@ def resource_id_does_not_exist(
         errors: FlattenErrorDict, context: Context) -> Any:
     session = context['session']
     model = context['model']
-
     if data[key] is missing:
         return
     resource_id = data[key]
@@ -233,6 +232,41 @@ def resource_id_does_not_exist(
     if parent_id != package_id:
         errors[key].append(_('Resource id already exists.'))
 
+def group_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Group).get(value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.ResourceView).get(value)
+    if result:
+        raise Invalid(_('ResourceView id already exists'))
+    return value
+
+def tag_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Tag).get(value)
+    if result:
+        raise Invalid(_('Tag id already exists'))
+    return value
 
 def package_name_exists(value: str, context: Context) -> Any:
     """Ensures that the value is an existing package's name.
@@ -282,7 +316,7 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     return value
 
 
-def resource_id_validator(value: Any) -> Any:
+def id_validator(value: Any) -> Any:
     pattern = re.compile("[^0-9a-zA-Z _-]")
     if pattern.search(value):
         raise Invalid(_('Invalid characters in resource id'))
