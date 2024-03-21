@@ -76,8 +76,9 @@
 
     {% if config.get('ckan.root_path') %}
       {# if using a root_path, get the url_for_static #}
+      {# target body, to override :root #}
       <style>
-        :root {
+        body {
           --format-sprite-image: url("{{ h.url_for_static('/base/images/sprite-resource-icons.png') }}");
           --background-image: url("{{ h.url_for_static('/base/images/bg.png') }}");
           --table-separator-image: url("{{ h.url_for_static('/base/images/table-seperator.png') }}");
