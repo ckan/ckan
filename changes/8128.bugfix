@@ -1,0 +1,1 @@
+CSS background images no longer 404 when running ckan with `ckan.root_path` through a reverse proxy.

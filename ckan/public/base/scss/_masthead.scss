@@ -3,7 +3,7 @@ $notificationsBg: #C9403A;
     @extend .clearfix;
     min-height: 30px;
     color: $mastheadTextColor;
-    background: darken($mastheadBackgroundColor, 10%) url("#{$bgPath}");
+    background: darken($mastheadBackgroundColor, 10%) var(--background-image);
     .account {
         float: right;
         ul {
@@ -78,7 +78,7 @@ $notificationsBg: #C9403A;
 }
 
 .masthead {
-    background: $mastheadBackgroundColor url("#{$bgPath}");
+    background: $mastheadBackgroundColor var(--background-image);
     @extend .p-2;
     .debug {
         position: fixed;
