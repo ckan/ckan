@@ -352,3 +352,40 @@ Select one or more rows in the data table preview then click "Delete rows" above
 .. image:: /images/table_designer_excelforms_delete.png
 
 Click "Delete" to confirm deletion of the data shown.
+
+
+-------------------------------------
+Tracking changes with ckanext-dsaudit
+-------------------------------------
+
+Use `ckanext-dsaudit <https://github.com/ckan/ckanext-dsaudit>`_
+with the activity plugin to track changes to Table Designer schemas
+and data inserted and deleted from DataStore resources.
+Install ``ckanext-dsaudit`` and add ``dsaudit`` to your list of plugins
+*before* the ``activity`` plugin::
+
+ ckan.plugins = … dsaudit activity …
+
+Data Dictionary changes
+=======================
+
+``ckanext-dsaudit`` takes a snapshot of the Data Dictionary any time fields
+are added or changed and adds it to the dataset activity feed.
+
+.. image:: /images/dsaudit_redefined.png
+
+Inserted rows
+=============
+
+``ckanext-dsaudit`` captures the total number of rows inserted or updated and
+a sample of the values inserted and adds them to the dataset activity feed.
+
+.. image:: /images/dsaudit_inserted.png
+
+Deleted rows
+============
+
+``ckanext-dsaudit`` captures the total number of rows deleted and a sample
+of the values deleted and adds them to the dataset activity feed.
+
+.. image:: /images/dsaudit_deleted.png
