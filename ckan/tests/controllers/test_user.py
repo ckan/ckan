@@ -428,6 +428,23 @@ class TestUser(object):
 
         assert "That login name can not be modified" in response
 
+    def test_edit_user_logged_in_username_change_by_sysadmin(
+            self, app, user, sysadmin):
+        env = {"Authorization": sysadmin["token"]}
+
+        response = app.post(
+            url=url_for("user.edit", id=user["id"]),
+            data={
+                "email": user["email"],
+                "save": "",
+                "password1": "",
+                "password2": "",
+                "name": factories.User.stub().name,
+            },
+            extra_environ=env
+        )
+        assert 'Profile updated' in response
+
     def test_perform_reset_for_key_change(self, app):
         password = "TestPassword1"
         params = {"password1": password, "password2": password}
