@@ -864,14 +864,8 @@ def sysadmin():
     status = asbool(request.form.get(u'status'))
 
     try:
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
-        }
         data_dict = {u'id': username, u'sysadmin': status}
-        user = logic.get_action(u'user_patch')(context, data_dict)
+        user = logic.get_action(u'user_patch')({}, data_dict)
     except logic.NotFound:
         return base.abort(404, _(u'User not found'))
     except logic.ValidationError as e:
@@ -879,7 +873,7 @@ def sysadmin():
         # (canada fork only)
         for _k, err_messages in e.error_dict.items():
             for err_message in err_messages:
-                h.flash_error('{message}'.format(message=_(err_message)))
+                h.flash_error(_(err_message))
         return h.redirect_to(u'admin.index')
 
     if status:
