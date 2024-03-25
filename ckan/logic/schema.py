@@ -391,7 +391,8 @@ def default_user_schema(
         ignore_missing, unicode_safe, name_validator, user_name_validator,
         user_password_validator, user_password_not_empty, email_is_unique,
         ignore_not_sysadmin, not_empty, email_validator, strip_value,
-        user_about_validator, ignore, boolean_validator, json_object):
+        user_about_validator, ignore, boolean_validator, json_object,
+        limit_sysadmin_update):
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
@@ -403,7 +404,7 @@ def default_user_schema(
         'email': [not_empty, strip_value, email_validator, email_is_unique, unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
-        'sysadmin': [ignore_missing, ignore_not_sysadmin],
+        'sysadmin': [ignore_missing, ignore_not_sysadmin, limit_sysadmin_update],
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,

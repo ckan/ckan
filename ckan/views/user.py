@@ -859,6 +859,38 @@ def followers(id):
     return base.render(u'user/followers.html', extra_vars)
 
 
+def sysadmin():
+    username = request.form.get(u'username')
+    status = asbool(request.form.get(u'status'))
+
+    try:
+        data_dict = {u'id': username, u'sysadmin': status}
+        user = logic.get_action(u'user_patch')({}, data_dict)
+    except logic.NotFound:
+        return base.abort(404, _(u'User not found'))
+    except logic.ValidationError as e:
+        # only print the error messages into separate flash messages.
+        # (canada fork only)
+        for _k, err_messages in e.error_dict.items():
+            for err_message in err_messages:
+                h.flash_error(_(err_message))
+        return h.redirect_to(u'admin.index')
+
+    if status:
+        h.flash_success(
+            _(u'Promoted {} to sysadmin'.format(user[u'display_name']))
+        )
+    else:
+        h.flash_success(
+            _(
+                u'Revoked sysadmin permission from {}'.format(
+                    user[u'display_name']
+                )
+            )
+        )
+    return h.redirect_to(u'admin.index')
+
+
 user.add_url_rule(u'/', view_func=index, strict_slashes=False)
 user.add_url_rule(u'/me', view_func=me)
 
@@ -902,3 +934,4 @@ user.add_url_rule(
     u'/<id>/api-tokens/<jti>/revoke', view_func=api_token_revoke,
     methods=(u'POST',)
 )
+user.add_url_rule(rule=u'/sysadmin', view_func=sysadmin, methods=['POST'])
