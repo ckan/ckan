@@ -42,3 +42,4 @@ features by developing your own CKAN extensions.
    flask-migration
    signals
    custom-data-dictionary
+   custom-columns-constraints

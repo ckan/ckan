@@ -1,3 +1,5 @@
+.. _custom-data-dictionary:
+
 ==============================================
 Customizing the DataStore Data Dictionary Form
 ==============================================

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any, cast
 from ckan.types import Schema, ValidatorFactory
 from ckan.common import CKANConfig
-from ckan.lib.navl.dictization_functions import missing
 from ckan.types import (
     Context, FlattenDataDict, FlattenErrorDict, FlattenKey,
 )
@@ -13,7 +12,7 @@ from ckan.types import (
 import json
 
 from ckan.plugins.toolkit import (
-    Invalid, get_validator, add_template_directory, _
+    Invalid, get_validator, add_template_directory, _, missing,
 )
 from ckan import plugins
 from ckanext.datastore.interfaces import IDataDictionaryForm

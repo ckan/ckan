@@ -37,7 +37,7 @@
   {% if res.datastore_active %}
     {% block resource_data_dictionary %}
       {% snippet 'datastore/snippets/dictionary_view.html',
-        ddict=h.datastore_dictionary(res.id) %}
+        ddict=h.datastore_dictionary(res.id), res=res %}
     {% endblock %}
   {% endif %}
   {{ super() }}

@@ -144,7 +144,8 @@ class DictionaryView(MethodView):
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
                 u'fields': [
-                    f for f in rec[u'fields'] if not f[u'id'].startswith(u'_')
+                    f for f in rec.get('fields', [])
+                    if not f[u'id'].startswith(u'_')
                 ]
             }
 

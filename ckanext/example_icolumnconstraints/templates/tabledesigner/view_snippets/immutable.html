@@ -1,0 +1,5 @@
+{% call dictionary_field(_('Immutable')) %}
+  {% if field.tdimmutable %}
+    {{ _("This field may not be modified once set") }}
+  {% endif %}
+{% endcall %}

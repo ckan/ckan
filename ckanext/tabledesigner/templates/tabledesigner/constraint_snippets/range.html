@@ -1,0 +1,29 @@
+{%- call
+  form.input('fields__' ~ position ~ '__tdminimum',
+    label=_('Minimum'),
+    id='field-f' ~ position ~ 'minimum',
+    value=data.get('tdminimum', field.get('tdminimum', '')),
+    error=errors.tdminimum,
+    type=column_type.html_input_type,
+    classes=['control-full']
+  )
+  -%}
+  {{ form.info(
+    text=_('Minimum permitted value for data in this column')
+  )}}
+{%- endcall %}
+
+{%- call
+  form.input('fields__' ~ position ~ '__tdmaximum',
+    label=_('Maximum'),
+    id='field-f' ~ position ~ 'maximum',
+    value=data.get('tdmaximum', field.get('tdmaximum', '')),
+    error=errors.tdmaximum,
+    type=column_type.html_input_type,
+    classes=['control-full']
+  )
+  -%}
+  {{ form.info(
+    text=_('Maximum permitted value for data in this column')
+  )}}
+{%- endcall %}
