@@ -13,6 +13,12 @@
   {{ super() }}
   {% if res.url_type == 'tabledesigner' %}
     {% set position = loop.index %}
+
+    {% if field.tdpkreq %}
+      {% call dictionary_field(_('Obligation')) %}
+        {{ _('Primary key') if field.tdpkreq == 'pk' else _('Required') }}
+      {% endcall %}
+    {% endif %}
     {% set ct = h.tabledesigner_column_type(field) %}
     {% if ct.view_snippet %}
       {% snippet 'tabledesigner/view_snippets/' + ct.view_snippet,
