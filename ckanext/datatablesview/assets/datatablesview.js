@@ -514,6 +514,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           url: ajaxurl,
           type: 'POST',
           timeout: 60000,
+          headers: {
+            'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+          },
           data: function (d) {
             d.filters = ckanfilters
           }
