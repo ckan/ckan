@@ -79,6 +79,9 @@
 .activity .item.changed-package_extra .icon {
   color: #769ace;
 }
+.activity .item.changed-resource-view .icon{
+  color: #9c89d5;
+}
 .activity .item.changed-resource .icon {
   color: #aa76ce;
 }
@@ -97,6 +100,9 @@
 .activity .item.deleted-package_extra .icon {
   color: #b95274;
 }
+.activity .item.deleted-resource-view .icon{
+  color: #c06483;
+}
 .activity .item.deleted-resource .icon {
   color: #b99752;
 }
@@ -111,6 +117,9 @@
 }
 .activity .item.new-package_extra .icon {
   color: #6ca669;
+}
+.activity .item.new-resource-view .icon{
+  color: #7caf79;
 }
 .activity .item.new-resource .icon {
   color: #81a669;
