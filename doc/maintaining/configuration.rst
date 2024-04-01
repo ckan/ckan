@@ -4,48 +4,94 @@
 Configuration Options
 =====================
 
-The functionality and features of CKAN can be modified using many different
-configuration options. These are generally set in the `CKAN configuration file`_,
-but some of them can also be set via `Environment variables`_ or at :ref:`runtime <runtime-config>`.
+Managing configurations and secrets
+***********************************
+
+Having a `CKAN configuration file`_ **is mandatory** to run CKAN as it is the main source of
+configurations (in comparison to other Flask apps that usually read from the Environment).
+
+The location of the configuration file needs to be provided when running the server::
+
+  # Example for development server
+  ckan -c /etc/ckan/default/ckan.ini run
+
+  # Example for production server
+  export CKAN_INI=/etc/ckan/default/ckan.ini
+  gunicorn --workers 2 --bind 0.0.0.0:5000 wsgi:application
 
 .. note:: Looking for the available configuration options? Jump to `CKAN configuration file`_.
 
 
-Environment variables
-*********************
+However, the CKAN ecosystem provides some alternatives:
+  1. It is possible to use environment variables interpolation to populate the values of the `CKAN configuration file`_.
+  2. Some non critical configuration options can be overriden using `Environment variables`_ through the `ckanext-envvars`_ extension.
+  3. Some non critical configuration options can be edited at :ref:`runtime <runtime-config>`.
 
-Some of the CKAN configuration options can be defined as `Environment variables`_
-on the server operating system.
 
-These are generally low-level critical settings needed when setting up the application, like the database
-connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
-automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
+1. Environment variables interpolation
+--------------------------------------
 
-These options are only read at startup time to update the ``config`` object used by CKAN,
-but they won't be accessed any more during the lifetime of the application.
 
-CKAN environment variable names match the options in the configuration file, but they are always uppercase
-and prefixed with `CKAN_` (this prefix is added even if
-the corresponding option in the ini file does not have it), and replacing dots with underscores.
+Our Configuration Parser supports interpolation of environment variables. This is, when reading an existing
+configuration file, the parser will replace any environment variable reference with its value. This is useful
+when you want to use environment variables to store secrets or other sensitive information. Note that a **configuration
+file is still needed**, but it can be a template file with environment variables references.
 
-This is the list of currently supported environment variables, please refer to the entries in the
-`CKAN configuration file`_ section below for more details about each one:
+Set an option from the config file to interpolate values that starts with ``CKAN_``::
 
-.. literalinclude:: /../ckan/config/environment.py
-    :language: python
-    :start-after: Start CONFIG_FROM_ENV_VARS
-    :end-before: End CONFIG_FROM_ENV_VARS
+  # ckan.ini
+  ckan.site_title = %(CKAN_TITLE_FROM_ENV)s
+
+An attempt to run the server without corresponding envvar will produce an error::
+
+  configparser.InterpolationMissingOptionError: Bad value substitution: option 'ckan.site_title'
+  in section 'app:main' contains an interpolation key 'CKAN_TITLE_FROM_ENV' which is not
+  a valid option name. Raw value: '%(CKAN_TITLE_FROM_ENV)s'
+
+Make sure the variables are in the environment when executing CKAN (for example by exporting them)::
+
+  CKAN_TITLE_FROM_ENV="CLI title" ckan run -t
+
+
+**The only requirement:** envvar's name must begin with ``CKAN_`` (uppercased). You don't need to use uppercase
+for the rest of the variable name, nor do you need any resemblance between the variable name and the option name.
+
+
+2. ckanext-envvars
+------------------
+
+The extension (not installed by default) will check for environmental variables conforming to an expected format.
+and then override the corresponding CKAN config object. Since the logic is executed when **loading plugins**, some
+core variables like the connection to the database cannot be set using this extension since they are required before this.
+
+The format of the environmental variables is as follows:
+
+  1. All uppercase
+  2. Replace periods ('.') with two underscores ('__')
+  3. Keys must begin with 'CKAN' or 'CKANEXT'
+
+Example::
+
+  ckan.site_id --> CKAN__SITE_ID
+  ckanext.s3filestore.aws_bucket_name --> CKANEXT__S3FILESTORE__AWS_BUCKET_NAME
+
+For more information check the extension's website: `ckanext-envvars`_
+
+.. note:: This still requires a configuration file to be present since the extension will override the values when loading the plugins.
+
+.. note:: The extension cannot be used to set the database connection string, as it is used before the plugins are loaded.
 
 .. _Environment variables: http://en.wikipedia.org/wiki/Environment_variable
+.. _ckanext-envvars: https://github.com/okfn/ckanext-envvars
 
 
 .. _runtime-config:
 
-Updating configuration options during runtime
-*********************************************
+3. Updating configuration options during runtime
+------------------------------------------------
 
 CKAN configuration options are generally defined before starting the web application (either in the
-`CKAN configuration file`_ or via `Environment variables`_).
+`CKAN configuration file`_ or via `Environment variables`_ using `ckanext-envvars`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`

@@ -79,43 +79,11 @@ def load_environment(conf: Union[Config, CKANConfig]):
     build_js_translations()
 
 
-# A mapping of config settings that can be overridden by env vars.
-# Note: Do not remove the following lines, they are used in the docs
-# Start CONFIG_FROM_ENV_VARS
-CONFIG_FROM_ENV_VARS: dict[str, str] = {
-    'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
-    'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
-    'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
-    'ckan.redis.url': 'CKAN_REDIS_URL',
-    'solr_url': 'CKAN_SOLR_URL',
-    'solr_user': 'CKAN_SOLR_USER',
-    'solr_password': 'CKAN_SOLR_PASSWORD',
-    'ckan.site_id': 'CKAN_SITE_ID',
-    'ckan.site_url': 'CKAN_SITE_URL',
-    'ckan.storage_path': 'CKAN_STORAGE_PATH',
-    'ckan.datapusher.url': 'CKAN_DATAPUSHER_URL',
-    'smtp.server': 'CKAN_SMTP_SERVER',
-    'smtp.starttls': 'CKAN_SMTP_STARTTLS',
-    'smtp.user': 'CKAN_SMTP_USER',
-    'smtp.password': 'CKAN_SMTP_PASSWORD',
-    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM',
-    'ckan.max_resource_size': 'CKAN_MAX_UPLOAD_SIZE_MB'
-}
-# End CONFIG_FROM_ENV_VARS
-
-
 def update_config() -> None:
     ''' This code needs to be run when the config is changed to take those
     changes into account. It is called whenever a plugin is loaded as the
     plugin might have changed the config values (for instance it might
     change ckan.site_url) '''
-
-    # read envvars before config declarations in order to apply normalization
-    # to the values, when declarations loaded
-    for option in CONFIG_FROM_ENV_VARS:
-        from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
-        if from_env:
-            config[option] = from_env
 
     config_declaration.setup()
     config_declaration.make_safe(config)
