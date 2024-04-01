@@ -3,10 +3,10 @@
 
 {% if newer_activities_url or older_activities_url %}
     <div id="activity_page_buttons" class="activity_buttons" style="margin-top: 25px;">
-        <a hx-get="{{ newer_activities_url }}" hx-target="body" class="{{ class_prev }}">
+        <a hx-get="{{ newer_activities_url }}" hx-target="body" hx-push-url="true" class="{{ class_prev }}">
             {{ _('Newer activities') }}
         </a>
-        <a hx-get="{{ older_activities_url }}" hx-target="body" class="{{ class_next }}">
+        <a hx-get="{{ older_activities_url }}" hx-target="body" hx-push-url="true" class="{{ class_next }}">
             {{ _('Older activities') }}
         </a>
     </div>
