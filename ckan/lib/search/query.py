@@ -103,7 +103,7 @@ def _parse_local_params(local_params: str) -> list[Union[str, list[str]]]:
     {!type=dismax qf=myfield v='some value'} -> [['type', 'dismax'], ['qf', 'myfield'], ['v', 'some value']]
 
     """
-    key = Word(alphanums + "_")
+    key = Word(alphanums + "_.")
     value = QuotedString('"') | QuotedString("'") | Word(alphanums + "_$")
     pair = Group(key + Suppress("=") + value)
     expression = Suppress("{!") + OneOrMore(pair | key) + Suppress("}")
