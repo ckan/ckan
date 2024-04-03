@@ -9,7 +9,7 @@ from flask import Blueprint
 
 from ckan.common import json
 from ckan.lib.helpers import decode_view_request_filters
-from ckan.plugins.toolkit import get_action, request, h
+from ckan.plugins.toolkit import get_action, request, h, ObjectNotFound
 import re
 
 datatablesview = Blueprint(u'datatablesview', __name__)
@@ -59,13 +59,16 @@ def ajax(resource_view_id: str):
     filters = merge_filters(view_filters, user_filters)
 
     datastore_search = get_action(u'datastore_search')
-    unfiltered_response = datastore_search(
-        {}, {
-            u"resource_id": resource_view[u'resource_id'],
-            u"limit": 0,
-            u"filters": view_filters,
-        }
-    )
+    try:
+        unfiltered_response = datastore_search(
+            {}, {
+                u"resource_id": resource_view[u'resource_id'],
+                u"limit": 0,
+                u"filters": view_filters,
+            }
+        )
+    except ObjectNotFound:
+        return json.dumps({'error': 'Object not found'})
 
     cols = [f[u'id'] for f in unfiltered_response[u'fields']]
     if u'show_fields' in resource_view:
