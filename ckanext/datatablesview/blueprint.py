@@ -69,7 +69,7 @@ def ajax(resource_view_id: str):
             }
         )
     except ObjectNotFound:
-        return json.dumps({'error': 'Object not found'})
+        return json.dumps({'error': 'Object not found'}), 404
 
     cols = [f[u'id'] for f in unfiltered_response[u'fields']]
     if u'show_fields' in resource_view:
@@ -124,6 +124,7 @@ def ajax(resource_view_id: str):
     except Exception:
         query_error = u'Invalid search query... ' + search_text
         dtdata = {u'error': query_error}
+        status = 400
     else:
         data = []
         null_label = h.datatablesview_null_label()
@@ -141,8 +142,10 @@ def ajax(resource_view_id: str):
             u'recordsFiltered': response.get(u'total', 0),
             u'data': data
         }
+        status = 200
 
-    return json.dumps(dtdata)
+    # return the response as JSON with status
+    return json.dumps(dtdata), status
 
 
 def filtered_download(resource_view_id: str):
