@@ -9,7 +9,13 @@ from flask import Blueprint
 
 from ckan.common import json
 from ckan.lib.helpers import decode_view_request_filters
-from ckan.plugins.toolkit import get_action, request, h, ObjectNotFound
+from ckan.plugins.toolkit import (
+    get_action,
+    h,
+    NotAuthorized,
+    ObjectNotFound,
+    request,
+)
 import re
 
 datatablesview = Blueprint(u'datatablesview', __name__)
@@ -69,6 +75,8 @@ def ajax(resource_view_id: str):
         )
     except ObjectNotFound:
         return json.dumps({'error': 'Object not found'}), 404
+    except NotAuthorized:
+        return json.dumps({'error': 'Not Authorized'}), 403
 
     cols = [f[u'id'] for f in unfiltered_response[u'fields']]
     if u'show_fields' in resource_view:
