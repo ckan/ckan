@@ -245,7 +245,7 @@ class TestPatch(object):
             helpers.call_action(
                 "user_patch",
                 id=sysadmin["id"],
-                sysadmin=True,
+                sysadmin=False,
                 context={"user": sysadmin["name"]},
             )
 
