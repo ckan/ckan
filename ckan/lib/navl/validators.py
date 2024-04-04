@@ -208,11 +208,21 @@ def limit_sysadmin_update(value, context):
     contextual_user = context.get('auth_user_obj')
     site_id = config.get('ckan.site_id')
 
+    if not contextual_user:
+        # auth_user_obj has not been set, try to get it from user
+        contextual_user = context['model'].User.get(context.get('user'))
+
+    if not contextual_user:
+        raise Invalid(_('User not found'))
+
     # system user should be able to do anything still
     if contextual_user.name == site_id:
         return value
 
     user = context.get('user_obj')
+
+    if not user:
+        raise Invalid(_('User not found'))
 
     # sysadmin not being updated, return here
     if value == user.sysadmin:
