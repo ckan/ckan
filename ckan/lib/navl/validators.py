@@ -348,21 +348,25 @@ def limit_sysadmin_update(value: Any, context: Context) -> Any:
     site_id = config.get('ckan.site_id')
 
     # system user should be able to do anything still
-    if contextual_user.name == site_id:
+    # type_ignore_reason: auth_user_obj would be set here
+    if contextual_user.name == site_id:  # type: ignore
         return value
 
     user = context.get('user_obj')
 
     # sysadmin not being updated, return here
-    if value == user.sysadmin:
+    # type_ignore_reason: user_obj would be set here
+    if value == user.sysadmin:  # type: ignore
         return value
 
     # cannot change your own sysadmin value
-    if user.name == contextual_user.name:
+    # type_ignore_reason: auth_user_obj and user_obj would be set here
+    if user.name == contextual_user.name:  # type: ignore
         raise Invalid(_('Cannot modify your own sysadmin privileges'))
 
     # cannot change site user sysadmin value
-    if user.name == site_id:
+    # type_ignore_reason: user_obj would be set here
+    if user.name == site_id:  # type: ignore
         raise Invalid(_('Cannot modify sysadmin privileges for system user'))
 
     return value
