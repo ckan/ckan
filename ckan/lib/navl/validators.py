@@ -347,15 +347,19 @@ def limit_sysadmin_update(value: Any, context: Context) -> Any:
     contextual_user = context.get('auth_user_obj')
     site_id = config.get('ckan.site_id')
 
+    contextual_user_name = context.get('user')
+
     if not contextual_user:
         # auth_user_obj has not been set, try to get it from user
-        contextual_user = context['model'].User.get(context.get('user'))
+        contextual_user = context['model'].User.get(contextual_user_name)
 
-    if not contextual_user:
-        raise Invalid(_('User not found'))
+        if contextual_user:
+            contextual_user_name = contextual_user.name
+        elif not context.get('ignore_auth'):
+            raise Invalid(_('User not found'))
 
     # system user should be able to do anything still
-    if contextual_user.name == site_id:
+    if contextual_user_name == site_id:
         return value
 
     user = context.get('user_obj')
@@ -368,7 +372,7 @@ def limit_sysadmin_update(value: Any, context: Context) -> Any:
         return value
 
     # cannot change your own sysadmin value
-    if user.name == contextual_user.name:
+    if user.name == contextual_user_name:
         raise Invalid(_('Cannot modify your own sysadmin privileges'))
 
     # cannot change site user sysadmin value
