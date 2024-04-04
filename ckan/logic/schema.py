@@ -422,7 +422,7 @@ def default_user_schema(
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
-        json_object: Validator, limit_sysadmin_update:Validator) -> Schema:
+        json_object: Validator, limit_sysadmin_update: Validator) -> Schema:
     return {
         'id': [ignore_missing, unicode_safe],
         'name': [
