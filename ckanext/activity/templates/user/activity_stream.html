@@ -8,7 +8,7 @@
       {{ _('Activity Stream') }}
     {%- endblock %}
   </h1>
-  {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id %}
+  {% snippet 'snippets/stream.html', activity_stream=activity_stream, id=id, object_type='user' %}
 
   {% snippet 'snippets/pagination.html', newer_activities_url=newer_activities_url, older_activities_url=older_activities_url %}
 {% endblock %}
