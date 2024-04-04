@@ -172,3 +172,9 @@ class TestSearchIndex(object):
         assert not result.exit_code, result.output
         search_result = helpers.call_action(u'package_search', q=u"package")
         assert search_result[u'count'] == 2
+
+    def test_rebuild_invalid_dataset(self, cli):
+        # attempt to index package that doesn't exist
+        result = cli.invoke(ckan, [u'search-index', u'rebuild', u'invalid-dataset'])
+        assert not result.exit_code, result.output
+        assert "Couldn't find" in result.output
