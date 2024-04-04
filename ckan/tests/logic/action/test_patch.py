@@ -7,6 +7,7 @@ from unittest import mock
 from ckan.tests import helpers, factories
 from ckan.logic.action.get import package_show as core_package_show
 from ckan.logic import ValidationError
+from ckan.plugins.toolkit import config
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -234,3 +235,26 @@ class TestPatch(object):
         with mock.patch.dict('ckan.logic._actions', {'package_show': mock_package_show}):
             helpers.call_action('resource_patch', id=resource['id'], description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    def test_user_patch_sysadmin(self):
+
+        sysadmin = factories.Sysadmin()
+
+        # cannot change your own sysadmin privs
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                id=sysadmin["id"],
+                sysadmin=True,
+                context={"user": sysadmin["name"]},
+            )
+
+        # cannot change system user privs
+        site_id = config.get('ckan.site_id')
+        with pytest.raises(ValidationError):
+            helpers.call_action(
+                "user_patch",
+                id=site_id,
+                sysadmin=False,
+                context={"user": sysadmin["name"]},
+            )

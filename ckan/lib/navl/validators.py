@@ -338,3 +338,31 @@ def limit_to_configured_maximum(config_option: str,
         return value
 
     return callable
+
+
+def limit_sysadmin_update(value: Any, context: Context) -> Any:
+    """
+    Should not be able to modify your own sysadmin privs, or the system user's
+    """
+    contextual_user = context.get('auth_user_obj')
+    site_id = config.get('ckan.site_id')
+
+    # system user should be able to do anything still
+    if contextual_user.name == site_id:
+        return value
+
+    user = context.get('user_obj')
+
+    # sysadmin not being updated, return here
+    if value == user.sysadmin:
+        return value
+
+    # cannot change your own sysadmin value
+    if user.name == contextual_user.name:
+        raise Invalid(_('Cannot modify your own sysadmin privileges'))
+
+    # cannot change site user sysadmin value
+    if user.name == site_id:
+        raise Invalid(_('Cannot modify sysadmin privileges for system user'))
+
+    return value
