@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from threading import Lock
 from typing import Any, Union
-from packaging.version import parse as parse_version, Version
+from packaging.version import parse as parse_version
 
 import ckan
 import ckan.model as model
