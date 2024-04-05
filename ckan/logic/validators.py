@@ -591,7 +591,7 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
 
     # system user should be able to do anything still
     if contextual_user_name == site_id:
-        return value
+        return
 
     user = context.get('user_obj')
 
@@ -602,7 +602,7 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
 
     # sysadmin not being updated, return here
     if value == user.sysadmin:
-        return value
+        return
 
     # cannot change your own sysadmin value
     if user.name == contextual_user_name:
@@ -612,7 +612,7 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
     if user.name == site_id:
         errors[key].append(_('Cannot modify sysadmin privileges for system user'))
 
-    return value
+    return
 
 
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
