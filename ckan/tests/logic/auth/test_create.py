@@ -405,6 +405,7 @@ class TestApiToken(object):
             user=user[u"name"],
         )
 
+
 @pytest.fixture
 def members_fixtures():
     org_admin = factories.User()
