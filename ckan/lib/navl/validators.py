@@ -11,10 +11,6 @@ missing = df.missing
 StopOnError = df.StopOnError
 Invalid = df.Invalid
 
-# (canada fork only): extra logging
-from logging import getLogger
-log = getLogger(__name__)
-
 
 def identity_converter(key, data, errors, context):
     return
@@ -199,47 +195,3 @@ def limit_to_configured_maximum(config_option, default_limit):
             data[key] = limit
 
     return callable
-
-
-def limit_sysadmin_update(value, context):
-    """
-    Should not be able to modify your own sysadmin privs, or the system user's
-    """
-    contextual_user = context.get('auth_user_obj')
-    site_id = config.get('ckan.site_id')
-
-    if not contextual_user:
-        # auth_user_obj has not been set, try to get it from user
-        contextual_user = context['model'].User.get(context.get('user'))
-
-    if not contextual_user:
-        raise Invalid(_('User not found'))
-
-    # system user should be able to do anything still
-    if contextual_user.name == site_id:
-        return value
-
-    user = context.get('user_obj')
-
-    if not user:
-        raise Invalid(_('User not found'))
-
-    # sysadmin not being updated, return here
-    if value == user.sysadmin:
-        return value
-
-    # cannot change your own sysadmin value
-    if user.name == contextual_user.name:
-        raise Invalid(_('Cannot modify your own sysadmin privileges'))
-
-    # cannot change site user sysadmin value
-    if user.name == site_id:
-        raise Invalid(_('Cannot modify sysadmin privileges for system user'))
-
-    # (canada fork only): extra logging
-    if value:
-        log.info('%s promoted %s to a sysadmin', contextual_user.name, user.name)
-    else:
-        log.info('%s demoted %s from a sysadmin', contextual_user.name, user.name)
-
-    return value
