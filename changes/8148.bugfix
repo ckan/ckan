@@ -1,0 +1,1 @@
+Add error notification when rebuilding the search index via the cli when the requested package can't be found.
