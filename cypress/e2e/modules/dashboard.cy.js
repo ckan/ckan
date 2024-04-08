@@ -1,4 +1,4 @@
-describe('ckan.modules.DashboardModule()', function () {
+describe('ckan.modules.DashboardModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -25,7 +25,7 @@ describe('ckan.modules.DashboardModule()', function () {
     //this.fixture.empty();
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should bind callback methods to the module', function () {
       cy.window().then(win => {
         let target = cy.stub(win.jQuery, 'proxyAll');
@@ -40,7 +40,7 @@ describe('ckan.modules.DashboardModule()', function () {
     })
   })
 
-  describe('.show()', function () {
+  describe('.show()', {testIsolation: false}, function () {
     it('should append the popover to the document body', function () {
       this.module.initialize();
       this.module.button.click();
@@ -52,7 +52,7 @@ describe('ckan.modules.DashboardModule()', function () {
 
 /*
  * TODO: This test keeps failing randomly
-  describe(".search", function(){
+  describe(".search", {testIsolation: false}, function(){
     it('should filter based on query', function() {
       this.module.initialize();
       this.module.button.click();

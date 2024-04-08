@@ -1,4 +1,4 @@
-describe('jQuery.fn.slug()', function () {
+describe('jQuery.fn.slug()', {testIsolation: false}, function () {
   beforeEach(function () {
     cy.visit('/')
     cy.window().then(win => {

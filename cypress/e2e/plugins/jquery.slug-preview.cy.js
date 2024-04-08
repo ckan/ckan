@@ -1,4 +1,4 @@
-describe('jQuery.fn.slugPreview()', function () {
+describe('jQuery.fn.slugPreview()', {testIsolation: false}, function () {
   before(function () {
     cy.visit('/');
   });

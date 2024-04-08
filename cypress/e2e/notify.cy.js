@@ -1,4 +1,4 @@
-describe('ckan.notify()', function () {
+describe('ckan.notify()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {

@@ -1,4 +1,4 @@
-describe('ckan.module.CustomFieldsModule()', function () {
+describe('ckan.module.CustomFieldsModule()', {testIsolation: false}, function () {
    before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -25,7 +25,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     this.module.teardown();
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should bind all functions beginning with _on to the module scope', function () {
       cy.window().then(win => {
         let target = cy.stub(win.jQuery, 'proxyAll');
@@ -58,7 +58,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     });
   });
 
-  describe('.newField(element)', function () {
+  describe('.newField(element)', {testIsolation: false}, function () {
     it('should append a new field to the element', function () {
       cy.window().then(win => {
         let element = win.document.createElement('div');
@@ -71,7 +71,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     });
   });
 
-  describe('.cloneField(element)', function () {
+  describe('.cloneField(element)', {testIsolation: false}, function () {
     it('should clone the provided field', function () {
       cy.window().then(win => {
         let element = win.document.createElement('div');
@@ -104,7 +104,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     });
   });
 
-  describe('.resetField(element)', function () {
+  describe('.resetField(element)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         cy.wrap(win.jQuery('<div><label for="field-1">Field 1</label><input name="field-1" value="value" /></div>')).as('field');
@@ -132,7 +132,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     });
   });
 
-  describe('.disableField(field, disable)', function () {
+  describe('.disableField(field, disable)', {testIsolation: false}, function () {
     beforeEach(function () {
       this.target = this.module.$('.control-custom:first');
     });
@@ -151,7 +151,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
 
   });
 
-  describe('._onChange(event)', function () {
+  describe('._onChange(event)', {testIsolation: false}, function () {
     it('should call .newField() with the custom control', function () {
       cy.window().then(win => {
         let target = cy.stub(this.module, 'newField');
@@ -175,7 +175,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
     });
   });
 
-  describe('._onRemove(event)', function () {
+  describe('._onRemove(event)', {testIsolation: false}, function () {
     it('should call .disableField() with the custom control', function () {
       cy.window().then(win => {
         let target = cy.stub(this.module, 'disableField');

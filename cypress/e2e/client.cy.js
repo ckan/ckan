@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.Client()', function () {
+describe('ckan.Client()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
   });
@@ -35,7 +35,7 @@ describe('ckan.Client()', function () {
     })
   });
 
-  describe('.url(path)', function () {
+  describe('.url(path)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.client.endpoint = 'http://api.example.com';
@@ -62,7 +62,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.getTemplate(filename, params, success, error)', function () {
+  describe('.getTemplate(filename, params, success, error)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.fakePromise = cy.stub(win.jQuery.Deferred())
@@ -97,7 +97,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.getLocaleData(locale, success, error)', function () {
+  describe('.getLocaleData(locale, success, error)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.fakePromise = cy.stub(win.jQuery.Deferred());
@@ -122,7 +122,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.getCompletions(url, options, success, error)', function () {
+  describe('.getCompletions(url, options, success, error)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.fakePiped  = cy.stub(win.jQuery.Deferred());
@@ -181,7 +181,7 @@ describe('ckan.Client()', function () {
 
   });
 
-  describe('.parseCompletions(data, options)', function () {
+  describe('.parseCompletions(data, options)', {testIsolation: false}, function () {
     it('should return a string of tags for a ResultSet collection', function () {
       let data = {
         ResultSet: {
@@ -266,7 +266,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.parseCompletionsForPlugin(data)', function () {
+  describe('.parseCompletionsForPlugin(data)', {testIsolation: false}, function () {
     it('should return a string of tags for a ResultSet collection', function () {
       let data = {
         ResultSet: {
@@ -291,7 +291,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.parsePackageCompletions(string, options)', function () {
+  describe('.parsePackageCompletions(string, options)', {testIsolation: false}, function () {
     it('should parse the package completions string', function () {
       let data = 'Package 1|package-1\nPackage 2|package-2\nPackage 3|package-3\n';
       cy.window().then(win => {
@@ -315,7 +315,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.getStorageAuth()', function () {
+  describe('.getStorageAuth()', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.fakePromise = cy.stub(win.jQuery.Deferred());
@@ -348,7 +348,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.getStorageMetadata()', function () {
+  describe('.getStorageMetadata()', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.fakePromise = cy.stub(win.jQuery.Deferred());
@@ -390,7 +390,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.convertStorageMetadataToResource(meta)', function () {
+  describe('.convertStorageMetadataToResource(meta)', {testIsolation: false}, function () {
     beforeEach(function () {
         cy.wrap({
           "_checksum": "md5:527c97d2aa3ed1b40aea4b7ddf98692e",
@@ -458,7 +458,7 @@ describe('ckan.Client()', function () {
     });
   });
 
-  describe('.normalizeTimestamp(timestamp)', function () {
+  describe('.normalizeTimestamp(timestamp)', {testIsolation: false}, function () {
     it('should add a timezone to a timestamp without one', function () {
       cy.window().then(win => {
         let target = win.client.normalizeTimestamp("2012-07-17T14:35:35");

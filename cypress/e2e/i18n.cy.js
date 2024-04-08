@@ -1,4 +1,4 @@
-describe('ckan.i18n', function () {
+describe('ckan.i18n', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/')
     cy.window().then(win => {
@@ -22,7 +22,7 @@ describe('ckan.i18n', function () {
     })
   });
 
-  describe('ckan.i18n.translate', function () {
+  describe('ckan.i18n.translate', {testIsolation: false}, function () {
     it('should work while being deprecated', function () {
       cy.window().then(win => {
         let x = win.ckan.i18n.translate('foo');
@@ -33,7 +33,7 @@ describe('ckan.i18n', function () {
     });
   });
 
-  describe('._(string, [values])', function () {
+  describe('._(string, [values])', {testIsolation: false}, function () {
     it('should return the translated string', function () {
       cy.window().then(win => {
         assert.equal(win.ckan.i18n._('foo'), 'FOO');
@@ -65,7 +65,7 @@ describe('ckan.i18n', function () {
     });
   });
 
-  describe('.ngettext(singular, plural, number, [values])', function () {
+  describe('.ngettext(singular, plural, number, [values])', {testIsolation: false}, function () {
     beforeEach(() => {
       cy.window().then(win => {
         cy.wrap(win.ckan.i18n.ngettext).as('ngettext');

@@ -20,7 +20,7 @@ describe.skip('ckan.views.filters', function(){
     this.filters._setLocationHref = this.setLocationHrefSpy;
   });
 
-  describe('#initialization', function() {
+  describe('#initialization', {testIsolation: false}, function() {
     it('should clear the filters on subsequent calls', function() {
       this.filters._initialize('?filters=country:Brazil');
       assert.deepEqual(['Brazil'], this.filters.get('country'));
@@ -101,7 +101,7 @@ describe.skip('ckan.views.filters', function(){
     })
   });
 
-  describe('#get', function(){
+  describe('#get', {testIsolation: false}, function(){
     it('should return all filters if called without params', function(){
       let expectedFilters = {
         country: ['Brazil']
@@ -139,7 +139,7 @@ describe.skip('ckan.views.filters', function(){
     });
   });
 
-  describe('#set', function(){
+  describe('#set', {testIsolation: false}, function(){
     it('should set the filters', function(){
       let expectedFilters = {
         country: 'Brazil'
@@ -161,7 +161,7 @@ describe.skip('ckan.views.filters', function(){
     });
   });
 
-  describe('#setAndRedirectTo', function(){
+  describe('#setAndRedirectTo', {testIsolation: false}, function(){
     it('should set the filters', function(){
       let url = 'http://www.ckan.org',
           expectedFilters = {
@@ -207,7 +207,7 @@ describe.skip('ckan.views.filters', function(){
     });
   });
 
-  describe('#unset', function(){
+  describe('#unset', {testIsolation: false}, function(){
     it('should unset the filters', function(){
       let expectedFilters = {};
       this.filters.set('country', 'Brazil');

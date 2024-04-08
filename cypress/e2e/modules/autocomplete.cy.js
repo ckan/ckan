@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.modules.AutocompleteModule()', function () {
+describe('ckan.modules.AutocompleteModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -37,7 +37,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     //delete jQuery.fn.select2;
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should bind callback methods to the module', function () {
       cy.window().then(win => {
         let target = cy.stub(win.jQuery, 'proxyAll');
@@ -59,7 +59,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.setupAutoComplete()', function () {
+  describe('.setupAutoComplete()', {testIsolation: false}, function () {
     it('should initialize the autocomplete plugin', function () {
       this.module.setupAutoComplete();
 
@@ -161,7 +161,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
 
   });
 
-  describe('.getCompletions(term, fn)', function () {
+  describe('.getCompletions(term, fn)', {testIsolation: false}, function () {
     beforeEach(function () {
       this.term = 'term';
       this.module.options.source = 'http://example.com?term=?';
@@ -185,7 +185,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.lookup(term, fn)', function () {
+  describe('.lookup(term, fn)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.stub(this.module, 'getCompletions');
       this.target = cy.spy();
@@ -207,7 +207,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     it('should cancel the last request');
   });
 
-  describe('.formatResult(state)', function () {
+  describe('.formatResult(state)', {testIsolation: false}, function () {
     beforeEach(function () {
       this.module._lastTerm = 'term';
     });
@@ -229,7 +229,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.formatNoMatches(term)', function () {
+  describe('.formatNoMatches(term)', {testIsolation: false}, function () {
     it('should return the no matches string if there is a term', function () {
       var target = this.module.formatNoMatches('term');
       assert.equal(target, 'No matches found');
@@ -241,7 +241,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.formatInputTooShort(term, min)', function () {
+  describe('.formatInputTooShort(term, min)', {testIsolation: false}, function () {
     it('should return the plural input too short string', function () {
       var target = this.module.formatInputTooShort('term', 2);
       assert.equal(target, 'Input is too short, must be at least 2 characters');
@@ -253,7 +253,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.formatTerm()', function () {
+  describe('.formatTerm()', {testIsolation: false}, function () {
     it('should return an item object with id and text properties', function () {
       assert.deepEqual(this.module.formatTerm('test'), {id: 'test', text: 'test'});
     });
@@ -267,7 +267,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('.formatInitialValue(element, callback)', function () {
+  describe('.formatInitialValue(element, callback)', {testIsolation: false}, function () {
     beforeEach(function () {
       this.callback = cy.spy();
     });
@@ -300,7 +300,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('._onQuery(options)', function () {
+  describe('._onQuery(options)', {testIsolation: false}, function () {
     it('should lookup the current term with the callback', function () {
       let target = cy.stub(this.module, 'lookup');
 
@@ -317,7 +317,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
   });
 
-  describe('._onKeydown(event)', function () {
+  describe('._onKeydown(event)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         this.keyDownEvent = win.jQuery.Event("keydown", {key: ',', which: 188});

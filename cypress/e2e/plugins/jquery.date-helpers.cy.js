@@ -1,4 +1,4 @@
-describe('jQuery.date', function () {
+describe('jQuery.date', {testIsolation: false}, function () {
   beforeEach(function () {
     this.now = new Date();
     this.now.setTime(0);
@@ -8,7 +8,7 @@ describe('jQuery.date', function () {
   });
 
 
-  describe('jQuery.date.format()', function () {
+  describe('jQuery.date.format()', {testIsolation: false}, function () {
     it('should format the date based on the string provided', function () {
       cy.window().then(win => {
         let target = win.jQuery.date.format('yyyy-MM-dd', this.now);
@@ -24,7 +24,7 @@ describe('jQuery.date', function () {
     });
   });
 
-  describe('jQuery.date.toISOString()', function () {
+  describe('jQuery.date.toISOString()', {testIsolation: false}, function () {
     it('should output an ISO8601 compatible string', function () {
       cy.window().then(win => {
         let target = win.jQuery.date.toISOString(this.now);

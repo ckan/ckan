@@ -1,4 +1,4 @@
-describe('ckan.module.ConfirmActionModule()', function () {
+describe('ckan.module.ConfirmActionModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -23,7 +23,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
     this.module.teardown();
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should watch for clicks on the module element', function () {
       let target = cy.stub(this.module.el, 'on');
       this.module.initialize();
@@ -32,7 +32,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
     });
   });
 
-  describe('.confirm()', function () {
+  describe('.confirm()', {testIsolation: false}, function () {
     it('should append the modal to the document body', function () {
       this.module.confirm();
       assert.equal(this.fixture.children().length, 1);
@@ -48,11 +48,11 @@ describe('ckan.module.ConfirmActionModule()', function () {
     });
   });
 
-  describe('.performAction()', function () {
+  describe('.performAction()', {testIsolation: false}, function () {
     it('should submit the action');
   });
 
-  describe('.createModal()', function () {
+  describe('.createModal()', {testIsolation: false}, function () {
     it('should create the modal element', function () {
       let target = this.module.createModal();
 
@@ -96,7 +96,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
     });
   });
 
-  describe('._onClick()', function () {
+  describe('._onClick()', {testIsolation: false}, function () {
     it('should prevent the default action', function () {
       let target = {preventDefault: cy.spy()};
       this.module._onClick(target);
@@ -111,7 +111,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
     });
   });
 
-  describe('._onConfirmSuccess()', function () {
+  describe('._onConfirmSuccess()', {testIsolation: false}, function () {
     it('should perform the action', function () {
       cy.window().then(win => {
         let target = cy.stub(this.module, 'performAction');
@@ -121,7 +121,7 @@ describe('ckan.module.ConfirmActionModule()', function () {
     });
   });
 
-  describe('._onConfirmCancel()', function () {
+  describe('._onConfirmCancel()', {testIsolation: false}, function () {
     it('should hide the modal', function () {
       cy.window().then(win => {
         this.module.modal = win.jQuery('<div/>');

@@ -1,4 +1,4 @@
-describe('ckan.modules.ImageUploadModule()', function () {
+describe('ckan.modules.ImageUploadModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -21,7 +21,7 @@ describe('ckan.modules.ImageUploadModule()', function () {
     })
   });
 
-  describe('._onFromWeb()', function () {
+  describe('._onFromWeb()', {testIsolation: false}, function () {
 
     it('should change name when url changed', function () {
       this.module.field_url_input.val('http://example.com/some_image.png');

@@ -1,4 +1,4 @@
-describe('ckan.pubsub', function () {
+describe('ckan.pubsub', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
   });
@@ -10,7 +10,7 @@ describe('ckan.pubsub', function () {
     })
   });
 
-  describe('.enqueue()', function () {
+  describe('.enqueue()', {testIsolation: false}, function () {
     beforeEach(function () {
       this.target = cy.spy();
     });
@@ -43,7 +43,7 @@ describe('ckan.pubsub', function () {
     });
   });
 
-  describe('.dequeue()', function () {
+  describe('.dequeue()', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         win.ckan.pubsub.queue = [

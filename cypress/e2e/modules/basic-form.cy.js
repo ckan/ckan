@@ -1,4 +1,4 @@
-describe('ckan.module.BasicFormModule()', function () {
+describe('ckan.module.BasicFormModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -24,7 +24,7 @@ describe('ckan.module.BasicFormModule()', function () {
     this.module.teardown();
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should attach the jQuery.fn.incompleteFormWarning() to the form', function () {
       cy.window().then(win => {
         this.module.initialize();

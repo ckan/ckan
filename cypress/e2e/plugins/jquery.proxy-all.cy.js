@@ -1,4 +1,4 @@
-describe('jQuery.proxyAll(obj, args...)', function () {
+describe('jQuery.proxyAll(obj, args...)', {testIsolation: false}, function () {
   before(function () {
     cy.visit('/');
   });

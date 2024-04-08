@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.module(id, properties|callback)', function () {
+describe('ckan.module(id, properties|callback)', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -73,7 +73,7 @@ describe('ckan.module(id, properties|callback)', function () {
     })
   });
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     before(() => {
       cy.window().then(win => {
         win.jQuery('<div id="fixture">').appendTo(win.document.body)
@@ -182,7 +182,7 @@ describe('ckan.module(id, properties|callback)', function () {
     });
   });
 
-  describe('.createInstance(Module, element)', function () {
+  describe('.createInstance(Module, element)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         this.element = win.document.createElement('div');
@@ -286,7 +286,7 @@ describe('ckan.module(id, properties|callback)', function () {
 
   });
 
-  describe('.extractOptions(element)', function () {
+  describe('.extractOptions(element)', {testIsolation: false}, function () {
     it('should extract the data keys from the element', function () {
       cy.window().then(win => {
         let element = win.jQuery('<div>', {
@@ -370,7 +370,7 @@ describe('ckan.module(id, properties|callback)', function () {
     });
   });
 
-  describe('BaseModule(element, options, sandbox)', function () {
+  describe('BaseModule(element, options, sandbox)', {testIsolation: false}, function () {
     beforeEach(function () {
       cy.window().then(win => {
         this.el = win.jQuery('<div />');
@@ -410,7 +410,7 @@ describe('ckan.module(id, properties|callback)', function () {
       assert.equal(this.module.sandbox, this.sandbox);
     });
 
-    describe('.$(selector)', function () {
+    describe('.$(selector)', {testIsolation: false}, function () {
       it('should find children within the module element', function () {
         cy.window().then(win => {
           this.module.el.append(win.jQuery('<input /><input />'));
@@ -419,7 +419,7 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
 
-    describe('.i18n()', function () {
+    describe('.i18n()', {testIsolation: false}, function () {
       // Note: This function is deprecated but kept for backwards-compatibility
       beforeEach(function () {
         this.i18n = {
@@ -466,7 +466,7 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
 
-    describe('._()', function () {
+    describe('._()', {testIsolation: false}, function () {
       it('should be a shortcut for ckan.i18n._', function () {
         /*
          * In a module, this._ is a shortcut for ckan.i18n._,
@@ -477,7 +477,7 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
 
-    describe('.ngettext()', function () {
+    describe('.ngettext()', {testIsolation: false}, function () {
       it('should be a shortcut for ckan.i18n.ngettext', function () {
         /*
          * In a module, this.ngettext is a shortcut for ckan.i18n.ngettext,
@@ -489,7 +489,7 @@ describe('ckan.module(id, properties|callback)', function () {
       });
     });
 
-    describe('.remove()', function () {
+    describe('.remove()', {testIsolation: false}, function () {
       it('should teardown the module', function () {
         var target = cy.stub(this.module, 'teardown');
 

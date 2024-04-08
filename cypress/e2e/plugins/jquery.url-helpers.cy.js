@@ -1,9 +1,9 @@
-describe('jQuery.url', function () {
+describe('jQuery.url', {testIsolation: false}, function () {
   before(function () {
     cy.visit('/')
   });
 
-  describe('.escape()', function () {
+  describe('.escape()', {testIsolation: false}, function () {
     it('should escape special characters', function () {
       cy.window().then(win => {
         let target = win.jQuery.url.escape('&<>=?#/');
@@ -19,7 +19,7 @@ describe('jQuery.url', function () {
     });
   });
 
-  describe('.slugify()', function () {
+  describe('.slugify()', {testIsolation: false}, function () {
     it('should replace spaces with hyphens', function () {
       cy.window().then(win => {
         let target = win.jQuery.url.slugify('apples and pears');

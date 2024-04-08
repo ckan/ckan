@@ -1,4 +1,4 @@
-describe('ckan.sandbox()', function () {
+describe('ckan.sandbox()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
   });
@@ -19,7 +19,7 @@ describe('ckan.sandbox()', function () {
     })
   });
 
-  describe('Sandbox()', function () {
+  describe('Sandbox()', {testIsolation: false}, function () {
     it('should call each callback provided with itself', function () {
       cy.window().then(win => {
         let callbacks = [cy.spy(), cy.spy(), cy.spy()];
@@ -32,7 +32,7 @@ describe('ckan.sandbox()', function () {
       })
     });
 
-    describe('.ajax()', function () {
+    describe('.ajax()', {testIsolation: false}, function () {
       it('should be an alias for the jQuery.ajax() method', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -41,7 +41,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.jQuery()', function () {
+    describe('.jQuery()', {testIsolation: false}, function () {
       it('should be a reference to jQuery', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -50,7 +50,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.body', function () {
+    describe('.body', {testIsolation: false}, function () {
       it('should be a jQuery wrapped body object', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -60,7 +60,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.location', function () {
+    describe('.location', {testIsolation: false}, function () {
       it('should be a reference to window.location', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -69,7 +69,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.window', function () {
+    describe('.window', {testIsolation: false}, function () {
       it('should be a reference to window', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -78,7 +78,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.i18n', function () {
+    describe('.i18n', {testIsolation: false}, function () {
       it('should be available while being deprecated', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -87,7 +87,7 @@ describe('ckan.sandbox()', function () {
       });
     });
 
-    describe('.translate', function () {
+    describe('.translate', {testIsolation: false}, function () {
       it('should be available while being deprecated', function () {
         cy.window().then(win => {
           let target = new win.ckan.sandbox.Sandbox();
@@ -97,7 +97,7 @@ describe('ckan.sandbox()', function () {
     });
   });
 
-  describe('sandbox.extend()', function () {
+  describe('sandbox.extend()', {testIsolation: false}, function () {
     it('should extend the Sandbox.prototype with properties', function () {
       cy.window().then(win => {
         let method = cy.spy();
@@ -109,7 +109,7 @@ describe('ckan.sandbox()', function () {
     });
   });
 
-  describe('sandbox.setup()', function () {
+  describe('sandbox.setup()', {testIsolation: false}, function () {
     it('should register a function to be called when the sandbox is initialized', function () {
       cy.window().then(win => {
         let target = cy.spy();

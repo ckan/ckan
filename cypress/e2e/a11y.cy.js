@@ -18,7 +18,7 @@ function terminalLog(violations) {
   cy.task('table', violationData)
 }
 
-describe("Runs a11y check on pages.", () => {
+describe("Runs a11y check on pages.", {testIsolation: false}, () => {
 
   it('Has no a11y violations on front page.', () => {
     cy.visit('/');

@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('ckan.modules.ResourceFormModule()', function () {
+describe('ckan.modules.ResourceFormModule()', {testIsolation: false}, function () {
   before(() => {
     cy.visit('/');
     cy.window().then(win => {
@@ -16,7 +16,7 @@ describe('ckan.modules.ResourceFormModule()', function () {
   });
 
 
-  describe('.initialize()', function () {
+  describe('.initialize()', {testIsolation: false}, function () {
     it('should subscribe to the "resource:uploaded" event', function () {
       let target = cy.stub(this.sandbox, 'subscribe');
 
@@ -29,7 +29,7 @@ describe('ckan.modules.ResourceFormModule()', function () {
     });
   });
 
-  describe('.teardown()', function () {
+  describe('.teardown()', {testIsolation: false}, function () {
     it('should unsubscribe from the "resource:uploaded" event', function () {
       let target = cy.stub(this.sandbox, 'unsubscribe');
 
@@ -42,7 +42,7 @@ describe('ckan.modules.ResourceFormModule()', function () {
     });
   });
 
-  describe('._onResourceUploaded()', function () {
+  describe('._onResourceUploaded()', {testIsolation: false}, function () {
     beforeEach(function () {
       this.module.el.html([
         '<input type="text" name="text" />',

@@ -1,5 +1,5 @@
 /*globals describe beforeEach afterEach it assert sinon ckan jQuery */
-describe('jQuery.inherit()', function () {
+describe('jQuery.inherit()', {testIsolation: false}, function () {
   before(function(){
     cy.visit('/');
   });

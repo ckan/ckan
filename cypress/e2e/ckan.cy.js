@@ -1,5 +1,5 @@
 
-describe('ckan.initialize()', function () {
+describe('ckan.initialize()', {testIsolation: false} ,function () {
   before(() => {
     cy.visit('/');
   });
@@ -52,7 +52,7 @@ describe('ckan.initialize()', function () {
   });
 });
 
-describe('ckan.url()', function () {
+describe('ckan.url()', {testIsolation: false}, function () {
   beforeEach(function () {
     cy.window().then(win => {
       win.ckan.SITE_ROOT = 'http://example.com';

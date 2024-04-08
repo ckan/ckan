@@ -1,4 +1,4 @@
-describe('jQuery.incompleteFormWarning()', function () {
+describe('jQuery.incompleteFormWarning()', {testIsolation: false}, function () {
   before(function() {
     cy.visit('/');
     cy.window().then(win => {
