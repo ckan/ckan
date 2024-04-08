@@ -419,7 +419,7 @@ class TestDatastoreCreate(object):
 
         data = {
             "resource_id": resource.id,
-            "aliases": u"fo%25bar",  # alias with percent
+            "aliases": u"fo%25bar",  # alias with percent # codespell-ignore
             "fields": [
                 {"id": "book", "type": "text"},
                 {"id": "author", "type": "text"},

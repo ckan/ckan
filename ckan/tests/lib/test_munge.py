@@ -99,7 +99,7 @@ def test_munge_name_pass(original, expected):
         ("s", "s_"),  # too short
         ("random:other%character&", "random-othercharacter"),
         (u"u with umlaut \xfc", "u-with-umlaut-u"),
-        ("reallylong" * 12, "reallylong" * 9 + "reall"),
+        ("reallylong" * 12, "reallylong" * 9 + "reall"),  # codespell-ignore
         ("reallylong" * 12 + " - 2012", "reallylong" * 9 + "-2012"),
         (
             "10cm - 50cm Near InfraRed (NI) Digital Aerial Photography (AfA142)",
