@@ -149,3 +149,11 @@ module = [
     "webassets.*",
     "zope.*",
 ]
+
+[tool.codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+skip = '.git*,*.svg,package-lock.json,*.css,*.min.*,i18n,vendor,*_stop*.txt'
+check-hidden = true
+ignore-regex = '^.{120,}|\b(SER|GET)\b'
+# ignore uptodate since used as a function name
+ignore-words-list = 'nd,uptodate,'
