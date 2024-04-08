@@ -10220,6 +10220,9 @@ a.tag:hover {
 .module-content .add-to-group .btn-primary {
   margin-bottom: 1.5rem;
 }
+.module-content p a:link {
+  text-decoration: underline;
+}
 
 .module:first-child .module-heading {
   border-radius: 3px 0 0 0;
