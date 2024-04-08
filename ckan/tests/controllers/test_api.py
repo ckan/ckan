@@ -224,7 +224,7 @@ class TestApiController(object):
         url = url_for("api.organization_autocomplete", ver=2)
 
         response = app.get(
-            url=url, query_string={"q": u"simple dum"}, status=200
+            url=url, query_string={"q": u"simple dum"}, status=200  # codespell-ignore
         )
 
         results = json.loads(response.body)
