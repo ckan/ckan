@@ -152,9 +152,9 @@ module = [
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = '.git*,*.svg,package-lock.json,*.css,*.min.*,i18n,vendor,*_stop*.txt'
+skip = '.git*,*.svg,package-lock.json,*.css,*.min.*,i18n,vendor,*_stop*.txt,*.egg-info'
 check-hidden = true
 # codespell-ignore for inline skip pragma
 ignore-regex = '^.{120,}|\b(SER|GET)\b|.*codespell-ignore.*'
 # ignore uptodate since used as a function name
-ignore-words-list = 'nd,uptodate,'
+ignore-words-list = 'nd,uptodate,grup,grups'
