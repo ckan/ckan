@@ -376,6 +376,10 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
         }
+        // (canada fork only): double escape periods for just the data key
+        //                     Generally, this is bad, as periods are used to parse nested data returned
+        //                     from the datasource. But as our datasource is the CKAN datastore, this should be fine.
+        colDict.data = colDict.data.replace('.', '\\.');
         dynamicCols.push(colDict)
       })
 
