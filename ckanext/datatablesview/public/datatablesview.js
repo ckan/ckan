@@ -376,6 +376,10 @@ this.ckan.module('datatables_view', function (jQuery) {
               }
             }
         }
+        // (canada fork only): double escape periods for just the data key
+        //                     Generally, this is bad, as periods are used to parse nested data returned
+        //                     from the datasource. But as our datasource is the CKAN datastore, this should be fine.
+        colDict.data = colDict.data.replace('.', '\\.');
         dynamicCols.push(colDict)
       })
 
@@ -454,7 +458,7 @@ this.ckan.module('datatables_view', function (jQuery) {
         const colname = thecol.textContent
         const colid = 'dtcol-' + validateId(colname) + '-' + i
         const coltype = $(thecol).data('type')
-        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''  
+        const placeholderText = formatdateflag && coltype.substr(0, 9) === 'timestamp' ? ' placeholder="yyyy-mm-dd"' : ''
         $('<input id="' + colid + '" name="' + colid + '" autosave="' + colid + '"' +
                 placeholderText +
                 ' class="fhead form-control input-sm" type="search" results="10" autocomplete="on" style="width:100%"/>')
