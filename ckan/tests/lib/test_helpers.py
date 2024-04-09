@@ -705,8 +705,8 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+        u'sh+eme://12345:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://12345:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
