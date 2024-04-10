@@ -705,8 +705,11 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://12345:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://12345:12345/a/path?a=b&c=d'
+        u'sh+eme://host:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://host:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
