@@ -578,16 +578,11 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
     site_id = config.get('ckan.site_id')
     contextual_user_name = context.get('user')
 
-    if not contextual_user:
-        # auth_user_obj has not been set, try to get it from user context
+    if not contextual_user and contextual_user_name:
         contextual_user = context['model'].User.get(contextual_user_name)
 
-        if contextual_user:
-            contextual_user_name = contextual_user.name
-        elif not context.get('ignore_auth'):
-            # using a fake user and not ignoring auth, silently fail here
-            data.pop(key)
-            return
+    if not contextual_user:
+        return
 
     # system user should be able to do anything still
     if contextual_user_name == site_id:
