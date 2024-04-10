@@ -571,7 +571,6 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
 
     if value is None:
         # sysadmin key not in data, return here
-        data.pop(key, None)
         return
 
     contextual_user = context.get('auth_user_obj')
@@ -582,6 +581,8 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
         contextual_user = context['model'].User.get(contextual_user_name)
 
     if not contextual_user:
+        # no auth user supplied, fail here
+        errors[key].append(_('Unauthorized to modify sysadmin privileges'))
         return
 
     # system user should be able to do anything still
@@ -591,8 +592,8 @@ def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
     user = context.get('user_obj')
 
     if not user:
-        # user_obj not set, silently fail here
-        data.pop(key)
+        # user_obj not set, fail here
+        errors[key].append(_('Cannot modify sysadmin privileges for non-existent user'))
         return
 
     # sysadmin not being updated, return here

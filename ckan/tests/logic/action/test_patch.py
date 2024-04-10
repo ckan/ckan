@@ -8,6 +8,7 @@ from ckan.tests import helpers, factories
 from ckan.logic.action.get import package_show as core_package_show
 from ckan.logic import ValidationError
 from ckan.plugins.toolkit import config
+from ckan import model
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -239,6 +240,7 @@ class TestPatch(object):
     def test_user_patch_sysadmin(self):
 
         sysadmin = factories.Sysadmin()
+        user = factories.User()
 
         # cannot change your own sysadmin privs
         with pytest.raises(ValidationError):
@@ -258,3 +260,17 @@ class TestPatch(object):
                 sysadmin=False,
                 context={"user": sysadmin["name"]},
             )
+
+        assert not user.sysadmin
+
+        helpers.call_action(
+                "user_patch",
+                id=user["id"],
+                sysadmin=True,
+                context={"user": sysadmin["name"]},
+            )
+
+        # user dicts do not have sysadmin key, get from db
+        new_sysadmin = model.User.get(user["id"])
+
+        assert new_sysadmin.sysadmin == True
