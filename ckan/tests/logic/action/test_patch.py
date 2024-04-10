@@ -273,4 +273,4 @@ class TestPatch(object):
         # user dicts do not have sysadmin key, get from db
         new_sysadmin = model.User.get(user["id"])
 
-        assert new_sysadmin.sysadmin == True
+        assert new_sysadmin.sysadmin is True
