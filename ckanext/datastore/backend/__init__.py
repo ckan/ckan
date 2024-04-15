@@ -173,7 +173,7 @@ class DatastoreBackend:
         """Advanced search.
 
         Called by `datastore_search_sql`.
-        :param sql: a single seach statement
+        :param sql: a single search statement
         :type sql: string
 
         :rtype: dictionary

@@ -83,7 +83,7 @@ class Flag(enum.Flag):
     reserved_*(01-10): these flags are added for extension developers. CKAN
     doesn't treat them specially, neither includes them in groups, like
     `not_safe`/`not_iterable`. These flags are completely ignored by CKAN. If
-    your extension enchances the behavior of config options using some sort of
+    your extension enhances the behavior of config options using some sort of
     boolean flags - use reserved markers. Always rely on a config option that
     controls, which reserved marker to use, in order to avoid conflicts with
     other extensions. Example:
@@ -389,7 +389,7 @@ def _validators_from_string(s: str) -> list[Validator]:
             try:
                 parsed_args = ast.literal_eval(args)
                 if not isinstance(parsed_args, tuple) or not parsed_args:
-                    # it's a signle argument. `not parsed_args` means that this
+                    # it's a single argument. `not parsed_args` means that this
                     # single argument is an empty tuple,
                     # for example: "default(())"
 

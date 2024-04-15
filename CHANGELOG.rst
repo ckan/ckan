@@ -615,7 +615,7 @@ Migration notes
   <https://github.com/ckan/ckan/pull/7210>`_)
 - User and group/org image upload formats have been restricted by default (`#7210
   <https://github.com/ckan/ckan/pull/7210>`_)
-- The activites feature has been extracted into a separate ``activity`` plugin.
+- The activities feature has been extracted into a separate ``activity`` plugin.
   To keep showing the activities in the UI and enable the activity related API
   actions you need to add the ``activity`` plugin to the :ref:`ckan.plugins` config
   option. This change doesn't affect activities already stored in the DB. They are still
@@ -1298,7 +1298,7 @@ Minor changes
   <https://github.com/ckan/ckan/pull/4781>`_)
 - Create recline_view on ods files by default (`#4936
   <https://github.com/ckan/ckan/pull/4936>`_)
-- Replase nosetests with pytest (`#4996
+- Replace nosetests with pytest (`#4996
   <https://github.com/ckan/ckan/pull/4996>`_)
 - Make creating new tags in autocomplete module optional (`#5012
   <https://github.com/ckan/ckan/pull/5012>`_)

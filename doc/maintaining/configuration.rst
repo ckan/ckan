@@ -65,7 +65,7 @@ features and providing new ones, which means that some new config options may be
 introduced, while other options no longer have any effect. In
 order to keep track of all valid config options, CKAN uses config declarations.
 
-CKAN itself declares all the config options that are used throught the
+CKAN itself declares all the config options that are used throughout the
 code base (You can see the core config declarations in
 the ``ckan/config/config_declaration.yaml`` file). This allows to validate the
 current configuration against the declaration, or check which config
@@ -422,7 +422,7 @@ file settings, for reference.
         # This setting will work.
         ckan.plugins = stats text_view datatables_view
 
-   If the same option is set more than once in your config file, exeption will
+   If the same option is set more than once in your config file, exception will
    be raised and CKAN application will not start
 
 

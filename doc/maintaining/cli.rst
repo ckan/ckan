@@ -315,7 +315,7 @@ Usage
 
 .. parsed-literal::
 
- ckan datapusher resubmit    - Resubmit udated datastore resources
+ ckan datapusher resubmit    - Resubmit updated datastore resources
  ckan datapusher submit      - Submits resources from package
 
 

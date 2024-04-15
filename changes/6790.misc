@@ -1,4 +1,4 @@
-Activites extracted into `activity` plugin. As result, activity tabs from the
+Activities extracted into `activity` plugin. As result, activity tabs from the
 dataset, group, organization and user sections are not shown by default; new
 activities are not recorded; all the API actions related to activity are not
 available.

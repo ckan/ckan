@@ -2845,7 +2845,7 @@ def followee_list(
     :type id: string
 
     :param q: a query string to limit results by, only objects whose display
-        name begins with the given string (case-insensitive) wil be returned
+        name begins with the given string (case-insensitive) will be returned
         (optional)
     :type q: string
 

@@ -657,7 +657,7 @@ this.ckan.module('datatables_view', function (jQuery) {
 
           const url = new URL(window.location.href)
           const state = url.searchParams.get('state')
-          // if there is a state url parm, its a deeplink share
+          // if there is a state url param, its a deeplink share
           if (state) {
             // we need to reload to get the deeplink active
             // to init localstorage
