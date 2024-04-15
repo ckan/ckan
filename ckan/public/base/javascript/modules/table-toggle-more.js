@@ -28,14 +28,14 @@ this.ckan.module('table-toggle-more', function($) {
           '</td>',
           '</tr>'
         ].join('\n');
-        var template_seperator = [
-          '<tr class="toggle-seperator">',
+        var template_separator = [
+          '<tr class="toggle-separator">',
           '<td colspan="'+cols+'">',
           '</td>',
           '</tr>'
         ].join('\n');
 
-       var separator = $(template_seperator).insertAfter($('.toggle-more:last-child', this.el));
+       var separator = $(template_separator).insertAfter($('.toggle-more:last-child', this.el));
         $(template_more).insertAfter(separator);
 
         $('.show-more', this.el).on('click', this._onShowMore);

@@ -43,12 +43,12 @@
         .show-less {
             display: none;
         }
-        .toggle-seperator {
+        .toggle-separator {
             display: table-row;
             td {
                 height: 11px;
                 padding: 0;
-                background-image: url("#{$imagePath}/table-seperator.png");
+                background-image: url("#{$imagePath}/table-separator.png");
             }
         }
     }
@@ -63,7 +63,7 @@
         .show-more {
             display: none;
         }
-        .toggle-seperator {
+        .toggle-separator {
             display: none;
         }
     }

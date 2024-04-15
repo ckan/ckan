@@ -13642,13 +13642,13 @@ td.diff_header {
 .js .table-toggle-more .show-less {
   display: none;
 }
-.js .table-toggle-more .toggle-seperator {
+.js .table-toggle-more .toggle-separator {
   display: table-row;
 }
-.js .table-toggle-more .toggle-seperator td {
+.js .table-toggle-more .toggle-separator td {
   height: 11px;
   padding: 0;
-  background-image: url("../../../base/images/table-seperator.png");
+  background-image: url("../../../base/images/table-separator.png");
 }
 .js .table .toggle-show td {
   background: none;
@@ -13660,7 +13660,7 @@ td.diff_header {
 .js .table-toggle-less .show-more {
   display: none;
 }
-.js .table-toggle-less .toggle-seperator {
+.js .table-toggle-less .toggle-separator {
   display: none;
 }
 
