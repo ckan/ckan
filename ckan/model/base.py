@@ -176,7 +176,7 @@ class DictMixin:
     def as_dict(self) -> dict[str, Any]:
         """
         returns: ordered dict with fields from table. Date/time values
-        are converted to strings for json compatibilty
+        are converted to strings for json compatibility
         """
         _dict: dict[str, Any] = OrderedDict()
         table: Any = orm.class_mapper(self.__class__).persist_selectable

@@ -164,7 +164,7 @@ only for explanation and you don't need them in the real file::
           # CKAN documentation, thus has no value for extensions.
           example: some-valid-value
 
-          # an explanation of the effect that option has. Don't hesistate to
+          # an explanation of the effect that option has. Don't hesitate to
           # put as much details here as possible
           description: |
               Nullam eu ante vel est convallis dignissim.  Fusce suscipit, wisi
@@ -172,12 +172,12 @@ only for explanation and you don't need them in the real file::
               ligula erat quis odio.  Nunc porta vulputate tellus.  Nunc rutrum
               turpis sed pede.  Sed bibendum.  Aliquam posuere.  Nunc aliquet,
               augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-              varius mi purus non odio.  Pellentesque condimentum, magna ut
+              various mi purus non odio.  Pellentesque condimentum, magna ut
               suscipit hendrerit, ipsum augue ornare nulla, non luctus diam
               neque sit amet urna.  Curabitur vulputate vestibulum lorem.
               Fusce sagittis, libero non molestie mollis, magna orci ultrices
               dolor, at vulputate neque nulla lacinia eros.  Sed id ligula quis
-              est convallis tempor.  Curabitur lacinia pulvinar nibh.  Nam a
+              est convallis tempor.  Curabitur lacinia pulvinar nibh.  Name a
               sapien.
 
           # a space-separated list of validators, applied to the value of option.
@@ -198,7 +198,7 @@ only for explanation and you don't need them in the real file::
 
           # boolean flag that marks config option as ignored. Can be used for options that are set
           # programmatically. This flag means that there is no sense in setting this option, because
-          # it will be overriden or won't be used at all.
+          # it will be overridden or won't be used at all.
           ignored: true
 
           # boolean flag that marks config option as hidden. Used for options that should not be set

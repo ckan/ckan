@@ -112,7 +112,7 @@ class PluginImplementations(ExtensionPoint, Generic[TInterface]):
                 plugin_lookup.pop(pc)
 
         if plugin_lookup:
-            # Any oustanding plugin not in the ini file (ie system ones),
+            # Any outstanding plugin not in the ini file (ie system ones),
             # add to the end of the iterator
             ordered_plugins.extend(plugin_lookup.values())
 
@@ -200,7 +200,7 @@ def plugins_update() -> None:
     to run any specific code to ensure that the new plugin setting are
     correctly setup '''
 
-    # It is posible for extra SingletonPlugin extensions to be activated if
+    # It is possible for extra SingletonPlugin extensions to be activated if
     # the file containing them is imported, for example if two or more
     # extensions are defined in the same file.  Therefore we do a sanity
     # check and disable any that should not be active.

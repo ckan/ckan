@@ -120,7 +120,7 @@ class Declaration:
         self._seal()
 
     def make_safe(self, config: "CKANConfig"):
-        """Load defaul values for missing options.
+        """Load default values for missing options.
         """
 
         for key in self.iter_options(exclude=Flag.not_safe()):

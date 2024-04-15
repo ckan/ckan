@@ -41,7 +41,7 @@ def localised_nice_date(datetime_: datetime.datetime,
     :type format: str
 
 
-    :rtype: sting
+    :rtype: string
     '''
     if datetime_.tzinfo is None:
         datetime_ = datetime_.replace(tzinfo=pytz.utc)

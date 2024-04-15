@@ -219,7 +219,7 @@ def _get_request_data(try_url_params: bool = False):
 def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
     u'''Main endpoint for the action API (v3)
 
-    Creates a dict with the incoming request data and calls the appropiate
+    Creates a dict with the incoming request data and calls the appropriate
     logic function. Returns a JSON response with the following keys:
 
         * ``help``: A URL to the docstring for the specified action
@@ -460,7 +460,7 @@ def snippet(snippet_path: str, ver: int = API_REST_DEFAULT_VERSION) -> str:
     '''
     snippet_path = u'ajax_snippets/' + snippet_path
     # werkzeug.datastructures.ImmutableMultiDict.to_dict
-    # by default returns flattened dict with first occurences of each key.
+    # by default returns flattened dict with first occurrences of each key.
     # For retrieving multiple values per key, use named argument `flat`
     # set to `False`
     extra_vars = request.args.to_dict()

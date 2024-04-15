@@ -178,7 +178,7 @@ def clean(ctx: click.Context, yes: bool):
 
 def _get_view_plugins(view_plugin_types: list[str],
                       get_datastore_views: bool = False):
-    """Returns the view plugins that were succesfully loaded
+    """Returns the view plugins that were successfully loaded
 
     Views are provided as a list of ``view_plugin_types``. If no types
     are provided, the default views defined in the

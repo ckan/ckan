@@ -62,7 +62,7 @@ class DatastoreBackend:
     'example-sqlite:////tmp/database-name-on-your-choice'
 
     :prop _backend: mapping(schema, class) of all registered backends
-    :type _backend: dictonary
+    :type _backend: dictionary
     :prop _active_backend: current active backend
     :type _active_backend: DatastoreBackend
     """
@@ -119,7 +119,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_create`
         :returns: The newly created data object
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -130,7 +130,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_upsert`
         :returns: The modified data object
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -141,7 +141,7 @@ class DatastoreBackend:
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_delete`
         :returns: Original filters sent.
-        :rtype: dictonary
+        :rtype: dictionary
         """
         raise NotImplementedError()
 
@@ -151,7 +151,7 @@ class DatastoreBackend:
         Called by `datastore_search`.
 
         :param data_dict: See `ckanext.datastore.logic.action.datastore_search`
-        :rtype: dictonary with following keys
+        :rtype: dictionary with following keys
 
         :param fields: fields/columns and their extra metadata
         :type fields: list of dictionaries
@@ -176,7 +176,7 @@ class DatastoreBackend:
         :param sql: a single seach statement
         :type sql: string
 
-        :rtype: dictonary
+        :rtype: dictionary
         :param fields: fields/columns and their extra metadata
         :type fields: list of dictionaries
         :param records: list of matching results
@@ -190,7 +190,7 @@ class DatastoreBackend:
         raise NotImplementedError()
 
     def resource_fields(self, id: str) -> Any:
-        """Return dictonary with resource description.
+        """Return dictionary with resource description.
 
         Called by `datastore_info`.
         :returns: A dictionary describing the columns and their types.

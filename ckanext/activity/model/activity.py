@@ -406,7 +406,7 @@ def _group_activity_query(group_id: str) -> QActivity:
         .filter(
             # We only care about activity either on the group itself or on
             # packages within that group.  FIXME: This means that activity that
-            # occured while a package belonged to a group but was then removed
+            # occurred while a package belonged to a group but was then removed
             # will not show up. This may not be desired but is consistent with
             # legacy behaviour.
             or_(
@@ -457,7 +457,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
         .filter(
             # We only care about activity either on the the org itself or on
             # packages within that org.
-            # FIXME: This means that activity that occured while a package
+            # FIXME: This means that activity that occurred while a package
             # belonged to a org but was then removed will not show up. This may
             # not be desired but is consistent with legacy behaviour.
             or_(

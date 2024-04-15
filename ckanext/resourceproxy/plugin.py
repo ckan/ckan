@@ -64,7 +64,7 @@ class ResourceProxy(p.SingletonPlugin):
         proxy_schemes: Container[str] = ('http', 'https')
     ):
         u'''
-        Returns the proxy url if its availiable
+        Returns the proxy url if its available
         '''
         data_dict = {
             u'resource_view': resource_view,

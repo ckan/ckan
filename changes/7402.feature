@@ -1,1 +1,1 @@
-update documenatation for CKAN SHELL command.
+update documentation for CKAN SHELL command.

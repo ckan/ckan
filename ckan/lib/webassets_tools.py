@@ -87,7 +87,7 @@ def register_core_assets():
     """Register CKAN core assets.
 
     Call this function after registration of plugin assets. Asset overrides are
-    not alowed, so if plugin tries to replace CKAN core asset, it has to
+    not allowed, so if plugin tries to replace CKAN core asset, it has to
     register an asset with the same name before core asset is added. In this
     case, asset from plugin will have higher precedence and core asset will be
     ignored.

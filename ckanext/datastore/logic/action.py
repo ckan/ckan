@@ -549,7 +549,7 @@ def datastore_search(context: Context, data_dict: dict[str, Any]):
     :type q: string or dictionary
     :param full_text: full text query. It search on all fields on each row.
                       This should be used in replace of ``q`` when performing
-                      string search accross all fields
+                      string search across all fields
     :type full_text: string
     :param distinct: return only distinct rows (optional, default: false)
     :type distinct: bool

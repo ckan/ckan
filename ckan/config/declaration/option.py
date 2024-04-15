@@ -32,7 +32,7 @@ class Flag(enum.Flag):
 
 
     ignored: this option is ignored by CKAN(not used or unconditionally
-    overriden)
+    overridden)
 
     experimental: this option is not stabilized and can change in
     future. Mainly exist for extension developers, as only stable features are
@@ -61,13 +61,13 @@ class Flag(enum.Flag):
     domain. While it's similar to `placeholder` attribute of the
     :py:class:`~ckan.config.declaration.option.Option`, their goals are
     different.
-    Option.placeholer:
+    Option.placeholder:
     - shows an example of expectend value
     - is ignored when config option is **missing** from the config file
     - shown as a default value in the config file generated from template. For
       example, `Option<key=a, placeholder=b, commented=False>` is added to the
       config file as `a = b`. After this, `config.get('a')` returns `b`,
-      because it's explicitely written in the config file.
+      because it's explicitly written in the config file.
     Flag.commented:
     - Marks option as commented by default
     - Does not changes behavior of `Option.default` and `Option.placeholder`.
@@ -153,7 +153,7 @@ class Annotation(SectionMixin, str):
     """Details that are not attached to any option.
 
     Mainly serves documentation purposes. Can be used for creating section
-    separators or blocks of text with the recomendations, that are not
+    separators or blocks of text with the recommendations, that are not
     connected to any particular option and rather describle the whole section.
 
     """
@@ -223,7 +223,7 @@ class Option(SectionMixin, Generic[T]):
 
         If more sophisticated logic cannot be avoided, consider creating a
         subclass of :py:class:`~ckan.config.declaration.option.Option` with
-        custom `str_value` implemetation and declaring the option using
+        custom `str_value` implementation and declaring the option using
         `declare_option` method of
         :py:class:`~ckan.config.declaration.Declaration`.
 

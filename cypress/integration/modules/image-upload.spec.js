@@ -33,7 +33,7 @@ describe('ckan.modules.ImageUploadModule()', function () {
       assert.equal(this.module.field_name.val(), 'undefined_file');
     });
 
-    it('should ignore url changes if name was manualy changed', function () {
+    it('should ignore url changes if name was manually changed', function () {
       this.module.field_url_input.val('http://example.com/some_image.png');
       this.module._onFromWebBlur();
       assert.equal(this.module.field_name.val(), 'some_image.png');

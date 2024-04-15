@@ -1,2 +1,2 @@
-Plugins randomly change their order during test session and somethimes they
+Plugins randomly change their order during test session and sometimes they
 work even without ``with_plugins`` fixture.

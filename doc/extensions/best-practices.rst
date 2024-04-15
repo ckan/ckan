@@ -65,7 +65,7 @@ available in CKAN for this purpose:
   scripts. If those scripts should be applied independently(i.e.,
   there is no sense in particular migrations, unless specific plugin
   is enabled), ``-p/--plugin`` option gives you enough
-  control. Otherwise, if extenson named `ckanext-ext` contains just
+  control. Otherwise, if extension named `ckanext-ext` contains just
   single plugin `ext`, command for new migration will look like `ckan
   generate migration -p ext`.
 
@@ -73,7 +73,7 @@ available in CKAN for this purpose:
   `EXTENSION_ROOT/ckanext/EXTENSION_NAME/migration/PLUGIN_NAME/versions`. Once
   created, migration script contains empty `upgrade` and `downgrade`
   function, which need to be updated according to desired
-  changes. More details abailable in `Alembic
+  changes. More details available in `Alembic
   <https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script>`_
   documentation.
 

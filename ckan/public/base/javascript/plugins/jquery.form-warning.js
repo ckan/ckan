@@ -4,7 +4,7 @@
    * changes. The notice is only displayed if the user does not submit the
    * form.
    *
-   * message - A message to display to the user (browser support dependant).
+   * message - A message to display to the user (browser support dependent).
    *
    * Examples
    *

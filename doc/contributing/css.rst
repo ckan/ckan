@@ -140,7 +140,7 @@ match the elements (Also you'd probably sprite the image :). ::
       background-image: url(linked-in.png);
     }
 
-Avoid using tag names in selectors as this prevents re-use in other contexts. ::
+Avoid using tag names in selectors as this prevents reuse in other contexts. ::
 
     /* Cannot use this class on an <ol> or <div> element */
     ul.dataset-item {}

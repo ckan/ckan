@@ -99,7 +99,7 @@ You can also give the job a title which can be useful for identifying it when
 
     jobs.enqueue(log_job, [u'My log message'], title=u'My log job')
 
-A timeout can also be set on a job iwth the ``timeout`` keyword argument::
+A timeout can also be set on a job with the ``timeout`` keyword argument::
 
     jobs.enqueue(log_job, [u'My log message'], rq_kwargs={"timeout": 3600})
 

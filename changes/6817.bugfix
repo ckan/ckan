@@ -1,5 +1,5 @@
 Fix theme settings. Options which were used to specify a CSS file
-with a base theme are replaced. Use altenatives below in order
+with a base theme are replaced. Use alternatives below in order
 to specify **asset** with a base theme for application:
 
 * `ckan.main_css` replaced by `ckan.theme`

@@ -43,7 +43,7 @@ filterwarnings = [
 ]
 markers = [
     "ckan_config: patch configuration used by other fixtures via (key, value) pair.",
-    "ckan_pytest: test case that is explicitely was rewriten from `nose` style"
+    "ckan_pytest: test case that is explicitly was rewritten from `nose` style"
 ]
 
 testpaths = ["ckan", "ckanext"]

@@ -229,7 +229,7 @@ Turn this file into a github issue with a checklist using this command::
         git commit -am "Update strings files before CKAN X.Y.Z call for translations"
         git push
 
-#. Send an annoucement email with a call for translations.
+#. Send an announcement email with a call for translations.
 
    Send an email to the ckan-dev list, tweet from @CKANproject and send a
    transifex announcement from: https://www.transifex.com/okfn/ckan/announcements/

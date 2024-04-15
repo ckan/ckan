@@ -2,7 +2,7 @@ this.ckan.module('confirm-action', function (jQuery) {
   return {
     /* An object of module options */
     options: {
-      /* Content can be overriden by setting data-module-content to a
+      /* Content can be overridden by setting data-module-content to a
        * *translated* string inside the template, e.g.
        *
        *     <a href="..."

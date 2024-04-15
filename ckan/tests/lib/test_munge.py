@@ -124,7 +124,7 @@ def test_munge_title_to_name(original, expected):
     ],
 )
 def test_munge_tag_multiple_pass(original, expected):
-    """Munge a list of tags muliple times gives expected results."""
+    """Munge a list of tags multiple times gives expected results."""
 
     first_munge = munge_tag(original)
     assert first_munge == expected

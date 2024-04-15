@@ -11,16 +11,16 @@ import ckan.plugins.toolkit as tk
 import ckan.model as model
 from ckan.views.group import (
     set_org,
-    # TODO: don't use hidden funcitons
+    # TODO: don't use hidden functions
     _get_group_dict,
     _get_group_template,
     _replace_group_org,
 )
 
-# TODO: don't use hidden funcitons
+# TODO: don't use hidden functions
 from ckan.views.user import _extra_template_variables
 
-# TODO: don't use hidden funcitons
+# TODO: don't use hidden functions
 from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response

@@ -35,8 +35,8 @@ this.ckan.module('table-toggle-more', function($) {
           '</tr>'
         ].join('\n');
 
-       var seperator = $(template_seperator).insertAfter($('.toggle-more:last-child', this.el));
-        $(template_more).insertAfter(seperator);
+       var separator = $(template_seperator).insertAfter($('.toggle-more:last-child', this.el));
+        $(template_more).insertAfter(separator);
 
         $('.show-more', this.el).on('click', this._onShowMore);
         $('.show-less', this.el).on('click', this._onShowLess);

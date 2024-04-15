@@ -41,7 +41,7 @@ describe('jQuery.url', function () {
       });
     });
 
-    it('should nomalise hyphens', function () {
+    it('should normalise hyphens', function () {
       cy.window().then(win => {
         let target = win.jQuery.url.slugify('apples---pears');
         assert.equal(target, 'apples-pears', 'remove duplicate hyphens');

@@ -384,7 +384,7 @@ def with_plugins(ckan_config):
             ...
 
     This will automatically enable ``with_plugins`` for every test, even if
-    it's not required explicitely.
+    it's not required explicitly.
 
     """
     ckan.plugins.load_all()
@@ -474,7 +474,7 @@ def non_clean_db(reset_db_once):
 
 class FakeFileStorage(FlaskFileStorage):
     def __init__(self, stream: IO[bytes], filename: str):
-        super(FakeFileStorage, self).__init__(stream, filename, "uplod")
+        super(FakeFileStorage, self).__init__(stream, filename, "upload")
 
 
 @pytest.fixture
