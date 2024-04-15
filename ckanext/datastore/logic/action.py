@@ -248,8 +248,13 @@ def datastore_run_triggers(context, data_dict):
     '''
     res_id = data_dict['resource_id']
     p.toolkit.check_access('datastore_run_triggers', context, data_dict)
-    backend = DatastoreBackend.get_active_backend()
-    connection = backend._get_write_engine().connect()
+
+    # (canada fork only): use contextual connection so that the temp
+    #                     ds user table persists in the connection.
+    connection = context.get('connection', None)
+    if not connection:
+        backend = DatastoreBackend.get_active_backend()
+        connection = backend._get_write_engine().connect()
 
     sql = sqlalchemy.text(u'''update {0} set _id=_id '''.format(
                           identifier(res_id)))
