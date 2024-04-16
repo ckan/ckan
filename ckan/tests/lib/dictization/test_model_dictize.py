@@ -121,6 +121,24 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["tags"][0]["name"] == tag.name
 
+    def test_group_list_dictize_with_capacity(self):
+        """ Test that "group_list_dictize" will return the user capacity
+            for a the group """
+        capacity = 'editor'
+        group = factories.Group.model()
+        user_member = factories.User()
+        member = model.Member(
+            group=group, table_id=user_member.id, capacity=capacity
+        )
+        model.Session.add(member)
+        model.Session.commit()
+        context = {"model": model, "session": model.Session}
+        context['with_capacity'] = True
+        group_dicts = model_dictize.group_list_dictize([group], context)
+        grp = group_dicts[0]
+        assert grp['id'] == group.id
+        assert grp['capacity'] == capacity
+
     @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
         parent = factories.Group(title="Parent")
