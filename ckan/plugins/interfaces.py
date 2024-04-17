@@ -2208,3 +2208,66 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IUserForm(Interface):
+    '''
+    Allows customisation of the user form and its underlying schema.
+    '''
+
+    def is_fallback(self) -> bool:
+        '''
+        Returns true if this provides the fallback behaviour, when no other
+        plugin instance matches a user's type.
+
+        '''
+        return False
+
+    def new_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the 'new' page. Uses the default_user_type configuration
+        option to determine which plugin to use the template from.
+
+        '''
+        return ''
+
+    def read_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page
+
+        '''
+        return ''
+
+    def edit_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+
+        '''
+        return ''
+
+    def user_create_schema(self) -> Schema:
+        '''
+        Returns the schema for mapping user data from a form to a format
+        suitable for the database.
+
+        '''
+        return {}
+
+    def user_update_schema(self) -> Schema:
+        '''
+        Returns the schema for mapping user data from a form to a format
+        suitable for the database.
+
+        '''
+        return {}
+
+    def user_show_schema(self) -> Schema:
+        '''
+        Returns the schema for mapping user data from a form to a format
+        suitable for the database.
+
+        '''
+        return {}
