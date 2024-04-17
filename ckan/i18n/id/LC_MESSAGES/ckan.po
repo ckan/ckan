@@ -1,24 +1,24 @@
 # Translations template for ckan.
-# Copyright (C) 2022 ORGANIZATION
+# Copyright (C) 2023 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 # 
 # Translators:
-# Adrià Mercader <adria.mercader@okfn.org>, 2022
+# Adrià Mercader <amercadero@gmail.com>, 2022
 # 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.10.0b0\n"
+"Project-Id-Version: ckan 2.10.2b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-16 11:30+0100\n"
+"POT-Creation-Date: 2023-11-30 16:00+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>, 2022\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2022\n"
 "Language-Team: Indonesian (https://app.transifex.com/okfn/teams/11162/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 "Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -106,102 +106,97 @@ msgstr ""
 msgid "{y}Y"
 msgstr ""
 
-#: ckan/lib/helpers.py:1058
+#: ckan/lib/helpers.py:1061
 msgid "Add {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1059 ckan/lib/helpers.py:1060 ckan/lib/helpers.py:1068
-#: ckan/lib/helpers.py:1070 ckan/lib/helpers.py:1081
+#: ckan/lib/helpers.py:1062 ckan/lib/helpers.py:1063 ckan/lib/helpers.py:1071
+#: ckan/lib/helpers.py:1073 ckan/lib/helpers.py:1084
 msgid "{object_type}s"
 msgstr ""
 
-#: ckan/lib/helpers.py:1061 ckan/lib/helpers.py:1062
+#: ckan/lib/helpers.py:1064 ckan/lib/helpers.py:1065
 msgid "Create {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1063
+#: ckan/lib/helpers.py:1066
 msgid "Are you sure you want to delete this {object_type}?"
 msgstr ""
 
-#: ckan/lib/helpers.py:1065
+#: ckan/lib/helpers.py:1068
 msgid "A little information about my {object_type}..."
 msgstr ""
 
-#: ckan/lib/helpers.py:1067
+#: ckan/lib/helpers.py:1070
 msgid "Edit {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1069
+#: ckan/lib/helpers.py:1072
 msgid "{object_type} Form"
 msgstr ""
 
-#: ckan/lib/helpers.py:1071
+#: ckan/lib/helpers.py:1074
 msgid "My {object_type}s"
 msgstr ""
 
-#: ckan/lib/helpers.py:1072
+#: ckan/lib/helpers.py:1075
 msgid "View {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1073
+#: ckan/lib/helpers.py:1076
 msgid "My {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1074
+#: ckan/lib/helpers.py:1077
 msgid "There are currently no {object_type}s for this site"
 msgstr ""
 
-#: ckan/lib/helpers.py:1076
+#: ckan/lib/helpers.py:1079
 msgid "There are no {object_type}s associated with this dataset"
 msgstr ""
 
-#: ckan/lib/helpers.py:1078
+#: ckan/lib/helpers.py:1081
 msgid "There is no description for this {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1080
+#: ckan/lib/helpers.py:1083
 msgid "No {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1082
+#: ckan/lib/helpers.py:1085
 msgid "Save {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1083
+#: ckan/lib/helpers.py:1086
 msgid "Search {object_type}s..."
 msgstr ""
 
-#: ckan/lib/helpers.py:1084
+#: ckan/lib/helpers.py:1087
 msgid "You are not a member of any {object_type}s."
 msgstr ""
 
-#: ckan/lib/helpers.py:1085
+#: ckan/lib/helpers.py:1088
 msgid "Update {object_type}"
 msgstr ""
 
-#: ckan/lib/helpers.py:1683
+#: ckan/lib/helpers.py:1686
 msgid "Unknown"
 msgstr "Tidak dikenal"
 
-#: ckan/lib/helpers.py:1733
+#: ckan/lib/helpers.py:1736
 #: ckanext/activity/templates/snippets/changes/new_resource.html:10
 msgid "Unnamed resource"
 msgstr ""
 
-#: ckan/lib/helpers.py:1979
+#: ckan/lib/helpers.py:1982
 msgid "{number} view"
 msgid_plural "{number} views"
 msgstr[0] ""
 
-#: ckan/lib/helpers.py:1981
+#: ckan/lib/helpers.py:1984
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
 msgstr[0] ""
-
-#: ckan/lib/mailer.py:67
-#, python-format
-msgid "%s <%s>"
-msgstr "%s <%s>"
 
 #: ckan/lib/mailer.py:207
 msgid "No recipient email address available!"
@@ -225,7 +220,7 @@ msgstr ""
 #: ckan/lib/navl/dictization_functions.py:39 ckan/lib/navl/validators.py:52
 #: ckan/lib/navl/validators.py:76 ckan/lib/navl/validators.py:131
 #: ckan/logic/action/get.py:2112 ckan/logic/action/update.py:265
-#: ckan/logic/action/update.py:475 ckan/logic/validators.py:652
+#: ckan/logic/action/update.py:475 ckan/logic/validators.py:687
 msgid "Missing value"
 msgstr "Nilai hilang"
 
@@ -262,8 +257,8 @@ msgstr "Ekstra"
 
 #: ckan/logic/__init__.py:142
 #: ckan/templates/package/snippets/package_basic_fields.html:26
-#: ckan/templates/snippets/context/dataset.html:17 ckan/views/dataset.py:299
-#: ckan/views/group.py:308 ckan/views/home.py:74
+#: ckan/templates/snippets/context/dataset.html:17 ckan/views/dataset.py:300
+#: ckan/views/group.py:309 ckan/views/home.py:75
 msgid "Tags"
 msgstr "Tag"
 
@@ -273,17 +268,17 @@ msgid "Tag vocabulary \"%s\" does not exist"
 msgstr "Kosakata tag \"%s\" tidak ada"
 
 #: ckan/logic/converters.py:141 ckan/logic/converters.py:168
-#: ckan/logic/converters.py:195 ckan/logic/validators.py:196
-#: ckan/logic/validators.py:221 ckan/logic/validators.py:243
-#: ckan/logic/validators.py:255 ckan/logic/validators.py:269
-#: ckan/logic/validators.py:286 ckan/logic/validators.py:299
-#: ckan/logic/validators.py:768 ckan/views/api.py:297
+#: ckan/logic/converters.py:195 ckan/logic/validators.py:197
+#: ckan/logic/validators.py:247 ckan/logic/validators.py:269
+#: ckan/logic/validators.py:281 ckan/logic/validators.py:304
+#: ckan/logic/validators.py:321 ckan/logic/validators.py:334
+#: ckan/logic/validators.py:815 ckan/views/api.py:305
 #: ckanext/activity/logic/validators.py:28
 msgid "Not found"
 msgstr "Tidak ditemukan"
 
-#: ckan/logic/converters.py:141 ckan/logic/validators.py:269
-#: ckan/logic/validators.py:286 ckan/logic/validators.py:768
+#: ckan/logic/converters.py:141 ckan/logic/validators.py:304
+#: ckan/logic/validators.py:321 ckan/logic/validators.py:815
 #: ckan/templates/admin/index.html:9 ckan/templates/group/members.html:14
 #: ckan/templates/organization/members.html:19
 #: ckan/templates/package/collaborators/collaborators.html:19
@@ -291,15 +286,15 @@ msgstr "Tidak ditemukan"
 msgid "User"
 msgstr "Pengguna"
 
-#: ckan/logic/converters.py:168 ckan/logic/validators.py:196
-#: ckan/logic/validators.py:243 ckan/templates/package/read_base.html:21
+#: ckan/logic/converters.py:168 ckan/logic/validators.py:197
+#: ckan/logic/validators.py:269 ckan/templates/package/read_base.html:21
 #: ckan/tests/config/test_middleware.py:26
 #: ckanext/stats/templates/ckanext/stats/index.html:63
 msgid "Dataset"
 msgstr "Kumpulan data"
 
-#: ckan/logic/converters.py:195 ckan/logic/validators.py:299
-#: ckan/views/group.py:1040
+#: ckan/logic/converters.py:195 ckan/logic/validators.py:334
+#: ckan/views/group.py:1044
 #: ckanext/stats/templates/ckanext/stats/index.html:91
 msgid "Group"
 msgstr "Grup"
@@ -308,157 +303,169 @@ msgstr "Grup"
 msgid "Could not parse as valid JSON"
 msgstr ""
 
-#: ckan/logic/validators.py:50 ckan/logic/validators.py:60
+#: ckan/logic/validators.py:51 ckan/logic/validators.py:61
 msgid "An organization must be provided"
 msgstr ""
 
-#: ckan/logic/validators.py:77
+#: ckan/logic/validators.py:78
 msgid "You cannot move this dataset to another organization"
 msgstr ""
 
-#: ckan/logic/validators.py:81
+#: ckan/logic/validators.py:82
 msgid "Organization does not exist"
 msgstr ""
 
-#: ckan/logic/validators.py:89
+#: ckan/logic/validators.py:90
 msgid "You cannot add a dataset to this organization"
 msgstr ""
 
-#: ckan/logic/validators.py:132
+#: ckan/logic/validators.py:133
 msgid "Invalid integer"
 msgstr "Integer cacat"
 
-#: ckan/logic/validators.py:139
+#: ckan/logic/validators.py:140
 msgid "Must be a natural number"
 msgstr ""
 
-#: ckan/logic/validators.py:147
+#: ckan/logic/validators.py:148
 msgid "Must be a positive integer"
 msgstr ""
 
-#: ckan/logic/validators.py:156
+#: ckan/logic/validators.py:157
 msgid "Must be a float timestamp"
 msgstr ""
 
-#: ckan/logic/validators.py:185
+#: ckan/logic/validators.py:186
 msgid "Date format incorrect"
 msgstr "Format tanggal salah"
 
-#: ckan/logic/validators.py:208
+#: ckan/logic/validators.py:209
 msgid "Dataset id already exists"
 msgstr ""
 
-#: ckan/logic/validators.py:255
+#: ckan/logic/validators.py:234
+msgid "Resource id already exists."
+msgstr ""
+
+#: ckan/logic/validators.py:281
 msgid "Resource"
 msgstr "Sumberdaya"
 
-#: ckan/logic/validators.py:309
+#: ckan/logic/validators.py:288
+msgid "Invalid characters in resource id"
+msgstr ""
+
+#: ckan/logic/validators.py:290
+msgid "Invalid length for resource id"
+msgstr ""
+
+#: ckan/logic/validators.py:344
 msgid "That group name or ID does not exist."
 msgstr "Nama grup atau ID tersebut tidak ada."
 
-#: ckan/logic/validators.py:332
+#: ckan/logic/validators.py:367
 msgid "Names must be strings"
 msgstr ""
 
-#: ckan/logic/validators.py:336
+#: ckan/logic/validators.py:371
 msgid "That name cannot be used"
 msgstr "Nama tersebut tidak dapat digunakan"
 
-#: ckan/logic/validators.py:339
+#: ckan/logic/validators.py:374
 #, python-format
 msgid "Must be at least %s characters long"
 msgstr ""
 
-#: ckan/logic/validators.py:341 ckan/logic/validators.py:672
+#: ckan/logic/validators.py:376 ckan/logic/validators.py:707
 #, python-format
 msgid "Name must be a maximum of %i characters long"
 msgstr "Nama maksimal hingga %i karakter panjangnya"
 
-#: ckan/logic/validators.py:344
+#: ckan/logic/validators.py:379
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
 msgstr ""
 
-#: ckan/logic/validators.py:369
+#: ckan/logic/validators.py:404
 msgid "That URL is already in use."
 msgstr "URL tersebut sudah digunakan."
 
-#: ckan/logic/validators.py:374
+#: ckan/logic/validators.py:409
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
 msgstr "Panjang nama \"%s\" kurang dari minimal %s"
 
-#: ckan/logic/validators.py:378
+#: ckan/logic/validators.py:413
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
 msgstr "Panjang nama \"%s\" melebihi maksimal %s"
 
-#: ckan/logic/validators.py:386
+#: ckan/logic/validators.py:421
 #, python-format
 msgid "Version must be a maximum of %i characters long"
 msgstr "Versi harus maksimal %i karakter panjangnya"
 
-#: ckan/logic/validators.py:408
+#: ckan/logic/validators.py:443
 #, python-format
 msgid "Duplicate key \"%s\""
 msgstr "Kunci duplikat \"%s\""
 
-#: ckan/logic/validators.py:429
+#: ckan/logic/validators.py:464
 msgid "Group name already exists in database"
 msgstr "Nama grup sudah ada di basisdata"
 
-#: ckan/logic/validators.py:436
+#: ckan/logic/validators.py:471
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
 msgstr "Panjang tag \"%s\" kurang dari minimal %s"
 
-#: ckan/logic/validators.py:440
+#: ckan/logic/validators.py:475
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
 msgstr "Panjang tag \"%s\" lebih besar dari maksimal %i"
 
-#: ckan/logic/validators.py:449
+#: ckan/logic/validators.py:484
 #, python-format
 msgid ""
 "Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
 " (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
 
-#: ckan/logic/validators.py:459
+#: ckan/logic/validators.py:494
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
 msgstr "Tag \"%s\" tidak boleh huruf besar"
 
-#: ckan/logic/validators.py:570
+#: ckan/logic/validators.py:605
 msgid "User names must be strings"
 msgstr ""
 
-#: ckan/logic/validators.py:585
+#: ckan/logic/validators.py:620
 msgid "That login name is not available."
 msgstr "Nama login tersebut tidak tersedia."
 
-#: ckan/logic/validators.py:589
+#: ckan/logic/validators.py:624
 msgid "That login name can not be modified."
 msgstr ""
 
-#: ckan/logic/validators.py:604
+#: ckan/logic/validators.py:639
 msgid "Please enter both passwords"
 msgstr "Silahkan masukkan kedua password"
 
-#: ckan/logic/validators.py:617
+#: ckan/logic/validators.py:652
 msgid "Passwords must be strings"
 msgstr ""
 
-#: ckan/logic/validators.py:621
+#: ckan/logic/validators.py:656
 msgid "Your password must be 8 characters or longer"
 msgstr ""
 
-#: ckan/logic/validators.py:633
+#: ckan/logic/validators.py:668
 msgid "The passwords you entered do not match"
 msgstr "Password yang anda masukkan tidak cocok"
 
-#: ckan/logic/validators.py:658
+#: ckan/logic/validators.py:693
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
@@ -466,103 +473,103 @@ msgstr ""
 "Pengeditan tidak diperkenankan karena mirip spam. Silahkan abaikan tautan "
 "pada deskripsi anda."
 
-#: ckan/logic/validators.py:669
+#: ckan/logic/validators.py:704
 #, python-format
 msgid "Name must be at least %s characters long"
 msgstr "Nama sedikitnya harus %s karakter panjangnya"
 
-#: ckan/logic/validators.py:677
+#: ckan/logic/validators.py:712
 msgid "That vocabulary name is already in use."
 msgstr "Perbendaharaan nama tersebut sudah digunakan."
 
-#: ckan/logic/validators.py:685
+#: ckan/logic/validators.py:720
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
 msgstr "Tidak dapat mengubah nilai kunci dari %s ke %s. Kunci ini read-only"
 
-#: ckan/logic/validators.py:696
+#: ckan/logic/validators.py:731
 msgid "Tag vocabulary was not found."
 msgstr "Perbendaharaan tag tidak ditemukan."
 
-#: ckan/logic/validators.py:711
+#: ckan/logic/validators.py:746
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
 msgstr "Tag %s bukan milik perbendaharaan %s"
 
-#: ckan/logic/validators.py:721
+#: ckan/logic/validators.py:756
 msgid "No tag name"
 msgstr "Tidak ada nama tag"
 
-#: ckan/logic/validators.py:734
+#: ckan/logic/validators.py:769
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
 msgstr "Tag %s sudah menjadi perbendaharaan %s"
 
-#: ckan/logic/validators.py:758
+#: ckan/logic/validators.py:805
 msgid "Please provide a valid URL"
 msgstr "Mohon sediakan sebuah URL yang sah"
 
-#: ckan/logic/validators.py:776
+#: ckan/logic/validators.py:823
 msgid "role does not exist."
 msgstr ""
 
-#: ckan/logic/validators.py:807
+#: ckan/logic/validators.py:854
 msgid "Datasets with no organization can't be private."
 msgstr ""
 
-#: ckan/logic/validators.py:816
+#: ckan/logic/validators.py:863
 msgid "Not a list"
 msgstr ""
 
-#: ckan/logic/validators.py:819
+#: ckan/logic/validators.py:866
 msgid "Not a string"
 msgstr ""
 
-#: ckan/logic/validators.py:867
+#: ckan/logic/validators.py:914
 msgid "This parent would create a loop in the hierarchy"
 msgstr ""
 
-#: ckan/logic/validators.py:880
+#: ckan/logic/validators.py:927
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
 msgstr ""
 
-#: ckan/logic/validators.py:894
+#: ckan/logic/validators.py:941
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:897
+#: ckan/logic/validators.py:944
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
 msgstr ""
 
-#: ckan/logic/validators.py:914
+#: ckan/logic/validators.py:961
 msgid "There is a schema field with the same name"
 msgstr ""
 
-#: ckan/logic/validators.py:950
+#: ckan/logic/validators.py:997
 msgid "Email {email} is not a valid format"
 msgstr ""
 
-#: ckan/logic/validators.py:993
+#: ckan/logic/validators.py:1040
 msgid "Must be a dict"
 msgstr ""
 
-#: ckan/logic/validators.py:1017
+#: ckan/logic/validators.py:1064
 msgid "The email address '{email}' belongs to a registered user."
 msgstr ""
 
-#: ckan/logic/validators.py:1024
+#: ckan/logic/validators.py:1071
 msgid "Value must be one of {}"
 msgstr ""
 
-#: ckan/logic/validators.py:1035
+#: ckan/logic/validators.py:1082
 msgid "The value should be a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:1037
+#: ckan/logic/validators.py:1084
 msgid "Could not parse the value as a valid JSON object"
 msgstr ""
 
-#: ckan/logic/validators.py:1049
+#: ckan/logic/validators.py:1096
 msgid "Could not parse extra '{name}' as valid JSON"
 msgstr ""
 
@@ -570,16 +577,16 @@ msgstr ""
 msgid "Missing Value"
 msgstr "Nilai Hilang"
 
-#: ckan/logic/action/create.py:688
+#: ckan/logic/action/create.py:695
 msgid "Role must be one of \"{}\""
 msgstr ""
 
-#: ckan/logic/action/create.py:695 ckan/views/dataset.py:405
-#: ckan/views/dataset.py:416 ckan/views/dataset.py:614
-#: ckan/views/dataset.py:753 ckan/views/dataset.py:790
-#: ckan/views/dataset.py:880 ckan/views/dataset.py:895
-#: ckan/views/dataset.py:997 ckan/views/dataset.py:1030
-#: ckan/views/dataset.py:1110 ckan/views/resource.py:69
+#: ckan/logic/action/create.py:702 ckan/views/dataset.py:406
+#: ckan/views/dataset.py:417 ckan/views/dataset.py:615
+#: ckan/views/dataset.py:754 ckan/views/dataset.py:791
+#: ckan/views/dataset.py:881 ckan/views/dataset.py:896
+#: ckan/views/dataset.py:998 ckan/views/dataset.py:1031
+#: ckan/views/dataset.py:1111 ckan/views/resource.py:69
 #: ckan/views/resource.py:83 ckan/views/resource.py:542
 #: ckan/views/resource.py:596 ckan/views/resource.py:648
 #: ckanext/activity/views.py:113 ckanext/activity/views.py:123
@@ -588,62 +595,62 @@ msgstr ""
 msgid "Dataset not found"
 msgstr "Kumpulan data tidak ditemukan"
 
-#: ckan/logic/action/create.py:699 ckan/logic/action/delete.py:356
-#: ckan/logic/auth/update.py:200 ckan/views/dataset.py:1165
-#: ckan/views/user.py:68 ckan/views/user.py:352 ckan/views/user.py:383
-#: ckan/views/user.py:446 ckan/views/user.py:729 ckan/views/user.py:787
-#: ckan/views/user.py:892
+#: ckan/logic/action/create.py:706 ckan/logic/action/delete.py:356
+#: ckan/logic/auth/update.py:200 ckan/views/dataset.py:1190
+#: ckan/views/group.py:559 ckan/views/user.py:69 ckan/views/user.py:353
+#: ckan/views/user.py:384 ckan/views/user.py:447 ckan/views/user.py:747
+#: ckan/views/user.py:805 ckan/views/user.py:910
 msgid "User not found"
 msgstr "Pengguna tidak ditemukan"
 
-#: ckan/logic/action/create.py:703 ckan/logic/action/delete.py:348
+#: ckan/logic/action/create.py:710 ckan/logic/action/delete.py:348
 #: ckan/logic/action/get.py:241 ckan/logic/action/get.py:287
 msgid "Dataset collaborators not enabled"
 msgstr ""
 
-#: ckan/logic/action/create.py:880
+#: ckan/logic/action/create.py:883
 msgid "Trying to create an organization as a group"
 msgstr ""
 
-#: ckan/logic/action/create.py:1116
+#: ckan/logic/action/create.py:1127
 msgid "Error sending the invite email, the user was not created: {0}"
 msgstr ""
 
-#: ckan/logic/action/create.py:1237 ckan/logic/action/create.py:1243
+#: ckan/logic/action/create.py:1248 ckan/logic/action/create.py:1254
 msgid "You must be logged in to follow users"
 msgstr ""
 
-#: ckan/logic/action/create.py:1256
+#: ckan/logic/action/create.py:1267
 msgid "You cannot follow yourself"
 msgstr "Anda tidak dapat mengikuti diri anda sendiri"
 
-#: ckan/logic/action/create.py:1265 ckan/logic/action/create.py:1323
-#: ckan/logic/action/create.py:1467
+#: ckan/logic/action/create.py:1276 ckan/logic/action/create.py:1334
+#: ckan/logic/action/create.py:1478
 msgid "You are already following {0}"
 msgstr ""
 
-#: ckan/logic/action/create.py:1297 ckan/logic/action/create.py:1304
+#: ckan/logic/action/create.py:1308 ckan/logic/action/create.py:1315
 msgid "You must be logged in to follow a dataset."
 msgstr ""
 
-#: ckan/logic/action/create.py:1358 ckan/views/feed.py:226
+#: ckan/logic/action/create.py:1369 ckan/views/feed.py:227
 msgid "Organization not found"
 msgstr ""
 
-#: ckan/logic/action/create.py:1358 ckan/views/dataset.py:1046
-#: ckan/views/dataset.py:1063 ckan/views/feed.py:207 ckan/views/group.py:405
-#: ckan/views/group.py:439 ckan/views/group.py:515 ckan/views/group.py:568
-#: ckan/views/group.py:721 ckan/views/group.py:860 ckan/views/group.py:935
-#: ckan/views/group.py:960 ckan/views/group.py:984 ckan/views/group.py:1046
-#: ckan/views/group.py:1124 ckanext/activity/views.py:520
+#: ckan/logic/action/create.py:1369 ckan/views/dataset.py:1047
+#: ckan/views/dataset.py:1064 ckan/views/feed.py:208 ckan/views/group.py:406
+#: ckan/views/group.py:441 ckan/views/group.py:517 ckan/views/group.py:572
+#: ckan/views/group.py:725 ckan/views/group.py:864 ckan/views/group.py:939
+#: ckan/views/group.py:964 ckan/views/group.py:988 ckan/views/group.py:1050
+#: ckan/views/group.py:1128 ckanext/activity/views.py:520
 msgid "Group not found"
 msgstr "Grup tidak ditemukan"
 
-#: ckan/logic/action/create.py:1364
+#: ckan/logic/action/create.py:1375
 msgid "User {username} does not exist."
 msgstr ""
 
-#: ckan/logic/action/create.py:1443 ckan/logic/action/create.py:1450
+#: ckan/logic/action/create.py:1454 ckan/logic/action/create.py:1461
 msgid "You must be logged in to follow a group."
 msgstr ""
 
@@ -852,7 +859,7 @@ msgstr "Pengguna %s tidak punya izin untuk membaca sumberdaya %s"
 msgid "User %s not authorized to read group %s"
 msgstr ""
 
-#: ckan/logic/auth/get.py:365
+#: ckan/logic/auth/get.py:367
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
 msgstr ""
@@ -906,63 +913,63 @@ msgstr "Pengguna %s tidak punya izin untuk memperbarui tabel task_status"
 msgid "User %s not authorized to update term_translation table"
 msgstr "Pengguna %s tidak punya izin untuk memperbarui tabel term_translation"
 
-#: ckan/model/license.py:200
+#: ckan/model/license.py:209
 msgid "License not specified"
 msgstr ""
 
-#: ckan/model/license.py:210
+#: ckan/model/license.py:219
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
 msgstr ""
 
-#: ckan/model/license.py:220
+#: ckan/model/license.py:229
 msgid "Open Data Commons Open Database License (ODbL)"
 msgstr "Open Data Commons Open Database License (ODbL)"
 
-#: ckan/model/license.py:230
+#: ckan/model/license.py:239
 msgid "Open Data Commons Attribution License"
 msgstr "Open Data Commons Attribution License"
 
-#: ckan/model/license.py:241
+#: ckan/model/license.py:250
 msgid "Creative Commons CCZero"
 msgstr "Creative Commons CCZero"
 
-#: ckan/model/license.py:250
+#: ckan/model/license.py:259
 msgid "Creative Commons Attribution"
 msgstr "Creative Commons Attribution"
 
-#: ckan/model/license.py:260
+#: ckan/model/license.py:269
 msgid "Creative Commons Attribution Share-Alike"
 msgstr "Creative Commons Attribution Share-Alike"
 
-#: ckan/model/license.py:269
+#: ckan/model/license.py:278
 msgid "GNU Free Documentation License"
 msgstr "GNU Free Documentation License"
 
-#: ckan/model/license.py:279
+#: ckan/model/license.py:288
 msgid "Other (Open)"
 msgstr "Lainnya (Open)"
 
-#: ckan/model/license.py:289
+#: ckan/model/license.py:298
 msgid "Other (Public Domain)"
 msgstr "Lainnya (Domain Publik)"
 
-#: ckan/model/license.py:299
+#: ckan/model/license.py:308
 msgid "Other (Attribution)"
 msgstr "Lainnya (Attribution)"
 
-#: ckan/model/license.py:311
+#: ckan/model/license.py:320
 msgid "UK Open Government Licence (OGL)"
 msgstr "UK Open Government Licence (OGL)"
 
-#: ckan/model/license.py:319
+#: ckan/model/license.py:328
 msgid "Creative Commons Non-Commercial (Any)"
 msgstr "Creative Commons Non-Commercial (Any)"
 
-#: ckan/model/license.py:327
+#: ckan/model/license.py:336
 msgid "Other (Non-Commercial)"
 msgstr "Lainnya (Non-Commercial)"
 
-#: ckan/model/license.py:335
+#: ckan/model/license.py:344
 msgid "Other (Not Open)"
 msgstr "Lainnya (Not Open)"
 
@@ -1011,13 +1018,20 @@ msgstr "induk dari %s"
 msgid "has sibling %s"
 msgstr "punya kembaran %s"
 
+#: ckan/public/base/javascript/modules/api-info.js:67
+#: ckan/public/base/javascript/modules/confirm-action.js:133
+#: ckan/public/base/javascript/notify.js:55
+#: ckan/templates/package/snippets/resource_view.html:73
+msgid "Close"
+msgstr ""
+
 #: ckan/public-bs3/base/javascript/modules/api-info.js:96
-#: ckan/public/base/javascript/modules/api-info.js:96
+#: ckan/public/base/javascript/modules/api-info.js:97
 msgid "There is no API data to load for this resource"
 msgstr ""
 
 #: ckan/public-bs3/base/javascript/modules/api-info.js:124
-#: ckan/public/base/javascript/modules/api-info.js:124
+#: ckan/public/base/javascript/modules/api-info.js:125
 msgid "Failed to load data API information"
 msgstr ""
 
@@ -1043,27 +1057,27 @@ msgstr[0] ""
 msgid "There are unsaved modifications to this form"
 msgstr ""
 
-#: ckan/public-bs3/base/javascript/modules/confirm-action.js:125
-#: ckan/public/base/javascript/modules/confirm-action.js:125
+#: ckan/public-bs3/base/javascript/modules/confirm-action.js:126
+#: ckan/public/base/javascript/modules/confirm-action.js:126
 msgid "Please Confirm Action"
 msgstr ""
 
-#: ckan/public-bs3/base/javascript/modules/confirm-action.js:128
-#: ckan/public/base/javascript/modules/confirm-action.js:128
+#: ckan/public-bs3/base/javascript/modules/confirm-action.js:129
+#: ckan/public/base/javascript/modules/confirm-action.js:129
 msgid "Are you sure you want to perform this action?"
 msgstr ""
 
-#: ckan/public-bs3/base/javascript/modules/confirm-action.js:130
-#: ckan/public/base/javascript/modules/confirm-action.js:130
+#: ckan/public-bs3/base/javascript/modules/confirm-action.js:131
+#: ckan/public/base/javascript/modules/confirm-action.js:131
 #: ckan/templates/user/new_user_form.html:14
 #: ckan/templates/user/perform_reset.html:27
 msgid "Confirm"
 msgstr ""
 
-#: ckan/public-bs3/base/javascript/modules/confirm-action.js:131
+#: ckan/public-bs3/base/javascript/modules/confirm-action.js:132
 #: ckan/public-bs3/base/javascript/modules/resource-reorder.js:68
 #: ckan/public-bs3/base/javascript/modules/resource-view-reorder.js:57
-#: ckan/public/base/javascript/modules/confirm-action.js:131
+#: ckan/public/base/javascript/modules/confirm-action.js:132
 #: ckan/public/base/javascript/modules/resource-reorder.js:68
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:57
 #: ckan/templates/admin/confirm_reset.html:10
@@ -1071,8 +1085,10 @@ msgstr ""
 #: ckan/templates/group/confirm_delete_member.html:16
 #: ckan/templates/organization/confirm_delete.html:15
 #: ckan/templates/organization/confirm_delete_member.html:16
+#: ckan/templates/package/collaborators/confirm_delete.html:15
 #: ckan/templates/package/confirm_delete.html:16
 #: ckan/templates/package/confirm_delete_resource.html:15
+#: ckan/templates/user/confirm_delete.html:15
 msgid "Cancel"
 msgstr "Batal"
 
@@ -1295,6 +1311,10 @@ msgstr ""
 msgid "Register"
 msgstr "Daftar"
 
+#: ckan/templates/header.html:90
+msgid "Toggle navigation"
+msgstr ""
+
 #: ckan/templates/group/read_base.html:18
 #: ckan/templates/group/snippets/info.html:40 ckan/templates/header.html:102
 #: ckan/templates/organization/bulk_process.html:22
@@ -1317,8 +1337,8 @@ msgstr "Kumpulan data"
 #: ckan/templates/organization/new.html:11
 #: ckan/templates/organization/read_base.html:4
 #: ckan/templates/organization/read_base.html:7
-#: ckan/templates/package/base.html:16 ckan/views/dataset.py:289
-#: ckan/views/group.py:298 ckan/views/home.py:64
+#: ckan/templates/package/base.html:16 ckan/views/dataset.py:290
+#: ckan/views/group.py:299 ckan/views/home.py:65
 msgid "Organizations"
 msgstr "Organisasi"
 
@@ -1328,8 +1348,8 @@ msgstr "Organisasi"
 #: ckan/templates/group/new.html:12 ckan/templates/group/read_base.html:4
 #: ckan/templates/group/read_base.html:7 ckan/templates/header.html:106
 #: ckan/templates/package/group_list.html:7
-#: ckan/templates/package/read_base.html:22 ckan/views/dataset.py:294
-#: ckan/views/group.py:303 ckan/views/home.py:69
+#: ckan/templates/package/read_base.html:22 ckan/views/dataset.py:295
+#: ckan/views/group.py:304 ckan/views/home.py:70
 msgid "Groups"
 msgstr "Grup"
 
@@ -1364,7 +1384,7 @@ msgid "Submit"
 msgstr ""
 
 #: ckan/templates/page.html:6
-msgid "Skip to content"
+msgid "Skip to main content"
 msgstr ""
 
 #: ckan/templates/page.html:36
@@ -1521,10 +1541,14 @@ msgstr ""
 #: ckan/templates/organization/confirm_delete.html:16
 #: ckan/templates/organization/confirm_delete_member.html:3
 #: ckan/templates/organization/confirm_delete_member.html:17
+#: ckan/templates/package/collaborators/confirm_delete.html:3
+#: ckan/templates/package/collaborators/confirm_delete.html:16
 #: ckan/templates/package/confirm_delete.html:3
 #: ckan/templates/package/confirm_delete.html:17
 #: ckan/templates/package/confirm_delete_resource.html:3
 #: ckan/templates/package/confirm_delete_resource.html:16
+#: ckan/templates/user/confirm_delete.html:3
+#: ckan/templates/user/confirm_delete.html:16
 msgid "Confirm Delete"
 msgstr ""
 
@@ -1812,6 +1836,7 @@ msgid "Delete"
 msgstr "Hapus"
 
 #: ckan/templates/group/member_new.html:74
+#: ckanext/datastore/templates-bs3/datastore/dictionary.html:19
 #: ckanext/datastore/templates/datastore/dictionary.html:19
 msgid "Save"
 msgstr "Simpan"
@@ -1881,6 +1906,8 @@ msgstr ""
 #: ckan/templates/package/snippets/package_basic_fields.html:21
 #: ckan/templates/package/snippets/resource_form.html:40
 #: ckan/templates/package/snippets/view_form.html:9
+#: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:24
+#: ckanext/datastore/templates-bs3/package/resource_read.html:22
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
 #: ckanext/datastore/templates/package/resource_read.html:22
 msgid "Description"
@@ -2037,7 +2064,7 @@ msgid "Key"
 msgstr ""
 
 #: ckan/templates/macros/form/custom.html:54
-#: ckan/templates/package/resource_read.html:168
+#: ckan/templates/package/resource_read.html:171
 #: ckan/templates/package/snippets/additional_info.html:7
 #: ckan/templates/snippets/additional_info.html:12
 msgid "Value"
@@ -2068,7 +2095,7 @@ msgstr ""
 #, python-format
 msgid ""
 "You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
-"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -2288,7 +2315,7 @@ msgstr ""
 msgid "Add to group"
 msgstr ""
 
-#: ckan/templates/package/group_list.html:26
+#: ckan/templates/package/group_list.html:27
 msgid "There are no groups associated with this dataset"
 msgstr ""
 
@@ -2362,75 +2389,80 @@ msgid "Go to resource"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:46
+#: ckan/templates/package/resource_read.html:54
 #: ckan/templates/package/snippets/resource_item.html:61
 msgid "Download"
 msgstr "Unduh"
 
-#: ckan/templates/package/resource_read.html:85
-#: ckan/templates/package/resource_read.html:87
+#: ckan/templates/package/resource_read.html:52
+msgid "List of downloadable formats"
+msgstr ""
+
+#: ckan/templates/package/resource_read.html:88
+#: ckan/templates/package/resource_read.html:90
 msgid "URL:"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:95
+#: ckan/templates/package/resource_read.html:98
 msgid "Dataset description:"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:97
+#: ckan/templates/package/resource_read.html:100
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:128
+#: ckan/templates/package/resource_read.html:131
 msgid "There are no views created for this resource yet."
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:132
+#: ckan/templates/package/resource_read.html:135
 msgid "Not seeing the views you were expecting?"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:134
+#: ckan/templates/package/resource_read.html:137
 #: ckan/templates/package/snippets/resource_view.html:35
 msgid "Click here for more information."
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:137
+#: ckan/templates/package/resource_read.html:140
 msgid "Here are some reasons you may not be seeing expected views:"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:139
+#: ckan/templates/package/resource_read.html:142
 msgid "No view has been created that is suitable for this resource"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:140
+#: ckan/templates/package/resource_read.html:143
 msgid "The site administrators may not have enabled the relevant view plugins"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:141
+#: ckan/templates/package/resource_read.html:144
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be enabled, "
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:163
+#: ckan/templates/package/resource_read.html:166
 msgid "Additional Information"
 msgstr "Informasi Tambahan"
 
-#: ckan/templates/package/resource_read.html:167
+#: ckan/templates/package/resource_read.html:170
 #: ckan/templates/package/snippets/additional_info.html:6
 #: ckan/templates/snippets/additional_info.html:11
 msgid "Field"
 msgstr "Field"
 
-#: ckan/templates/package/resource_read.html:173
+#: ckan/templates/package/resource_read.html:176
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:89
 msgid "Data last updated"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:174
-#: ckan/templates/package/resource_read.html:178
-#: ckan/templates/package/resource_read.html:182
-#: ckan/templates/package/resource_read.html:186
+#: ckan/templates/package/resource_read.html:177
+#: ckan/templates/package/resource_read.html:181
+#: ckan/templates/package/resource_read.html:185
+#: ckan/templates/package/resource_read.html:189
 #: ckanext/activity/templates/snippets/stream.html:11
 #: ckanext/activity/templates/snippets/stream.html:18
 #: ckanext/activity/templates/snippets/stream.html:31
@@ -2438,24 +2470,24 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:177
+#: ckan/templates/package/resource_read.html:180
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:90
 msgid "Metadata last updated"
 msgstr ""
 
-#: ckan/templates/package/resource_read.html:181
+#: ckan/templates/package/resource_read.html:184
 #: ckan/templates/package/snippets/additional_info.html:74
 #: ckanext/datatablesview/templates/datatables/datatables_view.html:91
 msgid "Created"
 msgstr "Dibuat"
 
-#: ckan/templates/package/resource_read.html:185
+#: ckan/templates/package/resource_read.html:188
 #: ckan/templates/package/snippets/resource_form.html:45
 #: ckan/templates/package/snippets/resource_info.html:19
 msgid "Format"
 msgstr "Format"
 
-#: ckan/templates/package/resource_read.html:189
+#: ckan/templates/package/resource_read.html:192
 #: ckan/templates/package/snippets/package_basic_fields.html:32
 #: ckan/templates/snippets/license.html:20
 msgid "License"
@@ -2568,6 +2600,10 @@ msgstr ""
 msgid "{count} collaborator"
 msgid_plural "{count} collaborators"
 msgstr[0] ""
+
+#: ckan/templates/package/collaborators/confirm_delete.html:11
+msgid "Are you sure you want to delete collaborator - {name}?"
+msgstr ""
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3021,6 +3057,7 @@ msgstr ""
 
 #: ckan/templates/tests/mock_json_resource_preview_template.html:7
 #: ckan/templates/tests/mock_resource_preview_template.html:7
+#: ckanext/datastore/templates-bs3/package/snippets/data_api_button.html:7
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:7
 #: ckanext/example_theme_docs/v18_snippet_api/assets/example_theme_popover.js:21
 #: ckanext/example_theme_docs/v19_01_error/assets/example_theme_popover.js:21
@@ -3043,6 +3080,10 @@ msgstr ""
 
 #: ckan/templates/user/api_tokens.html:38
 msgid "You haven't created any API Tokens."
+msgstr ""
+
+#: ckan/templates/user/confirm_delete.html:11
+msgid "Are you sure you want to delete user - {name}?"
 msgstr ""
 
 #: ckan/templates/user/dashboard.html:25
@@ -3160,7 +3201,7 @@ msgstr ""
 msgid "Sysadmin password"
 msgstr ""
 
-#: ckan/templates/user/edit_user_form.html:49 ckan/views/user.py:343
+#: ckan/templates/user/edit_user_form.html:49 ckan/views/user.py:344
 msgid "Sysadmin Password"
 msgstr ""
 
@@ -3168,7 +3209,7 @@ msgstr ""
 msgid "Change password"
 msgstr ""
 
-#: ckan/templates/user/edit_user_form.html:66 ckan/views/user.py:341
+#: ckan/templates/user/edit_user_form.html:66 ckan/views/user.py:342
 msgid "Old Password"
 msgstr ""
 
@@ -3372,6 +3413,7 @@ msgid "Actions"
 msgstr ""
 
 #: ckan/templates/user/snippets/api_token_list.html:32
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:56
 #: ckanext/datapusher/templates/datapusher/resource_data.html:57
 msgid "Never"
 msgstr "Tidak pernah"
@@ -3440,210 +3482,210 @@ msgstr "Aksi tidak diimplementasikan."
 msgid "Massive purge complete"
 msgstr ""
 
-#: ckan/views/api.py:122
+#: ckan/views/api.py:130
 msgid "Bad request"
 msgstr "Permintaan buruk"
 
-#: ckan/views/api.py:257
+#: ckan/views/api.py:265
 #, python-format
 msgid "JSON Error: %s"
 msgstr "Masalah JSON: %s"
 
-#: ckan/views/api.py:263
+#: ckan/views/api.py:271
 #, python-format
 msgid "Bad request data: %s"
 msgstr "Data permintaan buruk: %s"
 
-#: ckan/views/api.py:288
+#: ckan/views/api.py:296
 msgid "Access denied"
 msgstr "Akses ditolak"
 
 #: ckan/views/dashboard.py:25 ckan/views/dashboard.py:39
-#: ckan/views/dataset.py:221 ckan/views/feed.py:209 ckan/views/feed.py:228
-#: ckan/views/group.py:146 ckan/views/user.py:70 ckan/views/user.py:99
-#: ckan/views/user.py:122 ckanext/activity/views.py:763
+#: ckan/views/dataset.py:222 ckan/views/feed.py:210 ckan/views/feed.py:229
+#: ckan/views/group.py:147 ckan/views/user.py:71 ckan/views/user.py:100
+#: ckan/views/user.py:123 ckanext/activity/views.py:764
 #: ckanext/datapusher/views.py:60
 msgid "Not authorized to see this page"
 msgstr "Tidak diizinkan untuk melihat halaman ini"
 
-#: ckan/views/dataset.py:300 ckan/views/group.py:309 ckan/views/home.py:75
+#: ckan/views/dataset.py:301 ckan/views/group.py:310 ckan/views/home.py:76
 msgid "Formats"
 msgstr ""
 
-#: ckan/views/dataset.py:301 ckan/views/group.py:310 ckan/views/home.py:76
+#: ckan/views/dataset.py:302 ckan/views/group.py:311 ckan/views/home.py:77
 msgid "Licenses"
 msgstr ""
 
-#: ckan/views/dataset.py:347
+#: ckan/views/dataset.py:348
 msgid "Invalid search query: {error_message}"
 msgstr ""
 
-#: ckan/views/dataset.py:373
+#: ckan/views/dataset.py:374
 msgid "Parameter u\"{parameter_name}\" is not an integer"
 msgstr ""
 
-#: ckan/views/dataset.py:409 ckan/views/dataset.py:812 ckan/views/group.py:763
+#: ckan/views/dataset.py:410 ckan/views/dataset.py:813 ckan/views/group.py:767
 #: ckan/views/resource.py:356 ckan/views/resource.py:535
 #: ckan/views/resource.py:640
 #, python-format
 msgid "User %r not authorized to edit %s"
 msgstr "Pengguna %r tidak ada izin untuk mengedit %s"
 
-#: ckan/views/dataset.py:451 ckan/views/dataset.py:465
+#: ckan/views/dataset.py:452 ckan/views/dataset.py:466
 msgid "Dataset not found or you have no permission to view it"
 msgstr ""
 
-#: ckan/views/dataset.py:457 ckan/views/dataset.py:751
-#: ckan/views/dataset.py:999
+#: ckan/views/dataset.py:458 ckan/views/dataset.py:752
+#: ckan/views/dataset.py:1000
 #, python-format
 msgid "Unauthorized to read package %s"
 msgstr "Tidak punya izin untuk membaca paket %s"
 
-#: ckan/views/dataset.py:509
+#: ckan/views/dataset.py:510
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
 msgstr ""
 
-#: ckan/views/dataset.py:532
+#: ckan/views/dataset.py:533
 msgid "Unauthorized to create a package"
 msgstr "Tidak punya izin untuk membuat paket"
 
-#: ckan/views/dataset.py:547 ckan/views/dataset.py:733
-#: ckan/views/dataset.py:1160 ckan/views/group.py:853 ckan/views/group.py:952
-#: ckan/views/user.py:295 ckan/views/user.py:432 ckan/views/user.py:789
+#: ckan/views/dataset.py:548 ckan/views/dataset.py:734
+#: ckan/views/dataset.py:1185 ckan/views/group.py:857 ckan/views/group.py:956
+#: ckan/views/user.py:296 ckan/views/user.py:433 ckan/views/user.py:807
 msgid "Integrity Error"
 msgstr "Integritas Bermasalah"
 
-#: ckan/views/dataset.py:612
+#: ckan/views/dataset.py:613
 msgid "Unauthorized to read package"
 msgstr ""
 
-#: ckan/views/dataset.py:622
+#: ckan/views/dataset.py:623
 msgid "Unable to add package to search index."
 msgstr "Tidak dapat menambahkan paket ke indeks pencarian."
 
-#: ckan/views/dataset.py:761
+#: ckan/views/dataset.py:762
 msgid "Unable to update search index."
 msgstr "Tidak dapat memperbarui indeks pencarian."
 
-#: ckan/views/dataset.py:884 ckan/views/dataset.py:899
+#: ckan/views/dataset.py:885 ckan/views/dataset.py:900
 #: ckan/views/resource.py:458
 #, python-format
 msgid "Unauthorized to delete package %s"
 msgstr ""
 
-#: ckan/views/dataset.py:887
+#: ckan/views/dataset.py:888
 msgid "Dataset has been deleted."
 msgstr ""
 
-#: ckan/views/dataset.py:936 ckan/views/group.py:594 ckan/views/user.py:819
+#: ckan/views/dataset.py:937 ckan/views/group.py:598 ckan/views/user.py:837
 msgid "You are now following {0}"
 msgstr ""
 
-#: ckan/views/dataset.py:967 ckan/views/group.py:620 ckan/views/user.py:841
+#: ckan/views/dataset.py:968 ckan/views/group.py:624 ckan/views/user.py:859
 msgid "You are no longer following {0}"
 msgstr ""
 
-#: ckan/views/dataset.py:1107
+#: ckan/views/dataset.py:1108
 msgid "Unauthorized to read collaborators {}"
 msgstr ""
 
-#: ckan/views/dataset.py:1125
+#: ckan/views/dataset.py:1133
 msgid "Unauthorized to delete collaborators {}"
 msgstr ""
 
-#: ckan/views/dataset.py:1130
+#: ckan/views/dataset.py:1139
 msgid "User removed from collaborators"
 msgstr ""
 
-#: ckan/views/dataset.py:1162
+#: ckan/views/dataset.py:1187
 msgid "Unauthorized to edit collaborators {}"
 msgstr ""
 
-#: ckan/views/dataset.py:1171
+#: ckan/views/dataset.py:1196
 msgid "User added to collaborators"
 msgstr ""
 
-#: ckan/views/dataset.py:1187 ckan/views/resource.py:92
+#: ckan/views/dataset.py:1212 ckan/views/resource.py:92
 #: ckan/views/resource.py:167 ckan/views/resource.py:410
 #: ckan/views/resource.py:487 ckan/views/resource.py:504
 #: ckan/views/resource.py:553 ckan/views/resource.py:601
 #: ckan/views/resource.py:656 ckanext/activity/views.py:148
-#: ckanext/datapusher/views.py:49 ckanext/datastore/blueprint.py:118
-#: ckanext/resourceproxy/blueprint.py:36
+#: ckanext/datapusher/views.py:49 ckanext/datastore/blueprint.py:158
+#: ckanext/resourceproxy/blueprint.py:35
 msgid "Resource not found"
 msgstr "Sumberdaya tidak ditemukan"
 
-#: ckan/views/group.py:518
+#: ckan/views/group.py:520
 #, python-format
 msgid "User %r not authorized to edit members of %s"
 msgstr ""
 
-#: ckan/views/group.py:552 ckan/views/group.py:566
+#: ckan/views/group.py:554 ckan/views/group.py:570
 #, python-format
 msgid "Unauthorized to delete group %s members"
 msgstr ""
 
-#: ckan/views/group.py:561
+#: ckan/views/group.py:565
 msgid "Group member has been deleted."
 msgstr ""
 
-#: ckan/views/group.py:649 ckan/views/user.py:869
+#: ckan/views/group.py:653 ckan/views/user.py:887
 #, python-format
 msgid "Unauthorized to view followers %s"
 msgstr ""
 
-#: ckan/views/group.py:707
+#: ckan/views/group.py:711
 msgid "Unauthorized to access"
 msgstr ""
 
-#: ckan/views/group.py:758
+#: ckan/views/group.py:762
 msgid "OrganizationGroup"
 msgstr ""
 
-#: ckan/views/group.py:760
+#: ckan/views/group.py:764
 msgid "{} not found"
 msgstr ""
 
-#: ckan/views/group.py:811
+#: ckan/views/group.py:815
 msgid "Not authorized to perform bulk update"
 msgstr ""
 
-#: ckan/views/group.py:838 ckan/views/group.py:933
+#: ckan/views/group.py:842 ckan/views/group.py:937
 msgid "Unauthorized to create a group"
 msgstr "Tidak punya izin untuk membuat grup"
 
-#: ckan/views/group.py:1026 ckan/views/group.py:1044
+#: ckan/views/group.py:1030 ckan/views/group.py:1048
 #, python-format
 msgid "Unauthorized to delete group %s"
 msgstr ""
 
-#: ckan/views/group.py:1042
+#: ckan/views/group.py:1046
 #, python-format
 msgid "%s has been deleted."
 msgstr ""
 
-#: ckan/views/group.py:1048
+#: ckan/views/group.py:1052
 msgid "message"
 msgstr ""
 
-#: ckan/views/group.py:1085
+#: ckan/views/group.py:1089
 #, python-format
 msgid "Unauthorized to create group %s members"
 msgstr ""
 
-#: ckan/views/group.py:1122
+#: ckan/views/group.py:1126
 #, python-format
 msgid "Unauthorized to add member to group %s"
 msgstr ""
 
-#: ckan/views/home.py:84
+#: ckan/views/home.py:87
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
 "Silahkan <a href=\"%s\">perbarui profil anda</a> dan tambahkan alamat email "
 "anda. "
 
-#: ckan/views/home.py:86
+#: ckan/views/home.py:89
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
 msgstr ""
@@ -3726,63 +3768,63 @@ msgstr ""
 msgid "View Type Not found"
 msgstr ""
 
-#: ckan/views/user.py:187
+#: ckan/views/user.py:188
 msgid "Unauthorized to view API tokens."
 msgstr ""
 
-#: ckan/views/user.py:221
+#: ckan/views/user.py:222
 msgid "Unauthorized to create API tokens."
 msgstr ""
 
-#: ckan/views/user.py:236
+#: ckan/views/user.py:237
 msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
 
-#: ckan/views/user.py:252
+#: ckan/views/user.py:253
 msgid "Unauthorized to revoke API tokens."
 msgstr ""
 
-#: ckan/views/user.py:270
+#: ckan/views/user.py:271
 msgid "No user specified"
 msgstr "Tidak ada pengguna dispesifikasikan"
 
-#: ckan/views/user.py:277
+#: ckan/views/user.py:278
 msgid "Unauthorized to edit a user."
 msgstr ""
 
-#: ckan/views/user.py:339
+#: ckan/views/user.py:340
 msgid "Password entered was incorrect"
 msgstr ""
 
-#: ckan/views/user.py:341 ckan/views/user.py:343
+#: ckan/views/user.py:342 ckan/views/user.py:344
 msgid "incorrect password"
 msgstr ""
 
-#: ckan/views/user.py:350 ckan/views/user.py:381 ckan/views/user.py:785
+#: ckan/views/user.py:351 ckan/views/user.py:382 ckan/views/user.py:803
 #, python-format
 msgid "Unauthorized to edit user %s"
 msgstr "Tidak ada izin untuk mengedit pengguna %s"
 
-#: ckan/views/user.py:363
+#: ckan/views/user.py:364
 msgid "Profile updated"
 msgstr "Profil diperbarui"
 
-#: ckan/views/user.py:417
+#: ckan/views/user.py:418
 msgid "Unauthorized to register as a user."
 msgstr ""
 
-#: ckan/views/user.py:437
+#: ckan/views/user.py:438
 msgid "Bad Captcha. Please try again."
 msgstr "Captcha salah. Silahkan coba lagi."
 
-#: ckan/views/user.py:444
+#: ckan/views/user.py:445
 #, python-format
 msgid "Unauthorized to create user %s"
 msgstr "Tidak punya izin untuk membuat pengguna %s"
 
-#: ckan/views/user.py:457
+#: ckan/views/user.py:458
 #, python-format
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
@@ -3791,67 +3833,67 @@ msgstr ""
 "Pengguna \"%s\" sekarang terdaftar tetapu anda masih masuk sebagai \"%s\" "
 "dari sebelumnya"
 
-#: ckan/views/user.py:558
+#: ckan/views/user.py:557
 msgid "Login failed. Bad username or password."
 msgstr "Gagal masuk. Username atau password tidak benar."
 
-#: ckan/views/user.py:604
+#: ckan/views/user.py:608
 msgid "Unauthorized to delete user with id \"{user_id}\"."
 msgstr ""
 
-#: ckan/views/user.py:626
+#: ckan/views/user.py:644
 msgid "Unauthorized to request reset password."
 msgstr ""
 
-#: ckan/views/user.py:632
+#: ckan/views/user.py:650
 msgid "Email is required"
 msgstr ""
 
-#: ckan/views/user.py:692
+#: ckan/views/user.py:710
 msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
 
-#: ckan/views/user.py:701
+#: ckan/views/user.py:719
 msgid ""
 "A reset link has been emailed to you (unless the account specified does not "
 "exist)"
 msgstr ""
 
-#: ckan/views/user.py:724
+#: ckan/views/user.py:742
 msgid "Unauthorized to reset password."
 msgstr ""
 
-#: ckan/views/user.py:733
+#: ckan/views/user.py:751
 msgid "Invalid reset key. Please try again."
 msgstr "Kunci setel ulang cacat. Silahkan coba lagi."
 
-#: ckan/views/user.py:744
+#: ckan/views/user.py:762
 msgid "Your password must be 8 characters or longer."
 msgstr ""
 
-#: ckan/views/user.py:748
+#: ckan/views/user.py:766
 msgid "The passwords you entered do not match."
 msgstr "Password yang anda masukkan tidak cocok."
 
-#: ckan/views/user.py:751
+#: ckan/views/user.py:769
 msgid "You must provide a password"
 msgstr ""
 
-#: ckan/views/user.py:780
+#: ckan/views/user.py:798
 msgid "Your password has been reset."
 msgstr "Password anda sudah disetel ulang."
 
-#: ckan/views/user.py:889
+#: ckan/views/user.py:907
 msgid "Not authorized to promote user to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:896
+#: ckan/views/user.py:914
 msgid "Promoted {} to sysadmin"
 msgstr ""
 
-#: ckan/views/user.py:901
+#: ckan/views/user.py:919
 msgid "Revoked sysadmin permission from {}"
 msgstr ""
 
@@ -3866,14 +3908,14 @@ msgstr[0] ""
 
 #: ckanext/activity/views.py:133 ckanext/activity/views.py:244
 #: ckanext/activity/views.py:268 ckanext/activity/views.py:391
-#: ckanext/activity/views.py:469 ckanext/activity/views.py:617
-#: ckanext/activity/views.py:713
+#: ckanext/activity/views.py:469 ckanext/activity/views.py:618
+#: ckanext/activity/views.py:714
 msgid "Activity not found"
 msgstr ""
 
 #: ckanext/activity/views.py:246 ckanext/activity/views.py:393
-#: ckanext/activity/views.py:471 ckanext/activity/views.py:619
-#: ckanext/activity/views.py:715
+#: ckanext/activity/views.py:471 ckanext/activity/views.py:620
+#: ckanext/activity/views.py:716
 msgid "Unauthorized to view activity data"
 msgstr ""
 
@@ -3890,15 +3932,15 @@ msgstr ""
 msgid "Invalid parameters"
 msgstr ""
 
-#: ckanext/activity/views.py:919
+#: ckanext/activity/views.py:920
 msgid "Follow item not found"
 msgstr ""
 
-#: ckanext/activity/views.py:925
+#: ckanext/activity/views.py:926
 msgid "{0} not found"
 msgstr ""
 
-#: ckanext/activity/views.py:939
+#: ckanext/activity/views.py:940
 msgid "Everything"
 msgstr ""
 
@@ -4526,67 +4568,82 @@ msgstr "Mengirim"
 msgid "Not Uploaded Yet"
 msgstr "Belum diunggah"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:12
 #: ckanext/datapusher/templates/datapusher/resource_data.html:13
 msgid "Upload to DataStore"
 msgstr "Diunggah ke kumpulan data"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:19
 #: ckanext/datapusher/templates/datapusher/resource_data.html:20
 msgid "Upload error:"
 msgstr "Kesalahan dalam mengunggah"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:25
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:27
 #: ckanext/datapusher/templates/datapusher/resource_data.html:26
 #: ckanext/datapusher/templates/datapusher/resource_data.html:28
 msgid "Error:"
 msgstr "Kesalahan:"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:36
 #: ckanext/datapusher/templates/datapusher/resource_data.html:37
 msgid "Error traceback:"
 msgstr "Kesalahan traceback"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:48
 #: ckanext/datapusher/templates/datapusher/resource_data.html:49
 msgid "Status"
 msgstr "Status"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:52
 #: ckanext/datapusher/templates/datapusher/resource_data.html:53
 msgid "Last updated"
 msgstr "Terakhir diperbarui"
 
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:62
 #: ckanext/datapusher/templates/datapusher/resource_data.html:63
 msgid "Upload Log"
 msgstr "Log unggah"
 
-#: ckanext/datapusher/templates/datapusher/resource_data.html:77
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:76
+#: ckanext/datapusher/templates/datapusher/resource_data.html:80
 msgid "Details"
 msgstr "Detail"
 
-#: ckanext/datapusher/templates/datapusher/resource_data.html:84
+#: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:83
+#: ckanext/datapusher/templates/datapusher/resource_data.html:90
 msgid "End of log"
 msgstr "Akhir dari log"
 
-#: ckanext/datapusher/templates/package/resource_edit_base.html:5
+#: ckanext/datapusher/templates-bs3/package/resource_edit_base.html:15
+#: ckanext/datapusher/templates/package/resource_edit_base.html:15
 msgid "DataStore"
 msgstr "Kumpulan data"
 
-#: ckanext/datastore/blueprint.py:92
+#: ckanext/datastore/blueprint.py:67 ckanext/datastore/blueprint.py:133
 msgid "DataStore resource not found"
 msgstr "Sumber kumpulan data tidak ditemukan"
 
-#: ckanext/datastore/blueprint.py:154
+#: ckanext/datastore/blueprint.py:113
+msgid "Unsupported format"
+msgstr ""
+
+#: ckanext/datastore/blueprint.py:194
 msgid ""
 "Data Dictionary saved. Any type overrides will take effect when the resource"
 " is next uploaded to DataStore"
 msgstr ""
 
-#: ckanext/datastore/backend/postgres.py:1158
+#: ckanext/datastore/backend/postgres.py:1159
 msgid "The data was invalid: {}"
 msgstr "Data tidak valid:{}"
 
-#: ckanext/datastore/logic/action.py:279 ckanext/datastore/logic/action.py:407
-#: ckanext/datastore/logic/action.py:548
+#: ckanext/datastore/logic/action.py:282 ckanext/datastore/logic/action.py:410
+#: ckanext/datastore/logic/action.py:551
 msgid "Resource \"{0}\" was not found."
 msgstr "Data \"{0}\" tidak ditemukan"
 
-#: ckanext/datastore/logic/action.py:334
+#: ckanext/datastore/logic/action.py:337
 msgid "Resource/Alias \"{0}\" was not found."
 msgstr ""
 
@@ -4594,14 +4651,17 @@ msgstr ""
 msgid "User {0} not authorized to update resource {1}"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:21
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:21
 msgid "CKAN Data API"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:25
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:25
 msgid "Access resource data via a web API with powerful query support"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:26
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:26
 msgid ""
 "Further information in the <a "
@@ -4609,91 +4669,121 @@ msgid ""
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:35
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:34
 msgid "Endpoints"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:39
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:38
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:44
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:43
 msgid "Create"
 msgstr "Buat"
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:48
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:47
 msgid "Update / Insert"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:52
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:51
 msgid "Query"
 msgstr "Kueri"
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:55
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:56
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:56
 msgid "Query (via SQL)"
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:67
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:68
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:68
 msgid "Querying"
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:71
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:72
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:72
 msgid "Query example (first 5 results)"
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:76
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:77
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:77
 msgid "Query example (results containing 'jones')"
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:81
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:82
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:82
 msgid "Query example (via SQL statement)"
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:92
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:93
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
 msgstr "Contoh: Javascript"
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:96
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:97
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
 msgstr ""
 
-#: ckanext/datastore/templates/ajax_snippets/api_info.html:117
+#: ckanext/datastore/templates-bs3/ajax_snippets/api_info.html:118
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
 msgstr "Contoh: Python"
 
+#: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:3
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:3
 msgid "Field {num}."
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:12
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
 msgid "Type Override"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:20
+#: ckanext/datastore/templates-bs3/package/resource_read.html:21
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:20
 #: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:35
 msgid "Label"
 msgstr ""
 
+#: ckanext/datastore/templates-bs3/package/resource_edit_base.html:6
+#: ckanext/datastore/templates-bs3/package/resource_read.html:14
+#: ckanext/datastore/templates-bs3/package/resource_read.html:42
+#: ckanext/datastore/templates-bs3/package/snippets/resource_item.html:6
+#: ckanext/datastore/templates-bs3/package/snippets/resources.html:6
 #: ckanext/datastore/templates/package/resource_edit_base.html:6
 #: ckanext/datastore/templates/package/resource_read.html:14
 msgid "Data Dictionary"
 msgstr "Kamus Data"
 
+#: ckanext/datastore/templates-bs3/package/resource_read.html:19
 #: ckanext/datastore/templates/package/resource_read.html:19
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:34
 msgid "Column"
 msgstr "Kolom"
 
+#: ckanext/datastore/templates-bs3/package/resource_read.html:20
 #: ckanext/datastore/templates/package/resource_read.html:20
 msgid "Type"
 msgstr "Tipe"
 
+#: ckanext/datastore/templates-bs3/package/snippets/data_api_button.html:9
 #: ckanext/datastore/templates/package/snippets/data_api_button.html:9
 msgid "Data API"
 msgstr "API data"
+
+#: ckanext/datastore/templates-bs3/datastore/api_examples/python.html:9
+#, python-format
+msgid "(using the <a href=\"%(url)s\">ckanapi</a> client library)"
+msgstr ""
 
 #: ckanext/datatablesview/plugin.py:89 ckanext/reclineview/plugin.py:177
 msgid "Table"
@@ -4983,7 +5073,7 @@ msgstr "Otomatis menyorot pada fitur"
 msgid "Cluster markers"
 msgstr ""
 
-#: ckanext/resourceproxy/blueprint.py:41
+#: ckanext/resourceproxy/blueprint.py:40
 msgid "Invalid URL."
 msgstr ""
 

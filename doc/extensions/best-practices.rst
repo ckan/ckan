@@ -33,6 +33,18 @@ keys against core tables.
 
 .. _extensions db migrations:
 
+--------------------------------------------------
+Don't automatically modify the database structure
+--------------------------------------------------
+
+If your extension uses custom database tables then it needs to modify the
+database structure, for example to add the tables after its installation or to
+migrate them after an update. These modifications should not be performed
+automatically when the extension is loaded, since this can lead to `dead-locks
+and other problems`_.
+
+.. _dead-locks and other problems: https://github.com/ckan/ideas-and-roadmap/issues/164
+
 ------------------------------------------
 Use migrations when introducing new models
 ------------------------------------------
@@ -207,21 +219,6 @@ such as::
 
 On the flip side, be mindful that this could also create version conflicts with
 requirements of considerably newer or older extensions.
-
-
---------------------------------------------------
-Do not automatically modify the database structure
---------------------------------------------------
-
-If your extension uses custom database tables then it needs to modify the
-database structure, for example to add the tables after its installation or to
-migrate them after an update. These modifications should not be performed
-automatically when the extension is loaded, since this can lead to `dead-locks
-and other problems`_.
-
-Instead, create a :doc:`ckan command </maintaining/cli>` which can be run separately.
-
-.. _dead-locks and other problems: https://github.com/ckan/ideas-and-roadmap/issues/164
 
 .. _csrf_best_practices:
 

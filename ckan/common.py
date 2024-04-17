@@ -306,6 +306,15 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return [obj]
 
 
+def repr_untrusted(danger: Any):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
+
+
 local = Local()
 
 # This a proxy to the bounded config object
