@@ -5,7 +5,7 @@ cookiecutter==2.5.0
 coveralls   #Let Unpinned - Requires latest coveralls
 Faker==20.1.0
 factory-boy==3.3.0
-flask-debugtoolbar==0.14.0
+flask-debugtoolbar==0.14.1
 freezegun==1.3.1
 ipdb==0.13.13
 pip-tools==7.3.0
