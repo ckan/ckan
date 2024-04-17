@@ -679,7 +679,7 @@ class RequestResetView(MethodView):
         except captcha.CaptchaError:
             error_msg = _(u'Bad Captcha. Please try again.')
             h.flash_error(error_msg)
-            return h.redirect_to(u'/user/reset')
+            return h.redirect_to(u'user.request_reset')
 
         id = request.form.get(u'user', '')
         if id in (None, u''):
