@@ -216,11 +216,8 @@ def datastore_dictionary(
     """
     try:
         return [
-            f for f in tk.get_action('datastore_search')(
-                {}, {
-                    u'resource_id': resource_id,
-                    u'limit': 0,
-                    u'include_total': False})['fields']
+            f for f in tk.get_action('datastore_info')(
+                {}, {'id': resource_id})['fields']
             if not f['id'].startswith(u'_') and (
                 include_columns is None or f['id'] in include_columns)
             ]

@@ -1004,7 +1004,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     context['package'] = pkg
     _check_access('package_show', context, data_dict)
 
-    if data_dict.get('use_default_schema', False):
+    if asbool(data_dict.get('use_default_schema', False)):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
 
     package_dict = None
