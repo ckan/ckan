@@ -255,11 +255,15 @@ def _plugin_root(plugin: type[p.Plugin]) -> pathlib.Path:
     return pathlib.Path(file_).parent.resolve()
 
 
-def _dict_implementation(subject: SimpleSubject | SubjectFactory) -> Callable[..., dict[str, Any]]:
+def _dict_implementation(
+        subject: SimpleSubject | SubjectFactory
+) -> Callable[..., dict[str, Any]]:
     return _as_implementation(subject, False, _get_public_members)
 
 
-def _list_implementation(subject: SimpleSubject | SubjectFactory) -> Callable[..., list[Any]]:
+def _list_implementation(
+        subject: SimpleSubject | SubjectFactory
+) -> Callable[..., list[Any]]:
     return _as_implementation(subject, True, _get_public_members)
 
 
@@ -441,8 +445,10 @@ def _blanket_implementation(
                 if key & group:
                     # short version of the trick performed by
                     # `ckan.plugin.implements`
-
-                    plugin._implements.add(key.interface())
+                    interface = key.interface()
+                    plugin._implements.add(interface)
+                    if interface not in plugin.__bases__:
+                        plugin.__bases__ += (key.interface(),)
                     key.implement(plugin, subject)
             return plugin
 

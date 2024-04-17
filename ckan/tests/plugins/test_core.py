@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 import ckan.logic as logic
 import ckan.authz as authz
@@ -31,17 +30,29 @@ class IBar(plugins.Interface):
     pass
 
 
-class FooImpl(object):
+class IBaz(plugins.Interface):
+    pass
+
+
+class FooImpl(plugins.Plugin):
     plugins.implements(IFoo)
 
 
-class BarImpl(object):
+class BarImpl(plugins.Plugin):
     plugins.implements(IBar)
 
 
-class FooBarImpl(object):
+class FooBarImpl(plugins.Plugin):
     plugins.implements(IFoo)
     plugins.implements(IBar)
+
+
+class BarBazImpl(BarImpl):
+    plugins.implements(IBaz)
+
+
+class Ext(plugins.Plugin, IFoo, IBar):
+    pass
 
 
 @pytest.mark.usefixtures("with_plugins")
@@ -75,6 +86,17 @@ def test_implemented_by():
     assert IFoo.implemented_by(FooImpl)
     assert IFoo.implemented_by(FooBarImpl)
     assert not IFoo.implemented_by(BarImpl)
+
+
+def test_implemented_by_through_inheritance():
+    assert IBaz.implemented_by(BarBazImpl)
+    assert IBar.implemented_by(BarBazImpl)
+
+
+def test_implemented_by_through_extending():
+    assert IFoo.implemented_by(Ext)
+    assert IBar.implemented_by(Ext)
+    assert not IBaz.implemented_by(Ext)
 
 
 def test_provided_by():

@@ -1,14 +1,11 @@
-# encoding: utf-8
-
 '''
 Provides plugin services to the CKAN
 '''
 from __future__ import annotations
 
 import logging
-import sys
 from contextlib import contextmanager
-from typing import (Any, Generic, Iterator, TypeVar, Union)
+from typing import Generic, Iterator, TypeVar
 from typing_extensions import TypeGuard
 from pkg_resources import iter_entry_points
 
@@ -17,7 +14,11 @@ from ckan.common import config
 from ckan.types import SignalMapping
 
 from . import interfaces
-from .base import Interface, Plugin, SingletonPlugin, PluginNotFoundException
+from .base import (
+    Interface, Plugin,
+    SingletonPlugin, PluginNotFoundException,
+    implements,
+)
 
 
 __all__ = [
@@ -50,25 +51,15 @@ GROUPS = [
 ]
 # These lists are used to ensure that the correct extensions are enabled.
 _PLUGINS: list[str] = []
-_PLUGINS_CLASS: list[type[Plugin]] = []
 
 # To aid retrieving extensions by name
 _PLUGINS_SERVICE: dict[str, Plugin] = {}
 
 
-def implements(interface: type[Interface], inherit: bool = False):
-    """Can be used in the class definition of `Plugin` subclasses to
-    declare the extension points that are implemented by this
-    interface class.
-    """
-    frame = sys._getframe(1)
-    locals_ = frame.f_locals
-    locals_.setdefault("_implements", set()).add(interface)
-    if inherit:
-        locals_.setdefault("_inherited_interfaces", set()).add(interface)
-
-
-def implemented_by(service: Plugin, interface: type[TInterface]) -> TypeGuard[TInterface]:
+def implemented_by(
+        service: Plugin,
+        interface: type[TInterface]
+) -> TypeGuard[TInterface]:
     return interface.provided_by(service)
 
 
@@ -98,7 +89,10 @@ class PluginImplementations(Generic[TInterface]):
         self.interface = interface
 
     def extensions(self):
-        return [p for p in _PLUGINS_SERVICE.values() if self.interface.implemented_by(type(p))]
+        return [
+            p for p in _PLUGINS_SERVICE.values()
+            if self.interface.implemented_by(type(p))
+        ]
 
     def __iter__(self) -> Iterator[TInterface]:
         plugin_lookup = {pf.name: pf for pf in self.extensions()}
@@ -126,7 +120,6 @@ class PluginImplementations(Generic[TInterface]):
         return iter(ordered_plugins)
 
 
-
 def get_plugin(plugin: str) -> Plugin | None:
     ''' Get an instance of a active plugin by name.  This is helpful for
     testing. '''
@@ -150,14 +143,14 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.get('ckan.plugins') + find_system_plugins()
+    plugins = config['ckan.plugins'] + find_system_plugins()
 
     load(*plugins)
 
 
 def load(
         *plugins: str
-) -> Union[Plugin, list[Plugin]]:
+) -> Plugin | list[Plugin]:
     '''
     Load named plugin(s).
     '''
@@ -178,7 +171,6 @@ def load(
             observer_plugin.after_load(service)
 
         _PLUGINS.append(plugin)
-        _PLUGINS_CLASS.append(service.__class__)
 
         if implemented_by(service, interfaces.ISignal):
             _connect_signals(service.get_signal_subscriptions())
@@ -205,8 +197,6 @@ def unload(*plugins: str) -> None:
     '''
     Unload named plugin(s).
     '''
-    from . import interfaces
-
     observers = PluginImplementations(interfaces.IPluginObserver)
 
     for plugin in plugins:
@@ -215,7 +205,6 @@ def unload(*plugins: str) -> None:
         else:
             raise Exception('Cannot unload plugin `%s`' % plugin)
         service = _get_service(plugin)
-        _PLUGINS_CLASS.remove(service.__class__)
 
         if plugin in _PLUGINS_SERVICE:
             del _PLUGINS_SERVICE[plugin]
@@ -275,28 +264,22 @@ def unload_non_system_plugins():
     unload(*plugins_to_unload)
 
 
-def _get_service(plugin_name: Union[str, Any]) -> Plugin:
-    '''
-    Return a service (ie an instance of a plugin class).
+def _get_service(plugin_name: str) -> Plugin:
+    """Return a plugin instance using its entry point name.
 
-    :param plugin_name: the name of a plugin entry point
-    :type plugin_name: string
-
-    :return: the service object
-    '''
-
-    if isinstance(plugin_name, str):
-        for group in GROUPS:
-            iterator = iter_entry_points(
-                group=group,
-                name=plugin_name
-            )
-            plugin = next(iterator, None)
-            if plugin:
-                return plugin.load()(name=plugin_name)
-        raise PluginNotFoundException(plugin_name)
-    else:
-        raise TypeError('Expected a plugin name', plugin_name)
+    Example:
+    >>> plugin = _get_service("activity")
+    >>> assert isinstance(plugin, ActivityPlugin)
+    """
+    for group in GROUPS:
+        iterator = iter_entry_points(
+            group=group,
+            name=plugin_name
+        )
+        plugin = next(iterator, None)
+        if plugin:
+            return plugin.load()(name=plugin_name)
+    raise PluginNotFoundException(plugin_name)
 
 
 def _connect_signals(mapping: SignalMapping):

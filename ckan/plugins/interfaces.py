@@ -14,7 +14,6 @@ from typing import (
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
@@ -1701,7 +1700,7 @@ class IAuthenticator(Interface):
 
     def authenticate(
         self, identity: 'Mapping[str, Any]'
-    ) -> Optional["User"]:
+    ) -> model.User | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
@@ -1849,7 +1848,7 @@ class IPermissionLabels(Interface):
     See ``ckanext/example_ipermissionlabels`` for an example plugin.
     '''
 
-    def get_dataset_labels(self, dataset_obj: 'model.Package') -> list[str]:
+    def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
         as the permission lables for a dataset dict.
@@ -1862,8 +1861,9 @@ class IPermissionLabels(Interface):
         '''
         return []
 
-    def get_user_dataset_labels(self,
-                                user_obj: Optional['model.User']) -> list[str]:
+    def get_user_dataset_labels(
+            self, user_obj: model.User | None
+    ) -> list[str]:
         u'''
         Return the permission labels that give a user permission to view
         a dataset. If any of the labels returned from this method match
