@@ -475,7 +475,7 @@ Preparing patch releases
         git commit -am "Update version number"
         git push origin release-v2.5.2
 
-#. Backport PRs marked for backport using the :ref:`backports_action`_ or manually if that fails.
+#. Backport PRs marked for backport using the :ref:`automated_backports` or manually if that fails.
 
 #. Ask the tech team if there are security fixes or other fixes to include.
 
