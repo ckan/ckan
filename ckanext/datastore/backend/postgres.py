@@ -1709,7 +1709,7 @@ def _create_fulltext_trigger(connection: Any, resource_id: str):
 def upsert(context: Context, data_dict: dict[str, Any]):
     '''
     This method combines upsert insert and update on the datastore. The method
-    that will be used is defined in the mehtod variable.
+    that will be used is defined in the method variable.
 
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
@@ -2251,7 +2251,7 @@ class DatastorePostgresqlBackend(DatastoreBackend):
         try:
             engine = self._get_read_engine()
 
-            # resource id for deferencing aliases
+            # resource id for dereferencing aliases
             info['meta']['id'] = id
 
             # count of rows in table

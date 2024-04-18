@@ -1,9 +1,9 @@
 {#
 Inserts a stepped progress indicator for the new package form. Each stage can
-have one of three states, "uncomplete", "complete" and "active".
+have one of three states, "incomplete", "complete" and "active".
 
 stages - A list of states for each of the three stages. Missing stages default
-         to "uncomplete".
+         to "incomplete".
 
 Example:
 
@@ -13,11 +13,11 @@ Example:
 
 #}
 {% set s1 = stages[0] or 'active' %}
-{% set s2 = stages[1] or 'uncomplete' %}
+{% set s2 = stages[1] or 'incomplete' %}
 {% set dataset_type = dataset_type or h.default_package_type() %}
 
-{% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
-{% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
+{% if s1 != 'incomplete' %}{% set class = 'stage-1' %}{% endif %}
+{% if s2 != 'incomplete' %}{% set class = 'stage-2' %}{% endif %}
 
 <ol class="stages {{ class }}">
   <li class="first {{ s1 }}">

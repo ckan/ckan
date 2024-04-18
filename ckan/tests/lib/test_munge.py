@@ -99,7 +99,7 @@ def test_munge_name_pass(original, expected):
         ("s", "s_"),  # too short
         ("random:other%character&", "random-othercharacter"),
         (u"u with umlaut \xfc", "u-with-umlaut-u"),
-        ("reallylong" * 12, "reallylong" * 9 + "reall"),
+        ("reallylong" * 12, "reallylong" * 9 + "reall"),  # codespell-ignore
         ("reallylong" * 12 + " - 2012", "reallylong" * 9 + "-2012"),
         (
             "10cm - 50cm Near InfraRed (NI) Digital Aerial Photography (AfA142)",
@@ -124,7 +124,7 @@ def test_munge_title_to_name(original, expected):
     ],
 )
 def test_munge_tag_multiple_pass(original, expected):
-    """Munge a list of tags muliple times gives expected results."""
+    """Munge a list of tags multiple times gives expected results."""
 
     first_munge = munge_tag(original)
     assert first_munge == expected

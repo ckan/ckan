@@ -498,7 +498,7 @@ class TestDictization:
                     u"url": u"http://blah.com/file.xml",
                 },
             ],
-            "tags": [{"name": u"russion"}, {"name": u"novel"}],
+            "tags": [{"name": u"russian"}, {"name": u"novel"}],
             "title": u"Some Title",
             "url": u"http://blahblahblah.mydomain",
         }
@@ -522,7 +522,7 @@ class TestDictization:
             ("resources", 1, u"format"): u"xml",
             ("resources", 1, u"hash"): u"abc123",
             ("resources", 1, u"url"): u"http://blah.com/file.xml",
-            ("tags", 0, "name"): u"russion",
+            ("tags", 0, "name"): u"russian",
             ("tags", 1, "name"): u"novel",
             ("title",): u"Some Title",
             ("url",): u"http://blahblahblah.mydomain",

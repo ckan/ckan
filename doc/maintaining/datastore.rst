@@ -411,7 +411,7 @@ Filters define the matching conditions to select from the DataStore. A filter is
   }
     }
 
-Filters must be supplied as a dictonary. Filters are used as `WHERE` statements.
+Filters must be supplied as a dictionary. Filters are used as `WHERE` statements.
 The filters have to be valid key/value pairs. The key must be a valid column name
 and the value must match the respective column type. The value may be provided as a List
 of multiple matching values. See :ref:`valid-types` for details on which types are valid.

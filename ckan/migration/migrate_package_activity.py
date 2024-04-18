@@ -231,7 +231,7 @@ def wipe_activity_detail(delete_activity_detail):
             'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;'))
             .fetchall()[0][0])
     if not activity_detail_has_rows:
-        print(u'\nactivity_detail table is aleady emptied')
+        print(u'\nactivity_detail table is already emptied')
         return
     print(
         u'\nNow the migration is done, the history of datasets is now stored\n'

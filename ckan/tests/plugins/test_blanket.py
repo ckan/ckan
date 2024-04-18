@@ -152,7 +152,7 @@ class TestBlanketImplementation(object):
 
     def test_blanket_must_be_used(self, app, cli, ckan_config):
         """There is no accidental use of blanket implementation if module not
-        loades.
+        loads.
 
         """
         assert not self._helpers_registered()

@@ -63,7 +63,7 @@ app_globals_from_config_details: dict[str, dict[str, str]] = {
 }
 
 
-# A place to store the origional config options of we override them
+# A place to store the original config options of we override them
 _CONFIG_CACHE: dict[str, Any] = {}
 
 def set_theme(asset: str) -> None:

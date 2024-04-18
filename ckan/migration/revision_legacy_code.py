@@ -230,7 +230,7 @@ def _execute_with_revision(q, rev_table, context):
 # * copied in bits from ckan.model.core.make_revisioned_table()
 # * it no longer adds revision_id to the base table (e.g. package.revision_id)
 def make_revisioned_table(base_table, frozen=False):
-    '''Modify base_table and create correponding revision table.
+    '''Modify base_table and create corresponding revision table.
 
     A 'frozen' revision table is not written to any more - it's just there
     as a record. It doesn't have the continuity foreign key relation.

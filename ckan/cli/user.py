@@ -61,7 +61,7 @@ def add_user(ctx: click.Context, username: str, args: list[str]):
             u'user': site_user['name'],
         }
         flask_app = ctx.meta['flask_app']
-        # Current user is tested agains sysadmin role during model
+        # Current user is tested against sysadmin role during model
         # dictization, thus we need request context
         with flask_app.test_request_context():
             user_dict = logic.get_action(u'user_create')(context, data_dict)

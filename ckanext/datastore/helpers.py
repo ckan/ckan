@@ -90,7 +90,7 @@ def get_table_and_function_names_from_sql(context: Context, sql: str):
     function names
 
     It performs an EXPLAIN query against the provided SQL, and parses
-    the output recusively.
+    the output recursively.
 
     Note that this requires Postgres 9.x.
 

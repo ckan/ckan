@@ -260,7 +260,7 @@ For example::
      * params   - An optional object containing key/value arguments to be
      *            passed into the template.
      * success  - An optional success callback to be called on load. This will
-     *            recieve the HTML string as the first argument.
+     *            receive the HTML string as the first argument.
      * error    - An optional error callback to be called if the request fails.
      *
      * Example

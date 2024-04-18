@@ -450,7 +450,7 @@ class TestPackageNew(object):
 
     def test_unauthed_user_creating_dataset(self, app):
 
-        # provide REMOTE_ADDR to idenfity as remote user, see
+        # provide REMOTE_ADDR to identify as remote user, see
         # ckan.views.identify_user() for details
         app.post(
             url=url_for("dataset.new"),

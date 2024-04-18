@@ -346,7 +346,7 @@ this.ckan = this.ckan || {};
   /* Extracts any properties starting with MODULE_OPTION_PREFIX from the
    * element and returns them as an object.
    *
-   * Keys with additonal hyphens will be converted to camelCase. Each attribute
+   * Keys with additional hyphens will be converted to camelCase. Each attribute
    * will be passed to JSON.parse() so that complex object can be provided as
    * options (although this is not recommended).
    *

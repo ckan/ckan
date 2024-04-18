@@ -68,7 +68,7 @@ ckan.module('text_view', function (jQuery) {
             self.el.html(jqXHR.responseText);
           } else {
             self.el.html(self._(
-              'An error occured during AJAX request. Could not load view.')
+              'An error occurred during AJAX request. Could not load view.')
             );
           }
         }

@@ -306,7 +306,7 @@ class TestDictizeWithRemoveColumns:
                     u"size": u"200",
                 },
             ],
-            "tags": u"russion novel",
+            "tags": u"russian novel",
             "license_id": u"gpl-3.0",
             "extras": {"genre": u"horror", "media": u"dvd"},
         }
@@ -338,7 +338,7 @@ class TestDictizeWithRemoveColumns:
                     u"url": u"http://blah.com/file.xml",
                 },
             ],
-            "tags": [{"name": u"russion"}, {"name": u"novel"}],
+            "tags": [{"name": u"russian"}, {"name": u"novel"}],
             "title": u"Some Title",
             "url": u"http://blahblahblah.mydomain",
         }

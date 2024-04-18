@@ -6,7 +6,7 @@
   {{ _('{actor} updated the resource {resource} in the dataset {dataset}').format(
     actor=ah.actor(activity),
     resource=ah.resource(activity),
-    dataset=ah.datset(activity)
+    dataset=ah.dataset(activity)
   )|safe }}
   <br />
   <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">

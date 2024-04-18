@@ -5,7 +5,7 @@ Before, such values were just wrapped into a list, i.e: ``[value]``.
    :widths: 40 30 30
    :header-rows: 1
 
-   * - Expresion
+   * - Expression
      - Before
      - After
    * - ``aslist([1,2])``

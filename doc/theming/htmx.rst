@@ -122,9 +122,9 @@ Note that this endpoint is reusing the ``package/snippets/info.html`` that is al
 ``package/read_base.html`` when calling ``/dataset/<dataset-id>``. This shows how modular and reusable the CKAN
 templates are with ``htmx``.
 
--------------------------------------------
-2. Accesing to HTMX request headers in CKAN
--------------------------------------------
+--------------------------------------------
+2. Accessing to HTMX request headers in CKAN
+--------------------------------------------
 
 CKAN adds a new property to the CKANRequest class called ``htmx`` that you can
 use to access the htmx request headers. For example::
