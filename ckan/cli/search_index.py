@@ -48,6 +48,8 @@ def rebuild(
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
                 clear=clear)
+    except logic.NotFound:
+        error_shout("Couldn't find package %s" % package_id)
     except Exception as e:
         error_shout(e)
     if not commit_each:
