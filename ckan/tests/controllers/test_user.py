@@ -430,18 +430,19 @@ class TestUser(object):
 
     def test_edit_user_logged_in_username_change_by_sysadmin(
             self, app, user, sysadmin):
-        env = {"Authorization": sysadmin["token"]}
 
+        headers = {"Authorization": sysadmin["token"]}
         response = app.post(
             url=url_for("user.edit", id=user["id"]),
             data={
                 "email": user["email"],
                 "save": "",
+                "old_password": "correct123",
                 "password1": "",
                 "password2": "",
                 "name": factories.User.stub().name,
             },
-            extra_environ=env
+            headers=headers
         )
         assert 'Profile updated' in response
 
