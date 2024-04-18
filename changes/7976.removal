@@ -1,0 +1,2 @@
+PyUtilib dependency removed. All the primitives for plugin system now defined
+inside CKAN.
