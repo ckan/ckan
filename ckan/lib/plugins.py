@@ -582,6 +582,26 @@ class DefaultOrganizationForm(DefaultGroupForm):
         return 'organization/activity_stream.html'
 
 
+class DefaultIUserForm(object):
+    '''
+    Default implementation of IUserForm
+    '''
+    def new_template(self) -> str:
+        return 'user/new.html'
+
+    def read_template(self) -> str:
+        return 'user/read.html'
+
+    def edit_template(self) -> str:
+        return 'user/edit.html'
+
+    def user_create_schema(self) -> dict[str, Any]:
+        return schema.default_user_schema()
+
+    def user_update_schema(self) -> dict[str, Any]:
+        return schema.default_update_user_schema()
+
+
 class DefaultTranslation(object):
     name: str
 
