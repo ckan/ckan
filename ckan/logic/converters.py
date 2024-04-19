@@ -50,6 +50,33 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
         return
     remove_from_extras(data, data_key[1])
 
+def convert_from_plugin_extras(key: FlattenKey, data: FlattenDataDict,
+                               errors: FlattenErrorDict,
+                               context: Context):
+
+    """Restore field using object's plugin_extras.
+    """
+    model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    data[key] = user.plugin_extras["public"].get(key)
+
+
+
+def convert_to_plugin_extras(key: FlattenKey, data: FlattenDataDict,
+                             errors: FlattenErrorDict,
+                             context: Context):
+    """Copy data[key] to plugin_extras["public"][key] for storing in the db"""
+    model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    if user.plugin_extras:
+        user.plugin_extras["public"][key] = data[key]
+    else:
+        user.plugin_extras = {"public": {}}
+        user.plugin_extras['public'][key] = data[key]
+
+
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):
     """Convert every value of the dictionary into string.
     """

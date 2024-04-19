@@ -971,6 +971,12 @@ def user_create(context: Context,
     '''
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
+    # Get the custom schema from IUserForm
+    for plugin in plugins.PluginImplementations(plugins.IUserForm):
+        # do something with the plugin
+        user_schema = plugin.get_schema()
+        schema.update(user_schema)
+
     session = context['session']
     with_apitoken = data_dict.pop("with_apitoken", False)
 
