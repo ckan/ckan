@@ -162,6 +162,7 @@ groups:
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
+        validators: configured_default("beaker.session.secret",None)
         description: |
           This is the secret token that is used by security related tasks by CKAN and its extensions.
           ``ckan generate config`` generates a unique
@@ -171,6 +172,9 @@ groups:
             python -c "import secrets; print(secrets.token_urlsafe(20))"
 
           When used in a cluster environment, the value must be the same on every machine.
+
+          If not provided, for backwards compatibility with earlier configurations the value of
+          ``beaker.session.secret`` will be used.
 
 
       - key: ckan.legacy_route_mappings
@@ -268,10 +272,7 @@ groups:
         validators: configured_default("SECRET_KEY",None)
         description: |
           This is the secret token that the beaker library uses to hash the
-          cookie sent to the client. `ckan generate config` generates a unique
-          value for this each time it generates a config file. When used in a
-          cluster environment, the value must be the same on every machine.
-          If not provided, the value of ``SECRET_KEY`` will be used.
+          cookie sent to the client. If not provided, the value of ``SECRET_KEY`` will be used.
       - key: beaker.session.auto
         type: bool
         default: False
