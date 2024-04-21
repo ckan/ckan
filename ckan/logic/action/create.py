@@ -974,7 +974,7 @@ def user_create(context: Context,
     # Get the custom schema from IUserForm
     for plugin in plugins.PluginImplementations(plugins.IUserForm):
         # do something with the plugin
-        user_schema = plugin.get_schema()
+        user_schema = plugin.create_user_schema()
         schema.update(user_schema)
 
     session = context['session']

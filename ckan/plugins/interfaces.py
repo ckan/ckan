@@ -65,6 +65,7 @@ __all__ = [
     u'IApiToken',
     u'IClick',
     u'ISignal',
+    u'IUserForm',
 ]
 
 
@@ -2248,7 +2249,7 @@ class IUserForm(Interface):
         '''
         return ''
 
-    def user_create_schema(self) -> Schema:
+    def create_user_schema(self) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
@@ -2256,7 +2257,7 @@ class IUserForm(Interface):
         '''
         return {}
 
-    def user_update_schema(self) -> Schema:
+    def update_user_schema(self) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
@@ -2264,7 +2265,7 @@ class IUserForm(Interface):
         '''
         return {}
 
-    def user_show_schema(self) -> Schema:
+    def show_user_schema(self) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
