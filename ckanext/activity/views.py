@@ -572,9 +572,12 @@ def group_activity(id: str, group_type: str) -> str:
         "older_activities_url": older_activities_url
     }
 
-    return tk.render(
-        _get_group_template("activity_template", group_type), extra_vars
-    )
+    if tk.request.htmx:
+        return tk.render(
+            _get_group_template("activity_template", group_type), extra_vars
+        )
+    else:
+        return tk.render(_get_group_template("activity_read_base_template", group_type), extra_vars)
 
 
 @bp.route(
