@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 from flask.ctx import RequestContext
 from flask.sessions import SecureCookieSessionInterface
-from flask_session import RedisSessionInterface
+from flask_session.redis import RedisSessionInterface
 
 from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
@@ -78,6 +78,7 @@ class CKANRedisSessionInterface(RedisSessionInterface):
     def __init__(self, app: CKANApp):
         app.config.setdefault("SESSION_REDIS", connect_to_redis())
         return super().__init__(
+            app,
             app.config["SESSION_REDIS"],
             app.config["SESSION_KEY_PREFIX"],
             app.config["SESSION_USE_SIGNER"],

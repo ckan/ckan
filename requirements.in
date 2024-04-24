@@ -11,7 +11,7 @@ feedgen==0.9.0
 Flask==3.0.0
 Flask-Babel==4.0.0
 Flask-Login==0.6.3
-Flask-Session==0.5.0
+Flask-Session==0.8.0
 Flask-WTF==1.2.1
 greenlet>=2.0.2
 Jinja2==3.1.2
