@@ -470,7 +470,7 @@ class PackageSearchQuery(SearchQuery):
                     raise SearchQueryError('Invalid "sort" parameter')
 
                 if "Failed to connect to server" in e.args[0]:
-                    raise SolrConnectionError("Connection Error", message=e.args[0])
+                    raise SolrConnectionError("Connection Error", message="Failed to connect to Solr server")
 
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
