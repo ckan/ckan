@@ -28,7 +28,7 @@
         {% set sorting = [
             (_('Name Ascending'), 'title_string asc'),
             (_('Name Descending'), 'title_string desc'),
-            (_('Last Modified'), 'data_modified desc') ]
+            (_('Last Modified'), 'metadata_modified desc') ]
                 %}
         {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type=dataset_type, query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
       {% endblock %}

@@ -14,9 +14,9 @@
   <h2>{{ _('Data and Resources') }}</h2>
   {% block resource_list %}
     {% if resources %}
-      {% set can_edit = can_edit or h.check_access('package_update', {'id':pkg.id }) %}
       <ul class="{% block resource_list_class %}resource-list{% endblock %}">
         {% block resource_list_inner %}
+          {% set can_edit = can_edit or h.check_access('package_update', {'id':pkg.id }) %}
           {% for resource in resources %}
             {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=can_edit %}
           {% endfor %}

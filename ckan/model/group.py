@@ -136,7 +136,7 @@ class Member(core.StatefulObjectMixin,
         # TODO do we want to return all related packages or certain ones?
         return meta.Session.query(_package.Package).filter_by(
             id=self.table_id).all()
-    
+
 
     def __str__(self):
         # refer to objects by name, not ID, to help debugging
@@ -226,7 +226,7 @@ class Group(core.StatefulObjectMixin,
         assert status in ["approved", "denied"]
         self.approval_status = status
 
-    def get_children_groups(self, type: str='group') -> list[Self]:
+    def get_children_groups(self, type: str='group') -> list[Group]:
         '''Returns the groups one level underneath this group in the hierarchy.
         '''
         # The original intention of this method was to provide the full depth
@@ -263,7 +263,7 @@ class Group(core.StatefulObjectMixin,
             id=self.id, type=type).all()
         return results
 
-    def get_parent_groups(self, type: str='group') -> list[Self]:
+    def get_parent_groups(self, type: str='group') -> list[Group]:
         '''Returns this group's parent groups.
         Returns a list. Will have max 1 value for organizations.
 
@@ -279,7 +279,7 @@ class Group(core.StatefulObjectMixin,
             all()
         return result
 
-    def get_parent_group_hierarchy(self, type: str='group') -> list[Self]:
+    def get_parent_group_hierarchy(self, type: str='group') -> list[Group]:
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         result: list[Group] =  meta.Session.query(Group).\
@@ -288,7 +288,7 @@ class Group(core.StatefulObjectMixin,
         return result
 
     @classmethod
-    def get_top_level_groups(cls, type: str='group') -> list[Self]:
+    def get_top_level_groups(cls, type: str='group') -> list[Group]:
         '''Returns a list of the groups (of the specified type) which have
         no parent groups. Groups are sorted by title.
         '''
