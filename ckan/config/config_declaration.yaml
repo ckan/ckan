@@ -243,61 +243,25 @@ groups:
         description: |
           The number of seconds between requests to record the last time a user was active on the site.
 
-      - key: ckan.session.custom_type.cookie.import_path
-        default: ckan.config.middleware:CKANSecureCookieSessionInterface
-        description: |
-          Import path for cookie-based session interface. Used when
-          ``SESSION_TYPE`` config option set to ``cookie``. Default value
-          points to implementation that extends Flask cookie-based session with
-          cookie-lifetime support.
-
-      - key: ckan.session.custom_type.redis.import_path
-        default: ckan.config.middleware:CKANRedisSessionInterface
-        description: |
-          Import path for redis-based session interface. Used when
-          ``SESSION_TYPE`` config option set to ``redis``. Default value points
-          to implementation that initializes Flask-Session redis-based session
-          with the Redis connection used by CKAN(and configurable via CKAN
-          config).
-
       - key: SESSION_TYPE
         default: cookie
         description: |
-            Specifies which type of session interface to use. Default
-            ``cookie`` type stores session inside a JSON-serialized signed
-            cookie. Alternatively, this option can be set to session types
+            Specifies which type of session interface to use. The default
+            ``cookie`` value stores the session data inside a JSON-serialized signed
+            cookie. Alternatively, this can be set to any of the types
             supported by `Flask-Session
-            <https://flask-session.readthedocs.io/en/latest/config.html>`_:
-            ``redis``, ``memcached``, ``filesystem``, ``mongodb``. Keep in mind
-            that certaint session types `require additional Python packages
-            <https://flask-session.readthedocs.io/en/latest/interfaces.html>`_.
+            <https://flask-session.readthedocs.io/en/latest/config.html#SESSION_TYPE>`_
+            like ``redis``, ``filesystem``, etc. Keep in mind
+            that certaint session types require additional Python packages and configuration settings.
+            Setting a not supported value will raise an exception on startup.
+            To use a custom interface to override the behaviour of an existing one or use a brand new one, you can set the
+            ``ckan.session.custom_type.<TYPE NAME>.import_path`` config option, which is the
+            import path for the custom session interface implementation.
 
-            By default, attempt to use non-existing ``SESSION_TYPE`` cause a
-            runtime error upon visiting any endpoint. But if
-            ``ckan.session.custom_type.<TYPE NAME>.import_path`` config option
-            is present, its value is used as an import path for the custom session
-            interface implementation. This feature is required in following scenarios:
-
-              * application requires a brand new session interface that uses
-                specific storage for sessions
-
-              * existing session interface is generally good, but requires
-                small changes. For example, application requires using ``json``
-                instead of ``pickle`` for serialization.
-
-            Example::
+            For example::
 
               SESSION_TYPE = my_custom_interface
               ckan.session.custom_type.my_custom_interface.import_path = ckanext.my_module.session:CustomInterface
-
-            Example of custom session interface that extends redis interface
-            but uses ``json`` instead of ``pickle``::
-
-              import json
-              from ckan.config.middleware import CKANRedisSessionInterface
-
-              class JsonRedisSessionInterface(CKANRedisSessionInterface):
-                serializer = json
 
       - key: SESSION_COOKIE_NAME
         default: ckan
@@ -308,11 +272,9 @@ groups:
         default: "session:"
         description: |
           A prefix that is added before all session keys. This makes it
-          possible to use the same backend storage server for different apps,
-          default “session:”.
+          possible to use the same backend storage server for different apps.
 
-          .. note:: This option affects only server-side sessions from
-            flask-session. Cookie-based sessions ignore this option
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
 
       - key: SESSION_COOKIE_DOMAIN
         validators: ignore_empty
@@ -351,7 +313,7 @@ groups:
         type: bool
         description: |
           Control whether the cookie is sent with every response when
-          SESSION_PERMANENT is true. Sending the cookie every time can more
+          :ref:`SESSION_PERMANENT` is true. Sending the cookie every time can more
           reliably keep the session from expiring, but uses more
           bandwidth. Non-permanent sessions are not affected.
 
@@ -361,22 +323,39 @@ groups:
         description: |
           When disabled, session expires with the browser session. When
           enabled, session's expiration time set to
-          ``PERMANENT_SESSION_LIFETIME`` seconds.
+          :ref:`PERMANENT_SESSION_LIFETIME` seconds.
 
       - key: PERMANENT_SESSION_LIFETIME
         type: int
         default: 31_536_000 # 1 year
         description: |
-          If ``SESSION_PERMANENT`` is enabled, the session’s expiration will be
-          set this number of seconds in the future.
+          If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
+          set this number of seconds in the future. Note that you can not set a 
+          session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
         type: bool
         description: |
-          Whether sign the session cookie sid or not.
+          Whether to sign the session cookie sid or not.
 
-          .. note:: This option affects only server-side sessions from
-            flask-session. Cookie-based sessions ignore this option
+          .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
+
+      - key: ckan.session.custom_type.cookie.import_path
+        default: ckan.config.middleware:CKANSecureCookieSessionInterface
+        description: |
+          Import path for a cookie-based session interface. Used when
+          :ref:`SESSION_TYPE` is set to ``cookie``. The default value
+          points to an internal CKAN implementation that extends the Flask cookie-based session with
+          cookie-lifetime support.
+
+      - key: ckan.session.custom_type.redis.import_path
+        default: ckan.config.middleware:CKANRedisSessionInterface
+        description: |
+          Import path for a Redis-based session interface. Used when
+          :ref:`SESSION_TYPE` is set to ``redis``. The default value points
+          to an internal CKAN implementation that initializes the Flask-Session Redis-based session
+          with the Redis connection used by CKAN, configured via :ref:`ckan.redis.url`
+
 
   - annotation: Database settings
     options:
