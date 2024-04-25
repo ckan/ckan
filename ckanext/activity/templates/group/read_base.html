@@ -1,6 +1,6 @@
 {% ckan_extends %}
 
-{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+{% block subtitle %}{{ _('Activity Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock subtitle %}
 
 {% block content_primary_nav %}
   {{ super() }}
@@ -9,4 +9,4 @@
 
 {% block primary_content_inner %}
   {% snippet 'group/activity_stream.html', activity_stream=activity_stream, id=id, object_type='group', group_type=group_type, activity_types=activity_types, blueprint='activity.group_activity' %}
-{% endblock %}
+{% endblock primary_content_inner %}
