@@ -56,16 +56,20 @@ def convert_from_plugin_extras(key: FlattenKey, data: FlattenDataDict,
 
     """Restore field using object's plugin_extras.
     """
-    plugin_extrass = { data.get("key"): data.get("value") }
-    data["plugin_extras"] = plugin_extrass
+    plugin_extras = { data.get("key"): data.get("value") }
+    data["plugin_extras"] = plugin_extras
 
 def convert_to_plugin_extras(key: FlattenKey, data: FlattenDataDict,
                              errors: FlattenErrorDict,
                              context: Context):
     """Copy data[key] to plugin_extras["public"][key] for storing in the db"""
     breakpoint()
-    plugin_extras = { key[0]: data.get(key) }
-    data["plugin_extras"] = plugin_extras
+    plugin_extras = data.get(('plugin_extras',))
+    if not plugin_extras:
+        return
+    plugin_extras["public"][key[-1]] = data[key]
+    data[('plugin_extras',)] = plugin_extras
+
 
 
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):
