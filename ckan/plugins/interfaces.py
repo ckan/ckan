@@ -7,8 +7,8 @@ extend CKAN.
 from __future__ import annotations
 
 from typing import (
-    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Type, Union,
+    Any, Callable, ClassVar, IO, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Type, Tuple, Union,
 )
 
 from pyutilib.component.core import Interface as _pca_Interface
@@ -31,6 +31,14 @@ if TYPE_CHECKING:
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
     from .core import SingletonPlugin
+
+
+AttachmentWithType = Union[
+    Tuple[str, IO[str], str],
+    Tuple[str, IO[bytes], str]
+]
+AttachmentWithoutType = Union[Tuple[str, IO[str]], Tuple[str, IO[bytes]]]
+Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
@@ -2208,3 +2216,55 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class INotifier(Interface):
+    """Define notification methods for the plugin."""
+
+    def notify_recipient(
+        self,
+        recipient_name: str,
+        recipient_email: str,
+        subject: str,
+        body: str,
+        body_html: Optional[str] = None,
+        headers: Optional[dict[str, Any]] = None,
+        attachments: Optional[Iterable[Attachment]] = None
+    ) -> None:
+        '''Sends an notification to a an email address.
+
+        .. note:: You need to set up the :ref:`email-settings` to able to send
+            emails.
+
+        :param recipient_name: the name of the recipient
+        :type recipient: string
+        :param recipient_email: the email address of the recipient
+        :type recipient: string
+
+        :param subject: the email subject
+        :type subject: string
+        :param body: the email body, in plain text
+        :type body: string
+        :param body_html: the email body, in html format (optional)
+        :type body_html: string
+        :headers: extra headers to add to email, in the form
+            {'Header name': 'Header value'}
+        :type: dict
+        :attachments: a list of tuples containing file attachments to add to the
+            email. Tuples should contain the file name and a file-like object
+            pointing to the file contents::
+
+                [
+                    ('some_report.csv', file_object),
+                ]
+
+            Optionally, you can add a third element to the tuple containing the
+            media type. If not provided, it will be guessed using
+            the ``mimetypes`` module::
+
+                [
+                    ('some_report.csv', file_object, 'text/csv'),
+                ]
+        :type: list
+        '''
+        pass
