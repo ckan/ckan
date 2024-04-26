@@ -190,7 +190,7 @@ def mail_recipient(recipient_name: str,
             attachments=attachments)
 
     # send an email ONLY if we have smtp settings available
-    if config.get('smtp.mail_from'):
+    if config.get('smtp.server'):
         _mail_recipient(
             recipient_name, recipient_email,
             site_title, site_url, subject, body,
