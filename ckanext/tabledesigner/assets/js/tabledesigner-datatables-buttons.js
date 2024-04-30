@@ -1,3 +1,20 @@
+this.ckan.module('tabledesigner_datatables_add', function($, _) {
+  return {
+    initialize: function() {
+      var defn = $(this)[0].el;
+      var editText = defn.data('edit-text');
+      var editUrl = defn.data('edit-url');
+
+      const table = $('#dtprv').DataTable();
+      table.button().add(0, {
+        text: editText,
+        action: function ( e, dt, button, config ){
+          window.parent.location = editUrl;
+        }
+      });
+    }
+  }
+});
 this.ckan.module('tabledesigner_datatables_edit', function($, _) {
   return {
     initialize: function() {
