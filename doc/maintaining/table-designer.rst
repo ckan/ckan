@@ -11,7 +11,7 @@ The CKAN Table Designer extension is a *data ingestion* and *enforced-validation
 - uses the :ref:`CKAN DataStore <datastore>` database as the primary data source
 - allows rows to be updated without re-loading all data
 - builds data schemas with custom types and constraints in the :ref:`data_dictionary` form
-- enables linked data with simple and composite primary keys
+- enables referencing other tables with simple and composite primary keys
 - enforces validation with PostgreSQL triggers for almost *any business logic desired*
 - works with existing DataStore APIs for integration with other applications:
 
@@ -248,7 +248,7 @@ widgets see: :ref:`custom-columns-constraints`
 Creating rows
 =============
 
-Below the data table preview click the "➕ Add row" button to create a row.
+Above the data table preview click the "Add row" button to create a row.
 
 Updating rows
 =============
