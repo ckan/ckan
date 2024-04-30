@@ -46,7 +46,7 @@ def _create_table_and_view(res: dict[str, Any]) -> None:
             'view_type': 'datatables_view',
             'title': 'Table',
         })
-    except ValidationError as err:
+    except ValidationError:
         # missing datatables_view but too late to abort resource
         # create/update, show warning on preview page instead
         return
