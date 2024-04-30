@@ -56,8 +56,10 @@ def convert_from_plugin_extras(key: FlattenKey, data: FlattenDataDict,
 
     """Restore field using object's plugin_extras.
     """
-    plugin_extras = { data.get("key"): data.get("value") }
-    data["plugin_extras"] = plugin_extras
+    plugin_extras = data.get("plugin_extras")
+    if not plugin_extras:
+        return
+    data[key] = plugin_extras.get("public", {}).get(key[-1])
 
 def convert_to_plugin_extras(key: FlattenKey, data: FlattenDataDict,
                              errors: FlattenErrorDict,

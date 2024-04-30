@@ -1076,6 +1076,7 @@ def one_of(list_of_value: Container[Any]) -> Validator:
 
 
 def json_object(value: Any) -> Any:
+    breakpoint()
     ''' Make sure value can be serialized as a JSON object'''
     if value is None or value == '':
         return
