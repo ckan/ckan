@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from ckan.types import Context
-from ckan.plugins.toolkit import get_action, chained_action
+from ckan.plugins.toolkit import get_action, chained_action, ValidationError
 
 from ckanext.tabledesigner.datastore import create_table
 
@@ -40,8 +40,13 @@ def _create_table_and_view(res: dict[str, Any]) -> None:
     })
     if any(v['view_type'] == 'datatables_view' for v in views):
         return
-    get_action('resource_view_create')({}, {
-        'resource_id': res['id'],
-        'view_type': 'datatables_view',
-        'title': 'Table',
-    })
+    try:
+        get_action('resource_view_create')({}, {
+            'resource_id': res['id'],
+            'view_type': 'datatables_view',
+            'title': 'Table',
+        })
+    except ValidationError as err:
+        # missing datatables_view but too late to abort resource
+        # create/update, show warning on preview page instead
+        return
