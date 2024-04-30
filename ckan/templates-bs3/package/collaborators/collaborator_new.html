@@ -10,8 +10,8 @@
     {% block page_heading %}{{ _('Edit Collaborator') if user else _('Add Collaborator') }}{% endblock %}
   </h1>
   {% block form %}
-  {{ h.csrf_input() }}
   <form class="dataset-form add-member-form" method='post'>
+    {{ h.csrf_input() }}
     <div class="row">
       <div class="col-md-5">
         <div class="form-group control-medium">
