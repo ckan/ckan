@@ -8,7 +8,7 @@ Table Designer extension
 
 The CKAN Table Designer extension is a *data ingestion* and *enforced-validation* tool that:
 
-- uses the CKAN DataStore database as the primary data source
+- uses the :ref:`CKAN DataStore <datastore>` database as the primary data source
 - allows rows to be updated without re-loading all data
 - builds data schemas with custom types and constraints in the :ref:`data_dictionary` form
 - enables linked data with simple and composite primary keys
