@@ -18,8 +18,8 @@ from __future__ import annotations
 import datetime
 
 from sqlalchemy import types, Column, Table, text
+from sqlalchemy.orm import Mapped
 
-from ckan.plugins.toolkit import BaseModel
 from ckan.model import meta
 from ckan.model import domain_object
 
@@ -49,16 +49,15 @@ tracking_summary_table = Table(
 )
 
 
-class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
-    __tablename__ = 'tracking_summary'
-    url: str
-    package_id: str
-    tracking_type: str
+class TrackingSummary(domain_object.DomainObject):
+    url: Mapped[str]
+    package_id: Mapped[str]
+    tracking_type: Mapped[str]
     # count attribute shadows DomainObject.count()
-    count: int
-    running_total: int
-    recent_views: int
-    tracking_date: datetime.datetime
+    count: Mapped[int]
+    running_total: Mapped[int]
+    recent_views: Mapped[int]
+    tracking_date: Mapped[datetime.datetime]
 
     @classmethod
     def get_for_package(cls, package_id: str) -> dict[str, int]:
@@ -80,3 +79,6 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
             return {'total': data.running_total, 'recent': data.recent_views}
 
         return {'total': 0, 'recent': 0}
+
+
+meta.registry.map_imperatively(TrackingSummary, tracking_summary_table)

@@ -94,9 +94,6 @@ def package_changed(sender: str, **kwargs: Any):
     pkg = context["model"].Package.get(id_)
     assert pkg
 
-    if pkg.private:
-        return
-
     user_obj = context["model"].User.get(context["user"])
     if user_obj:
         user_id = user_obj.id
@@ -104,6 +101,7 @@ def package_changed(sender: str, **kwargs: Any):
         user_id = "not logged in"
 
     activity = Activity.activity_stream_item(pkg, type_, user_id)
+
     context["session"].add(activity)
     if not context.get("defer_commit"):
         context["session"].commit()

@@ -25,7 +25,8 @@ from ckan.common import _, g
 from ckan.types import (
     Action, ChainedAction,
     ChainedAuthFunction, DataDict, ErrorDict, Context, FlattenDataDict,
-    Schema, Validator, ValidatorFactory)
+    FlattenKey, Schema, Validator, ValidatorFactory
+)
 
 Decorated = TypeVar("Decorated")
 
@@ -255,7 +256,35 @@ def tuplize_dict(data_dict: dict[str, Any]) -> FlattenDataDict:
                 except ValueError:
                     raise df.DataError('Bad key')
         tuplized_dict[tuple(key_list)] = value
-    return tuplized_dict
+
+    # Sanitize key indexes to make sure they are sequential
+    seq_tuplized_dict: FlattenDataDict = {}
+    # sequential field indexes grouped by common prefix
+    groups: dict[FlattenKey, dict[FlattenKey, int]] = defaultdict(dict)
+    for key in sorted(tuplized_dict.keys()):
+        new_key = key
+
+        # iterate over even(numeric) parts of the key
+        for idx in range(1, len(key), 2):
+            # narrow down scope by common prefix
+            group = groups[key[:idx]]
+
+            # if the identifier(i.e `(extra, 123)`, `(resource, 9)`) is met for
+            # the first time, generate for it next number in the index
+            # sequence. Index of the latest added item is always equals to the
+            # number of unique identifiers minus one(because list indexation
+            # starts from 0 in Python). If identifier already present(i.e, we
+            # process `(extra, 10, VALUE)` after processing `(extra, 10,
+            # KEY)`), reuse sequential index of this identifier
+            seq_index = group.setdefault(key[idx-1:idx+1], len(group))
+
+            # replace the currently processed key segment with computed
+            # sequential index
+            new_key = new_key[:idx] + (seq_index,) + new_key[idx+1:]
+
+        seq_tuplized_dict[new_key] = tuplized_dict[key]
+
+    return seq_tuplized_dict
 
 
 def untuplize_dict(tuplized_dict: FlattenDataDict) -> dict[str, Any]:
@@ -347,11 +376,12 @@ def check_access(action: str,
         context['auth_user_obj'] = None
 
     context = _prepopulate_context(context)
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context["user"] and not context["auth_user_obj"]:
-                context['auth_user_obj'] = model.User.get(context['user'])
-            context['__auth_user_obj_checked'] = True
+
+    if not context.get('__auth_user_obj_checked'):
+        if context["user"] and not context["auth_user_obj"]:
+            context['auth_user_obj'] = model.User.get(context['user'])
+        context['__auth_user_obj_checked'] = True
+
     try:
         logic_authorization = authz.is_authorized(action, context, data_dict)
         if not logic_authorization['success']:

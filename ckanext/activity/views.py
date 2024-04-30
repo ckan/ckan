@@ -558,7 +558,7 @@ def group_activity(id: str, group_type: str) -> str:
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
-        "group_type": group_type,
+        "group_type": real_group_type,
         "group_dict": group_dict,
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),

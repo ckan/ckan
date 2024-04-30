@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-from ckan.plugins.core import *  # noqa: re-export
-from ckan.plugins.interfaces import *  # noqa: re-export
+from ckan.plugins.core import *  # noqa
+from ckan.plugins.interfaces import *  # noqa
 
 
 def __getattr__(name: str):

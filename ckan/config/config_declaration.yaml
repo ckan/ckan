@@ -155,8 +155,6 @@ groups:
     options:
       - key: use
         placeholder: egg:ckan
-        validators: not_empty
-        required: true
 
       - key: SECRET_KEY
         validators: not_empty
@@ -348,7 +346,6 @@ groups:
 
       - key: beaker.session.samesite
         default: Lax
-        required: True
         validators: OneOf(["Strict","Lax","None"])
         description: |
           Whether or not the session cookie should be marked as SameSite. When marked as SameSite,
@@ -359,7 +356,6 @@ groups:
     options:
       - key: sqlalchemy.url
         placeholder: postgresql://ckan_default:pass@localhost/ckan_default
-        validators: not_empty
         required: true
         example: postgres://tester:pass@localhost/ckantest3
         description: |
@@ -390,7 +386,6 @@ groups:
   - annotation: Site Settings
     options:
       - key: ckan.site_url
-        validators: not_empty
         required: true
         placeholder: http://localhost:5000
         example: http://scotdata.ckan.net
@@ -858,7 +853,6 @@ groups:
 
       - key: solr_url
         placeholder: http://127.0.0.1:8983/solr/ckan
-        validators: not_empty
         required: true
         example: http://solr.okfn.org:8983/solr/ckan-schema-2.0
         description: |
@@ -897,6 +891,15 @@ groups:
           this to false if on solr 4.0 and you have automatic (soft)commits
           enabled to improve dataset update/create speed (however there may be
           a slight delay before dataset gets seen in results).
+
+      - key: ckan.search.solr_allowed_query_parsers
+        type: list
+        default: []
+        example: ["bool", "knn"]
+        description: |
+          Local parameters are not allowed when passing queries to Solr. An exception to this is when passing local parameters for special query parsers, that need to be enabled explicitly using this config option. For instance, the example provided would allow sending queries like the following::
+            search_params["q"] = "{!bool must=test}..."
+            search_params["q"] = "{!knn field=vector topK=10}..."
 
       - key: ckan.search.show_all_types
         default: dataset
@@ -1017,7 +1020,6 @@ groups:
   - annotation: Plugins Settings
     options:
       - key: ckan.plugins
-        required: true
         type: list
         placeholder: activity
         example: activity scheming_datasets datatables_view datastore xloader
@@ -1392,7 +1394,10 @@ groups:
         type: bool
         default: true
         example: "false"
-        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc
+        description: Turns on and off the activity streams used to track changes on datasets, groups, users, etc.
+                     The activity feature has been moved to a separate activity plugin. To keep showing the
+                     activities in the UI and enable the activity related API actions you need to add the activity
+                     plugin to the ckan.plugins config option.
 
       - key: ckan.activity_streams_email_notifications
         type: bool

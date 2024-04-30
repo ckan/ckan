@@ -103,30 +103,24 @@ the appropriate entry from the "organization" drop-down list, and press "Save".
 
 .. image:: /images/move_dataset_between_organizations.jpg
 
------------------------------
-Permanently deleting datasets
------------------------------
+-------------------------------------------------------
+Permanently deleting datasets, organizations and groups
+-------------------------------------------------------
 
-A dataset which has been deleted is not permanently removed from CKAN; it is
-simply marked as 'deleted' and will no longer show up in search, etc. The
-dataset's URL cannot be re-used for a new dataset.
+A dataset, organization or group which has been deleted is not permanently
+removed from CKAN; it is simply marked as 'deleted' and will no longer
+show up in search, etc. The assigned URL cannot be re-used for a new entity.
 
-To permanently delete ("purge") a dataset:
+To permanently delete ("purge") an entity:
 
 * Navigate to the dataset's "Edit" page, and delete it.
 * Visit ``http://<my-ckan-url>/ckan-admin/trash/``.
 
-This page shows all deleted datasets and allows you to delete them permanently.
+This page shows all deleted datasets, organizations and groups and allows you to delete them permanently.
 
 .. warning::
 
     This operation cannot be reversed!
-
-.. note::
-
-    At present, it is not possible to purge organizations or groups using the
-    web UI. This can only be done with access to the server, by directly deleting
-    them from CKAN's database.
 
 --------------
 Managing users
@@ -142,7 +136,7 @@ profile, so they cannot search by e-mail address.
 
 On their user profile, you will see a "Manage" button. CKAN displays the user
 settings page. You can delete the user or change any of its settings, including
-their username, name and password.
+their name and password.
 
 .. image:: /images/manage_users.jpg
 

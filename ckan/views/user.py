@@ -13,7 +13,9 @@ import dominate.tags as dom_tags
 import ckan.lib.authenticator as authenticator
 import ckan.lib.base as base
 import ckan.lib.captcha as captcha
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
+from ckan.lib.dictization import model_dictize
 import ckan.lib.mailer as mailer
 import ckan.lib.maintain as maintain
 import ckan.lib.navl.dictization_functions as dictization_functions
@@ -23,7 +25,8 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan import authz
 from ckan.common import (
-    _, config, g, request, current_user, login_user, logout_user, session
+    _, config, g, request, current_user, login_user, logout_user, session,
+    repr_untrusted
 )
 from ckan.types import Context, Schema, Response
 from ckan.lib import signals
@@ -86,6 +89,10 @@ def index():
     order_by = request.args.get('order_by', 'name')
     default_limit: int = config.get('ckan.user_list_limit')
     limit = int(request.args.get('limit', default_limit))
+    offset = page_number * limit - limit
+
+    # get SQLAlchemy Query object from the action to avoid dictizing all
+    # existing users at once
     context: Context = {
         u'return_query': True,
         u'user': current_user.name,
@@ -93,8 +100,8 @@ def index():
     }
 
     data_dict = {
-        u'q': q,
-        u'order_by': order_by
+        'q': q,
+        'order_by': order_by,
     }
 
     try:
@@ -104,9 +111,18 @@ def index():
 
     users_list = logic.get_action(u'user_list')(context, data_dict)
 
-    page = h.Page(
-        collection=users_list,
+    # in template we don't need complex row objects from query. Let's dictize
+    # subset of users that are shown on the current page
+    users = [
+        model_dictize.user_dictize(user[0], context)
+        for user in
+        users_list.limit(limit).offset(offset)
+    ]
+
+    page = Page(
+        collection=users,
         page=page_number,
+        presliced_list=True,
         url=h.pager_url,
         item_count=users_list.count(),
         items_per_page=limit)
@@ -346,7 +362,8 @@ class EditView(MethodView):
             # getting the identity for current logged user
             identity = {
                 u'login': current_user.name,
-                u'password': data_dict[u'old_password']
+                u'password': data_dict[u'old_password'],
+                u'check_captcha': False
             }
             auth_user = authenticator.ckan_authenticator(identity)
 
@@ -656,11 +673,19 @@ class RequestResetView(MethodView):
 
     def post(self) -> Response:
         self._prepare()
+
+        try:
+            captcha.check_recaptcha(request)
+        except captcha.CaptchaError:
+            error_msg = _(u'Bad Captcha. Please try again.')
+            h.flash_error(error_msg)
+            return h.redirect_to(u'user.request_reset')
+
         id = request.form.get(u'user', '')
         if id in (None, u''):
             h.flash_error(_(u'Email is required'))
             return h.redirect_to(u'user.request_reset')
-        log.info(u'Password reset requested for user "{}"'.format(id))
+        log.info('Password reset requested for user %s', repr_untrusted(id))
 
         context: Context = {
             'user': current_user.name,
@@ -701,8 +726,8 @@ class RequestResetView(MethodView):
                 pass
 
         if not user_objs:
-            log.info(u'User requested reset link for unknown user: {}'
-                     .format(id))
+            log.info('User requested reset link for unknown user: %s',
+                     repr_untrusted(id))
 
         for user_obj in user_objs:
             log.info(u'Emailing reset link to user: {}'
@@ -944,7 +969,7 @@ user.add_url_rule(
     u'/register', view_func=RegisterView.as_view(str(u'register')))
 
 user.add_url_rule(u'/login', view_func=login, methods=('GET', 'POST'))
-user.add_url_rule(u'/_logout', view_func=logout)
+user.add_url_rule(u'/_logout', view_func=logout, methods=('GET', 'POST'))
 user.add_url_rule(u'/logged_out_redirect', view_func=logged_out_page)
 
 user.add_url_rule(u'/delete/<id>', view_func=delete, methods=(u'POST', 'GET'))

@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime
 import logging
 import re
+from urllib3.exceptions import NewConnectionError
 from typing import Any, Optional
 
 import pysolr
@@ -26,6 +27,10 @@ class SearchError(Exception):
 
 
 class SearchQueryError(SearchError):
+    pass
+
+
+class SolrConnectionError(NewConnectionError):
     pass
 
 

@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 from sqlalchemy.orm.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
-import ckan.logic as logic
+from ckan import authz, logic
 import ckan.logic.converters as converters
 import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
@@ -22,7 +22,6 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
-import ckan.authz as authz
 from ckan.model.core import State
 
 from ckan.common import _
@@ -615,10 +614,13 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
             return
         else:
             # Otherwise return an error: there's already another user with that
-            # name, so you can create a new user with that name or update an
+            # name, so you can't create a new user with that name or update an
             # existing user's name to that name.
             errors[key].append(_('That login name is not available.'))
     elif user_obj_from_context:
+        requester = context.get('auth_user_obj', None)
+        if requester and authz.is_sysadmin(requester.name):
+            return
         old_user = model.User.get(user_obj_from_context.id)
         if old_user is not None and old_user.state != model.State.PENDING:
             errors[key].append(_('That login name can not be modified.'))
@@ -772,25 +774,37 @@ def tag_not_in_vocabulary(key: FlattenKey, tag_dict: FlattenDataDict,
         return
 
 
-def url_validator(key: FlattenKey, data: FlattenDataDict,
-                  errors: FlattenErrorDict, context: Context) -> Any:
-    ''' Checks that the provided value (if it is present) is a valid URL '''
-
+def url_validator(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+) -> Any:
+    """Checks that the provided value (if it is present) is a valid URL"""
     url = data.get(key, None)
     if not url:
         return
 
     try:
         pieces = urlparse(url)
-        if all([pieces.scheme, pieces.netloc]) and \
-           set(pieces.netloc) <= set(string.ascii_letters + string.digits + '-.') and \
-           pieces.scheme in ['http', 'https']:
-            return
+        if all([pieces.scheme, pieces.netloc]) and pieces.scheme in [
+            "http",
+            "https",
+        ]:
+            hostname, port = (
+                pieces.netloc.split(":")
+                if ":" in pieces.netloc
+                else (pieces.netloc, None)
+            )
+            if set(hostname) <= set(
+                string.ascii_letters + string.digits + "-."
+            ) and (port is None or port.isdigit()):
+                return
     except ValueError:
         # url is invalid
         pass
 
-    errors[key].append(_('Please provide a valid URL'))
+    errors[key].append(_("Please provide a valid URL"))
 
 
 def user_name_exists(user_name: str, context: Context) -> Any:

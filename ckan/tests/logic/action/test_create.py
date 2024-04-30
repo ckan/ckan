@@ -6,7 +6,7 @@ import datetime
 import operator
 import unittest.mock as mock
 import pytest
-
+import sqlalchemy as sa
 
 import ckan.logic as logic
 from ckan.logic.action.get import package_show as core_package_show
@@ -1270,6 +1270,41 @@ class TestUserCreate(object):
         with pytest.raises(logic.NotFound):
             helpers.call_action("user_show", id=user_dict["name"])
 
+    def test_create_user_with_apitoken(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+            "with_apitoken": True
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert user["token"]
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert len(token) == 1
+
+    def test_create_user_with_apitoken_missing_flag(self):
+        stub = factories.User.stub()
+        context = {"ignore_auth": True}
+        user_dict = {
+            "name": stub.name,
+            "email": stub.email,
+            "password": "test1234",
+        }
+        user = helpers.call_action("user_create", context={}, **user_dict)
+        assert "token" not in user
+
+        user_dict = {"user_id": user["name"]}
+        token = helpers.call_action(
+            "api_token_list", context=context, **user_dict
+        )
+        assert not token
+
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
@@ -1783,7 +1818,7 @@ class TestUserPluginExtras(object):
 
         plugin_extras_from_db = (
             model.Session.execute(
-                'SELECT plugin_extras FROM "user" WHERE id=:id',
+                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
                 {"id": created_user["id"]},
             )
             .first()[0]
@@ -2178,7 +2213,7 @@ class TestPackagePluginData(object):
             }
         }
         plugin_data_from_db = model.Session.execute(
-            'SELECT plugin_data FROM "package" WHERE id=:id',
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}
         ).first()[0]
 
@@ -2205,7 +2240,7 @@ class TestPackagePluginData(object):
         assert "plugin_data" not in created_pkg
 
         plugin_data_from_db = model.Session.execute(
-            'SELECT plugin_data FROM "package" WHERE id=:id',
+            sa.text('SELECT plugin_data FROM "package" WHERE id=:id'),
             {'id': created_pkg["id"]}
         ).first()[0]
         assert plugin_data_from_db is None

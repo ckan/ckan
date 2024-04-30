@@ -283,7 +283,7 @@ class IResourceView(Interface):
         :returns: a dictionary with the view type configuration
         :rtype: dict
 
-        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
+        .. _Font Awesome: https://fontawesome.com/search
         '''
         return {u'name': self.__class__.__name__}
 
@@ -494,6 +494,11 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the validated data dict after the dataset
         has been updated.
+
+        Note that bulk dataset update actions (`bulk_update_private`,
+        `bulk_update_public`) will bypass this callback. See
+        ``ckan.plugins.toolkit.chained_action`` to wrap those actions
+        if required.
         '''
         pass
 
@@ -502,6 +507,10 @@ class IPackageController(Interface):
         u'''
         Extensions will receive the data dict (typically containing
         just the dataset id) after the dataset has been deleted.
+
+        Note that the `bulk_update_delete` action will bypass this
+        callback. See ``ckan.plugins.toolkit.chained_action`` to wrap
+        that action if required.
         '''
         pass
 
@@ -631,6 +640,10 @@ class IResourceController(Interface):
             dictionary ``url_type`` which is set to ``upload`` when the
             resource file is uploaded instead of linked.
         :type resource: dictionary
+
+        Note that the datastore will bypass this callback when updating
+        the ``datastore_active`` flag on a resource that has been added
+        to the datastore.
         '''
         pass
 

@@ -401,8 +401,7 @@ def resource_view_create(
     last_view = model.Session.query(model.ResourceView)\
         .filter_by(resource_id=resource_id) \
         .order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.ResourceView.order.desc()  # type: ignore
+            model.ResourceView.order.desc()
         ).first()
 
     if not last_view:
@@ -610,10 +609,7 @@ def member_create(context: Context,
         filter(model.Member.table_name == obj_type).\
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
-        order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Member.state.asc()  # type: ignore
-        ).first()
+        order_by(model.Member.state.asc()).first()
     if member:
         user_obj = model.User.get(user)
         if user_obj and member.table_name == u'user' and \
@@ -965,7 +961,9 @@ def user_create(context: Context,
                 }
             }
     :type plugin_extras: dict
-
+    :param with_apitoken: whether to create an API token for the user.
+                    (Optional)
+    :type with_apitoken: bool
 
     :returns: the newly created user
     :rtype: dictionary
@@ -974,6 +972,7 @@ def user_create(context: Context,
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
+    with_apitoken = data_dict.pop("with_apitoken", False)
 
     _check_access('user_create', context, data_dict)
 
@@ -1032,9 +1031,20 @@ def user_create(context: Context,
 
     # Create dashboard for user.
     dashboard = model.Dashboard(user.id)
+
     session.add(dashboard)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    if with_apitoken:
+        if not context['user']:
+            context["user"] = user.name
+
+        # Create apitoken for user.
+        api_token = _get_action("api_token_create")(
+            context, {"user": user.name, "name": "default"}
+        )
+        user_dict["token"] = api_token["token"]
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict
