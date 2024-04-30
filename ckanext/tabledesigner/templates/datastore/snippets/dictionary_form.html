@@ -4,10 +4,23 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% else %}
-    <h3>{{ _("Field {num}.").format(num=position) }}
-      {{ field.id or '' }}
-      ({{ _(h.tabledesigner_column_type(field).label) }})
-    </h3>
+    {{ _("Field {num}.").format(num=position) }}
+    {{ field.id or '' }}
+    ({{ _(h.tabledesigner_column_type(field).label) }})
+  {% endif %}
+{% endblock %}
+
+{% block datapusher_xloader_fields %}
+  {% if res.url_type != 'tabledesigner' %}
+    {{ super() }}
+  {% else %}
+    {# datapusher fields don't apply to our resources #}
+    {% block field_removal_button %}
+      <div class="form-actions">
+        <a class="btn btn-danger btn-tabledesigner-remove" name="tabledesigner-remove" href="javascript:;"
+          >{{ _('Remove field') }}</a>
+      </div>
+    {% endblock %}
     {% if field.id %}
       <input type="hidden" name="fields__{{ position }}__id" value="{{ field.id }}">
     {% endif %}
@@ -33,11 +46,7 @@
       classes=['control-full'],
       selected=data.get('tdpkreq', field.get('tdpkreq', ''))) %}
     {% endcall %}
-  {% endif %}
-{% endblock %}
 
-{% block datapusher_xloader_fields %}
-  {% if res.url_type == 'tabledesigner' %}
     {% set ct = h.tabledesigner_column_type(field) %}
     {% if ct.design_snippet %}
       {% snippet 'tabledesigner/design_snippets/' + ct.design_snippet,
@@ -62,8 +71,5 @@
         %}
       {% endif %}
     {% endfor %}
-    {# datapusher fields don't apply to our resources #}
-  {% else %}
-    {{ super() }}
   {% endif %}
 {% endblock %}
