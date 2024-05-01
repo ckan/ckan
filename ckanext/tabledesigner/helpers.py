@@ -27,6 +27,9 @@ def tabledesigner_column_type(field: dict[str, Any]) -> ColumnType:
     return column type object (fall back to text if not found)
     """
     tdtype = field.get('tdtype', field.get('type', 'text'))
+    if tdtype not in plugin._column_types:
+        if tdtype.startswith('int'):
+            tdtype = 'integer'
     return plugin._column_types.get(
         tdtype,
         plugin._column_types.get('text', TextColumn)
@@ -42,7 +45,15 @@ def tabledesigner_choices(
 
 
 def tabledesigner_data_api_examples(resource_id: str) -> dict[str, Any]:
-    resp = None
+    """
+    return API example data for a resource (best effort)
+
+    1. use real data and column types from the resource if possible
+    2. use canned data and real column types otherwise
+    3. use canned data and canned column types as a last resort
+    """
+    # future improvements: use real tdtype, use real choice values etc.
+    resp = {}
     try:
         resp = get_action('datastore_search')(
             {},
@@ -50,36 +61,40 @@ def tabledesigner_data_api_examples(resource_id: str) -> dict[str, Any]:
         )
     except (ObjectNotFound, NotAuthorized):
         pass
-    if resp and resp['records']:
-        record = resp['records'][0]
+    fields = []
+    txtcols = []
+    record = {}
+    filtr = {}
+    if resp and resp['fields']:
         fields = [f['id'] for f in resp['fields']]
-        filtr = {k: record[k] for k in fields[1:3]}
         txtcols = [f['id'] for f in resp['fields'] if f['type'] == 'text']
-        if filtr and txtcols:
-            return {
-                "text_column_filters_object": filtr,
-                "text_column_name_sql": txtcols[0],
-                "insert_record_object": {
-                    k: v for k, v in record.items() if k != '_id'
-                },
-                "update_record_object": record,
-                "unique_filter_object": {"_id": 1},
-            }
+        if resp['records'] and txtcols:
+            record = resp['records'][0]
+            filtr = {k: record[k] for k in fields[1:3]}
+
+    if not txtcols:
+        resp['fields'] = [
+            {'id': '_id', 'type': 'int'},
+            {'id': 'subject', 'type': 'text'},
+            {'id': 'rating', 'type': 'numeric'},
+        ]
+        fields = [f['id'] for f in resp['fields']]
+        txtcols = [f['id'] for f in resp['fields'] if f['type'] == 'text']
+
+    if not filtr:
+        record = {
+            f['id']: h.tabledesigner_column_type(f).example
+            for f in resp['fields']
+        }
+        filtr = {k: record[k] for k in fields[1:3]}
+
     return {
-        "text_column_filters_object": {
-            "subject": ["watershed", "survey"],
-            "stage": "active",
-        },
-        "text_column_name_sql": "title",
+        "text_column_filters_object": filtr,
+        "text_column_name_sql": txtcols[0],
         "insert_record_object": {
-            "subject": "watershed",
-            "stage": "active",
+            k: v for k, v in record.items() if k != '_id'
         },
-        "update_record_object": {
-            "_id": 1,
-            "subject": "survey",
-            "stage": "inactive",
-        },
+        "update_record_object": record,
         "unique_filter_object": {"_id": 1},
     }
 
