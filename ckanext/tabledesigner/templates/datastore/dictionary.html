@@ -4,6 +4,9 @@
   {% if res.url_type != 'tabledesigner' %}
     {{ super() }}
   {% else %}
+
+    {% asset "ckanext-tabledesigner/tabledesigner_css" %}
+
     {% snippet "tabledesigner/snippets/design_fields.html",
       fields=fields,
       data=data,

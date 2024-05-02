@@ -1,12 +1,7 @@
-# tabledesigner-css:
-#   filter: cssrewrite
-#   output: ckanext-tabledesigner/%(version)s-tabledesigner.css
-#   contents:
-#     - css/tabledesigner.css
 tabledesigner_css:
   output: ckanext-tabledesigner/%(version)s_tabledesigner_css.css
   contents:
-  - styles/tabledesigner.css
+  - tabledesigner.css
 
 fields:
   filters: rjsmin

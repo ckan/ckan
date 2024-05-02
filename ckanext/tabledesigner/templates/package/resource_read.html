@@ -1,6 +1,9 @@
 {% ckan_extends %}
 
 {% block data_preview %}
+
+  {% asset "ckanext-tabledesigner/tabledesigner_css" %}
+
   {% if
       res.url_type == 'tabledesigner'
       and res.datastore_active %}
