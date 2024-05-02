@@ -4,6 +4,9 @@
   {% if
       resource.url_type == 'tabledesigner'
       and h.check_access('datastore_upsert', {'resource_id': resource.id}) %}
+
+    {% asset "ckanext-tabledesigner/datatables_buttons" %}
+
     <div
       data-module="tabledesigner_datatables_delete"
       data-edit-text="{{ _('Delete rows') }}"
