@@ -288,14 +288,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       const defaultview = dtprv.data('default-view')
 
       // get view mode setting from localstorage (table or list/responsive])
-      const lastView = getWithExpiry('lastView')
+      const lastView = getWithExpiry('lastView-' + gresviewId)
       if (!lastView) {
         if (responsiveflag) {
           gcurrentView = 'list' // aka responsive
         } else {
           gcurrentView = defaultview
         }
-        setWithExpiry('lastView', gcurrentView, 0)
+        setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
       } else {
         gcurrentView = lastView
       }
@@ -558,7 +558,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // save selected rows settings
           gsavedSelected = data.selected
           // save view mode
-          setWithExpiry('lastView', data.viewmode, 0)
+          setWithExpiry('lastView-' + gresviewId, data.viewmode, 0)
 
           // restore values of column filters
           const api = new $.fn.dataTable.Api(settings)
@@ -714,7 +714,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               gcurrentView = 'list'
               $('#dtprv').addClass('dt-responsive')
             }
-            setWithExpiry('lastView', gcurrentView, 0)
+            setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
             window.localStorage.removeItem('loadctr-' + gresviewId)
             dt.state.clear()
             window.location.reload()
