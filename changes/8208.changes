@@ -1,0 +1,2 @@
+Allow blocking users to change their passwords by hidding the `password1` and
+`password2` fields in the user edit form.
