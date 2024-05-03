@@ -23,7 +23,7 @@ class TestINotifier:
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
-    def test_mail_recipient_inotifier_full_called(self, mr, nr1, nr2):
+    def test_inotifier_full(self, mr, nr1, nr2):
         mail_recipient(**test_email)
         mr.assert_called_once_with(**test_email)
         nr1.assert_called_once_with(**test_email)
@@ -34,7 +34,7 @@ class TestINotifier:
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
-    def test_mail_recipient_inotifier_called(self, mr, nr1, nr2):
+    def test_mail_inotifier_no_mail(self, mr, nr1, nr2):
         mail_recipient(**test_email)
         # We do not send email because we send custom notifications
         mr.assert_not_called()
@@ -46,7 +46,7 @@ class TestINotifier:
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
-    def test_mail_recipient_inotifier_called(self, mr, nr1, nr2):
+    def test_inotifier_no_mail_just_one(self, mr, nr1, nr2):
         mail_recipient(**test_email)
         # We do not send email because we send custom notifications
         mr.assert_not_called()

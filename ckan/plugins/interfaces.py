@@ -2251,9 +2251,9 @@ class INotifier(Interface):
         :headers: extra headers to add to email, in the form
             {'Header name': 'Header value'}
         :type: dict
-        :attachments: a list of tuples containing file attachments to add to the
-            email. Tuples should contain the file name and a file-like object
-            pointing to the file contents::
+        :attachments: a list of tuples containing file attachments to add to
+            the email. Tuples should contain the file name and a file-like
+            object pointing to the file contents::
 
                 [
                     ('some_report.csv', file_object),
@@ -2271,4 +2271,4 @@ class INotifier(Interface):
         :returns: True if the notification was sent successfully,
                   False otherwise
         '''
-        pass
+        return False

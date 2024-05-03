@@ -188,7 +188,7 @@ def mail_recipient(recipient_name: str,
         # Use all available
         notification_sent = plugin.notify_recipient(
             recipient_name, recipient_email, site_title, site_url,
-            subject, body, body_html=body_html, headers=headers,
+            subject, body, body_html, headers,
             attachments=attachments
         )
         if notification_sent and not notify_all:
@@ -202,8 +202,7 @@ def mail_recipient(recipient_name: str,
         _mail_recipient(
             recipient_name, recipient_email,
             site_title, site_url, subject, body,
-            body_html=body_html, headers=headers,
-            attachments=attachments
+            body_html, headers, attachments
         )
 
 

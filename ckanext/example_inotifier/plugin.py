@@ -26,7 +26,8 @@ class ExampleINotifier1Plugin(plugins.SingletonPlugin):
     ) -> bool:
 
         msg = (
-            f'Notification [1] example for {recipient_name} <{recipient_email}> '
+            f'Notification [1] example for {recipient_name} '
+            f'<{recipient_email}> '
             f'with subject {subject} and body {body} or {body_html} '
             f'and headers {headers} and attachments {attachments}'
         )
@@ -51,7 +52,8 @@ class ExampleINotifier2Plugin(plugins.SingletonPlugin):
     ) -> bool:
 
         msg = (
-            f'Notification [2] example for {recipient_name} <{recipient_email}> '
+            f'Notification [2] example for {recipient_name} '
+            f'<{recipient_email}> '
             f'with subject {subject} and body {body} or {body_html} '
             f'and headers {headers} and attachments {attachments}'
         )
