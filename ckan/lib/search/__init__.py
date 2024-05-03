@@ -17,6 +17,7 @@ import ckan.logic as logic
 
 from ckan.lib.search.common import (
     SearchIndexError, SearchError, SearchQueryError,
+    SolrConnectionError,
     make_connection, is_available, SolrSettings
 )
 from ckan.lib.search.index import PackageSearchIndex, NoopSearchIndex

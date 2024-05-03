@@ -13,7 +13,7 @@ import ckan.model as model
 
 from ckan.common import config, aslist
 from ckan.lib.search.common import (
-    make_connection, SearchError, SearchQueryError
+    make_connection, SearchError, SearchQueryError, SolrConnectionError
 )
 
 log = logging.getLogger(__name__)
@@ -427,6 +427,12 @@ class PackageSearchQuery(SearchQuery):
                         "Can't determine Sort Order" in e.args[0] or \
                         'Unknown sort order' in e.args[0]:
                     raise SearchQueryError('Invalid "sort" parameter')
+
+                if ("Failed to connect to server" in e.args[0] or 
+                        "Connection to server" in e.args[0]):
+                    log.warning("Connection Error: Failed to connect to Solr server.")
+                    raise SolrConnectionError("Solr returned an error while searching.")
+
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
         self.count = solr_response.hits

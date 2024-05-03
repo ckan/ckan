@@ -284,3 +284,12 @@ def test_i18n_only_known_locales_are_accepted(app):
     url = url_for("api.i18n_js_translations", ver=2, lang="unknown_lang")
     r = app.get(url, status=400)
     assert "Bad request - Unknown locale" in r.get_data(as_text=True)
+
+
+@pytest.mark.ckan_config("solr_url", "https://xxxx/notofund")
+def test_package_search_connection_errors(app):
+
+    res = app.get(
+        url_for("api.action", logic_function="package_search", ver=3),
+    )
+    assert res.json["error"]["__type"] == "Search Connection Error"
