@@ -14,7 +14,6 @@ from typing import Any, Optional, Union, cast
 from flask import Blueprint, send_from_directory, current_app
 from flask.ctx import _AppCtxGlobals
 from flask_session import Session
-from jinja2.utils import import_string
 
 from werkzeug.exceptions import (
     default_exceptions,
@@ -38,8 +37,12 @@ from ckan.lib import uploader
 from ckan.lib import i18n
 from ckan.lib.flask_multistatic import MultiStaticFlask
 from ckan.common import config, g, request, ungettext
-from ckan.config.middleware.common_middleware import (HostHeaderMiddleware,
-                                                      RootPathMiddleware)
+from ckan.config.middleware.common_middleware import (
+    HostHeaderMiddleware,
+    RootPathMiddleware,
+    CKANSecureCookieSessionInterface,
+    CKANRedisSessionInterface,
+)
 import ckan.lib.app_globals as app_globals
 import ckan.lib.plugins as lib_plugins
 from ckan.lib.webassets_tools import get_webassets_path
@@ -72,17 +75,16 @@ csrf_warn_extensions = (
 class CKANSession(Session):
     def _get_interface(self, app: CKANApp):
         """Initialize session interface.
-
-        If config file contains custom import path for ``SESSION_TYPE``, use it
-        to allow session customizations. If custom import path is missing,
-        initialize one of interfaces provided by flask-session module.
+        We use our own classes for these interfaces:
+            * cookie: to support persistent sessions
+            * redis: to be able use the value of ckan.redis.url
 
         """
         session_type = app.config["SESSION_TYPE"]
-        option_name = f"ckan.session.custom_type.{session_type}.import_path"
-
-        if path := config.get(option_name):
-            return import_string(path)(app)
+        if session_type == "cookie":
+            return CKANSecureCookieSessionInterface(app)
+        elif session_type == "redis":
+            return CKANRedisSessionInterface(app)
 
         return super()._get_interface(app)
 

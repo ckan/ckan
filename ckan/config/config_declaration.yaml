@@ -254,14 +254,6 @@ groups:
             like ``redis``, ``filesystem``, etc. Keep in mind
             that certaint session types require additional Python packages and configuration settings.
             Setting a not supported value will raise an exception on startup.
-            To use a custom interface to override the behaviour of an existing one or use a brand new one, you can set the
-            ``ckan.session.custom_type.<TYPE NAME>.import_path`` config option, which is the
-            import path for the custom session interface implementation.
-
-            For example::
-
-              SESSION_TYPE = my_custom_interface
-              ckan.session.custom_type.my_custom_interface.import_path = ckanext.my_module.session:CustomInterface
 
       - key: SESSION_COOKIE_NAME
         default: ckan
@@ -339,23 +331,6 @@ groups:
           Whether to sign the session cookie sid or not.
 
           .. note:: This option affects only server-side sessions. Cookie-based sessions ignore this option
-
-      - key: ckan.session.custom_type.cookie.import_path
-        default: ckan.config.middleware:CKANSecureCookieSessionInterface
-        description: |
-          Import path for a cookie-based session interface. Used when
-          :ref:`SESSION_TYPE` is set to ``cookie``. The default value
-          points to an internal CKAN implementation that extends the Flask cookie-based session with
-          cookie-lifetime support.
-
-      - key: ckan.session.custom_type.redis.import_path
-        default: ckan.config.middleware:CKANRedisSessionInterface
-        description: |
-          Import path for a Redis-based session interface. Used when
-          :ref:`SESSION_TYPE` is set to ``redis``. The default value points
-          to an internal CKAN implementation that initializes the Flask-Session Redis-based session
-          with the Redis connection used by CKAN, configured via :ref:`ckan.redis.url`
-
 
   - annotation: Database settings
     options:
