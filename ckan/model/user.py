@@ -59,7 +59,8 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE),
         Column('image_url', types.UnicodeText),
-        Column('plugin_extras', MutableDict.as_mutable(JSONB))
+        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+        Column('plugin_data', MutableDict.as_mutable(JSONB))
         )
 
 
@@ -79,6 +80,7 @@ class User(core.StatefulObjectMixin,
     state: Mapped[str]
     image_url: Mapped[str]
     plugin_extras: Mapped[dict[str, Any]]
+    plugin_data: Mapped[dict[str, Any]]
 
     api_tokens: Mapped[list['ApiToken']]
 
