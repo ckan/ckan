@@ -571,7 +571,7 @@ def user_dictize(
         include_password_hash: bool=False,
         include_plugin_extras: bool=False) -> dict[str, Any]:
     model = context['model']
-
+    breakpoint()
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
         user, capacity = user  #type: ignore

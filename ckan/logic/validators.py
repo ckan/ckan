@@ -552,13 +552,18 @@ def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
 def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
                         errors: FlattenErrorDict, context: Context) -> Any:
     '''Ignore the field if user not sysadmin or ignore_auth in context.'''
-
     user = context.get('user')
     ignore_auth = context.get('ignore_auth')
     if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
-    data.pop(key)
+    plugin_extras = data.get(key, None)
+    for k in plugin_extras:
+        if not 'public' in k:
+            plugin_extras.pop(k)
+
+
+    # data.pop(key)
 
 
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
@@ -1076,7 +1081,6 @@ def one_of(list_of_value: Container[Any]) -> Validator:
 
 
 def json_object(value: Any) -> Any:
-    breakpoint()
     ''' Make sure value can be serialized as a JSON object'''
     if value is None or value == '':
         return

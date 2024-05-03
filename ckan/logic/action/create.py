@@ -1001,7 +1001,6 @@ def user_create(context: Context,
     # user schema prevents non-sysadmins from providing password_hash
     if 'password_hash' in data:
         data['_password'] = data.pop('password_hash')
-
     user = model_save.user_dict_save(data, context)
     signals.user_created.send(user.name, user=user)
 
