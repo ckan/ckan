@@ -2215,19 +2215,10 @@ class IUserForm(Interface):
     Allows customisation of the user form and its underlying schema.
     '''
 
-    def is_fallback(self) -> bool:
-        '''
-        Returns true if this provides the fallback behaviour, when no other
-        plugin instance matches a user's type.
-
-        '''
-        return False
-
     def new_template(self) -> str:
         '''
         Returns a string representing the location of the template to be
-        rendered for the 'new' page. Uses the default_user_type configuration
-        option to determine which plugin to use the template from.
+        rendered for the 'new' page.
 
         '''
         return ''
@@ -2271,3 +2262,46 @@ class IUserForm(Interface):
 
         '''
         return {}
+
+    def user_before_create(self, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called before a new user is created.
+
+        '''
+        return user_dict
+
+    def user_before_update(self, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called before a user is updated.
+
+        '''
+        return user_dict
+
+    def user_before_show(self, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called before a user is shown.
+
+        '''
+        return user_dict
+
+    def user_after_create(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called after a new user is created.
+
+        '''
+        return user_dict
+
+    def user_after_update(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called after a user is updated.
+
+        '''
+        return user_dict
+
+    def user_after_show(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+        '''
+        Called after a user is shown.
+
+        '''
+        return user_dict
+
