@@ -616,6 +616,10 @@ def user_dictize(
             result_dict['plugin_extras'] = copy.deepcopy(
                 plugin_extras) if plugin_extras else plugin_extras
 
+    # check and update custom user data
+    plugin_data = result_dict.pop('plugin_data', None)
+    result_dict['plugin_data'] = copy.deepcopy(
+        plugin_data) if plugin_data else plugin_data
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
