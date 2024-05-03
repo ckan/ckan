@@ -1,0 +1,18 @@
+{% ckan_extends %}
+
+{% block dictionary_form %}
+  {% if res.url_type != 'tabledesigner' %}
+    {{ super() }}
+  {% else %}
+
+    {% asset "ckanext-tabledesigner/tabledesigner_css" %}
+    {% asset 'ckanext-tabledesigner/fields' %}
+
+    {% snippet "tabledesigner/snippets/design_fields.html",
+      fields=fields,
+      data=data,
+      errors=errors,
+      res=res
+    %}
+  {% endif %}
+{% endblock %}
