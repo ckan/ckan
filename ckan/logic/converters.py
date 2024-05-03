@@ -50,7 +50,7 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
         return
     remove_from_extras(data, data_key[1])
 
-def convert_from_plugin_extras(key: FlattenKey, data: FlattenDataDict,
+def load_public_extra(key: FlattenKey, data: FlattenDataDict,
                                errors: FlattenErrorDict,
                                context: Context):
 
@@ -62,7 +62,7 @@ def convert_from_plugin_extras(key: FlattenKey, data: FlattenDataDict,
         return
     data[key] = plugin_extras.get("public", {}).get(key[-1])
 
-def convert_to_plugin_extras(key: FlattenKey, data: FlattenDataDict,
+def store_public_extra(key: FlattenKey, data: FlattenDataDict,
                              errors: FlattenErrorDict,
                              context: Context):
     """Copy data[key] to plugin_extras["public"][key] for storing in the db"""

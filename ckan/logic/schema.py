@@ -443,6 +443,7 @@ def default_user_schema(
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+        'plugin_data': [ignore_missing, json_object],
     }
 
 

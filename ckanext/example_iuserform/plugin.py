@@ -33,7 +33,7 @@ class ExampleIUserFormPlugin(plugins.SingletonPlugin):
         # Add our custom country metadata field to the schema.
         schema.update({
             'country': [
-                tk.get_validator('convert_to_plugin_extras'),
+                tk.get_validator('store_public_extra'),
                 tk.get_validator('ignore_missing'),
 
             ]
@@ -45,7 +45,7 @@ class ExampleIUserFormPlugin(plugins.SingletonPlugin):
         schema.update({
             'country': [
                 tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_from_plugin_extras'),
+                tk.get_converter('load_public_extra'),
                 tk.get_validator('ignore_missing')
             ]
         })
