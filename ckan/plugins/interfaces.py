@@ -73,6 +73,7 @@ __all__ = [
     u'IApiToken',
     u'IClick',
     u'ISignal',
+    u'INotifier',
 ]
 
 
@@ -2230,11 +2231,11 @@ class INotifier(Interface):
         body_html: Optional[str] = None,
         headers: Optional[dict[str, Any]] = None,
         attachments: Optional[Iterable[Attachment]] = None
-    ) -> None:
-        '''Sends an notification to a an email address.
+    ) -> bool:
+        '''Sends an notification to a user.
 
-        .. note:: You need to set up the :ref:`email-settings` to able to send
-            emails.
+        .. note:: This custom notification could replace the default
+            email mechanism.
 
         :param recipient_name: the name of the recipient
         :type recipient: string
@@ -2266,5 +2267,8 @@ class INotifier(Interface):
                     ('some_report.csv', file_object, 'text/csv'),
                 ]
         :type: list
+
+        :returns: True if the notification was sent successfully,
+                  False otherwise
         '''
         pass

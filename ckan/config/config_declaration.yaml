@@ -1694,6 +1694,23 @@ groups:
         example: ckan-errors@example.com
         description: This controls from which email the error messages will come from.
 
+  - annotation: Notifier settings
+    options:
+      - key: ckan.notifier.notify_all
+        type: bool
+        default: false
+        example: "true"
+        description: |
+          Send notification to all plugins if True, otherwise only to the
+          first plugin implementing ``INotifier.notify_recipient``.
+
+      - key: ckan.notifier.always_send_email
+        type: bool
+        default: true
+        example: "false"
+        description: |
+          Send email notifications to users even if they have already been
+          notified by plugins.
 
   - annotation: Background Job Settings
     options:
