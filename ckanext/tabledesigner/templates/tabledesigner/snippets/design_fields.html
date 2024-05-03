@@ -1,0 +1,57 @@
+{% macro tabledesigner_field(field, index, data, errors) %}
+  <div class="tabledesigner-field accordion-item" data-index="{{ index }}">
+    <div class="field-content">
+      {% snippet "datastore/snippets/dictionary_form.html",
+        field=field,
+        position=index,
+        res=res,
+        data=data,
+        errors=errors,
+        is_new=not fields
+      %}
+    </div>
+    <div class="field-removed-notice accordion-body" style="display:none">
+      {{ _('Field {num} removed. Click Save below to save your changes and delete all data in this field.').format(num=index) }}
+    </div>
+  </div>
+{% endmacro %}
+
+<fieldset name="tabledesigner-fields" class="tabledesigner-fields" data-module="tabledesigner-fields">
+  <div class="tabledesigner-fields-group accordion">
+    {% for field in fields %}
+      {{ tabledesigner_field(
+        field,
+        loop.index,
+        data=data.get('fields', [{}] * loop.length)[loop.index0],
+        errors=errors.get('fields', [{}] * loop.length)[loop.index0]) }}
+    {% endfor %}
+    {% for d in data.get('fields', [])[fields | length:] %}
+      {{ tabledesigner_field(
+        {'tdtype': d['tdtype']},
+        loop.index + (fields | length),
+        data=d,
+        errors=(errors.get('fields', [])[fields | length:] + [{}] * loop.length)[loop.index0]) }}
+    {% endfor %}
+  </div>
+  <div class="control-medium dropdown">
+    <a href="#" class="btn btn-secondary dropdown-toggle" id="tabledesigner-add"
+      data-bs-toggle="dropdown" aria-expanded="false"
+      >{% block add_button_text %}<i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add field') }}{% endblock %}</a>
+    <ul class="dropdown-menu" aria-labelledby="tabledesigner-add">
+      {% for opt in h.tabledesigner_column_type_options() %}
+        <li><a class="dropdown-item" name="tabledesigner-add" data-tdtype="{{ opt.value }}"
+          href="javascript:;">{{ opt.text }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% for opt in h.tabledesigner_column_type_options() %}
+    <div name="tabledesigner-template" data-tdtype="{{ opt.value }}" style="display:none">
+      {{ tabledesigner_field(
+        {'tdtype': opt.value},
+        'TABLEDESIGNER-INDEX',
+        {},
+        {}
+      )}}
+    </div>
+  {% endfor %}
+</fieldset>
