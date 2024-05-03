@@ -50,25 +50,22 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
         return
     remove_from_extras(data, data_key[1])
 
-def load_public_extra(key: FlattenKey, data: FlattenDataDict,
+def load_plugin_data(key: FlattenKey, data: FlattenDataDict,
                                errors: FlattenErrorDict,
                                context: Context):
 
-    """Restore field using object's plugin_extras.
-    """
-    plugin_extras = data.get("plugin_extras")
-    breakpoint()
-    if not plugin_extras:
+    """Copy plugin_data["plugin_name"][key] to data[key] for exposing to forms and API"""
+    plugin_data = data.get("plugin_data")
+    if not plugin_data:
         return
-    data[key] = plugin_extras.get("public", {}).get(key[-1])
+    data[key] = plugin_data.get("public", {}).get(key[-1])
 
-def store_public_extra(key: FlattenKey, data: FlattenDataDict,
+def store_plugin_data(key: FlattenKey, data: FlattenDataDict,
                              errors: FlattenErrorDict,
                              context: Context):
-    """Copy data[key] to plugin_extras["public"][key] for storing in the db"""
-    breakpoint()
+    """Copy data[key] to plugin_data["plugin_name"][key] for storing in the db"""
     plugin_extras = { "public": { key[0]: data.get(key) }}
-    data[('plugin_extras',)] = plugin_extras
+    data[('plugin_data',)] = plugin_extras
 
 
 

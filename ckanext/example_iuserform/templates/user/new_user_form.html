@@ -1,7 +1,6 @@
 {% ckan_extends %}
 
 {% block extra_fields %}
-{{ h.countries() }}
       <select id="field-country" name="country">
         {% for country in h.countries()  %}
           <option value="{{ country }}" {% if country in h.countries() %}selected="selected"{% endif %}>{{ country }}</option>
