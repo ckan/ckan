@@ -416,3 +416,12 @@ def test_header_based_auth_default_post(app):
     res = app.post(url, environ_overrides=env, data=data)
 
     assert res.status_code == 200
+
+
+@pytest.mark.ckan_config("solr_url", "https://xxxx/notofund")
+def test_package_search_connection_errors(app):
+
+    res = app.get(
+        url_for("api.action", logic_function="package_search", ver=3),
+    )
+    assert res.json["error"]["__type"] == "Search Connection Error"
