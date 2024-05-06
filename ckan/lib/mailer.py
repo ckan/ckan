@@ -185,9 +185,8 @@ def mail_recipient(recipient_name: str,
     notification_sent = False
     for plugin in plugins.PluginImplementations(plugins.INotifier):
         # Allow extensions to use other notification methods
-        # Use all available
         notification_sent = plugin.notify_recipient(
-            recipient_name, recipient_email, site_title, site_url,
+            recipient_name, recipient_email,
             subject, body, body_html, headers,
             attachments=attachments
         )
