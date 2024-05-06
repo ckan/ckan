@@ -26,12 +26,12 @@ class TestINotifier:
     def test_inotifier_full(self, nr2, nr1, mr):
         mail_recipient(**test_email)
         mr.assert_called()
-        assert mr..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert mr.call_args_list[0][0][0] == test_email["recipient_name"]
 
         nr1.assert_called()
-        assert nr1..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert nr1.call_args_list[0][0][0] == test_email["recipient_name"]
         nr2.assert_called()
-        assert nr2..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert nr2.call_args_list[0][0][0] == test_email["recipient_name"]
 
     @pytest.mark.ckan_config("ckan.notifier.always_send_email", "false")
     @pytest.mark.ckan_config("ckan.notifier.notify_all", "true")
@@ -43,9 +43,9 @@ class TestINotifier:
         # We do not send email because we send custom notifications
         mr.assert_not_called()
         nr1.assert_called()
-        assert nr1..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert nr1.call_args_list[0][0][0] == test_email["recipient_name"]
         nr2.assert_called()
-        assert nr2..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert nr2.call_args_list[0][0][0] == test_email["recipient_name"]
 
     @pytest.mark.ckan_config("ckan.notifier.always_send_email", "false")
     @pytest.mark.ckan_config("ckan.notifier.notify_all", "false")
@@ -57,6 +57,6 @@ class TestINotifier:
         # We do not send email because we send custom notifications
         mr.assert_not_called()
         nr1.assert_called()
-        assert nr1..call_args_list[0][0][0] == test_email["recipient_name"]
+        assert nr1.call_args_list[0][0][0] == test_email["recipient_name"]
         # We just send the first notification
         nr2.assert_not_called()
