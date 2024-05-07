@@ -2284,21 +2284,24 @@ class IUserForm(Interface):
         '''
         return user_dict
 
-    def user_after_create(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+    def user_after_create(self, context: Context,
+                          user_dict: dict[str, Any]) -> dict[str, Any]:
         '''
         Called after a new user is created.
 
         '''
         return user_dict
 
-    def user_after_update(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+    def user_after_update(self, context: Context,
+                          user_dict: dict[str, Any]) -> dict[str, Any]:
         '''
         Called after a user is updated.
 
         '''
         return user_dict
 
-    def user_after_show(self, context: Context, user_dict: dict[str, Any]) -> dict[str, Any]:
+    def user_after_show(self, context: Context,
+                        user_dict: dict[str, Any]) -> dict[str, Any]:
         '''
         Called after a user is shown.
 
