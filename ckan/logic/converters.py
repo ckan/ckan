@@ -66,10 +66,16 @@ def load_plugin_data(plugin_name: str):
 
 def store_plugin_data(plugin_name: str):
     """Copy data[key] to plugin_data["plugin_name"][key] for storing in the db"""
+
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context) -> Any:
-        plugin_extras = { plugin_name: { key[0]: data.get(key) }}
-        data[('plugin_data',)] = plugin_extras
+        pd = data.get(('plugin_data',), {})
+        if isinstance(pd, df.Missing):
+            data[('plugin_data',)] = {}
+        plugin_data = {plugin_name: {key[0]: data.get(key)}}
+        data[('plugin_data',)].update(plugin_data)
+
+
 
     return callable
 
