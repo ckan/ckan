@@ -2239,29 +2239,29 @@ class IUserForm(Interface):
         '''
         return ''
 
-    def create_user_schema(self) -> Schema:
+    def create_user_schema(self, schema: Schema) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
 
         '''
-        return {}
+        return schema
 
-    def update_user_schema(self) -> Schema:
+    def update_user_schema(self, schema: Schema) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
 
         '''
-        return {}
+        return schema
 
-    def show_user_schema(self) -> Schema:
+    def show_user_schema(self, schema: Schema) -> Schema:
         '''
         Returns the schema for mapping user data from a form to a format
         suitable for the database.
 
         '''
-        return {}
+        return schema
 
     def user_before_create(self, user_dict: dict[str, Any]) -> dict[str, Any]:
         '''

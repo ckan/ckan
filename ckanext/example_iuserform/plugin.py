@@ -1,6 +1,7 @@
 
 
 from typing import Any, Dict, cast
+from ckan.types import Schema, ValidatorFactory
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 
@@ -31,31 +32,29 @@ class ExampleIUserFormPlugin(plugins.SingletonPlugin):
 
     def _modify_user_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
         # Add our custom country metadata field to the schema.
-        schema.update({
-            'country': [
-                tk.get_validator('store_plugin_data'),
+        f = cast(Schema, schema)
+        f['country'] = [
+                cast(ValidatorFactory, tk.get_validator('store_plugin_data')('example_iuserform')),
                 tk.get_validator('ignore_missing'),
 
             ]
-        })
-        return schema
+        return f
 
     def show_user_schema(self) -> Dict[str, Any]:
         schema = super(ExampleIUserFormPlugin, self).show_user_schema()
-        schema.update({
-            'country': [
-                tk.get_validator('ignore_missing'),
-                tk.get_converter('load_plugin_data')
-            ]
-        })
-        return schema
+        f = cast(Schema, schema)
+        f['country'] = [
+            tk.get_validator('ignore_missing'),
+            cast(ValidatorFactory, tk.get_validator('load_plugin_data'))('example_iuserform'),
+        ]
+        return f
 
-    def create_user_schema(self) -> Dict[str, Any]:
-        schema = super(ExampleIUserFormPlugin, self).create_user_schema()
+    def create_user_schema(self, schema: Schema) -> Dict[str, Any]:
+        schema = super(ExampleIUserFormPlugin, self).create_user_schema(schema)
         schema = self._modify_user_schema(schema)
         return schema
 
-    def update_user_schema(self) -> Dict[str, Any]:
-        schema = super(ExampleIUserFormPlugin, self).update_user_schema()
+    def update_user_schema(self, schema: Schema) -> Dict[str, Any]:
+        schema = super(ExampleIUserFormPlugin, self).update_user_schema(schema)
         schema = self._modify_user_schema(schema)
         return schema
