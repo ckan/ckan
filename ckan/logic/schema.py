@@ -13,8 +13,19 @@ from ckan.types import (
 
 
 def validator_args(fn: ComplexSchemaFunc) -> PlainSchemaFunc:
-    u'''collect validator names from argument names
-    and pass them to wrapped function'''
+    """Collect validator names from argument names and pass them to wrapped
+    function.
+
+    Example::
+
+        @validator_args
+        def schema_function(not_empty, ignore):
+            return not_empty, ignore
+
+        ne, ig = schema_function()
+        assert ne is get_validator("not_empty")
+        assert ig is get_validator("ignore")
+    """
 
     args = inspect.signature(fn).parameters
 

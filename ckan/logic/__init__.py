@@ -665,8 +665,23 @@ def get_or_bust(
 
 def validate(schema_func: Callable[[], Schema],
              can_skip_validator: bool = False) -> Callable[[Action], Action]:
-    ''' A decorator that validates an action function against a given schema
-    '''
+    """A decorator that validates an action function against a given schema.
+
+    Example::
+
+        def schema_func():
+            return {
+                "a": [get_validator("int_validator")],
+                "__extras": [get_validator("ignore")]
+            }
+
+        @validate_action_data(schema_function)
+        def my_action(context, data_dict):
+            return data_dict
+
+        data = {"a": "1", "b": "2"}
+        assert my_action({}, data) == {"a": 1}
+    """
     def action_decorator(action: Action) -> Action:
         @functools.wraps(action)
         def wrapper(context: Context, data_dict: DataDict):
