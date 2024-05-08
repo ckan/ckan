@@ -23,6 +23,7 @@ import ckan.plugins.interfaces as interfaces
 from ckan.common import config
 from ckan.types import SignalMapping
 from ckan.exceptions import CkanDeprecationWarning
+from ckan.logic import get_validator
 
 
 __all__ = [
@@ -221,7 +222,8 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config.get('ckan.plugins') + find_system_plugins()
+    as_list = get_validator('as_list')
+    plugins = as_list(config.get('ckan.plugins')) + find_system_plugins()
 
     load(*plugins)
 
@@ -254,7 +256,9 @@ def load(
         if interfaces.ISignal.implemented_by(service.__class__):
             _connect_signals(service.get_signal_subscriptions())
         output.append(service)
-    plugins_update()
+
+    if plugins:
+        plugins_update()
 
     # Return extension instance if only one was loaded.  If more that one
     # has been requested then a list of instances is returned in the order
@@ -301,7 +305,9 @@ def unload(*plugins: str) -> None:
 
         for observer_plugin in observers:
             observer_plugin.after_unload(service)
-    plugins_update()
+
+    if plugins:
+        plugins_update()
 
 
 def plugin_loaded(name: str) -> bool:
