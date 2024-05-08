@@ -23,7 +23,6 @@ import ckan.plugins.interfaces as interfaces
 from ckan.common import config
 from ckan.types import SignalMapping
 from ckan.exceptions import CkanDeprecationWarning
-from ckan.logic import get_validator
 
 
 __all__ = [
@@ -222,6 +221,7 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
+    from ckan.logic import get_validator
     as_list = get_validator('as_list')
     plugins = as_list(config.get('ckan.plugins')) + find_system_plugins()
 
