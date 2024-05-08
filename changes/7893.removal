@@ -1,8 +1,7 @@
 The sessions handling has been refactored, dropping the Beaker library in favour of
 `Flask-Session <https://flask-session.readthedocs.io/en/latest/config.html>`_.
 Note that the default session backend for new sites remains the client-side browser
-cookie based. See :ref:`SESSION_TYPE` for alternative backends available, including
-custom ones.
+cookie based. See :ref:`SESSION_TYPE` for alternative backends available.
 The following configuration options need to be updated:
 
 ================================= ==============================================
