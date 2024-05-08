@@ -12,14 +12,14 @@ babel==2.14.0
     # via
     #   -r requirements.in
     #   flask-babel
-beaker==1.12.1
-    # via -r requirements.in
 bleach==6.1.0
     # via -r requirements.in
 blinker==1.7.0
     # via
     #   -r requirements.in
     #   flask
+cachelib==0.13.0
+    # via flask-session
 certifi==2024.2.2
     # via
     #   -r requirements.in
@@ -40,10 +40,13 @@ flask==3.0.2
     #   -r requirements.in
     #   flask-babel
     #   flask-login
+    #   flask-session
     #   flask-wtf
 flask-babel==4.0.0
     # via -r requirements.in
 flask-login==0.6.3
+    # via -r requirements.in
+flask-session==0.8.0
     # via -r requirements.in
 flask-wtf==1.2.1
     # via -r requirements.in
@@ -76,6 +79,8 @@ markupsafe==2.1.5
     #   mako
     #   werkzeug
     #   wtforms
+msgspec==0.18.6
+    # via flask-session
 mypy==1.9.0
     # via sqlalchemy
 mypy-extensions==1.0.0
