@@ -138,6 +138,8 @@ class ValidationError(ActionError):
                 elif key == 'tags':
                     assert isinstance(error, list)
                     summary[_('Tags')] = error[0]
+                elif isinstance(error, str):
+                    summary[_(prettify(key))] = error
                 else:
                     assert isinstance(error, list)
                     summary[_(prettify(key))] = error[0]

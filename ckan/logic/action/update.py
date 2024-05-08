@@ -776,7 +776,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     '''Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
-    any user account. Can not modify exisiting user's name.
+    any user account and modify existing usernames.
 
     .. note:: Update methods may delete parameters not explicitly provided in the
         data_dict. If you want to edit only a specific attribute use `user_patch`
