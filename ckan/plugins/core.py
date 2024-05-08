@@ -20,7 +20,7 @@ from pyutilib.component.core import Plugin as _pca_Plugin
 
 import ckan.plugins.interfaces as interfaces
 
-from ckan.common import config
+from ckan.common import config, aslist
 from ckan.types import SignalMapping
 from ckan.exceptions import CkanDeprecationWarning
 
@@ -221,9 +221,7 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    from ckan.logic import get_validator
-    as_list = get_validator('as_list')
-    plugins = as_list(config.get('ckan.plugins')) + find_system_plugins()
+    plugins = aslist(config.get('ckan.plugins')) + find_system_plugins()
 
     load(*plugins)
 
