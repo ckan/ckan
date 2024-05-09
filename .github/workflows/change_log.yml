@@ -1,0 +1,43 @@
+name: Changelog Entry
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  check_file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check Chanelog Exists
+        run: |
+          if [[ $(ls ./changes/${{ github.event.number }}.*) ]]; then
+            echo -e "\n"
+            echo -e "\033[0;36mINFO: changelog for PR ${{ github.event.number }} exists.\033[0;0m"
+            echo -e "\n"
+            exit 0
+          else
+            echo -e "\n"
+            echo -e "\033[0;31mERROR: changelog for PR ${{ github.event.number }} does not exist.\033[0;0m"
+            echo -e "\n"
+            exit 1
+          fi
+
+      - name: Check Changelog Extension
+        run: |
+          fullfile=$(ls ./changes/${{ github.event.number }}.*)
+          filename=$(basename -- "$fullfile")
+          extension="${filename##*.}"
+          allowed_types='[ "fix", "bugfix", "hotfix", "feature", "misc", "changes", "migration", "removal" ]'
+          if [[ $allowed_types =~ "\"$extension\"" ]]; then
+            echo -e "\n"
+            echo -e "\033[0;36mINFO: extension ${extension} accepted.\033[0;0m"
+            echo -e "\n"
+            exit 0
+          else
+            echo -e "\n"
+            echo -e "\033[0;31mERROR: changelog file ending in ${extension} not supported.\033[0;0m"
+            echo -e "\n"
+            exit 1
+          fi

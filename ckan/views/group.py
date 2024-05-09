@@ -1210,5 +1210,6 @@ def register_group_plugin_rules(blueprint):
             view_func=globals()[action])
 
 
-register_group_plugin_rules(group)
+# (canada fork only): disable group views
+#register_group_plugin_rules(group)
 register_group_plugin_rules(organization)

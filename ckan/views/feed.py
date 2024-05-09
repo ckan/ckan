@@ -445,6 +445,7 @@ def _parse_url_params():
 
 
 def dataset(id):
+    # (canada fork only): custom single dataset feed
     _data_dict, params = _parse_url_params()
     context = {
         u'model': model,
@@ -452,7 +453,12 @@ def dataset(id):
         u'user': g.user,
         u'auth_user_obj': g.userobj
     }
-    pkg_dict = logic.get_action(u'package_show')(context, {'id': id})
+    try:
+        pkg_dict = logic.get_action(u'package_show')(context, {'id': id})
+    except logic.NotFound:
+        base.abort(404, _(u'Dataset not found'))
+    except logic.NotAuthorized:
+        base.abort(403, _(u'Not authorized to see this page'))
 
     self_link = _feed_url(params,
                           controller=u'feeds',
@@ -748,6 +754,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
 
 
 # Routing
+# (canada fork only): custom single dataset feed
 feeds.add_url_rule(u'/dataset/<string:id>.atom', methods=[u'GET'],
                    view_func=dataset)
 feeds.add_url_rule(u'/dataset.atom', methods=[u'GET'], view_func=general)
