@@ -1,0 +1,1 @@
+Catch NotAuthorized and NotFound in Dataset Feed view, returning 403 and 404 respectfully instead of hitting 500 server error.
