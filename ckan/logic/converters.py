@@ -50,9 +50,10 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
         return
     remove_from_extras(data, data_key[1])
 
-def load_plugin_data(plugin_name: str):
 
-    """Copy plugin_data["plugin_name"][key] to data[key] for exposing to forms and API"""
+def load_plugin_data(plugin_name: str):
+    """Copy plugin_data["plugin_name"][key] to data[key]
+    for exposing to forms and API"""
 
     def callable(key: FlattenKey, data: FlattenDataDict,
                                errors: FlattenErrorDict,
@@ -64,21 +65,20 @@ def load_plugin_data(plugin_name: str):
 
     return callable
 
+
 def store_plugin_data(plugin_name: str):
-    """Copy data[key] to plugin_data["plugin_name"][key] for storing in the db"""
+    """Copy data[key] to plugin_data["plugin_name"][key]
+    for storing in the db"""
 
     def callable(key: FlattenKey, data: FlattenDataDict,
                  errors: FlattenErrorDict, context: Context) -> Any:
         pd = data.get(('plugin_data',), {})
         if isinstance(pd, df.Missing):
-            data[('plugin_data',)] = {}
+            data[("plugin_data",)] = {}
         plugin_data = {plugin_name: {key[0]: data.get(key)}}
-        data[('plugin_data',)].update(plugin_data)
-
-
+        data[("plugin_data",)].update(plugin_data)
 
     return callable
-
 
 
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):
@@ -99,6 +99,7 @@ def free_tags_only(key: FlattenKey, data: FlattenDataDict,
     for k in list(data.keys()):
         if k[0] == 'tags' and k[1] == tag_number:
             del data[k]
+
 
 def convert_to_tags(vocab: Any) -> DataValidator:
     """Convert list of tag names into a list of tag dictionaries
@@ -130,6 +131,7 @@ def convert_to_tags(vocab: Any) -> DataValidator:
             data[('tags', num + n, 'vocabulary_id')] = v.id
     return func
 
+
 def convert_from_tags(vocab: Any) -> DataValidator:
     def func(key: FlattenKey, data: FlattenDataDict,
              errors: FlattenErrorDict, context: Context):
@@ -144,6 +146,7 @@ def convert_from_tags(vocab: Any) -> DataValidator:
                     name = data[k].get('display_name', data[k]['name'])
                     tags.append(name)
         data[key] = tags
+
     return func
 
 
@@ -253,6 +256,7 @@ def convert_to_list_if_string(value: Any) -> Any:
     else:
         return value
 
+
 def json_or_string(value: Any) -> Any:
     """
     parse string values as json, return string if that fails
@@ -263,6 +267,7 @@ def json_or_string(value: Any) -> Any:
         except ValueError:
             pass
     return value
+
 
 def json_list_or_string(value: Any) -> Any:
     """

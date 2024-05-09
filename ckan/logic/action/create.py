@@ -973,7 +973,6 @@ def user_create(context: Context,
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     # Get the custom schema from IUserForm
     for plugin in plugins.PluginImplementations(plugins.IUserForm):
-        # do something with the plugin
         user_schema = plugin.create_user_schema(schema=schema)
         schema.update(user_schema)
 

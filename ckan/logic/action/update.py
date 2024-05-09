@@ -794,6 +794,11 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
+    # Get the custom schema from IUserForm
+    for plugin in plugins.PluginImplementations(plugins.IUserForm):
+        user_schema = plugin.update_user_schema(schema=schema)
+        schema.update(user_schema)
+
     id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
