@@ -44,3 +44,15 @@ class TestAuth:
 
         with pytest.raises(tk.NotAuthorized):
             helpers.call_auth("activity_create", context=context)
+
+    def test_non_sysadmin_cant_query_rows(self, user):
+        context = {"user": user["name"], "model": model}
+
+        with pytest.raises(tk.NotAuthorized):
+            helpers.call_auth("activity_range_count_show", context=context)
+
+    def test_non_sysadmin_cant_delete_rows(self, user):
+        context = {"user": user["name"], "model": model}
+
+        with pytest.raises(tk.NotAuthorized):
+            helpers.call_auth("activity_range_delete", context=context)

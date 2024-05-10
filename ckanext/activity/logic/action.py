@@ -12,6 +12,7 @@ from ckan import authz
 from ckan.logic import validate
 from ckan.types import Context, DataDict, ActionResult
 import ckanext.activity.email_notifications as email_notifications
+from ckanext.activity import utils
 from ckan.lib.plugins import get_permission_labels
 
 from . import schema
@@ -674,3 +675,20 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
         "diff": diff,
         "activities": activities,
     }
+
+
+@validate(schema.delete_activity_rows_schema)
+@tk.side_effect_free
+def activity_range_count_show(context: Context,
+                              data_dict: DataDict) -> dict[str, int]:
+    tk.check_access("activity_range_count_show", context, data_dict)
+    return {"activity_count": utils.get_activity_count(data_dict)}
+
+
+@validate(schema.delete_activity_rows_schema)
+def activity_range_delete(context: Context,
+                          data_dict: DataDict) -> dict[str, int]:
+    tk.check_access("activity_range_delete", context, data_dict)
+    count = utils.get_activity_count(data_dict)
+    utils.delete_activities(data_dict)
+    return {"deleted_activity_count": count}

@@ -34,6 +34,14 @@
 </span>
 {% endmacro %}
 
+{% macro delete_select_field(activity, can_delete_activities) %}
+  {% if can_delete_activities %}
+    &nbsp;|&nbsp;
+    <label for="delete_{{ activity.id }}">{{ _("Delete Activity") }}</label>
+    <input type="checkbox" name="delete_activities" id="delete_{{ activity.id }}" value="{{ activity.id }}" />
+  {% endif %}
+{% endmacro %}
+
 {# Renders the actual stream of activities
 
 activity_stream - the activity data. e.g. the output from package_activity_list
@@ -44,22 +52,65 @@ object_type - 'package', 'organization', 'group', 'user'
 {% block activity_stream %}
   <ul class="activity {% if not activity_stream %}activity-empty{% endif %}">
   {% set can_show_activity_detail = h.check_access('activity_list', {'id': id, 'include_data': True, 'object_type': object_type}) %}
+  {% set can_delete_activities = h.check_access('activity_range_delete') %}
+  {% set activity_ids_on_page = [] %}
+
+  {% if activity_stream and can_delete_activities %}
+    <form class="d-inline" action="{{ h.url_for('activity.delete') }}" method="POST">
+  {% endif %}
 
   {% for activity in activity_stream %}
+    {% set activity_ids_on_page = activity_ids_on_page.append(activity.id) %}
     {%- snippet "snippets/activities/{}.html".format(activity.activity_type.replace(' ', '_')),
       "snippets/activities/fallback.html",
       activity=activity, can_show_activity_detail=can_show_activity_detail,
+      can_delete_activities=can_delete_activities,
       ah={
         'actor': actor,
         'dataset': dataset,
         'organization': organization,
         'user': user,
         'group': group,
+        'delete_select_field': delete_select_field,
       },
       id=id
     -%}
   {% else %}
       {{ _("No activity found for this type") }}
   {% endfor %}
+  {% if activity_stream and can_delete_activities %}
+        <input type="hidden" name="came_from" id="came_from" value="{{ h.current_url() }}"/>
+        <button class="btn btn-danger"
+          type="submit"
+          data-module="confirm-action"
+          data-module-with-data=true
+          data-module-content="{{ _('Are you sure you want to delete the selected activites?') }}">
+          {{ _("Delete Selected Activities") }}</button>
+      </form>
+      <form class="d-inline ml-1" action="{{ h.url_for('activity.delete') }}" method="POST">
+        {% for id in activity_ids_on_page %}
+          <input type="hidden" name="delete_activities" value="{{ id }}"/>
+        {% endfor %}
+        <input type="hidden" name="came_from" id="came_from" value="{{ h.current_url() }}"/>
+        <input type="hidden" name="delete_activity_page" value="true"/>
+        <button class="btn btn-warning"
+          type="submit"
+          data-module="confirm-action"
+          data-module-with-data=true
+          data-module-content="{{ _('Are you sure you want to delete this page of activites?') }}">
+          {{ _("Delete this Page of Activities") }}</button>
+      </form>
+      <form class="d-inline ml-1" action="{{ h.url_for('activity.delete') }}" method="POST">
+        <input type="hidden" name="came_from" id="came_from" value="{{ h.current_url() }}"/>
+        <input type="hidden" name="object_id" value="{{ id }}"/>
+        <input type="hidden" name="object_type" value="{{ object_type }}"/>
+        <button class="btn btn-warning"
+          type="submit"
+          data-module="confirm-action"
+          data-module-with-data=true
+          data-module-content="{{ _('Are you sure you want to delete all activites?') }}">
+          {{ _("Delete All Activities") }}</button>
+      </form>
+  {% endif %}
   </ul>
 {% endblock %}

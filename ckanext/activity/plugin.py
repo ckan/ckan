@@ -8,6 +8,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
 from . import subscriptions
+from . import cli
 
 
 @tk.blanket.auth_functions
@@ -18,6 +19,7 @@ from . import subscriptions
 class ActivityPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurer)
     p.implements(p.ISignal)
+    p.implements(p.IClick)
 
     # IConfigurer
     def update_config(self, config: CKANConfig):
@@ -28,3 +30,7 @@ class ActivityPlugin(p.SingletonPlugin):
     # ISignal
     def get_signal_subscriptions(self):
         return subscriptions.get_subscriptions()
+
+    # IClick
+    def get_commands(self):
+        return [cli.activity]

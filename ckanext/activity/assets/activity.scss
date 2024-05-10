@@ -23,6 +23,10 @@ $activityColorEmpty: #6E6E6E;
         .date {
             color: $activityColorBlank;
             font-size: 12px;
+
+            label{
+                font-size: inherit;
+            }
         }
 
         &.no-avatar p {
