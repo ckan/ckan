@@ -47,8 +47,7 @@ class ExampleIUserFormPlugin(plugins.SingletonPlugin):
         ]
         return f
 
-    def show_user_schema(self) -> Dict[str, Any]:
-        schema = super(ExampleIUserFormPlugin, self).show_user_schema()
+    def show_user_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
         f = cast(Schema, schema)
         f["country"] = [
             tk.get_validator("ignore_missing"),
