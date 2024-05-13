@@ -135,7 +135,7 @@ sqlalchemy[mypy]==1.4.41
     #   sqlalchemy
 sqlalchemy2-stubs==0.0.2a27
     # via sqlalchemy
-sqlparse==0.5.0
+sqlparse==0.4.2
     # via -r requirements.in
 tomli==2.0.1
     # via mypy
