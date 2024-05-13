@@ -7,11 +7,10 @@ import click
 from . import error_shout
 
 
-@click.group(
-    short_help=u"Code speed profiler.", invoke_without_command=True,
-)
-@click.pass_context
-def profile(ctx: click.Context):
+@click.command(short_help="Code speed profiler.")
+@click.argument(u"url")
+@click.argument(u"user", required=False, default=u"visitor")
+def profile(url: str, user: str):
     """Provide a ckan url and it will make the request and record how
     long each function call took in a file that can be read by
     pstats.Stats (command-line) or runsnakerun (gui).
@@ -28,14 +27,6 @@ def profile(ctx: click.Context):
     You may need to install python module: cProfile
 
     """
-    if ctx.invoked_subcommand is None:
-        ctx.invoke(main)
-
-
-@profile.command('profile', short_help=u"Code speed profiler.",)
-@click.argument(u"url")
-@click.argument(u"user", required=False, default=u"visitor")
-def main(url: str, user: str):
     import cProfile
     from ckan.tests.helpers import _get_test_app
 
