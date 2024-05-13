@@ -43,13 +43,7 @@ flask-babel==1.0.0
     # via -r requirements.in
 flask-login==0.6.3
     # via -r requirements.in
-<<<<<<< HEAD
-flask-multistatic==1.0
-    # via -r requirements.in
 flask-wtf==1.2.1
-=======
-flask-wtf==1.0.1
->>>>>>> 92996d95a... Integrate flask-multistatic into our own library
     # via -r requirements.in
 greenlet==2.0.2
     # via
