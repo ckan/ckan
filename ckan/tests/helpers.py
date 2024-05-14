@@ -350,22 +350,11 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
-@pytest.mark.usefixtures("with_test_worker")
+@pytest.mark.usefixtures("with_test_worker", "clean_queues")
 class RQTestBase(object):
     """
     Base class for tests of RQ functionality.
     """
-
-    def setup(self):
-        u"""
-        Delete all RQ queues and jobs.
-        """
-        # See https://github.com/nvie/rq/issues/731
-        redis_conn = connect_to_redis()
-        for queue in rq.Queue.all(connection=redis_conn):
-            queue.empty()
-            redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
-            redis_conn.delete(queue._key)
 
     def all_jobs(self):
         u"""

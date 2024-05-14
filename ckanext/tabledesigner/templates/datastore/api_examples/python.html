@@ -1,0 +1,68 @@
+{% ckan_extends %}
+
+{% block custom %}
+  {{ super() }}
+
+  {% if examples %}
+  {% call register_example('python', 'request_filter_custom') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = ck.action.datastore_search(
+    resource_id="{{ resource_id }}",
+    filters={{ examples.text_column_filters_object | tojson(indent=4) | indent(4) }},
+)
+print(result['records'])</code></pre>
+  {% endcall %}
+
+  {% call register_example('python', 'request_sql_custom') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+rresult = ck.action.datastore_search_sql(
+    sql="""SELECT * from "{{resource_id}}" WHERE {{ examples.text_column_name_sql }} LIKE 'jones'"""
+)
+print(result['records'])</code></pre>
+  {% endcall %}
+
+  {% call register_example('python', 'request_insert') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = ck.action.datastore_upsert(
+    resource_id="{{ resource_id }}",
+    method="insert",
+    records=[{{ examples.insert_record_object | tojson(indent=4) | indent(4) }}]
+)
+</code></pre>
+  {% endcall %}
+
+  {% call register_example('python', 'request_update') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = ck.action.datastore_upsert(
+    resource_id="{{ resource_id }}",
+    method="update",
+    records=[{{ examples.update_record_object | tojson(indent=4) | indent(4) }}]
+)
+</code></pre>
+  {% endcall %}
+
+  {% call register_example('python', 'request_delete') %}
+<pre class="example-python"><code class="language-python"
+>from ckanapi import RemoteCKAN
+
+ck = RemoteCKAN('{{ h.url_for('home.index', qualified=True) }}', apikey=API_TOKEN)
+result = ck.action.datastore_records_delete(
+    resource_id="{{ resource_id }}",
+    filters={{ examples.unique_filter_object | tojson(indent=4) | indent(4) }}
+)
+</code></pre>
+  {% endcall %}
+  {% endif %}
+{% endblock %}

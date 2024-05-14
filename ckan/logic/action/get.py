@@ -1004,7 +1004,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     context['package'] = pkg
     _check_access('package_show', context, data_dict)
 
-    if data_dict.get('use_default_schema', False):
+    if asbool(data_dict.get('use_default_schema', False)):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
 
     package_dict = None
@@ -1215,7 +1215,13 @@ def _group_or_org_show(
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
-    schema: Schema = context.get("schema") or group_plugin.show_group_schema()
+    try:
+        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
+            'type': 'show',
+            'api': 'api_version' in context,
+            'context': context})
+    except AttributeError:
+        schema = group_plugin.db_to_form_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
