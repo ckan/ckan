@@ -663,9 +663,11 @@ def _group_or_org_update(
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
-        schema = group_plugin.form_to_db_schema_options({'type': 'update',
-                                               'api': 'api_version' in context,
-                                               'context': context})
+        schema = getattr(group_plugin, "form_to_db_schema_options")({
+            'type': 'update',
+            'api': 'api_version' in context,
+            'context': context
+        })
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 

@@ -1216,7 +1216,7 @@ def _group_or_org_show(
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
     try:
-        schema: Schema = group_plugin.db_to_form_schema_options({
+        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
             'type': 'show',
             'api': 'api_version' in context,
             'context': context})
