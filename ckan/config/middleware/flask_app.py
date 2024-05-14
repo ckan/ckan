@@ -182,6 +182,9 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
 
+    # Add template helpers
+    app.jinja_env.globals.update(helper_functions())
+
     # Common handlers for all requests
     #
     # flask types do not mention that it's possible to return a response from
@@ -190,7 +193,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.after_request(ckan_after_request)
 
     # Template context processors
-    app.context_processor(helper_functions)
     app.context_processor(c_object)
 
     app.context_processor(_ungettext_alias)

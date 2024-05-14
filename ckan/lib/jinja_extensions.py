@@ -9,11 +9,11 @@ from typing import Any, Iterable, Optional, Sequence, Union
 from jinja2 import nodes
 from jinja2 import loaders
 from jinja2 import ext
+from jinja2.parser import Parser
 from jinja2.exceptions import TemplateNotFound
 from jinja2.utils import open_if_exists
 from markupsafe import escape
 
-import ckan.lib.base as base
 import ckan.lib.helpers as h
 from ckan.common import config
 from markupsafe import Markup
@@ -261,20 +261,54 @@ class BaseExtension(ext.Extension):
         return nodes.Output([make_call_node()]).set_lineno(tag.lineno)
 
 
-class SnippetExtension(BaseExtension):
+class SnippetExtension(ext.Extension):
     ''' Custom snippet tag
 
     {% snippet <template_name> [, <fallback_template_name>]...
                [, <keyword>=<value>]... %}
 
-    see lib.helpers.snippet() for more details.
+    is a short version of:
+
+    {% with [<keyword>=<value> [, ...]] %}
+        {% include <template_name> [, <fallback_template_name>]... %}
+    {% endwith %}
+
+    or if no parameters passed:
+
+    {% include <template_name> [, <fallback_template_name>]... without context %}
     '''
 
-    tags = set(['snippet'])
+    tags = {'snippet'}
 
-    @classmethod
-    def _call(cls, args: Iterable[Any], kwargs: dict[str, Any]):
-        return base.render_snippet(*args, **kwargs)
+    def parse(self, parser: Parser):
+        lineno = next(parser.stream).lineno
+        templates: list[nodes.Expr] = []
+        targets: list[nodes.Expr] = []
+        values: list[nodes.Expr] = []
+        while not parser.stream.current.test_any('block_end'):
+            if templates or targets:
+                parser.stream.expect('comma')
+            if parser.stream.current.test('name') and parser.stream.look().test('assign'):
+                key = parser.parse_assign_target()
+                key.set_ctx('param')
+                targets.append(key)
+                parser.stream.expect('assign')
+                values.append(parser.parse_expression())
+            else:
+                templates.append(parser.parse_expression())
+
+        inc = nodes.Include(lineno=lineno)
+        inc.template = nodes.Tuple(templates, 'load', lineno=lineno)
+        inc.with_context = bool(targets)
+        inc.ignore_missing = False
+        if not targets:
+            return inc
+        wit = nodes.With(lineno=lineno)
+        wit.targets = targets
+        wit.values = values
+        wit.body = [inc]
+        return wit
+
 
 class UrlForStaticExtension(BaseExtension):
     ''' Custom url_for_static tag for getting a path for static assets.
