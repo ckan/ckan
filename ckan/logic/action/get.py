@@ -1215,13 +1215,7 @@ def _group_or_org_show(
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
-    try:
-        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
-            'type': 'show',
-            'api': 'api_version' in context,
-            'context': context})
-    except AttributeError:
-        schema = group_plugin.db_to_form_schema()
+    schema: Schema = context.get("schema") or group_plugin.show_group_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
