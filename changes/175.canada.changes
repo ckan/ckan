@@ -1,0 +1,1 @@
+DataStore Dump endpoint no longer includes the _id field/column.
