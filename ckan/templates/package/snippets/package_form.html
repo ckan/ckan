@@ -6,7 +6,7 @@ then itself be extended to add/remove blocks of functionality. #}
 <form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate>
   {{ h.csrf_input() }}
   {% block stages %}
-    {{ h.snippet('package/snippets/stages.html', stages=stage, dataset_type=dataset_type) }}
+    {% snippet 'package/snippets/stages.html', stages=stage, dataset_type=dataset_type %}
   {% endblock %}
 
   <input type="hidden" name="_ckan_phase" value="dataset_new_1" />
