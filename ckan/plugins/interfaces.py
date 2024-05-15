@@ -1395,7 +1395,8 @@ class IGroupForm(Interface):
         return {}
 
     def update_group_schema(self) -> Schema:
-        '''Return the schema for validating updated group or organization dicts.
+        '''Return the schema for validating updated group or organization
+        dicts.
 
         CKAN will use the returned schema to validate and convert data coming
         from users (via the dataset form or API) when updating groups, before
@@ -1412,8 +1413,8 @@ class IGroupForm(Interface):
 
     def show_group_schema(self) -> Schema:
         '''
-        Return a schema to validate groups or organizations before they're shown
-        to the user.
+        Return a schema to validate groups or organizations before they're
+        shown to the user.
 
         CKAN will use the returned schema to validate and convert data coming
         from the database before it is returned to the user via the API or
