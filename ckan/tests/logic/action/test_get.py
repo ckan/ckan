@@ -2025,6 +2025,15 @@ class TestUserAutocomplete(object):
         result = helpers.call_action("user_autocomplete", q="compl", limit=1)
         assert len(result) == 1
 
+    def test_autcomplete_email(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"]}
+        factories.User(name="user1234", email="joe@doe.com")
+        result = helpers.call_action("user_autocomplete",context=context,
+                                     q="joe")
+        assert len(result) == 1
+        assert result[0]["name"] == "user1234"
+
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestFormatAutocomplete:
