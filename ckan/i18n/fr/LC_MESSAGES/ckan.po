@@ -7,7 +7,6 @@
 # Adrià Mercader <amercadero@gmail.com>, 2022
 # Jesse Vickery, 2023
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.10.2b0\n"
@@ -5374,3 +5373,327 @@ msgstr "URL de la page Web"
 msgid "eg. http://example.com  (if blank uses resource url)"
 msgstr ""
 "p. ex. http://exemple.com (si elle est vide utiliser l'URL de la ressource)"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:77
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:35
+msgid "SQL query example:"
+msgstr "Exemple de requête SQL :"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:90
+msgid "Using the API with this Web Browser"
+msgstr "Utiliser l’API avec ce navigateur Web"
+
+#: ckanext/datastore/templates/ajax_snippets/api_info.html:94
+msgid "Some API endpoints may be accessed using a GET query string."
+msgstr "On peut accéder à certains points d’extrémité de l’API au moyen d’une chaîne de requête GET."
+
+#: ckanext/datastore/templates/datastore/api_examples/python.html:9
+#, python-format
+msgid "(using the <a href=\"%(url)s\">ckanapi</a> client library)"
+msgstr "(en utilisant la bibliothèque client<a href=\"%(url)s\">ckanapi</a>)"
+
+#: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:5
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:31
+msgid "Primary key"
+msgstr "Clé primaire"
+
+#: ckanext/tabledesigner/column_constraints.py:63
+msgid "Below minimum"
+msgstr "Inférieur au minimum"
+
+#: ckanext/tabledesigner/column_constraints.py:72
+msgid "Above maximum"
+msgstr "Supérieur au maximum"
+
+#: ckanext/tabledesigner/column_constraints.py:118
+msgid "Does not match pattern"
+msgstr "Ne correspond pas au modèle"
+
+#: ckanext/tabledesigner/column_constraints.py:120
+msgid "Data dictionary field pattern is invalid"
+msgstr "Modèle de champ du dictionnaire de données invalide"
+
+#: ckanext/tabledesigner/column_types.py:85
+msgid "Unicode text of any length"
+msgstr "Texte Unicode de n’importe quelle longueur"
+
+#: ckanext/tabledesigner/column_types.py:86
+msgid "free-form text"
+msgstr "texte libre"
+
+#: ckanext/tabledesigner/column_types.py:108
+msgid "Choice"
+msgstr "Choix"
+
+#: ckanext/tabledesigner/column_types.py:109
+msgid "Choose one option from a fixed list"
+msgstr "Choisir une option dans une liste fixe"
+
+#: ckanext/tabledesigner/column_types.py:158
+msgid "Email Address"
+msgstr "Adresse e-mail"
+
+#: ckanext/tabledesigner/column_types.py:159
+msgid "A single email address"
+msgstr "Une simple adresse courriel"
+
+#: ckanext/tabledesigner/column_types.py:186
+msgid "Invalid email"
+msgstr "Adresse courriel non valide"
+
+#: ckanext/tabledesigner/column_types.py:192
+msgid "URI"
+msgstr ""
+
+#: ckanext/tabledesigner/column_types.py:193
+msgid "Uniform resource identifier (URL or URN)"
+msgstr "Adresse URI ou URN"
+
+#: ckanext/tabledesigner/column_types.py:203
+msgid "Universally unique identifier (UUID)"
+msgstr "Adresse UUID"
+
+#: ckanext/tabledesigner/column_types.py:204
+msgid "A universally unique identifier as hexadecimal"
+msgstr "Identifiant universel unique sous forme hexadécimale"
+
+#: ckanext/tabledesigner/column_types.py:214
+msgid "Numeric"
+msgstr "Numérique"
+
+#: ckanext/tabledesigner/column_types.py:215
+msgid ""
+"Number with arbitrary precision (any number of digits before and after "
+"the decimal)"
+msgstr "Nombre avec une précision arbitraire (n’importe quel nombre de chiffres avant et après la décimale)"
+
+#: ckanext/tabledesigner/column_types.py:228
+msgid "Integer"
+msgstr "Entier"
+
+#: ckanext/tabledesigner/column_types.py:229
+msgid "Whole numbers with no decimal"
+msgstr "Nombres entiers sans décimale"
+
+#: ckanext/tabledesigner/column_types.py:241
+msgid "Boolean"
+msgstr "Booléen"
+
+#: ckanext/tabledesigner/column_types.py:242
+msgid "True or false values"
+msgstr "Valeurs vraies ou fausses"
+
+#: ckanext/tabledesigner/column_types.py:252
+msgid "FALSE"
+msgstr "FALSE"
+
+#: ckanext/tabledesigner/column_types.py:253
+msgid "TRUE"
+msgstr "TRUE"
+
+#: ckanext/tabledesigner/column_types.py:269
+msgid "JSON"
+msgstr ""
+
+#: ckanext/tabledesigner/column_types.py:270
+msgid "A JSON object"
+msgstr "Un objet JSON"
+
+#: ckanext/tabledesigner/column_types.py:280
+msgid "Date without time of day"
+msgstr "Date sans heure du jour"
+
+#: ckanext/tabledesigner/column_types.py:295
+msgid "Timestamp"
+msgstr "Horodatage"
+
+#: ckanext/tabledesigner/column_types.py:296
+msgid "Date and time without time zone"
+msgstr "Date et heure sans fuseau horaire"
+
+#: ckanext/tabledesigner/views.py:52
+msgid "Required fields missing"
+msgstr "Champs obligatoires manquants"
+
+#: ckanext/tabledesigner/views.py:85
+msgid "Table Designer fields updated."
+msgstr "Mise à jour des champs du concepteur de tableaux."
+
+#: ckanext/tabledesigner/views.py:135 ckanext/tabledesigner/views.py:217
+msgid "Duplicate primary key exists"
+msgstr "Clé primaire existe en double"
+
+#: ckanext/tabledesigner/views.py:140 ckanext/tabledesigner/views.py:222
+msgid "Invalid input"
+msgstr "Entrée non valide"
+
+#: ckanext/tabledesigner/views.py:183
+msgid "Row not found"
+msgstr "Rangée introuvable"
+
+#: ckanext/tabledesigner/views.py:264
+msgid "Row(s) not found"
+msgstr "Rangée(s) introuvable(s)"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:29
+msgid "Get results filtered by the contents of specific fields:"
+msgstr "Obtenir des résultats filtrés par le contenu de champs spécifiques :"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:45
+msgid "Inserting and Updating"
+msgstr "Insertion et mise à jour"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:49
+msgid "Insert a new record:"
+msgstr "Insérer un nouvel enregistrement :"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:53
+msgid "Update an existing record:"
+msgstr "Mettre à jour un enregistrement existant :"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:57
+#, python-format
+msgid ""
+"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted "
+"or updated based on the primary key values passed"
+msgstr "\"%(method)s\" defaults to \"%(upsert)s\" c.-à-d. que les enregistrements seront insérés ou mis à jour en fonction des valeurs de la clé primaire transmises
+"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:65
+msgid "Deleting"
+msgstr "Suppression"
+
+#: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:69
+msgid "Delete a record:"
+msgstr "Supprimer un enregistrement :"
+
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:18
+msgid "ID"
+msgstr ""
+
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:20
+msgid "Field identifier or column heading when exported to CSV"
+msgstr "Identificateur de champ ou titre de colonne lors de l’exportation au format CSV"
+
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:27
+msgid "Obligation"
+msgstr "Obligation"
+
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:29
+msgid "Optional"
+msgstr "Optionnel"
+
+#: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:30
+msgid "Required"
+msgstr "Exigée"
+
+#: ckanext/tabledesigner/templates/datatables/datatables_view.html:7
+msgid "Delete rows"
+msgstr "Supprimer des rangées"
+
+#: ckanext/tabledesigner/templates/datatables/datatables_view.html:12
+#: ckanext/tabledesigner/templates/tabledesigner/edit_row.html:10
+msgid "Edit row"
+msgstr "Modifier la rangée"
+
+#: ckanext/tabledesigner/templates/package/resource_read.html:10
+#: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:9
+#: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:18
+msgid "Table Designer"
+msgstr "Concepteur de tableau"
+
+#: ckanext/tabledesigner/templates/package/resource_read.html:15
+#: ckanext/tabledesigner/templates/tabledesigner/add_row.html:10
+msgid "Add row"
+msgstr "Ajouter une rangée"
+
+#: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:6
+msgid "Create a custom table for your data"
+msgstr "Créer un tableau personnalisé pour vos données"
+
+#: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:20
+msgid "Create this resource then, design the table from the Data Dictionary tab"
+msgstr "Créer cette ressource, puis concevoir le tableau à partir de l’onglet Dictionnaire de données"
+
+#: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:22
+#, python-format
+msgid ""
+"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this "
+"table."
+msgstr "Utiliser le <a href=\"%(url)s\">Dictionnaire de données</a> pour personnaliser ce tableau."
+
+#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:6
+#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:10
+msgid "Delete row"
+msgid_plural "Delete rows"
+msgstr[0] "Supprimer la rangée"
+msgstr[1] "Supprimer des rangées"
+msgstr[2] "Supprimer des rangées"
+
+#: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:12
+msgid "Delete {num} row?"
+msgid_plural "Delete {num} rows?"
+msgstr[0] "Supprimer {num} rangée?"
+msgstr[1] "Supprimer {num} rangée?"
+msgstr[2] "Supprimer {num} rangée?"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:3
+msgid "Pattern"
+msgstr "Modèle"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:10
+msgid ""
+"Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
+"for text starting with <code>AB-</code> and ending with 6 digits"
+msgstr ""
+"Expression régulière établissant une correspondance avec le champ, p. ex. "
+"<code>AB-\d{6}</code> pour un texte commençant avec <code>AB-</code> et se "
+"terminant avec six chiffres"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
+msgid "Minimum"
+msgstr "Minimum"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:11
+msgid "Minimum permitted value for data in this column"
+msgstr "Valeur minimale autorisée pour les données de cette colonne"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:17
+msgid "Maximum"
+msgstr "Maximum"
+
+#: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:25
+msgid "Maximum permitted value for data in this column"
+msgstr "Valeur maximale autorisée pour les données de cette colonne"
+
+#: ckanext/tabledesigner/templates/tabledesigner/design_snippets/choice.html:2
+msgid "Choices"
+msgstr "Choix"
+
+#: ckanext/tabledesigner/templates/tabledesigner/design_snippets/choice.html:5
+msgid "Add one option per line (press enter after each option is entered)"
+msgstr "Ajouter une option par ligne (appuyer sur la touche Entrée après chaque option)"
+
+#: ckanext/tabledesigner/templates/tabledesigner/form_snippets/choice.html:14
+msgid "(invalid choice)"
+msgstr "(choix non valide)"
+
+#: ckanext/tabledesigner/templates/tabledesigner/form_snippets/choice.html:31
+#: ckanext/tabledesigner/templates/tabledesigner/form_snippets/text.html:9
+msgid " (Primary key)"
+msgstr " (Clé primaire)"
+
+#: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:16
+msgid ""
+"Field {num} removed. Click Save below to save your changes and delete all"
+" data in this field."
+msgstr "Champ {num} supprimé. Cliquez sur Enregistrer ci-dessous pour enregistrer vos modifications et supprimer toutes les données de ce champ."
+
+#: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:30
+msgid "Add field"
+msgstr "Ajouter un champ"
+
+#: ckanext/textview/assets/text_view.js:70
+msgid "An error occured during AJAX request. Could not load view."
+msgstr ""
+"Une erreur est survenue durant une requête AJAX. La vue n'a pas pu être "

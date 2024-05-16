@@ -133,7 +133,6 @@ exclude = "ckan/(pastertemplates|tests|migration)"
 ignore_missing_imports = true
 module = [
     "babel.*",
-    "beaker.*",
     "blinker.*",
     "cookiecutter.*",
     "dominate.*",
@@ -143,7 +142,6 @@ module = [
     "flask_multistatic.*",
     "passlib.*",
     "pysolr.*",
-    "pyutilib.*",
     "repoze.*",
     "rq.*",
     "webassets.*",
