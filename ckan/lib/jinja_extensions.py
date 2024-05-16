@@ -272,10 +272,6 @@ class SnippetExtension(ext.Extension):
     {% with [<keyword>=<value> [, ...]] %}
         {% include <template_name> [, <fallback_template_name>]... %}
     {% endwith %}
-
-    or if no parameters passed:
-
-    {% include <template_name> [, <fallback_template_name>]... without context %}
     '''
 
     tags = {'snippet'}
@@ -299,10 +295,8 @@ class SnippetExtension(ext.Extension):
 
         inc = nodes.Include(lineno=lineno)
         inc.template = nodes.Tuple(templates, 'load', lineno=lineno)
-        inc.with_context = bool(targets)
+        inc.with_context = True
         inc.ignore_missing = False
-        if not targets:
-            return inc
         wit = nodes.With(lineno=lineno)
         wit.targets = targets
         wit.values = values
