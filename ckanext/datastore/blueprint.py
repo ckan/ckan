@@ -71,7 +71,7 @@ def exclude_id_from_ds_dump(key, data, errors, context):
         # fields accepts string or list of strings
         if isinstance(value, text_type):
             value = value.split(',')
-        if isinstance(value, list):
+        if isinstance(value, list) and '_id' in value:
             value.remove('_id')
 
     data[key] = value
