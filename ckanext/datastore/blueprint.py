@@ -57,7 +57,7 @@ def exclude_id_from_ds_dump(key, data, errors, context):
     value = data.get(key)
 
     if not has_request_context() and not hasattr(request, 'view_args') and 'resource_id' not in request.view_args:
-        # treat as ignore_missing
+        # treat as ignore, as outside of Blueprint/Request context.
         data.pop(key, None)
         raise StopOnError
 
