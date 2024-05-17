@@ -65,10 +65,8 @@ def exclude_id_from_ds_dump(key, data, errors, context):
 
     if value is missing or value is None:
         ds_info = get_action('datastore_info')(context, {'id': resource_id})
-        value = []
         # _id is never returned from datastore_info
-        for field in ds_info.get('fields', []):
-            value.append(field.get('id'))
+        value = [field['id'] for field in ds_info.get('fields', [])]
     else:
         # fields accepts string or list of strings
         if isinstance(value, text_type):
