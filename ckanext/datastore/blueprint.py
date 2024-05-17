@@ -44,6 +44,38 @@ PAGINATE_BY = 32000
 
 datastore = Blueprint(u'datastore', __name__)
 
+# (canada fork only): exclude _id field from Blueprint dump
+from ckan.plugins.toolkit import missing, StopOnError
+from flask import has_request_context
+from six import text_type
+def exclude_id_from_ds_dump(key, data, errors, context):
+    """
+    Always set the list of fields to dump from the DataStore. Excluding to _id column.
+
+    This validator is only used in the dump_schema.
+    """
+    value = data.get(key)
+
+    if not has_request_context() and not hasattr(request, 'view_args') and 'resource_id' not in request.view_args:
+        # treat as ignore, as outside of Blueprint/Request context.
+        data.pop(key, None)
+        raise StopOnError
+
+    resource_id = request.view_args['resource_id']
+
+    if value is missing or value is None:
+        ds_info = get_action('datastore_info')(context, {'id': resource_id})
+        # _id is never returned from datastore_info
+        value = [field['id'] for field in ds_info.get('fields', [])]
+    else:
+        # fields accepts string or list of strings
+        if isinstance(value, text_type):
+            value = value.split(',')
+        if isinstance(value, list) and '_id' in value:
+            value.remove('_id')
+
+    data[key] = value
+
 
 def dump_schema():
     return {
@@ -56,7 +88,7 @@ def dump_schema():
         u'distinct': [ignore_missing, boolean_validator],
         u'plain': [ignore_missing, boolean_validator],
         u'language': [ignore_missing, unicode_only],
-        u'fields': [ignore_missing, list_of_strings_or_string],
+        u'fields': [exclude_id_from_ds_dump, list_of_strings_or_string],  # (canada fork only): exclude _id field from Blueprint dump
         u'sort': [default(u'_id'), list_of_strings_or_string],
     }
 
