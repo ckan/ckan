@@ -292,22 +292,17 @@ class User(core.StatefulObjectMixin,
     @classmethod
     def search(cls, querystr: str,
                sqlalchemy_query: Optional[Any] = None,
-               user_name: Optional[str] = None) -> Query[Self]:
+               userFilters: list[Any] = None) -> Query[Self]:
         '''Search name, fullname, email. '''
         if sqlalchemy_query is None:
             query = meta.Session.query(cls)
         else:
             query = sqlalchemy_query
         qstr = '%' + querystr + '%'
-        filters: list[Any] = [
-            cls.name.ilike(qstr),
-            cls.fullname.ilike(qstr),
-        ]
-        # sysadmins can search on user emails
-        import ckan.authz as authz
-        if user_name and authz.is_sysadmin(user_name):
-            filters.append(cls.email.ilike(qstr))
-
+        # Iterate over the fields we want to search
+        filters: list[Any] = []
+        for field in userFilters:
+            filters.append(getattr(cls, field).ilike(qstr))
         query = query.filter(or_(*filters))
         return query
 

@@ -2030,7 +2030,7 @@ class TestUserAutocomplete(object):
         context = {"user": user["name"]}
         factories.User(name="user1234", email="joe@doe.com")
         result = helpers.call_action("user_autocomplete", context=context,
-                                     q="joe")
+                                     q="joe@doe.com")
         assert len(result) == 1
         assert result[0]["name"] == "user1234"
 

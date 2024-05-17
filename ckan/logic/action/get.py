@@ -1612,7 +1612,11 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
     limit = data_dict.get('limit', 20)
     ignore_self = data_dict.get('ignore_self', False)
 
-    query = model.User.search(q, user_name=user)
+    userFilters = ['name', 'fullname']
+    if user and authz.is_sysadmin(user):
+        userFilters.append('email')
+
+    query = model.User.search(q, userFilters=userFilters)
     query = query.filter(model.User.state != model.State.DELETED)
 
     if ignore_self:
