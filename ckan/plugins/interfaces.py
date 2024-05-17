@@ -7,20 +7,19 @@ extend CKAN.
 from __future__ import annotations
 
 from typing import (
-    Any, Callable, ClassVar, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Type, Union,
+    Any, Callable, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Union,
 )
-
-from pyutilib.component.core import Interface as _pca_Interface
 
 from flask.blueprints import Blueprint
 from flask.wrappers import Response
 
-from ckan.model.user import User
 from ckan.types import (
     Action, AuthFunction, Context, DataDict, PFeedFactory,
     PUploader, PResourceUploader, Schema, SignalMapping, Validator,
     CKANApp)
+
+from .base import Interface, Plugin
 
 if TYPE_CHECKING:
     import click
@@ -30,7 +29,6 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
-    from .core import SingletonPlugin
 
 
 __all__ = [
@@ -66,35 +64,6 @@ __all__ = [
     u'IClick',
     u'ISignal',
 ]
-
-
-class Interface(_pca_Interface):
-    u'''Base class for custom interfaces.
-
-    Marker base class for extension point interfaces.  This class
-    is not intended to be instantiated.  Instead, the declaration
-    of subclasses of Interface are recorded, and these
-    classes are used to define extension points.
-    '''
-
-    # force PluginImplementations to iterate over interface in reverse order
-    _reverse_iteration_order: ClassVar[bool] = False
-
-    @classmethod
-    def provided_by(cls, instance: "SingletonPlugin") -> bool:
-        u'''Check that the object is an instance of the class that implements
-        the interface.
-        '''
-        return cls.implemented_by(instance.__class__)
-
-    @classmethod
-    def implemented_by(cls, other: Type["SingletonPlugin"]) -> bool:
-        u'''Check whether the class implements the current interface.
-        '''
-        try:
-            return bool(cls in other._implements)
-        except AttributeError:
-            return False
 
 
 class IMiddleware(Interface):
@@ -700,25 +669,25 @@ class IPluginObserver(Interface):
     Hook into the plugin loading mechanism itself
     '''
 
-    def before_load(self, plugin: 'SingletonPlugin') -> None:
+    def before_load(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_load(self, service: Any) -> None:
+    def after_load(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been loaded.
         This method is passed the instantiated service object.
         '''
 
-    def before_unload(self, plugin: 'SingletonPlugin') -> None:
+    def before_unload(self, plugin: Plugin) -> None:
         u'''
         Called before a plugin is loaded.
-        This method is passed the plugin class.
+        This method is passed the instantiated service object.
         '''
 
-    def after_unload(self, service: Any) -> None:
+    def after_unload(self, service: Plugin) -> None:
         u'''
         Called after a plugin has been unloaded.
         This method is passed the instantiated service object.
@@ -1368,6 +1337,8 @@ class IGroupForm(Interface):
 
     '''
 
+    is_organization = False
+
     # These methods control when the plugin is delegated to ###################
 
     def is_fallback(self) -> bool:
@@ -1729,7 +1700,7 @@ class IAuthenticator(Interface):
 
     def authenticate(
         self, identity: 'Mapping[str, Any]'
-    ) -> Optional["User"]:
+    ) -> model.User | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
@@ -1877,7 +1848,7 @@ class IPermissionLabels(Interface):
     See ``ckanext/example_ipermissionlabels`` for an example plugin.
     '''
 
-    def get_dataset_labels(self, dataset_obj: 'model.Package') -> list[str]:
+    def get_dataset_labels(self, dataset_obj: model.Package) -> list[str]:
         u'''
         Return a list of unicode strings to be stored in the search index
         as the permission lables for a dataset dict.
@@ -1890,8 +1861,9 @@ class IPermissionLabels(Interface):
         '''
         return []
 
-    def get_user_dataset_labels(self,
-                                user_obj: Optional['model.User']) -> list[str]:
+    def get_user_dataset_labels(
+            self, user_obj: model.User | None
+    ) -> list[str]:
         u'''
         Return the permission labels that give a user permission to view
         a dataset. If any of the labels returned from this method match
