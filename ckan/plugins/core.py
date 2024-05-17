@@ -219,9 +219,10 @@ def unload(*plugins: str) -> None:
 
         if implemented_by(service, interfaces.ISignal):
             _disconnect_signals(service.get_signal_subscriptions())
-            
+
     if plugins:
         plugins_update()
+
 
 def plugin_loaded(name: str) -> bool:
     '''
