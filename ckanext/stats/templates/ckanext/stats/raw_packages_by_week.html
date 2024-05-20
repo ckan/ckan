@@ -1,0 +1,22 @@
+<section id="stats-total-datasets" class="module-content tab-content active">
+<h2>{{ _('Total number of Datasets') }}</h2>
+
+{% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
+{% set yaxis = {'min': 0} %}
+<table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-yaxis="{{ h.dump_json(yaxis) }}">
+    <thead>
+    <tr>
+        <th>{{ _("Date") }}</th>
+        <th>{{ _("Total datasets") }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in raw_packages_by_week %}
+        <tr>
+        <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
+        <td>{{ row.total_packages }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</section>

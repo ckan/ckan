@@ -53,6 +53,12 @@ def index():
             {'date': h.date_str_to_datetime(
                 week_date), 'deleted_packages': num_packages})
 
+    base_templates = 'ckanext/stats/'
+    templates = {
+        'raw_packages_by_week': base_templates + 'raw_packages_by_week.html',
+        'raw_all_package_revisions': base_templates + 'raw_all_package_revisions.html',
+    }
+    extra_vars['templates'] = templates
     # Allow IStats interface to modify the stats
     for item in p.PluginImplementations(p.IStats):
         item.after_stats(extra_vars)

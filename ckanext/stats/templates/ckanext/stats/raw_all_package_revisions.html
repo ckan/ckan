@@ -1,0 +1,24 @@
+<section id="stats-dataset-revisions" class="module-content tab-content">
+<h2>{{ _('Dataset Revisions per Week') }}</h2>
+
+{% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
+{% set lines = {'fill': 1} %}
+<table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-lines="{{ h.dump_json(lines) }}">
+<thead>
+    <tr>
+    <th>{{ _("Date") }}</th>
+    <th>{{ _("All dataset revisions") }}</th>
+    <th>{{ _("New datasets") }}</th>
+    </tr>
+</thead>
+<tbody>
+    {% for row in raw_all_package_revisions %}
+    <tr>
+        <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
+        <td>{{ row.total_revisions }}</td>
+        <td>{{ raw_new_datasets[loop.index0].new_packages }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+</section>

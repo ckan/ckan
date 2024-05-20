@@ -6,53 +6,13 @@
 
 {% block primary_content %}
   <article class="module">
-    <section id="stats-total-datasets" class="module-content tab-content active">
-      <h2>{{ _('Total number of Datasets') }}</h2>
+    {% if raw_packages_by_week %}
+      {% include templates.raw_packages_by_week %}
+    {% endif %}
 
-      {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
-      {% set yaxis = {'min': 0} %}
-      <table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-yaxis="{{ h.dump_json(yaxis) }}">
-        <thead>
-          <tr>
-            <th>{{ _("Date") }}</th>
-            <th>{{ _("Total datasets") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in raw_packages_by_week %}
-            <tr>
-              <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
-              <td>{{ row.total_packages }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
-
-    <section id="stats-dataset-revisions" class="module-content tab-content">
-      <h2>{{ _('Dataset Revisions per Week') }}</h2>
-
-      {% set xaxis = {'mode': 'time', 'timeformat': '%y-%b'} %}
-      {% set lines = {'fill': 1} %}
-      <table class="table table-chunky table-bordered table-striped" data-module="plot" data-module-xaxis="{{ h.dump_json(xaxis) }}" data-module-lines="{{ h.dump_json(lines) }}">
-        <thead>
-          <tr>
-            <th>{{ _("Date") }}</th>
-            <th>{{ _("All dataset revisions") }}</th>
-            <th>{{ _("New datasets") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in raw_all_package_revisions %}
-            <tr>
-              <th data-type="date" data-value="{{ row.date.strftime("%s") }}"><time datetime="{{ row.date.isoformat() }}">{{ h.render_datetime(row.date) }}</time></th>
-              <td>{{ row.total_revisions }}</td>
-              <td>{{ raw_new_datasets[loop.index0].new_packages }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
+    {% if raw_all_package_revisions %}
+      {% include templates.raw_all_package_revisions %}
+    {% endif %}
 
     <section id="stats-most-edited" class="module-content tab-content">
       <h2>{{ _('Most Edited Datasets') }}</h2>
