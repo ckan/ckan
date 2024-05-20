@@ -200,12 +200,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         # § snippet wrapper
         smatch = re.match(r'([^"]+)§(\w+(?:,\w+)*)?([.]\w+)$', template)
         if smatch:
-            inc = smatch[1] + smatch[3]
             # check for TemplateNotFound on real template
-            _exists = self.get_source(environment, inc)
-            args = smatch[2] or ''
+            args = ',' + smatch[2] if smatch[2] else ''
             return (
-                f'{{% macro snippet({args}) %}}{{% include "{inc}" %}}'
+                f'{{% macro snippet(_template{args}) %}}'
+                f'{{% include _template %}}'
                 f'{{% endmacro %}}',
                 template,
                 lambda: True
@@ -292,7 +291,7 @@ class SnippetExtension(ext.Extension):
     def parse(self, parser: Parser):
         lineno = next(parser.stream).lineno
         templates: list[nodes.Expr] = []
-        targets: list[nodes.Expr] = []
+        targets: list[nodes.Name] = []
         kwargs: list[nodes.Keyword] = []
         while not parser.stream.current.test_any('block_end'):
             if templates or targets:
@@ -309,15 +308,21 @@ class SnippetExtension(ext.Extension):
 
         imp = nodes.FromImport(lineno=lineno)
         args = '§' + ','.join(targ.name for targ in targets)
-        for tmp in templates:
-            tmp.value = args.join(path.splitext(tmp.value))
-        # FIXME
-        #imp.template = nodes.Tuple(templates, 'load', lineno=lineno)
-        imp.template = templates[0]
+        template = 'dynamic' + args + '.html'
+        if isinstance(templates[0], nodes.Const):
+            template = args.join(path.splitext(templates[0].value))
+        imp.template = nodes.Const(template)
         imp.names = ['snippet']
         imp.with_context = False
         nam = nodes.Name('snippet', 'load', lineno=lineno)
-        call = nodes.Call(nam, [], kwargs, None, None, lineno=lineno)
+        call = nodes.Call(
+            nam,
+            [nodes.List(templates, lineno=lineno)],
+            kwargs,
+            None,
+            None,
+            lineno=lineno
+        )
         call.node = nam
         out = nodes.Output(lineno=lineno)
         out.nodes = [call]
