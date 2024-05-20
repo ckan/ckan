@@ -197,6 +197,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             searchpaths = self.searchpath[index + 1:]
         else:
             searchpaths = self.searchpath
+        # § snippet wrapper
+        smatch = re.match(r'([^"]+)§(\w+(?:,\w+)*)?([.]\w+)$', template)
+        if smatch:
+            inc = smatch[1] + smatch[3]
+            # check for TemplateNotFound on real template
+            _exists = self.get_source(environment, inc)
+            args = smatch[2] or ''
+            return (
+                f'{{% macro snippet({args}) %}}{{% include "{inc}" %}}'
+                f'{{% endmacro %}}',
+                template,
+                lambda: True
+            )
         # end of ckan changes
         pieces = loaders.split_template_path(template)
         for searchpath in searchpaths:
@@ -280,7 +293,7 @@ class SnippetExtension(ext.Extension):
         lineno = next(parser.stream).lineno
         templates: list[nodes.Expr] = []
         targets: list[nodes.Expr] = []
-        values: list[nodes.Expr] = []
+        kwargs: list[nodes.Keyword] = []
         while not parser.stream.current.test_any('block_end'):
             if templates or targets:
                 parser.stream.expect('comma')
@@ -289,18 +302,29 @@ class SnippetExtension(ext.Extension):
                 key.set_ctx('param')
                 targets.append(key)
                 parser.stream.expect('assign')
-                values.append(parser.parse_expression())
+                value = parser.parse_expression()
+                kwargs.append(nodes.Keyword(key.name, value, lineno=lineno))
             else:
                 templates.append(parser.parse_expression())
 
-        inc = nodes.Include(lineno=lineno)
-        inc.template = nodes.Tuple(templates, 'load', lineno=lineno)
-        inc.with_context = True
-        inc.ignore_missing = False
+        imp = nodes.FromImport(lineno=lineno)
+        args = '§' + ','.join(targ.name for targ in targets)
+        for tmp in templates:
+            tmp.value = args.join(path.splitext(tmp.value))
+        # FIXME
+        #imp.template = nodes.Tuple(templates, 'load', lineno=lineno)
+        imp.template = templates[0]
+        imp.names = ['snippet']
+        imp.with_context = False
+        nam = nodes.Name('snippet', 'load', lineno=lineno)
+        call = nodes.Call(nam, [], kwargs, None, None, lineno=lineno)
+        call.node = nam
+        out = nodes.Output(lineno=lineno)
+        out.nodes = [call]
         wit = nodes.With(lineno=lineno)
-        wit.targets = targets
-        wit.values = values
-        wit.body = [inc]
+        wit.targets = []
+        wit.values = []
+        wit.body = [imp, out]
         return wit
 
 
