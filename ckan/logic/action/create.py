@@ -725,7 +725,9 @@ def _group_or_org_create(context: Context,
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
 
     try:
-        schema: Schema = context.get("schema") or group_plugin.create_group_schema()
+        schema: Schema = (
+            context.get("schema") or group_plugin.create_group_schema()
+        )
     except AttributeError:
         # TODO: remove these fallback deprecated methods in the next release
         try:
