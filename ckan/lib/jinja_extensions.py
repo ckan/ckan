@@ -279,11 +279,7 @@ class SnippetExtension(ext.Extension):
     {% snippet <template_name> [, <fallback_template_name>]...
                [, <keyword>=<value>]... %}
 
-    is a short version of:
-
-    {% with [<keyword>=<value> [, ...]] %}
-        {% include <template_name> [, <fallback_template_name>]... %}
-    {% endwith %}
+    renders <template_name> with <keyword>=<value> as local variables
     '''
 
     tags = {'snippet'}

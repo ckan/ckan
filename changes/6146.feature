@@ -1,2 +1,1 @@
-Make snippets faster by treating them as `with` and `include` tags instead of
-rendering them recursively.
+Render snippets faster through better use of existing jinja2 tags
