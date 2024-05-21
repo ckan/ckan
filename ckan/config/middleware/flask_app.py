@@ -99,14 +99,6 @@ class I18nMiddleware(object):
         return self.app(environ, start_response)
 
 
-def _ungettext_alias():
-    u'''
-    Provide `ungettext` as an alias of `ngettext` for backwards
-    compatibility
-    '''
-    return dict(ungettext=ungettext)
-
-
 def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
@@ -182,8 +174,13 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
 
-    # Add template helpers
-    app.jinja_env.globals.update(helper_functions())
+    # globals work in imported and included templates (like snippets)
+    # whereas context processors do not
+    app.jinja_env.globals.update({
+        'h': h.helper_functions,
+        'ungettext': ungettext,
+        'current_user': current_user,
+    })
 
     # Common handlers for all requests
     #
@@ -194,8 +191,6 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
 
     # Template context processors
     app.context_processor(c_object)
-
-    app.context_processor(_ungettext_alias)
 
     # Babel
     _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
@@ -408,13 +403,6 @@ def ckan_after_request(response: Response) -> Response:
     log.info(' %s %s render time %.3f seconds' % (status_code, url, r_time))
 
     return response
-
-
-def helper_functions() -> dict[str, h.HelperAttributeDict]:
-    u'''Make helper functions (`h`) available to Flask templates'''
-    if not h.helper_functions:
-        h.load_plugin_helpers()
-    return dict(h=h.helper_functions)
 
 
 def c_object() -> dict[str, LocalProxy[Any]]:
