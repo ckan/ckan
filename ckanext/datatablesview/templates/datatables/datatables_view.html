@@ -42,26 +42,30 @@
     <thead>
       <tr>
         <th class="all" data-name="_id">_id</th>
-        {% for field in datadictionary -%}
-          {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
-            <th scope="col">
-            {# datatable_column_label block is very very important (canada fork only) #}
-            {%- block datatable_column_label scoped -%}
-              {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
-                {{ field.info.label|replace(" ", nbspval) }}
-              {%- else -%}
-                {{ field.id|replace(" ", nbspval) }}
-              {%- endif -%}
-              &nbsp;
-              {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
-                <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
-              {%- endif -%}
-              &nbsp;
-            {%- endblock -%}
-            {# END BLOCK - datatable_column_label block is very very important (canada fork only) - END BLOCK #}
-            </th>
-          {%- endif %}
-        {% endfor -%}
+        {# datatable_field_headers block is very very important (canada fork only) #}
+        {%- block datatable_field_headers -%}
+          {% for field in datadictionary -%}
+            {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
+              <th scope="col">
+              {# datatable_column_label block is very very important (canada fork only) #}
+              {%- block datatable_column_label scoped -%}
+                {%- if data_dictionary_labels and field.info is defined and field.info.label|length -%}
+                  {{ field.info.label|replace(" ", nbspval) }}
+                {%- else -%}
+                  {{ field.id|replace(" ", nbspval) }}
+                {%- endif -%}
+                &nbsp;
+                {%- if data_dictionary_labels and field.info is defined and (field.info.label|length or field.info.notes|length)-%}
+                  <i class="fa fa-info-circle" title="{{field.id}} ({{field.type}})&#10;{{ h.markdown_extract(field.info.notes, 300) }}"></i>
+                {%- endif -%}
+                &nbsp;
+              {%- endblock -%}
+              {# END BLOCK - datatable_column_label block is very very important (canada fork only) - END BLOCK #}
+              </th>
+            {%- endif %}
+          {% endfor -%}
+        {%- endblock -%}
+        {# END BLOCK - datatable_field_headers block is very very important (canada fork only) - END BLOCK #}
         <th id="_colspacer">colspacer</th>
       </tr>
       <tr>
