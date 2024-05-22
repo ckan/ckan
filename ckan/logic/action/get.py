@@ -1216,18 +1216,17 @@ def _group_or_org_show(
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
 
-    try:
-        schema: Schema = context.get("schema") or group_plugin.show_group_schema()
-    except AttributeError:
-        # TODO: remove these fallback deprecated methods in the next release
-        try:
-            schema = getattr(group_plugin, "db_to_form_schema_options")({
-                'type': 'show', 'api': 'api_version' in context,
-                'context': context})
-        except AttributeError:
-            schema = group_plugin.db_to_form_schema()
-
-    schema: Schema = context.get("schema") or group_plugin.show_group_schema()
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "show_group_schema"):
+        schema: Schema = group_plugin.show_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "db_to_form_schema_options"):
+        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
+            'type': 'show', 'api': 'api_version' in context,
+            'context': context})
+    else:
+        schema: Schema = group_plugin.db_to_form_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
