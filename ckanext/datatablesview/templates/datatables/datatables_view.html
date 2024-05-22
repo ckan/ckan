@@ -44,6 +44,8 @@
         <th class="all" data-name="_id">_id</th>
         {# datatable_field_headers block is very very important (canada fork only) #}
         {%- block datatable_field_headers -%}
+          {# NOTE: need to set datadictionary for block (canada fork only) #}
+          {%- set datadictionary = h.datastore_dictionary(resource.id) -%}
           {% for field in datadictionary -%}
             {% if 'show_fields' not in resource_view or field.id in resource_view.show_fields -%}
               <th scope="col">

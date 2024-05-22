@@ -1,0 +1,1 @@
+Fixed an issue with the `datatable_field_headers` block not having access to certain variables.
