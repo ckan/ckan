@@ -103,7 +103,7 @@ def dump(resource_id: str):
     if '_id' not in ignore_fields and not data.get('fields'):
         # _id is never returned from datastore_info,
         # so we may need to add it back in here
-        fields.insert(0 ,'_id')
+        fields.insert(0, '_id')
 
     data['fields'] = fields
 
