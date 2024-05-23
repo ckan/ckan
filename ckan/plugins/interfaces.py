@@ -1378,6 +1378,57 @@ class IGroupForm(Interface):
         '''
         return 'group'
 
+    def create_group_schema(self) -> Schema:
+        '''Return the schema for validating new group or organization dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when creating new groups,
+        before entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def update_group_schema(self) -> Schema:
+        '''Return the schema for validating updated group or organization
+        dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the dataset form or API) when updating groups, before
+        entering that data into the database.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
+    def show_group_schema(self) -> Schema:
+        '''
+        Return a schema to validate groups or organizations before they're
+        shown to the user.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+        See ``ckanext/example_igroupform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return {}
+
     # End of control methods ##################################################
 
     # Hooks for customising the GroupController's behaviour          ##########
