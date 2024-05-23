@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import click
-import sys
 
 import ckan.lib.jobs as bg_jobs
 import ckan.logic as logic
