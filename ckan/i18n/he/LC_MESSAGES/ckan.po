@@ -202,6 +202,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "תצוגה אחרונה"
 msgstr[1] "{number} תצוגות אחרונות"
 msgstr[2] "{number} תצוגות אחרונות"
+msgstr[3] "{number} תצוגות אחרונות"
 
 #: ckan/lib/mailer.py:207
 msgid "No recipient email address available!"
@@ -1950,6 +1951,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "סדרת נתונים אחת"
 msgstr[1] "{num} סדרות נתונים"
 msgstr[2] "{num} סדרות נתונים"
+msgstr[3] "{num} סדרות נתונים"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -2659,6 +2661,7 @@ msgid_plural "{count} collaborators"
 msgstr[0] "משתתף אחד"
 msgstr[1] "{count} משתתפים"
 msgstr[2] "{count} משתתפים"
+msgstr[3] "{count} משתתפים"
 
 #: ckan/templates/package/collaborators/confirm_delete.html:11
 msgid "Are you sure you want to delete collaborator - {name}?"
@@ -3106,6 +3109,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "נמצאה קבוצה אחת"
 msgstr[1] "נמצאו {number} קבוצות"
 msgstr[2] "נמצאו {number} קבוצות"
+msgstr[3] "נמצאו {number} קבוצות"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -3117,6 +3121,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "ארגון אחד נמצא בחיפוש אחר „{query}”"
 msgstr[1] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
 msgstr[2] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
+msgstr[3] "{number} ארגונים נמצאו בחיפוש אחר „{query}”"
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
