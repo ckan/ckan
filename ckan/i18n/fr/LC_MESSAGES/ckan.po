@@ -7,6 +7,7 @@
 # Adrià Mercader <amercadero@gmail.com>, 2022
 # Jesse Vickery, 2023
 # 
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: ckan 2.10.2b0\n"

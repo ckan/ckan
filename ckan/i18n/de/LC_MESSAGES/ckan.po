@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2022
-# Friedrich Zahn, 2023
+# toothstone, 2023
 # Ondics Githubler, 2023
 # 
 #, fuzzy
