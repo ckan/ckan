@@ -16,7 +16,8 @@ def jobs():
 @jobs.command(short_help=u"Start a worker.",)
 @click.option(u"--burst", is_flag=True, help=u"Start worker in burst mode.")
 @click.option(u"--max-idle-time", default=None, type=click.INT,
-              help=u"Max seconds for worker to be idle. Defaults to 0 (never stops idling).")
+              help=u"Max seconds for worker to be idle. "
+              "Defaults to None (never stops idling).")
 @click.argument(u"queues", nargs=-1)
 def worker(burst, max_idle_time, queues):
     """Start a worker that fetches jobs from queues and executes them. If
