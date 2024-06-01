@@ -172,7 +172,7 @@ def index(group_type: str, is_organization: bool) -> str:
     # Get the orgs/groups for the current page
     orgs_for_page = page_results[offset:end]
 
-    extra_vars["page"] = h.Page(
+    extra_vars["page"] = Page(
         collection=page_results,
         page=page,
         url=h.pager_url,
