@@ -8,6 +8,7 @@ import re
 import mimetypes
 import string
 import json
+import uuid
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
@@ -214,7 +215,6 @@ def resource_id_does_not_exist(
         errors: FlattenErrorDict, context: Context) -> Any:
     session = context['session']
     model = context['model']
-
     if data[key] is missing:
         return
     resource_id = data[key]
@@ -231,6 +231,43 @@ def resource_id_does_not_exist(
         return
     if parent_id != package_id:
         errors[key].append(_('Resource id already exists.'))
+
+def group_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Group).get(value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+def user_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.User).get(value)
+    if result:
+        raise Invalid(_('Id already exists'))
+    return value
+
+
+def resource_view_id_does_not_exist(value: str, context: Context) -> Any:
+    """Ensures that the value is not used as a ID or name.
+    """
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.ResourceView).get(value)
+    if result:
+        raise Invalid(_('ResourceView id already exists'))
+    return value
 
 
 def package_name_exists(value: str, context: Context) -> Any:
@@ -281,12 +318,11 @@ def resource_id_exists(value: Any, context: Context) -> Any:
     return value
 
 
-def resource_id_validator(value: Any) -> Any:
-    pattern = re.compile("[^0-9a-zA-Z _-]")
-    if pattern.search(value):
-        raise Invalid(_('Invalid characters in resource id'))
-    if len(value) < 7 or len(value) > 100:
-        raise Invalid(_('Invalid length for resource id'))
+def uuid_validator(value: Any) -> Any:
+    try:
+        uuid.UUID(value, version=4)
+    except ValueError:
+        raise Invalid(_("Invalid id provided"))
     return value
 
 
@@ -975,6 +1011,9 @@ def empty_if_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
         return
 
     empty(key, data, errors, context)
+
+    # Prevent further validation on the field now that is empty
+    raise StopOnError()
 
 #pattern from https://html.spec.whatwg.org/#e-mail-state-(type=email)
 email_pattern = re.compile(
