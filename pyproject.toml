@@ -142,7 +142,6 @@ module = [
     "flask_multistatic.*",
     "passlib.*",
     "pysolr.*",
-    "pyutilib.*",
     "repoze.*",
     "rq.*",
     "webassets.*",

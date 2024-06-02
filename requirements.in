@@ -25,7 +25,6 @@ python-magic==0.4.27
 pysolr==3.9.0
 python-dateutil==2.9.0.post0
 pytz
-PyUtilib==6.0.0
 pyyaml==6.0.1
 requests==2.31.0
 rq==1.16.1
@@ -37,3 +36,4 @@ tzlocal==5.2
 webassets==2.0
 Werkzeug[watchdog]==3.0.3
 zope.interface==6.2
+msgspec==0.18.6

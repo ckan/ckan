@@ -43,8 +43,7 @@ def test_update_config_env_vars(ckan_config):
     """
     for env_var, value in ENV_VAR_LIST:
         os.environ.setdefault(env_var, value)
-    # plugin.load() will force the config to update
-    p.load()
+    p.plugins_update()
 
     assert ckan_config[u"solr_url"] == u"http://mynewsolrurl/solr"
     assert ckan_config[u"sqlalchemy.url"] == u"postgresql://mynewsqlurl/"
