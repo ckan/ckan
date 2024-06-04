@@ -1496,6 +1496,18 @@ class TestUserCreate(object):
         )
         assert not token
 
+    def test_user_create_fails_with_duplicate_email_case_insensitive(self):
+        factories.User(email="some_email@example.org")
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "user_create",
+                context={},
+                email="Some_Email@example.org",
+                name="test",
+                password="required",
+            )
+
 
 @pytest.mark.usefixtures("clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
