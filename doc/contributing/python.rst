@@ -74,7 +74,7 @@ Imports
 Logging
 -------
 
-We use `the Python standard library's logging module <https://docs.python.org/2.7/library/logging.html>`_
+We use `the Python standard library's logging module <https://docs.python.org/3/library/logging.html>`_
 to log messages in CKAN, e.g.::
 
     import logging
@@ -106,7 +106,7 @@ replacement field, for example::
 
   _(' ... {foo} ... {bar} ...').format(foo='foo-value', bar='bar-value')
 
-.. _new .format() method: http://docs.python.org/2/library/stdtypes.html#str.format
+.. _new .format() method: https://docs.python.org/3/library/stdtypes.html#str.format
 
 
 Unicode handling

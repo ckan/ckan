@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import uuid
 from bs4 import BeautifulSoup
 from werkzeug.routing import BuildError
 from flask_babel import refresh as refresh_babel
@@ -1909,7 +1910,8 @@ class TestDatasetRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        dataset = factories.Dataset(id="abc", name="abc")
+        _id = str(uuid.uuid4())
+        dataset = factories.Dataset(id=_id, name=_id)
         app.get(
             url_for("dataset.read", id=dataset["id"]), status=200
         )  # ie no redirect

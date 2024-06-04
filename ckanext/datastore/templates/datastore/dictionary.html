@@ -5,6 +5,7 @@
 {% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block primary_content_inner %}
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
   {% set action = h.url_for('datastore.dictionary', id=pkg.name, resource_id=res.id) %}
 
@@ -12,11 +13,18 @@
     {{ h.csrf_input() }}
     {% block dictionary_form %}
       {% for field in fields %}
-          {% snippet "datastore/snippets/dictionary_form.html", field=field, position=loop.index %}
+        <div class="accordion-item">
+          {% snippet "datastore/snippets/dictionary_form.html",
+            field=field, position=loop.index, res=res,
+            data=data.get('fields', [{}] * loop.length)[loop.index0],
+            errors=errors.get('fields', [{}] * loop.length)[loop.index0] %}
+        </div>
       {% endfor %}
     {% endblock %}
-    <button class="btn btn-primary" name="save" type="submit">
-      <i class="fa fa-book"></i> {{ _('Save') }}
-    </button>
+    <div class="form-actions">
+      <button class="btn btn-primary" name="save" type="submit">
+        <i class="fa fa-book"></i> {{ _('Save') }}
+      </button>
+    </div>
   </form>
 {% endblock %}

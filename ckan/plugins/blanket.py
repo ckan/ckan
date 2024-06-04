@@ -148,9 +148,9 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 
-PluginSubject = Type[p.SingletonPlugin]
+PluginSubject = Type[p.Plugin]
 SimpleSubject = Union[types.ModuleType, "dict[str, Any]", "list[Any]", str]
-SubjectFactory = Callable[..., Any]
+SubjectFactory = Callable[..., Union["list[Any]", "dict[str, Any]"]]
 
 Subject = Union[PluginSubject, SimpleSubject, SubjectFactory]
 ModuleHarvester = Callable[[types.ModuleType], "dict[str, Any]"]
@@ -167,7 +167,7 @@ class Blanket(enum.Flag):
     validators = enum.auto()
     config_declarations = enum.auto()
 
-    def get_subject(self, plugin: p.SingletonPlugin) -> Subject:
+    def get_subject(self, plugin: type[p.Plugin]) -> Subject:
         """Extract artifacts required for the default implementation.
 
         Depending on interface, this method can produce function that satisfy
@@ -184,13 +184,13 @@ class Blanket(enum.Flag):
         """Return the name of the method, required for implementation."""
         return _mapping[self].method_name
 
-    def interface(self) -> p.Interface:
+    def interface(self) -> type[p.Interface]:
         """Return interface provided by blanket."""
         return _mapping[self].interface
 
     def implement(
         self,
-        plugin: p.SingletonPlugin,
+        plugin: type[p.Plugin],
         subject: Optional[Subject],
     ):
         """Implement for interface inside the given plugin."""
@@ -200,16 +200,16 @@ class Blanket(enum.Flag):
 
 
 class Mapping(NamedTuple):
-    extract_subject: Callable[[p.SingletonPlugin], Subject]
+    extract_subject: Callable[[type[p.Plugin]], Subject]
     method_name: str
-    interface: p.Interface
+    interface: type[p.Interface]
     implementation_factory: Callable[..., Any]
 
 
 def _module_extractor(path: str):
     """Import sub-modue of the plugin."""
 
-    def source(plugin: p.SingletonPlugin):
+    def source(plugin: type[p.Plugin]):
         root = plugin.__module__.rsplit(".", 1)[0]
         import_path = ".".join([root, path])
 
@@ -226,7 +226,7 @@ def _module_extractor(path: str):
     return source
 
 
-def _declaration_file_extractor(plugin: p.SingletonPlugin):
+def _declaration_file_extractor(plugin: type[p.Plugin]):
     """Compute the path to a file that contains config declarations."""
     path = _plugin_root(plugin)
     options = list(path.glob("config_declaration.*"))
@@ -245,7 +245,7 @@ def _declaration_file_extractor(plugin: p.SingletonPlugin):
     return str(options[0])
 
 
-def _plugin_root(plugin: p.SingletonPlugin) -> pathlib.Path:
+def _plugin_root(plugin: type[p.Plugin]) -> pathlib.Path:
     """Return the path to the plugin's root(`ckanext/ext`)."""
     root = plugin.__module__.rsplit(".", 1)[0]
     file_ = inspect.getsourcefile(import_module(root))
@@ -255,22 +255,28 @@ def _plugin_root(plugin: p.SingletonPlugin) -> pathlib.Path:
     return pathlib.Path(file_).parent.resolve()
 
 
-def _dict_implementation(subject: Subject) -> Callable[..., dict[str, Any]]:
+def _dict_implementation(
+        subject: SimpleSubject | SubjectFactory
+) -> Callable[..., dict[str, Any]]:
     return _as_implementation(subject, False, _get_public_members)
 
 
-def _list_implementation(subject: Subject) -> Callable[..., list[Any]]:
+def _list_implementation(
+        subject: SimpleSubject | SubjectFactory
+) -> Callable[..., list[Any]]:
     return _as_implementation(subject, True, _get_public_members)
 
 
 def _blueprint_implementation(
-    subject: Subject,
+    subject: SimpleSubject | SubjectFactory,
 ) -> Callable[..., list[flask.Blueprint]]:
     return _as_implementation(subject, True, _get_blueprint_members)
 
 
 def _as_implementation(
-    subject: Subject, as_list: bool, harvester: ModuleHarvester
+    subject: SimpleSubject | SubjectFactory,
+    as_list: bool,
+    harvester: ModuleHarvester
 ) -> Callable[..., Any]:
     """Convert subject into acceptable interface implementation.
 
@@ -281,7 +287,7 @@ def _as_implementation(
     """
 
     def func(
-        self: p.SingletonPlugin, *args: Any, **kwargs: Any
+        self: type[p.Plugin], *args: Any, **kwargs: Any
     ) -> Union[dict[str, Any], list[Any]]:
         if callable(subject):
             return subject(*args, **kwargs)
@@ -313,7 +319,7 @@ def _declaration_implementation(subject: Subject) -> Callable[..., None]:
     except ImportError:
         pass
 
-    def func(plugin: p.SingletonPlugin, declaration: Any, key: Any):
+    def func(plugin: type[p.Plugin], declaration: Any, key: Any):
         if isinstance(subject, types.FunctionType):
             return subject(declaration, key)
         elif isinstance(subject, dict):
@@ -417,17 +423,21 @@ def _blanket_implementation(
     `oneInterface-oneMethod-oneImportPath`.
 
     """
+    @overload
+    def decorator(
+            subject: SubjectFactory
+    ) -> Callable[[PluginSubject], PluginSubject]: ...
 
     @overload
     def decorator(subject: PluginSubject) -> PluginSubject: ...
 
     @overload
     def decorator(
-            subject: Union[SimpleSubject, SubjectFactory, None]
-    ) -> types.FunctionType: ...
+            subject: Union[SimpleSubject, None]
+    ) -> Callable[[PluginSubject], PluginSubject]: ...
 
     def decorator(
-            subject: Optional[Subject] = None
+            subject: Any = None
     ) -> Union[PluginSubject, Callable[[PluginSubject], PluginSubject]]:
 
         def wrapper(plugin: PluginSubject) -> PluginSubject:
@@ -435,16 +445,15 @@ def _blanket_implementation(
                 if key & group:
                     # short version of the trick performed by
                     # `ckan.plugin.implements`
-                    if not hasattr(plugin, "_implements"):
-                        setattr(plugin, "_implements", {})
-                    plugin._implements.setdefault(key.interface(), [None])
-                    plugin.__interfaces__.setdefault(key.interface(), [None])
-
+                    interface = key.interface()
+                    plugin._implements.add(interface)
+                    if interface not in plugin.__bases__:
+                        plugin.__bases__ += (key.interface(),)
                     key.implement(plugin, subject)
             return plugin
 
         if not isinstance(subject, type) or not issubclass(
-                subject, p.SingletonPlugin):
+                subject, p.Plugin):
             return wrapper
 
         plugin = subject

@@ -27,7 +27,7 @@ import ckan.lib.datapreview
 import ckan.lib.app_globals as app_globals
 
 from ckan.common import _, config
-from ckan.types import Context, DataDict, ErrorDict
+from ckan.types import Context, DataDict, ErrorDict, Schema
 
 if TYPE_CHECKING:
     import ckan.model as model_
@@ -722,12 +722,18 @@ def _group_or_org_update(
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
-    try:
-        schema = group_plugin.form_to_db_schema_options({'type': 'update',
-                                               'api': 'api_version' in context,
-                                               'context': context})
-    except AttributeError:
-        schema = group_plugin.form_to_db_schema()
+
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "update_group_schema"):
+        schema: Schema = group_plugin.update_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "form_to_db_schema_options"):
+        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
+            'type': 'update', 'api': 'api_version' in context,
+            'context': context})
+    else:
+        schema: Schema = group_plugin.form_to_db_schema()
 
     upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
@@ -834,7 +840,7 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     '''Update a user account.
 
     Normal users can only update their own user accounts. Sysadmins can update
-    any user account. Can not modify exisiting user's name.
+    any user account and modify existing usernames.
 
     .. note:: Update methods may delete parameters not explicitly provided in the
         data_dict. If you want to edit only a specific attribute use `user_patch`

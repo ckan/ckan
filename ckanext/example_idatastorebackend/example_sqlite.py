@@ -39,7 +39,7 @@ class DatastoreExampleSqliteBackend(DatastoreBackend):
 
         return config
 
-    def create(self, context, data_dict):
+    def create(self, context, data_dict, plugin_data):
         columns = str(u', '.join(
             [str(sa.column(e['id'])) + " text" for e in data_dict['fields']]))
 
