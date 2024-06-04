@@ -43,7 +43,7 @@ DEFAULT_QUEUE_NAME = u'default'
 _queues: dict[str, rq.Queue] = {}
 
 
-def _connect() -> Redis:  # type: ignore
+def _connect() -> Redis:
     u'''
     Connect to Redis and tell RQ about it.
 

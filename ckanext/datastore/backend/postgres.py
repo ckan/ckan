@@ -277,22 +277,49 @@ def _get_unique_key(context: Context, data_dict: dict[str, Any]) -> list[str]:
     return [x[0] for x in key_parts]
 
 
-def _get_field_info(connection: Any, resource_id: str) -> dict[str, Any]:
-    u'''return a dictionary mapping column names to their info data,
+def _get_field_info(
+        connection: Any,
+        resource_id: str,
+        ) -> dict[str, Any]:
+    '''return a dictionary mapping column names to their info data,
     when present'''
-    qtext = sa.text(u'''
-        select pa.attname as name, pd.description as info
+    qtext = sa.text(
+        '''select pa.attname as name, pd.description::json -> '_info' as info
         from pg_class pc, pg_attribute pa, pg_description pd
         where pa.attrelid = pc.oid and pd.objoid = pc.oid
             and pd.objsubid = pa.attnum and pc.relname = :res_id
-            and pa.attnum > 0
-    ''')
+            and pa.attnum > 0'''
+    )
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in
             connection.execute(qtext, {"res_id": resource_id}).fetchall())
-    except ValueError:  # don't die on non-json comments
+    except (TypeError, ValueError):  # don't die on non-json comments
         return {}
+
+
+def _get_raw_field_info(
+        connection: Any,
+        resource_id: str,
+        ) -> tuple[dict[str, Any], bool]:
+    '''return a dictionary mapping column names to their raw info data,
+    when present and a flag if old data schema is present (for upgrade)'''
+    qtext = sa.text(
+        '''select pa.attname as name, pd.description as info,
+            substring(pd.description for 1) = '{' as old_schema
+        from pg_class pc, pg_attribute pa, pg_description pd
+        where pa.attrelid = pc.oid and pd.objoid = pc.oid
+            and pd.objsubid = pa.attnum and pc.relname = :res_id
+            and pa.attnum > 0'''
+    )
+    try:
+        results = list(connection.execute(
+            qtext, {"res_id": resource_id}).fetchall())
+        return {
+            n: json.loads(v) for n, v, _old in results
+            }, any(old for _n, _v, old in results)
+    except (TypeError, ValueError):  # don't die on non-json comments
+        return {}, False
 
 
 def _get_fields(connection: Any, resource_id: str):
@@ -965,7 +992,10 @@ def create_indexes(context: Context, data_dict: dict[str, Any]):
             connection.execute(sa.text(sql_index_string))
 
 
-def create_table(context: Context, data_dict: dict[str, Any]):
+def create_table(
+        context: Context,
+        data_dict: dict[str, Any],
+        plugin_data: dict[int, dict[str, Any]]):
     '''Creates table, columns and column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
@@ -1047,20 +1077,28 @@ def create_table(context: Context, data_dict: dict[str, Any]):
     )
 
     info_sql = []
-    for f in supplied_fields:
+    for i, f in enumerate(supplied_fields):
+        column_comment = plugin_data.get(i, {})
         info = f.get(u'info')
         if isinstance(info, dict):
+            column_comment['_info'] = info
+        if column_comment:
             info_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                literal_string(
-                    json.dumps(info, ensure_ascii=False))))
+                literal_string(' ' + json.dumps(  # ' ' prefix for data version
+                    column_comment, ensure_ascii=False, separators=(',', ':')))
+            ))
 
     context['connection'].execute(sa.text(
-        sql_string + u';'.join(info_sql)))
+        sql_string + u';'.join(info_sql).replace(':', r'\:')  # no bind params
+    ))
 
 
-def alter_table(context: Context, data_dict: dict[str, Any]):
+def alter_table(
+        context: Context,
+        data_dict: dict[str, Any],
+        plugin_data: dict[int, dict[str, Any]]):
     '''Add/remove columns and updates column info (stored as comments).
 
     :param resource_id: The resource ID (i.e. postgres table name)
@@ -1127,27 +1165,37 @@ def alter_table(context: Context, data_dict: dict[str, Any]):
             identifier(f['id']),
             f['type']))
 
-    for f in supplied_fields:
-        if u'info' in f:
-            info = f.get(u'info')
-            if isinstance(info, dict):
-                info_sql = literal_string(
-                    json.dumps(info, ensure_ascii=False))
-            else:
-                info_sql = 'NULL'
+    if plugin_data or any('info' in f for f in supplied_fields):
+        raw_field_info, _old = _get_raw_field_info(
+            context['connection'],
+            data_dict['resource_id'],
+        )
+
+        for i, f in enumerate(supplied_fields):
+            raw = raw_field_info.get(f['id'], {})
+
+            if 'info' in f and isinstance(f['info'], dict):
+                raw['_info'] = f['info']
+            if i in plugin_data:
+                raw.update(plugin_data[i])
+
+            # ' ' prefix for data version
+            column_comment = literal_string(' ' + json.dumps(
+                raw, ensure_ascii=False, separators=(',', ':')))
             alter_sql.append(u'COMMENT ON COLUMN {0}.{1} is {2}'.format(
                 identifier(data_dict['resource_id']),
                 identifier(f['id']),
-                info_sql))
+                column_comment))
 
-    for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
-        alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
-            identifier(data_dict['resource_id']),
-            identifier(id_)))
+    if data_dict['delete_fields']:
+        for id_ in current_ids - field_ids - set(f['id'] for f in new_fields):
+            alter_sql.append('ALTER TABLE {0} DROP COLUMN {1};'.format(
+                identifier(data_dict['resource_id']),
+                identifier(id_)))
 
     if alter_sql:
         context['connection'].execute(sa.text(
-            ';'.join(alter_sql)
+            ';'.join(alter_sql).replace(':', r'\:')  # no bind params
         ))
 
 
@@ -1169,6 +1217,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    if not sql_columns:
+        # insert w/ no columns is a postgres error
+        return
     num = -1
 
     if method == _INSERT:
@@ -2068,7 +2119,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
 
             return _unrename_json_field(data_dict)
 
-    def create(self, context: Context, data_dict: dict[str, Any]):
+    def create(
+            self,
+            context: Context,
+            data_dict: dict[str, Any],
+            plugin_data: dict[int, dict[str, Any]]):
         '''
         The first row will be used to guess types not in the fields and the
         guessed types will be added to the headers permanently.
@@ -2102,12 +2157,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 'SELECT * FROM pg_tables WHERE tablename = :table'
             ), {"table": data_dict['resource_id']}).fetchone()
             if not result:
-                create_table(context, data_dict)
+                create_table(context, data_dict, plugin_data)
                 _create_fulltext_trigger(
                     context['connection'],
                     data_dict['resource_id'])
             else:
-                alter_table(context, data_dict)
+                alter_table(context, data_dict, plugin_data)
             if 'triggers' in data_dict:
                 _create_triggers(
                     context['connection'],
@@ -2186,8 +2241,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             real_id = row[0]
         return res_exists, real_id
 
-    # def resource_info(self, id):
-    #     pass
+    def resource_plugin_data(self, id: str) -> dict[str, Any]:
+        engine = self._get_read_engine()
+        with engine.connect() as conn:
+            plugin_data, _old = _get_raw_field_info(conn, id)
+            return plugin_data
 
     def resource_fields(self, id: str) -> dict[str, Any]:
 
@@ -2260,7 +2318,12 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             info['meta']['aliases'] = aliases
 
             # get the data dictionary for the resource
-            data_dictionary = datastore_helpers.datastore_dictionary(id)
+            with engine.connect() as conn:
+                data_dictionary = _result_fields(
+                    _get_fields_types(conn, id),
+                    _get_field_info(conn, id),
+                    None
+                )
 
             schema_sql = sa.text(f'''
                 SELECT
@@ -2306,6 +2369,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 schemainfo[colname] = colinfo
 
             for field in data_dictionary:
+                if field['id'].startswith('_'):
+                    continue
                 field.update({'schema': schemainfo[field['id']]})
                 info['fields'].append(field)
 

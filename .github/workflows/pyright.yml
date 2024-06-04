@@ -2,7 +2,7 @@ name: Check types
 on: [pull_request]
 env:
   NODE_VERSION: '18'
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.9'
 
 permissions:
   contents: read

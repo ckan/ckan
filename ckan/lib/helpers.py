@@ -29,10 +29,9 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash
+from flask import flash, has_request_context
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
-from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
@@ -311,7 +310,7 @@ def _get_auto_flask_context():
     from ckan.config.middleware import _internal_test_request_context
 
     # This is a normal web request, there is a request context present
-    if _request_ctx_stack.top:
+    if has_request_context():
         return None
 
     # We are outside a web request. A test web application was created
@@ -2271,7 +2270,6 @@ def resource_view_is_filterable(resource_view: dict[str, Any]) -> bool:
 @core_helper
 def resource_view_get_fields(resource: dict[str, Any]) -> list["str"]:
     '''Returns sorted list of text and time fields of a datastore resource.'''
-
     if not resource.get('datastore_active'):
         return []
 
@@ -2513,6 +2511,18 @@ def unified_resource_format(format: str) -> str:
     else:
         format_new = format
     return format_new
+
+
+@core_helper
+def resource_url_type(resource_id: str) -> str:
+    '''api_info ajax snippet: "which extension manages this resource_id?"'''
+    # ajax snippets have no permissions checking and require things like
+    # this for full functionality, should we stop using them instead?
+    query = model.Session.query(model.Resource.url_type).filter(
+        model.Resource.id == resource_id,
+    )
+    result = query.one_or_none()
+    return result[0] if result else ''
 
 
 @core_helper

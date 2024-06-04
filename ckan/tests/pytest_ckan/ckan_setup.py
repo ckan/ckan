@@ -53,9 +53,14 @@ def pytest_runtestloop(session):
     """When all the tests collected, extra plugin may be enabled because python
     interpreter visits their files.
 
-    Make sure only configured plugins are active when test loop starts.
+    Make sure all normal plugins are disabled. If test requires a plugin, it
+    must rely on `with_plugins` fixture.
+
+    We keep system plugins enabled in order to keep auto-indexing of datasets
+    available without `with_plugins` fixture.
+
     """
-    plugins.load_all()
+    plugins.unload_non_system_plugins()
 
 
 def pytest_runtest_setup(item):

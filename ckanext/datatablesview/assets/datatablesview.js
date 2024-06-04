@@ -476,10 +476,16 @@ this.ckan.module('datatables_view', function (jQuery) {
       })
 
       // init the datatable
+      $('#dtprv').on('preInit.dt', function (_event, _settings) {
+        // show loading indicator when first painting data into the table.
+        // useful with very large resources that take long to load
+        $('body.dt-view').css('visibility', 'visible');
+        $('#dtprv_processing').addClass('pre-init');
+      });
       datatable = $('#dtprv').DataTable({
         paging: true,
         serverSide: true,
-        processing: false,
+        processing: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         colReorder: {
@@ -508,6 +514,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           url: ajaxurl,
           type: 'POST',
           timeout: 60000,
+          headers: {
+            'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+          },
           data: function (d) {
             d.filters = ckanfilters
           }
@@ -591,6 +600,9 @@ this.ckan.module('datatables_view', function (jQuery) {
             api.page.len(gsavedPagelen)
             api.page(gsavedPage)
           }
+
+          // hide the pre-loading indicator background so the table is interactive when loading
+          $('#dtprv_processing').removeClass('pre-init');
 
           // restore selected rows from state
           if (typeof gsavedSelected !== 'undefined') {

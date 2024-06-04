@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import re
 from string import Template
-from typing import Any, Callable, Match, Optional, Sequence, List
+from typing import Any, Callable, Match, Optional, Sequence, List, cast
 
 import dominate.tags as tags
 from markupsafe import Markup
@@ -583,7 +583,7 @@ class BasePage(List[Any]):
 
         return self.separator.join(nav_items)
 
-    def _pagerlink(self, page: int, text: str):
+    def _pagerlink(self, page: int, text: str) -> Any:
         """
         Create a URL that links to another page using url_for().
 
@@ -633,7 +633,7 @@ class BasePage(List[Any]):
 
 class Page(BasePage):
     def pager(self, *args: Any, **kwargs: Any) -> Markup:
-        with tags.div(cls=u"pagination-wrapper") as wrapper:
+        with cast(Any, tags.div(cls=u"pagination-wrapper")) as wrapper:
             tags.ul(
                 "$link_previous ~2~ $link_next",
                 cls="pagination justify-content-center"

@@ -1004,7 +1004,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     context['package'] = pkg
     _check_access('package_show', context, data_dict)
 
-    if data_dict.get('use_default_schema', False):
+    if asbool(data_dict.get('use_default_schema', False)):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
 
     package_dict = None
@@ -1215,13 +1215,18 @@ def _group_or_org_show(
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
-    try:
-        schema: Schema = group_plugin.db_to_form_schema_options({
-            'type': 'show',
-            'api': 'api_version' in context,
+
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "show_group_schema"):
+        schema: Schema = group_plugin.show_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "db_to_form_schema_options"):
+        schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
+            'type': 'show', 'api': 'api_version' in context,
             'context': context})
-    except AttributeError:
-        schema = group_plugin.db_to_form_schema()
+    else:
+        schema: Schema = group_plugin.db_to_form_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
@@ -1231,8 +1236,6 @@ def _group_or_org_show(
     else:
         group_dict['num_followers'] = 0
 
-    if not schema:
-        schema = ckan.logic.schema.default_show_group_schema()
     group_dict, _errors = lib_plugins.plugin_validate(
         group_plugin, context, group_dict, schema,
         'organization_show' if is_org else 'group_show')

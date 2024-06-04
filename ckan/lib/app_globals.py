@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from threading import Lock
 from typing import Any, Union
-from packaging.version import parse as parse_version, Version
+from packaging.version import parse as parse_version
 
 import ckan
 import ckan.model as model
@@ -210,8 +210,6 @@ class _Globals(object):
 
         self.ckan_version = ckan.__version__
         version = parse_version(self.ckan_version)
-        if not isinstance(version, Version):
-            raise ValueError(self.ckan_version)
 
         self.ckan_base_version = version.base_version
         if not version.is_prerelease:

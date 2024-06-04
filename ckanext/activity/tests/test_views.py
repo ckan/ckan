@@ -34,7 +34,7 @@ def assert_group_link_in_response(group, response):
     )
 
 
-@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.ckan_config("ckan.plugins", "activity example_igroupform")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganization(object):
     def test_simple(self, app):
@@ -46,6 +46,18 @@ class TestOrganization(object):
         response = app.get(url)
         assert user["fullname"] in response
         assert "created the organization" in response
+        assert_group_link_in_response(org, response)
+
+    def test_simple_for_custom_org_type(self, app):
+        """Checking the template shows the activity stream."""
+        user = factories.User()
+        org = factories.Organization(user=user, type="grup")
+
+        url = url_for("activity.organization_activity", id=org["id"])
+        response = app.get(url)
+        assert user["fullname"] in response
+        assert "created the organization" in response
+        assert_group_link_in_response(org, response)
 
     def test_create_organization(self, app):
         user = factories.User()
@@ -712,6 +724,33 @@ class TestPackage:
         )
         assert helpers.body_contains(response, "First")
         assert helpers.body_contains(response, "Second")
+
+    def test_changes_with_new_resource(self, app):
+        user = factories.User()
+        dataset = factories.Dataset(title="First title", user=user)
+        resource_name = "Image 1"
+        helpers.call_action(
+            "package_patch",
+            id=dataset["id"],
+            resources=[
+                {
+                    "url": "http://example.com/image.png",
+                    "format": "png",
+                    "name": resource_name,
+                }
+            ],
+        )
+
+        activity = activity_model.package_activity_list(
+            dataset["id"], limit=1, offset=0
+        )[0]
+        env = {"REMOTE_USER": user["name"]}
+        response = app.get(
+            url_for("activity.package_changes", id=activity.id),
+            extra_environ=env,
+        )
+        assert helpers.body_contains(response, "Added resource")
+        assert helpers.body_contains(response, resource_name)
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "3")
     def test_invalid_get_params(self, app):
