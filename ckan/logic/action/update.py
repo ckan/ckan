@@ -9,7 +9,6 @@ import datetime
 import time
 import json
 import mimetypes
-import os
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -45,43 +44,45 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
-def _update_resource_upload_and_name(
-    resource: dict[str, Any], 
-    extras: dict[str, Any]
+def _update_resource_format(
+    current_resource: dict[str, Any],
+    data_dict: DataDict,
 ) -> None:
     """
-    Check for changes in resource upload, update format and name as needed,
-    and delete datastore if active and resource has changed.
-
+    Update resource format/mimetype if changes are detected and mark it
+    as 'resource_format_changed'.
     """
-    breakpoint()
-    format = resource["format"]
-    upload = resource.get("upload")
-    name = resource["name"]
-    url = resource["url"]
-    resurce_has_changed = False
+    resource_format_changed = False
 
-    filename = upload.filename if upload else url.split("/")[-1]
-    mimetype = upload.mimetype if upload else mimetypes.guess_type(url)[0]
+    current_format = current_resource.get("format")
+    if not current_format:
+        guessed_format, _ = mimetypes.guess_type(current_resource.get("url", ""))
+        current_format = guessed_format.split("/")[-1].lower() if guessed_format else ""
 
-    _, extension = os.path.splitext(name)
-
-    if extension and name != filename:
-        resource["name"] = filename
-        resurce_has_changed = True
+    new_upload = data_dict.get("upload")
+    new_url = data_dict["url"]
+    mimetype = new_upload.mimetype if new_upload else mimetypes.guess_type(new_url)[0]
 
     if not mimetype:
-        resource["format"] = ""
+        data_dict["format"] = ""
         return
 
-    if format.lower() != mimetype.split("/")[-1].lower():
-        resource["format"] = mimetype.split("/")[-1]
-        resource["mimetype"] = mimetype
-        resurce_has_changed = True
+    new_format = h.unified_resource_format(mimetype)
+    current_filename = current_resource["url"].split("/")[-1]
+    new_filename = (
+        new_upload.filename if new_upload else data_dict["url"].split("/")[-1]
+    )
 
-    if resurce_has_changed and extras.get("datastore_active"):
-        data_dict = {"force": True, "resource_id": resource["id"]}
-        _get_action("datastore_delete")({"ignore_auth": True}, data_dict)
+    if (
+        current_format.lower() != new_format.lower()
+        or new_format.lower() in ["csv", "xls", "xlsx"]
+        and current_filename != new_filename
+    ):
+        data_dict["format"] = new_format
+        data_dict["mimetype"] = mimetype
+        resource_format_changed = True
+
+    return resource_format_changed
 
 
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
@@ -116,8 +117,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     context["resource"] = resource
     old_resource_format = resource.format
 
-    _update_resource_upload_and_name(data_dict, resource.extras)
-
     if not resource:
         log.debug('Could not find resource %s', id)
         raise NotFound(_('Resource was not found.'))
@@ -147,6 +146,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         plugin.before_resource_update(context, pkg_dict['resources'][n],
                                       data_dict)
 
+    resource_format_changed = _update_resource_format(resources[n], data_dict)
     resources[n] = data_dict
 
     try:
@@ -161,8 +161,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if old_resource_format != resource["format"]:
-        breakpoint()
+    if old_resource_format != resource["format"] or resource_format_changed:
         res_view_ids = (
             context["session"]
             .query(model.ResourceView.id)
@@ -184,6 +183,14 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
             res_view_context,
             {"package": updated_pkg_dict, "resource": resource},
         )
+
+        if resource.get("datastore_active") and plugins.plugin_loaded("datastore"):
+                data_dict: dict[str, Any] = {
+                    "force": True,
+                    "resource_id": resource["id"],
+                }
+                _get_action("datastore_delete")({"ignore_auth": True}, data_dict)
+                resource["datastore_active"] = False
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_resource_update(context, resource)
