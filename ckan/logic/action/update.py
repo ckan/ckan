@@ -44,15 +44,23 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
-def _update_resource_format(
+def _update_resource_format_if_changed(
     current_resource: dict[str, Any],
     data_dict: DataDict,
-) -> None:
+) -> bool:
     """
     Update resource format/mimetype if changes are detected and mark it
-    as 'resource_format_changed'.
+    as 'resource_format_or_filename_changed'.
+
+    - If the current format is not available, it guesses the format based on
+    the URL.
+    - Determines the mimetype of the new resource based on whether it's an
+    upload or a URL.
+    - Compares the current format and filename with the new format and filename
+    - If changes are detected, updates the `data_dict` with the new
+    format and mimetype.
     """
-    resource_format_changed = False
+    resource_format_or_filename_changed = False
 
     current_format = current_resource.get("format")
     if not current_format:
@@ -65,7 +73,7 @@ def _update_resource_format(
 
     if not mimetype:
         data_dict["format"] = ""
-        return
+        return resource_format_or_filename_changed
 
     new_format = h.unified_resource_format(mimetype)
     current_filename = current_resource["url"].split("/")[-1]
@@ -80,9 +88,9 @@ def _update_resource_format(
     ):
         data_dict["format"] = new_format
         data_dict["mimetype"] = mimetype
-        resource_format_changed = True
+        resource_format_or_filename_changed = True
 
-    return resource_format_changed
+    return resource_format_or_filename_changed
 
 
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
@@ -115,7 +123,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     if resource is None:
         raise NotFound('Resource was not found.')
     context["resource"] = resource
-    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -146,7 +153,9 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         plugin.before_resource_update(context, pkg_dict['resources'][n],
                                       data_dict)
 
-    resource_format_changed = _update_resource_format(resources[n], data_dict)
+    resource_format_or_filename_changed = (
+            _update_resource_format_if_changed(resources[n], data_dict)
+        )
     resources[n] = data_dict
 
     try:
@@ -161,7 +170,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if old_resource_format != resource["format"] or resource_format_changed:
+    if resource_format_or_filename_changed:
         res_view_ids = (
             context["session"]
             .query(model.ResourceView.id)
@@ -184,7 +193,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
             {"package": updated_pkg_dict, "resource": resource},
         )
 
-        if resource.get("datastore_active") and plugins.plugin_loaded("datastore"):
+        datastore_active = plugins.plugin_loaded("datastore")
+        if datastore_active and resource.get("datastore_active"):
                 data_dict: dict[str, Any] = {
                     "force": True,
                     "resource_id": resource["id"],

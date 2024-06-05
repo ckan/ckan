@@ -1416,13 +1416,9 @@ class TestResourceUpdate(object):
                 id=dataset['id'], order=[resource2['id'], resource1['id']])
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
-    # @pytest.mark.usefixtures("with_plugins", "clean_db", "with_request_context")
-    @pytest.mark.ckan_config(
-        "ckan.views.default_views",
-        "image_view datatables_view text_view pdf_view",
-    ) 
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view text_view")
     @mock.patch("flask_login.utils._get_user")
-    def test_update_resource_format(
+    def test_resource_format_and_view_update(
         self,
         current_user,
         ckan_config,
@@ -1442,12 +1438,12 @@ class TestResourceUpdate(object):
         }
 
         resource = helpers.call_action("resource_create", **data_dict)
-        assert resource["format"] == "PDF"
-        assert resource["mimetype"] == "application/pdf"
+        assert resource["format"] == "TXT"
+        assert resource["mimetype"] == "text/plain"
 
         views_list = helpers.call_action("resource_view_list", id=resource["id"])
         assert len(views_list) == 1
-        assert views_list[0]["view_type"] == "pdf_view"
+        assert views_list[0]["view_type"] == "text_view"
 
         file_storage = create_filestorage("20230322_test.jpg", "image/jpeg")
         data_dict = {"upload": file_storage}
@@ -2550,8 +2546,8 @@ class TestPackagePluginData(object):
 
 
 def create_filestorage(
-    filename: str = "20230322_test.pdf",
-    content_type: str = "application/pdf",
+    filename: str = "20230322_test.text",
+    content_type: str = "text/plain",
 ):
     return FileStorage(
         stream=BytesIO(b"upload-content"),
