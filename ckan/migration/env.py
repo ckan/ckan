@@ -84,23 +84,6 @@ def include_name(name, type_, parent_names):
                 ):
             return False
 
-    if type_ == 'foreign_key_constraint':
-        table = parent_names.get('table_name', '')
-        # FIXME: foreign key constraints not yet reflected in models
-        if (name, table) in (
-                ('resource_view_resource_id_fkey', 'resource_view'),
-                ):
-            return False
-
-    if type_ == 'column':
-        table = parent_names.get('table_name', '')
-        # FIXME: column-alters not yet reflected in models
-        if (name, table) in (
-                ('webstore_last_updated', 'resource'),
-                ('webstore_url', 'resource'),
-                ):
-            return False
-
     if type_ == 'table':
         table = name
 
