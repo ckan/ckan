@@ -61,7 +61,7 @@ def _update_resource_format_if_changed(
     format and mimetype.
     """
     resource_format_or_filename_changed = False
-    breakpoint()
+
     current_format = current_resource.get("format")
     if not current_format:
         guessed_format, _ = mimetypes.guess_type(current_resource.get("url", ""))
