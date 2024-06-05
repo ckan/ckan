@@ -8,7 +8,6 @@ import pytest
 import sqlalchemy as sa
 
 from io import BytesIO
-from unittest import mock
 from werkzeug.datastructures import FileStorage
 
 import ckan.lib.app_globals as app_globals

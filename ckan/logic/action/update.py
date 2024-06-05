@@ -177,7 +177,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
             .filter(model.ResourceView.resource_id == id)
             .all()
         )
-        res_view_context = {
+        res_view_context: Context = {
             "model": context["model"],
             "user": context["user"],
             "ignore_auth": True,
