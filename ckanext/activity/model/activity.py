@@ -144,8 +144,10 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
-Index('idx_activity_user_id', Activity.__table__.c.user_id, Activity.__table__.c.timestamp)
-Index('idx_activity_object_id', Activity.__table__.c.object_id, Activity.__table__.c.timestamp)
+Index('idx_activity_user_id',
+      Activity.__table__.c.user_id, Activity.__table__.c.timestamp)
+Index('idx_activity_object_id',
+      Activity.__table__.c.object_id, Activity.__table__.c.timestamp)
 
 
 def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
@@ -203,7 +205,8 @@ class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
-Index('idx_activity_detail_activity_id', ActivityDetail.__table__.c.activity_id)
+Index('idx_activity_detail_activity_id',
+      ActivityDetail.__table__.c.activity_id)
 
 
 def _activities_limit(
