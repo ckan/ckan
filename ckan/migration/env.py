@@ -41,48 +41,6 @@ def include_name(name, type_, parent_names):
     to delete them properly or create them in the models as well.
     """
     table = ''
-    if type_ == 'index':
-        table = parent_names.get('table_name', '')
-        # FIXME: indexes not yet reflected in models
-        if (name, table) in (
-                ('idx_activity_object_id', 'activity'),
-                ('idx_activity_user_id', 'activity'),
-                ('idx_activity_detail_activity_id', 'activity_detail'),
-                ('idx_group_id', 'group'),
-                ('idx_group_name', 'group'),
-                ('idx_group_extra_group_id', 'group_extra'),
-                ('idx_extra_grp_id_pkg_id', 'member'),
-                ('idx_group_pkg_id', 'member'),
-                ('idx_package_group_group_id', 'member'),
-                ('idx_package_group_id', 'member'),
-                ('idx_package_group_pkg_id', 'member'),
-                ('idx_package_group_pkg_id_group_id', 'member'),
-                ('idx_package_creator_user_id', 'package'),
-                ('idx_pkg_id', 'package'),
-                ('idx_pkg_name', 'package'),
-                ('idx_pkg_sid', 'package'),
-                ('idx_pkg_sname', 'package'),
-                ('idx_pkg_stitle', 'package'),
-                ('idx_pkg_title', 'package'),
-                ('idx_extra_id_pkg_id', 'package_extra'),
-                ('idx_extra_pkg_id', 'package_extra'),
-                ('idx_package_tag_id', 'package_tag'),
-                ('idx_package_tag_pkg_id', 'package_tag'),
-                ('idx_package_tag_pkg_id_tag_id', 'package_tag'),
-                ('idx_package_tag_tag_id', 'package_tag'),
-                ('idx_tag_id', 'tag'),
-                ('idx_tag_name', 'tag'),
-                ('term', 'term_translation'),
-                ('term_lang', 'term_translation'),
-                ('idx_package_resource_id', 'resource'),
-                ('idx_package_resource_package_id', 'resource'),
-                ('idx_package_resource_url', 'resource'),
-                ('idx_view_resource_id', 'resource_view'),
-                ('idx_only_one_active_email', 'user'),
-                ('idx_user_id', 'user'),
-                ('idx_user_name', 'user'),
-                ):
-            return False
 
     if type_ == 'table':
         table = name

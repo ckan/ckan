@@ -7,7 +7,8 @@ from typing import (
 )
 from typing_extensions import Literal, Self
 
-from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
+from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
+                        and_, text, Index)
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
 import ckan.model.meta as meta
@@ -26,41 +27,35 @@ __all__ = ['group_table', 'Group',
 Mapped = orm.Mapped
 
 member_table = Table('member', meta.metadata,
-                     Column('id', types.UnicodeText,
-                            primary_key=True,
-                            default=_types.make_uuid),
-                     Column('table_name', types.UnicodeText,
-                            nullable=False),
-                     Column('table_id', types.UnicodeText,
-                            nullable=False),
-                     Column('capacity', types.UnicodeText,
-                            nullable=False),
-                     Column('group_id', types.UnicodeText,
-                            ForeignKey('group.id')),
-                     Column('state', types.UnicodeText,
-                            default=core.State.ACTIVE),
-                     )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('table_name', types.UnicodeText, nullable=False),
+    Column('table_id', types.UnicodeText, nullable=False),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('group_id', types.UnicodeText, ForeignKey('group.id')),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_pkg_id', 'table_id'),
+    Index('idx_extra_grp_id_pkg_id', 'group_id', 'table_id'),
+    Index('idx_package_group_id', 'id'),
+    Index('idx_package_group_group_id', 'group_id'),
+    Index('idx_package_group_pkg_id', 'table_id'),
+    Index('idx_package_group_pkg_id_group_id', 'group_id', 'table_id'),
+)
 
 
 group_table = Table('group', meta.metadata,
-                    Column('id', types.UnicodeText,
-                           primary_key=True,
-                           default=_types.make_uuid),
-                    Column('name', types.UnicodeText,
-                           nullable=False, unique=True),
-                    Column('title', types.UnicodeText),
-                    Column('type', types.UnicodeText,
-                           nullable=False),
-                    Column('description', types.UnicodeText),
-                    Column('image_url', types.UnicodeText),
-                    Column('created', types.DateTime,
-                           default=datetime.datetime.now),
-                    Column('is_organization', types.Boolean, default=False),
-                    Column('approval_status', types.UnicodeText,
-                           default=u"approved"),
-                    Column('state', types.UnicodeText,
-                           default=core.State.ACTIVE),
-                    )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.UnicodeText, nullable=False, unique=True),
+    Column('title', types.UnicodeText),
+    Column('type', types.UnicodeText, nullable=False),
+    Column('description', types.UnicodeText),
+    Column('image_url', types.UnicodeText),
+    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('is_organization', types.Boolean, default=False),
+    Column('approval_status', types.UnicodeText, default=u"approved"),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_id', 'id'),
+    Index('idx_group_name', 'name'),
+)
 
 
 class Member(core.StatefulObjectMixin,

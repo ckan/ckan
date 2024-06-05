@@ -9,7 +9,7 @@ from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, Column, Table, ForeignKey
+from sqlalchemy import types, Column, Table, ForeignKey, Index
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -56,6 +56,9 @@ resource_table = Table(
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_package_resource_id', 'id'),
+    Index('idx_package_resource_package_id', 'package_id'),
+    Index('idx_package_resource_url', 'url'),
 )
 
 
