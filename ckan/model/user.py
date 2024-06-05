@@ -57,7 +57,7 @@ user_table = Table('user', meta.metadata,
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
         Column('plugin_extras', MutableDict.as_mutable(JSONB))
         )
