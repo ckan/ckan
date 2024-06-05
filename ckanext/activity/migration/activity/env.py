@@ -7,7 +7,6 @@ from logging.config import fileConfig
 
 import os
 
-from ckan.model.meta import metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

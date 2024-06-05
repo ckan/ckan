@@ -84,7 +84,8 @@ package_member_table = Table(
     Column('package_id', ForeignKey('package.id'), primary_key=True),
     Column('user_id', ForeignKey('user.id'), primary_key = True),
     Column('capacity', types.UnicodeText, nullable=False),
-    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow,
+           nullable=False),
 )
 
 
