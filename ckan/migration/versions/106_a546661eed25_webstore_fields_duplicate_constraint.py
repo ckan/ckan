@@ -19,10 +19,14 @@ depends_on = None
 def upgrade():
     op.drop_column('resource', 'webstore_last_updated')
     op.drop_column('resource', 'webstore_url')
-    op.drop_constraint('resource_view_resource_id_fkey1', 'resource_view', type_='foreignkey')
+    op.drop_constraint('resource_view_resource_id_fkey1', 'resource_view',
+                       type_='foreignkey')
 
 
 def downgrade():
-    op.create_foreign_key('resource_view_resource_id_fkey1', 'resource_view', 'resource', ['resource_id'], ['id'])
-    op.add_column('resource', sa.Column('webstore_url', sa.TEXT(), autoincrement=False, nullable=True))
-    op.add_column('resource', sa.Column('webstore_last_updated', postgresql.TIMESTAMP(), autoincrement=False, nullable=True))
+    op.create_foreign_key('resource_view_resource_id_fkey1', 'resource_view',
+                          'resource', ['resource_id'], ['id'])
+    op.add_column('resource', sa.Column('webstore_url', sa.TEXT(),
+                  autoincrement=False, nullable=True))
+    op.add_column('resource', sa.Column('webstore_last_updated',
+                  postgresql.TIMESTAMP(), autoincrement=False, nullable=True))
