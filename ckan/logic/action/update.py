@@ -61,7 +61,7 @@ def _update_resource_format_if_changed(
     format and mimetype.
     """
     resource_format_or_filename_changed = False
-
+    breakpoint()
     current_format = current_resource.get("format")
     if not current_format:
         guessed_format, _ = mimetypes.guess_type(current_resource.get("url", ""))
@@ -72,7 +72,6 @@ def _update_resource_format_if_changed(
     mimetype = new_upload.mimetype if new_upload else mimetypes.guess_type(new_url)[0]
 
     if not mimetype:
-        data_dict["format"] = ""
         return resource_format_or_filename_changed
 
     new_format = h.unified_resource_format(mimetype)
@@ -123,6 +122,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     if resource is None:
         raise NotFound('Resource was not found.')
     context["resource"] = resource
+    old_resource_format = resource.format
 
     if not resource:
         log.debug('Could not find resource %s', id)
@@ -170,7 +170,10 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if resource_format_or_filename_changed:
+    if (
+        old_resource_format != resource['format'] or
+        resource_format_or_filename_changed
+        ):
         res_view_ids = (
             context["session"]
             .query(model.ResourceView.id)

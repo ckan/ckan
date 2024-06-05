@@ -1226,7 +1226,7 @@ class TestResourceUpdate(object):
             "resource_view_list", id=second_resource["id"]
         )
 
-        assert len(res_views) == 2
+        assert len(res_views) == 1
 
         third_resource = factories.Resource(
             package=dataset, url="http://localhost", name="Test3", format=""
