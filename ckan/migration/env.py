@@ -34,28 +34,19 @@ target_metadata = metadata
 
 def include_name(name, type_, parent_names):
     """
-    FIXME: A number of package, member, revision, tracking and activity-related
-    tables/indexes exist only in migrations.
+    FIXME: A number of revision tables/indexes exist only in migrations.
 
     Ignore for now but remove these exceptions once a migration is created
     to delete them properly or create them in the models as well.
     """
-    table = ''
-
     if type_ == 'table':
-        table = name
+        # FIXME: remove everything revision-related
+        if name == 'revision' or name.endswith('_revision'):
+            return False
 
-    # FIXME: everything revision, tracking and rating-related not reflected
-    if table == 'revision' or table.endswith('_revision'):
-        return False
-    if table in ('tracking_raw', 'tracking_summary'):
-        return False
-    if table == 'rating':
-        return False
-
-    if table.endswith('_alembic_version'):
-        # keep migration information from extensions
-        return False
+        if name.endswith('_alembic_version'):
+            # keep migration information from extensions
+            return False
     return True
 
 

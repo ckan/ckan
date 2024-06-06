@@ -202,7 +202,8 @@ def make_config(output_path: str, include_plugin: list[str]):
     show_default=True,
     default=False,
     help="Populate revision script with candidate migration operations, based"
-         " on comparison of database to model.")
+         " on comparison of database to model. Note: activity and tracking"
+         " plugins should be enabled for historical reasons")
 def migration(plugin: str, message: str, autogenerate: bool):
     """Create new alembic revision for DB migration.
     """
