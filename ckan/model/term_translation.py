@@ -11,6 +11,5 @@ term_translation_table = Table(
     Column('term', UnicodeText, nullable=False),
     Column('term_translation', UnicodeText, nullable=False),
     Column('lang_code', UnicodeText, nullable=False),
-    Index('term', 'term'),
     Index('term_lang', 'term', 'lang_code'),
 )

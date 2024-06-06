@@ -36,9 +36,6 @@ member_table = Table('member', meta.metadata,
     Index('idx_group_pkg_id', 'table_id'),
     Index('idx_extra_grp_id_pkg_id', 'group_id', 'table_id'),
     Index('idx_package_group_id', 'id'),
-    Index('idx_package_group_group_id', 'group_id'),
-    Index('idx_package_group_pkg_id', 'table_id'),
-    Index('idx_package_group_pkg_id_group_id', 'group_id', 'table_id'),
 )
 
 

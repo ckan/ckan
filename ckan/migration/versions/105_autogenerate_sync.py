@@ -17,16 +17,40 @@ depends_on = None
 
 
 def upgrade():
+    # removed feature
     op.drop_index('idx_rating_id', table_name='rating')
     op.drop_index('idx_rating_package_id', table_name='rating')
     op.drop_index('idx_rating_user_id', table_name='rating')
     op.drop_table('rating')
+    # enforce package/resource relationship
     op.create_foreign_key(None, 'resource', 'package', ['package_id'], ['id'])
+    # long-forgotten columns
     op.drop_column('resource', 'webstore_last_updated')
     op.drop_column('resource', 'webstore_url')
+    # redundant indexes
+    op.drop_index('idx_package_group_group_id', table_name='member')
+    op.drop_index('idx_package_group_pkg_id', table_name='member')
+    op.drop_index('idx_package_group_pkg_id_group_id', table_name='member')
+    op.drop_index('idx_pkg_id', table_name='package')
+    op.drop_index('idx_pkg_name', table_name='package')
+    op.drop_index('idx_pkg_title', table_name='package')
+    op.drop_index('idx_package_tag_tag_id', table_name='package_tag')
+    op.drop_index('term', table_name='term_translation')
 
 
 def downgrade():
+    op.create_index('term', 'term_translation', ['term'], unique=False)
+    op.create_index('idx_package_tag_tag_id', 'package_tag', ['tag_id'],
+                    unique=False)
+    op.create_index('idx_pkg_title', 'package', ['title'], unique=False)
+    op.create_index('idx_pkg_name', 'package', ['name'], unique=False)
+    op.create_index('idx_pkg_id', 'package', ['id'], unique=False)
+    op.create_index('idx_package_group_pkg_id_group_id', 'member',
+                    ['group_id', 'table_id'], unique=False)
+    op.create_index('idx_package_group_pkg_id', 'member', ['table_id'],
+                    unique=False)
+    op.create_index('idx_package_group_group_id', 'member', ['group_id'],
+                    unique=False)
     op.add_column('resource', sa.Column('webstore_url', sa.TEXT(),
                   autoincrement=False, nullable=True))
     op.add_column('resource', sa.Column('webstore_last_updated',
