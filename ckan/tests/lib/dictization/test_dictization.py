@@ -11,7 +11,6 @@ from ckan.lib.dictization import table_dictize, table_dict_save
 
 from ckan.lib.dictization.model_dictize import (
     package_dictize,
-    resource_dictize,
     user_dictize,
 )
 from ckan.lib.dictization.model_save import (
