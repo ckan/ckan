@@ -47,7 +47,6 @@ package_tag_table = Table('package_tag', meta.metadata,
     Index('idx_package_tag_id', 'id'),
     Index('idx_package_tag_pkg_id', 'package_id'),
     Index('idx_package_tag_pkg_id_tag_id', 'tag_id', 'package_id'),
-    Index('idx_package_tag_tag_id', 'tag_id'),
 )
 
 

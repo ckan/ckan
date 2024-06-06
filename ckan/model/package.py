@@ -75,12 +75,9 @@ package_table = Table('package', meta.metadata,
     Column('private', types.Boolean, default=False),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
     Column('plugin_data', MutableDict.as_mutable(JSONB)),
-    Index('idx_pkg_id', 'id'),
-    Index('idx_pkg_name', 'name'),
     Index('idx_pkg_sid', 'id', 'state'),
     Index('idx_pkg_sname', 'name', 'state'),
     Index('idx_pkg_stitle', 'title', 'state'),
-    Index('idx_pkg_title', 'title'),
     Index('idx_package_creator_user_id', 'creator_user_id'),
 )
 
