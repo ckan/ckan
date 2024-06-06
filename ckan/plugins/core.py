@@ -10,7 +10,7 @@ from typing_extensions import TypeGuard
 from pkg_resources import iter_entry_points
 
 
-from ckan.common import config
+from ckan.common import config, aslist
 from ckan.types import SignalMapping
 
 from . import interfaces
@@ -143,7 +143,7 @@ def load_all() -> None:
     # Clear any loaded plugins
     unload_all()
 
-    plugins = config['ckan.plugins'] + find_system_plugins()
+    plugins = aslist(config.get('ckan.plugins')) + find_system_plugins()
 
     load(*plugins)
 
@@ -175,7 +175,9 @@ def load(
         if implemented_by(service, interfaces.ISignal):
             _connect_signals(service.get_signal_subscriptions())
         output.append(service)
-    plugins_update()
+
+    if plugins:
+        plugins_update()
 
     # Return extension instance if only one was loaded.  If more that one
     # has been requested then a list of instances is returned in the order
@@ -218,7 +220,8 @@ def unload(*plugins: str) -> None:
         if implemented_by(service, interfaces.ISignal):
             _disconnect_signals(service.get_signal_subscriptions())
 
-    plugins_update()
+    if plugins:
+        plugins_update()
 
 
 def plugin_loaded(name: str) -> bool:

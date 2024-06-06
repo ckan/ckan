@@ -76,7 +76,8 @@ class ExtendableGroup(click.Group):
         # provided, except for `--help`. In this case it has to be done
         # manually.
         if not ctx.obj:
-            _add_ctx_object(ctx)
+            if '-h' not in sys.argv[1:] and '--help' not in sys.argv[1:]:
+                _add_ctx_object(ctx)
             _add_external_commands(ctx)
 
         commands = []
@@ -127,7 +128,8 @@ class ExtendableGroup(click.Group):
 def _init_ckan_config(ctx: click.Context, param: str, value: str):
     if any(sys.argv[1:len(cmd) + 1] == cmd for cmd in _no_config_commands):
         return
-    _add_ctx_object(ctx, value)
+    if '-h' not in sys.argv[1:] and '--help' not in sys.argv[1:]:
+        _add_ctx_object(ctx, value)
     _add_external_commands(ctx)
 
 
