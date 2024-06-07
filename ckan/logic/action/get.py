@@ -1440,7 +1440,7 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     _check_access('user_show', context, data_dict)
 
-    schema = context.get('schema', None) or ckan.logic.schema.user_show_schema()
+    schema = context.get('schema', None)
 
     for item in plugins.PluginImplementations(plugins.IUserForm):
         schema = item.show_user_schema(schema)

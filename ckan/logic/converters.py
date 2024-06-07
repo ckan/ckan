@@ -58,7 +58,7 @@ def load_plugin_data(plugin_name: str):
     def callable(key: FlattenKey, data: FlattenDataDict,
                                errors: FlattenErrorDict,
                                context: Context) -> Any:
-        plugin_data = data.get("plugin_data")
+        plugin_data = context.get('plugin_data', {})
         if not plugin_data:
             return
         data[key] = plugin_data.get(plugin_name, {}).get(key[-1])

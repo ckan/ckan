@@ -473,7 +473,6 @@ def default_user_schema(
         'state': [ignore_missing, ignore_not_sysadmin],
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
-        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
         'plugin_data': [ignore_missing, json_object],
     }
 
@@ -512,28 +511,6 @@ def user_edit_form_schema(
     schema['password2'] = [ignore_missing, unicode_safe]
 
     return schema
-
-
-@validator_args
-def user_show_schema(ignore_missing: Validator):
-    return {
-        'id': [],
-        'name': [],
-        'fullname': [],
-        'password':  [ignore_missing],
-        'password_hash':  [ignore_missing],
-        'email': [],
-        'about':  [],
-        'created':  [],
-        'sysadmin':  [],
-        'reset_key':  [],
-        'activity_streams_email_notifications': [],
-        'state':  [],
-        'image_url':  [],
-        'image_display_url':  [],
-        'plugin_extras':  [],
-        'plugin_data':  [],
-    }
 
 
 @validator_args
