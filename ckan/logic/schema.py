@@ -132,11 +132,12 @@ def default_create_package_schema(
         package_name_validator: Validator, strip_value: Validator,
         if_empty_same_as: ValidatorFactory,
         email_validator: Validator, package_version_validator: Validator,
-        ignore_not_package_admin: Validator, boolean_validator: Validator,
+        boolean_validator: Validator,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
         owner_org_validator: Validator, json_object: Validator,
         ignore_not_sysadmin: Validator, uuid_validator: Validator) -> Schema:
+    
     return {
         '__before': [duplicate_extras_key, ignore],
         'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
@@ -154,7 +155,7 @@ def default_create_package_schema(
         'notes': [ignore_missing, unicode_safe],
         'url': [ignore_missing, unicode_safe],
         'version': [ignore_missing, unicode_safe, package_version_validator],
-        'state': [ignore_not_package_admin, ignore_missing],
+        'state': [ignore_missing],
         'type': [ignore_missing, unicode_safe],
         'owner_org': [owner_org_validator, unicode_safe],
         'private': [ignore_missing, boolean_validator,
