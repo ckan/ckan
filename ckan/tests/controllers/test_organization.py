@@ -112,8 +112,7 @@ class TestOrganizationRead(object):
         dataset count with and without a search query.
         """
         org = factories.Organization()
-        dataset1 = factories.Dataset(title="test", owner_org=org["id"])
-        dataset2 = factories.Dataset(title="title", owner_org=org["id"])
+        _, dataset = factories.Dataset.create_batch(2, owner_org=org["id"])
 
         # Test without search query
         resp = app.get(url_for("organization.read", id=org["id"]))
@@ -123,14 +122,15 @@ class TestOrganizationRead(object):
         assert dataset_count.text == "2"
 
         # Test with search query
-        resp = app.get(url_for("organization.read", id=org["id"], q="test"))
+        title = dataset["title"]
+        resp = app.get(url_for("organization.read", id=org["id"], q=title))
         soup = BeautifulSoup(resp.body, 'html.parser')
 
         dataset_count = soup.find('dt', text='Datasets').find_next_sibling('dd').find('span')
         assert dataset_count.text == "2"
 
         h1_tag = soup.select_one('h1:contains("dataset")')
-        assert h1_tag.text.strip() == '1 dataset found for "test"'
+        assert h1_tag.text.strip() == f'1 dataset found for "{title}"'
 
 
 @pytest.mark.usefixtures("non_clean_db", "with_request_context")
