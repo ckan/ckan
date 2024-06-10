@@ -137,7 +137,6 @@ def default_create_package_schema(
         empty: Validator, tag_string_convert: Validator,
         owner_org_validator: Validator, json_object: Validator,
         ignore_not_sysadmin: Validator, uuid_validator: Validator) -> Schema:
-    
     return {
         '__before': [duplicate_extras_key, ignore],
         'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
