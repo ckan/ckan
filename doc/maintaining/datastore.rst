@@ -19,8 +19,7 @@ The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
 The DataStore is generally used alongside the
-`DataPusher <https://github.com/ckan/datapusher>`_, which will
-automatically upload data to the DataStore from suitable files, whether
+`XLoader <https://github.com/ckan/ckanext-xloader/>`_, which will
 uploaded to CKAN's FileStore or externally linked.
 
 .. contents::
@@ -194,22 +193,14 @@ To find out more about the Data API, see `The Data API`_.
 
 
 ---------------------------------------------------
-DataPusher: Automatically Add Data to the DataStore
+XLoader(or Express Loader)
 ---------------------------------------------------
 
-Often, one wants data that is added to CKAN (whether it is linked to or
-uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
-DataStore. This requires some processing, to extract the data from your files
-and to add it to the DataStore in the format the DataStore can handle.
+Express Loader(or XLoader) is designed as a replacement for DataPusher because it offers ten
+times the speed and more robustness. You can load CSV (and similar) data into CKAN's DataStore.
+XLoader pipes the CSV file directly into PostgreSQL using COPY.
 
-This task of automatically parsing and then adding data to the DataStore is
-performed by the `DataPusher`_, a service that runs asynchronously and can be installed
-alongside CKAN.
-
-To install this please look at the docs here: https://github.com/ckan/datapusher
-
-.. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
-   not support duplicate column headers. That includes blank column headings.
+To install this please look at the docs here: https://github.com/ckan/ckanext-xloader
 
 .. _data_dictionary:
 
