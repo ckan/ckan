@@ -342,11 +342,11 @@ def default_create_group_schema(
 def default_update_group_schema(
         ignore_missing: Validator,
         not_empty: Validator,
-        group_id_exists: Validator,
+        group_id_or_name_exists: Validator,
         group_name_validator: Validator,
         unicode_safe: Validator):
     schema = default_create_group_schema()
-    schema["id"] = [not_empty, group_id_exists, unicode_safe]
+    schema["id"] = [not_empty, group_id_or_name_exists, unicode_safe]
     schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
     return schema
 
