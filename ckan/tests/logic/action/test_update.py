@@ -1516,7 +1516,6 @@ class TestGroupUpdate(object):
         assert group["id"] == original_id
         assert group["description"] == description
 
-
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
