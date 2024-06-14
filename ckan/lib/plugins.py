@@ -467,13 +467,6 @@ class DefaultGroupForm(object):
         """
         return 'group/edit.html'
 
-    def activity_read_base_template(self) -> str:
-        """
-        Returns a string representing the location of the template to be
-        rendered for the activity stream page
-        """
-        return 'group/read_base.html'
-
     def activity_template(self) -> str:
         """
         Returns a string representing the location of the template to be
@@ -609,9 +602,6 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def activity_template(self) -> str:
         return 'organization/activity_stream.html'
-
-    def activity_template(self) -> str:
-        return 'organization/read_base.html'
 
 
 class DefaultTranslation(object):
