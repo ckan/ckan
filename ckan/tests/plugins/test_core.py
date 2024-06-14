@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import pytest
-from ckan.common import config
 
 import ckan.logic as logic
 import ckan.authz as authz
@@ -31,17 +30,29 @@ class IBar(plugins.Interface):
     pass
 
 
-class FooImpl(object):
+class IBaz(plugins.Interface):
+    pass
+
+
+class FooImpl(plugins.Plugin):
     plugins.implements(IFoo)
 
 
-class BarImpl(object):
+class BarImpl(plugins.Plugin):
     plugins.implements(IBar)
 
 
-class FooBarImpl(object):
+class FooBarImpl(plugins.Plugin):
     plugins.implements(IFoo)
     plugins.implements(IBar)
+
+
+class BarBazImpl(BarImpl):
+    plugins.implements(IBaz)
+
+
+class Ext(plugins.Plugin, IFoo, IBar):
+    pass
 
 
 @pytest.mark.usefixtures("with_plugins")
@@ -75,6 +86,17 @@ def test_implemented_by():
     assert IFoo.implemented_by(FooImpl)
     assert IFoo.implemented_by(FooBarImpl)
     assert not IFoo.implemented_by(BarImpl)
+
+
+def test_implemented_by_through_inheritance():
+    assert IBaz.implemented_by(BarBazImpl)
+    assert IBar.implemented_by(BarBazImpl)
+
+
+def test_implemented_by_through_extending():
+    assert IFoo.implemented_by(Ext)
+    assert IBar.implemented_by(Ext)
+    assert not IBaz.implemented_by(Ext)
 
 
 def test_provided_by():
@@ -112,8 +134,9 @@ def test_notified_on_unload(observer):
 
 @pytest.fixture(autouse=True)
 def reset_observer():
-    plugins.load("test_observer_plugin")
+    observer = plugins.load("test_observer_plugin")
     plugins.unload("test_observer_plugin")
+    observer.reset_calls()
 
 
 @pytest.mark.ckan_config("ckan.plugins", "action_plugin")
@@ -153,19 +176,17 @@ def test_inexistent_plugin_loading():
 
 
 class TestPlugins:
-    def teardown_method(self):
-        plugins.unload_all()
-
-    def test_plugin_loading_order(self):
+    def test_plugin_loading_order(self, ckan_config, monkeypatch):
         """
         Check that plugins are loaded in the order specified in the config
         """
-        config_plugins = config["ckan.plugins"]
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin action_plugin auth_plugin"
-        plugins.load_all()
 
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin action_plugin auth_plugin"
+        )
+        plugins.load_all()
         observerplugin = plugins.get_plugin("test_observer_plugin")
 
         expected_order = _make_calls(
@@ -174,6 +195,7 @@ class TestPlugins:
         )
 
         assert observerplugin.before_load.calls[:2] == expected_order
+
         expected_order = _make_calls(
             plugins.get_plugin("test_observer_plugin"),
             plugins.get_plugin("action_plugin"),
@@ -181,9 +203,13 @@ class TestPlugins:
         )
         assert observerplugin.after_load.calls[:3] == expected_order
 
-        config[
-            "ckan.plugins"
-        ] = "test_observer_plugin auth_plugin action_plugin"
+        observerplugin.reset_calls()
+
+        monkeypatch.setitem(
+            ckan_config,
+            "ckan.plugins",
+            "test_observer_plugin auth_plugin action_plugin",
+        )
         plugins.load_all()
 
         expected_order = _make_calls(
@@ -197,6 +223,3 @@ class TestPlugins:
             plugins.get_plugin("action_plugin"),
         )
         assert observerplugin.after_load.calls[:3] == expected_order
-        # cleanup
-        config["ckan.plugins"] = config_plugins
-        plugins.load_all()

@@ -198,8 +198,23 @@ To prevent conflicts, disable your default nginx sites and restart:
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan
     |restart_nginx|
 
+
+-----------------------------------
+7. Generate JavaScript Translations
+-----------------------------------
+
+Some front-end features require translated strings from CKAN and its
+extensions. Run this command once to extract and make these
+strings available after initial installation, upgrades, enabling new
+plugins or enabling new languages.
+
+.. parsed-literal::
+
+    ckan -c |ckan.ini| translation js
+
+
 ------------------------
-7. Access your CKAN site
+8. Access your CKAN site
 ------------------------
 
 
@@ -208,7 +223,7 @@ CKAN instance.
 
 
 --------------------------------------
-8. Setup a worker for background jobs
+9. Setup a worker for background jobs
 --------------------------------------
 CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
 executed by a separate process which is called a :ref:`worker <background jobs

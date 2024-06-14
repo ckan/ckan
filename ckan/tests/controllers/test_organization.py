@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+import uuid
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -99,8 +101,8 @@ class TestOrganizationRead(object):
         assert response.headers['location'] == expected_url
 
     def test_no_redirect_loop_when_name_is_the_same_as_the_id(self, app):
-        name = factories.Organization.stub().name
-        org = factories.Organization(id=name, name=name)
+        id_ = str(uuid.uuid4())
+        org = factories.Organization(id=id_, name=id_)
         app.get(
             url_for("organization.read", id=org["id"]), status=200
         )  # ie no redirect
@@ -515,6 +517,23 @@ class TestOrganizationInnerSearch(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestOrganizationMembership(object):
+
+    @pytest.mark.ckan_config("ckan.auth.create_user_via_web", False)
+    def test_admin_users_cannot_invite_members(self, app, user):
+        """ Org admin users can't invite users if they can't create users """
+        headers = {"Authorization": user["token"]}
+        organization = factories.Organization(
+            users=[{"name": user["name"], "capacity": "admin"}]
+        )
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url_for("organization.member_new", id=organization["id"]),
+                headers=headers,
+            )
+            assert response.status_code == 200
+            assert "invite a new user" not in response
+
     def test_editor_users_cannot_add_members(self, app, user):
         headers = {"Authorization": user["token"]}
         organization = factories.Organization(

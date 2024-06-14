@@ -1217,6 +1217,9 @@ def upsert_data(context: Context, data_dict: dict[str, Any]):
     records = data_dict['records']
     sql_columns = ", ".join(
         identifier(name) for name in field_names)
+    if not sql_columns:
+        # insert w/ no columns is a postgres error
+        return
     num = -1
 
     if method == _INSERT:
