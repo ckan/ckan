@@ -49,4 +49,14 @@ on how to set up these):
 
 * The public variable ``TECH_TEAM_USER_IDS`` is a JSON list of the GitHub user ids of the Tech Team members. User ids can be found using the ``https://api.github.com/users/<user_name>`` endpoint.
 * The public variable ``CKANBOT_USER_ID`` is the user id of the :ref:`ckanbot`.
-* The secret ``BACKPORT_ACTION_PAT`` is a `Personal Access Token <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>`_ of the ckanbot account, with enough permissions to write to the ckan/ckan repository.
+* The secret ``BACKPORT_ACTION_PAT`` is a `Personal Access Token <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens>`_ (PAT) of the ckanbot account, with enough permissions to write to the ckan/ckan repository.
+
+When creating a new PAT, make sure to select the following settings:
+
+* Token name: ``backports_action``
+* Expiration: set it at something reasonable like 1 year
+* Resource owner: *ckan* organization
+* Repository access: Only select repositories (select *ckan/ckan*)
+* Repository permissions: Select *Content* (Read and Write) and *Pull Requests* (Read and Write)
+
+Once generated the token, it will have to be approved by someone with permissions in the *@ckan* organization (by going to Settings > Third-party Access > Personal access tokens > Pending requests).

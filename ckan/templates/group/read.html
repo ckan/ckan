@@ -21,7 +21,7 @@
   {% endblock %}
   {% block packages_list %}
     {% if page.items %}
-      {{ h.snippet('snippets/package_list.html', packages=page.items) }}
+      {% snippet 'snippets/package_list.html', packages=page.items %}
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
@@ -34,7 +34,7 @@
   <div class="filters">
     <div>
       {% for facet in facet_titles %}
-        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets) }}
+        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets %}
       {% endfor %}
     </div>
     <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
