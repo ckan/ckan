@@ -355,17 +355,17 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
 
     extra_vars = {
         "dataset_type": dataset_type,
-            "pkg_dict": pkg_dict,
-            "activity_stream": activity_stream,
-            "id": id,  # i.e. package's current name
-            "limit": limit,
-            "has_more": has_more,
-            "activity_type": activity_type,
-            "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            "newer_activities_url": newer_activities_url,
-            "older_activities_url": older_activities_url,
-            "blueprint": blueprint,
-            "object_type": object_type,
+        "pkg_dict": pkg_dict,
+        "activity_stream": activity_stream,
+        "id": id,  # i.e. package's current name
+        "limit": limit,
+        "has_more": has_more,
+        "activity_type": activity_type,
+        "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url,
+        "blueprint": blueprint,
+        "object_type": object_type,
     }
 
     if ckan_request.htmx:
