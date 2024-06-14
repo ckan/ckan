@@ -1746,8 +1746,9 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 @core_helper
 def snippet(template_name: str, **kw: Any) -> str:
-    ''' This function is used to load html snippets into pages. keywords
-    can be used to pass parameters into the snippet rendering '''
+    '''
+    Use {% snippet %} tag instead for better performance.
+    '''
     import ckan.lib.base as base
     return base.render_snippet(template_name, **kw)
 
