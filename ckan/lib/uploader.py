@@ -190,7 +190,7 @@ class Upload(object):
                     raise
                 finally:
                     self.upload_file.close()
-            os.rename(self.tmp_filepath, self.filepath)
+            os.replace(self.tmp_filepath, self.filepath)
             self.clear = True
 
         if (self.clear and self.old_filename
@@ -347,7 +347,7 @@ class ResourceUpload(object):
                     raise
                 finally:
                     self.upload_file.close()
-            os.rename(tmp_filepath, filepath)
+            os.replace(tmp_filepath, filepath)
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
