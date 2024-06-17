@@ -211,11 +211,11 @@ def package_dictize(
         assert 'display_name' not in tag_dict
         tag_dict['display_name'] = tag_dict['name']
 
-    # extras - no longer revisioned, so always provide latest
-    extra = model.package_extra_table
-    q = select(extra).where(extra.c["package_id"] == pkg.id)
-    result = execute(q, extra, context)
-    result_dict["extras"] = extras_list_dictize(result, context)
+    # return extras in old compatible format
+    result_dict["extras"] = [
+        {'key': k, 'value': v}
+        for k, v in (result_dict["extras"] or {}).items()
+    ]
 
     # groups
     member = model.member_table
@@ -363,8 +363,12 @@ def group_dictize(group: model.Group, context: Context,
     result_dict['display_name'] = group.title or group.name
 
     if include_extras:
-        result_dict['extras'] = extras_dict_dictize(
-            group._extras, context)
+        result_dict['extras'] = [
+            {'key': k, 'value': v}
+            for k, v in (result_dict['extras'] or {}).items()
+        ]
+    else:
+        del result_dict['extras']
 
     context['with_capacity'] = True
 

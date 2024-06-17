@@ -8,7 +8,9 @@ from typing import (
 from typing_extensions import Literal, Self
 
 from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
-                        and_, text, Index)
+                        and_, text, Index, CheckConstraint)
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
 import ckan.model.meta as meta
@@ -50,6 +52,13 @@ group_table = Table('group', meta.metadata,
     Column('is_organization', types.Boolean, default=False),
     Column('approval_status', types.UnicodeText, default=u"approved"),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='group_flat_extras',
+    )),
     Index('idx_group_id', 'id'),
     Index('idx_group_name', 'name'),
 )
@@ -160,8 +169,6 @@ class Group(core.StatefulObjectMixin,
     approval_status: Mapped[str]
     state: Mapped[str]
 
-    _extras: Mapped[dict[str, Any]]
-    extras: AssociationProxy
     member_all: Mapped[list[Member]]
 
     def __init__(self, name: str = u'', title: str = u'',
