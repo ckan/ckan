@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config, pool
 # from logging.config import fileConfig
 from ckan.model import init_model
 from ckan.model.meta import metadata
+from ckan.plugins import plugin_loaded
 
 # When auto-generating migration scripts, uncomment these lines to include in
 # the model the revision tables - otherwise Alembic wants to delete them
@@ -47,6 +48,15 @@ def include_name(name, type_, parent_names):
         if name.endswith('_alembic_version'):
             # keep migration information from extensions
             return False
+
+        # tracking and activity tables were created in a core migration
+        if not plugin_loaded('tracking') and name in (
+                'tracking_raw', 'tracking_summary'):
+            return False
+        if not plugin_loaded('activity') and name in (
+                'activity', 'activity_detail'):
+            return False
+
     return True
 
 
