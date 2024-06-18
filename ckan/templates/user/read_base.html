@@ -1,6 +1,16 @@
 {% extends "page.html" %}
 
 {% set user = user_dict %}
+{% set orgs_available = h.organizations_available(permission='manage_group',
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
+{% set groups_available = h.groups_available(am_member=True,
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
 {% set dataset_type = h.default_package_type() %}
 {% set org_type = h.default_group_type('organization') %}
 {% set group_type = h.default_group_type('group') %}
