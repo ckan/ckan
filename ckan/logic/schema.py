@@ -444,6 +444,22 @@ def user_edit_form_schema(
 
 
 @validator_args
+def user_perform_reset_form_schema(
+        not_empty, unicode_safe, user_both_passwords_entered,
+        user_password_validator, user_passwords_match):
+    # (canada fork only): adds schema for PerformResetView
+    # TODO: upstream contrib??
+    schema = default_user_schema()
+
+    schema['password1'] = [text_type, user_both_passwords_entered,
+                           user_password_validator, user_passwords_match]
+    schema['password2'] = [text_type]
+    schema['reset_key'] = [not_empty, unicode_safe]
+
+    return schema
+
+
+@validator_args
 def default_update_user_schema(
         ignore_missing, name_validator, user_name_validator,
         unicode_safe, user_password_validator, email_is_unique,
