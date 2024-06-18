@@ -1,0 +1,1 @@
+Added a schema for performing password resets, allowing for better frameworking for password requirements and error messages.
