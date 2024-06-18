@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import ckan.model.meta as meta
@@ -22,6 +22,8 @@ package_extra_table = Table('package_extra', meta.metadata,
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_extra_id_pkg_id', 'id', 'package_id'),
+    Index('idx_extra_pkg_id', 'package_id'),
 )
 
 
