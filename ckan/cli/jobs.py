@@ -42,7 +42,11 @@ def worker(burst, max_idle_time, queues):
     If the `--max-idle-time` option is given then the worker will exit
     after it has been idle for the number of seconds specified.
     """
-    bg_jobs.Worker(queues).work(burst=burst, max_idle_time=max_idle_time)
+    try:
+        bg_jobs.Worker(queues).work(burst=burst, max_idle_time=max_idle_time)
+    except TypeError:
+        click.echo("Your version of the redis python library does not support max_idle_time")
+        bg_jobs.Worker(queues).work(burst=burst)
 
 
 @jobs.command(name=u"list", short_help=u"List jobs.")
