@@ -14,6 +14,7 @@ from sqlalchemy import (
     and_,
     not_,
     text,
+    Index,
 )
 
 from ckan.common import config
@@ -143,6 +144,12 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
+Index('idx_activity_user_id',
+      Activity.__table__.c.user_id, Activity.__table__.c.timestamp)
+Index('idx_activity_object_id',
+      Activity.__table__.c.object_id, Activity.__table__.c.timestamp)
+
+
 def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
     return table_dictize(activity, context)
 
@@ -196,6 +203,10 @@ class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
         return (
             model.Session.query(cls).filter_by(activity_id=activity_id).all()
         )
+
+
+Index('idx_activity_detail_activity_id',
+      ActivityDetail.__table__.c.activity_id)
 
 
 def _activities_limit(
