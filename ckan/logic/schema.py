@@ -347,7 +347,12 @@ def default_update_group_schema(
         unicode_safe: Validator):
     schema = default_create_group_schema()
     schema["id"] = [not_empty, group_id_or_name_exists, unicode_safe]
-    schema["name"] = [ignore_missing, not_empty, group_name_validator, unicode_safe]
+    schema["name"] = [
+        ignore_missing,
+        not_empty,
+        group_name_validator,
+        unicode_safe,
+    ]
     return schema
 
 
