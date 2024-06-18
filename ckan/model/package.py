@@ -13,7 +13,7 @@ import logging
 from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.ext.associationproxy import AssociationProxy
@@ -54,27 +54,31 @@ PACKAGE_VERSION_MAX_LENGTH: int = 100
 
 # Our Domain Object Tables
 package_table = Table('package', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               nullable=False, unique=True),
-        Column('title', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
-               doc='remove_if_not_provided'),
-        Column('url', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('type', types.UnicodeText, default=u'dataset'),
-        Column('owner_org', types.UnicodeText),
-        Column('creator_user_id', types.UnicodeText),
-        Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
-        Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
-        Column('private', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
+           nullable=False, unique=True),
+    Column('title', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
+           doc='remove_if_not_provided'),
+    Column('url', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('type', types.UnicodeText, default=u'dataset'),
+    Column('owner_org', types.UnicodeText),
+    Column('creator_user_id', types.UnicodeText),
+    Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
+    Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('private', types.Boolean, default=False),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Index('idx_pkg_sid', 'id', 'state'),
+    Index('idx_pkg_sname', 'name', 'state'),
+    Index('idx_pkg_stitle', 'title', 'state'),
+    Index('idx_package_creator_user_id', 'creator_user_id'),
 )
 
 
@@ -84,7 +88,8 @@ package_member_table = Table(
     Column('package_id', ForeignKey('package.id'), primary_key=True),
     Column('user_id', ForeignKey('user.id'), primary_key = True),
     Column('capacity', types.UnicodeText, nullable=False),
-    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow,
+           nullable=False),
 )
 
 
