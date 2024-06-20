@@ -9,12 +9,11 @@ from typing import Any, Union, Type, cast
 
 import sqlalchemy as sqla
 
-import ckan.lib.jobs as jobs
+from ckan.lib import api_token, jobs, uploader
 import ckan.logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
-import ckan.lib.api_token as api_token
 from ckan import authz
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
@@ -184,6 +183,16 @@ def resource_delete(context: Context, data_dict: DataDict) -> ActionResult.Resou
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_delete(context, data_dict,
                                       pkg_dict.get('resources', []))
+
+    # Delete file if it was uploaded
+    if entity.url_type == 'upload':
+        upload = uploader.get_resource_uploader(data_dict)
+        # Don't break if old plugin/interface is found
+        if hasattr(upload, "delete"):
+            upload.delete(id)
+        else:
+            log.warning("%s does not have delete function, could not cleanup: %s",
+                        type(upload).__name__, id)
 
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     pkg_dict = _get_action('package_show')(

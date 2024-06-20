@@ -1833,6 +1833,32 @@ class IUploader(Interface):
         :param max_size: upload size can be limited by this value in MBs.
         :type max_size: int
 
+        ``delete(filename)``
+
+        Delete the file from storage.
+
+        :param filename: filename for the stored file.
+        :type filename: string
+
+        ``download(filename)``
+
+        Provide a redirect URL or byte stream to download the file.
+
+        :param filename: filename for the stored file.
+        :type filename: string
+
+        ``metadata(filename)``
+
+        Retrieve metadata for the file. Returns a dict containing:
+
+         - 'content_type': MIME type of file
+         - 'size': file size in bytes
+         - 'hash': SHA-1 hash of file contents
+
+        Throws IOError if file does not exist.
+
+        :param filename: filename for the stored file.
+        :type filename: string
         '''
 
     def get_resource_uploader(
@@ -1871,6 +1897,41 @@ class IUploader(Interface):
         :param id: resource id
         :type id: string
 
+        ``delete(id, filename)``
+
+        Delete the resource file from storage.
+
+        :param id: resource id, used to delete file
+        :type id: string
+        :param filename: filename for the stored resource,
+            may be None depending on the storage provider.
+        :type filename: string
+
+        ``download(id, filename)``
+
+        Provide a redirect URL or byte stream to download the resource file.
+
+        :param id: resource id, used to locate file
+        :type id: string
+        :param filename: filename for the stored resource,
+            may be None depending on the storage provider.
+        :type filename: string
+
+        ``metadata(id, filename)``
+
+        Retrieve metadata for the resource file. Returns a dict containing:
+
+         - 'content_type': MIME type of file
+         - 'size': file size in bytes
+         - 'hash': SHA-1 hash of file contents
+
+        Throws IOError if file does not exist.
+
+        :param id: resource id, used to locate file
+        :type id: string
+        :param filename: filename for the stored resource,
+            may be None depending on the storage provider.
+        :type filename: string
         '''
 
 

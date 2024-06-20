@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+from io import BytesIO
 import re
+import six
 
 import pytest
 
 from ckan import model
+from ckan.lib.helpers import url_for
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.tests.factories as factories
@@ -2522,6 +2525,52 @@ class TestShowResourceView(object):
 
         with pytest.raises(logic.NotFound):
             helpers.call_action("resource_view_show", id="does_not_exist")
+
+
+class ShowResourceFileMetadata(object):
+
+    def test_resource_file_metadata_show_meta_data_returned(self, app, monkeypatch, tmpdir, ckan_config):
+        monkeypatch.setitem(ckan_config, u"ckan.storage_path", str(tmpdir))
+        user = factories.User()
+        user_token = factories.APIToken(user=user["name"])
+        pkg = factories.Dataset(creator_user_id=user['id'])
+
+        url = url_for(
+            "api.action",
+            logic_function='resource_create',
+            ver=3
+        )
+        env = {"Authorization": user_token["token"]}
+
+        content = six.ensure_binary('upload-content')
+        upload_content = BytesIO(content)
+        postparams = {
+            "name": "test-flask-upload",
+            "package_id": pkg["id"],
+            "upload": (upload_content, "test-upload.txt"),
+        }
+        resp = app.post(
+            url,
+            extra_environ=env,
+            data=postparams,
+            content_type="multipart/form-data",
+        )
+        result = resp.json['result']
+        assert 'upload' == result['url_type']
+        assert len(content) == result['size']
+
+        metaresult = helpers.call_action('resource_file_metadata_show', id=result['id'])
+        assert len(content) == metaresult['size']
+        assert 'text/csv' == metaresult['content_type']
+        assert '' == metaresult['hash']
+
+    def test_resource_file_metadata_show_id_missing(self):
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action('resource_file_metadata_show')
+
+    def test_resource_file_metadata_show_id_not_found(self):
+        with pytest.raises(logic.NotFound):
+            helpers.call_action('resource_file_metadata_show', id='does_not_exist')
 
 
 class TestGetHelpShow(object):

@@ -10,31 +10,23 @@ import socket
 from typing import (Container, Optional,
                     Union, Any, cast, Type)
 
-from ckan.common import config, asbool
 import sqlalchemy
 from sqlalchemy import text
 
 
 import ckan
+from ckan import authz, logic, model, plugins
+from ckan.common import _, config, asbool
 import ckan.lib.dictization
-import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
+from ckan.lib import datapreview, jobs, plugins as lib_plugins, search, uploader
 import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
-import ckan.model as model
 import ckan.model.misc as misc
-import ckan.plugins as plugins
-import ckan.lib.search as search
 from ckan.model.follower import ModelFollowingModel
 from ckan.lib.search.query import solr_literal
 
-import ckan.lib.plugins as lib_plugins
-import ckan.lib.datapreview as datapreview
-import ckan.authz as authz
-
-from ckan.common import _
 from ckan.types import ActionResult, Context, DataDict, Query, Schema
 
 log = logging.getLogger('ckan.logic')
@@ -1152,6 +1144,46 @@ def resource_view_list(context: Context,
         if datapreview.get_view_plugin(resource_view.view_type)
     ]
     return model_dictize.resource_view_list_dictize(resource_views, context)
+
+
+def resource_file_metadata_show(context: Context,
+                                data_dict: DataDict) -> dict[str, Any]:
+    '''Get file metadata from a resource if it was uploaded.
+
+    :param id: the id of the resource
+    :type id: string
+
+    :returns: the meta data of resource file { 'content_type': content_type, 'size': length, 'hash': hash }
+    :rtype: dictionary
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource = model.Resource.get(id)
+    resource_context = cast(Context, dict(context, resource=resource))
+
+    if not resource:
+        raise NotFound
+
+    _check_access('resource_file_metadata_show', resource_context, data_dict)
+
+    pkg_dict = logic.get_action('package_show')(
+        context,
+        {'id': resource.package.id,
+         'include_tracking': asbool(data_dict.get('include_tracking', False))})
+
+    for resource_dict in pkg_dict['resources']:
+        if resource_dict['id'] == id:
+            break
+    else:
+        log.error('Could not find resource %s after all', id)
+        raise NotFound(_('Resource was not found.'))
+
+    upload = uploader.get_resource_uploader(resource_dict)
+    try:
+        return upload.metadata(id)  # type: ignore
+    except IOError:
+        raise NotFound
 
 
 def _group_or_org_show(

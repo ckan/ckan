@@ -2,17 +2,19 @@
 from __future__ import annotations
 
 import os
+import flask
+import hashlib
 import cgi
 import datetime
 import logging
 import magic
 import mimetypes
-from typing import Any, IO, Optional, Union
+from typing import Any, IO, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 
-import ckan.lib.munge as munge
+from ckan.lib import munge, signals
 import ckan.logic as logic
 import ckan.plugins as plugins
 from ckan.common import config
@@ -96,6 +98,22 @@ def get_max_resource_size() -> int:
     return config.get('ckan.max_resource_size')
 
 
+def _file_hashnlength(local_path: str) -> Tuple[str, int]:
+    BLOCKSIZE = 65536
+    hasher = hashlib.sha1()
+    length = 0
+
+    with open(local_path, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            length += len(buf)
+
+            buf = afile.read(BLOCKSIZE)
+
+    return (hasher.hexdigest(), length)
+
+
 class Upload(object):
     storage_path: Optional[str]
     filename: Optional[str]
@@ -112,11 +130,11 @@ class Upload(object):
         of name object_type. old_filename is the name of the file in the url
         field last time'''
 
-        self.storage_path = None
         self.filename = None
         self.filepath = None
         path = get_storage_path()
         if not path:
+            self.storage_path = None
             return
         self.storage_path = os.path.join(path, 'storage',
                                          'uploads', object_type)
@@ -224,6 +242,41 @@ class Upload(object):
         type_ = actual.split("/")[0]
         if types and type_ not in types:
             raise logic.ValidationError(err)
+
+    def _get_storage_path(self, filename: str) -> str:
+        # Not sure why pyright chokes on this.
+        # 'str' is a valid type for a path-like object, per
+        # https://docs.python.org/3/glossary.html#term-path-like-object
+        return os.path.join(self.storage_path, filename)  # type: ignore
+
+    def delete(self, filename: str) -> None:
+        ''' Delete file we are pointing at'''
+        if not filename.startswith('http'):
+            try:
+                # Delete file from storage_path and filename
+                os.remove(self._get_storage_path(filename))
+            except OSError:
+                pass
+
+    def download(self, filename: str) -> Any:
+        ''' Generate file stream or redirect for file'''
+        filepath = self._get_storage_path(filename)
+        resp = flask.send_file(filepath)
+        content_type = mimetypes.guess_type(filepath)[0]
+        if content_type:
+            resp.headers['Content-Type'] = content_type
+        return resp
+
+    def metadata(self, filename: str) -> dict[str, Any] | IOError:
+        ''' Return metadata of file'''
+        try:
+            filepath = self._get_storage_path(filename)
+            content_type = mimetypes.guess_type(filepath)[0]
+            hash, length = _file_hashnlength(filepath)
+            return {'content_type': content_type, 'size': length, 'hash': hash}
+        except IOError as e:
+            log.error("Could not retrieve meta data, IOError thrown: %s", e)
+            return e
 
 
 class ResourceUpload(object):
@@ -360,3 +413,33 @@ class ResourceUpload(object):
                 os.remove(filepath)
             except OSError:
                 pass
+
+    def delete(self, id: str, filename: Optional[str] = None) -> None:
+        ''' Delete file we are pointing at'''
+        try:
+            os.remove(self.get_path(id))
+        except OSError:
+            pass
+
+    def download(self, id: str,
+                 filename: Optional[str] = None) -> Any:
+        ''' Generate file stream or redirect for file'''
+        filepath = self.get_path(id)
+        resp = flask.send_file(filepath)
+        if self.mimetype:
+            resp.headers['Content-Type'] = self.mimetype
+        signals.resource_download.send(id)
+        return resp
+
+    def metadata(self, id: str,
+                 filename: Optional[str] = None) -> dict[str, Any] | IOError:
+        ''' Return meta details of file'''
+        try:
+            filepath = self.get_path(id)
+            hash, length = _file_hashnlength(filepath)
+            return {
+                'content_type': self.mimetype, 'size': length, 'hash': hash
+            }
+        except IOError as e:
+            log.error("Could not retrieve meta data, IOError thrown: %s", e)
+            return e
