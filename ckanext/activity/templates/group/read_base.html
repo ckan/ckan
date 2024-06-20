@@ -2,5 +2,7 @@
 
 {% block content_primary_nav %}
   {{ super() }}
+  {% if h.check_access('group_activity_list', {'id': group_dict.id}) %}
   {{ h.build_nav_icon('activity.group_activity', _('Activity Stream'), id=group_dict.name, offset=0, icon='clock') }}
+  {% endif %}
 {% endblock content_primary_nav %}
