@@ -1504,6 +1504,18 @@ class TestGroupUpdate(object):
 
         assert group["image_url"] == "new_image_url.jpg"
 
+    def test_group_update_locates_group_by_name(self, group, faker):
+        description = faker.sentence()
+        original_id = group["id"]
+        group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+            description=description
+        )
+
+        assert group["id"] == original_id
+        assert group["description"] == description
+
     def test_group_update_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
