@@ -538,7 +538,6 @@ class TestPackageDictize:
         assert_equal_for_keys(result["extras"][0], extras_dict, "key", "value")
         expected_dict = {
             u"key": u"latitude",
-            u"state": u"active",
             u"value": u"54.6",
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])

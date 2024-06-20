@@ -11,19 +11,15 @@ class TestPackageExtra(object):
     def test_create_extras(self):
         pkg = model.Package(name=factories.Dataset.stub().name)
 
-        # method 1
-        extra1 = model.PackageExtra(key=u"subject", value=u"science")
-        pkg._extras[u"subject"] = extra1
-
         # method 2
-        pkg.extras[u"accuracy"] = u"metre"
+        pkg.extras["accuracy"] = "metre"
 
         model.Session.add_all([pkg])
         model.Session.commit()
         model.Session.remove()
 
         pkg = model.Package.by_name(pkg.name)
-        assert pkg.extras == {u"subject": u"science", u"accuracy": u"metre"}
+        assert pkg.extras == {"accuracy": "metre"}
 
     def test_delete_extras(self):
 

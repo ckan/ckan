@@ -216,6 +216,8 @@ def package_dictize(
         {'key': k, 'value': v}
         for k, v in (result_dict["extras"] or {}).items()
     ]
+    if not result_dict['extras']:
+        del result_dict['extras']
 
     # groups
     member = model.member_table
@@ -245,6 +247,10 @@ def package_dictize(
     organizations = d.obj_list_dictize(result, context)
     if organizations:
         result_dict["organization"] = organizations[0]
+        # compatibility with old organization output format
+        # FIXME? extras returned and schema applied here would be really
+        # useful for translations
+        del result_dict["organization"]["extras"]
     else:
         result_dict["organization"] = None
 
@@ -362,12 +368,13 @@ def group_dictize(group: model.Group, context: Context,
 
     result_dict['display_name'] = group.title or group.name
 
+    # return extras in old compatible format
     if include_extras:
         result_dict['extras'] = [
             {'key': k, 'value': v}
             for k, v in (result_dict['extras'] or {}).items()
         ]
-    else:
+    if not result_dict['extras'] or not include_extras:
         del result_dict['extras']
 
     context['with_capacity'] = True
