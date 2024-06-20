@@ -11,8 +11,7 @@ class TestPackageExtra(object):
     def test_create_extras(self):
         pkg = model.Package(name=factories.Dataset.stub().name)
 
-        # method 2
-        pkg.extras["accuracy"] = "metre"
+        pkg.extras = {"accuracy": "metre"}
 
         model.Session.add_all([pkg])
         model.Session.commit()
