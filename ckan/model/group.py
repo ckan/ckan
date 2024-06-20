@@ -2,16 +2,13 @@
 from __future__ import annotations
 
 import datetime
-from typing import (
-    Any, Optional, Union, overload
-)
+from typing import Optional, Union, overload
 from typing_extensions import Literal, Self
 
 from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
                         and_, text, Index, CheckConstraint)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.ext.associationproxy import AssociationProxy
 
 import ckan.model.meta as meta
 import ckan.model.core as core

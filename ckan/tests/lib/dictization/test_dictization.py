@@ -16,7 +16,6 @@ from ckan.lib.dictization.model_dictize import (
 from ckan.lib.dictization.model_save import (
     package_dict_save,
     resource_dict_save,
-    package_api_to_dict,
     group_api_to_dict,
     package_tag_list_save,
 )
@@ -267,76 +266,6 @@ class TestDictizeWithRemoveColumns:
 
         with pytest.raises(IntegrityError):
             model.Session.commit()
-
-    def test_15_api_to_dictize(self):
-        context = {"model": model, "api_version": 1, "session": model.Session}
-
-        api_data = {
-            "name": u"testpkg",
-            "title": u"Some Title",
-            "url": u"http://blahblahblah.mydomain",
-            "resources": [
-                {
-                    u"url": u"http://blah.com/file2.xml",
-                    u"format": u"xml",
-                    u"description": u"Second file",
-                    u"hash": u"def123",
-                    u"alt_url": u"alt_url",
-                    u"size": u"200",
-                },
-                {
-                    u"url": u"http://blah.com/file.xml",
-                    u"format": u"xml",
-                    u"description": u"Main file",
-                    u"hash": u"abc123",
-                    u"alt_url": u"alt_url",
-                    u"size": u"200",
-                },
-            ],
-            "tags": u"russion novel",
-            "license_id": u"gpl-3.0",
-            "extras": {"genre": u"horror", "media": u"dvd"},
-        }
-
-        dictized = package_api_to_dict(api_data, context)
-
-        assert dictized == {
-            "extras": [
-                {"key": "genre", "value": u"horror"},
-                {"key": "media", "value": u"dvd"},
-            ],
-            "license_id": u"gpl-3.0",
-            "name": u"testpkg",
-            "resources": [
-                {
-                    u"alt_url": u"alt_url",
-                    u"description": u"Second file",
-                    u"size": u"200",
-                    u"format": u"xml",
-                    u"hash": u"def123",
-                    u"url": u"http://blah.com/file2.xml",
-                },
-                {
-                    u"alt_url": u"alt_url",
-                    u"description": u"Main file",
-                    u"size": u"200",
-                    u"format": u"xml",
-                    u"hash": u"abc123",
-                    u"url": u"http://blah.com/file.xml",
-                },
-            ],
-            "tags": [{"name": u"russion"}, {"name": u"novel"}],
-            "title": u"Some Title",
-            "url": u"http://blahblahblah.mydomain",
-        }
-
-        package_dict_save(dictized, context)
-        model.Session.commit()
-        model.Session.remove()
-
-        pkg = model.Package.get("testpkg")
-
-        self.remove_changable_columns(package_dictize(pkg, context))
 
     def test_package_dictization_with_deleted_group(self):
         """

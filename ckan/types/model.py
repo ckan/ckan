@@ -44,9 +44,7 @@ class Model(Protocol):
     Vocabulary: ClassVar[Type["_model.Vocabulary"]]
 
     group_table: ClassVar[Table]
-    group_extra_table: ClassVar[Table]
     member_table: ClassVar[Table]
-    package_extra_table: ClassVar[Table]
     package_relationship_table: ClassVar[Table]
     package_table: ClassVar[Table]
     package_tag_table: ClassVar[Table]
