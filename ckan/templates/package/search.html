@@ -13,7 +13,7 @@
       {% block page_primary_action %}
         {% if h.check_access('package_create') %}
           <div class="page_primary_action">
-            {{ h.snippet ('snippets/add_dataset.html', dataset_type=dataset_type) }}
+            {% snippet 'snippets/add_dataset.html', dataset_type=dataset_type %}
           </div>
         {% endif %}
       {% endblock %}
@@ -35,7 +35,7 @@
         {% snippet 'snippets/search_form.html', form_id='dataset-search-form', type=dataset_type, query=q, sorting=sorting, sorting_selected=sort_by_selected, count=page.item_count, placeholder=h.humanize_entity_type('package', dataset_type, 'search placeholder') or _('Search datasets...'), facets=facets, show_empty=request.args, error=query_error, fields=fields %}
       {% endblock %}
       {% block package_search_results_list %}
-        {{ h.snippet('snippets/package_list.html', packages=page.items) }}
+        {% snippet 'snippets/package_list.html', packages=page.items %}
       {% endblock %}
     </div>
 
@@ -64,7 +64,7 @@
   <div class="filters">
     <div>
       {% for facet in facet_titles %}
-        {{ h.snippet('snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets) }}
+        {% snippet 'snippets/facet_list.html', title=facet_titles[facet], name=facet, search_facets=search_facets %}
       {% endfor %}
     </div>
     <a class="close no-text hide-filters"><i class="fa fa-times-circle"></i><span class="text">close</span></a>
