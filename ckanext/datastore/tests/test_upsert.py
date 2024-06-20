@@ -758,7 +758,8 @@ class TestDatastoreInsert(object):
 
         with pytest.raises(ValidationError) as context:
             helpers.call_action("datastore_upsert", **data)
-        assert u'invalid input syntax for integer: "notanumber"' in str(context.value)
+        assert 'invalid input syntax for ' in str(context.value)
+        assert ' integer: "notanumber"' in str(context.value)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore")
