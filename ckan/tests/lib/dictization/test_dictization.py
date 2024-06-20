@@ -3,7 +3,6 @@
 import pytest
 
 from pprint import pformat
-from difflib import unified_diff
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
@@ -228,14 +227,7 @@ class TestDictizeWithRemoveColumns:
             package_dictize(pkg, context)
         )
 
-        anna_original = pformat(anna_dictized)
-        anna_after_save = pformat(package_dictized)
-
-        assert package_dictized == anna_dictized, "\n".join(
-            unified_diff(
-                anna_original.split("\n"), anna_after_save.split("\n")
-            )
-        )
+        assert package_dictized == anna_dictized
 
     def test_resource_no_id(self):
         CreateTestData.create()

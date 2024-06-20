@@ -268,11 +268,11 @@ def package_dict_save(
         pkg_dict['plugin_data'] = copy.deepcopy(
             plugin_data) if plugin_data else plugin_data
 
-    pkg_dict['extras'] = {
+    extras = {
         e['key']: e['value'] for e in pkg_dict.get('extras', [])
     }
 
-    pkg = d.table_dict_save(pkg_dict, Package, context)
+    pkg = d.table_dict_save(dict(pkg_dict, extras=extras), Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
@@ -374,11 +374,11 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     if group:
         group_dict["id"] = group.id
 
-    group_dict['extras'] = {
+    extras = {
         e['key']: e['value'] for e in group_dict.get('extras', [])
     }
 
-    group = d.table_dict_save(group_dict, Group, context)
+    group = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
 

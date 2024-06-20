@@ -216,8 +216,6 @@ def package_dictize(
         {'key': k, 'value': v}
         for k, v in (result_dict["extras"] or {}).items()
     ]
-    if not result_dict['extras']:
-        del result_dict['extras']
 
     # groups
     member = model.member_table
@@ -374,7 +372,7 @@ def group_dictize(group: model.Group, context: Context,
             {'key': k, 'value': v}
             for k, v in (result_dict['extras'] or {}).items()
         ]
-    if not result_dict['extras'] or not include_extras:
+    else:
         del result_dict['extras']
 
     context['with_capacity'] = True
