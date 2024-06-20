@@ -43,12 +43,15 @@ object_type - 'package', 'organization', 'group', 'user'
 #}
 {% block activity_stream %}
   <ul class="activity {% if not activity_stream %}activity-empty{% endif %}">
-  {% set can_show_activity_detail = h.check_access('activity_list', {'id': id, 'include_data': True, 'object_type': object_type}) %}
 
   {% for activity in activity_stream %}
+    {% set activity_object_type = activity.activity_type.split('_')[1] %}
+    {% set can_show_activity_detail = h.check_access('activity_diff', {'id': activity.id, 'include_data': True, 'object_type': activity_object_type}) %}
+    {% set can_show_activity = h.check_access('activity_show', {'id': activity.id, 'include_data': True, 'object_type': activity_object_type}) %}
     {%- snippet "snippets/activities/{}.html".format(activity.activity_type.replace(' ', '_')),
       "snippets/activities/fallback.html",
       activity=activity, can_show_activity_detail=can_show_activity_detail,
+      can_show_activity=can_show_activity,
       ah={
         'actor': actor,
         'dataset': dataset,
