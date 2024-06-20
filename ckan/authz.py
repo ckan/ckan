@@ -181,22 +181,6 @@ def _get_user(username: Optional[str]) -> Optional['model.User']:
     return model.User.get(username)
 
 
-def get_group_or_org_admin_ids(group_id: Optional[str]) -> list[str]:
-    if not group_id:
-        return []
-    group = model.Group.get(group_id)
-    if not group:
-        return []
-    q = model.Session.query(model.Member.table_id) \
-        .filter(model.Member.group_id == group.id) \
-        .filter(model.Member.table_name == 'user') \
-        .filter(model.Member.state == 'active') \
-        .filter(model.Member.capacity == 'admin')
-
-    # type_ignore_reason: all stored memerships have table_id
-    return [a.table_id for a in q]
-
-
 def is_authorized_boolean(action: str, context: Context, data_dict: Optional[DataDict]=None) -> bool:
     ''' runs the auth function but just returns True if allowed else False
     '''
