@@ -2314,15 +2314,15 @@ class IMailer(Interface):
     """
     Allow plugins to override the methods from ckan.lib.mailer
     """
-    def mail_recipient(self,
-                       recipient_name: str,
-                       recipient_email: str,
-                       subject: str,
-                       body: str,
-                       body_html: Optional[str] = None,
-                       headers: Optional[dict[str, Any]] = None,
-                       attachments: Optional[Iterable[Attachment]] = None) \
-                       -> None:
+    def mail_recipient(
+            self,
+            recipient_name: str,
+            recipient_email: str,
+            subject: str,
+            body: str,
+            body_html: Optional[str] = None,
+            headers: Optional[dict[str, Any]] = None,
+            attachments: Optional[Iterable[Attachment]] = None) -> None:
         pass
 
     def mail_user(self,
