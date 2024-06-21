@@ -35,6 +35,17 @@ class MailerException(Exception):
     pass
 
 
+def __getattribute__(method: str):
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, method):
+            return getattr(plugin, method)
+    return method
+
+
+def __getattr__(method: str):
+    return __getattribute__(method)
+
+
 def _mail_recipient(
         recipient_name: str, recipient_email: str, sender_name: str,
         sender_url: str, subject: Any, body: Any,
@@ -179,6 +190,12 @@ def mail_recipient(recipient_name: str,
             ]
     :type: list
     '''
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'mail_recipient'):
+            return plugin.mail_recipient(recipient_name, recipient_email,
+                                         subject, body, body_html,
+                                         headers, attachments)
+
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
     notify_all = config.get('ckan.notifier.notify_all')
@@ -220,6 +237,10 @@ def mail_user(recipient: model.User,
     For further parameters see
     :py:func:`~ckan.lib.mailer.mail_recipient`.
     '''
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'mail_user'):
+            return plugin.mail_user(recipient, subject, body, body_html,
+                                    headers, attachments)
 
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
@@ -229,6 +250,10 @@ def mail_user(recipient: model.User,
 
 
 def get_reset_link_body(user: model.User) -> str:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'get_reset_link_body'):
+            return plugin.get_reset_link_body(user)
+
     extra_vars = {
         'reset_link': get_reset_link(user),
         'site_title': config.get('ckan.site_title'),
@@ -242,6 +267,10 @@ def get_reset_link_body(user: model.User) -> str:
 def get_invite_body(user: model.User,
                     group_dict: Optional[dict[str, Any]] = None,
                     role: Optional[str] = None) -> str:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'get_invite_body'):
+            return plugin.get_invite_body(user, group_dict, role)
+
     extra_vars = {
         'reset_link': get_reset_link(user),
         'site_title': config.get('ckan.site_title'),
@@ -262,6 +291,10 @@ def get_invite_body(user: model.User,
 
 
 def get_reset_link(user: model.User) -> str:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'get_reset_link'):
+            return plugin.get_reset_link(user)
+
     return h.url_for('user.perform_reset',
                      id=user.id,
                      key=user.reset_key,
@@ -269,6 +302,10 @@ def get_reset_link(user: model.User) -> str:
 
 
 def send_reset_link(user: model.User) -> None:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'send_reset_link'):
+            return plugin.send_reset_link(user)
+
     create_reset_key(user)
     body = get_reset_link_body(user)
     extra_vars = {
@@ -286,6 +323,10 @@ def send_invite(
         user: model.User,
         group_dict: Optional[dict[str, Any]] = None,
         role: Optional[str] = None) -> None:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'send_invite'):
+            return plugin.send_invite(user)
+
     create_reset_key(user)
     body = get_invite_body(user, group_dict, role)
     extra_vars = {
@@ -300,15 +341,27 @@ def send_invite(
 
 
 def create_reset_key(user: model.User):
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'create_reset_key'):
+            return
+
     user.reset_key = make_key()
     model.repo.commit_and_remove()
 
 
 def make_key():
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'make_key'):
+            return plugin.make_key()
+
     return codecs.encode(os.urandom(16), 'hex').decode()
 
 
 def verify_reset_link(user: model.User, key: Optional[str]) -> bool:
+    for plugin in plugins.PluginImplementations(plugins.IMailer):
+        if hasattr(plugin, 'verify_reset_link'):
+            return plugin.verify_reset_link(user, key)
+
     if not key:
         return False
     if not user.reset_key or len(user.reset_key) < 5:
