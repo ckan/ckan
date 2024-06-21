@@ -2312,34 +2312,37 @@ class INotifier(Interface):
 
 class IMailer(Interface):
     """
-    Implement of the old mailer.py script
+    Allow plugins to override the methods from ckan.lib.mailer
     """
-    def mail_recipient(self, recipient_name: str,
-                   recipient_email: str,
-                   subject: str,
-                   body: str,
-                   body_html: Optional[str] = None,
-                   headers: Optional[dict[str, Any]] = None,
-                   attachments: Optional[Iterable[Attachment]] = None) -> None:
+    def mail_recipient(self,
+                       recipient_name: str,
+                       recipient_email: str,
+                       subject: str,
+                       body: str,
+                       body_html: Optional[str] = None,
+                       headers: Optional[dict[str, Any]] = None,
+                       attachments: Optional[Iterable[Attachment]] = None) -> None:
         pass
 
-    def mail_user(self, recipient: model.User,
-              subject: str,
-              body: str,
-              body_html: Optional[str] = None,
-              headers: Optional[dict[str, Any]] = None,
-              attachments: Optional[Iterable[Attachment]] = None) -> None:
+    def mail_user(self,
+                  recipient: model.User,
+                  subject: str,
+                  body: str,
+                  body_html: Optional[str] = None,
+                  headers: Optional[dict[str, Any]] = None,
+                  attachments: Optional[Iterable[Attachment]] = None) -> None:
         pass
 
-    def get_reset_link_body(self, user: model.User) -> str:
+    def get_reset_link_body(self, user: model.User) -> Union[str, None]:
         pass
 
-    def get_invite_body(self, user: model.User,
-                    group_dict: Optional[dict[str, Any]] = None,
-                    role: Optional[str] = None) -> str:
+    def get_invite_body(self,
+                        user: model.User,
+                        group_dict: Optional[dict[str, Any]] = None,
+                        role: Optional[str] = None) -> Union[str, None]:
         pass
 
-    def get_reset_link(self, user: model.User) -> str:
+    def get_reset_link(self, user: model.User) -> Union[str, None]:
         pass
 
     def send_reset_link(self, user: model.User) -> None:
@@ -2350,13 +2353,15 @@ class IMailer(Interface):
         user: model.User,
         group_dict: Optional[dict[str, Any]] = None,
         role: Optional[str] = None) -> None:
-            pass
 
-    def verify_reset_link(self, user: model.User, key: Optional[str]) -> bool:
         pass
 
-    def create_reset_key(self, user: model.User):
+    def verify_reset_link(self, user: model.User,
+                          key: Optional[str]) -> Union[bool, None]:
         pass
 
-    def make_key(self):
+    def create_reset_key(self, user: model.User) -> None:
+        pass
+
+    def make_key(self) -> Union[str, None]:
         pass
