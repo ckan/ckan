@@ -2310,10 +2310,10 @@ class INotifier(Interface):
         '''
         return False
 
+
 class IMailer(Interface):
     """
     Allow plugins to override the methods from ckan.lib.mailer
-
     """
 
     def mail_recipient(
