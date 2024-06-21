@@ -2321,7 +2321,8 @@ class IMailer(Interface):
                        body: str,
                        body_html: Optional[str] = None,
                        headers: Optional[dict[str, Any]] = None,
-                       attachments: Optional[Iterable[Attachment]] = None) -> None:
+                       attachments: Optional[Iterable[Attachment]] = None) \
+                       -> None:
         pass
 
     def mail_user(self,
@@ -2348,12 +2349,10 @@ class IMailer(Interface):
     def send_reset_link(self, user: model.User) -> None:
         pass
 
-    def send_invite(
-        self,
-        user: model.User,
-        group_dict: Optional[dict[str, Any]] = None,
-        role: Optional[str] = None) -> None:
-
+    def send_invite(self,
+                    user: model.User,
+                    group_dict: Optional[dict[str, Any]] = None,
+                    role: Optional[str] = None) -> None:
         pass
 
     def verify_reset_link(self, user: model.User,
