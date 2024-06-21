@@ -2334,17 +2334,17 @@ class IMailer(Interface):
                   attachments: Optional[Iterable[Attachment]] = None) -> None:
         pass
 
-    def get_reset_link_body(self, user: model.User) -> Union[str, None]:
-        pass
+    def get_reset_link_body(self, user: model.User) -> str:
+        return ''
 
     def get_invite_body(self,
                         user: model.User,
                         group_dict: Optional[dict[str, Any]] = None,
-                        role: Optional[str] = None) -> Union[str, None]:
-        pass
+                        role: Optional[str] = None) -> str:
+        return ''
 
-    def get_reset_link(self, user: model.User) -> Union[str, None]:
-        pass
+    def get_reset_link(self, user: model.User) -> str:
+        return ''
 
     def send_reset_link(self, user: model.User) -> None:
         pass
@@ -2356,8 +2356,8 @@ class IMailer(Interface):
         pass
 
     def verify_reset_link(self, user: model.User,
-                          key: Optional[str]) -> Union[bool, None]:
-        pass
+                          key: Optional[str]) -> bool:
+        return False
 
     def create_reset_key(self, user: model.User) -> None:
         pass
