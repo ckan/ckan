@@ -20,12 +20,15 @@ resource_view_table = sa.Table(
     sa.Column('id', sa.types.UnicodeText, primary_key=True,
               default=_types.make_uuid),
     sa.Column('resource_id', sa.types.UnicodeText,
-              sa.ForeignKey('resource.id')),
+              sa.ForeignKey('resource.id',
+                            onupdate='CASCADE', ondelete='CASCADE')),
     sa.Column('title', sa.types.UnicodeText, nullable=True),
     sa.Column('description', sa.types.UnicodeText, nullable=True),
     sa.Column('view_type', sa.types.UnicodeText, nullable=False),
     sa.Column('order', sa.types.Integer, nullable=False),
-    sa.Column('config', _types.JsonDictType))
+    sa.Column('config', _types.JsonDictType),
+    sa.Index('idx_view_resource_id', 'resource_id'),
+)
 
 
 class ResourceView(domain_object.DomainObject):

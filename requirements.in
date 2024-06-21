@@ -36,3 +36,4 @@ tzlocal==5.2
 webassets==2.0
 Werkzeug[watchdog]==3.0.3
 zope.interface==6.2
+msgspec==0.18.6

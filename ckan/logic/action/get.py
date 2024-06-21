@@ -1215,13 +1215,18 @@ def _group_or_org_show(
         item.read(group)
 
     group_plugin = lib_plugins.lookup_group_plugin(group_dict['type'])
-    try:
+
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "show_group_schema"):
+        schema: Schema = group_plugin.show_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "db_to_form_schema_options"):
         schema: Schema = getattr(group_plugin, "db_to_form_schema_options")({
-            'type': 'show',
-            'api': 'api_version' in context,
+            'type': 'show', 'api': 'api_version' in context,
             'context': context})
-    except AttributeError:
-        schema = group_plugin.db_to_form_schema()
+    else:
+        schema: Schema = group_plugin.db_to_form_schema()
 
     if include_followers:
         context = plugins.toolkit.fresh_context(context)
@@ -1231,8 +1236,6 @@ def _group_or_org_show(
     else:
         group_dict['num_followers'] = 0
 
-    if not schema:
-        schema = ckan.logic.schema.default_show_group_schema()
     group_dict, _errors = lib_plugins.plugin_validate(
         group_plugin, context, group_dict, schema,
         'organization_show' if is_org else 'group_show')
@@ -1612,7 +1615,7 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
     limit = data_dict.get('limit', 20)
     ignore_self = data_dict.get('ignore_self', False)
 
-    query = model.User.search(q)
+    query = model.User.search(q, user_name=user)
     query = query.filter(model.User.state != model.State.DELETED)
 
     if ignore_self:

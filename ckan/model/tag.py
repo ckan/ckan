@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Optional, Any
 
 from sqlalchemy.orm import relationship, Mapped
-from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
+from sqlalchemy import (types, Column, Table, ForeignKey, UniqueConstraint,
+                        Index)
 from typing_extensions import Self
 
 import ckan  # this import is needed
@@ -28,20 +29,25 @@ MAX_TAG_LENGTH = 100
 MIN_TAG_LENGTH = 2
 
 tag_table = Table('tag', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
-        Column('vocabulary_id',
-            types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
-            ForeignKey('vocabulary.id')),
-        UniqueConstraint('name', 'vocabulary_id')
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
+    Column('vocabulary_id',
+        types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
+        ForeignKey('vocabulary.id')),
+    UniqueConstraint('name', 'vocabulary_id'),
+    Index('idx_tag_id', 'id'),
+    Index('idx_tag_name', 'name'),
 )
 
 package_tag_table = Table('package_tag', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
-        Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('package_id', types.UnicodeText, ForeignKey('package.id')),
+    Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_package_tag_id', 'id'),
+    Index('idx_package_tag_pkg_id', 'package_id'),
+    Index('idx_package_tag_pkg_id_tag_id', 'tag_id', 'package_id'),
+)
 
 
 class Tag(domain_object.DomainObject):
