@@ -501,9 +501,11 @@ def user_new_form_schema(
 def user_perform_reset_form_schema(
         not_empty: Validator, unicode_safe: Validator,
         user_both_passwords_entered: Validator,
+        user_id_or_name_exists: Validator,
         user_password_validator: Validator, user_passwords_match: Validator):
     schema = default_user_schema()
 
+    schema["id"] = [not_empty, user_id_or_name_exists, unicode_safe]
     schema['password1'] = [unicode_safe, user_both_passwords_entered,
                            user_password_validator, user_passwords_match]
     schema['password2'] = [unicode_safe]
