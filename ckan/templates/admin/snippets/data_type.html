@@ -28,7 +28,7 @@
         {% set title = entity.title or entity.name %}
           {% do items.append(title) %}
         <li>
-          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}" title="{{ title }}">
+          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}" aria-label="{{ title }}" data-bs-toggle="tooltip">
             {{ title|truncate(80) }}
           </a>
         </li>

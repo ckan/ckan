@@ -10,7 +10,7 @@
     dataset=ah.dataset(activity)
   )|safe }}
   <br />
-  <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">
+  <span class="date" aria-label="{{ h.render_datetime(activity.timestamp, with_hours=True) }}" data-bs-toggle="tooltip">
     {{ h.time_ago_from_timestamp(activity.timestamp) }}
     {% if can_show_activity_detail %}
       &nbsp;|&nbsp;

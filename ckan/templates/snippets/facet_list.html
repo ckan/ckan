@@ -59,7 +59,7 @@ Dictionary with search facets
 					    {% set label_truncated = label|truncate(22) if not label_function else label %}
 					    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
 					    <li class="nav-item {% if item.active %} active{% endif %}">
-						<a href="{{ href }}" title="{{ label if label != label_truncated else '' }}">
+						<a href="{{ href }}" aria-label="{{ label if label != label_truncated else '' }}" data-bs-toggle="tooltip">
 						    <span class="item-label">{{ label_truncated }}</span>
 						    <span class="hidden separator"> - </span>
 						    <span class="item-count badge">{{ count }}</span>

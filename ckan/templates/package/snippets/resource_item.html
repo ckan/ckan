@@ -17,7 +17,7 @@
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
-  <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
+  <a class="heading" href="{{ url }}" aria-label="{{ res.name or res.description }}" data-bs-toggle="tooltip">
     {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
   </a>
   {% endblock %}
