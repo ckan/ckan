@@ -11,7 +11,7 @@ import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym, Mapped
-from sqlalchemy import types, Column, Table, func
+from sqlalchemy import types, Column, Table, func, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from flask_login import AnonymousUserMixin
@@ -57,9 +57,14 @@ user_table = Table('user', meta.metadata,
         Column('activity_streams_email_notifications', types.Boolean,
             default=False),
         Column('sysadmin', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
+        Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
-        Column('plugin_data', MutableDict.as_mutable(JSONB))
+        Column('plugin_data', MutableDict.as_mutable(JSONB)),
+        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+        Index('idx_user_id', 'id'),
+        Index('idx_user_name', 'name'),
+        Index('idx_only_one_active_email', 'email', 'state', unique=True,
+              postgresql_where="(state = 'active'::text)"),
         )
 
 

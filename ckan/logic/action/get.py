@@ -1624,7 +1624,7 @@ def user_autocomplete(context: Context, data_dict: DataDict) -> ActionResult.Use
     limit = data_dict.get('limit', 20)
     ignore_self = data_dict.get('ignore_self', False)
 
-    query = model.User.search(q)
+    query = model.User.search(q, user_name=user)
     query = query.filter(model.User.state != model.State.DELETED)
 
     if ignore_self:
