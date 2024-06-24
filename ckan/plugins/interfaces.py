@@ -72,7 +72,6 @@ __all__ = [
     u'IClick',
     u'ISignal',
     u'INotifier',
-    'IMailer',
 ]
 
 
@@ -2309,60 +2308,3 @@ class INotifier(Interface):
                   False otherwise
         '''
         return False
-
-
-class IMailer(Interface):
-    """
-    Allow plugins to override the methods from ckan.lib.mailer
-    """
-
-    def mail_recipient(
-            self,
-            recipient_name: str,
-            recipient_email: str,
-            subject: str,
-            body: str,
-            body_html: Optional[str] = None,
-            headers: Optional[dict[str, Any]] = None,
-            attachments: Optional[Iterable[Attachment]] = None) -> None:
-        pass
-
-    def mail_user(self,
-                  recipient: model.User,
-                  subject: str,
-                  body: str,
-                  body_html: Optional[str] = None,
-                  headers: Optional[dict[str, Any]] = None,
-                  attachments: Optional[Iterable[Attachment]] = None) -> None:
-        pass
-
-    def get_reset_link_body(self, user: model.User) -> str:
-        return ''
-
-    def get_invite_body(self,
-                        user: model.User,
-                        group_dict: Optional[dict[str, Any]] = None,
-                        role: Optional[str] = None) -> str:
-        return ''
-
-    def get_reset_link(self, user: model.User) -> str:
-        return ''
-
-    def send_reset_link(self, user: model.User) -> None:
-        pass
-
-    def send_invite(self,
-                    user: model.User,
-                    group_dict: Optional[dict[str, Any]] = None,
-                    role: Optional[str] = None) -> None:
-        pass
-
-    def verify_reset_link(self, user: model.User,
-                          key: Optional[str]) -> bool:
-        return False
-
-    def create_reset_key(self, user: model.User) -> None:
-        pass
-
-    def make_key(self) -> Union[str, None]:
-        pass
