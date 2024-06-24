@@ -82,15 +82,14 @@ def downgrade():
                                 name='package_extra_package_id_fkey'),
         sa.PrimaryKeyConstraint('id', name='package_extra_pkey')
     )
-    # uuid_in hack to generate UUIDv4 until we can rely on postgres 13+
-    # credit to https://stackoverflow.com/questions/12505158
+    # generate UUIDv8 based on package id + key
     op.execute(
         """
         insert into package_extra(id, key, value, state, package_id)
         select
-            uuid_in(overlay(overlay(md5(random()::text || random()::text)
-            placing '4' from 13) placing to_hex(floor(
-            4 * random() + 8)::int)::text from 17)::cstring),
+            uuid_in(overlay(overlay(
+            encode(substring(sha256((p.id || j.key)::bytea) for 16), 'hex')
+            placing '8' from 13) placing '8' from 17)::cstring),
             j.key,
             j.value,
             'active',
@@ -118,9 +117,9 @@ def downgrade():
         """
         insert into group_extra(id, key, value, state, group_id)
         select
-            uuid_in(overlay(overlay(md5(random()::text || random()::text)
-            placing '4' from 13) placing to_hex(floor(
-            4 * random() + 8)::int)::text from 17)::cstring),
+            uuid_in(overlay(overlay(
+            encode(substring(sha256((g.id || j.key)::bytea) for 16), 'hex')
+            placing '8' from 13) placing '8' from 17)::cstring),
             j.key,
             j.value,
             'active',
