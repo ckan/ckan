@@ -1,0 +1,2 @@
+If a user remove its own nuser from a group we get redirected to
+`manage_members` page which returns 403.
