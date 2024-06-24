@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     import ckan.model as _model  # noqa
 
 
-
 AlchemySession = ScopedSession
 Query = _Query
 
