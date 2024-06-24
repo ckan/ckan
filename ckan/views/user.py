@@ -734,9 +734,15 @@ class RequestResetView(MethodView):
             log.info(u'Emailing reset link to user: {}'
                      .format(user_obj.name))
             try:
-                # FIXME: How about passing user.id instead? Mailer already
-                # uses model and it allow to simplify code above
-                mailer.send_reset_link(user_obj)
+                notification_sent = False
+                for plugin in plugins.PluginImplementations(plugins.INotifier):
+                    notification_sent = plugin.notify_about_topic(
+                        notification_sent,
+                        'request_password_reset',
+                        {'user': user_obj}
+                    )
+                if not notification_sent:
+                    mailer.send_reset_link(user_obj)
                 signals.request_password_reset.send(
                     user_obj.name, user=user_obj)
             except mailer.MailerException as e:

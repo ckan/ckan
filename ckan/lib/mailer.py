@@ -181,27 +181,23 @@ def mail_recipient(recipient_name: str,
     '''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
-    notify_all = config.get('ckan.notifier.notify_all')
     notification_sent = False
     for plugin in plugins.PluginImplementations(plugins.INotifier):
         # Allow extensions to use other notification methods
         notification_sent = plugin.notify_recipient(
+            notification_sent,
             recipient_name, recipient_email, subject,
             body, body_html, headers, attachments
         )
-        if notification_sent and not notify_all:
-            break
 
-    # send an email ONLY if we have smtp settings available
-    always_send_email = config.get('ckan.notifier.always_send_email')
-    if notification_sent and not always_send_email:
-        return
-    if config.get('smtp.server'):
-        _mail_recipient(
-            recipient_name, recipient_email,
-            site_title, site_url, subject, body,
-            body_html, headers, attachments
-        )
+    if not notification_sent:
+        # send an email ONLY if we have smtp settings available
+        if config.get('smtp.server'):
+            _mail_recipient(
+                recipient_name, recipient_email,
+                site_title, site_url, subject, body,
+                body_html, headers, attachments
+            )
 
 
 def mail_user(recipient: model.User,

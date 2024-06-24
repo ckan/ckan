@@ -2247,31 +2247,27 @@ class INotifier(Interface):
     Allow plugins to add custom notification mechanisms. CKAN by default uses
     email notifications. This interface allows plugins to add custom
     notification mechanisms.
-
-    You can skip CKAN email notifications with
-    ``ckan.notifier.always_send_email=False`` (defaults: ``True``)
-    in your configuration file.
-    You can allow multiple plugins to send notifications by setting
-    ``ckan.notifier.notify_all=True`` (defaults: ``False``).
-    If ``False``, only the first plugin
-    that returns ``True`` for ``notify_recipient`` will send the notification.
-
     """
 
     def notify_recipient(
         self,
+        already_notified: bool,
         recipient_name: str,
         recipient_email: str,
         subject: str,
         body: str,
         body_html: Optional[str] = None,
         headers: Optional[dict[str, Any]] = None,
-        attachments: Optional[Iterable[Attachment]] = None
+        attachments: Optional[Iterable[Attachment]] = None,
     ) -> bool:
         '''Sends an notification to a user.
 
         .. note:: This custom notification could replace the default
             email mechanism.
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type bool
 
         :param recipient_name: the name of the recipient
         :type recipient: string
@@ -2305,6 +2301,39 @@ class INotifier(Interface):
         :type: list
 
         :returns: True if the notification was sent successfully,
-                  False otherwise
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
+        '''
+        return False
+
+
+    def notify_about_topic(self,
+                           already_notified: bool,
+                           topic: str,
+                           details: Optional[dict[str, Any]] = None) -> bool:
+        '''
+        Sends details specific to the notification topic. This happens prior to
+        `notify_recipient`.
+
+        Core topics:
+            - request_password_reset
+            - user_invited
+
+        :param already_notified: if the notification has already
+                                 been sent by a previous plugin
+        :type bool
+
+        :param topic: the notification topic label
+        :type topic: string
+
+        :param details: details about the notification topic
+            {'user': model.User}
+        :type details: dict
+
+        :returns: True if the notification was handled successfully,
+                  False otherwise. If return False, CKAN will
+                  continue to send the email via SMTP.
+        :rtype: bool
         '''
         return False

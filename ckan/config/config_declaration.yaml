@@ -322,7 +322,7 @@ groups:
         default: 31_536_000 # 1 year
         description: |
           If :ref:`SESSION_PERMANENT` is enabled, the session’s expiration will be
-          set this number of seconds in the future. Note that you can not set a 
+          set this number of seconds in the future. Note that you can not set a
           session that never expires (only very far into the future).
 
       - key: SESSION_USE_SIGNER
@@ -1674,23 +1674,6 @@ groups:
         example: ckan-errors@example.com
         description: This controls from which email the error messages will come from.
 
-  - annotation: Notifier settings
-    options:
-      - key: ckan.notifier.notify_all
-        type: bool
-        default: false
-        example: "true"
-        description: |
-          Send notification to all plugins if True, otherwise only to the
-          first plugin implementing ``INotifier.notify_recipient``.
-
-      - key: ckan.notifier.always_send_email
-        type: bool
-        default: true
-        example: "false"
-        description: |
-          Send email notifications to users even if they have already been
-          notified by plugins.
 
   - annotation: Background Job Settings
     options:

@@ -18,8 +18,6 @@ test_email = {
 @pytest.mark.usefixtures("with_plugins", "non_clean_db")
 class TestINotifier:
 
-    @pytest.mark.ckan_config("ckan.notifier.always_send_email", "true")
-    @pytest.mark.ckan_config("ckan.notifier.notify_all", "true")
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
@@ -33,8 +31,6 @@ class TestINotifier:
         nr2.assert_called()
         assert nr2.call_args_list[0][0][0] == test_email["recipient_name"]
 
-    @pytest.mark.ckan_config("ckan.notifier.always_send_email", "false")
-    @pytest.mark.ckan_config("ckan.notifier.notify_all", "true")
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
@@ -47,8 +43,6 @@ class TestINotifier:
         nr2.assert_called()
         assert nr2.call_args_list[0][0][0] == test_email["recipient_name"]
 
-    @pytest.mark.ckan_config("ckan.notifier.always_send_email", "false")
-    @pytest.mark.ckan_config("ckan.notifier.notify_all", "false")
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
