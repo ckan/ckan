@@ -2307,7 +2307,6 @@ class INotifier(Interface):
         '''
         return False
 
-
     def notify_about_topic(self,
                            already_notified: bool,
                            topic: str,
