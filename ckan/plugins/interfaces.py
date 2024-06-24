@@ -1750,13 +1750,16 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
     def authenticate(
-        self, identity: 'Mapping[str, Any]'
-    ) -> model.User | None:
+        self, identity: dict[str, Any]
+    ) -> model.User | model.AnonymousUser | None:
         """Called before the authentication starts
         (that is after clicking the login button)
 
-        Plugins should return a user object if the authentication was
-        successful, or ``None``` otherwise.
+        Plugins should return:
+
+        * `model.User` object if the authentication was successful
+        * `model.AnonymousUser` object if the authentication failed
+        * `None` to try authentication with different implementations.
         """
 
 
