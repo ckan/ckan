@@ -141,8 +141,8 @@ class TestMigrateDbFor(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
-def test_non_clean_db_does_not_fail(dataset_factory):
-    assert dataset_factory()
+def test_non_clean_db_does_not_fail(package_factory):
+    assert package_factory()
 
 
 class TestRedisFixtures:
