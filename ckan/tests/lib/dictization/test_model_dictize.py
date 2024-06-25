@@ -105,23 +105,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
-    def test_group_list_dictize_including_tags(self):
-        group = factories.Group.model()
-        tag = factories.Tag.model()
-        member = model.Member(
-            group=group, table_id=tag.id, table_name="tag"
-        )
-        model.Session.add(member)
-        model.Session.commit()
-        context = {"model": model, "session": model.Session}
-
-        group_dicts = model_dictize.group_list_dictize(
-            [group], context, include_tags=True
-        )
-
-        assert group_dicts[0]["tags"][0]["name"] == tag.name
-
-    @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
         parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
@@ -150,7 +133,6 @@ class TestGroupDictize:
         assert group["name"] == group_obj.name
         assert group["packages"] == []
         assert group["extras"] == []
-        assert group["tags"] == []
         assert group["groups"] == []
 
     def test_group_dictize_group_with_dataset(self):
@@ -791,7 +773,6 @@ class TestPackageSchema(object):
         # we don't want these here
         del data["groups"]
         del data["users"]
-        del data["tags"]
         del data["extras"]
 
         converted_data, errors = validate(
