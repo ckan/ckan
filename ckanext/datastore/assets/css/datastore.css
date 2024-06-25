@@ -1,3 +1,7 @@
+.accordion-button.no-after::after {
+  background-image: none;
+}
+
 input#lang-curl ~ div .example-curl {
   display: none;
 }

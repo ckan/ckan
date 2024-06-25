@@ -14,6 +14,7 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from ckan.common import config
 from ckan.exceptions import CkanDeprecationWarning
 from . import error_shout
+from ckan.lib.i18n import build_js_translations
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
         passthrough_errors: bool, disable_debugger: bool, threaded: bool,
         extra_files: Iterable[str], processes: int, ssl_cert: Optional[str],
         ssl_key: Optional[str], prefix: Optional[str]):
-    u"""Runs the Werkzeug development server"""
+    """Regenerate JS translations and run the Werkzeug development server"""
 
     if config.get("debug"):
         warnings.filterwarnings("default", category=CkanDeprecationWarning)
@@ -121,6 +122,9 @@ def run(ctx: click.Context, host: str, port: str, disable_reloader: bool,
     except ValueError:
         error_shout(u"Server port must be an integer, not {}".format(port))
         raise click.Abort()
+
+    # Once automatic on startup, run only here for faster debug iterations
+    build_js_translations()
 
     log.info(u"Running CKAN on {scheme}://{host}:{port}{prefix}".format(
         scheme='https' if ssl_context else 'http', host=host, port=port_int,

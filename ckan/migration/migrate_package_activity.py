@@ -32,6 +32,7 @@ from __future__ import absolute_import
 import argparse
 from collections import defaultdict
 from typing import Any
+from sqlalchemy import text
 import sys
 
 
@@ -53,23 +54,23 @@ def get_context():
     return _context
 
 
-def num_unmigrated(engine):
-    num_unmigrated = engine.execute('''
-        SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
-        WHERE a.activity_type IN ('new package', 'changed package')
-        AND a.data NOT LIKE '%%{"actor"%%'
-        AND p.private = false;
-    ''').fetchone()[0]
+def num_unmigrated(conn):
+    num_unmigrated = conn.execute(text('''
+    SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
+    WHERE a.activity_type IN ('new package', 'changed package')
+    AND a.data NOT LIKE '%%{"actor"%%'
+    AND p.private = false;
+    ''')).scalar()
     return num_unmigrated
 
 
 def num_activities_migratable():
     from ckan import model
-    num_activities = model.Session.execute(u'''
+    num_activities = model.Session.execute(text('''
     SELECT count(*) FROM activity a JOIN package p ON a.object_id=p.id
     WHERE a.activity_type IN ('new package', 'changed package')
     AND p.private = false;
-    ''').fetchall()[0][0]
+    ''')).fetchall()[0][0]
     return num_activities
 
 
@@ -225,9 +226,9 @@ def migrate_dataset(dataset_name, errors):
 def wipe_activity_detail(delete_activity_detail):
     from ckan import model
     activity_detail_has_rows = \
-        bool(model.Session.execute(
-            u'SELECT count(*) '
-            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;')
+        bool(model.Session.execute(text(
+            'SELECT count(*) '
+            'FROM (SELECT * FROM "activity_detail" LIMIT 1) as t;'))
             .fetchall()[0][0])
     if not activity_detail_has_rows:
         print(u'\nactivity_detail table is aleady emptied')
@@ -245,7 +246,7 @@ def wipe_activity_detail(delete_activity_detail):
     if delete_activity_detail.lower()[:1] != u'y':
         return
     from ckan import model
-    model.Session.execute(u'DELETE FROM "activity_detail";')
+    model.Session.execute(text('DELETE FROM "activity_detail";'))
     model.Session.commit()
     print(u'activity_detail deleted')
 

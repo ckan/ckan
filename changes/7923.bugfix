@@ -1,0 +1,1 @@
+View modules use pluggable `ckan.plugins.toolkit.h` instead of `ckan.lib.helpers`

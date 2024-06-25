@@ -41,3 +41,5 @@ features by developing your own CKAN extensions.
    translating-extensions
    flask-migration
    signals
+   custom-data-dictionary
+   custom-columns-constraints

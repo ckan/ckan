@@ -12,6 +12,7 @@ from typing_extensions import Self
 from ckan.types import Validator, ValidatorFactory
 
 T = TypeVar("T")
+_sentinel = object()
 
 
 class SectionMixin:
@@ -43,7 +44,8 @@ class Flag(enum.Flag):
 
     required: this option cannot be missing/empty. Add such flag to the option
     only if CKAN application won't even start without them and there is no
-    sensible default.
+    sensible default. If option does not have ``not_empty`` validator, it will
+    be added before all other validators.
 
     editable: this option is runtime editable. Technically, every option can be
     modified. This flag means that there is an expectation that option will be
@@ -201,13 +203,16 @@ class Option(SectionMixin, Generic[T]):
         self.default = default
         self.legacy_key = None
 
-    def str_value(self) -> str:
-        """Convert option's default value into the string.
+    def str_value(self, value: T | object = _sentinel) -> str:
+        """Convert value into the string using option's settings.
 
-        If the option has `as_list` validator and default value is represented
-        by the Python's `list` object, result is a space-separated list of all
-        the members of the value. In other cases this method just does naive
-        string conversion.
+        If `value` argument is not present, convert the default value of the
+        option into a string.
+
+        If the option has `as_list` validator and the value is represented by
+        the Python's `list` object, result is a space-separated list of all the
+        members of the value. In other cases this method just does naive string
+        conversion.
 
         If validators are doing complex transformations, for example string ID
         turns into :py:class:`~ckan.model.User` object, this method won't
@@ -224,9 +229,15 @@ class Option(SectionMixin, Generic[T]):
 
         """
         as_list = "as_list" in self.get_validators()
-        if isinstance(self.default, list) and as_list:
-            return " ".join(map(str, self.default))
-        return str(self.default) if self.has_default() else ""
+        v = self.default if value is _sentinel else value
+
+        if isinstance(v, list) and as_list:
+            return " ".join(map(str, v))
+
+        if self.has_default() or value is not _sentinel:
+            return str(v)
+
+        return ""
 
     def set_flag(self, flag: Flag) -> Self:
         """Enable specified flag.
@@ -319,7 +330,11 @@ class Option(SectionMixin, Generic[T]):
     def get_validators(self) -> str:
         """Return the string with current validators.
         """
-        return self.validators
+        validators = self.validators
+        if self.has_flag(Flag.required) and "not_empty" not in validators:
+            validators = f"not_empty {validators}"
+
+        return validators
 
     def experimental(self) -> Self:
         """Enable experimental-flag for value.
