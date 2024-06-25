@@ -11,7 +11,6 @@ from ckan.lib.dictization import table_dictize, table_dict_save
 
 from ckan.lib.dictization.model_dictize import (
     package_dictize,
-    resource_dictize,
     user_dictize,
 )
 from ckan.lib.dictization.model_save import (
@@ -21,6 +20,8 @@ from ckan.lib.dictization.model_save import (
     group_api_to_dict,
     package_tag_list_save,
 )
+
+from sqlalchemy.exc import IntegrityError
 
 
 @pytest.mark.usefixtures("clean_db")
@@ -259,27 +260,13 @@ class TestDictizeWithRemoveColumns:
             "size_extra": u"123",
             "resource_type": None,
             "name": None,
-            "package_id": "",  # Just so we can save
+            "package_id": "",  # Not OK
         }
 
         resource_dict_save(new_resource, context)
-        model.Session.commit()
-        model.Session.remove()
 
-        # Remove the package id
-        del new_resource["package_id"]
-
-        res = (
-            model.Session.query(model.Resource)
-            .filter_by(url=u"http://test_new")
-            .one()
-        )
-
-        res_dictized = self.remove_changable_columns(
-            resource_dictize(res, context), True
-        )
-
-        assert res_dictized == new_resource, res_dictized
+        with pytest.raises(IntegrityError):
+            model.Session.commit()
 
     def test_15_api_to_dictize(self):
         context = {"model": model, "api_version": 1, "session": model.Session}

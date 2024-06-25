@@ -120,6 +120,7 @@ def datastore_create_schema() -> Schema:
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
+        'delete_fields': [default(False), boolean_validator],
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
         'triggers': {

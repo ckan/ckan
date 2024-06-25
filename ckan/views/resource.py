@@ -12,7 +12,7 @@ from flask.views import MethodView
 
 import ckan.lib.base as base
 import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
 import ckan.logic as logic
@@ -94,7 +94,7 @@ def read(package_type: str, id: str, resource_id: str) -> Union[Response, str]:
     try:
         package[u'isopen'] = model.Package.get_license_register()[license_id
                                                                   ].isopen()
-    except KeyError:
+    except (KeyError, AttributeError):
         package[u'isopen'] = False
 
     resource_views = get_action(u'resource_view_list')(

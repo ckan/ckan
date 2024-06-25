@@ -11,7 +11,7 @@ from ckan import model
 from ckan.logic.schema import (
     default_create_package_schema,
     default_update_package_schema,
-    default_group_schema,
+    default_update_group_schema,
     default_tags_schema,
 )
 from ckan.lib.navl.dictization_functions import validate
@@ -762,7 +762,7 @@ class TestPackageSchema(object):
             ]
         }, pformat(errors)
 
-    @pytest.mark.usefixtures("clean_index")
+    @pytest.mark.usefixtures("clean_index", "clean_db")
     def test_group_schema(self):
         group = factories.Group.model()
         context = {"model": model, "session": model.Session}
@@ -776,7 +776,7 @@ class TestPackageSchema(object):
         del data["extras"]
 
         converted_data, errors = validate(
-            data, default_group_schema(), context
+            data, default_update_group_schema(), context
         )
         assert not errors
         group_pack = sorted(group.packages(), key=operator.attrgetter("id"))
@@ -820,7 +820,7 @@ class TestPackageSchema(object):
         data["packages"][1].pop("name")
 
         converted_data, errors = validate(
-            data, default_group_schema(), context
+            data, default_update_group_schema(), context
         )
         assert errors == {
             "packages": [

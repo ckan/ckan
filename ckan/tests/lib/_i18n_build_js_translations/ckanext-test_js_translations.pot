@@ -19,7 +19,6 @@ msgstr ""
 #: ckan/templates/package/snippets/data_api_button.html:8
 #: ckan/templates/tests/mock_json_resource_preview_template.html:7
 #: ckan/templates/tests/mock_resource_preview_template.html:7
-#: ckanext/reclineview/theme/templates/recline_view.html:12
 #: ckanext/textview/theme/templates/text_view.html:9
 msgid "Loading..."
 msgstr ""

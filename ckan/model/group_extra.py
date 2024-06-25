@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from typing import Any
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.ext.associationproxy import association_proxy
 
 
@@ -14,28 +14,30 @@ import ckan.model.domain_object as domain_object
 
 __all__ = ['GroupExtra', 'group_extra_table']
 
+Mapped = orm.Mapped
 group_extra_table = Table('group_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('group_id', types.UnicodeText, ForeignKey('group.id')),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_extra_group_id', 'group_id'),
 )
 
 
 class GroupExtra(core.StatefulObjectMixin,
                  domain_object.DomainObject):
-    id: str
-    group_id: str
-    key: str
-    value: str
-    state: str
+    id: Mapped[str]
+    group_id: Mapped[str]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     group: group.Group
 
-# type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(GroupExtra, group_extra_table, properties={
-    'group': orm.relation(group.Group,
+
+meta.registry.map_imperatively(GroupExtra, group_extra_table, properties={
+    'group': orm.relationship(group.Group,
         backref=orm.backref(
             '_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),  # type: ignore

@@ -51,9 +51,6 @@ def downgrade():
     op.add_column(u'system_info',
                   sa.Column(u'revision_id', sa.TEXT(), autoincrement=False,
                             nullable=True))
-    op.create_foreign_key(u'resource_view_resource_id_fkey', u'resource_view',
-                          u'resource', ['resource_id'], ['id'],
-                          onupdate=u'CASCADE', ondelete=u'CASCADE')
     op.add_column(u'resource', sa.Column(u'revision_id', sa.TEXT(),
                                          autoincrement=False, nullable=True))
     op.create_foreign_key(u'resource_revision_id_fkey', u'resource',
