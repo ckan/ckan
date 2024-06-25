@@ -310,8 +310,8 @@ class Organization(Group):
     type = "organization"
 
 
-class Package(CKANFactory):
-    """A factory class for creating CKAN packages."""
+class Dataset(CKANFactory):
+    """A factory class for creating CKAN datasets."""
 
     class Meta:
         model = ckan.model.Package
@@ -320,10 +320,6 @@ class Package(CKANFactory):
     name = factory.LazyFunction(partial(_name, "dataset"))
     title = factory.LazyFunction(lambda: fake.sentence(nb_words=5))
     notes = factory.LazyFunction(lambda: fake.text(max_nb_chars=60))
-
-
-class Dataset(Package):
-    """A factory class for creating CKAN datasets."""
 
 
 class Vocabulary(CKANFactory):
