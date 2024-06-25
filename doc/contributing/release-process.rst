@@ -96,7 +96,7 @@ Turn this file into a github issue with a checklist using this command::
    cherry-picked from master, the sass compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
-        npm run build
+        make frontend-build
         git commit -am "Rebuild CSS"
         git push
 
@@ -139,7 +139,7 @@ Turn this file into a github issue with a checklist using this command::
       file. The pot file is a text file that contains the original,
       untranslated strings extracted from the CKAN source code.::
 
-        python setup.py extract_messages
+        make translation-extract
 
       The po files are text files, one for each language CKAN is translated to,
       that contain the translated strings next to the originals. Translators edit
@@ -149,14 +149,14 @@ Turn this file into a github issue with a checklist using this command::
    c. Get the latest translations (of the previous CKAN release) from
       Transifex, in case any have changed since::
 
-        tx pull --all --minimum-perc=5 --force
+        make translation-pull
 
       (This ignores any language files which less than 5% translation - which
       is the bare minimum we require)
 
    e. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
-        python setup.py update_catalog --no-fuzzy-matching
+        make translation-update
 
       Any new or updated strings from the CKAN source code will get into the po
       files, and any strings in the po files that no longer exist in the source
@@ -175,7 +175,7 @@ Turn this file into a github issue with a checklist using this command::
 
    f. Run msgfmt checks::
 
-          find ckan/i18n/ -name "*.po"| xargs -n 1 msgfmt -c
+          make translation-check
 
       You must correct any errors or you will not be able to send these to Transifex.
 
@@ -202,7 +202,7 @@ Turn this file into a github issue with a checklist using this command::
    i. Create a new resource in the CKAN project on Transifex by pushing the new
       pot and po files::
 
-        tx push --source --translations --force
+        make translation-push
 
       Because it reads the new version number in the ``.tx/config`` file, tx will
       create a new resource on Transifex rather than updating an existing
@@ -218,7 +218,7 @@ Turn this file into a github issue with a checklist using this command::
 
    k. Update the ``ckan.mo`` files by compiling the po files::
 
-        python setup.py compile_catalog
+        make translation-compile
 
       The mo files are the files that CKAN actually reads when displaying
       strings to the user.
@@ -274,8 +274,8 @@ Leading up to the release
      folder. Name of every fragment is following format ``{issue
      number}.{fragment type}``, where *issue number* is GitHub issue id and
      *fragment type* is one of *migration*, *removal*, *bugfix* or *misc*
-     depending on change introduced by PR. Missing fragments can be created
-     using `towncrier create --edit {issue number}.{fragment type}` command.
+     depending on change introduced by PR.
+
      The following gist has a script that uses the GitHub API to aid in getting
      the merged issues between releases:
 
@@ -287,17 +287,13 @@ Leading up to the release
 
      When all fragments are ready, make a test build::
 
-        towncrier build --draft
+        make changelog-view
 
      And check output. If no problems identified, compile updated
-     changelog::
+     changelog and commit changes::
 
-        towncrier build --yes
-
-     You'll be asked, whether it's ok to remove source fragments. Feel
-     free to answer "yes" - all changes will be automatically inserted
-     into changelog, so there is no sense in keeping those
-     files. Don't forget to commit changes afterwards.
+        make changelog-build
+        git commit -m "Update changelog"
 
 #. A week before the translations will be closed send a reminder email.
 
@@ -305,15 +301,15 @@ Leading up to the release
 
    Pull the updated strings from Transifex::
 
-        tx pull --all --minimum-perc=5 --force
+       make translation-pull
 
    Check and compile them as before::
 
-        ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
-        python setup.py compile_catalog
+       ckan -c |ckan.ini| translation check-po ckan/i18n/*/LC_MESSAGES/ckan.po
+       make translation-compile
 
-    The compilation shows the translation percentage. Compare this with the new
-    languages directories added to ckan/i18n::
+   The compilation shows the translation percentage. Compare this with the new
+   languages directories added to ckan/i18n::
 
         git status
 
@@ -348,8 +344,7 @@ a release.
 
 #. Check that the docs compile correctly::
 
-        rm build/sphinx -rf
-        sphinx-build doc build/sphinx
+        make documentation-build
 
 #. Remove the beta letter in the version number.
 

@@ -1,15 +1,18 @@
 main-css:
   output: ckanext-textview/%(version)s_textview.css
+  extra:
+    preload:
+      - vendor/hljs-light-theme
   contents:
-    - styles/a11y-light.css
     - css/text.css
 
 main:
   output: ckanext-textview/%(version)s_textview.js
+  filter: rjsmin
   extra:
     preload:
       - base/main
+      - vendor/hljs
       - ckanext-textview/main-css
   contents:
-    - vendor/highlight.js
     - text_view.js
