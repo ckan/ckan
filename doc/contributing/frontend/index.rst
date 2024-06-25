@@ -463,7 +463,7 @@ source::
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/docco.min.css">
 
 
-To reduce its size, Highlight.js was compileled for small subset of supported
+To reduce its size, Highlight.js was compiled for small subset of supported
 languages: ``javascript powershell r python json xml bash``. Every time ``make
 vendor-copy`` is executed, Highlight.js is rebuilt and copied into public
 vendor folder. During this step, different set of languages can be specified::
