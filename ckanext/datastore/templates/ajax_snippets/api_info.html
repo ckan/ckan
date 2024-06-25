@@ -20,10 +20,12 @@ Example
 
 {% set code_languages = ['curl', 'javascript', 'powershell', 'python', 'r'] %}
 
-{# register examples by including templates here #}
-{% for clang in code_languages %}
-  {% include "/datastore/api_examples/" + clang + ".html" %}
-{% endfor %}
+{% block register_examples %}
+  {# register examples by including templates here #}
+  {% for clang in code_languages %}
+    {% include "/datastore/api_examples/" + clang + ".html" %}
+  {% endfor %}
+{% endblock %}
 
 <div {% if not embedded %} class="modal"{% endif %} tabindex="-1">
   <div class="modal-dialog modal-lg">

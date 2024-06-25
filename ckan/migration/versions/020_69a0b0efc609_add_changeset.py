@@ -66,6 +66,6 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('changeset')
     op.drop_table('change')
+    op.drop_table('changeset')
     op.drop_table('changemask')

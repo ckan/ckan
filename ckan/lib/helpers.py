@@ -29,10 +29,9 @@ import dominate.tags as dom_tags
 from markdown import markdown
 from bleach import clean as bleach_clean, ALLOWED_TAGS, ALLOWED_ATTRIBUTES
 from ckan.common import asbool, config, current_user
-from flask import flash
+from flask import flash, has_request_context
 from flask import get_flashed_messages as _flask_get_flashed_messages
 from flask import redirect as _flask_redirect
-from flask import _request_ctx_stack
 from flask import url_for as _flask_default_url_for
 from werkzeug.routing import BuildError as FlaskRouteBuildError
 from ckan.lib import i18n
@@ -55,7 +54,7 @@ import ckan.plugins as p
 import ckan
 
 
-from ckan.lib.pagination import Page  # type: ignore # noqa: re-export
+from ckan.lib.pagination import Page  # type: ignore # noqa
 from ckan.common import _, g, request, json
 
 from ckan.lib.webassets_tools import include_asset, render_assets
@@ -311,7 +310,7 @@ def _get_auto_flask_context():
     from ckan.config.middleware import _internal_test_request_context
 
     # This is a normal web request, there is a request context present
-    if _request_ctx_stack.top:
+    if has_request_context():
         return None
 
     # We are outside a web request. A test web application was created
@@ -717,7 +716,7 @@ def flash_error(message: Any, allow_html: bool = False) -> None:
         message = Markup(message)
     else:
         message = escape(message)
-    flash(message, category='alert-error')
+    flash(message, category='alert-danger')
 
 
 @core_helper
@@ -772,10 +771,12 @@ def _link_to(text: str, *args: Any, **kwargs: Any) -> Markup:
 
     icon = kwargs.pop('icon', None)
     cls = _link_class(kwargs)
+    title = kwargs.pop('title', kwargs.pop('title_', None))
     return link_to(
         _create_link_text(text, **kwargs),
         url_for(*args, **kwargs),
-        cls=cls
+        cls=cls,
+        title=title
     )
 
 
@@ -1104,7 +1105,7 @@ def get_facet_items_dict(
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1146,7 +1147,7 @@ def has_more_facets(facet: str,
         if not len(facet_item['name'].strip()):
             continue
         params_items = request.args.items(multi=True)
-        if not (facet, facet_item['name']) in params_items:
+        if (facet, facet_item['name']) not in params_items:
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
@@ -1745,8 +1746,9 @@ def dump_json(obj: Any, **kw: Any) -> str:
 
 @core_helper
 def snippet(template_name: str, **kw: Any) -> str:
-    ''' This function is used to load html snippets into pages. keywords
-    can be used to pass parameters into the snippet rendering '''
+    '''
+    Use {% snippet %} tag instead for better performance.
+    '''
     import ckan.lib.base as base
     return base.render_snippet(template_name, **kw)
 
@@ -2269,7 +2271,6 @@ def resource_view_is_filterable(resource_view: dict[str, Any]) -> bool:
 @core_helper
 def resource_view_get_fields(resource: dict[str, Any]) -> list["str"]:
     '''Returns sorted list of text and time fields of a datastore resource.'''
-
     if not resource.get('datastore_active'):
         return []
 
@@ -2511,6 +2512,18 @@ def unified_resource_format(format: str) -> str:
     else:
         format_new = format
     return format_new
+
+
+@core_helper
+def resource_url_type(resource_id: str) -> str:
+    '''api_info ajax snippet: "which extension manages this resource_id?"'''
+    # ajax snippets have no permissions checking and require things like
+    # this for full functionality, should we stop using them instead?
+    query = model.Session.query(model.Resource.url_type).filter(
+        model.Resource.id == resource_id,
+    )
+    result = query.one_or_none()
+    return result[0] if result else ''
 
 
 @core_helper

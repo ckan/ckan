@@ -1,0 +1,15 @@
+{%- call
+  form.input('fields__' ~ position ~ '__tdpattern',
+    label=_('Pattern'),
+    id='field-f' ~ position ~ 'pattern',
+    value=data.get('tdpattern', field.get('tdpattern', '')),
+    error=errors.tdpattern,
+    classes=['control-full']
+  )
+  -%}
+  {{ form.info(
+    text=_('Regular expression to match against the field, e.g. '
+    '<code>AB-\\d{6}</code> for text starting with <code>AB-</code> '
+    'and ending with 6 digits')
+  )}}
+{%- endcall %}

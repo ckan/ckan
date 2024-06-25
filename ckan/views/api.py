@@ -19,10 +19,13 @@ from ckan.common import json, _, g, request, current_user
 from ckan.lib.helpers import url_for
 from ckan.lib.base import render
 from ckan.lib.i18n import get_locales_from_config, get_js_translations_dir
+from ckan.lib.lazyjson import LazyJSONObject
 
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
-from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError
+from ckan.lib.search import (
+    SearchError, SearchIndexError, SearchQueryError, SolrConnectionError
+)
 from ckan.types import Context, Response, ActionResult
 
 
@@ -240,7 +243,7 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
         u'api_version': ver,
         u'auth_user_obj': current_user
     }
-    model.Session()._context = context
+    model.Session()._context = context  # type: ignore
 
     return_dict: dict[str, Any] = {
         u'help': url_for(u'api.action',
@@ -322,6 +325,12 @@ def action(logic_function: str, ver: int = API_DEFAULT_VERSION) -> Response:
             u'__type': u'Search Index Error',
             u'message': u'Unable to add package to search index: %s' %
                        str(e)}
+        return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
+    except SolrConnectionError:
+        return_dict[u'error'] = {
+            u'__type': u'Search Connection Error',
+            u'message': u'Unable to connect to the search server'}
         return_dict[u'success'] = False
         return _finish(500, return_dict, content_type=u'json')
     except Exception as e:
@@ -478,8 +487,8 @@ def i18n_js_translations(
     source = os.path.join(js_translations_folder, f"{lang}.js")
     if not os.path.exists(source):
         return "{}"
-    translations = json.load(io.open(source, "r", encoding="utf-8"))
-    return _finish_ok(translations)
+    translations = io.open(source, "r", encoding="utf-8").read()
+    return _finish_ok(LazyJSONObject(translations))
 
 
 # Routing

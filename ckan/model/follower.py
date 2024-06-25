@@ -16,7 +16,7 @@ import ckan.model.domain_object as domain_object
 
 from ckan.types import Query
 
-
+Mapped = sqlalchemy.orm.Mapped
 Follower = TypeVar("Follower", bound='ckan.model.User')
 Followed = TypeVar(
     "Followed", 'ckan.model.User', 'ckan.model.Package', 'ckan.model.Group')
@@ -24,9 +24,9 @@ Followed = TypeVar(
 
 class ModelFollowingModel(domain_object.DomainObject,
                           Generic[Follower, Followed]):
-    follower_id: str
-    object_id: str
-    datetime: _datetime.datetime
+    follower_id: Mapped[str]
+    object_id: Mapped[str]
+    datetime: Mapped[_datetime.datetime]
 
     def __init__(self, follower_id: str, object_id: str) -> None:
         self.follower_id = follower_id
@@ -161,7 +161,7 @@ user_following_user_table = sqlalchemy.Table('user_following_user',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingUser, user_following_user_table)
+meta.registry.map_imperatively(UserFollowingUser, user_following_user_table)
 
 class UserFollowingDataset(
         ModelFollowingModel['ckan.model.User', 'ckan.model.Package']):
@@ -193,7 +193,7 @@ user_following_dataset_table = sqlalchemy.Table('user_following_dataset',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingDataset, user_following_dataset_table)
+meta.registry.map_imperatively(UserFollowingDataset, user_following_dataset_table)
 
 
 class UserFollowingGroup(
@@ -225,4 +225,4 @@ user_following_group_table = sqlalchemy.Table('user_following_group',
     sqlalchemy.Column('datetime', sqlalchemy.types.DateTime, nullable=False),
 )
 
-meta.mapper(UserFollowingGroup, user_following_group_table)
+meta.registry.map_imperatively(UserFollowingGroup, user_following_group_table)

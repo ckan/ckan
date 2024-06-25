@@ -15,8 +15,11 @@ def jobs():
 
 @jobs.command(short_help=u"Start a worker.",)
 @click.option(u"--burst", is_flag=True, help=u"Start worker in burst mode.")
+@click.option(u"--max-idle-time", default=None, type=click.INT,
+              help=u"Max seconds for worker to be idle. "
+              "Defaults to None (never stops idling).")
 @click.argument(u"queues", nargs=-1)
-def worker(burst: bool, queues: list[str]):
+def worker(burst: bool, max_idle_time: int, queues: list[str]):
     """Start a worker that fetches jobs from queues and executes them. If
     no queue names are given then the worker listens to the default
     queue, this is equivalent to
@@ -35,8 +38,11 @@ def worker(burst: bool, queues: list[str]):
 
     If the `--burst` option is given then the worker will exit as soon
     as all its queues are empty.
+
+    If the `--max-idle-time` option is given then the worker will exit
+    after it has been idle for the number of seconds specified.
     """
-    bg_jobs.Worker(queues).work(burst=burst)
+    bg_jobs.Worker(queues).work(burst=burst, max_idle_time=max_idle_time)
 
 
 @jobs.command(name=u"list", short_help=u"List jobs.")

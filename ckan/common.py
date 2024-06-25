@@ -26,7 +26,7 @@ from flask_login import login_user as _login_user, logout_user as _logout_user
 from flask_babel import (gettext as flask_ugettext,
                          ngettext as flask_ungettext)
 
-import simplejson as json  # type: ignore # noqa: re-export
+import simplejson as json  # type: ignore # noqa
 import ckan.lib.maintain as maintain
 from ckan.config.declaration import Declaration
 from ckan.types import Model, Request
@@ -304,6 +304,15 @@ def aslist(obj: Any, sep: Optional[str] = None, strip: bool = True) -> Any:
         return []
     else:
         return [obj]
+
+
+def repr_untrusted(danger: Any):
+    """
+    repr-format danger and truncate e.g. for logging untrusted input
+    """
+    r = repr(danger)
+    rtrunc = r[:200]
+    return rtrunc + '…' if r != rtrunc else r
 
 
 local = Local()

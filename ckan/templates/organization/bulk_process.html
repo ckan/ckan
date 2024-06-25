@@ -28,7 +28,7 @@
         {% set sorting = [
             (_('Name Ascending'), 'title_string asc'),
             (_('Name Descending'), 'title_string desc'),
-            (_('Last Modified'), 'data_modified desc') ]
+            (_('Last Modified'), 'metadata_modified desc') ]
                 %}
         {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type=dataset_type, query=q, count=page.item_count, sorting=sorting, sorting_selected=sort_by_selected, no_title=true, search_class=' ' %}
       {% endblock %}
@@ -76,7 +76,7 @@
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}">
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" title="{{ title }}">
                           {{ title|truncate(80) }}
                         </a>
                         {% if package.get('state', '').startswith('draft') %}
@@ -107,8 +107,8 @@
 {% endblock %}
 
 {% block secondary_content %}
-    {{  super() }}
-    {% for facet in c.facet_titles %}
-    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets) }}
+  {{ super() }}
+  {% for facet in c.facet_titles %}
+    {% snippet 'snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets %}
   {% endfor %}
 {% endblock %}

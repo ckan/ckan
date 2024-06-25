@@ -1,6 +1,6 @@
 /*!
-  Highlight.js v11.9.0 (git: 52b170d4cb)
-  (c) 2006-2023 undefined and other contributors
+  Highlight.js v11.9.0 (git: 4e29f6a70b)
+  (c) 2006-2024 undefined and other contributors
   License: BSD-3-Clause
  */
 var hljs = (function () {
@@ -2600,9 +2600,6 @@ var hljs = (function () {
   // check https://github.com/wooorm/lowlight/issues/47
   highlight.newInstance = () => HLJS({});
 
-  // export an "instance" of the highlighter
-  var HighlightJS = highlight;
-
   const IDENT_RE = '[A-Za-z$_][0-9A-Za-z$_]*';
   const KEYWORDS = [
     "as", // for exports
@@ -5065,7 +5062,7 @@ var hljs = (function () {
     grmr_xml: xml
   });
 
-  const hljs = HighlightJS;
+  const hljs = highlight;
 
   for (const key of Object.keys(builtIns)) {
     // our builtInLanguages Rollup plugin has to use `_` to allow identifiers to be

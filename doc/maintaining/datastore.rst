@@ -11,7 +11,7 @@ the DataStore.
 
 When a resource is added to the DataStore, you get:
 
-* Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
+* Automatic data previews on the resource's page, using for instance the :ref:`DataTables view extension <datatables-view>`
 * `The Data API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
@@ -42,14 +42,12 @@ the spreadsheet data is stored in the DataStore, one would be able to access
 individual spreadsheet rows via a simple web API, as well as being able to make
 queries over the spreadsheet contents.
 
+
+.. _setting_up_datastore:
+
 ------------------------
 Setting up the DataStore
 ------------------------
-
-.. versionchanged:: 2.6
-
-   Previous CKAN (and DataStore) versions were compatible with earlier versions
-   of |postgres|.
 
 1. Enable the plugin
 ====================
@@ -229,12 +227,14 @@ each column:
 * **Label:** a human-friendly label for this column
 * **Description:** a full description for this column in markdown format
 
-Extension developers may add new fields to this form by overriding the default
-Data Dictionary form template ``datastore/snippets/dictionary_form.html``.
-
 The Data Dictionary is set through the API as part of the :ref:`fields` passed
 to :meth:`~ckanext.datastore.logic.action.datastore_create` and
 returned from :meth:`~ckanext.datastore.logic.action.datastore_search`.
+
+.. seealso::
+
+   For information on customizing the Data Dictionary form, see
+   :doc:`/extensions/custom-data-dictionary`.
 
 
 .. _dump:
@@ -283,7 +283,7 @@ expect from a powerful database management system.
 
 A DataStore resource can not be created on its own. It is always required to have an
 associated CKAN resource. If data is stored in the DataStore, it can automatically be
-previewed by a :ref:`preview extension <data-explorer>`.
+previewed by a :ref:`preview extension <datatables-view>`.
 
 
 Making a Data API request
@@ -319,36 +319,20 @@ Fields define the column names and the type of the data in a column. A field is 
             "label":  # human-readable label for column
             "notes":  # markdown description of column
             "type_override":  # type for datapusher to use when importing data
-            ...:  # other user-defined fields
+            ...:  # free-form user-defined values
 	}
+        ...:  # values defined and validated with IDataDictionaryForm
     }
 
 Field types not provided will be guessed based on the first row of provided data.
 Set the types to ensure that future inserts will not fail because of an incorrectly
 guessed type. See :ref:`valid-types` for details on which types are valid.
 
-Extra ``"info"`` field values will be stored along with the column. ``"label"``,
-``"notes"`` and ``"type_override"`` can be managed from the default :ref:`data_dictionary`
-form.  Additional fields can be stored by customizing the Data Dictionary form or by
-passing their values to the API directly.
+.. seealso::
 
-Example::
+   For more on custom field values and customizing the Data Dictionary form, see
+   :doc:`/extensions/custom-data-dictionary`.
 
-    [
-        {
-            "id": "code_number",
-            "type": "numeric"
-        },
-        {
-            "id": "description"
-            "type": "text",
-            "info": {
-                "label": "Description",
-                "notes": "A brief usage description for this code",
-                "example": "Used for temporary service interruptions"
-            }
-        }
-    ]
 
 .. _records:
 

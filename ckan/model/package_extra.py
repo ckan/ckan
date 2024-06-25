@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import ckan.model.meta as meta
@@ -14,6 +14,7 @@ import ckan.model.types as _types
 
 __all__ = ['PackageExtra', 'package_extra_table']
 
+Mapped = orm.Mapped
 package_extra_table = Table('package_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     # NB: only (package, key) pair is unique
@@ -21,15 +22,17 @@ package_extra_table = Table('package_extra', meta.metadata,
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_extra_id_pkg_id', 'id', 'package_id'),
+    Index('idx_extra_pkg_id', 'package_id'),
 )
 
 
 class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
-    id: str
-    package_id: str
-    key: str
-    value: str
-    state: str
+    id: Mapped[str]
+    package_id: Mapped[str]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
 
     package: _package.Package
 
@@ -37,9 +40,8 @@ class PackageExtra(core.StatefulObjectMixin, domain_object.DomainObject):
         return [self.package]
 
 
-# type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(PackageExtra, package_extra_table, properties={
-    'package': orm.relation(_package.Package,
+meta.registry.map_imperatively(PackageExtra, package_extra_table, properties={
+    'package': orm.relationship(_package.Package,
         backref=orm.backref('_extras',
             collection_class=orm.collections.attribute_mapped_collection(u'key'),  # type: ignore
             cascade='all, delete, delete-orphan',
