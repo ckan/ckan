@@ -74,9 +74,6 @@ def _create_package_activity(
     if not pkg:
         raise tk.ObjectNotFound("package")
 
-    if pkg.private:
-        return
-
     # Handle 'deleted' objects.
     # When the user marks a package as deleted this comes through here as
     # a 'changed' package activity. We detect this and change it to a

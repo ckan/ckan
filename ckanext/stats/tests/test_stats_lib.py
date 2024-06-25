@@ -11,11 +11,10 @@ from ckanext.activity.tests.conftest import ActivityFactory
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'stats activity')
-@pytest.mark.usefixtures("with_plugins")
 @pytest.mark.freeze_time
 class TestStatsPlugin(object):
     @pytest.fixture(autouse=True)
-    def initial_data(self, clean_db, with_request_context, freezer):
+    def initial_data(self, with_plugins, clean_db, with_request_context, freezer):
         # week 1
         freezer.move_to('2011-1-5')
         user = factories.User(name="bob")

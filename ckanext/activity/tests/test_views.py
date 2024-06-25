@@ -739,6 +739,7 @@ class TestPackage:
         resource_name = "Image 1"
         helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=dataset["id"],
             resources=[
                 {
