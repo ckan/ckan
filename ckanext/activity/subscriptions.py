@@ -9,6 +9,7 @@ import ckan.plugins.toolkit as tk
 import ckan.lib.dictization as dictization
 
 from ckan import types, model
+from ckan.lib.plugins import get_permission_labels
 from .model import Activity
 
 log = logging.getLogger(__name__)
@@ -111,6 +112,7 @@ def _create_package_activity(
         return None
 
     context["ignore_auth"] = True
+
     activity_dict = {
         "user_id": user_id,
         "object_id": pkg.id,
@@ -118,8 +120,10 @@ def _create_package_activity(
         "data": {
             "package": dictized_package,
             "actor": user_obj.name if user_obj else None,
-        }
+        },
+        "permission_labels": get_permission_labels().get_dataset_labels(pkg),
     }
+
     tk.get_action("activity_create")(context, activity_dict)
 
 

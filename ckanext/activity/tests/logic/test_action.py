@@ -93,6 +93,7 @@ class TestPackageActivityList(object):
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
+
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
         ]
