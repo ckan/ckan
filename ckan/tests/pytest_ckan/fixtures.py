@@ -100,11 +100,21 @@ class SysadminFactory(factories.Sysadmin):
     pass
 
 
+class SysadminWithTokenFactory(factories.SysadminWithToken):
+    pass
+
+
+class UserWithTokenFactory(factories.UserWithToken):
+    pass
+
+
 class OrganizationFactory(factories.Organization):
     pass
 
 
 register(SysadminFactory, "sysadmin")
+register(SysadminWithTokenFactory, "sysadmin_with_token")
+register(UserWithTokenFactory, "user_with_token")
 register(OrganizationFactory, "organization")
 
 
