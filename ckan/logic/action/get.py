@@ -1440,11 +1440,11 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     _check_access('user_show', context, data_dict)
 
-    schema = context.get('schema', None)
+    schema = context.get('schema', None) or logic.schema.default_user_show_schema()
 
     for item in plugins.PluginImplementations(plugins.IUserForm):
         schema = item.show_user_schema(schema)
-
+    breakpoint()
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -1468,11 +1468,11 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
-    include_plugin_extras = sysadmin and asbool(
-        data_dict.get('include_plugin_extras', False))
+    # include_plugin_extras = sysadmin and asbool(
+    #     data_dict.get('include_plugin_extras', False))
 
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash, include_plugin_extras)
+        user_obj, context, include_password_hash)
 
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []

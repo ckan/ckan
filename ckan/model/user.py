@@ -60,7 +60,7 @@ user_table = Table('user', meta.metadata,
         Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
         Column('plugin_data', MutableDict.as_mutable(JSONB)),
-        Column('plugin_extras', MutableDict.as_mutable(JSONB)),
+        # Column('plugin_extras', MutableDict.as_mutable(JSONB)), --REMOVE ME IN 2.12+ (see #4147)
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
         Index('idx_only_one_active_email', 'email', 'state', unique=True,

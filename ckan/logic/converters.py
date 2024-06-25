@@ -51,21 +51,6 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
     remove_from_extras(data, data_key[1])
 
 
-def load_plugin_data(plugin_name: str):
-    """Copy plugin_data["plugin_name"][key] to data[key]
-    for exposing to forms and API"""
-
-    def callable(key: FlattenKey, data: FlattenDataDict,
-                               errors: FlattenErrorDict,
-                               context: Context) -> Any:
-        plugin_data = context.get('plugin_data', {})
-        if not plugin_data:
-            return
-        data[key] = plugin_data.get(plugin_name, {}).get(key[-1])
-
-    return callable
-
-
 def store_plugin_data(plugin_name: str):
     """Copy data[key] to plugin_data["plugin_name"][key]
     for storing in the db"""
@@ -77,6 +62,22 @@ def store_plugin_data(plugin_name: str):
             data[("plugin_data",)] = {}
         plugin_data = {plugin_name: {key[0]: data.get(key)}}
         data[("plugin_data",)].update(plugin_data)
+
+    return callable
+
+
+def load_plugin_data(plugin_name: str):
+    """Copy plugin_data["plugin_name"][key] to data[key]
+    for exposing to forms and API"""
+
+    def callable(key: FlattenKey, data: FlattenDataDict,
+                               errors: FlattenErrorDict,
+                               context: Context) -> Any:
+        breakpoint()
+        plugin_data = context.get('plugin_data', {})
+        if not plugin_data:
+            return
+        data[key] = plugin_data.get(plugin_name, {}).get(key[-1])
 
     return callable
 

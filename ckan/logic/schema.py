@@ -547,6 +547,45 @@ def default_user_invite_schema(
 
 
 @validator_args
+def default_user_show_schema(ignore_missing: Validator,
+                             ignore_empty: Validator,
+                             load_plugin_data: Validator,
+                             ignore: Validator) -> Schema:
+    # schema = default_user_schema()
+
+    return {
+        'id': [ignore_empty],
+        'name': [ignore_empty],
+        'fullname': [ignore_empty],
+        'email': [ignore_empty],
+        'about': [ignore_empty],
+        'created': [ignore_empty],
+        'sysadmin': [ignore_empty],
+        'reset_key': [ignore_empty],
+        'activity_streams_email_notifications': [ignore_empty],
+        'state': [ignore_empty],
+        'image_url': [ignore_empty],
+        'image_display_url': [ignore_empty],
+        'plugin_data': [load_plugin_data]
+    }
+
+    # schema['id'] = [ignore]
+    # schema['password'] = [ignore]
+    # schema['password_hash'] = [ignore]
+    # schema['email'] = [ignore_missing]
+    # schema['name'] = [ignore_missing]
+    # schema['created'] = []
+    # schema['sysadmin'] = []
+    # schema['reset_key'] = []
+    # schema['state'] = []
+    # schema['activity_streams_email_notifications'] = []
+    # schema['image_url'] = []
+    # schema['image_display_url'] = []
+
+    # return schema
+
+
+@validator_args
 def default_task_status_schema(ignore: Validator, not_empty: Validator,
                                unicode_safe: Validator,
                                ignore_missing: Validator) -> Schema:
