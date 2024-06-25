@@ -36,7 +36,7 @@ class _TableDesignerDictionary(MethodView):
 
         if data_dict['resource']['url_type'] != 'tabledesigner':
             # avoid second _prepare call
-            _datastore_view._prepare = lambda _i, _r: data_dict
+            _datastore_view._prepare = lambda id, resource_id: data_dict
             return _datastore_view.post(id, resource_id)
 
         fields = data_dict['fields']
