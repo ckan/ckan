@@ -1,6 +1,6 @@
 .homepage {
     .hero {
-        background: url("#{$imagePath}/background-tile.png");
+        background: var(--background-tile-image);
         padding: 20px 0;
     }
     .module-promotion {
@@ -51,7 +51,7 @@
     }
     .module-feeds {
         padding: $spacer * 2 0;
-        background: $layoutBackgroundColor url($bgPath);
+        background: $layoutBackgroundColor var(--background-image);
     }
 }
 
