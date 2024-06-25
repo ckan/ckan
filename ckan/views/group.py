@@ -13,7 +13,8 @@ from io import StringIO
 from codecs import BOM_UTF8
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -180,7 +181,7 @@ def index(group_type: str, is_organization: bool) -> str:
         else:
             msg = str(e)
         h.flash_error(msg)
-        extra_vars["page"] = h.Page([], 0)
+        extra_vars["page"] = Page([], 0)
         extra_vars["group_type"] = group_type
         return base.render(
             _get_group_template(u'index_template', group_type), extra_vars)
@@ -198,7 +199,7 @@ def index(group_type: str, is_organization: bool) -> str:
     }
     page_results = _action(u'group_list')(context, data_dict_page_results)
 
-    extra_vars["page"] = h.Page(
+    extra_vars["page"] = Page(
         collection=global_results,
         page=page,
         url=h.pager_url,
@@ -342,19 +343,14 @@ def _read(id: Optional[str], limit: int, group_type: str) -> dict[str, Any]:
     except search.SearchError as se:
         log.error(u'Group search error: %r', se.args)
         extra_vars["query_error"] = True
-        extra_vars["page"] = h.Page(collection=[])
+        extra_vars["page"] = Page(collection=[])
     else:
-        extra_vars["page"] = h.Page(
+        extra_vars["page"] = Page(
             collection=query['results'],
             page=page,
             url=pager_url,
             item_count=query['count'],
             items_per_page=limit)
-
-        # TODO: Remove
-        # ckan 2.9: Adding variables that were removed from c object for
-        # compatibility with templates in existing extensions
-        g.group_dict['package_count'] = query['count']
 
         extra_vars["search_facets"] = query['search_facets']
         extra_vars["search_facets_limits"] = g.search_facets_limits = {}
@@ -428,7 +424,6 @@ def read(group_type: str,
         # Do not query for the group datasets when dictizing, as they will
         # be ignored and get requested on the controller anyway
         data_dict['include_datasets'] = False
-        data_dict['include_dataset_count'] = False
 
         # Do not query group members as they aren't used in the view
         data_dict['include_users'] = False

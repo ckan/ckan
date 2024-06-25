@@ -1,25 +1,45 @@
 {% import 'macros/form.html' as form %}
 
-<h3>{{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }})</h3>
+<h3 class="accordion-header" id="field-{{ position }}">
+  <button class="accordion-button" type="button" data-bs-toggle="collapse"
+      data-bs-toggle="collapse" aria-expanded="true"
+      data-bs-target="#collapse-{{ position }}">
+    {% block field_heading %}
+      {{ _( "Field {num}.").format(num=position) }} {{ field.id }} ({{ field.type }}
+        {%- if field.schema and field.schema.is_index %}, {{ _("Primary key") }}{% endif -%})
+    {% endblock %}
+  </button>
+</h3>
 
-{#
-  Data Dictionary fields may be added this snippet. New fields following
-  the 'info__' ~ position ~ '__namegoeshere' convention will be saved
-  as part of the "info" object on the column.
-#}
+<div id="collapse-{{ position }}" class="accordion-collapse collapse show"
+    aria-labelledby="field-{{ position }}">
+  <div class="accordion-body">
+    {#
+      Data Dictionary fields may be added this snippet. New fields following
+      the 'info__' ~ position ~ '__namegoeshere' convention will be saved
+      as part of the "info" object on the column.
+    #}
+    {% block datapusher_xloader_fields %}
+      {{ form.select('info__' ~ position ~ '__type_override',
+        label=_('Type Override'), options=[
+        {'name': '', 'value': ''},
+        {'name': 'text', 'value': 'text'},
+        {'name': 'numeric', 'value': 'numeric'},
+        {'name': 'timestamp', 'value': 'timestamp'},
+        ], selected=field.get('info', {}).get('type_override', '')) }}
+    {% endblock %}
 
-{{ form.select('info__' ~ position ~ '__type_override',
-  label=_('Type Override'), options=[
-  {'name': '', 'value': ''},
-  {'name': 'text', 'value': 'text'},
-  {'name': 'numeric', 'value': 'numeric'},
-  {'name': 'timestamp', 'value': 'timestamp'},
-  ], selected=field.get('info', {}).get('type_override', '')) }}
+    {% block standard_fields %}
+      {{ form.input('info__' ~ position ~ '__label',
+        label=_('Label'), id='field-f' ~ position ~ 'label',
+        value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
 
-{{ form.input('info__' ~ position ~ '__label',
-  label=_('Label'), id='field-f' ~ position ~ 'label',
-  value=field.get('info', {}).get('label', ''), classes=['control-full']) }}
+      {{ form.markdown('info__' ~ position ~ '__notes',
+        label=_('Description'), id='field-d' ~ position ~ 'notes',
+        value=field.get('info', {}).get('notes', '')) }}
+    {% endblock %}
 
-{{ form.markdown('info__' ~ position ~ '__notes',
-  label=_('Description'), id='field-d' ~ position ~ 'notes',
-  value=field.get('info', {}).get('notes', '')) }}
+    {% block additional_fields %}
+    {% endblock %}
+  </div>
+</div>

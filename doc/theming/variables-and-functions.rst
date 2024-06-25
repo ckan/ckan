@@ -84,9 +84,8 @@ templates in their top-level namespace:
 
 .. py:data:: session
 
-   The `Beaker session object <http://beaker.readthedocs.org/en/latest/>`_,
-   which contains information stored in the user's currently active session
-   cookie.
+   The `Flask session object <https://flask.palletsprojects.com/en/3.0.x/api/#flask.session>`_,
+   which contains information stored in the user's currently active session.
 
 .. py:function:: _()
 

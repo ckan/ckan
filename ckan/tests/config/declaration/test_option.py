@@ -39,3 +39,19 @@ class TestDetails:
 
         option.set_validators("default([[],{():None}])")
         assert option.normalize(option.default) == [[], {(): None}]
+
+    def test_str_value(self):
+        option = Option()
+        assert option.str_value() == ""
+        assert option.str_value(1) == "1"
+        assert option.str_value([1, 2]) == "[1, 2]"
+
+        option = Option().set_validators("as_list")
+        assert option.str_value() == ""
+        assert option.str_value(1) == "1"
+        assert option.str_value([1, 2]) == "1 2"
+
+        option = Option([10, 20]).set_validators("as_list")
+        assert option.str_value() == "10 20"
+        assert option.str_value(1) == "1"
+        assert option.str_value([1, 2]) == "1 2"

@@ -28,6 +28,19 @@ div.dataTables_scroll{
 /* processing message should hover over table and be visible */
 #dtprv_processing {
   z-index: 100;
+  display: block;
+}
+
+#dtprv_processing.pre-init::after{
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  z-index: -1;
 }
 
 /* for table header, don't wrap */

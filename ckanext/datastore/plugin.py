@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Callable, Union, cast
+from typing import Any, Callable, Union
 
 import ckan.plugins as p
 from ckan.model.core import State
@@ -35,6 +35,7 @@ def sql_functions_allowlist_file():
 
 
 @p.toolkit.blanket.config_declarations
+@p.toolkit.blanket.validators
 class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IConfigurer)
@@ -49,7 +50,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     resource_show_action = None
 
-    def __new__(cls: Any, *args: Any, **kwargs: Any) -> Any:
+    def __new__(cls: Any, *args: Any, **kwargs: Any):
         idatastore_extensions: Any = p.PluginImplementations(
             interfaces.IDatastore)
         idatastore_extensions = idatastore_extensions.extensions()
@@ -60,8 +61,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    '"ckan.plugins" in your CKAN .ini file and try again.')
             raise DatastoreException(msg)
 
-        return cast("DatastorePlugin",
-                    super(cls, cls).__new__(cls, *args, **kwargs))
+        return super().__new__(cls, *args, **kwargs)
 
     # IDatastoreBackend
 

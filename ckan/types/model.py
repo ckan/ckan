@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Type
 from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
-from sqlalchemy.orm import Query, sessionmaker
+from sqlalchemy.orm import Query, sessionmaker, Session
 from sqlalchemy import Table
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ Query = Query
 
 
 class Meta(Protocol):
-    create_local_session: sessionmaker
+    create_local_session: "sessionmaker[Session]"
 
 
 class Model(Protocol):
@@ -44,6 +44,7 @@ class Model(Protocol):
     Vocabulary: ClassVar[Type["_model.Vocabulary"]]
 
     group_table: ClassVar[Table]
+    group_extra_table: ClassVar[Table]
     member_table: ClassVar[Table]
     package_extra_table: ClassVar[Table]
     package_relationship_table: ClassVar[Table]

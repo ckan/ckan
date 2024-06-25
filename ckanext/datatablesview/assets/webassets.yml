@@ -1,6 +1,5 @@
 main-css:
   output: ckanext-datatablesview/%(version)s_datatablesview.css
-  filters: cssrewrite
   contents:
     - vendor/DataTables/datatables.css
     - vendor/DataTables/datatables.mark.css

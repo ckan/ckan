@@ -112,4 +112,4 @@ class TestSearchPluginInterface(object):
         assert "string_not_found_in_rest_of_template" in res
 
         res = app.get("/dataset?q=")
-        assert str(res.body).count("string_not_found_in_rest_of_template") == 2
+        assert str(res.body).count("string_not_found_in_rest_of_template") == 4

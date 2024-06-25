@@ -73,21 +73,17 @@ def test_flask_core_route_is_served(patched_app):
     assert res.get_data(as_text=True) == "This was served from Flask"
 
 
-@pytest.mark.ckan_config(u"SECRET_KEY", u"super_secret_stuff")
-def test_secret_key_is_used_if_present(app):
-    assert app.flask_app.config[u"SECRET_KEY"] == u"super_secret_stuff"
-
-
 @pytest.mark.ckan_config(u"SECRET_KEY", "some_secret")
-def test_SECRET_KEY_is_used_by_default(app):
-    assert (
-        app.flask_app.config[u"SECRET_KEY"] == "some_secret"
-    )
+def test_secret_key_is_used_if_present(app):
+    """Flask app reads SECRET_KEY from CKAN config
+    """
+    assert app.flask_app.config["SECRET_KEY"] == "some_secret"
 
 
 @pytest.mark.ckan_config(u"SECRET_KEY", None)
-@pytest.mark.ckan_config(u"beaker.session.secret", None)
-def test_no_beaker_secret_crashes(make_app):
+def test_missing_secret_crashes_applicaiton(make_app):
+    """Application instance cannot be created without SECRET_KEY.
+    """
     with pytest.raises(CkanConfigurationException):
         make_app()
 
@@ -120,12 +116,12 @@ def test_flask_config_values_are_parsed(app):
 
 @pytest.mark.ckan_config("WTF_CSRF_SECRET_KEY", None)
 def test_no_wtf_secret_falls_back_to_secret_key(app):
-    assert (
-        app.flask_app.config["WTF_CSRF_SECRET_KEY"] == config.get("beaker.session.secret")
-    )
-    assert (
-        config["WTF_CSRF_SECRET_KEY"] == config.get("beaker.session.secret")
-    )
+    """WTF_CSRF_SECRET_KEY, when not present in config or empty, copies value
+    SECRET_KEY.
+
+    """
+    assert app.flask_app.config["WTF_CSRF_SECRET_KEY"] == config["SECRET_KEY"]
+    assert config["WTF_CSRF_SECRET_KEY"] == config["SECRET_KEY"]
 
 
 @pytest.mark.ckan_config(u"ckan.plugins", u"test_middleware_plugin")

@@ -7,12 +7,12 @@ from typing import Any, Callable, Optional
 
 import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy.ext.declarative import declarative_base
 from typing_extensions import Self
 
-from .meta import metadata, Session
+from .meta import registry, Session
 
-BaseModel = declarative_base(metadata=metadata)
+
+BaseModel = registry.generate_base()
 
 
 class SessionMixin:

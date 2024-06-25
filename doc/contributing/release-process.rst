@@ -475,12 +475,7 @@ Preparing patch releases
         git commit -am "Update version number"
         git push origin release-v2.5.2
 
-#. Cherry-pick PRs marked for back-port.
-
-   These are usually marked on Github using the ``Backport Pending`` `labels`_ and the
-   relevant labels for the versions they should be cherry-picked to (eg ``Backport 2.5.3``).
-   Remember to look for PRs that are closed i.e. merged. Remove the ``Backport Pending`` label once the
-   cherry-picking has been done (but leave the version ones).
+#. Backport PRs marked for backport using the :ref:`automated_backports` or manually if that fails.
 
 #. Ask the tech team if there are security fixes or other fixes to include.
 

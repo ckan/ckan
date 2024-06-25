@@ -13,9 +13,10 @@ import logging
 from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from ckan.common import config
 
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
      Group,
     )
 
-
+Mapped = orm.Mapped
 PrintableRelationship: TypeAlias = "tuple[Package, str, Optional[str]]"
 
 logger = logging.getLogger(__name__)
@@ -53,27 +54,31 @@ PACKAGE_VERSION_MAX_LENGTH: int = 100
 
 # Our Domain Object Tables
 package_table = Table('package', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
-               nullable=False, unique=True),
-        Column('title', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
-               doc='remove_if_not_provided'),
-        Column('url', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
-        Column('type', types.UnicodeText, default=u'dataset'),
-        Column('owner_org', types.UnicodeText),
-        Column('creator_user_id', types.UnicodeText),
-        Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
-        Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
-        Column('private', types.Boolean, default=False),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(PACKAGE_NAME_MAX_LENGTH),
+           nullable=False, unique=True),
+    Column('title', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('version', types.Unicode(PACKAGE_VERSION_MAX_LENGTH),
+           doc='remove_if_not_provided'),
+    Column('url', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('author_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('maintainer_email', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('notes', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('license_id', types.UnicodeText, doc='remove_if_not_provided'),
+    Column('type', types.UnicodeText, default=u'dataset'),
+    Column('owner_org', types.UnicodeText),
+    Column('creator_user_id', types.UnicodeText),
+    Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
+    Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('private', types.Boolean, default=False),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Index('idx_pkg_sid', 'id', 'state'),
+    Index('idx_pkg_sname', 'name', 'state'),
+    Index('idx_pkg_stitle', 'title', 'state'),
+    Index('idx_package_creator_user_id', 'creator_user_id'),
 )
 
 
@@ -83,7 +88,8 @@ package_member_table = Table(
     Column('package_id', ForeignKey('package.id'), primary_key=True),
     Column('user_id', ForeignKey('user.id'), primary_key = True),
     Column('capacity', types.UnicodeText, nullable=False),
-    Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    Column('modified', types.DateTime, default=datetime.datetime.utcnow,
+           nullable=False),
 )
 
 
@@ -92,34 +98,34 @@ package_member_table = Table(
 
 class Package(core.StatefulObjectMixin,
               domain_object.DomainObject):
-    id: str
-    name: str
-    title: str
-    version: str
-    url: str
-    author: str
-    author_email: str
-    maintainer: str
-    maintainer_email: str
-    notes: str
-    licensce_id: str
-    type: str
-    owner_org: Optional[str]
-    creator_user_id: str
-    metadata_created: datetime.datetime
-    metadata_modified: datetime.datetime
-    private: bool
-    state: str
-    plugin_data: dict[str, Any]
+    id: Mapped[str]
+    name: Mapped[str]
+    title: Mapped[str]
+    version: Mapped[str]
+    url: Mapped[str]
+    author: Mapped[str]
+    author_email: Mapped[str]
+    maintainer: Mapped[str]
+    maintainer_email: Mapped[str]
+    notes: Mapped[str]
+    licensce_id: Mapped[str]
+    type: Mapped[str]
+    owner_org: Mapped[Optional[str]]
+    creator_user_id: Mapped[str]
+    metadata_created: Mapped[datetime.datetime]
+    metadata_modified: Mapped[datetime.datetime]
+    private: Mapped[bool]
+    state: Mapped[str]
+    plugin_data: Mapped[dict[str, Any]]
 
-    package_tags: list["PackageTag"]
+    package_tags: Mapped[list["PackageTag"]]
 
-    resources_all: list["Resource"]
-    _extras: dict[str, Any]  # list['PackageExtra']
-    extras: dict[str, Any]
+    resources_all: Mapped[list["Resource"]]
+    _extras: Mapped[dict[str, Any]]
+    extras: AssociationProxy
 
-    relationships_as_subject: 'PackageRelationship'
-    relationships_as_object: 'PackageRelationship'
+    relationships_as_subject: Mapped['PackageRelationship']
+    relationships_as_object: Mapped['PackageRelationship']
 
     _license_register: ClassVar['_license.LicenseRegister']
 
@@ -128,8 +134,7 @@ class Package(core.StatefulObjectMixin,
     @classmethod
     def search_by_name(cls, text_query: str) -> Query[Self]:
         return meta.Session.query(cls).filter(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            cls.name.contains(text_query.lower())  # type: ignore
+            cls.name.contains(text_query.lower())
         )
 
     @classmethod
@@ -229,7 +234,7 @@ class Package(core.StatefulObjectMixin,
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:
-            query = query.filter(model.Tag.vocabulary_id == None)
+            query = query.filter(model.Tag.vocabulary_id.is_(None))
         query = query.order_by(model.Tag.name)
         tags = query.all()
         return tags
@@ -482,17 +487,16 @@ class Package(core.StatefulObjectMixin,
 
 
 class PackageMember(domain_object.DomainObject):
-    package_id: str
-    user_id: str
-    capacity: str
-    modified: datetime.datetime
+    package_id: Mapped[str]
+    user_id: Mapped[str]
+    capacity: Mapped[str]
+    modified: Mapped[datetime.datetime]
 
 
 # import here to prevent circular import
 from ckan.model import tag
 
-# type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(Package, package_table, properties={
+meta.registry.map_imperatively(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!
     # Why? Answer: because of way SQLAlchemy/our code works there are points
     # where PackageTag object is created *and* flushed but does not yet have
@@ -500,11 +504,13 @@ meta.mapper(Package, package_table, properties={
     # second commit happens in which the package_id is correctly set.
     # However after first commit PackageTag does not have Package and
     # delete-orphan kicks in to remove it!
-    'package_tags':orm.relation(tag.PackageTag, backref='package',
+    'package_tags':orm.relationship(
+        tag.PackageTag, backref='package',
         cascade='all, delete', #, delete-orphan',
-        ),
-    })
+        cascade_backrefs=False
+    )
+})
 
-meta.mapper(tag.PackageTag, tag.package_tag_table)
+meta.registry.map_imperatively(tag.PackageTag, tag.package_tag_table)
 
-meta.mapper(PackageMember, package_member_table)
+meta.registry.map_imperatively(PackageMember, package_member_table)
