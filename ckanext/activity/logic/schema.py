@@ -17,6 +17,7 @@ def default_create_activity_schema(
     activity_type_exists: Validator,
     ignore_empty: Validator,
     ignore_missing: Validator,
+    list_of_strings: Validator,
 ) -> Schema:
     return {
         "id": [ignore],
@@ -40,6 +41,8 @@ def default_create_activity_schema(
             activity_type_exists,
         ],
         "data": [ignore_empty, ignore_missing],
+        "permission_labels": [ignore_empty, list_of_strings],
+
     }
 
 
