@@ -16,7 +16,8 @@ from werkzeug.datastructures import MultiDict
 from ckan.common import asbool, current_user
 
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
+from ckan.lib.helpers import Page
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -25,7 +26,9 @@ import ckan.authz as authz
 from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
+from ckan.lib.search import (
+    SearchError, SearchQueryError, SearchIndexError, SolrConnectionError
+)
 from ckan.types import Context, Response
 
 
@@ -315,7 +318,7 @@ def search(package_type: str) -> str:
 
         extra_vars[u'sort_by_selected'] = query[u'sort']
 
-        extra_vars[u'page'] = h.Page(
+        extra_vars[u'page'] = Page(
             collection=query[u'results'],
             page=page,
             url=pager_url,
@@ -334,14 +337,17 @@ def search(package_type: str) -> str:
             _(u'Invalid search query: {error_message}')
             .format(error_message=str(se))
         )
-    except SearchError as se:
+    except (SearchError, SolrConnectionError) as se:
+        if isinstance(se, SolrConnectionError):
+            base.abort(500, se.args[0])
+
         # May be bad input from the user, but may also be more serious like
         # bad code causing a SOLR syntax error, or a problem connecting to
         # SOLR
         log.error(u'Dataset search error: %r', se.args)
         extra_vars[u'query_error'] = True
         extra_vars[u'search_facets'] = {}
-        extra_vars[u'page'] = h.Page(collection=[])
+        extra_vars[u'page'] = Page(collection=[])
 
     # FIXME: try to avoid using global variables
     g.search_facets_limits = {}
@@ -643,7 +649,7 @@ class CreateView(MethodView):
                 )
             )
         )
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         # convert tags if not supplied in data
         if data and not data.get(u'tag_string'):
             data[u'tag_string'] = u', '.join(
@@ -676,7 +682,7 @@ class CreateView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'new'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.resources_json = resources_json
@@ -692,7 +698,6 @@ class CreateView(MethodView):
                 u'form_snippet': form_snippet,
                 u'dataset_type': package_type,
                 u'resources_json': resources_json,
-                u'form_snippet': form_snippet,
                 u'errors_json': errors_json
             }
         )
@@ -788,7 +793,7 @@ class EditView(MethodView):
             )
 
         pkg = context.get(u"package")
-        resources_json = h.json.dumps(data.get(u'resources', []))
+        resources_json = h.dump_json(data.get(u'resources', []))
         user = current_user.name
         try:
             check_access(
@@ -818,7 +823,7 @@ class EditView(MethodView):
             u'dataset_type': package_type,
             u'form_style': u'edit'
         }
-        errors_json = h.json.dumps(errors)
+        errors_json = h.dump_json(errors)
 
         # TODO: remove
         g.pkg = pkg
@@ -844,7 +849,6 @@ class EditView(MethodView):
                 u'pkg_dict': pkg_dict,
                 u'pkg': pkg,
                 u'resources_json': resources_json,
-                u'form_snippet': form_snippet,
                 u'errors_json': errors_json
             }
         )

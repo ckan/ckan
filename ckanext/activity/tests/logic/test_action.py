@@ -2695,3 +2695,55 @@ class TestDeferCommitOnCreate(object):
             helpers.call_action("user_show", id=user_dict["name"])
 
         assert model.Session.query(Activity).count() == 0
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+class TestActivityCreate:
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization["id"], user=user)
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_dict = {
+            "id": "test-001-a",
+            "user_id": user["id"],
+            "object_id": dataset["id"],
+            "activity_type": "changed datastore",
+            "data": {
+                "resource_id": resource["id"],
+                "pkg_type": dataset["type"],
+                "resource_name": "june-2018",
+                "owner_org": organization["name"],
+                "count": 5,
+            },
+            "context": context
+        }
+        with pytest.raises(tk.NotAuthorized):
+            helpers.call_action("activity_create", **activity_dict)
+
+    def test_sysadmin_user_cant_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        dataset = factories.Dataset(owner_org=organization["id"], user=user)
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_dict = {
+            "id": "test-001-a",
+            "user_id": user["id"],
+            "object_id": dataset["id"],
+            "activity_type": "changed package",
+            "data": {
+                "resource_id": resource["id"],
+                "pkg_type": dataset["type"],
+                "resource_name": "june-2018",
+                "owner_org": organization["name"],
+                "count": 5,
+            },
+            "context": context
+        }
+        result = helpers.call_action("activity_create", **activity_dict)
+        assert result.get("activity_type") == 'changed package'

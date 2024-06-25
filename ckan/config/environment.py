@@ -22,7 +22,6 @@ import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.authz as authz
 from ckan.lib.webassets_tools import webassets_init, register_core_assets
-from ckan.lib.i18n import build_js_translations
 
 from ckan.common import CKANConfig, config, config_declaration
 from ckan.exceptions import CkanConfigurationException
@@ -73,10 +72,6 @@ def load_environment(conf: Union[Config, CKANConfig]):
         log.critical('Could not connect to Redis.')
 
     app_globals.reset()
-
-    # Build JavaScript translations. Must be done after plugins have
-    # been loaded.
-    build_js_translations()
 
 
 # A mapping of config settings that can be overridden by env vars.
@@ -252,4 +247,4 @@ def update_config() -> None:
     # Close current session and open database connections to ensure a clean
     # clean environment even if an error occurs later on
     model.Session.remove()
-    model.Session.bind.dispose()
+    model.Session.bind.dispose()  # type: ignore

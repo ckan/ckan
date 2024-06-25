@@ -5,7 +5,7 @@ import datetime
 from typing import Any, Iterable, Optional, Type, TypeVar
 from typing_extensions import TypeAlias
 
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, Mapped
 from sqlalchemy import (
     types,
     Column,
@@ -13,8 +13,8 @@ from sqlalchemy import (
     or_,
     and_,
     not_,
-    union_all,
     text,
+    Index,
 )
 
 from ckan.common import config
@@ -47,14 +47,12 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     )
     timestamp = Column("timestamp", types.DateTime)
     user_id = Column("user_id", types.UnicodeText)
-    object_id = Column("object_id", types.UnicodeText)
+    object_id: Any = Column("object_id", types.UnicodeText)
     # legacy revision_id values are used by migrate_package_activity.py
     revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
     permission_labels = Column("permission_labels", types.Text)
-
-    activity_detail: "ActivityDetail"
 
     def __init__(
         self,
@@ -155,6 +153,12 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
+Index('idx_activity_user_id',
+      Activity.__table__.c.user_id, Activity.__table__.c.timestamp)
+Index('idx_activity_object_id',
+      Activity.__table__.c.object_id, Activity.__table__.c.timestamp)
+
+
 def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
     return table_dictize(activity, context)
 
@@ -166,7 +170,7 @@ def activity_list_dictize(
 
 
 # deprecated
-class ActivityDetail(domain_object.DomainObject):
+class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
     __tablename__ = "activity_detail"
     id = Column(
         "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
@@ -179,7 +183,7 @@ class ActivityDetail(domain_object.DomainObject):
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
 
-    activity = relationship(
+    activity: Mapped[Activity] = relationship(  # type: ignore
         Activity,
         backref=backref("activity_detail", cascade="all, delete-orphan"),
     )
@@ -208,6 +212,10 @@ class ActivityDetail(domain_object.DomainObject):
         return (
             model.Session.query(cls).filter_by(activity_id=activity_id).all()
         )
+
+
+Index('idx_activity_detail_activity_id',
+      ActivityDetail.__table__.c.activity_id)
 
 
 def _activities_limit(
@@ -241,11 +249,10 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     Return union of two or more activity queries sorted by timestamp,
     and remove duplicates
     """
-    q: QActivity = (
-        model.Session.query(Activity)
-        .select_entity_from(union_all(*[q.subquery().select() for q in qlist]))
-        .distinct(Activity.timestamp)
-    )
+    q, *rest = qlist
+    for query in rest:
+        q = q.union(query)
+
     return q
 
 

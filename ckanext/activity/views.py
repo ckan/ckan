@@ -510,6 +510,7 @@ def group_activity(id: str, group_type: str) -> str:
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
+    real_group_type = group_dict["type"]
     action_name = "organization_activity_list"
     if not group_dict.get("is_organization"):
         action_name = "group_activity_list"
@@ -563,7 +564,7 @@ def group_activity(id: str, group_type: str) -> str:
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
-        "group_type": group_type,
+        "group_type": real_group_type,
         "group_dict": group_dict,
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),

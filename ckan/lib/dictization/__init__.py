@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterable
 
 import sqlalchemy
 from sqlalchemy import Table
-from sqlalchemy.engine import Row  # type: ignore
+from sqlalchemy.engine import Row
 from sqlalchemy.orm import class_mapper
 
 from ckan.model.core import State
@@ -27,7 +27,7 @@ def table_dictize(obj: Any, context: Context, **kw: Any) -> dict[str, Any]:
     result_dict: dict[str, Any] = {}
 
     if isinstance(obj, Row):
-        fields = obj.keys()
+        fields = obj._fields
     else:
         ModelClass = obj.__class__
         table = class_mapper(ModelClass).persist_selectable
@@ -115,7 +115,9 @@ def table_dict_save(table_dict: dict[str, Any],
                     extra_attrs: Iterable[str] = ()) -> Any:
     '''Given a dict and a model class, update or create a sqlalchemy object.
     This will use an existing object if "id" is supplied OR if any unique
-    constraints are met. e.g supplying just a tag name will get out that tag obj.
+    constraints are met. e.g supplying just a tag name will get out that tag
+    obj.
+
     '''
     session = context["session"]
 

@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Optional
 from sqlalchemy import types, Column, Table, UniqueConstraint
+from sqlalchemy.orm import Mapped
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -25,15 +26,15 @@ task_status_table = Table('task_status', meta.metadata,
 )
 
 class TaskStatus(domain_object.DomainObject):
-    id: str
-    entity_id: str
-    entuty_type: str
-    task_type: str
-    key: str
-    value: str
-    state: str
-    error: str
-    last_updated: datetime
+    id: Mapped[str]
+    entity_id: Mapped[str]
+    entuty_type: Mapped[str]
+    task_type: Mapped[str]
+    key: Mapped[str]
+    value: Mapped[str]
+    state: Mapped[str]
+    error: Mapped[str]
+    last_updated: Mapped[datetime]
 
     @classmethod
     def get(cls, reference: str) -> Optional[Self]:
@@ -44,4 +45,4 @@ class TaskStatus(domain_object.DomainObject):
         task = meta.Session.query(cls).get(reference)
         return task
 
-meta.mapper(TaskStatus, task_status_table)
+meta.registry.map_imperatively(TaskStatus, task_status_table)

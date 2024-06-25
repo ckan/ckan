@@ -29,6 +29,10 @@
         margin-bottom: $grid-gutter-width;
       }
     }
+
+    p a:link {
+      text-decoration: underline;
+    }
 }
 
 .module:first-child .module-heading {

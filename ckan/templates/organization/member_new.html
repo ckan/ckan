@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      {% if not user %}
+      {% if not user and h.check_access('user_create') %}
       <div class="col-md-2">
         <div class="add-member-or">
           {{ _('or') }}

@@ -9,9 +9,13 @@ version: 2
 build:
   os: ubuntu-22.04
   apt_packages:
-      - libmagic-dev
+    - libmagic-dev
+    - libmagic1
   tools:
     python: "3.10"
+  jobs:
+    post_checkout:
+      - git fetch --tags || true
 
 sphinx:
   configuration: doc/conf.py

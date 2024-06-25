@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import os
 import json
+from packaging.version import Version
 import shutil
 from typing import Optional
 
@@ -89,17 +90,21 @@ def extension(output_dir: str):
 
     include_examples = int(click.confirm(
         "Do you want to include code examples?"))
+    full_ckan_version: Version = Version(ckan.__version__)
+    ckan_version = f"{full_ckan_version.major}.{full_ckan_version.minor}"
+
     context = {
-        u"project": name,
-        u"description": description,
-        u"author": author,
-        u"author_email": email,
-        u"keywords": keywords,
-        u"github_user_name": github,
-        u"project_shortname": project_short,
-        u"plugin_class_name": plugin_class_name,
-        u"include_examples": include_examples,
-        u"_source": u"cli",
+        "project": name,
+        "description": description,
+        "author": author,
+        "author_email": email,
+        "keywords": keywords,
+        "github_user_name": github,
+        "project_shortname": project_short,
+        "plugin_class_name": plugin_class_name,
+        "include_examples": include_examples,
+        "ckan_version": ckan_version,
+        "_source": "cli",
     }
 
     if output_dir == u'.':
@@ -191,7 +196,14 @@ def make_config(output_path: str, include_plugin: list[str]):
 @click.option(u"-m",
               u"--message",
               help=u"Message string to use with `revision`.")
-def migration(plugin: str, message: str):
+@click.option(
+    "--autogenerate",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Populate revision script with candidate migration operations, based"
+         " on comparison of database to model.")
+def migration(plugin: str, message: str, autogenerate: bool):
     """Create new alembic revision for DB migration.
     """
     if not config:
@@ -200,13 +212,15 @@ def migration(plugin: str, message: str):
     alembic_config = CKANAlembicConfig(_resolve_alembic_config(plugin))
     assert alembic_config.config_file_name
     migration_dir = os.path.dirname(alembic_config.config_file_name)
-    alembic_config.set_main_option("sqlalchemy.url", "")
-    alembic_config.set_main_option(u'script_location', migration_dir)
+    alembic_config.set_main_option("sqlalchemy.url", config["sqlalchemy.url"])
+    alembic_config.set_main_option('script_location', migration_dir)
 
     if not os.path.exists(os.path.join(migration_dir, u'script.py.mako')):
         alembic.command.init(alembic_config, migration_dir)
 
-    rev = alembic.command.revision(alembic_config, message)
+    rev = alembic.command.revision(
+        alembic_config, message, autogenerate=autogenerate
+    )
     rev_path = rev.path  # type: ignore
     click.secho(
         f"Revision file created. Now, you need to update it: \n\t{rev_path}",
