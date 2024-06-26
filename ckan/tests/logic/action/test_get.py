@@ -473,6 +473,19 @@ class TestGroupList(object):
         with pytest.raises(logic.ValidationError):
             helpers.call_action("group_list", offset="-2")
 
+    @pytest.mark.parametrize("value", ["bb,cc", ["bb", "cc"]])
+    def test_group_list_filter_by_name(self, value):
+
+        factories.Group(name="aa")
+        factories.Group(name="bb")
+        factories.Group(name="cc")
+
+        group_list = helpers.call_action("group_list", groups=value, sort="name asc")
+
+        assert len(group_list) == 2
+        assert group_list[0] == "bb"
+        assert group_list[1] == "cc"
+
 
 @pytest.mark.usefixtures("clean_db", "clean_index")
 class TestGroupShow(object):
