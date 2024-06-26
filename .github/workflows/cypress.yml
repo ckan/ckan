@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       ckan-postgres:
-        image: postgres:10
+        image: postgres:12
         ports:
           - 5432:5432
         options: >-
