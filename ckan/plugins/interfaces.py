@@ -7,8 +7,8 @@ extend CKAN.
 from __future__ import annotations
 
 from typing import (
-    Any, Callable, Iterable, Mapping, Optional, Sequence,
-    TYPE_CHECKING, Union,
+    Any, Callable, IO, Iterable, Mapping, Optional, Sequence,
+    TYPE_CHECKING, Tuple, Union
 )
 
 from flask.blueprints import Blueprint
@@ -29,6 +29,14 @@ if TYPE_CHECKING:
     from ckan.common import CKANConfig
     from ckan.config.middleware.flask_app import CKANFlask
     from ckan.config.declaration import Declaration, Key
+
+
+AttachmentWithType = Union[
+    Tuple[str, IO[str], str],
+    Tuple[str, IO[bytes], str]
+]
+AttachmentWithoutType = Union[Tuple[str, IO[str]], Tuple[str, IO[bytes]]]
+Attachment = Union[AttachmentWithType, AttachmentWithoutType]
 
 
 __all__ = [
@@ -63,6 +71,7 @@ __all__ = [
     u'IApiToken',
     u'IClick',
     u'ISignal',
+    u'INotifier',
 ]
 
 
@@ -2231,3 +2240,71 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class INotifier(Interface):
+    """
+    Allow plugins to add custom notification mechanisms. CKAN by default uses
+    email notifications. This interface allows plugins to add custom
+    notification mechanisms.
+
+    You can skip CKAN email notifications with
+    ``ckan.notifier.always_send_email=False`` (defaults: ``True``)
+    in your configuration file.
+    You can allow multiple plugins to send notifications by setting
+    ``ckan.notifier.notify_all=True`` (defaults: ``False``).
+    If ``False``, only the first plugin
+    that returns ``True`` for ``notify_recipient`` will send the notification.
+
+    """
+
+    def notify_recipient(
+        self,
+        recipient_name: str,
+        recipient_email: str,
+        subject: str,
+        body: str,
+        body_html: Optional[str] = None,
+        headers: Optional[dict[str, Any]] = None,
+        attachments: Optional[Iterable[Attachment]] = None
+    ) -> bool:
+        '''Sends an notification to a user.
+
+        .. note:: This custom notification could replace the default
+            email mechanism.
+
+        :param recipient_name: the name of the recipient
+        :type recipient: string
+        :param recipient_email: the email address of the recipient
+        :type recipient: string
+
+        :param subject: the notification subject
+        :type subject: string
+        :param body: the notification body, in plain text
+        :type body: string
+        :param body_html: the notification body, in html format (optional)
+        :type body_html: string
+        :headers: extra headers to add to notification, in the form
+            {'Header name': 'Header value'}
+        :type: dict
+        :attachments: a list of tuples containing file attachments to add to
+            the notification.
+            Tuples should contain the file name and a file-like
+            object pointing to the file contents::
+
+                [
+                    ('some_report.csv', file_object),
+                ]
+
+            Optionally, you can add a third element to the tuple containing the
+            media type::
+
+                [
+                    ('some_report.csv', file_object, 'text/csv'),
+                ]
+        :type: list
+
+        :returns: True if the notification was sent successfully,
+                  False otherwise
+        '''
+        return False
