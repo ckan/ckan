@@ -546,7 +546,7 @@ class TestDatastoreSearchLegacyTests(object):
 
         self.expected_records = [
             {
-                u"published": u"2005-03-01T00:00:00",
+                u"published": u"2005-03-01T00:00:00.000",
                 u"_id": 1,
                 u"nested": [u"b", {u"moo": u"moo"}],
                 u"b\xfck": u"annakarenina",
@@ -1905,19 +1905,19 @@ class TestDatastoreSearchRecordsFormat(object):
             {
                 u"_id": 3,
                 u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaac",
             },
             {
                 u"_id": 2,
                 u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
+                u"dt": u"2020-01-02T00:00:00.000",
                 u"txt": u"aaab",
             },
             {
                 u"_id": 1,
                 u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaab",
             },
         ]
@@ -1927,19 +1927,19 @@ class TestDatastoreSearchRecordsFormat(object):
             {
                 u"_id": 1,
                 u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaab",
             },
             {
                 u"_id": 3,
                 u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaac",
             },
             {
                 u"_id": 2,
                 u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
+                u"dt": u"2020-01-02T00:00:00.000",
                 u"txt": u"aaab",
             },
         ]
@@ -1949,19 +1949,19 @@ class TestDatastoreSearchRecordsFormat(object):
             {
                 u"_id": 2,
                 u"num": 9,
-                u"dt": u"2020-01-02T00:00:00",
+                u"dt": u"2020-01-02T00:00:00.000",
                 u"txt": u"aaab",
             },
             {
                 u"_id": 1,
                 u"num": 10,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaab",
             },
             {
                 u"_id": 3,
                 u"num": 9,
-                u"dt": u"2020-01-01T00:00:00",
+                u"dt": u"2020-01-01T00:00:00.000",
                 u"txt": u"aaac",
             },
         ]
@@ -1990,9 +1990,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"lists",
             sort=u"num, dt",
         )["records"] == [
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
         ]
         assert helpers.call_action(
             "datastore_search",
@@ -2000,9 +2000,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"lists",
             sort=u"dt, txt",
         )["records"] == [
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
         ]
         assert helpers.call_action(
             "datastore_search",
@@ -2010,9 +2010,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"lists",
             sort=u"txt, num",
         )["records"] == [
-            [2, 9, u"2020-01-02T00:00:00", u"aaab"],
-            [1, 10, u"2020-01-01T00:00:00", u"aaab"],
-            [3, 9, u"2020-01-01T00:00:00", u"aaac"],
+            [2, 9, u"2020-01-02T00:00:00.000", u"aaab"],
+            [1, 10, u"2020-01-01T00:00:00.000", u"aaab"],
+            [3, 9, u"2020-01-01T00:00:00.000", u"aaac"],
         ]
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2040,9 +2040,9 @@ class TestDatastoreSearchRecordsFormat(object):
                 records_format=u"csv",
                 sort=u"num, dt",
             )["records"]
-            == u"3,9,2020-01-01T00:00:00,aaac\n"
-            u"2,9,2020-01-02T00:00:00,aaab\n"
-            u"1,10,2020-01-01T00:00:00,aaab\n"
+            == u"3,9,2020-01-01T00:00:00.000,aaac\n"
+            u"2,9,2020-01-02T00:00:00.000,aaab\n"
+            u"1,10,2020-01-01T00:00:00.000,aaab\n"
         )
         assert (
             helpers.call_action(
@@ -2051,9 +2051,9 @@ class TestDatastoreSearchRecordsFormat(object):
                 records_format=u"csv",
                 sort=u"dt, txt",
             )["records"]
-            == u"1,10,2020-01-01T00:00:00,aaab\n"
-            u"3,9,2020-01-01T00:00:00,aaac\n"
-            u"2,9,2020-01-02T00:00:00,aaab\n"
+            == u"1,10,2020-01-01T00:00:00.000,aaab\n"
+            u"3,9,2020-01-01T00:00:00.000,aaac\n"
+            u"2,9,2020-01-02T00:00:00.000,aaab\n"
         )
         assert (
             helpers.call_action(
@@ -2062,9 +2062,9 @@ class TestDatastoreSearchRecordsFormat(object):
                 records_format=u"csv",
                 sort=u"txt, num",
             )["records"]
-            == u"2,9,2020-01-02T00:00:00,aaab\n"
-            u"1,10,2020-01-01T00:00:00,aaab\n"
-            u"3,9,2020-01-01T00:00:00,aaac\n"
+            == u"2,9,2020-01-02T00:00:00.000,aaab\n"
+            u"1,10,2020-01-01T00:00:00.000,aaab\n"
+            u"3,9,2020-01-01T00:00:00.000,aaac\n"
         )
 
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
@@ -2096,8 +2096,8 @@ class TestDatastoreSearchRecordsFormat(object):
             {u"id": u"txt", u"type": u"text"},
         ]
         assert (
-            r["records"] == u"2020-01-02T00:00:00,9,aaab\n"
-            u"2020-01-01T00:00:00,9,aaac\n"
+            r["records"] == u"2020-01-02T00:00:00.000,9,aaab\n"
+            u"2020-01-01T00:00:00.000,9,aaac\n"
         )
         r = helpers.call_action(
             "datastore_search",
@@ -2107,7 +2107,7 @@ class TestDatastoreSearchRecordsFormat(object):
             q=u"aaac",
         )
         assert r["fields"] == [{u"id": u"dt", u"type": u"timestamp"}]
-        assert r["records"] == u"2020-01-01T00:00:00\n"
+        assert r["records"] == u"2020-01-01T00:00:00.000\n"
         r = helpers.call_action(
             "datastore_search",
             resource_id=r["resource_id"],
@@ -2216,9 +2216,9 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"lists",
             sort=u"num nulls last, dt nulls last",
         )["records"] == [
-            [2, 9, "2020-01-02T00:00:00", "aaab", None],
+            [2, 9, "2020-01-02T00:00:00.000", "aaab", None],
             [3, 9, None, "aaac", ["one", "two"]],
-            [1, 10, "2020-01-01T00:00:00", "aaab", ["one", "two"]],
+            [1, 10, "2020-01-01T00:00:00.000", "aaab", ["one", "two"]],
             [4, None, None, None, None],
         ]
         assert helpers.call_action(
@@ -2227,8 +2227,8 @@ class TestDatastoreSearchRecordsFormat(object):
             records_format=u"objects",
             sort=u"num nulls last, dt nulls last",
         )["records"] == [
-            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00", "txt": "aaab", "lst": None},
+            {"_id": 2, "num": 9, "dt": "2020-01-02T00:00:00.000", "txt": "aaab", "lst": None},
             {"_id": 3, "num": 9, "dt": None, "txt": "aaac", "lst": ["one", "two"]},
-            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00", "txt": "aaab", "lst": ["one", "two"]},
+            {"_id": 1, "num": 10, "dt": "2020-01-01T00:00:00.000", "txt": "aaab", "lst": ["one", "two"]},
             {"_id": 4, "num": None, "dt": None, "txt": None, "lst": None},
         ]
