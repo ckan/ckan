@@ -204,7 +204,7 @@ class TestDatastoreUpsert(object):
         search_result = _search(resource["id"])
         assert search_result["total"] == 3
         assert (
-            search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
+            search_result["records"][0]["published"] == u"2005-03-01T00:00:00.000"
         )  # i.e. stored in db as datetime
         assert search_result["records"][2]["author"] == "adams"
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
