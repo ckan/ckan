@@ -1,8 +1,12 @@
 # encoding: utf-8
 
+from typing import Any
 import pytest
+from faker import Faker
 
 import ckan.plugins as p
+from ckan import model
+from ckan.lib.authenticator import ckan_authenticator
 
 toolkit = p.toolkit
 
@@ -36,3 +40,35 @@ class TestExampleIAuthenticator(object):
 
         assert resp.status_code == 302
         assert resp.headers[u'Location'] == toolkit.url_for(u'example_iauthenticator.custom_logout', _external=True)
+
+    @pytest.mark.usefixtures("with_request_context")
+    def test_fallback_authentication(self, user_factory: Any, faker: Faker):
+        """If IAuthenticator.authenticate returns `None`, application tries
+        other authenticators.
+
+        """
+
+        password = faker.password()
+        user = user_factory(password=password)
+        result = ckan_authenticator({
+            "login": user["name"],
+            "password": password,
+            "use_fallback": True
+        })
+        assert result is not None
+        assert result.name == user["name"]
+
+    @pytest.mark.usefixtures("with_request_context")
+    def test_rejected_authentication(self, user_factory: Any, faker: Faker):
+        """If IAuthenticator.authenticate returns `model.AnonymousUser`,
+        application ignores other implementations.
+
+        """
+
+        password = faker.password()
+        user = user_factory(password=password)
+        result = ckan_authenticator({
+            "login": user["name"],
+            "password": password
+        })
+        assert isinstance(result, model.AnonymousUser)
