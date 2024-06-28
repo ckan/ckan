@@ -755,7 +755,7 @@ def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
 @pytest.mark.parametrize("string", [
 
     "2008-04-13T20:40:20-0130",  # no `:` in timezone
-    "2008-04-13T20:40:20foobar", # cannot parse the rest as milliseconds
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
 def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
