@@ -9,19 +9,15 @@ from flask import Blueprint
 
 import ckan.plugins.toolkit as tk
 import ckan.model as model
+from ckan.lib.plugins import lookup_package_plugin
 from ckan.views.group import (
-    set_org,
     # TODO: don't use hidden funcitons
     _get_group_dict,
-    _get_group_template,
-    _replace_group_org,
+    _get_group_template
 )
 
 # TODO: don't use hidden funcitons
 from ckan.views.user import _extra_template_variables
-
-# TODO: don't use hidden funcitons
-from ckan.views.dataset import _setup_template_variables
 
 from ckan.types import Context, Response
 from .model import Activity
@@ -277,7 +273,9 @@ def package_history(id: str, activity_id: str) -> Union[Response, str]:
         resource["has_views"] = len(resource_views) > 0
 
     package_type = pkg_dict["type"] or "dataset"
-    _setup_template_variables(context, {"id": id}, package_type=package_type)
+    lookup_package_plugin(package_type).setup_template_variables(
+        context, data_dict
+    )
 
     return tk.render(
         "package/history.html",
@@ -499,22 +497,18 @@ def group_activity(id: str, group_type: str) -> str:
     """Render this group's public activity stream page."""
     after = tk.request.args.get("after")
     before = tk.request.args.get("before")
-
-    if group_type == 'organization':
-        set_org(True)
-
     context: Context = {"user": tk.g.user, "for_view": True}
 
+    is_org = group_type == "organization"
+
     try:
-        group_dict = _get_group_dict(id, group_type)
+        group_dict = _get_group_dict(id, is_org)
     except (tk.ObjectNotFound, tk.NotAuthorized):
         tk.abort(404, tk._("Group not found"))
 
-    real_group_type = group_dict["type"]
-    action_name = "organization_activity_list"
-    if not group_dict.get("is_organization"):
-        action_name = "group_activity_list"
-
+    action_name = (
+        "organization_activity_list" if is_org else "group_activity_list"
+    )
     activity_type = tk.request.args.get("activity_type")
     activity_types = [activity_type] if activity_type else None
 
@@ -564,17 +558,15 @@ def group_activity(id: str, group_type: str) -> str:
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
-        "group_type": real_group_type,
+        "group_type": group_dict["type"],
         "group_dict": group_dict,
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),
         "newer_activities_url": newer_activities_url,
         "older_activities_url": older_activities_url
     }
-
-    return tk.render(
-        _get_group_template("activity_template", group_type), extra_vars
-    )
+    group_template = _get_group_template(u'activity_template', group_type)
+    return tk.render(group_template, extra_vars)
 
 
 @bp.route(
@@ -624,8 +616,8 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
         "group_activity_list": group_activity_list,
         "group_type": current_group_dict["type"],
     }
-
-    return tk.render(_replace_group_org("group/changes.html"), extra_vars)
+    group_or_org = "organization" if is_organization else "group"
+    return tk.render(f"{group_or_org}/changes.html", extra_vars)
 
 
 @bp.route(
@@ -722,7 +714,8 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
         "group_type": current_group_dict["type"],
     }
 
-    return tk.render(_replace_group_org("group/changes.html"), extra_vars)
+    group_or_org = "organization" if is_organization else "group"
+    return tk.render(f"{group_or_org}/changes.html", extra_vars)
 
 
 @bp.route("/user/activity/<id>")
