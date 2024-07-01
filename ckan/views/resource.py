@@ -230,12 +230,13 @@ class CreateView(MethodView):
                 error_summary = {_(u'Error'): msg}
                 return self.get(package_type, id, data, errors, error_summary)
 
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
-            )
+            try:
+                get_action('package_patch')(
+                    Context(context, allow_state_change=True),
+                    {'id': id, 'state': 'active'}
+                )
+            except ValidationError:
+                pass
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -260,12 +261,13 @@ class CreateView(MethodView):
                 404, _(u'The dataset {id} could not be found.').format(id=id)
             )
         if save_action == u'go-metadata':
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
-                Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
-            )
+            try:
+                get_action('package_patch')(
+                    Context(context, allow_state_change=True),
+                    {'id': id, 'state': 'active'}
+                )
+            except ValidationError:
+                pass
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
