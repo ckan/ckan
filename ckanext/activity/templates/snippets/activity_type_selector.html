@@ -9,16 +9,16 @@
   blueprint - blueprint to call when selecting an activity type to filter by (eg: dataset.activity)
 #}
 
-<div id="activity_types_filter" style="margin-bottom: 15px;" data-module="activity-stream">
+<div id="activity_types_filter" style="margin-bottom: 15px;">
   <label for="activity_types_filter_select" class="form-label">
     {{ _('Activity type') }}
   </label>
   <select id="activity_types_filter_select" class="form-select">
-    <option {% if not activity_types %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id) }}">
+    <option {% if not activity_types %}selected{% endif %} hx-get="{{ h.url_for(blueprint, id=id) }}" hx-target="closest .module-content" hx-push-url="true">
       {{ _('All activity types') }}
     </option>
     {% for type_ in activity_types %}
-      <option {% if activity_type == type_ %}selected{% endif %} data-url="{{ h.url_for(blueprint, id=id, activity_type=type_) }}">
+      <option {% if activity_type == type_ %}selected{% endif %} hx-get="{{ h.url_for(blueprint, id=id, activity_type=type_) }}" hx-target="closest .module-content" hx-push-url="true">
         {# TODO: Calling humanize gets complex when displaying orgs/groups since the activities also contains dataset activities #}
         {{ type_ | title }}
       </option>
