@@ -13,7 +13,7 @@
   <ul class="{{ _class }}">
     {% for tag in tags %}
       <li>
-        <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for 'dataset.search', tags=tag.name %}" aria-label="{{ tag.display_name }}" data-bs-toggle="tooltip">{{ tag.display_name|truncate(22) }}</a>
+        <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for 'dataset.search', tags=tag.name %}" aria-label="Search datasets with the tag {{ tag.display_name }}">{{ tag.display_name|truncate(22) }}</a>
       </li>
     {% endfor %}
   </ul>

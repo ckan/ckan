@@ -102,15 +102,7 @@ $(function() {
   });
 });
 
-// Initialize Bootstrap 5 tooltips for elements with data-bs-toggle="tooltip", 
-// using aria-label for tooltip content.
-$('[data-bs-toggle="tooltip"]').each(function () {
-  var tooltipTriggerEl = this;
-  var ariaLabel = $(tooltipTriggerEl).attr('aria-label');
-
-  new bootstrap.Tooltip(tooltipTriggerEl, {
-    title: ariaLabel,
-    placement: "bottom",
-    delay: { show: 400, hide: 200 }
-  });
-});
+// Initialize tooltips using Bootstrap
+$('[data-bs-toggle="tooltip"]').each(function (index, element) {
+  bootstrap.Tooltip.getOrCreateInstance(element)
+})

@@ -16,7 +16,7 @@
   <div class="tags">
     <h3>{{ _('Popular tags') }}</h3>
     {% for tag in tags %}
-      <a class="tag" href="{% url_for 'dataset.search', tags=tag.name %}" aria-label="{{ tag.display_name }}" data-bs-toggle="tooltip">{{ tag.display_name|truncate(22) }}</a>
+      <a class="tag" href="{% url_for 'dataset.search', tags=tag.name %}" aria-label="Search datasets with the tag {{ tag.display_name }}"> {{ tag.display_name|truncate(22) }}</a>
     {% endfor %}
   </div>
 </div>

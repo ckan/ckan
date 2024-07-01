@@ -3,7 +3,7 @@
 <div class="context-info">
   {% if description != 'null' %}
     {% set description = description|striptags %}
-    <p class="about" aria-label="{{ description }}" data-bs-toggle="tooltip">
+    <p class="about" aria-label="Group description">
       {{ description|truncate(160) }}
     </p>
   {% endif %}

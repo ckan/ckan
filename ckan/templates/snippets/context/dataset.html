@@ -1,7 +1,7 @@
 <div class="popover-context profile-info">
   {% if notes != 'null' %}
     {% set notes = notes|striptags %}
-    <p class="about" aria-label="{{ notes }}" data-bs-toggle="tooltip">
+    <p class="about" aria-label="Dataset description">
       {{ notes|truncate(160) }}
     </p>
   {% endif %}

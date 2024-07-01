@@ -76,7 +76,7 @@
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" aria-label="{{ title }}" data-bs-toggle="tooltip">
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" aria-label="Open details page for dataset - {{ title|truncate(80) }}">
                           {{ title|truncate(80) }}
                         </a>
                         {% if package.get('state', '').startswith('draft') %}
