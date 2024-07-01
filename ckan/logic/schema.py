@@ -478,7 +478,8 @@ def default_user_schema(
         'state': [ignore_missing, ignore_not_sysadmin],
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
-        'plugin_data': [ignore_missing, json_object],
+        'plugin_data': [ignore_missing, json_object, ignore_not_sysadmin],
+        'extras': [ignore_missing]
     }
 
 
@@ -566,23 +567,9 @@ def default_user_show_schema(ignore_missing: Validator,
         'state': [ignore_empty],
         'image_url': [ignore_empty],
         'image_display_url': [ignore_empty],
-        'plugin_data': [load_plugin_data]
+        'plugin_data': [load_plugin_data],
+        'extras': [ignore_missing]
     }
-
-    # schema['id'] = [ignore]
-    # schema['password'] = [ignore]
-    # schema['password_hash'] = [ignore]
-    # schema['email'] = [ignore_missing]
-    # schema['name'] = [ignore_missing]
-    # schema['created'] = []
-    # schema['sysadmin'] = []
-    # schema['reset_key'] = []
-    # schema['state'] = []
-    # schema['activity_streams_email_notifications'] = []
-    # schema['image_url'] = []
-    # schema['image_display_url'] = []
-
-    # return schema
 
 
 @validator_args

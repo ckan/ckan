@@ -18,6 +18,7 @@ def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
     """Convert given field into an extra field.
     """
     # Get the current extras index
+    breakpoint()
     current_indexes = [k[1] for k in data.keys()
                        if len(k) > 1 and k[0] == 'extras']
 
@@ -73,7 +74,6 @@ def load_plugin_data(plugin_name: str):
     def callable(key: FlattenKey, data: FlattenDataDict,
                                errors: FlattenErrorDict,
                                context: Context) -> Any:
-        breakpoint()
         plugin_data = context.get('plugin_data', {})
         if not plugin_data:
             return

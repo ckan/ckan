@@ -11,7 +11,7 @@ import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym, Mapped
-from sqlalchemy import types, Column, Table, func, Index
+from sqlalchemy import types, Column, Table, func, Index, CheckConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from flask_login import AnonymousUserMixin
@@ -60,7 +60,12 @@ user_table = Table('user', meta.metadata,
         Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
         Column('plugin_data', MutableDict.as_mutable(JSONB)),
-        # Column('plugin_extras', MutableDict.as_mutable(JSONB)), --REMOVE ME IN 2.12+ (see #4147)
+        Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='package_flat_extras')) ,
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
         Index('idx_only_one_active_email', 'email', 'state', unique=True,

@@ -23,22 +23,16 @@ class ExampleIUserFormPlugin1(plugins.SingletonPlugin):
         # Add our custom zip_code metadata field to the schema.
         f = cast(Schema, schema)
         f["zip_code"] = [
-            cast(
-                ValidatorFactory,
-                tk.get_validator("store_plugin_data")("example_iuserform1"),
-            ),
             tk.get_validator("ignore_missing"),
-        ]
+            tk.get_converter('convert_to_extras')]
         return f
 
     def show_user_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
         f = cast(Schema, schema)
         f["zip_code"] = [
             tk.get_validator("ignore_missing"),
-            cast(ValidatorFactory, tk.get_validator("load_plugin_data"))(
-                "example_iuserform1"
-            ),
-        ]
+            tk.get_converter('convert_from_extras')
+            ],
         return f
 
     def create_user_schema(self, schema: Schema) -> Dict[str, Any]:

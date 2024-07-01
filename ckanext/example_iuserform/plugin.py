@@ -39,22 +39,15 @@ class ExampleIUserFormPlugin(plugins.SingletonPlugin):
         # Add our custom country metadata field to the schema.
         f = cast(Schema, schema)
         f["country"] = [
-            cast(
-                ValidatorFactory,
-                tk.get_validator("store_plugin_data")("example_iuserform"),
-            ),
-            tk.get_validator("ignore_missing"),
-        ]
+            tk.get_validator('ignore_missing'),
+            tk.get_converter('convert_to_extras')]
         return f
 
     def show_user_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
         f = cast(Schema, schema)
         f["country"] = [
             tk.get_validator("ignore_missing"),
-            cast(ValidatorFactory, tk.get_validator("load_plugin_data"))(
-                "example_iuserform"
-            ),
-        ]
+            tk.get_converter('convert_from_extras')]
         return f
 
     def create_user_schema(self, schema: Schema) -> Dict[str, Any]:
