@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from typing import Any
-from sqlalchemy import orm, types, Column, Table, ForeignKey
+from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
 from sqlalchemy.ext.associationproxy import association_proxy
 
 
@@ -21,6 +21,7 @@ group_extra_table = Table('group_extra', meta.metadata,
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_extra_group_id', 'group_id'),
 )
 
 

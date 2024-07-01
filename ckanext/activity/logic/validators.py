@@ -33,6 +33,9 @@ VALIDATORS_PACKAGE_ACTIVITY_TYPES = {
     "changed package": "package_id_exists",
     "deleted package": "package_id_exists",
     "follow dataset": "package_id_exists",
+    "new resource view": "package_id_exists",
+    "changed resource view": "package_id_exists",
+    "deleted resource view": "package_id_exists",
 }
 
 VALIDATORS_USER_ACTIVITY_TYPES = {

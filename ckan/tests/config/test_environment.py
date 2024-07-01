@@ -32,7 +32,7 @@ def reset_env():
     for env_var, _ in ENV_VAR_LIST:
         if os.environ.get(env_var, None):
             del os.environ[env_var]
-    p.load()
+    p.plugins_update()
 
 
 @pytest.mark.usefixtures(u"reset_env")

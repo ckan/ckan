@@ -17,6 +17,8 @@ from ckan.views.group import (
     _replace_group_org,
 )
 
+from ckan.common import request as ckan_request
+
 # TODO: don't use hidden funcitons
 from ckan.views.user import _extra_template_variables
 
@@ -348,21 +350,32 @@ def package_activity(id: str) -> Union[Response, str]:  # noqa
         activity_type=activity_type
     )
 
-    return tk.render(
-        "package/activity_stream.html",
-        {
-            "dataset_type": dataset_type,
-            "pkg_dict": pkg_dict,
-            "activity_stream": activity_stream,
-            "id": id,  # i.e. package's current name
-            "limit": limit,
-            "has_more": has_more,
-            "activity_type": activity_type,
-            "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
-            "newer_activities_url": newer_activities_url,
-            "older_activities_url": older_activities_url,
-        },
-    )
+    object_type = "package"
+    blueprint = "activity.{}_activity".format(object_type)
+
+    extra_vars = {
+        "dataset_type": dataset_type,
+        "pkg_dict": pkg_dict,
+        "activity_stream": activity_stream,
+        "id": id,  # i.e. package's current name
+        "limit": limit,
+        "has_more": has_more,
+        "activity_type": activity_type,
+        "activity_types": VALIDATORS_PACKAGE_ACTIVITY_TYPES.keys(),
+        "newer_activities_url": newer_activities_url,
+        "older_activities_url": older_activities_url,
+        "blueprint": blueprint,
+        "object_type": object_type,
+    }
+
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            "package/activity_stream.html", extra_vars
+        )
 
 
 @bp.route("/dataset/changes/<id>")
@@ -561,6 +574,8 @@ def group_activity(id: str, group_type: str) -> str:
         activity_type=activity_type
     )
 
+    blueprint = "activity.{}_activity".format(group_type)
+
     extra_vars = {
         "id": id,
         "activity_stream": activity_stream,
@@ -569,12 +584,19 @@ def group_activity(id: str, group_type: str) -> str:
         "activity_type": activity_type,
         "activity_types": filter_types.keys(),
         "newer_activities_url": newer_activities_url,
-        "older_activities_url": older_activities_url
+        "older_activities_url": older_activities_url,
+        "blueprint": blueprint,
+        "object_type": group_type,
     }
 
-    return tk.render(
-        _get_group_template("activity_template", group_type), extra_vars
-    )
+    if ckan_request.htmx:
+        return tk.render(
+            "snippets/activity_stream.html", extra_vars
+        )
+    else:
+        return tk.render(
+            _get_group_template("activity_template", group_type), extra_vars
+        )
 
 
 @bp.route(
