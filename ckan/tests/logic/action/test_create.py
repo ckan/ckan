@@ -1128,6 +1128,22 @@ class TestDatasetCreate(object):
 
         assert isinstance(dataset, str)
 
+    def test_create_draft_dataset_via_api(self):
+        user = factories.User()
+
+        org_users = [{"name": user["name"], "capacity": "editor"}]
+        _ = factories.Organization(users=org_users)
+
+        data_dict = {
+            'title': 'A test dataset',
+            'name': 'test_name',
+            'state': 'draft',
+            'author': 'Test User'
+        }
+
+        dataset = logic.get_action("package_create")({"user": user["name"]}, data_dict)
+        assert dataset["state"] == "draft"
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
