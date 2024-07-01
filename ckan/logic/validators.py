@@ -1088,15 +1088,17 @@ def email_is_unique(key: FlattenKey, data: FlattenDataDict,
     model = context['model']
     session = context['session']
 
-    users = session.query(model.User) \
-        .filter(model.User.email == data[key]) \
-        .filter(model.User.state == 'active').all()
-    # if there are no active users with this email, it's free
-    if not users:
+    existing_users = (
+        session.query(model.User)
+        .filter(model.User.email.ilike(data[key]), model.User.state == "active")
+        .all()
+    )
+
+    if not existing_users:
         return
     else:
         # allow user to update their own email
-        for user in users:
+        for user in existing_users:
             if (user.name in (data.get(("name",)), data.get(("id",)))
                     or user.id == data.get(("id",))):
                 return
