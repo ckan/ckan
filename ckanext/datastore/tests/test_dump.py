@@ -239,7 +239,7 @@ class TestDatastoreDump(object):
 
         expected_content = (
             "_id\tb\xfck\tauthor\tpublished\tcharacters\trandom_letters\t"
-            "nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00\t"
+            "nested\r\n1\tannakarenina\ttolstoy\t2005-03-01T00:00:00.000\t"
             '"[""Princess Anna"",""Sergius""]"\t'
             '"[""a"",""e"",""x""]"\t"[""b"", '
             '{""moo"": ""moo""}]"\n'
@@ -340,7 +340,7 @@ class TestDatastoreDump(object):
             ],
             u'records': [
                 [
-                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00',
+                    1, u'annakarenina', u'tolstoy', u'2005-03-01T00:00:00.000',
                     [u'Princess Anna', u'Sergius'],
                     [u'a', u'e', u'x'],
                     [u'b', {u'moo': u'moo'}]
@@ -430,7 +430,7 @@ class TestDatastoreDump(object):
             r'<row _id="1">'
             u"<b\xfck>annakarenina</b\xfck>"
             u"<author>tolstoy</author>"
-            u"<published>2005-03-01T00:00:00</published>"
+            u"<published>2005-03-01T00:00:00.000</published>"
             u"<characters>"
             u'<value key="0">Princess Anna</value>'
             u'<value key="1">Sergius</value>'
