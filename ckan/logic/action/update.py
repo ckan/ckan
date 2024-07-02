@@ -315,18 +315,11 @@ def package_update(
     if user_obj:
         plugin_data = data.get('plugin_data', False)
         include_plugin_data = (
-            user_obj.sysadmin  # type: ignore
+            user_obj.sysadmin
             and plugin_data
         )
 
     pkg = model_save.package_dict_save(data, context, include_plugin_data)
-
-    context_org_update = context.copy()
-    context_org_update['ignore_auth'] = True
-    context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
 
     # Needed to let extensions know the new resources ids
     model.Session.flush()
@@ -1073,36 +1066,8 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
         if org is None or not org.is_organization:
             raise NotFound(_('Organization was not found.'))
 
-        # FIXME check we are in that org
-        pkg.owner_org = org.id
-    else:
-        org = None
-        pkg.owner_org = None
-
-    members = model.Session.query(model.Member) \
-        .filter(model.Member.table_id == pkg.id) \
-        .filter(model.Member.capacity == 'organization')
-
-    need_update = True
-    for member_obj in members:
-        if org and member_obj.group_id == org.id:
-            need_update = False
-        else:
-            member_obj.state = 'deleted'
-            member_obj.save()
-
-    # add the organization to member table
-    if org and need_update:
-        member_obj = model.Member(table_id=pkg.id,
-                                  table_name='package',
-                                  group=org,
-                                  capacity='organization',
-                                  group_id=org.id,
-                                  state='active')
-        model.Session.add(member_obj)
-
-    if not context.get('defer_commit'):
-        model.Session.commit()
+    pkg_patch_dict = {"id": pkg.id, "owner_org": organization_id}
+    return _get_action("package_patch")(context, pkg_patch_dict)
 
 
 def _bulk_update_dataset(
