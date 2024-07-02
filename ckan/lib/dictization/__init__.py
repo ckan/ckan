@@ -150,7 +150,6 @@ def table_dict_save(table_dict: dict[str, Any],
     for a in extra_attrs:
         if a in table_dict:
             setattr(obj, a, table_dict[a])
-
     session.add(obj)
 
     return obj

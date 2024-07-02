@@ -418,7 +418,6 @@ def user_dict_save(
 
     model = context['model']
     user = context.get('user_obj')
-
     User = model.User
     if user:
         user_dict['id'] = user.id

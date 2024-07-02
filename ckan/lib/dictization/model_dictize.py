@@ -570,7 +570,6 @@ def user_dictize(
         include_password_hash: bool=False,
         include_plugin_extras: bool=False) -> dict[str, Any]:
     model = context['model']
-
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
         user, capacity = user  #type: ignore
@@ -593,7 +592,6 @@ def user_dictize(
     result_dict.pop('reset_key', None)
     apikey = result_dict.pop('apikey', None)
     email = result_dict.pop('email', None)
-    plugin_extras = result_dict.pop('plugin_extras', None)
 
     if context.get('keep_email', False):
         result_dict['email'] = email
@@ -612,10 +610,13 @@ def user_dictize(
         if include_password_hash:
             result_dict['password_hash'] = password_hash
 
-        if include_plugin_extras:
-            result_dict['plugin_extras'] = copy.deepcopy(
-                plugin_extras) if plugin_extras else plugin_extras
+        # if include_plugin_extras:
+        #     result_dict['plugin_extras'] = copy.deepcopy(
+        #         plugin_extras) if plugin_extras else plugin_extras
 
+    # check and update custom user data
+    # add to context to allow plugins to access it
+    #context['plugin_data'] = result_dict.pop('plugin_data', None)
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url

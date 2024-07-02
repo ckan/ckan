@@ -596,7 +596,6 @@ def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
 
     data.pop(key)
 
-
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
                            errors: FlattenErrorDict, context: Context) -> Any:
     '''Ignore if the user is not allowed to administer for the group specified.'''
