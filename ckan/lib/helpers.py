@@ -15,6 +15,7 @@ import os
 import pytz
 import tzlocal
 import pprint
+import contextlib
 import copy
 import uuid
 import functools
@@ -1535,20 +1536,47 @@ def render_datetime(datetime_: Optional[datetime.datetime],
 
 @core_helper
 def date_str_to_datetime(date_str: str) -> datetime.datetime:
-    '''Convert ISO-like formatted datestring to datetime object.
+    """Convert ISO-like formatted datestring to datetime object.
 
-    This function converts ISO format date- and datetime-strings into
-    datetime objects.  Times may be specified down to the microsecond.  UTC
-    offset or timezone information may **not** be included in the string.
+    This function converts ISO format date- and datetime-strings into datetime
+    objects. Times may be specified down to the microsecond. Timezone
+    information may be included in the string.
 
-    Note - Although originally documented as parsing ISO date(-times), this
-           function doesn't fully adhere to the format.  This function will
-           throw a ValueError if the string contains UTC offset information.
-           So in that sense, it is less liberal than ISO format.  On the
-           other hand, it is more liberal of the accepted delimiters between
-           the values in the string.  Also, it allows microsecond precision,
-           despite that not being part of the ISO format.
-    '''
+    Values compatible with `datetime.isoformat` output may include timezone
+    offset. Internally, `datetime.fromisoformat` is used for parsing, so
+    additional details can be found in official python documentation and wider
+    range of dates can be processed in newer python versions.
+
+    Compatible values consist of date part and optional time part with optional
+    timezone part. Date is formatted as `%Y-%m-%d`. If time part is present,
+    it's separated from date part by any unicode character. Prefer using space
+    symbol or `T`. Time can be specified as `%H:%M:%S` or `%H:%M:%S.%f` if
+    higher precision is required. Note, that milliseconds/microseconds must
+    contain exactly 3 or 6 digits. Timezone must be specified as time offset -
+    `-01:30`, `+08:00`. Named timezones, as `UTC` are not currently supported.
+
+    If value cannot be parsed with `datetime.fromisoformat`, all numeric
+    fragments are extracted and passed to `datetime` constructor in the
+    original order. Everything after seconds(even text) passed as microsecond
+    parameter. It allows handling even unusual dates, like `2020/01/01
+    17.04.59.123`.
+
+    Prefer using ISO 8601 dates, as alternative formats can be disabled in
+    future.
+
+    Example:
+    >>> # ISO 8601
+    >>> date_str_to_datetime("2020-01-01")
+    >>> date_str_to_datetime("2020-01-01 20:00")
+    >>> date_str_to_datetime("2020-01-01T17:15:59.123+01:00")
+    >>>
+    >>> # alternative formats
+    >>> date_str_to_datetime("2020/01/01 15:14:55.1")
+
+    """
+
+    with contextlib.suppress(ValueError):
+        return datetime.datetime.fromisoformat(date_str)
 
     time_tuple: list[Any] = re.split(r'[^\d]+', date_str, maxsplit=5)
 
