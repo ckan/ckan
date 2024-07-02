@@ -90,8 +90,8 @@
   {{- _('Metadata last updated') }}: {{ local_friendly_datetime(res.metadata_modified) }}&#10;
   {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
   {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
-  {%- if res.size|int != 0 -%}
-   ( {{ h.SI_number_span(res.size)|striptags }} )
+  {%- if res.size and res.size|int != 0 -%}
+   ( {{ h.localised_filesize(res.size)}} )
   {%- endif -%}
 </div>
 {%- endblock -%}
