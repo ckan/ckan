@@ -10,7 +10,7 @@ import socket
 from typing import (Container, Optional,
                     Union, Any, cast, Type)
 
-from ckan.common import config, asbool
+from ckan.common import config, asbool, aslist
 import sqlalchemy
 from sqlalchemy import text
 
@@ -387,6 +387,7 @@ def _group_or_org_list(
     query = query.filter(model.Group.state == 'active')
 
     if groups:
+        groups = aslist(groups, sep=",")
         query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)

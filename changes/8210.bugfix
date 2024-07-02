@@ -1,0 +1,1 @@
+Fix exception in ``group_list`` / ``organization_list`` when passing the ``groups`` / ``organizations`` parameters
