@@ -674,3 +674,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
         "diff": diff,
         "activities": activities,
     }
+
+
+def activity_delete(context: Context, data_dict: DataDict) -> None:
+    pass

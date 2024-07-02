@@ -87,7 +87,7 @@
   {{- _('Created') }}: {{ local_friendly_datetime(res.created) }}&#10;
   {{- res.format or res.mimetype_inner or res.mimetype or _('unknown') -}}&nbsp;
   {%- if res.size and res.size|int != 0 -%}
-   ( {{ h.localize_filesize(res.size)}} )
+   ( {{ h.localised_filesize(res.size)}} )
   {%- endif -%}
 </div>
 {%- endblock -%}
