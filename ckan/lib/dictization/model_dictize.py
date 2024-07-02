@@ -47,7 +47,6 @@ def group_list_dictize(
         with_package_counts: bool=True,
         with_member_counts: bool=True,
         include_groups: bool=False,
-        include_tags: bool=False,
         include_extras: bool=False) -> list[dict[str, Any]]:
 
     group_dictize_context: Context = context.copy()
@@ -57,7 +56,6 @@ def group_list_dictize(
             'packages_field': 'dataset_count' if with_package_counts else None,
             # don't allow packages_field='datasets' as it is too slow
             'include_groups': include_groups,
-            'include_tags': include_tags,
             'include_extras': include_extras,
             'include_users': False,  # too slow - don't allow
             }
@@ -342,7 +340,6 @@ def get_group_dataset_counts() -> dict[str, Any]:
 
 def group_dictize(group: model.Group, context: Context,
                   include_groups: bool=True,
-                  include_tags: bool=True,
                   include_users: bool=True,
                   include_extras: bool=True,
                   include_member_count: bool=False,
@@ -427,13 +424,6 @@ def group_dictize(group: model.Group, context: Context,
                     package_count = facets['groups'].get(group.name, 0)
 
         result_dict['package_count'] = package_count
-
-    if include_tags:
-        # group tags are not creatable via the API yet, but that was(/is) a
-        # future intention (see kindly's commit 5c8df894 on 2011/12/23)
-        result_dict['tags'] = tag_list_dictize(
-            _get_members(context, group, 'tags'),
-            context)
 
     if include_groups:
         # these sub-groups won't have tags or extras for speed

@@ -86,7 +86,7 @@ class ConfigView(MethodView):
 
     def post(self) -> Union[str, Response]:
         try:
-            req: dict[str, Any] = request.form.copy()
+            req = request.form.copy()
             req.update(request.files.to_dict())
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(
