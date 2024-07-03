@@ -169,7 +169,7 @@ def package_dictize(
     model = context['model']
     assert not (context.get('revision_id') or
                 context.get('revision_date')), \
-        'Revision functionality is moved to migrate_package_activity'
+        'Revision functionality has been removed'
     execute = _execute
     # package
     if not pkg:
