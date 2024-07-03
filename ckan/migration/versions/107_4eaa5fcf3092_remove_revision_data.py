@@ -34,9 +34,6 @@ def upgrade():
     )
     op.drop_table("group_extra_revision")
     op.drop_table("system_info_revision")
-    op.drop_index("idx_rev_state", table_name="revision")
-    op.drop_index("idx_revision_author", table_name="revision")
-    op.drop_table("revision")
     op.drop_index("idx_package_continuity_id", table_name="package_revision")
     op.drop_index("idx_package_current", table_name="package_revision")
     op.drop_index("idx_package_period", table_name="package_revision")
@@ -102,9 +99,42 @@ def upgrade():
     )
     op.drop_table("member_revision")
     op.drop_column("activity", "revision_id")
+    op.drop_index("idx_rev_state", table_name="revision")
+    op.drop_index("idx_revision_author", table_name="revision")
+    op.drop_table("revision")
 
 
 def downgrade():
+    op.create_table(
+        "revision",
+        sa.Column("id", sa.TEXT(), autoincrement=False, nullable=False),
+        sa.Column(
+            "timestamp",
+            postgresql.TIMESTAMP(),
+            autoincrement=False,
+            nullable=True,
+        ),
+        sa.Column(
+            "author",
+            sa.VARCHAR(length=200),
+            autoincrement=False,
+            nullable=True,
+        ),
+        sa.Column("message", sa.TEXT(), autoincrement=False, nullable=True),
+        sa.Column("state", sa.TEXT(), autoincrement=False, nullable=True),
+        sa.Column(
+            "approved_timestamp",
+            postgresql.TIMESTAMP(),
+            autoincrement=False,
+            nullable=True,
+        ),
+        sa.PrimaryKeyConstraint("id", name="revision_pkey"),
+        postgresql_ignore_search_path=False,
+    )
+    op.create_index(
+        "idx_revision_author", "revision", ["author"], unique=False
+    )
+    op.create_index("idx_rev_state", "revision", ["state"], unique=False)
     op.add_column(
         "activity",
         sa.Column(
@@ -606,36 +636,6 @@ def downgrade():
         ["continuity_id"],
         unique=False,
     )
-    op.create_table(
-        "revision",
-        sa.Column("id", sa.TEXT(), autoincrement=False, nullable=False),
-        sa.Column(
-            "timestamp",
-            postgresql.TIMESTAMP(),
-            autoincrement=False,
-            nullable=True,
-        ),
-        sa.Column(
-            "author",
-            sa.VARCHAR(length=200),
-            autoincrement=False,
-            nullable=True,
-        ),
-        sa.Column("message", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.Column("state", sa.TEXT(), autoincrement=False, nullable=True),
-        sa.Column(
-            "approved_timestamp",
-            postgresql.TIMESTAMP(),
-            autoincrement=False,
-            nullable=True,
-        ),
-        sa.PrimaryKeyConstraint("id", name="revision_pkey"),
-        postgresql_ignore_search_path=False,
-    )
-    op.create_index(
-        "idx_revision_author", "revision", ["author"], unique=False
-    )
-    op.create_index("idx_rev_state", "revision", ["state"], unique=False)
     op.create_table(
         "system_info_revision",
         sa.Column("id", sa.INTEGER(), autoincrement=False, nullable=False),
