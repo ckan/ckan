@@ -53,7 +53,6 @@ def default_dashboard_activity_list_schema(
     limit_to_configured_maximum: ValidatorFactory,
     ignore_missing: Validator,
     datetime_from_timestamp_validator: Validator,
-
 ):
     schema = default_pagination_schema()
     schema["limit"] = [
@@ -98,3 +97,18 @@ def default_activity_list_schema(
     schema["after"] = [ignore_missing, datetime_from_timestamp_validator]
 
     return schema
+
+
+@validator_args
+def default_activity_delete_schema(
+    ensure_date_range_or_offset_provided: Validator,
+    ignore_empty: Validator,
+    convert_yyyy_mm_dd_format: Validator,
+    int_validator: Validator,
+):
+    return {
+        "__before": [ensure_date_range_or_offset_provided],
+        "start_date": [ignore_empty, convert_yyyy_mm_dd_format],
+        "end_date": [ignore_empty, convert_yyyy_mm_dd_format],
+        "offset_days": [ignore_empty, int_validator],
+    }
