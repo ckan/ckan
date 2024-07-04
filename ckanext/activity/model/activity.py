@@ -259,7 +259,7 @@ def _activities_from_user_query(user_id: Union[str, List[str]]) -> QActivity:
 def _activities_about_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.object_id.in_(_to_list(user_id)))  # type: ignore
+    q = q.filter(Activity.object_id.in_(_to_list(user_id)))
     return q
 
 
@@ -334,7 +334,7 @@ def _to_list(vals: Union[List[str], Tuple[str], str]):
 def _package_activity_query(package_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about package_id."""
     q = model.Session.query(Activity)\
-        .filter(Activity.object_id.in_(_to_list(package_id)))  # type: ignore
+        .filter(Activity.object_id.in_(_to_list(package_id)))
     return q
 
 
@@ -430,20 +430,20 @@ def _group_activity_query(group_id: Union[str, List[str]]) -> QActivity:
             or_(
                 # active dataset in the group
                 and_(
-                    model.Member.group_id.in_(groups),  # type: ignore
+                    model.Member.group_id.in_(groups),
                     model.Member.state == "active",
                     model.Package.state == "active",
                 ),
                 # deleted dataset in the group
                 and_(
-                    model.Member.group_id.in_(groups),  # type: ignore
+                    model.Member.group_id.in_(groups),
                     model.Member.state == "deleted",
                     model.Package.state == "deleted",
                 ),
                 # (we want to avoid showing changes to an active dataset that
                 # was once in this group)
                 # activity the the group itself
-                Activity.object_id.in_(groups),  # type: ignore
+                Activity.object_id.in_(groups),
             )
         )
     )
@@ -475,8 +475,8 @@ def _organization_activity_query(org_id: str) -> QActivity:
             #
             # Use subselect instead of outer join so that it can all
             # be indexable
-            Activity.object_id.in_(  # type: ignore
-                select([model.Package.id])  # type: ignore
+            Activity.object_id.in_(
+                select([model.Package.id])
                 .where(
                     and_(
                         model.Package.private == False,  # noqa
