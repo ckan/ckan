@@ -99,3 +99,9 @@ groups:
       The default method used when creating full-text search indexes. Currently it
       can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
       characteristics of each one and pick the best for your instance.
+
+  - default: 'true'
+    key: ckan.datastore.ms_in_timestamp
+    type: bool
+    description: |
+      The default return milliseconds to column with timestamp type's. To use old behavior set to 'false'

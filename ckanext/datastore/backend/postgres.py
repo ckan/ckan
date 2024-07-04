@@ -2078,7 +2078,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
             if typ == 'nested':
                 fmt = "coalesce(({0}).json,'null')"
             elif typ == 'timestamp':
-                fmt = "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS')"
+                fmt = (
+                    "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS')"
+                    if config['ckan.datastore.ms_in_timestamp']
+                    else "to_char({0}, 'YYYY-MM-DD\"T\"HH24:MI:SS')"
+                )
                 if records_format == 'lists':
                     fmt = f"coalesce(to_json({fmt}), 'null')"
             elif typ.startswith('_') or typ.endswith('[]'):
