@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
+import datetime
 from typing import Any, cast
 
 import ckan.plugins.toolkit as tk
@@ -64,7 +65,7 @@ object_id_validators = {
     **VALIDATORS_PACKAGE_ACTIVITY_TYPES,
     **VALIDATORS_USER_ACTIVITY_TYPES,
     **VALIDATORS_GROUP_ACTIVITY_TYPES,
-    **VALIDATORS_ORGANIZATION_ACTIVITY_TYPES
+    **VALIDATORS_ORGANIZATION_ACTIVITY_TYPES,
 }
 
 
@@ -98,3 +99,31 @@ def object_id_validator(
             'There is no object_id validator for activity type "%s"'
             % activity_type
         )
+
+
+def ensure_date_range_or_offset_provided(
+    key: FlattenKey,
+    data: FlattenDataDict,
+    errors: FlattenErrorDict,
+    context: Context,
+):
+    start_date = data.get(("start_date",))
+    end_date = data.get(("end_date",))
+    offset_days = data.get(("offset_days",))
+
+    if (start_date and end_date) or offset_days:
+        return
+
+    raise tk.Invalid(
+        "Either both start_date and end_date must be specified, or offset_days must be provided."
+    )
+
+
+def convert_yyyy_mm_dd_format(value: str, context: Context):
+    """
+    Converts a string in 'YYYY-MM-DD' format to a datetime.date object.
+    """
+    try:
+        return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        raise tk.Invalid("Invalid date format. Use YYYY-MM-DD.")
