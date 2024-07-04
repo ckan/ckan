@@ -476,7 +476,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
             # Use subselect instead of outer join so that it can all
             # be indexable
             Activity.object_id.in_(
-                select([model.Package.id])
+                select(model.Package.id)
                 .where(
                     and_(
                         model.Package.private == False,  # noqa
@@ -485,7 +485,7 @@ def _organization_activity_query(org_id: str) -> QActivity:
                 )
                 .union(
                     # select the org itself
-                    select([literal(org_id)])
+                    select(literal(org_id))
                 )
             )
         )
