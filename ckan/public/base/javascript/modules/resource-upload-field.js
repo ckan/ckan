@@ -1,10 +1,21 @@
 this.ckan.module('resource-upload-field', function (jQuery) {
   var _nameIsDirty = !! $('input[name="name"]').val();
+  var urlField = $('#field-resource-url');
   return {
     initialize: function() {
       $('input[name="name"]').on('change', function() {
         _nameIsDirty = true;
       });
+
+      // Change input type to text if Upload is selected
+      if ($('#resource-url-upload').prop('checked')) {
+        urlField.attr('type', 'text');
+      }
+
+      // revert to URL for Link option
+      $('#resource-link-button').on('click', function() {
+        urlField.attr('type', 'url');
+      }) 
 
       $('#field-resource-upload').on('change', function() {
         if (_nameIsDirty) {

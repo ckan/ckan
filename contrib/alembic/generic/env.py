@@ -4,6 +4,7 @@ from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
+from ckan.model.meta import metadata
 
 import os
 
@@ -19,7 +20,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -27,6 +28,12 @@ target_metadata = None
 # ... etc.
 
 name = os.path.basename(os.path.dirname(__file__))
+
+
+def include_object(object, object_name, type_, reflected, compare_to):
+    if type_ == "table":
+        return object_name.startswith(name)
+    return True
 
 
 def run_migrations_offline():
@@ -45,7 +52,8 @@ def run_migrations_offline():
     url = config.get_main_option(u"sqlalchemy.url")
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True,
-        version_table=u'{}_alembic_version'.format(name)
+        version_table=u'{}_alembic_version'.format(name),
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -68,7 +76,8 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            version_table=u'{}_alembic_version'.format(name)
+            version_table=u'{}_alembic_version'.format(name),
+            include_object=include_object,
         )
 
         with context.begin_transaction():

@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from typing import Optional, Any
 
-from sqlalchemy.orm import relation
-from sqlalchemy import types, Column, Table, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy import (types, Column, Table, ForeignKey, UniqueConstraint,
+                        Index)
 from typing_extensions import Self
 
 import ckan  # this import is needed
@@ -28,29 +29,34 @@ MAX_TAG_LENGTH = 100
 MIN_TAG_LENGTH = 2
 
 tag_table = Table('tag', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
-        Column('vocabulary_id',
-            types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
-            ForeignKey('vocabulary.id')),
-        UniqueConstraint('name', 'vocabulary_id')
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.Unicode(MAX_TAG_LENGTH), nullable=False),
+    Column('vocabulary_id',
+        types.Unicode(vocabulary.VOCABULARY_NAME_MAX_LENGTH),
+        ForeignKey('vocabulary.id')),
+    UniqueConstraint('name', 'vocabulary_id'),
+    Index('idx_tag_id', 'id'),
+    Index('idx_tag_name', 'name'),
 )
 
 package_tag_table = Table('package_tag', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-        Column('package_id', types.UnicodeText, ForeignKey('package.id')),
-        Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
-        Column('state', types.UnicodeText, default=core.State.ACTIVE),
-        )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('package_id', types.UnicodeText, ForeignKey('package.id')),
+    Column('tag_id', types.UnicodeText, ForeignKey('tag.id')),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_package_tag_id', 'id'),
+    Index('idx_package_tag_pkg_id', 'package_id'),
+    Index('idx_package_tag_pkg_id_tag_id', 'tag_id', 'package_id'),
+)
 
 
 class Tag(domain_object.DomainObject):
-    id: str
-    name: str
-    vocabulary_id: Optional[str]
+    id: Mapped[str]
+    name: Mapped[str]
+    vocabulary_id: Mapped[Optional[str]]
 
-    package_tags: list['PackageTag']
-    vocabulary: Optional['ckan.model.Vocabulary']
+    package_tags: Mapped[list['PackageTag']]
+    vocabulary: Mapped[Optional['ckan.model.Vocabulary']]
 
     def __init__(self, name: str='', vocabulary_id: Optional[str]=None) -> None:
         self.name = name
@@ -108,14 +114,14 @@ class Tag(domain_object.DomainObject):
                 Tag.vocabulary_id==vocab.id)
         else:
             query = meta.Session.query(Tag).filter(Tag.name==name).filter(
-                Tag.vocabulary_id==None)
+                Tag.vocabulary_id.is_(None))
         query = query.autoflush(autoflush)
         tag = query.first()
         return tag
 
     @classmethod
     def get(cls, tag_id_or_name: str,
-            vocab_id_or_name: Optional[str]=None) -> Optional[Self]:
+            vocab_id_or_name: Optional[str]=None) -> Optional[Tag]:
         '''Return the tag with the given id or name, or None.
 
         By default only free tags (tags which do not belong to any vocabulary)
@@ -183,9 +189,8 @@ class Tag(domain_object.DomainObject):
         else:
             query = meta.Session.query(Tag)
         search_term = search_term.strip().lower()
-        # type_ignore_reason: incomplete SQLAlchemy types
-        query = query.filter(Tag.name.contains(search_term))  # type: ignore
-        query: 'Query[Tag]' = query.distinct().join(Tag.package_tags)
+        query = query.filter(Tag.name.contains(search_term))
+        query: 'Query[Self]' = query.distinct().join(Tag.package_tags)
         return query
 
     @classmethod
@@ -216,7 +221,7 @@ class Tag(domain_object.DomainObject):
                 filter(PackageTag.state == 'active').subquery()
 
             query = meta.Session.query(Tag).\
-                filter(Tag.vocabulary_id == None).\
+                filter(Tag.vocabulary_id.is_(None)).\
                 distinct().\
                 join(subquery, Tag.id==subquery.c.tag_id)
 
@@ -242,14 +247,14 @@ class Tag(domain_object.DomainObject):
 
 class PackageTag(core.StatefulObjectMixin,
                  domain_object.DomainObject):
-    id: str
-    package_id: str
-    tag_id: str
-    state: Optional[str]
+    id: Mapped[str]
+    package_id: Mapped[str]
+    tag_id: Mapped[str]
+    state: Mapped[Optional[str]]
 
-    pkg: Optional['ckan.model.Package']
-    package: Optional['ckan.model.Package']
-    tag: Optional[Tag]
+    pkg: Mapped[Optional['ckan.model.Package']]
+    package: Mapped[Optional['ckan.model.Package']]
+    tag: Mapped[Optional[Tag]]
 
     def __init__(
             self, package: Optional['ckan.model.Package'] = None,
@@ -318,12 +323,12 @@ class PackageTag(core.StatefulObjectMixin,
             return [self.package]
         return []
 
-# type_ignore_reason: incomplete SQLAlchemy types
-meta.mapper(Tag, tag_table, properties={
-    'package_tags': relation(PackageTag, backref='tag',
-        cascade='all, delete, delete-orphan',
+meta.registry.map_imperatively(Tag, tag_table, properties={
+    'package_tags': relationship(PackageTag, backref='tag',
+                                 cascade='all, delete, delete-orphan',
+                                 cascade_backrefs=False,
         ),
-    'vocabulary': relation(vocabulary.Vocabulary,
+    'vocabulary': relationship(vocabulary.Vocabulary,
                            order_by=tag_table.c["name"])
     })
 

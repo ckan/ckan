@@ -8,9 +8,9 @@ from ckan.tests import helpers, factories
 from ckanext.datapusher.tests import get_api_token
 
 
-@pytest.mark.ckan_config("ckan.views.default_views", "recline_grid_view")
+@pytest.mark.ckan_config("ckan.views.default_views", "datatables_view")
 @pytest.mark.ckan_config(
-    "ckan.plugins", "datapusher datastore recline_grid_view"
+    "ckan.plugins", "datapusher datastore datatables_view"
 )
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
@@ -54,12 +54,12 @@ def test_datapusher_creates_default_views_on_complete():
     views = helpers.call_action("resource_view_list", id=resource["id"])
 
     assert len(views) == 1
-    assert views[0]["view_type"] == "recline_grid_view"
+    assert views[0]["view_type"] == "datatables_view"
 
 
-@pytest.mark.ckan_config("ckan.views.default_views", "recline_grid_view")
+@pytest.mark.ckan_config("ckan.views.default_views", "datatables_view")
 @pytest.mark.ckan_config(
-    "ckan.plugins", "datapusher datastore recline_grid_view"
+    "ckan.plugins", "datapusher datastore datatables_view"
 )
 @pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")

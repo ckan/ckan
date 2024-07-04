@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import datetime
-from typing import (
-    Any, Optional, Union, overload
-)
+from typing import Optional, Union, overload
 from typing_extensions import Literal, Self
 
-from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
-from sqlalchemy.ext.associationproxy import AssociationProxy
+from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
+                        and_, text, Index, CheckConstraint)
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 import ckan.model.meta as meta
 import ckan.model.core as core
@@ -23,43 +23,42 @@ __all__ = ['group_table', 'Group',
            'Member',
            'member_table']
 
+Mapped = orm.Mapped
 
 member_table = Table('member', meta.metadata,
-                     Column('id', types.UnicodeText,
-                            primary_key=True,
-                            default=_types.make_uuid),
-                     Column('table_name', types.UnicodeText,
-                            nullable=False),
-                     Column('table_id', types.UnicodeText,
-                            nullable=False),
-                     Column('capacity', types.UnicodeText,
-                            nullable=False),
-                     Column('group_id', types.UnicodeText,
-                            ForeignKey('group.id')),
-                     Column('state', types.UnicodeText,
-                            default=core.State.ACTIVE),
-                     )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('table_name', types.UnicodeText, nullable=False),
+    Column('table_id', types.UnicodeText, nullable=False),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('group_id', types.UnicodeText, ForeignKey('group.id')),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_pkg_id', 'table_id'),
+    Index('idx_extra_grp_id_pkg_id', 'group_id', 'table_id'),
+    Index('idx_package_group_id', 'id'),
+)
 
 
 group_table = Table('group', meta.metadata,
-                    Column('id', types.UnicodeText,
-                           primary_key=True,
-                           default=_types.make_uuid),
-                    Column('name', types.UnicodeText,
-                           nullable=False, unique=True),
-                    Column('title', types.UnicodeText),
-                    Column('type', types.UnicodeText,
-                           nullable=False),
-                    Column('description', types.UnicodeText),
-                    Column('image_url', types.UnicodeText),
-                    Column('created', types.DateTime,
-                           default=datetime.datetime.now),
-                    Column('is_organization', types.Boolean, default=False),
-                    Column('approval_status', types.UnicodeText,
-                           default=u"approved"),
-                    Column('state', types.UnicodeText,
-                           default=core.State.ACTIVE),
-                    )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.UnicodeText, nullable=False, unique=True),
+    Column('title', types.UnicodeText),
+    Column('type', types.UnicodeText, nullable=False),
+    Column('description', types.UnicodeText),
+    Column('image_url', types.UnicodeText),
+    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('is_organization', types.Boolean, default=False),
+    Column('approval_status', types.UnicodeText, default=u"approved"),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='group_flat_extras',
+    )),
+    Index('idx_group_id', 'id'),
+    Index('idx_group_name', 'name'),
+)
 
 
 class Member(core.StatefulObjectMixin,
@@ -78,12 +77,12 @@ class Member(core.StatefulObjectMixin,
               in a hierarchy.
                  - capacity is 'parent'
     '''
-    id: str
-    table_name: Optional[str]
-    table_id: Optional[str]
-    capacity: str
-    group_id: Optional[str]
-    state: str
+    id: Mapped[str]
+    table_name: Mapped[Optional[str]]
+    table_id: Mapped[Optional[str]]
+    capacity: Mapped[str]
+    group_id: Mapped[Optional[str]]
+    state: Mapped[str]
 
     group: Optional['Group']
 
@@ -135,7 +134,7 @@ class Member(core.StatefulObjectMixin,
         # TODO do we want to return all related packages or certain ones?
         return meta.Session.query(_package.Package).filter_by(
             id=self.table_id).all()
-    
+
 
     def __str__(self):
         # refer to objects by name, not ID, to help debugging
@@ -156,20 +155,18 @@ class Member(core.StatefulObjectMixin,
 class Group(core.StatefulObjectMixin,
             domain_object.DomainObject):
 
-    id: str
-    name: str
-    title: str | None
-    type: str
-    description: str
-    image_url: str
-    created: datetime.datetime
-    is_organization: bool
-    approval_status: str
-    state: str
+    id: Mapped[str]
+    name: Mapped[str]
+    title: Mapped[str | None]
+    type: Mapped[str]
+    description: Mapped[str]
+    image_url: Mapped[str]
+    created: Mapped[datetime.datetime]
+    is_organization: Mapped[bool]
+    approval_status: Mapped[str]
+    state: Mapped[str]
 
-    _extras: dict[str, Any]  # list['GroupExtra']
-    extras: AssociationProxy
-    member_all: list[Member]
+    member_all: Mapped[list[Member]]
 
     def __init__(self, name: str = u'', title: str = u'',
                  description: str = u'', image_url: str = u'',
@@ -208,8 +205,7 @@ class Group(core.StatefulObjectMixin,
         """
         q = meta.Session.query(cls)
         if state:
-            # type_ignore_reason: incomplete SQLAlchemy types
-            q = q.filter(cls.state.in_(state))  # type: ignore
+            q = q.filter(cls.state.in_(state))
 
         if group_type:
             q = q.filter(cls.type == group_type)
@@ -226,7 +222,7 @@ class Group(core.StatefulObjectMixin,
         assert status in ["approved", "denied"]
         self.approval_status = status
 
-    def get_children_groups(self, type: str='group') -> list[Self]:
+    def get_children_groups(self, type: str='group') -> list[Group]:
         '''Returns the groups one level underneath this group in the hierarchy.
         '''
         # The original intention of this method was to provide the full depth
@@ -263,7 +259,7 @@ class Group(core.StatefulObjectMixin,
             id=self.id, type=type).all()
         return results
 
-    def get_parent_groups(self, type: str='group') -> list[Self]:
+    def get_parent_groups(self, type: str='group') -> list[Group]:
         '''Returns this group's parent groups.
         Returns a list. Will have max 1 value for organizations.
 
@@ -279,7 +275,7 @@ class Group(core.StatefulObjectMixin,
             all()
         return result
 
-    def get_parent_group_hierarchy(self, type: str='group') -> list[Self]:
+    def get_parent_group_hierarchy(self, type: str='group') -> list[Group]:
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         result: list[Group] =  meta.Session.query(Group).\
@@ -288,7 +284,7 @@ class Group(core.StatefulObjectMixin,
         return result
 
     @classmethod
-    def get_top_level_groups(cls, type: str='group') -> list[Self]:
+    def get_top_level_groups(cls, type: str='group') -> list[Group]:
         '''Returns a list of the groups (of the specified type) which have
         no parent groups. Groups are sorted by title.
         '''
@@ -298,7 +294,7 @@ class Group(core.StatefulObjectMixin,
                            Member.table_name == 'group',
                            Member.state == 'active')).\
             filter(
-                Member.id == None  # type: ignore
+                Member.id.is_(None)
             ).filter(Group.type == type).\
             filter(Group.state == 'active').\
             order_by(Group.title).all()
@@ -407,10 +403,9 @@ class Group(core.StatefulObjectMixin,
             cls, text_query: str, group_type: Optional[str] = None,
             is_org: bool = False, limit: int = 20) -> Query[Self]:
         text_query = text_query.strip().lower()
-        # type_ignore_reason: incomplete SQLAlchemy types
         q = meta.Session.query(cls) \
-            .filter(or_(cls.name.contains(text_query),  # type: ignore
-                        cls.title.ilike('%' + text_query + '%')))  # type: ignore
+            .filter(or_(cls.name.contains(text_query),
+                        cls.title.ilike('%' + text_query + '%')))
         if is_org:
             q = q.filter(cls.type == 'organization')
         else:
@@ -435,12 +430,13 @@ class Group(core.StatefulObjectMixin,
     def __repr__(self):
         return '<Group %s>' % self.name
 
-meta.mapper(Group, group_table)
+meta.registry.map_imperatively(Group, group_table)
 
-meta.mapper(Member, member_table, properties={
-    'group': orm.relation(Group,
+meta.registry.map_imperatively(Member, member_table, properties={
+    'group': orm.relationship(Group,
                           backref=orm.backref('member_all',
-                                              cascade='all, delete-orphan')),
+                                              cascade='all, delete-orphan',
+                                              cascade_backrefs=False)),
 })
 
 

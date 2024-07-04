@@ -130,6 +130,7 @@ this.ckan.module('confirm-action', function (jQuery) {
         element.find('.modal-body').text(content);
         element.find('.btn-primary').text(this._('Confirm'));
         element.find('.btn-cancel').text(this._('Cancel'));
+        element.find('.btn-close').attr("aria-label", this._('Close'));
       }
       return this.modal;
     },

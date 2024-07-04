@@ -38,12 +38,13 @@ import ckan.plugins as plugins
 log = logging.getLogger(__name__)
 
 DEFAULT_QUEUE_NAME = u'default'
+DEFAULT_JOB_LIST_LIMIT = 200
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues: dict[str, rq.Queue] = {}
 
 
-def _connect() -> Redis:  # type: ignore
+def _connect() -> Redis:
     u'''
     Connect to Redis and tell RQ about it.
 
