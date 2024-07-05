@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, ClassVar, Optional
+from typing import Any, Callable, ClassVar, Optional, cast
 
 
 from collections import OrderedDict
@@ -156,7 +156,10 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls) -> list[str]:
         if cls.extra_columns is None:
-            cls.extra_columns = config.get("ckan.extra_resource_fields")
+            cls.extra_columns = cast(
+                "list[str]",
+                config["ckan.extra_resource_fields"]
+            )
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         assert cls.extra_columns is not None
