@@ -5,15 +5,17 @@ from typing_extensions import Protocol
 
 from sqlalchemy.orm.scoping import ScopedSession
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.orm.query import Query as _Query
+from sqlalchemy.orm.query import Query
 from sqlalchemy import Table
 
 if TYPE_CHECKING:
     import ckan.model as _model  # noqa
 
+__all__ = [
+    "Model", "AlchemySession", "Query",
+]
 
 AlchemySession = ScopedSession
-Query = _Query
 
 
 class Meta(Protocol):
@@ -45,9 +47,7 @@ class Model(Protocol):
     Vocabulary: Type["_model.Vocabulary"]
 
     group_table: Table
-    group_extra_table: Table
     member_table: Table
-    package_extra_table: Table
     package_relationship_table: Table
     package_table: Table
     package_tag_table: Table
