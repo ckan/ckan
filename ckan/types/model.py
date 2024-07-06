@@ -47,7 +47,9 @@ class Model(Protocol):
     Vocabulary: Type["_model.Vocabulary"]
 
     group_table: Table
+    group_extra_table: Table
     member_table: Table
+    package_extra_table: Table
     package_relationship_table: Table
     package_table: Table
     package_tag_table: Table
