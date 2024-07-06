@@ -51,8 +51,8 @@ def profile(url: str, user: str, cold: bool, best_of: int):
     for _n in range(best_of):
         with Profile() as pr:
             profile_url(url)
-        if best is None or (best.getstats()[0].totaltime  # type: ignore
-                            > pr.getstats()[0].totaltime):  # type: ignore
+        if best is None or (best.getstats()[0].totaltime
+                            > pr.getstats()[0].totaltime):
             best = pr
 
     if best is None:
