@@ -20,7 +20,7 @@ blinker==1.7.0
     #   flask
 cachelib==0.13.0
     # via flask-session
-certifi==2024.2.2
+certifi==2024.7.4
     # via
     #   -r requirements.in
     #   requests
