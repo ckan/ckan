@@ -104,13 +104,16 @@ def unicode_or_json_validator(value, context):
 
 
 def datastore_create_schema():
+    # (canada fork only): field name validator
+    # TODO: upstream contrib??
+    datastore_field_name = get_validator('datastore_field_name')
     schema = {
         'resource_id': [ignore_missing, text_type, resource_id_exists],
         'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
-            'id': [not_empty, text_type],
+            'id': [not_empty, text_type, datastore_field_name],  # (canada fork only): field name validator
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
