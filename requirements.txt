@@ -20,7 +20,7 @@ blinker==1.7.0
     #   flask
 cachelib==0.13.0
     # via flask-session
-certifi==2024.2.2
+certifi==2024.7.4
     # via
     #   -r requirements.in
     #   requests
@@ -115,7 +115,7 @@ pyyaml==6.0.1
     # via -r requirements.in
 redis==5.0.4
     # via rq
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements.in
     #   pysolr
