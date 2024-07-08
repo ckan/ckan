@@ -50,8 +50,6 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     timestamp = Column("timestamp", types.DateTime)
     user_id = Column("user_id", types.UnicodeText)
     object_id: Any = Column("object_id", types.UnicodeText)
-    # legacy revision_id values are used by migrate_package_activity.py
-    revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
     permission_labels = Column("permission_labels", types.Text)
