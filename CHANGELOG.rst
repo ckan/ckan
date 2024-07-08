@@ -9,6 +9,10 @@ Changelog
 
 .. towncrier release notes start
 
+Deprecations:
+ * PackageExtra and GroupExtra models will be removed in the next release
+   and replaced by Package.extras and Group.extras JSONB fields.
+
 v.2.10.4 2024-03-13
 ===================
 
