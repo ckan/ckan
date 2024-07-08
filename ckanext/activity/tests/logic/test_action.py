@@ -1351,7 +1351,7 @@ class TestOrganizationActivityList(object):
         assert activities[0]["activity_type"] == "changed package"
 
     def test_bulk_delete(self, user):
-        org = factories.Organization()
+        org = factories.Organization(user=user)
 
         dataset1 = factories.Dataset(owner_org=org["id"], user=user)
         dataset2 = factories.Dataset(owner_org=org["id"], user=user)
