@@ -152,28 +152,11 @@ def package_changed(sender: str, **kwargs: Any):
     else:
         id_ = result["id"]
 
-<<<<<<< HEAD
-    pkg = context["model"].Package.get(id_)
-    assert pkg
-
-    user_obj = context["model"].User.get(context["user"])
-    if user_obj:
-        user_id = user_obj.id
-    else:
-        user_id = "not logged in"
-
-    activity = Activity.activity_stream_item(pkg, type_, user_id)
-
-    context["session"].add(activity)
-    if not context.get("defer_commit"):
-        context["session"].commit()
-=======
     _create_package_activity(
         "new" if sender == "package_create" else "changed",
         id_,
         tk.fresh_context(kwargs["context"])
     )
->>>>>>> 9595157e7... Create all activities using API, not model
 
 
 # action, context, data_dict, result
