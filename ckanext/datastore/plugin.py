@@ -270,4 +270,5 @@ class DatastorePlugin(p.SingletonPlugin):
         return {
             'to_datastore_plugin_data': validators.to_datastore_plugin_data,
             'datastore_default_current': validators.datastore_default_current,
+            'datastore_field_name': validators.datastore_field_name,  # (canada fork only): field name validator
         }

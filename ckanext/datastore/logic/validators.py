@@ -1,6 +1,7 @@
 # encoding: utf-8
 
-from ckan.plugins.toolkit import missing
+from ckan.plugins.toolkit import missing, Invalid, _  # (canada fork only): field name validator
+from ckanext.datastore.helpers import is_valid_field_name  # (canada fork only): field name validator
 
 
 def to_datastore_plugin_data(plugin_key):
@@ -37,3 +38,14 @@ def datastore_default_current(key, data, errors, context):
         field_name)
     if current:
         data[key] = current
+
+
+# (canada fork only): field name validator
+# TODO:: upstream contrib??
+def datastore_field_name(value, context):
+    """
+    Check if the field name is valid
+    """
+    if not is_valid_field_name(value):
+        raise Invalid(_("Invalid value for a datastore field name."))
+    return value

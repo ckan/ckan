@@ -12,6 +12,8 @@ from six import string_types
 from ckan.plugins.toolkit import get_action, ObjectNotFound, NotAuthorized
 import ckan.plugins.toolkit as tk
 
+import unicodedata  # (canada fork only): field name validator
+
 log = logging.getLogger(__name__)
 
 
@@ -27,10 +29,12 @@ def is_valid_field_name(name):
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
+    * can't contain control characters  # (canada fork only): field name validator
     '''
     return (name and name == name.strip() and
             not name.startswith('_') and
-            '"' not in name)
+            '"' not in name
+            and not True in [unicodedata.category(char).startswith('C') for char in name])  # (canada fork only): field name validator
 
 
 def is_valid_table_name(name):
