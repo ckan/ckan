@@ -1,27 +1,26 @@
-# Chinese (Traditional, Taiwan) translations for ckan.
-# Copyright (C) 2023 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# 
 # Translators:
-# Adrià Mercader <amercadero@gmail.com>, 2022
-# Cheng-Jen Lee <u103133.u103135@gmail.com>, 2024
+# Adrià Mercader <amercadero@gmail.com>, 2024
+# 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.10.2b0\n"
+"Project-Id-Version: ckan 2.11.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-05-23 15:52+0200\n"
-"PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Cheng-Jen Lee <u103133.u103135@gmail.com>, 2024\n"
-"Language: zh_TW\n"
-"Language-Team: Chinese (Taiwan) "
-"(https://app.transifex.com/okfn/teams/11162/zh_TW/)\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"PO-Revision-Date: 2024-05-23 14:04+0000\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2024\n"
+"Language-Team: Chinese (Taiwan) (https://app.transifex.com/okfn/teams/11162/zh_TW/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/authz.py:244
 #, python-format
@@ -286,7 +285,8 @@ msgid "Dataset"
 msgstr "資料集"
 
 #: ckan/logic/converters.py:195 ckan/logic/validators.py:369
-#: ckan/views/group.py:1155 ckanext/stats/templates/ckanext/stats/index.html:91
+#: ckan/views/group.py:1155
+#: ckanext/stats/templates/ckanext/stats/index.html:91
 msgid "Group"
 msgstr "群組"
 
@@ -378,8 +378,8 @@ msgstr "名稱字串長度的最大值是 %i "
 
 #: ckan/logic/validators.py:414
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr "必須是小寫英文字母 (ascii編碼)、數字、符號 '-' 及 '_'"
 
 #: ckan/logic/validators.py:439
@@ -423,8 +423,8 @@ msgstr "標籤 \"%s\" 字串長度大於最大值 %i"
 #: ckan/logic/validators.py:519
 #, python-format
 msgid ""
-"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), "
-"hyphens (\"-\"), underscores (\"_\") or dots (\".\")"
+"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
+" (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
 
 #: ckan/logic/validators.py:529
@@ -1130,9 +1130,9 @@ msgstr "重新排序資源"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 msgid ""
-"You can rearrange the resources by dragging them using the arrow icon. "
-"Drag the resource to the right and place it to the desired location on "
-"the list. When you are done, click the \"Save order\" -button."
+"You can rearrange the resources by dragging them using the arrow icon. Drag "
+"the resource to the right and place it to the desired location on the list. "
+"When you are done, click the \"Save order\" -button."
 msgstr "您可以使用箭頭圖示來拖曳資源，以重新排列它們。將資源拖曳到右側，並將其放置在您想要的位置上。完成後，點選「儲存排序」按鈕。"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:64
@@ -1293,7 +1293,8 @@ msgstr "組織"
 #: ckan/templates/group/read_base.html:4 ckan/templates/group/read_base.html:7
 #: ckan/templates/header.html:108 ckan/templates/package/group_list.html:7
 #: ckan/templates/package/read_base.html:23
-#: ckan/templates/user/read_base.html:24 ckan/templates/user/read_groups.html:6
+#: ckan/templates/user/read_base.html:24
+#: ckan/templates/user/read_groups.html:6
 #: ckan/templates/user/snippets/info.html:52 ckan/views/dataset.py:284
 #: ckan/views/group.py:306 ckan/views/home.py:53
 msgid "Groups"
@@ -1413,18 +1414,17 @@ msgstr "CKAN 設置選項"
 #: ckan/templates/admin/config.html:51
 #, python-format
 msgid ""
-"<p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> <p><strong>Custom "
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Custom "
 "Stylesheet:</strong> Define an alternative main CSS file.</p> "
 "<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
-"Text:</strong> This text will appear on this CKAN instances <a "
-"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
-"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"header of all the CKAN instance templates.</p> <p><strong>About:</strong> "
+"This text will appear on this CKAN instances <a href=\"%(about_url)s\">about"
+" page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this"
+" CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to "
+"visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that "
+"appears in <code>&lt;head&gt;</code> tag of every page. If you wish to "
+"customize the templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\" rel=\"noreferrer\">reading the documentation</a>.</p>"
 msgstr ""
 
@@ -1456,10 +1456,10 @@ msgstr "CKAN 系統管理者"
 #: ckan/templates/admin/index.html:78
 #, python-format
 msgid ""
-"<p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN  <a href=\"%(docs_url)s\" target=\"_blank\" "
-"rel=\"noreferrer\">sysadmin guide</a></p>"
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
+" href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">sysadmin "
+"guide</a></p>"
 msgstr ""
 
 #: ckan/templates/admin/trash.html:13 ckan/views/admin.py:130
@@ -1471,7 +1471,8 @@ msgid "Purge all"
 msgstr "全部清除"
 
 #: ckan/templates/admin/trash.html:32
-msgid "Purge deleted datasets, organizations or groups forever and irreversibly."
+msgid ""
+"Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr "永久且不可逆地清除已刪除的資料集、組織或群組。"
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
@@ -1577,14 +1578,14 @@ msgstr "選取"
 #, python-format
 msgid ""
 "Dear %(user_name)s, You have been invited to %(site_title)s. A user has "
-"already been created for you with the username %(user_name)s. You can "
-"change it later. You have been added to the %(group_type)s "
-"%(group_title)s with the following role: %(role_name)s. To accept this "
-"invite, please reset your password at: %(reset_link)s Have a nice day. --"
-" Message sent by %(site_title)s (%(site_url)s)"
+"already been created for you with the username %(user_name)s. You can change"
+" it later. You have been added to the %(group_type)s %(group_title)s with "
+"the following role: %(role_name)s. To accept this invite, please reset your "
+"password at: %(reset_link)s Have a nice day. -- Message sent by "
+"%(site_title)s (%(site_url)s)"
 msgstr ""
-"%(user_name)s 您好，您已被邀請加入 %(site_title)s。使用者帳號為 "
-"%(user_name)s。您可於稍後更新。您已被加入 %(group_type)s %(group_title)s，身份為 "
+"%(user_name)s 您好，您已被邀請加入 %(site_title)s。使用者帳號為 %(user_name)s。您可於稍後更新。您已被加入 "
+"%(group_type)s %(group_title)s，身份為 "
 "%(role_name)s。請點選此連結以確認此邀請，並修改密碼：%(reset_link)s 祝您有個美好的一天。 -- 此信件由 "
 "%(site_title)s (%(site_url)s) 寄發"
 
@@ -1596,8 +1597,8 @@ msgstr "%(site_title)s 的邀請"
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
 msgid ""
-"Dear %(user_name)s, You have requested your password on %(site_title)s to"
-" be reset. Please click the following link to confirm this request: "
+"Dear %(user_name)s, You have requested your password on %(site_title)s to be"
+" reset. Please click the following link to confirm this request: "
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
@@ -1708,7 +1709,8 @@ msgstr "根據名稱遞減排序"
 msgid "There are currently no groups for this site"
 msgstr "此網站上目前沒有任何群組"
 
-#: ckan/templates/group/index.html:32 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:32
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "建立一個群組如何？"
 
@@ -1729,7 +1731,8 @@ msgstr ""
 
 #: ckan/templates/group/manage_members.html:16
 #: ckan/templates/group/member_new.html:63
-#: ckan/templates/group/member_new.html:67 ckan/templates/group/members.html:13
+#: ckan/templates/group/member_new.html:67
+#: ckan/templates/group/members.html:13
 #: ckan/templates/organization/manage_members.html:23
 #: ckan/templates/organization/member_new.html:65
 #: ckan/templates/organization/member_new.html:69
@@ -1935,10 +1938,10 @@ msgstr "什麼是群組？"
 
 #: ckan/templates/group/snippets/helper.html:19
 msgid ""
-"You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets."
+"You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets."
 msgstr "您可以使用 CKAN 群組建立並管理多個資料集。群組可以代表一個主題、專案或是小組，可以幫助使用者快速找尋資料集。 "
 
 #: ckan/templates/group/snippets/info.html:19
@@ -1961,23 +1964,22 @@ msgstr "歡迎"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-"<p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
 "href=\"https://data.gov.uk\">data.gov.uk</a> and the United States <a "
-"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a"
-" href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
+"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a "
+"href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
 "Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
-"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a"
-" href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
+"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a "
+"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
 "Features overview: <a "
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 msgstr ""
@@ -1988,8 +1990,8 @@ msgstr "歡迎來到CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will"
 msgstr "這裡是關於 CKAN 或本網站的簡介。目前沒有文案，但很快就會有"
 
 #: ckan/templates/home/snippets/promoted.html:19
@@ -2052,9 +2054,9 @@ msgstr "客製"
 #: ckan/templates/macros/form/markdown.html:31
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-"
-"bs-html=\"true\">Markdown formatting</a> here"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
 #: ckan/templates/macros/form/required_message.html:11
@@ -2156,12 +2158,12 @@ msgid ""
 "<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p>"
 msgstr ""
-" <p><strong>管理者：</strong>可以新增/編輯和刪除資料集，以及管理組織成員。</p> "
-"<p><strong>編輯：</strong> 可以新增和編輯資料集，但無法管理組織成員。</p> "
-"<p><strong>一般成員：</strong> 可以瀏覽組織的私有資料集，但無法新增資料集。</p> "
+" <p><strong>管理者：</strong>可以新增/編輯和刪除資料集，以及管理組織成員。</p> <p><strong>編輯：</strong>"
+" 可以新增和編輯資料集，但無法管理組織成員。</p> <p><strong>一般成員：</strong> "
+"可以瀏覽組織的私有資料集，但無法新增資料集。</p> "
 
 #: ckan/templates/organization/new.html:3
 msgid "Create an Organization"
@@ -2186,8 +2188,8 @@ msgstr "組織是什麼？"
 #: ckan/templates/organization/snippets/helper.html:20
 msgid ""
 "CKAN Organizations are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish."
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish."
 msgstr "您可以使用 CKAN 組織來建立、管理與發佈多個資料集。在組織中，每位使用者可擁有不同角色，而得以建立、編輯與發佈資料集。 "
 
 #: ckan/templates/organization/snippets/info.html:41
@@ -2204,9 +2206,8 @@ msgstr "一些關於我的組織的資訊..."
 
 #: ckan/templates/organization/snippets/organization_form.html:40
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot"
-" be performed while public or private datasets belong to this "
-"organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr "你確定要刪除這個組織嗎？這樣會刪除屬於這個組織的所有公開和非公開之資料集。"
 
 #: ckan/templates/organization/snippets/organization_form.html:43
@@ -2231,10 +2232,11 @@ msgstr "資料集是什麼？"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid ""
-"A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data."
-msgstr "CKAN 資料集是眾多資料（例如：檔案）的集合，通常伴隨著對該資料集的描述、其他資訊，以及一個固定網址。資料集亦是使用者進行搜尋時所回傳的結果單位。"
+"A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data."
+msgstr ""
+"CKAN 資料集是眾多資料（例如：檔案）的集合，通常伴隨著對該資料集的描述、其他資訊，以及一個固定網址。資料集亦是使用者進行搜尋時所回傳的結果單位。"
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -2394,9 +2396,9 @@ msgstr "系統管理者可能並未啟用相關的檢視擴充套件"
 
 #: ckan/templates/package/resource_read.html:119
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 "若此檢視需要 DataStore 支援，則可能為 DataStore 擴充套件未啟用、資料並未上傳至 DataStore，或 DataStore "
 "上傳作業尚未完成"
@@ -2462,8 +2464,8 @@ msgstr "此資源沒有檢視"
 #: ckan/templates/package/snippets/resources_list.html:28
 #, python-format
 msgid ""
-"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p>"
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p>"
 msgstr "<p class=\"empty\">此資料集中沒有資料，<a href=\"%(url)s\">新增一些如何？</a></p>"
 
 #: ckan/templates/package/search.html:52
@@ -2523,16 +2525,15 @@ msgstr "角色是什麼？"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:68
 msgid ""
-"<p><strong>Admin:</strong> In addition to managing the dataset, admins "
-"can add and remove collaborators from a dataset.</p>"
+"<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
+"add and remove collaborators from a dataset.</p>"
 msgstr "<p><strong>管理者：</strong>除管理資料集，管理者也可以新增和移除資料集協作者。</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:72
 msgid ""
-"<p><strong>Editor:</strong> Editors can edit the dataset and its "
-"resources, as well accessing the dataset if private.</p> "
-"<p><strong>Member:</strong> Members can access the dataset if private, "
-"but not edit it.</p>"
+"<p><strong>Editor:</strong> Editors can edit the dataset and its resources, "
+"as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
+"Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
 "<p><strong>編輯：</strong>可以編輯和刪除資料集與資源，也可以瀏覽設為非公開的資料集。</p> "
 "<p><strong>成員：</strong>可以瀏覽設為非公開的資料集，但無法編輯。</p>"
@@ -2660,12 +2661,11 @@ msgstr "啟動"
 
 #: ckan/templates/package/snippets/package_form.html:31
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 "您所選取的<i>資料授權條款</i>僅適用於您上傳至本資料集的所有資源（檔案）。當您送出此表單時，代表您已同意以 <a "
 "href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
@@ -2950,8 +2950,8 @@ msgstr " <p class=\"extra\">請嘗試其他的搜尋關鍵字</p> "
 
 #: ckan/templates/snippets/search_form.html:89
 msgid ""
-"<p id=\"search-error\"><strong>There was an error while "
-"searching.</strong> Please try again.</p>"
+"<p id=\"search-error\"><strong>There was an error while searching.</strong> "
+"Please try again.</p>"
 msgstr "<p id=\"search-error\"><strong>搜尋時發生錯誤。</strong> 請再試一次。</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
@@ -3028,7 +3028,8 @@ msgstr "讀取中..."
 msgid "Create API Token"
 msgstr "建立 API Token"
 
-#: ckan/templates/user/api_tokens.html:30 ckan/templates/user/read_base.html:26
+#: ckan/templates/user/api_tokens.html:30
+#: ckan/templates/user/read_base.html:26
 msgid "API Tokens"
 msgstr ""
 
@@ -3089,7 +3090,8 @@ msgid "Account Info"
 msgstr "帳號資訊"
 
 #: ckan/templates/user/edit.html:19
-msgid "Your profile lets other CKAN users know about who you are and what you do."
+msgid ""
+"Your profile lets other CKAN users know about who you are and what you do."
 msgstr "您的個人資料：讓其他CKAN使用者了解你是誰以及你從事什麼。"
 
 #: ckan/templates/user/edit_user_form.html:10
@@ -3134,8 +3136,8 @@ msgstr "重新啟用使用者"
 
 #: ckan/templates/user/edit_user_form.html:33
 msgid ""
-"This account is deactivated, if you want to reactivate it, please click "
-"on checkbox."
+"This account is deactivated, if you want to reactivate it, please click on "
+"checkbox."
 msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:43
@@ -3330,8 +3332,8 @@ msgstr "請求重設"
 
 #: ckan/templates/user/request_reset.html:44
 msgid ""
-"Enter your email address or username into the box and we will send you an"
-" email with a link to enter a new password."
+"Enter your email address or username into the box and we will send you an "
+"email with a link to enter a new password."
 msgstr "輸入您的電子郵件或使用者名稱，我們將會寄送密碼重設信件至您的電子信箱。"
 
 #: ckan/templates/user/snippets/api_token_list.html:13
@@ -3814,8 +3816,8 @@ msgstr "發送電子郵件時出現錯誤。請稍後再試或向管理員聯繫
 
 #: ckan/views/user.py:753
 msgid ""
-"A reset link has been emailed to you (unless the account specified does "
-"not exist)"
+"A reset link has been emailed to you (unless the account specified does not "
+"exist)"
 msgstr "重設連結已通過電子郵件發送給您（除非指定的帳號不存在）"
 
 #: ckan/views/user.py:774
@@ -3960,9 +3962,9 @@ msgstr "找不到動態"
 #: ckanext/activity/templates/package/resource_history.html:10
 #, python-format
 msgid ""
-"You're currently viewing an old version of this dataset. Data files may "
-"not match the old version of the metadata. <a href=\"%(url)s\">View the "
-"current version</a>."
+"You're currently viewing an old version of this dataset. Data files may not "
+"match the old version of the metadata. <a href=\"%(url)s\">View the current "
+"version</a>."
 msgstr "您正在瀏覽資料集的過去版本。上傳的檔案可能與舊版的後設資料不相符。<a href=\"%(url)s\">瀏覽目前版本</a>。"
 
 #: ckanext/activity/templates/snippets/activity_type_selector.html:18
@@ -4315,8 +4317,8 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:24
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} from <br "
-"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "更新屬於資料集 {pkg_link} 的資源 {resource_link} 的說明，由<br class=\"line-"
 "height2\"><blockquote>{old_desc}</blockquote> 改為 <br class=\"line-"
@@ -4341,7 +4343,8 @@ msgid "Removed field <q>{key}</q> from resource {resource_link} in {pkg_link}"
 msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:59
-msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
+msgid ""
+"Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:75
@@ -4372,7 +4375,8 @@ msgid "in"
 msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/resource_name.html:3
-msgid "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
+msgid ""
+"Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/tags.html:5
@@ -4604,8 +4608,8 @@ msgstr ""
 
 #: ckanext/datastore/blueprint.py:214
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the "
-"resource is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
 msgstr "已儲存資料字典，下次將資源上載到DataStore時，任何類型覆蓋都將生效"
 
 #: ckanext/datastore/assets/js/api-info.js:99
@@ -4640,8 +4644,8 @@ msgstr "透過一擁有強大查詢功能支援的網路API來存取資源之資
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:40
 #, python-format
 msgid ""
-"Further information in the <a href=\"%(url)s\" target=\"_blank\">main "
-"CKAN Data API and DataStore documentation</a>.</p>"
+"Further information in the <a href=\"%(url)s\" target=\"_blank\">main CKAN "
+"Data API and DataStore documentation</a>.</p>"
 msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:46
@@ -4814,9 +4818,9 @@ msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid ""
-"Length at which data will be truncated with an ellipsis for display. Set "
-"to zero for no truncation, and for data to be wrapped at column name "
-"width instead."
+"Length at which data will be truncated with an ellipsis for display. Set to "
+"zero for no truncation, and for data to be wrapped at column name width "
+"instead."
 msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:22
@@ -4826,9 +4830,8 @@ msgstr ""
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:25
 msgid ""
 "Moment.js date format to use for displaying dates (see <a "
-"href=\"https://devhints.io/moment#formatting-1\" "
-"target=\"_blank\">Moment.js cheatsheet</a>). If <b>NONE</b>, the raw "
-"timestamp value will be shown."
+"href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
+" cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown."
 msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:29
@@ -5151,8 +5154,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:308
 msgid ""
-"Number with arbitrary precision (any number of digits before and after "
-"the decimal)"
+"Number with arbitrary precision (any number of digits before and after the "
+"decimal)"
 msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:326
@@ -5259,8 +5262,8 @@ msgstr ""
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:57
 #, python-format
 msgid ""
-"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted "
-"or updated based on the primary key values passed"
+"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted or "
+"updated based on the primary key values passed"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:65
@@ -5315,8 +5318,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/package/resource_read.html:18
 msgid ""
-"<b>No table view defined:</b> click the Views button and add a Table view"
-" to view and edit data"
+"<b>No table view defined:</b> click the Views button and add a Table view to"
+" view and edit data"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:6
@@ -5329,14 +5332,14 @@ msgid "Table Designer"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:20
-msgid "Save this resource, then customize the table from the Data Dictionary tab"
+msgid ""
+"Save this resource, then customize the table from the Data Dictionary tab"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:22
 #, python-format
 msgid ""
-"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this "
-"table."
+"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this table."
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:6
@@ -5357,9 +5360,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:11
 msgid ""
-"Regular expression to match against the field, e.g. "
-"<code>AB-\\d{6}</code> for text starting with <code>AB-</code> and ending"
-" with 6 digits"
+"Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
+"for text starting with <code>AB-</code> and ending with 6 digits"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
@@ -5400,8 +5402,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:14
 msgid ""
-"Field {num} removed. Click Save below to save your changes and delete all"
-" data in this field."
+"Field {num} removed. Click Save below to save your changes and delete all "
+"data in this field."
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:39
@@ -5452,9 +5454,9 @@ msgstr "例如：http://example.com/poster.jpg"
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
 msgid ""
-"Sorry, your browser doesn't support embedded videos, but don't worry, you"
-" can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch "
-"it with your favorite video player!"
+"Sorry, your browser doesn't support embedded videos, but don't worry, you "
+"can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
+"with your favorite video player!"
 msgstr ""
 
 #: ckanext/webpageview/plugin.py:27 ckanext/webpageview/plugin.py:32
@@ -5468,210 +5470,3 @@ msgstr "網頁網址"
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com  (if blank uses resource url)"
 msgstr "例如： http://example.com（若保持空白則使用資源的網址）"
-
-#~ msgid "Invalid characters in resource id"
-#~ msgstr ""
-
-#~ msgid "Invalid length for resource id"
-#~ msgstr ""
-
-#~ msgid "You are already following {0}"
-#~ msgstr "你正在關注{0}"
-
-#~ msgid "You must be logged in to follow a dataset."
-#~ msgstr "你必須登入才能關注資料集"
-
-#~ msgid "You must be logged in to follow a group."
-#~ msgstr "你必須登入才能關注群組"
-
-#~ msgid "You are not following {0}."
-#~ msgstr "你並沒有關注{0}"
-
-#~ msgid "Homepage"
-#~ msgstr "首頁"
-
-#~ msgid ""
-#~ "<p><strong>Site Title:</strong> This is the"
-#~ " title of this CKAN instance It "
-#~ "appears in various places throughout "
-#~ "CKAN.</p> <p><strong>Custom Stylesheet:</strong> "
-#~ "Define an alternative main CSS file.</p>"
-#~ " <p><strong>Site Tag Logo:</strong> This is"
-#~ " the logo that appears in the "
-#~ "header of all the CKAN instance "
-#~ "templates.</p> <p><strong>About:</strong> This text"
-#~ " will appear on this CKAN instances"
-#~ " <a href=\"%(about_url)s\">about page</a>.</p> "
-#~ "<p><strong>Intro Text:</strong> This text will"
-#~ " appear on this CKAN instances <a "
-#~ "href=\"%(home_url)s\">home page</a> as a "
-#~ "welcome to visitors.</p> <p><strong>Custom "
-#~ "CSS:</strong> This is a block of "
-#~ "CSS that appears in <code>&lt;head&gt;</code>"
-#~ " tag of every page. If you wish"
-#~ " to customize the templates more "
-#~ "fully we recommend <a href=\"%(docs_url)s\""
-#~ " target=\"_blank\" rel=\"noreferrer\">reading the "
-#~ "documentation</a>.</p> <p><strong>Homepage:</strong> This"
-#~ " is for choosing a predefined layout"
-#~ " for the modules that appear on "
-#~ "your homepage.</p>"
-#~ msgstr ""
-
-#~ msgid "{0} statistics"
-#~ msgstr "{0}項統計"
-
-#~ msgid "datasets"
-#~ msgstr "個資料集"
-
-#~ msgid "organizations"
-#~ msgstr "組織"
-
-#~ msgid "groups"
-#~ msgstr "群組"
-
-#~ msgid ""
-#~ "Data Explorer views may be slow "
-#~ "and unreliable unless the DataStore "
-#~ "extension is enabled. For more "
-#~ "information, please see the <a "
-#~ "href='http://docs.ckan.org/en/latest/maintaining/data-"
-#~ "viewer.html#viewing-structured-data-the-"
-#~ "data-explorer' target='_blank'>Data Explorer "
-#~ "documentation</a>."
-#~ msgstr ""
-#~ "若 DataStore 擴充套件未啟用，資料瀏覽檢視可能會較為緩慢且不穩定。進一步資訊請參考 <a"
-#~ " href='http://docs.ckan.org/en/latest/maintaining/data-"
-#~ "viewer.html#viewing-structured-data-the-"
-#~ "data-explorer' target='_blank'>資料瀏覽檢視說明</a>。"
-
-#~ msgid "All resources"
-#~ msgstr "全部資源"
-
-#~ msgid "List of downloadable formats"
-#~ msgstr ""
-
-#~ msgid "full {format} dump"
-#~ msgstr "永久 {format} 刪除"
-
-#~ msgid ""
-#~ "You can also access this registry "
-#~ "using the %(api_link)s (see %(api_doc_link)s)"
-#~ " or download a %(dump_link)s."
-#~ msgstr "您也可以使用%(api_link)s (see %(api_doc_link)s)或下載%(dump_link)s註冊。"
-
-#~ msgid "API Key"
-#~ msgstr "API Key"
-
-#~ msgid "Bad request data: %s"
-#~ msgstr "錯誤請求的資料：%s"
-
-#~ msgid "You are now following {0}"
-#~ msgstr "你正在關注{0}"
-
-#~ msgid "You are no longer following {0}"
-#~ msgstr "你已取消關注{0}"
-
-#~ msgid "The data was invalid: {}"
-#~ msgstr "資料無效：{}"
-
-#~ msgid ""
-#~ "Further information in the <a "
-#~ "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p>"
-#~ msgstr " 進一步的資訊位於  CKAN Data API 及 DataStore 文件</a>.</p> "
-
-#~ msgid "Endpoints"
-#~ msgstr "終端點"
-
-#~ msgid ""
-#~ "The Data API can be accessed via"
-#~ " the following actions of the CKAN"
-#~ " action API."
-#~ msgstr "可使用下列之CKAN action API所提供的功能來存取資料API。"
-
-#~ msgid "Create"
-#~ msgstr "建立"
-
-#~ msgid "Update / Insert"
-#~ msgstr "更新 / 插入"
-
-#~ msgid "Query"
-#~ msgstr "查詢"
-
-#~ msgid "Query (via SQL)"
-#~ msgstr "查詢 (透過SQL)"
-
-#~ msgid "Example: Javascript"
-#~ msgstr "範例：Javascript"
-
-#~ msgid "A simple ajax (JSONP) request to the data API using jQuery."
-#~ msgstr "使用jQuery對資料API發出一個簡單的ajax(JSONP)請求。"
-
-#~ msgid "Example: Python"
-#~ msgstr "範例：Python"
-
-#~ msgid "Data Explorer"
-#~ msgstr "資料瀏覽器"
-
-#~ msgid "Grid"
-#~ msgstr "網格"
-
-#~ msgid "Graph"
-#~ msgstr "圖表"
-
-#~ msgid "Map"
-#~ msgstr "地圖"
-
-#~ msgid "error loading view"
-#~ msgstr "讀取資料檢視發生錯誤"
-
-#~ msgid "Could not load view"
-#~ msgstr "無法載入檢視器"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "DataStore 錯誤"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "DataProxy 錯誤"
-
-#~ msgid "Row offset"
-#~ msgstr "資料列偏移量"
-
-#~ msgid "eg: 0"
-#~ msgstr "例如：0"
-
-#~ msgid "Number of rows"
-#~ msgstr "顯示資料列數量"
-
-#~ msgid "eg: 100"
-#~ msgstr "例如：100"
-
-#~ msgid "Graph type"
-#~ msgstr "圖表類型"
-
-#~ msgid "Group (Axis 1)"
-#~ msgstr "群組（軸 1）"
-
-#~ msgid "Series (Axis 2)"
-#~ msgstr "數列（軸 2）"
-
-#~ msgid "Field type"
-#~ msgstr "欄位類型"
-
-#~ msgid "Latitude field"
-#~ msgstr "緯度欄位"
-
-#~ msgid "Longitude field"
-#~ msgstr "經度欄位"
-
-#~ msgid "GeoJSON field"
-#~ msgstr "GeoJSON 欄位"
-
-#~ msgid "Auto zoom to features"
-#~ msgstr "自動縮放至圖徵 (features)"
-
-#~ msgid "Cluster markers"
-#~ msgstr "將附近的圖徵 (features) 標記為叢集"
-
