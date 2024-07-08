@@ -1,26 +1,26 @@
-# Burmese (Myanmar (Burma)) translations for ckan.
-# Copyright (C) 2023 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# 
 # Translators:
-# Adrià Mercader <amercadero@gmail.com>, 2022
+# Adrià Mercader <amercadero@gmail.com>, 2024
+# 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: ckan 2.10.2b0\n"
+"Project-Id-Version: ckan 2.11.0b0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-05-23 15:52+0200\n"
-"PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2022\n"
-"Language: my_MM\n"
-"Language-Team: Burmese (Myanmar) "
-"(https://app.transifex.com/okfn/teams/11162/my_MM/)\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"PO-Revision-Date: 2024-05-23 14:04+0000\n"
+"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2024\n"
+"Language-Team: Burmese (Myanmar) (https://app.transifex.com/okfn/teams/11162/my_MM/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
+"Language: my_MM\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/authz.py:244
 #, python-format
@@ -285,7 +285,8 @@ msgid "Dataset"
 msgstr "Dataset"
 
 #: ckan/logic/converters.py:195 ckan/logic/validators.py:369
-#: ckan/views/group.py:1155 ckanext/stats/templates/ckanext/stats/index.html:91
+#: ckan/views/group.py:1155
+#: ckanext/stats/templates/ckanext/stats/index.html:91
 msgid "Group"
 msgstr "အုပ်စု"
 
@@ -377,8 +378,8 @@ msgstr "အမည်သည် အများဆုံး %i အက္ခရာ 
 
 #: ckan/logic/validators.py:414
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr "စာလုံးအသေးများ၊ နံပါတ်များ နှင့် -_ သင်္ကေတများကိုသာ အသုံးပြုရမည်။"
 
 #: ckan/logic/validators.py:439
@@ -422,8 +423,8 @@ msgstr "Tag \"%s\" ၏အရှည်သည် အများဆုံးရှ
 #: ckan/logic/validators.py:519
 #, python-format
 msgid ""
-"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), "
-"hyphens (\"-\"), underscores (\"_\") or dots (\".\")"
+"Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
+" (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
 
 #: ckan/logic/validators.py:529
@@ -552,8 +553,8 @@ msgstr "Dict တစ်ခု ဖြစ်ရမည်။"
 #: ckan/logic/validators.py:1105
 msgid "The email address '{email}' belongs to a registered user."
 msgstr ""
-"Email လိပ်စာ '{email}' သည် register လုပ်ထားသော အသုံးပြုသူ တစ်‌ယောက်ထံတွင်"
-" ရှိပြီးသားဖြစ်သည်။"
+"Email လိပ်စာ '{email}' သည် register လုပ်ထားသော အသုံးပြုသူ တစ်‌ယောက်ထံတွင် "
+"ရှိပြီးသားဖြစ်သည်။"
 
 #: ckan/logic/validators.py:1112
 msgid "Value must be one of {}"
@@ -565,11 +566,13 @@ msgstr "တန်ဖိုးသည် မှန်ကန်သော JSON objec
 
 #: ckan/logic/validators.py:1125
 msgid "Could not parse the value as a valid JSON object"
-msgstr "မှန်ကန်သော JSON object အနေဖြင့် တန်ဖိုးကို ခွဲခြမ်းစိတ်ဖြာ၍မရနိုင်ခဲ့ပါ။"
+msgstr ""
+"မှန်ကန်သော JSON object အနေဖြင့် တန်ဖိုးကို ခွဲခြမ်းစိတ်ဖြာ၍မရနိုင်ခဲ့ပါ။"
 
 #: ckan/logic/validators.py:1137
 msgid "Could not parse extra '{name}' as valid JSON"
-msgstr "မှန်ကန်သော JSON အနေဖြင့် အပို '{name}' ကို ခွဲခြမ်းစိတ်ဖြာ၍မရနိုင်ခဲ့ပါ။"
+msgstr ""
+"မှန်ကန်သော JSON အနေဖြင့် အပို '{name}' ကို ခွဲခြမ်းစိတ်ဖြာ၍မရနိုင်ခဲ့ပါ။"
 
 #: ckan/logic/action/__init__.py:70 ckan/views/util.py:19
 msgid "Missing Value"
@@ -737,7 +740,8 @@ msgstr "အသုံးပြုသူ %s သည် ဤအုပ်စုမျ�
 #: ckan/logic/auth/create.py:44
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr "အသုံးပြုသူ %s သည် ဤအဖွဲ့အစည်းအတွင်းသို့ dataset ထည့်သွင်းရန် အခွင့်မရှိပါ။"
+msgstr ""
+"အသုံးပြုသူ %s သည် ဤအဖွဲ့အစည်းအတွင်းသို့ dataset ထည့်သွင်းရန် အခွင့်မရှိပါ။"
 
 #: ckan/logic/auth/create.py:71
 msgid "No dataset id provided, cannot check auth."
@@ -747,13 +751,13 @@ msgstr "Dataset id မပေးခဲ့သောကြောင့် အခွ
 #: ckan/logic/auth/get.py:130 ckan/logic/auth/update.py:82
 msgid "No package found for this resource, cannot check auth."
 msgstr ""
-"ဤ resource အတွက် package ရှာမတွေ့ခဲ့သောကြောင့် အခွင့်ရှိမရှိ "
-"မစစ်ဆေးနိုင်ပါ။"
+"ဤ resource အတွက် package ရှာမတွေ့ခဲ့သောကြောင့် အခွင့်ရှိမရှိ မစစ်ဆေးနိုင်ပါ။"
 
 #: ckan/logic/auth/create.py:87
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr "အသုံးပြုသူ %s သည် dataset %s ၏ resource များကို ဖန်တီးရန် အခွင့်မရှိပါ။"
+msgstr ""
+"အသုံးပြုသူ %s သည် dataset %s ၏ resource များကို ဖန်တီးရန် အခွင့်မရှိပါ။"
 
 #: ckan/logic/auth/create.py:125
 #, python-format
@@ -1151,14 +1155,13 @@ msgstr "Resource များကို ပြန်စီမည်"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 msgid ""
-"You can rearrange the resources by dragging them using the arrow icon. "
-"Drag the resource to the right and place it to the desired location on "
-"the list. When you are done, click the \"Save order\" -button."
+"You can rearrange the resources by dragging them using the arrow icon. Drag "
+"the resource to the right and place it to the desired location on the list. "
+"When you are done, click the \"Save order\" -button."
 msgstr ""
 "မြှားပုံကို အသုံးပြုပြီး drag လုပ်ခြင်းဖြင့် resource များကို ပြန်၍ "
 "အစီအစဥ်ချနိုင်ပါသည်။ resource ကို ညာသို့ drag လုပ်ပြီး list ပေါ်ရှိ "
-"ကြိုက်နှစ်သက်ရာ နေရာသို့ ထားပါ။ ပြီးသောအခါ \"Save order\" -ခလုပ်ကို "
-"နှိပ်ပါ။"
+"ကြိုက်နှစ်သက်ရာ နေရာသို့ ထားပါ။ ပြီးသောအခါ \"Save order\" -ခလုပ်ကို နှိပ်ပါ။"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:64
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:54
@@ -1318,7 +1321,8 @@ msgstr "အဖွဲ့အစည်းများ"
 #: ckan/templates/group/read_base.html:4 ckan/templates/group/read_base.html:7
 #: ckan/templates/header.html:108 ckan/templates/package/group_list.html:7
 #: ckan/templates/package/read_base.html:23
-#: ckan/templates/user/read_base.html:24 ckan/templates/user/read_groups.html:6
+#: ckan/templates/user/read_base.html:24
+#: ckan/templates/user/read_groups.html:6
 #: ckan/templates/user/snippets/info.html:52 ckan/views/dataset.py:284
 #: ckan/views/group.py:306 ckan/views/home.py:53
 msgid "Groups"
@@ -1438,18 +1442,17 @@ msgstr "CKAN config option များ"
 #: ckan/templates/admin/config.html:51
 #, python-format
 msgid ""
-"<p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> <p><strong>Custom "
+"<p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Custom "
 "Stylesheet:</strong> Define an alternative main CSS file.</p> "
 "<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
-"Text:</strong> This text will appear on this CKAN instances <a "
-"href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
-"<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"header of all the CKAN instance templates.</p> <p><strong>About:</strong> "
+"This text will appear on this CKAN instances <a href=\"%(about_url)s\">about"
+" page</a>.</p> <p><strong>Intro Text:</strong> This text will appear on this"
+" CKAN instances <a href=\"%(home_url)s\">home page</a> as a welcome to "
+"visitors.</p> <p><strong>Custom CSS:</strong> This is a block of CSS that "
+"appears in <code>&lt;head&gt;</code> tag of every page. If you wish to "
+"customize the templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\" rel=\"noreferrer\">reading the documentation</a>.</p>"
 msgstr ""
 
@@ -1481,10 +1484,10 @@ msgstr "CKAN ကို စီမံခန့်ခွဲခြင်း"
 #: ckan/templates/admin/index.html:78
 #, python-format
 msgid ""
-"<p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN  <a href=\"%(docs_url)s\" target=\"_blank\" "
-"rel=\"noreferrer\">sysadmin guide</a></p>"
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed"
+" with care!</p> <p>For guidance on using sysadmin features, see the CKAN  <a"
+" href=\"%(docs_url)s\" target=\"_blank\" rel=\"noreferrer\">sysadmin "
+"guide</a></p>"
 msgstr ""
 
 #: ckan/templates/admin/trash.html:13 ckan/views/admin.py:130
@@ -1496,7 +1499,8 @@ msgid "Purge all"
 msgstr "အားလုံးကို purge လုပ်ပါ"
 
 #: ckan/templates/admin/trash.html:32
-msgid "Purge deleted datasets, organizations or groups forever and irreversibly."
+msgid ""
+"Purge deleted datasets, organizations or groups forever and irreversibly."
 msgstr ""
 "ဖျက်ထားသော dataset များ၊ အဖွဲ့အစည်းများ သို့မဟုတ် အုပ်စုများကို "
 "အစဥ်အမြဲနှင့် နောက်ကြောင်းပြန်ဆုတ်၍ မရသော purge လုပ်ပါ။"
@@ -1604,11 +1608,11 @@ msgstr "ရွေးချယ်ပါ"
 #, python-format
 msgid ""
 "Dear %(user_name)s, You have been invited to %(site_title)s. A user has "
-"already been created for you with the username %(user_name)s. You can "
-"change it later. You have been added to the %(group_type)s "
-"%(group_title)s with the following role: %(role_name)s. To accept this "
-"invite, please reset your password at: %(reset_link)s Have a nice day. --"
-" Message sent by %(site_title)s (%(site_url)s)"
+"already been created for you with the username %(user_name)s. You can change"
+" it later. You have been added to the %(group_type)s %(group_title)s with "
+"the following role: %(role_name)s. To accept this invite, please reset your "
+"password at: %(reset_link)s Have a nice day. -- Message sent by "
+"%(site_title)s (%(site_url)s)"
 msgstr ""
 
 #: ckan/templates/emails/invite_user_subject.txt:1
@@ -1619,8 +1623,8 @@ msgstr ""
 #: ckan/templates/emails/reset_password.txt:1
 #, python-format
 msgid ""
-"Dear %(user_name)s, You have requested your password on %(site_title)s to"
-" be reset. Please click the following link to confirm this request: "
+"Dear %(user_name)s, You have requested your password on %(site_title)s to be"
+" reset. Please click the following link to confirm this request: "
 "%(reset_link)s Have a nice day. -- Message sent by %(site_title)s "
 "(%(site_url)s)"
 msgstr ""
@@ -1729,7 +1733,8 @@ msgstr "အမည် ကြီးစဥ်ငယ်လိုက်"
 msgid "There are currently no groups for this site"
 msgstr "ဤ site အတွက် လောလောဆယ် အုပ်စုများမရှိသေးပါ။"
 
-#: ckan/templates/group/index.html:32 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:32
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "အသစ်တစ်ခု ဖန်တီးလိုပါသလား။"
 
@@ -1750,7 +1755,8 @@ msgstr ""
 
 #: ckan/templates/group/manage_members.html:16
 #: ckan/templates/group/member_new.html:63
-#: ckan/templates/group/member_new.html:67 ckan/templates/group/members.html:13
+#: ckan/templates/group/member_new.html:67
+#: ckan/templates/group/members.html:13
 #: ckan/templates/organization/manage_members.html:23
 #: ckan/templates/organization/member_new.html:65
 #: ckan/templates/organization/member_new.html:69
@@ -1960,15 +1966,15 @@ msgstr "အုပ်စုတွေက ဘာလဲ။"
 
 #: ckan/templates/group/snippets/helper.html:19
 msgid ""
-"You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets."
+"You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets."
 msgstr ""
 "Dataset များကို ဖန်တီးရန်နှင့် စီမံခန့်ခွဲရန် CKAN အုပ်စုများကို "
 "အသုံးပြုနိုင်သည်။ ၎င်းသည် စီမံကိန်းတစ်ခု သို့မဟုတ် အဖွဲ့တစ်ဖွဲ့အတွက်၊ "
-"သို့မဟုတ် အကြောင်းအရာတစ်ခုအတွက် dataset များကို စာရင်းပြုစုရန်၊ သို့မဟုတ်"
-" သင်ကိုယ်တိုင် ထုတ်ဝေထားသော dataset များကို လူအများက ရှာဖွေရာတွင် "
+"သို့မဟုတ် အကြောင်းအရာတစ်ခုအတွက် dataset များကို စာရင်းပြုစုရန်၊ သို့မဟုတ် "
+"သင်ကိုယ်တိုင် ထုတ်ဝေထားသော dataset များကို လူအများက ရှာဖွေရာတွင် "
 "အကူအညီဖြစ်စေရန် အလွန်ရိုးရှင်းသော နည်းလမ်းတစ်ခု ဖြစ်ပါသည်။"
 
 #: ckan/templates/group/snippets/info.html:19
@@ -1991,23 +1997,22 @@ msgstr "မင်္ဂလာပါ"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
-"<p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
+"<p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN"
+" is a complete out-of-the-box software solution that makes data accessible "
+"and usable – by providing tools to streamline publishing, sharing, finding "
+"and using data (including storage of data and provision of robust data "
+"APIs). CKAN is aimed at data publishers (national and regional governments, "
+"companies and organizations) wanting to make their data open and "
+"available.</p> <p>CKAN is used by governments and user groups worldwide and "
+"powers a variety of official and community data portals including portals "
+"for local, national and international government, such as the UK’s <a "
 "href=\"https://data.gov.uk\">data.gov.uk</a> and the United States <a "
-"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a"
-" href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
+"href=\"https://catalog.data.gov/\">catalog.data.gov</a>, the Brazilian <a "
+"href=\"https://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
 "Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
-"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a"
-" href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
+"href=\"https://ckan.org/\">https://ckan.org/</a><br /> CKAN Showcases: <a "
+"href=\"https://ckan.org/showcase\">https://ckan.org/showcase</a><br /> "
 "Features overview: <a "
 "href=\"https://ckan.org/features/\">https://ckan.org/features/</a></p>"
 msgstr ""
@@ -2018,11 +2023,11 @@ msgstr "CKAN မှ ကြိုဆိုပါတယ်။"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will"
 msgstr ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -2084,9 +2089,9 @@ msgstr "စိတ်ကြိုက်"
 #: ckan/templates/macros/form/markdown.html:31
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-"
-"bs-html=\"true\">Markdown formatting</a> here"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
+"html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
 #: ckan/templates/macros/form/required_message.html:11
@@ -2188,18 +2193,17 @@ msgid ""
 "<p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p>"
 msgstr ""
 "<p><strong>စီမံခန့်ခွဲသူ -</strong> dataset များကို "
 "ဖြည့်စွက်/ပြင်ဆင်ခြင်းနှင့် ပယ်ဖျက်ခြင်းတို့ကို ပြုလုပ်နိုင်ပါသည်။ "
 "အဖွဲ့အစည်း၏ အဖွဲ့ဝင်များကိုလည်း "
-"စီမံခန့်ခွဲနိုင်ပါသည်။</p><p><strong>တည်းဖြတ်သူ -</strong> dataset "
-"များကို ဖြည့်စွက်ခြင်းနှင့် ပြင်ဆင်ခြင်းတို့ကို ပြုလုပ်နိုင်သော်လည်း "
-"အဖွဲ့အစည်း၏ အဖွဲ့ဝင်များကို စီမံခန့်ခွဲခြင်း "
-"မပြုလုပ်နိုင်ပါ။</p><p><strong>အဖွဲ့ဝင် -</strong> အဖွဲ့အစည်း၏ private "
-"dataset များကို ကြည့်ရှု့နိုင်သော်လည်း dataset အသစ်များကို "
-"မထည့်နိုင်ပါ။</p>"
+"စီမံခန့်ခွဲနိုင်ပါသည်။</p><p><strong>တည်းဖြတ်သူ -</strong> dataset များကို "
+"ဖြည့်စွက်ခြင်းနှင့် ပြင်ဆင်ခြင်းတို့ကို ပြုလုပ်နိုင်သော်လည်း အဖွဲ့အစည်း၏ "
+"အဖွဲ့ဝင်များကို စီမံခန့်ခွဲခြင်း မပြုလုပ်နိုင်ပါ။</p><p><strong>အဖွဲ့ဝင် "
+"-</strong> အဖွဲ့အစည်း၏ private dataset များကို ကြည့်ရှု့နိုင်သော်လည်း "
+"dataset အသစ်များကို မထည့်နိုင်ပါ။</p>"
 
 #: ckan/templates/organization/new.html:3
 msgid "Create an Organization"
@@ -2224,11 +2228,11 @@ msgstr "အဖွဲ့အစည်းတွေက ဘာလဲ။"
 #: ckan/templates/organization/snippets/helper.html:20
 msgid ""
 "CKAN Organizations are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish."
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish."
 msgstr ""
-"Dataset များကို ဖန်တီးခြင်း၊ စီမံခန့်ခွဲခြင်းနှင့် ထုတ်‌ဝေခြင်းတို့တွင် "
-"CKAN အဖွဲ့အစည်းများကို အသုံးပြုသည်။ အသုံးပြုသူများအနေဖြင့် ၎င်းတို့၏ "
+"Dataset များကို ဖန်တီးခြင်း၊ စီမံခန့်ခွဲခြင်းနှင့် ထုတ်‌ဝေခြင်းတို့တွင် CKAN"
+" အဖွဲ့အစည်းများကို အသုံးပြုသည်။ အသုံးပြုသူများအနေဖြင့် ၎င်းတို့၏ "
 "ဖန်တီးခွင့်၊ စီမံခန့်ခွဲခွင့်နှင့် ထုတ်ဝေခွင့် စသော "
 "ခွင့်ပြုချက်အဆင့်များပေါ်တွင် မူတည်၍ အဖွဲ့အစည်းတစ်ခု၌ မတူညီသော role များ "
 "ရှိနိုင်သည်။"
@@ -2247,9 +2251,8 @@ msgstr "ကျွန်ုပ်၏ အဖွဲ့အစည်းအကြေ�
 
 #: ckan/templates/organization/snippets/organization_form.html:40
 msgid ""
-"Are you sure you want to delete this Organization? Note*: Deleting cannot"
-" be performed while public or private datasets belong to this "
-"organization."
+"Are you sure you want to delete this Organization? Note*: Deleting cannot be"
+" performed while public or private datasets belong to this organization."
 msgstr ""
 "ဤ အဖွဲ့အစည်းကို ဖျက်ချင်သည်မှာ သေချာပါသလား။ မှတ်ချက်* - ဤ အဖွဲ့အစည်းတွင် "
 "public သို့မဟုတ် private dataset များ ရှိနေပါက ဖျက်၍ မရနိုင်ပါ။"
@@ -2276,9 +2279,9 @@ msgstr "Dataset တွေက ဘာလဲ။"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid ""
-"A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data."
+"A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data."
 msgstr ""
 "CKAN Dataset ဆိုသည်မှာ သတ်မှတ်ထားသော URL တွင် ဖော်ပြချက်နှင့် "
 "အခြားသတင်းအချက်အလက်များနှင့်တကွ ဒေတာ resource များ (ဥပမာ ဖိုင်များ) "
@@ -2447,14 +2450,14 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:119
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 "View သည် DataStore အားလိုအပ်ပါက DataStore plugin ကို မဖွင့်ထားခဲ့၍ "
 "ဖြစ်နိုင်သည်၊ သို့မဟုတ် ဒေတာများကို DataStore သို့ push လုပ်၍ "
-"မရနိုင်ခဲ့ခြင်းကြောင့်၊ သို့မဟုတ် DataStore သည် ဒေတာများကို processing "
-"လုပ်၍ မပြီးသေးခြင်းကြောင့် ဖြစ်နိုင်သည်။"
+"မရနိုင်ခဲ့ခြင်းကြောင့်၊ သို့မဟုတ် DataStore သည် ဒေတာများကို processing လုပ်၍"
+" မပြီးသေးခြင်းကြောင့် ဖြစ်နိုင်သည်။"
 
 #: ckan/templates/package/resource_read.html:141
 msgid "Additional Information"
@@ -2517,11 +2520,11 @@ msgstr "ဤ resource တွင် view များ မရှိပါ။"
 #: ckan/templates/package/snippets/resources_list.html:28
 #, python-format
 msgid ""
-"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
-"add some?</a></p>"
+"<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
+" some?</a></p>"
 msgstr ""
-"<p class=\"empty\">ဤ dataset တွင် ဒေတာ မရှိပါ။ <a "
-"href=\"%(url)s\">ဘာကြောင့် အချို့ မထည့်သွင်းပါသလဲ။</a></p>"
+"<p class=\"empty\">ဤ dataset တွင် ဒေတာ မရှိပါ။ <a href=\"%(url)s\">ဘာကြောင့်"
+" အချို့ မထည့်သွင်းပါသလဲ။</a></p>"
 
 #: ckan/templates/package/search.html:52
 msgid "API"
@@ -2582,8 +2585,8 @@ msgstr "ရရှိနိုင်တဲ့ role တွေက ဘာလဲ။"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:68
 msgid ""
-"<p><strong>Admin:</strong> In addition to managing the dataset, admins "
-"can add and remove collaborators from a dataset.</p>"
+"<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
+"add and remove collaborators from a dataset.</p>"
 msgstr ""
 "<p><strong>စီမံခန့်ခွဲသူ - </strong>dataset ကို စီမံခန့်ခွဲခြင်း အပြင်၊ "
 "စီမံခန့်ခွဲသူများသည် dataset တစ်ခုမှ ပူးပေါင်းဆောင်ရွက်သူများကို "
@@ -2591,10 +2594,9 @@ msgstr ""
 
 #: ckan/templates/package/collaborators/collaborator_new.html:72
 msgid ""
-"<p><strong>Editor:</strong> Editors can edit the dataset and its "
-"resources, as well accessing the dataset if private.</p> "
-"<p><strong>Member:</strong> Members can access the dataset if private, "
-"but not edit it.</p>"
+"<p><strong>Editor:</strong> Editors can edit the dataset and its resources, "
+"as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
+"Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
 "<p><strong>တည်းဖြတ်သူ - </strong>တည်းဖြတ်သူများသည် dataset နှင့် ၎င်း၏ "
 "resource များကို edit လုပ်နိုင်သည်။ dataset သည် private ဖြစ်နေသည့်တိုင် "
@@ -2669,8 +2671,8 @@ msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
-"ရှေ့မဆက်ခင် အဖွဲ့အစည်းတစ်ခုကို ဖန်တီးရန် ဤ စနစ်၏ စီမံခန့်ခွဲသူ "
-"တစ်ယောက်အား မေးပါ။"
+"ရှေ့မဆက်ခင် အဖွဲ့အစည်းတစ်ခုကို ဖန်တီးရန် ဤ စနစ်၏ စီမံခန့်ခွဲသူ တစ်ယောက်အား "
+"မေးပါ။"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:6
 #: ckan/templates/package/snippets/view_form.html:8
@@ -2702,9 +2704,9 @@ msgid ""
 "License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 msgstr ""
-"လိုင်စင်အဓိပ္ပာယ်ဖွင့်ဆိုချက်များနှင့် နောက်ဆက်တွဲ သတင်းအချက်အလက်များကို "
-"<a href=\"http://opendefinition.org/licenses/\">opendefinition.org </a> "
-"တွင် တွေ့နိုင်သည်။"
+"လိုင်စင်အဓိပ္ပာယ်ဖွင့်ဆိုချက်များနှင့် နောက်ဆက်တွဲ သတင်းအချက်အလက်များကို <a "
+"href=\"http://opendefinition.org/licenses/\">opendefinition.org </a> တွင် "
+"တွေ့နိုင်သည်။"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:75
 msgid "Organization"
@@ -2728,17 +2730,16 @@ msgstr "Active"
 
 #: ckan/templates/package/snippets/package_form.html:31
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
-"သင်အထက်တွင် ရွေးချယ်လိုက်သော <i>ဒေတာလိုင်စင်</i> သည် ဤ dataset ရှိ "
-"resource ဖိုင်များအားလုံး၏ အကြောင်းအရာများနှင့်သာ သက်ဆိုင်သည်။ ဤဖောင်ကို "
-"တင်ခြင်းအားဖြင့်၊ ဖောင်တွင် ထည့်ထားသော <i> metadata </i> တန်ဖိုးများကို "
-"<a href=\"http://opendatacommons.org/licenses/odbl/1-0/\"> Open Database "
+"သင်အထက်တွင် ရွေးချယ်လိုက်သော <i>ဒေတာလိုင်စင်</i> သည် ဤ dataset ရှိ resource "
+"ဖိုင်များအားလုံး၏ အကြောင်းအရာများနှင့်သာ သက်ဆိုင်သည်။ ဤဖောင်ကို "
+"တင်ခြင်းအားဖြင့်၊ ဖောင်တွင် ထည့်ထားသော <i> metadata </i> တန်ဖိုးများကို <a "
+"href=\"http://opendatacommons.org/licenses/odbl/1-0/\"> Open Database "
 "License</a>အောက်တွင် ထုတ်ပြန်ရန် သင်သဘောတူသည်။"
 
 #: ckan/templates/package/snippets/package_form.html:42
@@ -2848,8 +2849,8 @@ msgstr "Resource ဆိုတာ ဘာလဲ။"
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
 msgstr ""
-"Resource ဆိုသည်မှာ မည်သည့်ဖိုင်မဆို သို့မဟုတ် အသုံးဝင်သည့် "
-"ဒေတာများပါဝင်သည့် ဖိုင်တစ်ခု၏ link ဖြစ်သည်။"
+"Resource ဆိုသည်မှာ မည်သည့်ဖိုင်မဆို သို့မဟုတ် အသုံးဝင်သည့် ဒေတာများပါဝင်သည့်"
+" ဖိုင်တစ်ခု၏ link ဖြစ်သည်။"
 
 #: ckan/templates/package/snippets/resource_item.html:36
 msgid "Explore"
@@ -2894,8 +2895,8 @@ msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
 msgstr ""
-"ထည့်သွင်းထားသော ကုတ်ဒ်ကို CMS တစ်ခု သို့မဟုတ် raw HTML ကို "
-"အထောက်အပံ့ပေးသော blog တစ်ခုတွင် copy ကူးပြီး paste လုပ်နိုင်သည်။"
+"ထည့်သွင်းထားသော ကုတ်ဒ်ကို CMS တစ်ခု သို့မဟုတ် raw HTML ကို အထောက်အပံ့ပေးသော "
+"blog တစ်ခုတွင် copy ကူးပြီး paste လုပ်နိုင်သည်။"
 
 #: ckan/templates/package/snippets/resource_view.html:80
 msgid "Width"
@@ -3026,11 +3027,11 @@ msgstr "<p class=\"extra\">ကျေးဇူးပြု၍ နောက်ထ�
 
 #: ckan/templates/snippets/search_form.html:89
 msgid ""
-"<p id=\"search-error\"><strong>There was an error while "
-"searching.</strong> Please try again.</p>"
+"<p id=\"search-error\"><strong>There was an error while searching.</strong> "
+"Please try again.</p>"
 msgstr ""
-"<p id=\"search-error\"><strong>ရှာဖွေနေစဉ်မှာ "
-"အမှားတစ်ခုရှိခဲ့တယ်။</strong> ကျေးဇူးပြု၍ ပြန်ကြိုးစားပါ။</p>"
+"<p id=\"search-error\"><strong>ရှာဖွေနေစဉ်မှာ အမှားတစ်ခုရှိခဲ့တယ်။</strong> "
+"ကျေးဇူးပြု၍ ပြန်ကြိုးစားပါ။</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3106,7 +3107,8 @@ msgstr "Loading လုပ်နေသည်..."
 msgid "Create API Token"
 msgstr "API Token ဖန်တီးမည်"
 
-#: ckan/templates/user/api_tokens.html:30 ckan/templates/user/read_base.html:26
+#: ckan/templates/user/api_tokens.html:30
+#: ckan/templates/user/read_base.html:26
 msgid "API Tokens"
 msgstr "API Token များ"
 
@@ -3167,7 +3169,8 @@ msgid "Account Info"
 msgstr "အကောင့် အချက်အလက်များ"
 
 #: ckan/templates/user/edit.html:19
-msgid "Your profile lets other CKAN users know about who you are and what you do."
+msgid ""
+"Your profile lets other CKAN users know about who you are and what you do."
 msgstr ""
 "သင်၏ပရိုဖိုင်းသည် အခြား CKAN အသုံးပြုသူများအား သင်မည်သူဖြစ်ကြောင်းနှင့် "
 "သင်ဘာလုပ်သည်ကို သိစေသည်။"
@@ -3214,8 +3217,8 @@ msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:33
 msgid ""
-"This account is deactivated, if you want to reactivate it, please click "
-"on checkbox."
+"This account is deactivated, if you want to reactivate it, please click on "
+"checkbox."
 msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:43
@@ -3324,7 +3327,8 @@ msgstr "သင် logged in လုပ်ပြီးပါပြီ။"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You need to log out before you can log in with another account."
-msgstr "သင်အခြား account တစ်ခုဖြင့် log in လုပ်လိုပါက log out လုပ်ထားရန်လိုပါသည်။"
+msgstr ""
+"သင်အခြား account တစ်ခုဖြင့် log in လုပ်လိုပါက log out လုပ်ထားရန်လိုပါသည်။"
 
 #: ckan/templates/user/logout_first.html:23
 msgid "Log out now"
@@ -3344,7 +3348,8 @@ msgstr "ဘာကြောင့် sign up လုပ်မလဲ။"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr "Dataset များ၊ အုပ်စုများ နှင့် အခြားစိတ်လှုပ်ရှားစရာအရာများ ဖန်တီးမည်။"
+msgstr ""
+"Dataset များ၊ အုပ်စုများ နှင့် အခြားစိတ်လှုပ်ရှားစရာအရာများ ဖန်တီးမည်။"
 
 #: ckan/templates/user/new_user_form.html:10
 msgid "username"
@@ -3414,12 +3419,11 @@ msgstr "Reset လုပ်ရန် တောင်းဆိုမည်"
 
 #: ckan/templates/user/request_reset.html:44
 msgid ""
-"Enter your email address or username into the box and we will send you an"
-" email with a link to enter a new password."
+"Enter your email address or username into the box and we will send you an "
+"email with a link to enter a new password."
 msgstr ""
-"သင်၏ username သို့မဟုတ် email လိပ်စာ ကို box ထဲတွင်ထည့်သွင်းပါ၊ ထို့နောက်"
-" password အသစ်ထည့်သွင်းရန် link ကိုသင့် email သို့ "
-"ကျွန်ုပ်တို့ပို့ပေးပါမည်။"
+"သင်၏ username သို့မဟုတ် email လိပ်စာ ကို box ထဲတွင်ထည့်သွင်းပါ၊ ထို့နောက် "
+"password အသစ်ထည့်သွင်းရန် link ကိုသင့် email သို့ ကျွန်ုပ်တို့ပို့ပေးပါမည်။"
 
 #: ckan/templates/user/snippets/api_token_list.html:13
 msgid "Token"
@@ -3731,8 +3735,8 @@ msgstr "%s အုပ်စုအတွင်းသို့ အဖွဲ့ဝ�
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
 msgstr ""
-"ကျေးဇူးပြု၍<a href=\"%s\">သင့် profile ကို update လုပ် </a> ပြီး သင့် "
-"email လိပ်စာကို ထည့်ပါ။ "
+"ကျေးဇူးပြု၍<a href=\"%s\">သင့် profile ကို update လုပ် </a> ပြီး သင့် email "
+"လိပ်စာကို ထည့်ပါ။ "
 
 #: ckan/views/home.py:72
 #, python-format
@@ -3829,9 +3833,8 @@ msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
-"ဖန်တီးခဲ့သော API Token: <code style=\"word-break:break-"
-"all;\">{token}</code> {copy}<br>သေချာ copy ကူးပါ၊ သင် နောက်တစ်ကြိမ် "
-"ပြန်တွေ့ရလိမ့်မည် မဟုတ်ပါ!"
+"ဖန်တီးခဲ့သော API Token: <code style=\"word-break:break-all;\">{token}</code>"
+" {copy}<br>သေချာ copy ကူးပါ၊ သင် နောက်တစ်ကြိမ် ပြန်တွေ့ရလိမ့်မည် မဟုတ်ပါ!"
 
 #: ckan/views/user.py:288
 msgid "Unauthorized to revoke API tokens."
@@ -3881,12 +3884,13 @@ msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
 msgstr ""
-"အသုံးပြုသူ \"%s\" ကို register လုပ်ပြီးပါပြီ၊ သို့သော် သင်သည် \"%s\" "
-"ကဲ့သို့ log in ဝင်ထားဆဲဖြစ်သည်။"
+"အသုံးပြုသူ \"%s\" ကို register လုပ်ပြီးပါပြီ၊ သို့သော် သင်သည် \"%s\" ကဲ့သို့"
+" log in ဝင်ထားဆဲဖြစ်သည်။"
 
 #: ckan/views/user.py:589
 msgid "Login failed. Bad username or password."
-msgstr "Login လုပ်ခြင်းမအောင်မြင်ပါ။ Username သို့မဟုတ် password မှားယွင်းနေပါသည်။"
+msgstr ""
+"Login လုပ်ခြင်းမအောင်မြင်ပါ။ Username သို့မဟုတ် password မှားယွင်းနေပါသည်။"
 
 #: ckan/views/user.py:638
 msgid "Unauthorized to delete user with id \"{user_id}\"."
@@ -3905,13 +3909,13 @@ msgid ""
 "Error sending the email. Try again later or contact an administrator for "
 "help"
 msgstr ""
-"Email ပို့ရာတွင် အမှားအယွင်းဖြစ်သွားသည်။ နောက်မှထပ်ကြိုးစားပါ (သို့မဟုတ်)"
-" စီမံခန့်ခွဲသူကို အကူအညီတောင်းပါ။"
+"Email ပို့ရာတွင် အမှားအယွင်းဖြစ်သွားသည်။ နောက်မှထပ်ကြိုးစားပါ (သို့မဟုတ်) "
+"စီမံခန့်ခွဲသူကို အကူအညီတောင်းပါ။"
 
 #: ckan/views/user.py:753
 msgid ""
-"A reset link has been emailed to you (unless the account specified does "
-"not exist)"
+"A reset link has been emailed to you (unless the account specified does not "
+"exist)"
 msgstr ""
 "Reset link တစ်ခုကို သင့်ထံ email ပို့ပြီး ဖြစ်သည် (သတ်မှတ်ထားသော "
 "အကောင့်ရှိခဲ့ပါက)။"
@@ -4058,9 +4062,9 @@ msgstr ""
 #: ckanext/activity/templates/package/resource_history.html:10
 #, python-format
 msgid ""
-"You're currently viewing an old version of this dataset. Data files may "
-"not match the old version of the metadata. <a href=\"%(url)s\">View the "
-"current version</a>."
+"You're currently viewing an old version of this dataset. Data files may not "
+"match the old version of the metadata. <a href=\"%(url)s\">View the current "
+"version</a>."
 msgstr ""
 
 #: ckanext/activity/templates/snippets/activity_type_selector.html:18
@@ -4174,7 +4178,8 @@ msgstr "{actor} သည် {dataset} dataset မှ {tag} tag ကို ဖယ်
 
 #: ckanext/activity/templates/snippets/changes/author.html:5
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
-msgstr "{pkg_link} ၏ ရေးသားသူကို {new_author} သို့ထားခဲ့သည် (ယခင်က {old_author})။"
+msgstr ""
+"{pkg_link} ၏ ရေးသားသူကို {new_author} သို့ထားခဲ့သည် (ယခင်က {old_author})။"
 
 #: ckanext/activity/templates/snippets/changes/author.html:13
 msgid "Set author of {pkg_link} to {new_author}"
@@ -4206,8 +4211,8 @@ msgstr "{pkg_link} မှ ရေးသားသူကို ဖယ်ရှာ�
 #: ckanext/activity/templates/snippets/organization_changes/no_change.html:3
 msgid "No fields were updated. See the metadata diff for more details."
 msgstr ""
-"Field များ update မလုပ်ခဲ့ပါ။ အသေးစိတ်အတွက် metadata ကွဲပြားခြားနားမှုကို"
-" ကြည့်ပါ။"
+"Field များ update မလုပ်ခဲ့ပါ။ အသေးစိတ်အတွက် metadata ကွဲပြားခြားနားမှုကို "
+"ကြည့်ပါ။"
 
 #: ckanext/activity/templates/snippets/changes/author_email.html:6
 msgid "Set author email of "
@@ -4410,8 +4415,8 @@ msgid ""
 "Moved {pkg_link} from organization {old_org_link} to organization "
 "{new_org_link}"
 msgstr ""
-"အဖွဲ့အစည်း {old_org_link} မှ အဖွဲ့အစည်း {old_org_link} သို့ {pkg_link} "
-"ကို ရွှေ့ပြောင်းခဲ့သည်။"
+"အဖွဲ့အစည်း {old_org_link} မှ အဖွဲ့အစည်း {old_org_link} သို့ {pkg_link} ကို "
+"ရွှေ့ပြောင်းခဲ့သည်။"
 
 #: ckanext/activity/templates/snippets/changes/org.html:13
 msgid "Removed {pkg_link} from organization {old_org_link}"
@@ -4435,13 +4440,14 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:15
 msgid "Removed description from resource {resource_link} in {pkg_link}"
-msgstr "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို ဖယ်ရှားခဲ့သည်။"
+msgstr ""
+"{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို ဖယ်ရှားခဲ့သည်။"
 
 #: ckanext/activity/templates/snippets/changes/resource_desc.html:24
 msgid ""
 "Updated description of resource {resource_link} in {pkg_link} from <br "
-"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br class"
-"=\"line-height2\"><blockquote>{new_desc}</blockquote>"
+"class=\"line-height2\"><blockquote>{old_desc}</blockquote> to <br "
+"class=\"line-height2\"><blockquote>{new_desc}</blockquote>"
 msgstr ""
 "{pkg_link} ရှိ {resource_link} resource ၏ ဖော်ပြချက်ကို <br class=\"line-"
 "height2\"><blockquote>{old_desc}</blockquote> မှ <br class=\"line-"
@@ -4474,7 +4480,8 @@ msgstr ""
 "ဖယ်ရှားခဲ့သည်။"
 
 #: ckanext/activity/templates/snippets/changes/resource_extras.html:59
-msgid "Removed the following fields from resource {resource_link} in {pkg_link}"
+msgid ""
+"Removed the following fields from resource {resource_link} in {pkg_link}"
 msgstr ""
 "အောက်ပါ field များကို {pkg_link} ရှိ {resource_link} resource မှ "
 "ဖယ်ရှားခဲ့သည်။"
@@ -4500,8 +4507,8 @@ msgid ""
 "Removed the value of field <q>{key}</q> in resource {resource_link} in "
 "{pkg_link}"
 msgstr ""
-"Field <q>{key}</q> ၏တန်ဖိုးကို {pkg_link} ရှိ {resource_link} resource မှ"
-" ဖယ်ရှားခဲ့သည်။"
+"Field <q>{key}</q> ၏တန်ဖိုးကို {pkg_link} ရှိ {resource_link} resource မှ "
+"ဖယ်ရှားခဲ့သည်။"
 
 #: ckanext/activity/templates/snippets/changes/resource_format.html:15
 #: ckanext/activity/templates/snippets/changes/resource_format.html:32
@@ -4513,10 +4520,11 @@ msgid "in"
 msgstr ""
 
 #: ckanext/activity/templates/snippets/changes/resource_name.html:3
-msgid "Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
+msgid ""
+"Renamed resource {old_resource_link} to {new_resource_link} in {pkg_link}"
 msgstr ""
-"{pkg_link} ရှိ resource ကို {old_resource_link} မှ {new_resource_link} "
-"သို့ အမည်ပြောင်းခဲ့သည်။"
+"{pkg_link} ရှိ resource ကို {old_resource_link} မှ {new_resource_link} သို့ "
+"အမည်ပြောင်းခဲ့သည်။"
 
 #: ckanext/activity/templates/snippets/changes/tags.html:5
 msgid "Removed tag {tag_link} from {pkg_link}"
@@ -4751,8 +4759,8 @@ msgstr ""
 
 #: ckanext/datastore/blueprint.py:214
 msgid ""
-"Data Dictionary saved. Any type overrides will take effect when the "
-"resource is next uploaded to DataStore"
+"Data Dictionary saved. Any type overrides will take effect when the resource"
+" is next uploaded to DataStore"
 msgstr ""
 "Data Dictionary ကိုသိမ်းဆည်းထားခဲ့သည်။ Resource ကို DataStore သို့ "
 "နောက်တစ်ကြိမ် upload လုပ်သောအခါတွင် မည်သည့် အမျိုးအစားကို မဆို override "
@@ -4792,8 +4800,8 @@ msgstr ""
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:40
 #, python-format
 msgid ""
-"Further information in the <a href=\"%(url)s\" target=\"_blank\">main "
-"CKAN Data API and DataStore documentation</a>.</p>"
+"Further information in the <a href=\"%(url)s\" target=\"_blank\">main CKAN "
+"Data API and DataStore documentation</a>.</p>"
 msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:46
@@ -4966,9 +4974,9 @@ msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:17
 msgid ""
-"Length at which data will be truncated with an ellipsis for display. Set "
-"to zero for no truncation, and for data to be wrapped at column name "
-"width instead."
+"Length at which data will be truncated with an ellipsis for display. Set to "
+"zero for no truncation, and for data to be wrapped at column name width "
+"instead."
 msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:22
@@ -4978,9 +4986,8 @@ msgstr ""
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:25
 msgid ""
 "Moment.js date format to use for displaying dates (see <a "
-"href=\"https://devhints.io/moment#formatting-1\" "
-"target=\"_blank\">Moment.js cheatsheet</a>). If <b>NONE</b>, the raw "
-"timestamp value will be shown."
+"href=\"https://devhints.io/moment#formatting-1\" target=\"_blank\">Moment.js"
+" cheatsheet</a>). If <b>NONE</b>, the raw timestamp value will be shown."
 msgstr ""
 
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:29
@@ -5307,8 +5314,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:308
 msgid ""
-"Number with arbitrary precision (any number of digits before and after "
-"the decimal)"
+"Number with arbitrary precision (any number of digits before and after the "
+"decimal)"
 msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:326
@@ -5415,8 +5422,8 @@ msgstr ""
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:57
 #, python-format
 msgid ""
-"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted "
-"or updated based on the primary key values passed"
+"\"%(method)s\" defaults to \"%(upsert)s\" i.e. records will be inserted or "
+"updated based on the primary key values passed"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:65
@@ -5471,8 +5478,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/package/resource_read.html:18
 msgid ""
-"<b>No table view defined:</b> click the Views button and add a Table view"
-" to view and edit data"
+"<b>No table view defined:</b> click the Views button and add a Table view to"
+" view and edit data"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:6
@@ -5485,14 +5492,14 @@ msgid "Table Designer"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:20
-msgid "Save this resource, then customize the table from the Data Dictionary tab"
+msgid ""
+"Save this resource, then customize the table from the Data Dictionary tab"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/package/snippets/resource_upload_field.html:22
 #, python-format
 msgid ""
-"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this "
-"table."
+"Use the <a href=\"%(url)s\">Data Dictionary</a> tab to customize this table."
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/delete_rows.html:6
@@ -5513,9 +5520,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/pattern.html:11
 msgid ""
-"Regular expression to match against the field, e.g. "
-"<code>AB-\\d{6}</code> for text starting with <code>AB-</code> and ending"
-" with 6 digits"
+"Regular expression to match against the field, e.g. <code>AB-\\d{6}</code> "
+"for text starting with <code>AB-</code> and ending with 6 digits"
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
@@ -5556,8 +5562,8 @@ msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:14
 msgid ""
-"Field {num} removed. Click Save below to save your changes and delete all"
-" data in this field."
+"Field {num} removed. Click Save below to save your changes and delete all "
+"data in this field."
 msgstr ""
 
 #: ckanext/tabledesigner/templates/tabledesigner/snippets/design_fields.html:39
@@ -5598,8 +5604,8 @@ msgstr "ဗီဒီယို url"
 #: ckanext/videoview/theme/templates/video_form.html:3
 msgid "eg. http://example.com/video.mpeg  (if blank uses resource url)"
 msgstr ""
-"ဥပမာ၊ http://example.com/video.mpeg (အကယ်၍ ကွက်လပ်ဆိုပါက resource url ကို"
-" အသုံးပြုသည်)။"
+"ဥပမာ၊ http://example.com/video.mpeg (အကယ်၍ ကွက်လပ်ဆိုပါက resource url ကို "
+"အသုံးပြုသည်)။"
 
 #: ckanext/videoview/theme/templates/video_form.html:4
 msgid "Poster url"
@@ -5612,12 +5618,12 @@ msgstr "ဥပမာ၊ http://example.com/poster.jpg"
 #: ckanext/videoview/theme/templates/video_view.html:7
 #, python-format
 msgid ""
-"Sorry, your browser doesn't support embedded videos, but don't worry, you"
-" can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch "
-"it with your favorite video player!"
+"Sorry, your browser doesn't support embedded videos, but don't worry, you "
+"can <a href=\"%(res_url)s\" alt=\"video url\">download it</a> and watch it "
+"with your favorite video player!"
 msgstr ""
-"ဝမ်းနည်းပါတယ်၊ သင်၏ browser သည် embedded ဗီဒီယိုများကို အထောက်အပံ့ "
-"မပေးပါ။ သို့သော် စိတ်မပူပါနှင့်၊ သင် <a href=\"%(res_url)s\" alt=\"video "
+"ဝမ်းနည်းပါတယ်၊ သင်၏ browser သည် embedded ဗီဒီယိုများကို အထောက်အပံ့ မပေးပါ။ "
+"သို့သော် စိတ်မပူပါနှင့်၊ သင် <a href=\"%(res_url)s\" alt=\"video "
 "url\">၎င်းကို ဒေါင်းလုပ်</a> လုပ်နိုင်ပြီး "
 "သင်ကြိုက်နှစ်သက်သောဗွီဒီယိုဖွင့်စက်ဖြင့် ကြည့်ရှုနိုင်ပါသည်။"
 
@@ -5632,227 +5638,4 @@ msgstr "Web Page url"
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com  (if blank uses resource url)"
 msgstr ""
-"ဥပမာ၊ http://example.com (အကယ်၍ ကွက်လပ်ဆိုပါက resource url ကို "
-"အသုံးပြုသည်)။"
-
-#~ msgid "Invalid characters in resource id"
-#~ msgstr ""
-
-#~ msgid "Invalid length for resource id"
-#~ msgstr ""
-
-#~ msgid "You are already following {0}"
-#~ msgstr "{0} ကို သင် follow လုပ်ပြီးဖြစ်သည်။"
-
-#~ msgid "You must be logged in to follow a dataset."
-#~ msgstr "Dataset တစ်ခုကို follow လုပ်ရန်အတွက် သင့်အနေဖြင့် login လုပ်ထားရမည်။"
-
-#~ msgid "You must be logged in to follow a group."
-#~ msgstr "အုပ်စုတစ်စုကို follow လုပ်ရန်အတွက် သင့်အနေဖြင့် login လုပ်ထားရမည်။"
-
-#~ msgid "You are not following {0}."
-#~ msgstr "{0} ကို သင် follow လုပ်မနေပါ။"
-
-#~ msgid "Homepage"
-#~ msgstr "ပင်မစာမျက်နှာ"
-
-#~ msgid ""
-#~ "<p><strong>Site Title:</strong> This is the"
-#~ " title of this CKAN instance It "
-#~ "appears in various places throughout "
-#~ "CKAN.</p> <p><strong>Custom Stylesheet:</strong> "
-#~ "Define an alternative main CSS file.</p>"
-#~ " <p><strong>Site Tag Logo:</strong> This is"
-#~ " the logo that appears in the "
-#~ "header of all the CKAN instance "
-#~ "templates.</p> <p><strong>About:</strong> This text"
-#~ " will appear on this CKAN instances"
-#~ " <a href=\"%(about_url)s\">about page</a>.</p> "
-#~ "<p><strong>Intro Text:</strong> This text will"
-#~ " appear on this CKAN instances <a "
-#~ "href=\"%(home_url)s\">home page</a> as a "
-#~ "welcome to visitors.</p> <p><strong>Custom "
-#~ "CSS:</strong> This is a block of "
-#~ "CSS that appears in <code>&lt;head&gt;</code>"
-#~ " tag of every page. If you wish"
-#~ " to customize the templates more "
-#~ "fully we recommend <a href=\"%(docs_url)s\""
-#~ " target=\"_blank\" rel=\"noreferrer\">reading the "
-#~ "documentation</a>.</p> <p><strong>Homepage:</strong> This"
-#~ " is for choosing a predefined layout"
-#~ " for the modules that appear on "
-#~ "your homepage.</p>"
-#~ msgstr ""
-
-#~ msgid "{0} statistics"
-#~ msgstr "{0} ကိန်းကဏန်းအချက်အလက်များ"
-
-#~ msgid "datasets"
-#~ msgstr "dataset များ"
-
-#~ msgid "organizations"
-#~ msgstr "အဖွဲ့အစည်းများ"
-
-#~ msgid "groups"
-#~ msgstr "အုပ်စုများ"
-
-#~ msgid ""
-#~ "Data Explorer views may be slow "
-#~ "and unreliable unless the DataStore "
-#~ "extension is enabled. For more "
-#~ "information, please see the <a "
-#~ "href='http://docs.ckan.org/en/latest/maintaining/data-"
-#~ "viewer.html#viewing-structured-data-the-"
-#~ "data-explorer' target='_blank'>Data Explorer "
-#~ "documentation</a>."
-#~ msgstr ""
-#~ "DataStore extension အား မဖွင့်ထားလျှင် Data"
-#~ " Explorer view များသည် နှေးကွေးပြီး "
-#~ "စိတ်မချရပါ။ ပိုမိုသိရှိလိုပါက <a href = "
-#~ "'http: //docs.ckan.org/en/latest/maintaining/data-"
-#~ "viewer.html#viewing-structured-data-the-"
-#~ "data-explorer' target = '_ blank "
-#~ "'>Data Explorer စာရွက်စာတမ်းများ</a> ကိုကြည့်ပါ။"
-
-#~ msgid "All resources"
-#~ msgstr "Resource များအားလုံး"
-
-#~ msgid "List of downloadable formats"
-#~ msgstr ""
-
-#~ msgid "full {format} dump"
-#~ msgstr "full {format} dump"
-
-#~ msgid ""
-#~ "You can also access this registry "
-#~ "using the %(api_link)s (see %(api_doc_link)s)"
-#~ " or download a %(dump_link)s."
-#~ msgstr ""
-#~ "ဤ registry ကို %(api_link)s အား "
-#~ "အသုံးပြု၍ access လုပ်နိုင်ပါသည် (%(api_doc_link)s"
-#~ " ကို ကြည့်ပါ)။ သို့မဟုတ် %(dump_link)s "
-#~ "တစ်ခုကို download လုပ်ပါ။"
-
-#~ msgid "API Key"
-#~ msgstr "API Key"
-
-#~ msgid "Bad request data: %s"
-#~ msgstr "%s ၏ data တောင်းဆိုမှု မှားယွင်းနေပါသည်။"
-
-#~ msgid "You are now following {0}"
-#~ msgstr "သင်ယခု {0} ကို follow လုပ်နေပါသည်။"
-
-#~ msgid "You are no longer following {0}"
-#~ msgstr "သင် {0} ကို follow မလုပ်တော့ပါ။"
-
-#~ msgid "The data was invalid: {}"
-#~ msgstr "ဒေတာသည် မမှန်ကန်ခဲ့ပါ - {}"
-
-#~ msgid ""
-#~ "Further information in the <a "
-#~ "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p>"
-#~ msgstr ""
-#~ "နောက်ထပ်သတင်းအချက်အလက်များကို <a "
-#~ "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-#~ "target=\"_blank\">အဓိက CKAN ဒေတာ API နှင့် "
-#~ "DataStore စာရွက်စာတမ်းများ</a>ထဲတွင် ကြည့်ပါ။</p>"
-
-#~ msgid "Endpoints"
-#~ msgstr "အဆုံးမှတ်များ"
-
-#~ msgid ""
-#~ "The Data API can be accessed via"
-#~ " the following actions of the CKAN"
-#~ " action API."
-#~ msgstr ""
-#~ "ဒေတာ API ကို CKAN action API ၏ "
-#~ "အောက်ပါလုပ်ဆောင်မှုများမှတစ်ဆင့် ရယူနိုင်သည်။"
-
-#~ msgid "Create"
-#~ msgstr "ဖန်တီးမည်"
-
-#~ msgid "Update / Insert"
-#~ msgstr "ပြင်ဆင်မည် / ထည့်သွင်းမည်"
-
-#~ msgid "Query"
-#~ msgstr "ရှာဖွေမည်"
-
-#~ msgid "Query (via SQL)"
-#~ msgstr "SQL မှ တစ်ဆင့်ရှာဖွေမည်"
-
-#~ msgid "Example: Javascript"
-#~ msgstr "ဥပမာ၊ Javascript"
-
-#~ msgid "A simple ajax (JSONP) request to the data API using jQuery."
-#~ msgstr ""
-#~ "jQuery ကိုအသုံးပြုပြီး ရိုးရှင်းသော ajax "
-#~ "(JSONP) ဖြင့် ဒေတာ API ကိုတောင်းဆိုခြင်း။"
-
-#~ msgid "Example: Python"
-#~ msgstr "ဥပမာ၊ Python"
-
-#~ msgid "Data Explorer"
-#~ msgstr "ဒေတာ explorer"
-
-#~ msgid "Grid"
-#~ msgstr "Grid"
-
-#~ msgid "Graph"
-#~ msgstr "ပုံပြမျဉ်း (ဂရပ်)"
-
-#~ msgid "Map"
-#~ msgstr "မြေပုံ"
-
-#~ msgid "error loading view"
-#~ msgstr "view ကို load လုပ်နေရင်း အမှားအယွင်းဖြစ်သွားသည်။"
-
-#~ msgid "Could not load view"
-#~ msgstr "View ကို load မလုပ်နိုင်ခဲ့ပါ။"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "DataStore မှ အမှားတစ်ခု ပြန်လာခဲ့သည်။"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "DataProxy မှ အမှားတစ်ခု ပြန်လာခဲ့သည်။"
-
-#~ msgid "Row offset"
-#~ msgstr "Row offset"
-
-#~ msgid "eg: 0"
-#~ msgstr "ဥပမာ၊ 0"
-
-#~ msgid "Number of rows"
-#~ msgstr "Row အရေအတွက်"
-
-#~ msgid "eg: 100"
-#~ msgstr "ဥပမာ၊ 100"
-
-#~ msgid "Graph type"
-#~ msgstr "ဂရပ်အမျိုးအစား"
-
-#~ msgid "Group (Axis 1)"
-#~ msgstr "အုပ်စု (ဝင်ရိုး ၁)"
-
-#~ msgid "Series (Axis 2)"
-#~ msgstr "စီးရီး (ဝင်ရိုး ၂)"
-
-#~ msgid "Field type"
-#~ msgstr "Field အမျိုးအစား"
-
-#~ msgid "Latitude field"
-#~ msgstr "လတ္တီတွဒ် field"
-
-#~ msgid "Longitude field"
-#~ msgstr "လောင်ဂျီတွဒ် field"
-
-#~ msgid "GeoJSON field"
-#~ msgstr "GeoJSON field"
-
-#~ msgid "Auto zoom to features"
-#~ msgstr "Feature များသို့ အလိုအလျောက် zoom ဆွဲပါ။"
-
-#~ msgid "Cluster markers"
-#~ msgstr "Cluster marker များ"
-
+"ဥပမာ၊ http://example.com (အကယ်၍ ကွက်လပ်ဆိုပါက resource url ကို အသုံးပြုသည်)။"
