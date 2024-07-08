@@ -158,6 +158,7 @@ set the :ref:`ckan.storage_path` configuration option in the next section).
 #. Initialize your CKAN database by running this command in a terminal::
 
     sudo ckan db init
+    sudo ckan db pending-migrations
 
 #. Optionally, setup the DataStore and DataPusher by following the
    instructions in :doc:`/maintaining/datastore`.

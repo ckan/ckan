@@ -232,6 +232,7 @@ database, you can :ref:`create the database tables <db init>`:
 
     cd |virtualenv|/src/ckan
     ckan -c |ckan.ini| db init
+    ckan -c |ckan.ini| db pending-migrations
 
 You should see ``Initialising DB: SUCCESS``.
 

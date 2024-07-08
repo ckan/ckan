@@ -22,6 +22,12 @@ initialize your database:
 
     ckan -c |ckan.ini| db init
 
+Additionally, some of the loaded plugins might require additional database setup:
+
+.. parsed-literal::
+
+    ckan -c |ckan.ini| db pending-migrations
+
 If you forget to do this you'll see this error message in your web browser:
 
     503 Service Unavailable:  This site is currently off-line. Database is not
