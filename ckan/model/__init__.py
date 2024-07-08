@@ -56,14 +56,6 @@ from ckan.model.group import (
     group_table,
     member_table,
 )
-from ckan.model.group_extra import (
-    GroupExtra,
-    group_extra_table,
-)
-from ckan.model.package_extra import (
-    PackageExtra,
-    package_extra_table,
-)
 from ckan.model.resource import (
     Resource,
     DictProxy,
@@ -124,7 +116,6 @@ __all__ = [
     "Tag", "PackageTag", "MAX_TAG_LENGTH", "MIN_TAG_LENGTH", "tag_table",
     "package_tag_table", "User", "user_table", "AnonymousUser", "Member", "Group",
     "group_table", "member_table",
-    "GroupExtra", "group_extra_table", "PackageExtra", "package_extra_table",
     "Resource", "DictProxy", "resource_table",
     "ResourceView", "resource_view_table",
     "PackageRelationship", "package_relationship_table",

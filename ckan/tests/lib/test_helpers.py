@@ -741,17 +741,23 @@ Notes: this is the classic RDF source but historically has had some problems wit
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
     ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
     ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+    (
+        "2008-04-13T20:40:20.123-01:30",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, 123000, datetime.timezone(
+            -datetime.timedelta(minutes=90)
+        ))),
+
 ])
-def test_date_str_to_datetime_valid(string, date):
+def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
     assert h.date_str_to_datetime(string) == date
 
 
 @pytest.mark.parametrize("string", [
-    "2008-04-13T20:40:20-01:30",
-    "2008-04-13T20:40:20-0130",
-    "2008-04-13T20:40:20foobar",
+
+    "2008-04-13T20:40:20-0130",  # no `:` in timezone
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
-def test_date_str_to_datetime_invalid(string):
+def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
 

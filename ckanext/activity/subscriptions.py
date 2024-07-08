@@ -24,6 +24,18 @@ def get_subscriptions() -> types.SignalMapping:
             {"sender": "package_create", "receiver": package_changed},
             {"sender": "package_update", "receiver": package_changed},
             {"sender": "package_delete", "receiver": package_changed},
+            {
+                "sender": "resource_view_create",
+                "receiver": resource_view_changed,
+            },
+            {
+                "sender": "resource_view_delete",
+                "receiver": resource_view_changed,
+            },
+            {
+                "sender": "resource_view_update",
+                "receiver": resource_view_changed,
+            },
             {"sender": "group_create", "receiver": group_or_org_changed},
             {"sender": "group_update", "receiver": group_or_org_changed},
             {"sender": "group_delete", "receiver": group_or_org_changed},
@@ -157,6 +169,65 @@ def package_changed(sender: str, **kwargs: Any):
         id_,
         tk.fresh_context(kwargs["context"])
     )
+
+
+# action, context, data_dict, result
+def resource_view_changed(sender: str, **kwargs: Any):
+    for key in ("result", "context", "data_dict"):
+        if key not in kwargs:
+            log.warning("Activity subscription ignored")
+            return
+
+    context: types.Context = kwargs["context"]
+    result: types.ActionResult.ResourceViewUpdate = kwargs["result"]
+    data_dict = kwargs["data_dict"]
+
+    if not result:
+        id_ = data_dict["id"]
+    elif isinstance(result, str):
+        id_ = result
+    else:
+        id_ = result["id"]
+
+    if sender == "resource_view_create":
+        activity_type = "new resource view"
+    elif sender == "resource_view_update":
+        activity_type = "changed resource view"
+    else:
+        activity_type = "deleted resource view"
+
+    if activity_type != "deleted resource view":
+        view = context["model"].ResourceView.get(id_)
+        assert view
+        view_dict = dictization.table_dictize(view, context)
+    else:
+        view_dict = data_dict
+
+    assert view_dict.get('id')
+    assert view_dict.get('resource_id')
+
+    # type_ignore_reason: is asserted above, so will have resource_id here.
+    resource = context["model"].Resource.get(
+        view_dict.get('resource_id'))  # type: ignore
+    assert resource
+
+    user_obj = context["model"].User.get(context["user"])
+    if user_obj:
+        user_id = user_obj.id
+    else:
+        user_id = "not logged in"
+
+    view_dict['package_id'] = resource.package_id
+
+    activity_dict = {
+        "user_id": user_id,
+        "object_id": resource.package_id,
+        "activity_type": activity_type,
+        "data": view_dict,
+    }
+    activity_create_context = tk.fresh_context(context)
+    activity_create_context['ignore_auth'] = True
+    tk.get_action("activity_create")(activity_create_context, activity_dict)
 
 
 # action, context, data_dict, result
