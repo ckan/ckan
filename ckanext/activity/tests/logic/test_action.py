@@ -13,6 +13,7 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 from ckanext.activity.model.activity import Activity, package_activity_list
+from ckanext.activity.tests.conftest import ActivityFactory
 
 
 def _clear_activities():
@@ -2776,3 +2777,127 @@ class TestDeleteResourceViewActivity(object):
         params = {"id": resource_view["id"]}
 
         helpers.call_action("resource_view_delete", context=context, **params)
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+class TestActivityDeleteByDateRangeOrOffset:
+
+    @pytest.mark.freeze_time
+    def test_delete_by_offset_days(self, freezer):
+        freezer.move_to("2023-01-01")
+
+        sysadmin = factories.Sysadmin()
+        dataset = factories.Dataset()
+
+        activity_dict = {
+            "activity_type": "changed package",
+            "object_id": dataset["id"],
+            "user_id": sysadmin["id"],
+        }
+        _ = ActivityFactory(**activity_dict)
+
+        freezer.move_to("2023-02-01")
+
+        data_dict = {"offset_days": 30}
+        result = helpers.call_action(
+            "activity_delete_by_date_range_or_offset",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+
+        # new user and new package that's how we get 3
+        assert result["message"] == "Deleted 3 rows from the activity table."
+        activities = model.Session.query(Activity).all()
+        assert len(activities) == 0
+
+    @pytest.mark.freeze_time
+    def test_delete_by_date_range(self, freezer):
+        freezer.move_to("2023-01-02")
+
+        sysadmin = factories.Sysadmin()
+        _ = factories.Dataset()
+
+        freezer.move_to("2023-03-01")
+
+        data_dict = {"start_date": "2023-01-01", "end_date": "2023-01-31"}
+        result = helpers.call_action(
+            "activity_delete_by_date_range_or_offset",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+
+        assert result["message"] == "Deleted 2 rows from the activity table."
+        activities = model.Session.query(Activity).all()
+        assert len(activities) == 0
+
+    def test_start_date_greater_than_end_date_raises_validation_error(self):
+        sysadmin = factories.Sysadmin()
+        start_date = "2023-02-01"
+        end_date = "2023-01-31"
+
+        data_dict = {"start_date": start_date, "end_date": end_date}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete_by_date_range_or_offset",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_no_matching_activities_found(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"offset_days": 60}
+
+        result = helpers.call_action(
+            "activity_delete_by_date_range_or_offset",
+            context={"user": sysadmin["name"]},
+            **data_dict,
+        )
+        assert (
+            result["message"]
+            == "No activities found matching the specified criteria."
+        )
+
+    def test_missing_all_parameters(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete_by_date_range_or_offset",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_missing_start_date(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"end_date": "2023-02-01"}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete_by_date_range_or_offset",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_missing_end_date(self):
+        sysadmin = factories.Sysadmin()
+        data_dict = {"start_date": "2023-01-01"}
+
+        with pytest.raises(tk.ValidationError):
+            helpers.call_action(
+                "activity_delete_by_date_range_or_offset",
+                context={"user": sysadmin["name"]},
+                **data_dict,
+            )
+
+    def test_normal_user_cannot_delete_activities(self):
+        user = factories.User()
+        data_dict = {"offset_days": 30}
+
+        context = {"user": user["name"]}
+        with pytest.raises(tk.NotAuthorized):
+            # Using get_action instead of call_action to bypass the default
+            # ignore_auth=True behavior.
+            tk.get_action("activity_delete_by_date_range_or_offset")(context, data_dict)
