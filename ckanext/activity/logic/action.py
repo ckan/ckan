@@ -717,6 +717,8 @@ def activity_delete_by_date_range_or_offset(
 
         deleted_count = query.delete(synchronize_session=False)
         session.commit()
-        return {"message": f"Deleted {deleted_count} rows from the activity table."}
+
+        error_msg = f"Deleted {deleted_count} rows from the activity table."
+        return {"message": error_msg}
 
     return {"message": "No activities found matching the specified criteria."}
