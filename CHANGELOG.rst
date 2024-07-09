@@ -12,6 +12,12 @@ Changelog
 Deprecations:
  * PackageExtra and GroupExtra models will be removed in the next release
    and replaced by Package.extras and Group.extras JSONB fields.
+ * All revision tables will be removed from the database in the next
+   release. If you are upgrading from a ckan older than 2.9 and want to
+   keep the history of changes this release is the last chance to run the
+   ``migrate_package_activity.py`` script as described in the 2.9.0
+   migration notes below.
+
 
 v.2.10.4 2024-03-13
 ===================
