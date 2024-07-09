@@ -33,6 +33,7 @@ class TestProxyPrettyfied(object):
 
     def mock_out_urls(self, *args, **kwargs):
         responses.add(responses.GET, *args, **kwargs)
+        kwargs.pop("body", None)
         responses.add(responses.HEAD, *args, **kwargs)
 
     @responses.activate
