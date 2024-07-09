@@ -198,6 +198,13 @@ def dashboard_mark_activities_old(
     return authz.is_authorized("dashboard_activity_list", context, data_dict)
 
 
+def activity_delete_by_date_range_or_offset(
+                                            context: Context, data_dict: DataDict
+                                            ) -> AuthResult:
+    """Only sysadmins are authorized to delete activities."""
+    return {"success": False}
+
+
 @tk.auth_allow_anonymous_access
 def recently_changed_packages_activity_list(
     context: Context, data_dict: DataDict

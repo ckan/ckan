@@ -6,7 +6,6 @@ import logging
 import datetime
 import json
 from typing import Any, Optional
-from dateutil import tz
 
 import ckan.plugins.toolkit as tk
 from ckan import authz, model
@@ -683,6 +682,11 @@ def activity_delete_by_date_range_or_offset(
     or provide offset_days to delete activities older than a specified number
     of days.
     """
+    tk.check_access(
+        "activity_delete_by_date_range_or_offset",
+        context, data_dict
+    )
+
     session = context["session"]
 
     start_date = data_dict.get("start_date")
