@@ -4,12 +4,13 @@ import click
 import magic
 import os
 
-from typing import List
+from typing import List, Any
 
 from ckan import model
 from ckan import logic
 from ckan.common import config
 from ckan.lib.uploader import get_uploader
+from ckan.plugins import plugin_loaded
 from ckan.types import Context
 
 
@@ -92,3 +93,56 @@ def users(force: bool):
         else:
             logic.get_action("user_delete")(context, {"id": user.name})
             click.secho("Deleted user: %s" % user.name, fg="green", bold=True)
+
+
+@clean.command(
+    "activities",
+    help="Deletes activities based on a specified date range or offset days.",
+)
+@click.option(
+    "--start_date", type=str, help="The start date in 'YYYY-MM-DD' format."
+)
+@click.option(
+    "--end_date", type=str, help="The end date in 'YYYY-MM-DD' format."
+)
+@click.option(
+    "--offset_days",
+    type=str,
+    help="Number of days from today. Activities older than this will be deleted.",
+)
+def activities(start_date: str, end_date: str, offset_days: str):
+    """
+    Delete activities based on a specified date range or offset days.
+    You must provide either a start date and end date or an offset in days.
+
+    Examples:
+        ckan clean activities --start_date 2023-01-01 --end_date 2023-01-31
+        ckan clean activities --offset_days 30
+
+    """
+    if not plugin_loaded("activity"):
+        click.secho(
+            "Error: The 'activity' plugin is not loaded. "
+            "Please add 'activity' to your `ckan.plugins` setting in your "
+            "configuration file.",
+            fg="red", bold=True
+        )
+        return
+
+    try:
+        site_user = logic.get_action("get_site_user")(
+            {"ignore_auth": True}, {}
+        )
+        context: Context = {"user": site_user["name"]}
+        data_dict: dict[str, Any] = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "offset_days": offset_days,
+        }
+
+        result = logic.get_action("activity_delete_by_date_range_or_offset")(
+            context, data_dict
+        )
+        click.secho(result["message"], fg="green", bold=True)
+    except logic.ValidationError as e:
+        click.secho(f"Validation error: {e.error_summary}", fg="red")
