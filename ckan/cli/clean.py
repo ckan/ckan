@@ -108,7 +108,8 @@ def users(force: bool):
 @click.option(
     "--offset_days",
     type=str,
-    help="Number of days from today. Activities older than this will be deleted",
+    help="Number of days from today. Activities older than this will "
+    "be deleted",
 )
 def activities(start_date: str, end_date: str, offset_days: str):
     """

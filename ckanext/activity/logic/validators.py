@@ -106,7 +106,7 @@ def ensure_date_range_or_offset_provided(
     data: FlattenDataDict,
     errors: FlattenErrorDict,
     context: Context,
-):
+) -> Any:
     start_date = data.get(("start_date",))
     end_date = data.get(("end_date",))
     offset_days = data.get(("offset_days",))
@@ -121,7 +121,7 @@ def ensure_date_range_or_offset_provided(
     raise tk.Invalid(error_msg)
 
 
-def convert_yyyy_mm_dd_format(value: str, context: Context):
+def convert_yyyy_mm_dd_format(value: str, context: Context) -> Any:
     """
     Converts a string in 'YYYY-MM-DD' format to a datetime.date object.
     """
