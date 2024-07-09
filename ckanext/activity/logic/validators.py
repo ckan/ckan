@@ -114,9 +114,11 @@ def ensure_date_range_or_offset_provided(
     if (start_date and end_date) or offset_days:
         return
 
-    raise tk.Invalid(
-        "Either both start_date and end_date must be specified, or offset_days must be provided."
+    error_msg = (
+        "Either both start_date and end_date must be specified, "
+        "or offset_days must be provided."
     )
+    raise tk.Invalid(error_msg)
 
 
 def convert_yyyy_mm_dd_format(value: str, context: Context):
