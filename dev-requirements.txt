@@ -1,6 +1,6 @@
 # These are packages that are required by ckan developers - for running ckan in debug mode, running ckan tests, building the docs and to pip-compile the requirements.in file.
 
-beautifulsoup4==4.12.4
+beautifulsoup4==4.12.3
 cookiecutter==2.6.0
 coveralls   #Let Unpinned - Requires latest coveralls
 Faker==26.0.0
