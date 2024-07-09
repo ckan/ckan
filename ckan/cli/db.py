@@ -47,8 +47,17 @@ def create_from_model():
     """
     try:
         model.repo.create_db()
+        model.repo.stamp_alembic_head()
+
+        # also mark plugins as migrated
+        # FIXME: move to model.repo?
+        pending = _get_pending_plugins()
+        for plugin, n in sorted(pending.items()):
+            with _repo_for_plugin(plugin) as repo:
+                print(plugin, repo)
+                repo.stamp_alembic_head()
     except Exception as e:
-        error_shout(e)
+        raise
     else:
         click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
 
