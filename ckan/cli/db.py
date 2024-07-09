@@ -52,11 +52,11 @@ def create_from_model():
         # also mark plugins as migrated
         # FIXME: move to model.repo?
         pending = _get_pending_plugins()
-        for plugin, n in sorted(pending.items()):
+        for plugin in sorted(pending):
             with _repo_for_plugin(plugin) as repo:
                 print(plugin, repo)
                 repo.stamp_alembic_head()
-    except Exception as e:
+    except Exception:
         raise
     else:
         click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
