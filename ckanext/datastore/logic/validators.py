@@ -47,5 +47,5 @@ def datastore_field_name(value, context):
     Check if the field name is valid
     """
     if not is_valid_field_name(value):
-        raise Invalid(_("Invalid value for a datastore field name."))
+        raise Invalid(_('"{0}" is not a valid field name').format(value))
     return value
