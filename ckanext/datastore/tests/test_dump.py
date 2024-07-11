@@ -295,7 +295,7 @@ class TestDatastoreDump(object):
             '{""moo"": ""moo""}]"\n'
         )
         assert res.get_data(as_text=True) == expected_content
-        
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_tsv_file_extension(self, app):
@@ -461,7 +461,7 @@ class TestDatastoreDump(object):
             ]
         }
         assert content == expected_content
-        
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_json_file_extension(self, app):
@@ -625,7 +625,7 @@ class TestDatastoreDump(object):
             u"</data>\n"
         )
         assert res.get_data(as_text=True) == expected_content
-        
+
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
     def test_dump_xml_file_extension(self, app):

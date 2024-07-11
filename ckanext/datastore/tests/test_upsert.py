@@ -206,7 +206,7 @@ class TestDatastoreUpsert(object):
         assert search_result["records"][2]["author"] == "adams"
         assert search_result["records"][2]["characters"] == ["Bob", "Marvin"]
         assert search_result["records"][2]["nested"] == {"baz": 3}
-        
+
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", True)
     def test_field_timestamp(self):
         resource = factories.Resource(url_type="datastore")
@@ -235,7 +235,7 @@ class TestDatastoreUpsert(object):
         assert (
             search_result["records"][0]["published"] == u"2005-03-01T00:00:00.000"
         )  # i.e. stored in db as datetime
-        
+
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
     def test_field_timestamp_without_ms(self):
         resource = factories.Resource(url_type="datastore")
@@ -263,7 +263,7 @@ class TestDatastoreUpsert(object):
         search_result = _search(resource["id"])
         assert (
             search_result["records"][0]["published"] == u"2005-03-01T00:00:00"
-        )  # i.e. stored in db as datetime    
+        )  # i.e. stored in db as datetime
 
     def test_percent(self):
         resource = factories.Resource()

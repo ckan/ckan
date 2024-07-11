@@ -1970,7 +1970,7 @@ class TestDatastoreSearchRecordsFormat(object):
     @pytest.mark.ckan_config("ckan.plugins", "datastore")
     @pytest.mark.ckan_config("ckan.datastore.ms_in_timestamp", False)
     @pytest.mark.usefixtures("clean_datastore", "with_plugins")
-    def test_sort_results_objects(self):
+    def test_sort_results_objects_without_ms(self):
         ds = factories.Dataset()
         r = helpers.call_action(
             u"datastore_create",
