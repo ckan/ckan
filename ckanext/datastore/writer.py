@@ -1,4 +1,5 @@
 # encoding: utf-8
+import re  # (canada fork only): conform to XML stadards for element names
 from io import StringIO, BytesIO
 
 from contextlib import contextmanager
@@ -10,6 +11,14 @@ import csv
 from codecs import BOM_UTF8
 
 BOM = "\N{bom}"
+
+# (canada fork only): conform to XML stadards for element names
+# TODO: upstream contrib
+xml_element_name_rules = [
+    (re.compile(r'^([0-9]+xml|xml[0-9]+|xml|^[0-9]+)', re.I), ''),
+    (re.compile(r'\ +'), '_'),
+    (re.compile(r'(?:(?![a-z]|[A-Z]|[0-9]|-|_|\.).)'), ''),
+]
 
 
 @contextmanager
@@ -140,7 +149,21 @@ class XMLWriter(object):
         self.id_col = columns[0] == u'_id'
         if self.id_col:
             columns = columns[1:]
+        # (canada fork only): conform to XML stadards for element names
+        # TODO: upstream contrib??
+        #
+        # Element names must start with a letter or underscore.
+        # Element names cannot start with the letters xml (or XML, or Xml, etc).
+        # Element names can contain letters, digits, hyphens, underscores, and periods.
+        # Element names cannot contain spaces.
+        #
         self.columns = columns
+        self.element_names = {}
+        for col in columns:
+            element_name = col
+            for rule, replacement in xml_element_name_rules:
+                element_name = re.sub(rule, replacement, element_name)
+            self.element_names[col] = element_name
 
     def _insert_node(self, root, k, v, key_attr=None):
         element = SubElement(root, k)
@@ -166,7 +189,8 @@ class XMLWriter(object):
             if self.id_col:
                 root.attrib['_id'] = str(r['_id'])
             for c in self.columns:
-                self._insert_node(root, c, r[c])
+                # (canada fork only): conform to XML stadards for element names
+                self._insert_node(root, self.element_names[c], r[c])
             ElementTree(root).write(self.output, encoding='utf-8')
             self.output.write(b'\n')
         self.output.seek(0)
