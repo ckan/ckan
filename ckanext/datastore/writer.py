@@ -19,10 +19,14 @@ import unicodedata
 BOM = "\N{bom}"
 
 xml_element_name_rules = [
-    (re.compile(r'^(\d*xml\d*|\d+)', re.I), ''),  # cannot start with XML or number
-    (re.compile(r'\s+'), '_'),  # cannot contain spaces
-    (re.compile(r'[^\w_.-]', re.U), ''),  # can only contain letters, underscores, stops, and hyphens
-    (re.compile(r'^[\d.-]+'), ''),  # must start with a letter or underscore
+    # cannot start with XML or number
+    (re.compile(r'^(\d*xml\d*|\d+)', re.I), ''),
+    # cannot contain spaces
+    (re.compile(r'\s+'), '_'),
+    # can only contain letters, underscores, stops, and hyphens
+    (re.compile(r'[^\w_.-]', re.U), ''),
+    # must start with a letter or underscore
+    (re.compile(r'^[\d.-]+'), ''),
 ]
 
 
