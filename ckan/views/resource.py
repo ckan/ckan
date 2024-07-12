@@ -729,9 +729,9 @@ class EditResourceViewView(MethodView):
             view_id: Optional[str] = None,
             post_extra: Optional[dict[str, Any]] = None) -> str:
         context, extra_vars = self._prepare(id, resource_id)
-        to_preview = extra_vars[u'to_preview']
         if post_extra:
             extra_vars.update(post_extra)
+        to_preview = extra_vars[u'to_preview']
 
         package_type = _get_package_type(id)
         data = extra_vars[u'data'] if u'data' in extra_vars else None
