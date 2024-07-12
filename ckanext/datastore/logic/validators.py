@@ -4,7 +4,9 @@ from __future__ import annotations
 from ckan.types import (
     Context, FlattenDataDict, FlattenKey, FlattenErrorDict,
 )
-from ckan.plugins.toolkit import missing
+from ckan.plugins.toolkit import missing, Invalid, _
+
+from ckanext.datastore.helpers import is_valid_field_name
 
 
 def to_datastore_plugin_data(plugin_key: str):
@@ -47,3 +49,12 @@ def datastore_default_current(
         field_name)
     if current:
         data[key] = current
+
+
+def datastore_field_name(value, context):
+    """
+    Check if the field name is valid
+    """
+    if not is_valid_field_name(value):
+        raise Invalid(_('"{0}" is not a valid field name').format(value))
+    return value
