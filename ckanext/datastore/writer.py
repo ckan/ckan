@@ -15,9 +15,10 @@ BOM = "\N{bom}"
 # (canada fork only): conform to XML stadards for element names
 # TODO: upstream contrib
 xml_element_name_rules = [
-    (re.compile(r'^([0-9]*xml[0-9]*|[0-9]+)', re.I), ''),
-    (re.compile(r'\s+'), '_'),
-    (re.compile(r'(?:(?!\w|[à-ü]|-|_|\.).)', re.I), ''),
+    (re.compile(r'^(\d*xml\d*|\d+)', re.I), ''),  # cannot start with XML or number
+    (re.compile(r'\s+'), '_'),  # cannot contain spaces
+    (re.compile(r'[^\w_.-]', re.U), ''),  # can only contain letters, underscores, stops, and hyphens
+    (re.compile(r'^[\d.-]+'), ''),  # must start with a letter or underscore
 ]
 
 
