@@ -9,6 +9,7 @@ from xml.etree.cElementTree import Element, SubElement, ElementTree
 import csv
 
 from codecs import BOM_UTF8
+import unicodedata
 
 BOM = "\N{bom}"
 
@@ -161,7 +162,7 @@ class XMLWriter(object):
         self.columns = columns
         self.element_names = {}
         for col in columns:
-            element_name = col
+            element_name = unicodedata.normalize('NFC', col)
             for rule, replacement in xml_element_name_rules:
                 element_name = re.sub(rule, replacement, element_name)
             unique_suffix = 0
