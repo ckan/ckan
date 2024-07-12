@@ -16,8 +16,8 @@ BOM = "\N{bom}"
 # TODO: upstream contrib
 xml_element_name_rules = [
     (re.compile(r'^([0-9]*xml[0-9]*|[0-9]+)', re.I), ''),
-    (re.compile(r'\ +'), '_'),
-    (re.compile(r'(?:(?![a-z]|[A-Z]|[0-9]|-|_|\.).)'), ''),
+    (re.compile(r'\s+'), '_'),
+    (re.compile(r'(?:(?!\w|[à-ü]|-|_|\.).)', re.I), ''),
 ]
 
 
@@ -163,7 +163,12 @@ class XMLWriter(object):
             element_name = col
             for rule, replacement in xml_element_name_rules:
                 element_name = re.sub(rule, replacement, element_name)
-            self.element_names[col] = element_name
+            unique_suffix = 0
+            unique_name = element_name
+            while unique_name in self.element_names.values():
+                unique_name = '%s_%s' % (element_name, unique_suffix)
+                unique_suffix += 1
+            self.element_names[col] = unique_name
 
     def _insert_node(self, root, k, v, key_attr=None):
         element = SubElement(root, k)
