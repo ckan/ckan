@@ -103,6 +103,8 @@ $(function() {
 });
 
 // Initialize tooltips using Bootstrap
-$('[data-bs-toggle="tooltip"]').each(function (index, element) {
-  bootstrap.Tooltip.getOrCreateInstance(element)
+$(function() {
+  $('[data-bs-toggle="tooltip"]').each(function (index, element) {
+    bootstrap.Tooltip.getOrCreateInstance(element)
+  })
 })
