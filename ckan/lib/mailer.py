@@ -216,6 +216,7 @@ def mail_user(recipient: model.User,
     For further parameters see
     :py:func:`~ckan.lib.mailer.mail_recipient`.
     '''
+
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(
