@@ -2260,7 +2260,7 @@ class INotifier(Interface):
         headers: Optional[dict[str, Any]] = None,
         attachments: Optional[Iterable[Attachment]] = None,
     ) -> bool:
-        '''Sends an notification to a user.
+        """Sends an notification to a user.
 
         .. note:: This custom notification could replace the default
             email mechanism.
@@ -2271,18 +2271,23 @@ class INotifier(Interface):
 
         :param recipient_name: the name of the recipient
         :type recipient: string
+
         :param recipient_email: the email address of the recipient
         :type recipient: string
 
         :param subject: the notification subject
         :type subject: string
+
         :param body: the notification body, in plain text
         :type body: string
+
         :param body_html: the notification body, in html format (optional)
         :type body_html: string
+
         :headers: extra headers to add to notification, in the form
             {'Header name': 'Header value'}
         :type: dict
+
         :attachments: a list of tuples containing file attachments to add to
             the notification.
             Tuples should contain the file name and a file-like
@@ -2305,16 +2310,15 @@ class INotifier(Interface):
                   continue to send the email via SMTP.
         :rtype: bool
 
-        '''
+        """
         return False
 
     def notify_about_topic(self,
                            already_notified: bool,
                            topic: str,
                            details: Optional[dict[str, Any]] = None) -> bool:
-        '''
-        Sends details specific to the notification topic. This happens prior to
-        `notify_recipient`.
+        """Sends details specific to the notification topic.
+        This happens prior to `notify_recipient`.
 
         Core topics:
             - request_password_reset
@@ -2322,7 +2326,7 @@ class INotifier(Interface):
 
         :param already_notified: if the notification has already
                                  been sent by a previous plugin
-        :type bool
+        :type already_notified: bool
 
         :param topic: the notification topic label
         :type topic: string
@@ -2336,5 +2340,5 @@ class INotifier(Interface):
                   continue to send the email via SMTP.
         :rtype: bool
 
-        '''
+        """
         return False
