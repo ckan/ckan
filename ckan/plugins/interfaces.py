@@ -2267,13 +2267,13 @@ class INotifier(Interface):
 
         :param already_notified: if the notification has already
                                  been sent by a previous plugin
-        :type bool
+        :type already_notified: bool
 
         :param recipient_name: the name of the recipient
-        :type recipient: string
+        :type recipient_name: string
 
         :param recipient_email: the email address of the recipient
-        :type recipient: string
+        :type recipient_email: string
 
         :param subject: the notification subject
         :type subject: string
@@ -2284,11 +2284,11 @@ class INotifier(Interface):
         :param body_html: the notification body, in html format (optional)
         :type body_html: string
 
-        :headers: extra headers to add to notification, in the form
+        :param headers: extra headers to add to notification, in the form
             {'Header name': 'Header value'}
-        :type: dict
+        :type headers: dict
 
-        :attachments: a list of tuples containing file attachments to add to
+        :param attachments: a list of tuples containing file attachments to add to
             the notification.
             Tuples should contain the file name and a file-like
             object pointing to the file contents::
@@ -2303,7 +2303,7 @@ class INotifier(Interface):
                 [
                     ('some_report.csv', file_object, 'text/csv'),
                 ]
-        :type: list
+        :type attachments: list
 
         :returns: True if the notification was sent successfully,
                   False otherwise. If return False, CKAN will
