@@ -40,7 +40,6 @@ class TestINotifier:
         test_user = User()
         self.test_user_obj = model.User.get(test_user['name'])
 
-
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient")
@@ -63,7 +62,6 @@ class TestINotifier:
         assert nat2.call_args_list[0][0][1] == 'request_password_reset'
         assert nat2.call_args_list[0][0][2] == {'user': self.test_user_obj}
 
-
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient", return_value=True)
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient", return_value=True)
@@ -78,7 +76,6 @@ class TestINotifier:
         assert nr2.call_args_list[0][0][0] is True
         assert nr2.call_args_list[0][0][1] == test_email["recipient_name"]
 
-
     @patch("ckan.lib.mailer._mail_recipient")
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier1Plugin.notify_recipient", return_value=False)
     @patch("ckanext.example_inotifier.plugin.ExampleINotifier2Plugin.notify_recipient", return_value=False)
@@ -91,7 +88,6 @@ class TestINotifier:
         nr2.assert_called()
         assert nr2.call_args_list[0][0][0] is False
         assert nr2.call_args_list[0][0][1] == test_email["recipient_name"]
-
 
     @patch("ckan.lib.mailer.render", _mock_null)
     @patch("ckan.lib.mailer.get_reset_link_body", _mock_null)
@@ -108,7 +104,6 @@ class TestINotifier:
         nat2.assert_called()
         assert nat2.call_args_list[0][0][1] == 'request_password_reset'
         assert nat2.call_args_list[0][0][2] == {'user': self.test_user_obj}
-
 
     @patch("ckan.lib.mailer.render", _mock_null)
     @patch("ckan.lib.mailer.get_reset_link_body", _mock_null)
