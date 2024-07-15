@@ -2304,6 +2304,7 @@ class INotifier(Interface):
                   False otherwise. If return False, CKAN will
                   continue to send the email via SMTP.
         :rtype: bool
+
         '''
         return False
 
@@ -2334,5 +2335,6 @@ class INotifier(Interface):
                   False otherwise. If return False, CKAN will
                   continue to send the email via SMTP.
         :rtype: bool
+
         '''
         return False

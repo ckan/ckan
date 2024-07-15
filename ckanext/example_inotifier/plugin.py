@@ -16,6 +16,7 @@ class ExampleINotifier1Plugin(plugins.SingletonPlugin):
 
     def notify_recipient(
         self,
+        already_notified: bool,
         recipient_name: str,
         recipient_email: str,
         subject: str,
@@ -36,12 +37,28 @@ class ExampleINotifier1Plugin(plugins.SingletonPlugin):
         # Here you would send an email to the recipient
         return True
 
+    def notify_about_topic(self,
+                           already_notified: bool,
+                           topic: str,
+                           details: Optional[dict[str, Any]] = None) -> bool:
+
+        user = details.get('user', {})
+        msg = (
+            f'Notification [1] example for topic {topic} '
+            f'({user.name})<{user.email}> '
+        )
+        log.info(msg)
+
+        # Do any extra processing for specific topics
+        return True
+
 
 class ExampleINotifier2Plugin(plugins.SingletonPlugin):
     plugins.implements(plugins.INotifier, inherit=True)
 
     def notify_recipient(
         self,
+        already_notified: bool,
         recipient_name: str,
         recipient_email: str,
         subject: str,
@@ -50,6 +67,11 @@ class ExampleINotifier2Plugin(plugins.SingletonPlugin):
         headers: Optional[dict[str, Any]] = None,
         attachments: Any = None
     ) -> bool:
+
+        if already_notified:
+            # Do not process if another plugin has already
+            # handled this notification
+            return True
 
         msg = (
             f'Notification [2] example for {recipient_name} '
@@ -60,4 +82,23 @@ class ExampleINotifier2Plugin(plugins.SingletonPlugin):
         log.info(msg)
 
         # Here you would send an email to the recipient
+        return True
+
+    def notify_about_topic(self,
+                           already_notified: bool,
+                           topic: str,
+                           details: Optional[dict[str, Any]] = None) -> bool:
+
+        if already_notified:
+            # Do not process if another plugin has already handled this topic
+            return True
+
+        user = details.get('user', {})
+        msg = (
+            f'Notification [2] example for topic {topic} '
+            f'({user.name})<{user.email}> '
+        )
+        log.info(msg)
+
+        # Do any extra processing for specific topics
         return True
