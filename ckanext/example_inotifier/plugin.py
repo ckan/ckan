@@ -45,7 +45,7 @@ class ExampleINotifier1Plugin(plugins.SingletonPlugin):
         user = details.get('user', {}) if details else {}
         msg = (
             f'Notification [1] example for topic {topic} '
-            f'({user.name})<{user.email}> '
+            f'({user['name']})<{user['email']}>'
         )
         log.info(msg)
 
@@ -96,7 +96,7 @@ class ExampleINotifier2Plugin(plugins.SingletonPlugin):
         user = details.get('user', {}) if details else {}
         msg = (
             f'Notification [2] example for topic {topic} '
-            f'({user.name})<{user.email}> '
+            f'({user['name']})<{user['email']}>'
         )
         log.info(msg)
 
