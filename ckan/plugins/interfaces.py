@@ -2288,8 +2288,8 @@ class INotifier(Interface):
             {'Header name': 'Header value'}
         :type headers: dict
 
-        :param attachments: a list of tuples containing file attachments to add to
-            the notification.
+        :param attachments: a list of tuples containing file attachments
+            to add to the notification.
             Tuples should contain the file name and a file-like
             object pointing to the file contents::
 
