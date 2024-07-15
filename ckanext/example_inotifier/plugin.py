@@ -42,12 +42,13 @@ class ExampleINotifier1Plugin(plugins.SingletonPlugin):
                            topic: str,
                            details: Optional[dict[str, Any]] = None) -> bool:
 
-        user = details.get('user', {}) if details else {}
-        msg = (
-            f'Notification [1] example for topic {topic} '
-            f'({user['name']})<{user['email']}>'
-        )
-        log.info(msg)
+        user = details.get('user', None) if details else None
+        if user:
+            msg = (
+                f'Notification [1] example for topic {topic} '
+                f'({user.name})<{user.email}>'
+            )
+            log.info(msg)
 
         # Do any extra processing for specific topics
         return True
@@ -93,12 +94,13 @@ class ExampleINotifier2Plugin(plugins.SingletonPlugin):
             # Do not process if another plugin has already handled this topic
             return True
 
-        user = details.get('user', {}) if details else {}
-        msg = (
-            f'Notification [2] example for topic {topic} '
-            f'({user['name']})<{user['email']}>'
-        )
-        log.info(msg)
+        user = details.get('user', None) if details else None
+        if user:
+            msg = (
+                f'Notification [2] example for topic {topic} '
+                f'({user.name})<{user.email}>'
+            )
+            log.info(msg)
 
         # Do any extra processing for specific topics
         return True
