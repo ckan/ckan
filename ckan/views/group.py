@@ -1278,13 +1278,18 @@ class MembersGroupView(MethodView):
                            extra_vars)
 
 
-group = Blueprint(u'group', __name__, url_prefix=u'/group',
-                  url_defaults={u'group_type': u'group',
-                                u'is_organization': False})
-organization = Blueprint(u'organization', __name__,
-                         url_prefix=u'/organization',
-                         url_defaults={u'group_type': u'organization',
-                                       u'is_organization': True})
+def create_blueprint(type_: str, is_organization: bool) -> Blueprint:
+    name = config.get(f'ckan.default.{type_}_type')
+    url_prefix = f'/{name}'
+    url_defaults = {
+        'group_type': name,
+        'is_organization': is_organization
+    }
+    return Blueprint(name, __name__, url_prefix=url_prefix, url_defaults=url_defaults)
+
+
+group = create_blueprint('group', is_organization=False)
+organization = create_blueprint('organization', is_organization=True)
 
 
 def register_group_plugin_rules(blueprint: Blueprint) -> None:

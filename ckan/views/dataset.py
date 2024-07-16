@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import inspect
+import re
 from collections import OrderedDict
 from functools import partial
 from typing_extensions import TypeAlias
@@ -23,7 +24,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.authz as authz
-from ckan.common import _, config, g, request
+from ckan.common import _, config, g, request, get_pluralized_group_type
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import (
@@ -1014,7 +1015,9 @@ class GroupView(MethodView):
 
     def post(self, package_type: str, id: str) -> Response:
         context = self._prepare(id)[0]
-        new_group = request.form.get(u'group_added')
+        group_type = config.get("ckan.default.group_type", "group")
+        new_group = request.form.get(f'{group_type}_added')
+
         if new_group:
             data_dict = {
                 u"id": new_group,
@@ -1025,11 +1028,11 @@ class GroupView(MethodView):
             try:
                 get_action(u'member_create')(context, data_dict)
             except NotFound:
-                return base.abort(404, _(u'Group not found'))
+                return base.abort(404, _(f'{group_type.capitalize()} not found'))
 
         removed_group = None
         for param in request.form:
-            if param.startswith(u'group_remove'):
+            if param.startswith(f'{group_type}_remove'):
                 removed_group = param.split(u'.')[-1]
                 break
         if removed_group:
@@ -1042,8 +1045,8 @@ class GroupView(MethodView):
             try:
                 get_action(u'member_delete')(context, data_dict)
             except NotFound:
-                return base.abort(404, _(u'Group not found'))
-        return h.redirect_to(u'{}.groups'.format(package_type), id=id)
+                return base.abort(404, _(f'{group_type.capitalize()} not found'))
+        return h.redirect_to(f'{package_type}.{get_pluralized_group_type()}', id=id)
 
     def get(self, package_type: str, id: str) -> str:
         context, pkg_dict = self._prepare(id)
@@ -1241,7 +1244,7 @@ def register_dataset_plugin_rules(blueprint: Blueprint):
     )
     blueprint.add_url_rule(u'/followers/<id>', view_func=followers)
     blueprint.add_url_rule(
-        u'/groups/<id>', view_func=GroupView.as_view(str(u'groups'))
+        f'/{get_pluralized_group_type()}/<id>', view_func=GroupView.as_view(str(get_pluralized_group_type()))
     )
 
     if authz.check_config_permission(u'allow_dataset_collaborators'):

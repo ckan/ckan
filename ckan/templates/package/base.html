@@ -12,7 +12,7 @@
     {% set dataset = h.dataset_display_name(pkg) %}
     {% if pkg.organization %}
       {% set organization = h.get_translated(pkg.organization, 'title') or pkg.organization.name %}
-      {% set group_type = pkg.organization.type %}
+      {% set group_type = h.default_group_type("organization") %}
       <li>{% link_for h.humanize_entity_type('organization', group_type, 'breadcrumb') or _('Organizations'), named_route=group_type ~ '.index' %}</li>
       <li>{% link_for organization|truncate(30), named_route=group_type ~ '.read', id=pkg.organization.name, title=organization %}</li>
     {% else %}

@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import MutableMapping, Iterable
 
 from typing import (
@@ -313,6 +314,19 @@ def repr_untrusted(danger: Any):
     r = repr(danger)
     rtrunc = r[:200]
     return rtrunc + '…' if r != rtrunc else r
+
+
+def get_pluralized_group_type() -> str:
+    """Pluralizes the group type based on common English rules."""
+    group_type = config.get("ckan.default.group_type", "group")
+
+    if re.search('[sxz]$', group_type) or re.search('[^aeioudgkprt]h$', group_type):
+        return re.sub('$', 'es', group_type)
+
+    elif re.search('[aeiou]y$', group_type):
+        return re.sub('y$', 'ies', group_type)
+
+    return group_type + 's'
 
 
 local = Local()
