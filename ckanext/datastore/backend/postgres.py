@@ -293,7 +293,8 @@ def _get_field_info(
     try:
         return dict(
             (n, json.loads(v)) for (n, v) in
-            connection.execute(qtext, {"res_id": resource_id}).fetchall())
+            connection.execute(qtext, {"res_id": resource_id}).fetchall()
+            if v)
     except (TypeError, ValueError):  # don't die on non-json comments
         return {}
 
