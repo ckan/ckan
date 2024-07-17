@@ -4,7 +4,7 @@ Installing CKAN
 
 .. include:: /_supported_versions.rst
 
-CKAN 2.10 supports Python 3.7 to Python 3.10.
+CKAN 2.10 supports Python 3.8 to Python 3.11.
 
 Before you can use CKAN on your own computer, you need to install it.
 There are three ways to install CKAN:
