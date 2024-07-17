@@ -15,6 +15,7 @@ responses==0.21.0
 sphinx-rtd-theme==1.0.0
 sqlalchemy-stubs==0.4
 sphinx==5.1.1
+toml==0.10.2 
 towncrier==22.8.0
 
 pytest==7.1.3
