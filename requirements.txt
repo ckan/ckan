@@ -57,7 +57,7 @@ greenlet==2.0.2
     # via
     #   -r requirements.in
     #   sqlalchemy
-idna==3.3
+idna==3.7
     # via requests
 importlib-metadata==4.11.3
     # via
@@ -175,7 +175,7 @@ wrapt==1.14.0
     # via deprecated
 wtforms==3.0.1
     # via flask-wtf
-zipp==3.7.0
+zipp==3.19.1
     # via
     #   importlib-metadata
     #   importlib-resources
