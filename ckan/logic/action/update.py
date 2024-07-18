@@ -64,35 +64,33 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     '''
     model = context['model']
-    id: str = _get_or_bust(data_dict, "id")
+    rid: str = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    resource = model.Resource.get(id)
-    if resource is None:
-        raise NotFound('Resource was not found.')
+    resource = model.Resource.get(rid)
+    if not resource:
+        log.debug('Could not find resource %s', rid)
+        raise NotFound(_('Resource was not found.'))
     context["resource"] = resource
     old_resource_format = resource.format
-
-    if not resource:
-        log.debug('Could not find resource %s', id)
-        raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.package.id
-    package_show_context: Union[Context, Any] = dict(context, for_update=True)
-    pkg_dict = _get_action('package_show')(
-        package_show_context, {'id': package_id})
+    update_context = Context(context)
+    pkg_dict = context.get('original_package')
+    if not pkg_dict:
+        package_id = resource.package.id
+        package_show_context: Union[Context, Any] = dict(context, for_update=True)
+        pkg_dict = _get_action('package_show')(
+            package_show_context, {'id': package_id})
+        update_context['original_package'] = pkg_dict
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
-    for n, p in enumerate(resources):
-        if p['id'] == id:
-            break
-    else:
-        log.error('Could not find resource %s after all', id)
+    if resources[resource.position]['id'] != rid:
+        log.error('Could not find resource %s after all', rid)
         raise NotFound(_('Resource was not found.'))
 
     # Persist the datastore_active extra if already present and not provided
@@ -101,22 +99,26 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_update(context, pkg_dict['resources'][n],
-                                      data_dict)
+        plugin.before_resource_update(
+            context,
+            pkg_dict['resources'][resource.position],
+            data_dict
+        )
 
-    resources[n] = data_dict
+    resources[resource.position] = data_dict
 
     try:
-        context['use_cache'] = False
-        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
-            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[n]
+            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[
+                resource.position]
         except (KeyError, IndexError):
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    resource = _get_action('resource_show')(context, {'id': id})
+    resource = updated_pkg_dict['resources'][resource.position]
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(

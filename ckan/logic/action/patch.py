@@ -6,10 +6,12 @@ from ckan.logic import (
     get_action as _get_action,
     check_access as _check_access,
     get_or_bust as _get_or_bust,
-    fresh_context as _fresh_context
+    fresh_context as _fresh_context,
+    NotFound,
 )
 from ckan.types import Context, DataDict
 from ckan.types.logic import ActionResult
+from ckan.common import _
 
 
 def package_patch(
@@ -69,16 +71,26 @@ def resource_patch(context: Context,
     '''
     _check_access('resource_patch', context, data_dict)
 
+    model = context['model']
+    resource = model.Resource.get(_get_or_bust(data_dict, 'id'))
+    if not resource:
+        raise NotFound(_('Resource was not found.'))
+
     show_context: Context = _fresh_context(context)
     show_context.update({'for_update': True})
 
-    resource_dict = _get_action('resource_show')(
+    package_dict = _get_action('package_show')(
         show_context,
-        {'id': _get_or_bust(data_dict, 'id')})
+        {'id': resource.package_id})
 
-    patched = dict(resource_dict)
+    if package_dict['resources'][resource.position]['id'] != resource.id:
+        raise NotFound(_('Resource was not found.'))
+
+    patched = dict(package_dict['resources'][resource.position])
     patched.update(data_dict)
-    return _get_action('resource_update')(context, patched)
+    update_context = Context(context)
+    update_context['original_package'] = package_dict
+    return _get_action('resource_update')(update_context, patched)
 
 
 def group_patch(context: Context,
