@@ -293,8 +293,8 @@ def resource_create(context: Context,
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_create(context, data_dict)
 
-    if 'resources' not in pkg_dict:
-        pkg_dict['resources'] = []
+    original_package = dict(pkg_dict)
+    pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
     upload = uploader.get_resource_uploader(data_dict)
 
@@ -309,10 +309,9 @@ def resource_create(context: Context,
     pkg_dict['resources'].append(data_dict)
 
     try:
-        context['defer_commit'] = True
-        context['use_cache'] = False
-        _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
+        update_context = Context(context)
+        update_context['original_package'] = original_package
+        updated_pkg_dict = _get_action('package_update')(update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
@@ -320,17 +319,6 @@ def resource_create(context: Context,
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    # Get out resource_id resource from model as it will not appear in
-    # package_show until after commit
-    package = context['package']
-    assert package
-    upload.upload(package.resources[-1].id,
-                  uploader.get_max_resource_size())
-
-    model.repo.commit()
-
-    #  Run package show again to get out actual last_resource
-    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
     #  Add the default views to the new resource
