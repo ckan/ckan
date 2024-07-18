@@ -59,7 +59,7 @@ greenlet==2.0.2
     #   sqlalchemy
 idna==3.7
     # via requests
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via
     #   alembic
     #   markdown
@@ -122,7 +122,7 @@ pyutilib==6.0.0
     # via -r requirements.in
 pyyaml==6.0.1
     # via -r requirements.in
-redis==4.1.4
+redis==4.5.3
     # via rq
 requests==2.32.3
     # via
