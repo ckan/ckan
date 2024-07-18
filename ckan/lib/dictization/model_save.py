@@ -52,10 +52,10 @@ def resource_dict_save(res_dict: dict[str, Any],
 
     if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
+        session.add(obj)
     obj.state = u'active'
     obj.extras = skipped
 
-    session.add(obj)
     return obj
 
 
@@ -87,6 +87,9 @@ def package_resource_list_save(
             res_dict[u'package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+
+    if set(resource_list) == set(obj_list):
+        return
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it

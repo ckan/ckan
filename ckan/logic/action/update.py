@@ -281,6 +281,21 @@ def package_update(
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
 
+    # try to do less work
+    return_id_only = context.get('return_id_only', False)
+    original_package = context.get('original_package')
+
+    if original_package and original_package.get('id') != pkg.id:
+        original_package = None
+    if original_package:
+        if original_package == data_dict:
+            # no change
+            return pkg.id if return_id_only else data_dict
+        if dict(original_package, resources=None) == dict(
+                data_dict, resources=None):
+            # FIXME: only resource changes
+            pass
+
     resource_uploads = []
     for resource in data_dict.get('resources', []):
         # file uploads/clearing
@@ -305,10 +320,7 @@ def package_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
+    data['metadata_modified'] = datetime.datetime.utcnow()
 
     include_plugin_data = False
     user_obj = context.get('auth_user_obj')
@@ -345,8 +357,6 @@ def package_update(
         model.repo.commit()
 
     log.debug('Updated object %s' % pkg.name)
-
-    return_id_only = context.get('return_id_only', False)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
