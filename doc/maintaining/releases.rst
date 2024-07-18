@@ -17,8 +17,8 @@ Release types
 CKAN follows a predictable release cycle so that users can depend on stable
 releases of CKAN, and can plan their upgrades to new releases.
 
-Each release has a version number of the form ``M.m`` (eg. 2.1) or ``M.m.p``
-(eg. 1.8.2), where ``M`` is the **major version**, ``m`` is the **minor
+Each release has a version number of the form ``M.m`` (eg. 2.11) or ``M.m.p``
+(eg. 2.10.5), where ``M`` is the **major version**, ``m`` is the **minor
 version** and ``p`` is the **patch version** number. There are three types of
 release:
 
@@ -30,7 +30,7 @@ Major Releases
 
 Minor Releases
  Minor releases, such as CKAN 2.9 and CKAN 2.10, increment the minor version
- number. These releases are not as disruptive as major releases, but they 
+ number. These releases are not as disruptive as major releases, but they
  *may* include some backwards-incompatible changes. The
  :doc:`/changelog` will document any breaking changes. We aim to release a minor
  version of CKAN roughly twice a year.
@@ -48,12 +48,19 @@ Patch Releases
   - New dependencies (unless addressing security issues)
   - Big refactorings or new features in critical parts of the code
 
-.. note::
+  Patch releases include requirements upgrades that patch vulnerabilities in CKAN
+  requirements. Sometimes upgrading a requirement might mean breaking backwards
+  compatibility. In these cases the Tech Team will decide whether to apply the
+  upgrade to an existing patch release taking into account the actual risk of the
+  vulnerability and the potential for breaking existing CKAN sites.
 
+.. warning::
 
    Outdated patch releases will no longer be supported after a newer patch
    release has been released. For example once CKAN 2.9.2 has been released,
-   CKAN 2.9.1 will no longer be supported.
+   CKAN 2.9.1 will no longer be supported. It is critical to always run the
+   latest patch release for a minor version as it is the only one that contains
+   all security patches.
 
 Releases are announced on the
 `ckan-announce mailing list <https://groups.google.com/a/ckan.org/g/ckan-announce>`_,
