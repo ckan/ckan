@@ -201,7 +201,7 @@ class Stats(object):
             else:
                 raise NotImplementedError()
             first_date = (
-                get_date(objects[0][1])  # type: ignore
+                get_date(objects[0][1])
                 if objects else datetime.date.today()
             )
             week_commences = cls.get_date_week_started(first_date)
@@ -221,7 +221,7 @@ class Stats(object):
                 )
 
             for pkg_id, date_field in objects:
-                date_ = get_date(date_field)  # type: ignore
+                date_ = get_date(date_field)
                 if date_ >= week_ends:
                     weekly_pkg_ids.append(
                         build_weekly_stats(week_commences, pkg_id_stack)
