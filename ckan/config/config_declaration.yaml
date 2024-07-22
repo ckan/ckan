@@ -1564,11 +1564,6 @@ groups:
           .. seealso::
               The host of your CKAN installation can be set via :ref:`ckan.site_url`.
 
-          The CKAN repoze config file ``who.ini`` file will also need to be edited
-          by adding the path prefix to the options in the ``[plugin:friendlyform]``
-          section: ``login_form_url``, ``post_login_url`` and ``post_logout_url``.
-          Do not change the login/logout_handler_path options.
-
       - key: ckan.resource_formats
         example: /path/to/resource_formats
         default_callable: ckan.lib.helpers:resource_formats_default_file
