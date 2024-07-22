@@ -470,7 +470,11 @@ def _register_core_blueprints(app: CKANApp):
                 spec.loader.exec_module(module)
                 for blueprint in inspect.getmembers(module, is_blueprint):
                     app.register_blueprint(blueprint[1])
-                    log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+                    log.debug(
+                        u'Registered core blueprint: {0!r}'.format(
+                            blueprint[0]
+                        )
+                    )
 
 
 def _register_error_handler(app: CKANApp):
