@@ -380,7 +380,11 @@ def _get_group_dict(id: str, is_organization: bool) -> dict[str, Any]:
         })
     except (NotFound, NotAuthorized):
 
-        msg = _("Organization not found") if is_organization else _("Group not found")
+        msg = (
+            _("Organization not found")
+            if is_organization
+            else _("Group not found")
+        )
         base.abort(404, msg)
 
 
@@ -511,7 +515,9 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
     }
 
     template_name = (
-        "organization/members.html" if is_organization else "group/members.html"
+        "organization/members.html"
+        if is_organization else
+        "group/members.html"
     )
     return base.render(template_name, extra_vars)
 
@@ -548,7 +554,9 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
         u"group_type": group_type,
     }
     template_name = (
-        "organization/manage_members.html" if is_organization else "group/manage_members.html"
+        "organization/manage_members.html"
+        if is_organization
+        else "group/manage_members.html"
     )
     return base.render(template_name, extra_vars)
 
@@ -565,7 +573,9 @@ def member_dump(id: str, group_type: str, is_organization: bool):
 
     try:
         action_name = (
-            "organization_member_create" if is_organization else "group_member_create"
+            "organization_member_create"
+            if is_organization else
+            "group_member_create"
         )
         assert check_access(action_name, context, {'id': id})
     except NotAuthorized:
@@ -625,7 +635,9 @@ def member_delete(id: str, group_type: str,
 
     try:
         action_name = (
-            "organization_member_delete" if is_organization else "group_member_delete"
+            "organization_member_delete"
+            if is_organization else
+            "group_member_delete"
         )
         assert check_access(action_name, context, {'id': id})
     except NotAuthorized:
@@ -637,7 +649,9 @@ def member_delete(id: str, group_type: str,
             base.abort(404, _(u'User not found'))
         if request.method == u'POST':
             action_name = (
-                "organization_member_delete" if is_organization else "group_member_delete"
+                "organization_member_delete"
+                if is_organization
+                else "group_member_delete"
             )
             get_action(action_name)(context, {
                 u'id': id,
@@ -661,7 +675,9 @@ def member_delete(id: str, group_type: str,
         u"group_type": group_type
     }
     template_name = (
-        'organization/confirm_delete_member.html' if is_organization else 'group/confirm_delete_member.html'
+        'organization/confirm_delete_member.html'
+        if is_organization
+        else 'group/confirm_delete_member.html'
     )
     return base.render(template_name, extra_vars)
 
@@ -816,7 +832,9 @@ class BulkProcessView(MethodView):
         data_dict: dict[str, Any] = {u'id': id, u'type': group_type}
         data_dict['include_datasets'] = False
         try:
-            action_name = "organization_show" if is_organization else "group_show"
+            action_name = (
+                "organization_show" if is_organization else "group_show"
+            )
             group_dict = get_action(action_name)(context, data_dict)
             group = context['group']
         except NotFound:
@@ -850,7 +868,9 @@ class BulkProcessView(MethodView):
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
             data_dict['include_datasets'] = False
-            action_name = "organization_show" if is_organization else "group_show"
+            action_name = (
+                "organization_show" if is_organization else "group_show"
+            )
             group_dict = get_action(action_name)(context, data_dict)
         except NotFound:
             group_label = h.humanize_entity_type(
@@ -916,7 +936,10 @@ class BulkProcessView(MethodView):
 class CreateGroupView(MethodView):
     u'''Create group view '''
 
-    def _prepare(self, is_organization: bool, data: Optional[dict[str, Any]] = None) -> Context:
+    def _prepare(
+            self,
+            is_organization: bool,
+            data: Optional[dict[str, Any]] = None) -> Context:
         if data and u'type' in data:
             group_type = data['type']
         else:
@@ -932,7 +955,9 @@ class CreateGroupView(MethodView):
         }
 
         try:
-            action_name = 'organization_create' if is_organization else 'group_create'
+            action_name = (
+                'organization_create' if is_organization else 'group_create'
+            )
             assert check_access(action_name, context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
@@ -955,7 +980,9 @@ class CreateGroupView(MethodView):
         data_dict['type'] = group_type or u'group'
         data_dict['users'] = [{u'name': user, u'capacity': u'admin'}]
         try:
-            action_name = 'organization_create' if is_organization else 'group_create'
+            action_name = (
+                'organization_create' if is_organization else 'group_create'
+            )
             group = get_action(action_name)(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
@@ -1024,10 +1051,14 @@ class EditGroupView(MethodView):
         }
 
         try:
-            action_name = 'organization_show' if is_organization else 'group_show'
+            action_name = (
+                'organization_show' if is_organization else 'group_show'
+            )
             get_action(action_name)(context, data_dict)
 
-            action_name = 'organization_update' if is_organization else 'group_update'
+            action_name = (
+                'organization_update' if is_organization else 'group_update'
+            )
             assert check_access(action_name, context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
@@ -1052,8 +1083,9 @@ class EditGroupView(MethodView):
         data_dict['id'] = context['id']
         context['allow_partial_update'] = True
         try:
-
-            action_name = 'organization_update' if is_organization else 'group_update'
+            action_name = (
+                'organization_update' if is_organization else 'group_update'
+            )
             group = get_action(action_name)(context, data_dict)
             if id != group['name']:
                 _force_reindex(group)
@@ -1078,7 +1110,9 @@ class EditGroupView(MethodView):
         context = self._prepare(is_organization, id=id)
         data_dict: dict[str, Any] = {u'id': id, u'include_datasets': False}
         try:
-            action_name = 'organization_show' if is_organization else 'group_show'
+            action_name = (
+                'organization_show' if is_organization else 'group_show'
+            )
             group_dict = get_action(action_name)(context, data_dict)
         except (NotFound, NotAuthorized):
             base.abort(404, _(u'Group not found'))
@@ -1114,10 +1148,15 @@ class EditGroupView(MethodView):
 class DeleteGroupView(MethodView):
     u'''Delete group view '''
 
-    def _prepare(self, is_organization: bool, id: Optional[str] = None) -> Context:
+    def _prepare(
+            self,
+            is_organization: bool,
+            id: Optional[str] = None) -> Context:
         context: Context = {'user': current_user.name}
         try:
-            action_name = 'organization_delete' if is_organization else 'group_delete'
+            action_name = (
+                'organization_delete' if is_organization else 'group_delete'
+            )
             assert check_access(action_name, context, {'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
@@ -1129,7 +1168,9 @@ class DeleteGroupView(MethodView):
              id: Optional[str] = None) -> Response:
         context = self._prepare(is_organization, id=id)
         try:
-            action_name = 'organization_delete' if is_organization else 'group_delete'
+            action_name = (
+                'organization_delete' if is_organization else 'group_delete'
+            )
             get_action(action_name)(context, {'id': id})
             group_label = h.humanize_entity_type(
                 u'group',
@@ -1151,7 +1192,9 @@ class DeleteGroupView(MethodView):
             is_organization: bool,
             id: Optional[str] = None) -> Union[str, Response]:
         context = self._prepare(is_organization, id=id)
-        action_name = 'organization_show' if is_organization else 'group_show'
+        action_name = (
+            'organization_show' if is_organization else 'group_show'
+        )
         group_dict = get_action(action_name)(context, {'id': id})
 
         if u'cancel' in request.args:
@@ -1164,7 +1207,9 @@ class DeleteGroupView(MethodView):
             u"group_type": group_type
         }
         template_name = (
-            "organization/confirm_delete.html" if is_organization else "group/confirm_delete.html"
+            "organization/confirm_delete.html"
+            if is_organization
+            else "group/confirm_delete.html"
         )
         return base.render(template_name, extra_vars)
 
@@ -1172,11 +1217,16 @@ class DeleteGroupView(MethodView):
 class MembersGroupView(MethodView):
     u'''New members group view'''
 
-    def _prepare(self, is_organization: bool, id: Optional[str] = None) -> Context:
+    def _prepare(
+            self,
+            is_organization: bool,
+            id: Optional[str] = None) -> Context:
         context: Context = {'user': current_user.name}
         try:
             action_name = (
-                'organization_member_create' if is_organization else 'group_member_create'
+                'organization_member_create'
+                if is_organization
+                else 'group_member_create'
             )
             assert check_access(action_name, context, {u'id': id})
         except NotAuthorized:
@@ -1216,7 +1266,9 @@ class MembersGroupView(MethodView):
 
         try:
             action_name = (
-                'organization_member_create' if is_organization else 'group_member_create'
+                'organization_member_create'
+                if is_organization else
+                'group_member_create'
             )
             group_dict = get_action(action_name)(context, data_dict)
         except NotAuthorized:
@@ -1271,7 +1323,9 @@ class MembersGroupView(MethodView):
             u"user_dict": user_dict
         })
         template_name = (
-            "organization/member_new.html" if is_organization else "group/member_new.html"
+            "organization/member_new.html"
+            if is_organization
+            else "group/member_new.html"
         )
         return base.render(template_name, extra_vars)
 

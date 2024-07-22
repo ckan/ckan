@@ -516,7 +516,9 @@ def group_activity(id: str, group_type: str, is_organization: bool) -> str:
 
     limit = _get_activity_stream_limit()
     action_name = (
-        "organization_activity_list" if is_organization else "group_activity_list"
+        "organization_activity_list"
+        if is_organization
+        else "group_activity_list"
     )
     try:
         activity_stream = tk.get_action(action_name)(
@@ -615,7 +617,8 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
         context, {"id": group_id}
     )
     action_name = (
-        "organization_activity_list" if is_organization else "group_activity_list"
+        "organization_activity_list"
+        if is_organization else "group_activity_list"
     )
     group_activity_list = tk.get_action(action_name)(
         context, {"id": group_id, "limit": 100}
@@ -628,7 +631,8 @@ def group_changes(id: str, group_type: str, is_organization: bool) -> str:
         "group_type": current_group_dict["type"],
     }
     template_name = (
-        "organization/changes.html" if is_organization else "group/changes.html"
+        "organization/changes.html"
+        if is_organization else "group/changes.html"
     )
     return tk.render(template_name, extra_vars)
 
@@ -717,7 +721,8 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
         context, {"id": group_id}
     )
     action_name = (
-        "organization_activity_list" if is_organization else "group_activity_list"
+        "organization_activity_list"
+        if is_organization else "group_activity_list"
     )
     group_activity_list = tk.get_action(action_name)(
         context, {"id": group_id, "limit": 100}
@@ -730,7 +735,8 @@ def group_changes_multiple(is_organization: bool, group_type: str) -> str:
         "group_type": current_group_dict["type"],
     }
     template_name = (
-        "organization/changes.html" if is_organization else "group/changes.html"
+        "organization/changes.html"
+        if is_organization else "group/changes.html"
     )
     return tk.render(template_name, extra_vars)
 
