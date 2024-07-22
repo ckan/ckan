@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 import logging
-import re
 from collections import OrderedDict
 from typing import Any, Optional, Union
-from typing_extensions import Literal
 
 from urllib.parse import urlencode
 import csv
@@ -29,7 +27,7 @@ from ckan.views.dataset import _get_search_details
 from flask import Blueprint, make_response
 from flask.views import MethodView
 from flask.wrappers import Response
-from ckan.types import Action, Context, DataDict, Schema
+from ckan.types import Context, DataDict, Schema
 
 
 NotFound = logic.NotFound
