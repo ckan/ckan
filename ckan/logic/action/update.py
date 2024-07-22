@@ -286,6 +286,8 @@ def package_update(
     # try to do less work
     return_id_only = context.get('return_id_only', False)
     original_package = context.get('original_package')
+    skip_resources = set()
+    changed_resources = data_dict.get('resources', [])
 
     if original_package and original_package.get('id') != pkg.id:
         original_package = None
@@ -294,12 +296,20 @@ def package_update(
             # no change
             return pkg.id if return_id_only else data_dict
         if dict(original_package, resources=None) == dict(
-                data_dict, resources=None):
-            # FIXME: only resource changes
-            pass
+                data_dict, resources=None) and isinstance(
+                data_dict.get('resources'), list):
+            skip_resources = {
+                i for i, (ores, nres) in enumerate(
+                    zip(original_package['resources'], data_dict['resources'])
+                ) if ores == nres
+            }
+            changed_resources = [
+                r for i, r in enumerate(data_dict['resources'])
+                if i not in skip_resources
+            ]
 
     resource_uploads = []
-    for resource in data_dict.get('resources', []):
+    for resource in changed_resources:
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
 
@@ -314,13 +324,45 @@ def package_update(
         resource_uploads.append(upload)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_update')
+        package_plugin,
+        context,
+        dict(data_dict, resources=changed_resources),
+        schema,
+        'package_update'
+    )
+    # shift resource errors to the correct positions
+    if skip_resources and 'resources' in errors:
+        rerrs = []
+        i = 0
+        for e in errors['resources']:
+            while i in skip_resources:
+                rerrs.append({})
+                i += 1
+            rerrs.append(e)
+            i += 1
+        errors['resources'] = rerrs
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, user, context['package'].name, data)
 
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
+
+    # merge skipped resources back into validated data
+    if skip_resources:
+        assert original_package  # make pyright happy
+        resources = []
+        i = 0
+        for r in data['resources']:
+            while i in skip_resources:
+                resources.append(original_package['resources'][i])
+                i += 1
+            resources.append(r)
+            i += 1
+        while i in skip_resources:
+            resources.append(original_package['resources'][i])
+            i += 1
+        data['resources'] = resources
 
     data['metadata_modified'] = datetime.datetime.utcnow()
 
@@ -333,7 +375,8 @@ def package_update(
             and plugin_data
         )
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    pkg = model_save.package_dict_save(data, context, include_plugin_data,
+                                       skip_resources)
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True

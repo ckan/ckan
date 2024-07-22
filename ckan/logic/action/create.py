@@ -278,8 +278,6 @@ def resource_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
         data_dict['url'] = ''
@@ -311,7 +309,8 @@ def resource_create(context: Context,
     try:
         update_context = Context(context)
         update_context['original_package'] = original_package
-        updated_pkg_dict = _get_action('package_update')(update_context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
