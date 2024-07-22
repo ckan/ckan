@@ -44,8 +44,6 @@ log = logging.getLogger(__name__)
 lookup_group_plugin = lib_plugins.lookup_group_plugin
 lookup_group_controller = lib_plugins.lookup_group_controller
 
-is_org = False
-
 
 def _get_group_template(template_type: str,
                         group_type: Optional[str] = None) -> str:
@@ -756,7 +754,7 @@ def unfollow(id: str, group_type: str, is_organization: bool) -> str:
     extra_vars['error_message'] = error_message
     extra_vars['am_following'] = am_following
 
-    if is_org:
+    if is_organization:
         return base.render('organization/snippets/info.html', extra_vars)
     return base.render('group/snippets/info.html', extra_vars)
 
@@ -840,6 +838,7 @@ class BulkProcessView(MethodView):
         except NotFound:
             base.abort(404, _(u'Group not found'))
 
+        if not group_dict['is_organization']:
             # FIXME: better error
             raise Exception(u'Must be an organization')
 
