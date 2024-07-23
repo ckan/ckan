@@ -22,7 +22,7 @@
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.0.0",
     "gulp-sourcemaps": "^2.6.5",
-    "pyright": "^1.1.371",
+    "pyright": "^1.1.234",
     "sass": "^1.49.8"
   },
   "scripts": {

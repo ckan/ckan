@@ -39,7 +39,7 @@ wiki page for help):
 =====================  ===============================================
 Package                Description
 =====================  ===============================================
-Python                 `The Python programming language, v3.7 or newer <https://www.python.org/getit/>`_
+Python                 `The Python programming language, v3.8 or newer <https://www.python.org/getit/>`_
 |postgres|             `The PostgreSQL database system, v10 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
