@@ -116,7 +116,7 @@ def index(group_type: str, is_organization: bool) -> str:
 
     try:
         action_name = 'organization_list' if is_organization else 'group_list'
-        assert check_access(action_name, context)
+        check_access(action_name, context)
     except NotAuthorized:
         base.abort(403, _(u'Not authorized to see this page'))
 
@@ -485,7 +485,7 @@ def members(id: str, group_type: str, is_organization: bool) -> str:
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
-        assert check_access(u'group_show', context, data_dict)
+        check_access(u'group_show', context, data_dict)
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
@@ -525,7 +525,7 @@ def manage_members(id: str, group_type: str, is_organization: bool) -> str:
 
     try:
         data_dict: dict[str, Any] = {u'id': id}
-        assert check_access(u'group_edit_permissions', context, data_dict)
+        check_access(u'group_edit_permissions', context, data_dict)
         members = get_action(u'member_list')(context, {
             u'id': id,
             u'object_type': u'user'
@@ -575,7 +575,7 @@ def member_dump(id: str, group_type: str, is_organization: bool):
             if is_organization else
             "group_member_create"
         )
-        assert check_access(action_name, context, {'id': id})
+        check_access(action_name, context, {'id': id})
     except NotAuthorized:
         base.abort(404,
                    _(u'Not authorized to access {group} members download'
@@ -637,7 +637,7 @@ def member_delete(id: str, group_type: str,
             if is_organization else
             "group_member_delete"
         )
-        assert check_access(action_name, context, {'id': id})
+        check_access(action_name, context, {'id': id})
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to delete group %s members') % u'')
 
@@ -957,7 +957,7 @@ class CreateGroupView(MethodView):
             action_name = (
                 'organization_create' if is_organization else 'group_create'
             )
-            assert check_access(action_name, context)
+            check_access(action_name, context)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
 
@@ -1058,7 +1058,7 @@ class EditGroupView(MethodView):
             action_name = (
                 'organization_update' if is_organization else 'group_update'
             )
-            assert check_access(action_name, context, data_dict)
+            check_access(action_name, context, data_dict)
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to create a group'))
         except NotFound:
@@ -1156,7 +1156,7 @@ class DeleteGroupView(MethodView):
             action_name = (
                 'organization_delete' if is_organization else 'group_delete'
             )
-            assert check_access(action_name, context, {'id': id})
+            check_access(action_name, context, {'id': id})
         except NotAuthorized:
             base.abort(403, _(u'Unauthorized to delete group %s') % u'')
         return context
@@ -1227,7 +1227,7 @@ class MembersGroupView(MethodView):
                 if is_organization
                 else 'group_member_create'
             )
-            assert check_access(action_name, context, {u'id': id})
+            check_access(action_name, context, {u'id': id})
         except NotAuthorized:
             base.abort(403,
                        _(u'Unauthorized to create group %s members') % u'')
