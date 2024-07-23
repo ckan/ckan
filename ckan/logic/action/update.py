@@ -86,8 +86,8 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         package_show_context: Union[Context, Any] = dict(context, for_update=True)
         pkg_dict = _get_action('package_show')(
             package_show_context, {'id': package_id})
-        update_context['original_package'] = dict(pkg_dict)
-        pkg_dict['resources'] = list(pkg_dict['resources'])
+    update_context['original_package'] = dict(pkg_dict)
+    pkg_dict['resources'] = list(pkg_dict['resources'])
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
     if resources[resource.position]['id'] != rid:

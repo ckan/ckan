@@ -92,7 +92,7 @@ def package_resource_list_save(
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
-    if set(resource_list) == set(obj_list):
+    if list(resource_list) == obj_list:
         return
 
     # Set the package's resources. resource_list is an ORM relation - the

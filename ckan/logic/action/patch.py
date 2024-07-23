@@ -74,7 +74,7 @@ def resource_patch(context: Context,
     model = context['model']
     resource = model.Resource.get(_get_or_bust(data_dict, 'id'))
     if not resource:
-        raise NotFound(_('Resource was not found.'))
+        raise NotFound('Resource was not found.')
 
     show_context: Context = _fresh_context(context)
     show_context.update({'for_update': True})
@@ -84,7 +84,7 @@ def resource_patch(context: Context,
         {'id': resource.package_id})
 
     if package_dict['resources'][resource.position]['id'] != resource.id:
-        raise NotFound(_('Resource was not found.'))
+        raise NotFound('Resource was not found.')
 
     patched = dict(package_dict['resources'][resource.position])
     patched.update(data_dict)
