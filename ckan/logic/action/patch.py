@@ -11,7 +11,6 @@ from ckan.logic import (
 )
 from ckan.types import Context, DataDict
 from ckan.types.logic import ActionResult
-from ckan.common import _
 
 
 def package_patch(

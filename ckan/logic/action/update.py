@@ -288,7 +288,7 @@ def package_update(
     return_id_only = context.get('return_id_only', False)
     original_package = context.get('original_package')
     skip_resources = set()
-    changed_resources = data_dict.get('resources', [])
+    changed_resources = data_dict.get('resources')
 
     if original_package and original_package.get('id') != pkg.id:
         original_package = None
@@ -310,7 +310,7 @@ def package_update(
             ]
 
     resource_uploads = []
-    for resource in changed_resources:
+    for resource in changed_resources or []:
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
 
@@ -324,10 +324,14 @@ def package_update(
 
         resource_uploads.append(upload)
 
+    validate_data = dict(data_dict)
+    if changed_resources is not None:
+        validate_data['resources'] = changed_resources
+
     data, errors = lib_plugins.plugin_validate(
         package_plugin,
         context,
-        dict(data_dict, resources=changed_resources),
+        validate_data,
         schema,
         'package_update'
     )
@@ -365,7 +369,10 @@ def package_update(
             i += 1
         data['resources'] = resources
 
-    data['metadata_modified'] = datetime.datetime.utcnow()
+    # FIXME: avoid weird logic in package_dict_save by updating directly
+    model.Session.query(model.Package).filter_by(id=pkg.id).update(
+        {"metadata_modified": datetime.datetime.utcnow()})
+    model.Session.refresh(pkg)
 
     include_plugin_data = False
     user_obj = context.get('auth_user_obj')
