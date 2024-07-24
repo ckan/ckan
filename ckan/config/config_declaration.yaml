@@ -1059,7 +1059,7 @@ groups:
         default: None
         example: http://proxy:3128
         description: |
-          Specifies a HTTP proxy to be used by extensions such as XLoader or Archiver
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
           when downloading remote files. This may be useful for enabling access to
           restricted network locations, or restricting access to privileged ones, eg
           preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
