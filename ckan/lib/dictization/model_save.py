@@ -75,7 +75,9 @@ def package_resource_list_save(
     # datastore have a chance to remove tables created for those resources
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
-        .filter(model.Resource.state != 'deleted')[:]
+        .filter(model.Resource.state != 'deleted') \
+        .order_by(model.Resource.position)[:]
+
     # resources previously deleted can be removed permanently as part
     # of this update
     deleted_list = session.query(model.Resource) \
