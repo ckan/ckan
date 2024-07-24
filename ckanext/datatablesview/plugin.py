@@ -15,6 +15,7 @@ ignore_missing = toolkit.get_validator(u'ignore_missing')
 
 
 @toolkit.blanket.config_declarations
+@toolkit.blanket.helpers
 class DataTablesView(p.SingletonPlugin):
     u'''
     DataTables table view plugin
