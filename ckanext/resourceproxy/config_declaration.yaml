@@ -20,3 +20,8 @@ groups:
       This sets size of the chunk to read and write when proxying.
       Raising this value might save some CPU cycles. It makes no sense to lower it
       below the page size, which is default.
+
+  - key: ckan.resource_proxy.timeout
+    type: int
+    default: 5
+    description: Timeout in seconds to use on Resource Proxy requests.
