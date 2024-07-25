@@ -8,6 +8,7 @@ import logging
 import datetime
 import time
 import json
+from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -287,7 +288,7 @@ def package_update(
     # try to do less work
     return_id_only = context.get('return_id_only', False)
     original_package = context.get('original_package')
-    skip_resources = set()
+    copy_resources = {}
     changed_resources = data_dict.get('resources')
 
     if original_package and original_package.get('id') != pkg.id:
@@ -299,14 +300,15 @@ def package_update(
         if dict(original_package, resources=None) == dict(
                 data_dict, resources=None) and isinstance(
                 data_dict.get('resources'), list):
-            skip_resources = {
-                i for i, (ores, nres) in enumerate(
-                    zip(original_package['resources'], data_dict['resources'])
-                ) if ores == nres
+            oids = {r['id']: r for r in original_package['resources']}
+            copy_resources = {
+                i: r['position']
+                for (i, r) in enumerate(data_dict['resources'])
+                if r == oids.get(r['id'], ())
             }
             changed_resources = [
                 r for i, r in enumerate(data_dict['resources'])
-                if i not in skip_resources
+                if i not in copy_resources
             ]
 
     resource_uploads = []
@@ -336,11 +338,11 @@ def package_update(
         'package_update'
     )
     # shift resource errors to the correct positions
-    if skip_resources and 'resources' in errors:
+    if copy_resources and 'resources' in errors:
         rerrs = []
         i = 0
         for e in errors['resources']:
-            while i in skip_resources:
+            while i in copy_resources:
                 rerrs.append({})
                 i += 1
             rerrs.append(e)
@@ -354,18 +356,20 @@ def package_update(
         raise ValidationError(errors)
 
     # merge skipped resources back into validated data
-    if skip_resources:
+    if copy_resources:
         assert original_package  # make pyright happy
         resources = []
         i = 0
         for r in data['resources']:
-            while i in skip_resources:
-                resources.append(original_package['resources'][i])
+            while i in copy_resources:
+                resources.append(
+                    original_package['resources'][copy_resources[i]])
                 i += 1
             resources.append(r)
             i += 1
-        while i in skip_resources:
-            resources.append(original_package['resources'][i])
+        while i in copy_resources:
+            resources.append(
+                original_package['resources'][copy_resources[i]])
             i += 1
         data['resources'] = resources
 
@@ -383,8 +387,8 @@ def package_update(
             and plugin_data
         )
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data,
-                                       skip_resources)
+    pkg = model_save.package_dict_save(
+        data, context, include_plugin_data, copy_resources)
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -457,9 +461,9 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     ``match`` and ``update`` parameters may also be passed as "flattened keys", using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resource__1f9ab__description="guidebook"`` would set the
+    ``update__resources__1f9ab__description="guidebook"`` would set the
     description of the resource with id starting with "1f9ab" to "guidebook", and
-    ``update__resource__-1__description="guidebook"`` would do the same
+    ``update__resources__-1__description="guidebook"`` would do the same
     on the last resource in the dataset.
 
     The ``extend`` suffix can also be used on the update parameter to add
@@ -528,13 +532,11 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if name_or_id is None:
         raise ValidationError({'match__id': _('Missing value')})
 
-    package_show_context = context.copy()
+    package_show_context = Context(context)
     package_show_context['for_update'] = True
     orig = _get_action('package_show')(
         package_show_context,
         {'id': name_or_id})
-
-    pkg = package_show_context['package']  # side-effect of package_show
 
     unmatched = []
     if 'match' in data:
@@ -550,14 +552,14 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             for unm in unmatched
         ]})
 
+    revised = deepcopy(orig)
     if 'filter' in data:
-        orig_id = orig['id']
-        dfunc.filter_glob_match(orig, data['filter'])
-        orig['id'] = orig_id
+        dfunc.filter_glob_match(revised, data['filter'])
+        revised['id'] = orig['id']
 
     if 'update' in data:
         try:
-            dfunc.update_merge_dict(orig, data['update'])
+            dfunc.update_merge_dict(revised, data['update'])
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({'update': [de.error]})
@@ -568,20 +570,21 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             data['update__'].items(),
             key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
         try:
-            dfunc.update_merge_string_key(orig, k, v)
+            dfunc.update_merge_string_key(revised, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({k: [de.error]})
 
-    _check_access('package_revise', context, {"update": orig})
+    _check_access('package_revise', context, {"update": revised})
+
+    update_context = Context(context)
+    update_context['original_package'] = orig
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
     # on update or "nothing changed" status once possible
     rval = {
-        'package': _get_action('package_update')(
-            Context(context, package=pkg),
-            orig)}
+        'package': _get_action('package_update')(update_context, revised)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
     return rval
@@ -626,10 +629,12 @@ def package_resource_reorder(
             )
 
     new_resources = ordered_resources + existing_resources
+    update_context = Context(context)
+    update_context['original_package'] = dict(package_dict)
     package_dict['resources'] = new_resources
 
     _check_access('package_resource_reorder', context, package_dict)
-    _get_action('package_update')(context, package_dict)
+    _get_action('package_update')(update_context, package_dict)
 
     return {'id': id, 'order': [resource['id'] for resource in new_resources]}
 

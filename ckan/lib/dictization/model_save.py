@@ -62,7 +62,7 @@ def resource_dict_save(res_dict: dict[str, Any],
 def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', context: Context,
-        skip_resources: set[int] | tuple[()]) -> None:
+        copy_resources: dict[int, int] | tuple[()]) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
     if res_dicts is None and allow_partial_update:
         return
@@ -86,8 +86,8 @@ def package_resource_list_save(
 
     obj_list = []
     for i, res_dict in enumerate(res_dicts or []):
-        if i in skip_resources:
-            obj_list.append(old_list[i])
+        if i in copy_resources:
+            obj_list.append(old_list[copy_resources[i]])
             continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
@@ -261,7 +261,7 @@ def relationship_list_save(
 def package_dict_save(
         pkg_dict: dict[str, Any], context: Context,
         include_plugin_data: bool = False,
-        skip_resources: set[int] | tuple[()] = ()) -> 'model.Package':
+        copy_resources: dict[int, int] | tuple[()] = ()) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
     if package:
@@ -287,8 +287,8 @@ def package_dict_save(
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources"), pkg, context,
-                               skip_resources)
+    package_resource_list_save(
+        pkg_dict.get("resources"), pkg, context, copy_resources)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
     package_membership_list_save(pkg_dict.get("groups"), pkg, context)
 
