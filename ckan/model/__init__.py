@@ -14,7 +14,8 @@ from sqlalchemy import MetaData, Table, inspect
 from alembic.command import (
     upgrade as alembic_upgrade,
     downgrade as alembic_downgrade,
-    current as alembic_current
+    current as alembic_current,
+    stamp as alembic_stamp,
 )
 from alembic.config import Config as AlembicConfig
 
@@ -241,7 +242,16 @@ class Repository():
         '''
         with ensure_engine().begin() as conn:
             self.metadata.create_all(conn)
+
         log.info('Database tables created')
+
+    def stamp_alembic_head(self):
+        '''mark database as up to date for alembic'''
+        alembic_config = AlembicConfig(self._alembic_ini)
+        alembic_config.set_main_option(
+            "sqlalchemy.url", config.get("sqlalchemy.url")
+        )
+        alembic_stamp(alembic_config, 'head')
 
     def rebuild_db(self) -> None:
         '''Clean and init the db'''
