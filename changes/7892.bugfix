@@ -1,1 +1,0 @@
-Change logout link into a POST submit so it interacts properly with caching and CSRF

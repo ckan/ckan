@@ -1,3 +1,0 @@
-* Only sysadmins can now set the ``id`` field of Datasets, Groups, Organizations, Users, Resource Views and Extras
-* If provided, the value of the ``id`` field needs to be a valid UUID v4 string. Sites using custom ids that are not UUIDs can extend the relevant schema or validate methods to override the validation on the ``id`` field, but are strongly encouraged to use a separate custom field to store the custom id instead.
-* The ``form_to_db_*`` and ``db_to_form_*`` methods of the ``IGroupForm`` interface are now deprecated, and have been replaced by``create_group_schema()``, ``update_group_schema()`` and ``show_group_schema()``.

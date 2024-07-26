@@ -1,1 +1,0 @@
-``ckan.route_after_login`` renamed to ``ckan.auth.route_after_login``

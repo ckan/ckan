@@ -1,2 +1,0 @@
-URLs in activities always points to `/organization/*` but custom org types
-requeres `/custom-organization/*` URLs. This fixes those links.  

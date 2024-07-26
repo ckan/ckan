@@ -1,1 +1,0 @@
-Removes dataset-form and dataset-resource-form classes from our HTML templates since they do not exist in our CSS files.
