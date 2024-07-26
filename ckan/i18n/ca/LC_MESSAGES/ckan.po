@@ -108,76 +108,76 @@ msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:1037
 msgid "Add {object_type}"
-msgstr ""
+msgstr "Afegir {object_type}"
 
 #: ckan/lib/helpers.py:1038 ckan/lib/helpers.py:1039 ckan/lib/helpers.py:1047
 #: ckan/lib/helpers.py:1049 ckan/lib/helpers.py:1060
 msgid "{object_type}s"
-msgstr ""
+msgstr "{object_type}s"
 
 #: ckan/lib/helpers.py:1040 ckan/lib/helpers.py:1041
 msgid "Create {object_type}"
-msgstr ""
+msgstr "Crear {object_type}"
 
 #: ckan/lib/helpers.py:1042
 msgid "Are you sure you want to delete this {object_type}?"
-msgstr ""
+msgstr "Esteu segurs que voleu eliminar aquest {object_type}?"
 
 #: ckan/lib/helpers.py:1044
 msgid "A little information about my {object_type}..."
-msgstr ""
+msgstr "Una mica d'informació sobre {object_type}..."
 
 #: ckan/lib/helpers.py:1046
 msgid "Edit {object_type}"
-msgstr ""
+msgstr "Editar {object_type}"
 
 #: ckan/lib/helpers.py:1048
 msgid "{object_type} Form"
-msgstr ""
+msgstr "Formulari del {object_type} "
 
 #: ckan/lib/helpers.py:1050
 msgid "My {object_type}s"
-msgstr ""
+msgstr "Els meus {object_type}s"
 
 #: ckan/lib/helpers.py:1051
 msgid "View {object_type}"
-msgstr ""
+msgstr "Veure {object_type}"
 
 #: ckan/lib/helpers.py:1052
 msgid "My {object_type}"
-msgstr ""
+msgstr "El meu {object_type}"
 
 #: ckan/lib/helpers.py:1053
 msgid "There are currently no {object_type}s for this site"
-msgstr ""
+msgstr "Actualment no hi ha {object_type}s en aquest lloc"
 
 #: ckan/lib/helpers.py:1055
 msgid "There are no {object_type}s associated with this dataset"
-msgstr ""
+msgstr "No hi ha {object_type}s associades amb aquest conjunt de dades"
 
 #: ckan/lib/helpers.py:1057
 msgid "There is no description for this {object_type}"
-msgstr ""
+msgstr "No hi ha descripció per a aquest {object_type}"
 
 #: ckan/lib/helpers.py:1059
 msgid "No {object_type}"
-msgstr ""
+msgstr "No hi ha {object_type}"
 
 #: ckan/lib/helpers.py:1061
 msgid "Save {object_type}"
-msgstr ""
+msgstr "Desar {object_type}"
 
 #: ckan/lib/helpers.py:1062
 msgid "Search {object_type}s..."
-msgstr ""
+msgstr "Cercar {object_types}s..."
 
 #: ckan/lib/helpers.py:1063
 msgid "You are not a member of any {object_type}s."
-msgstr ""
+msgstr "No sou membres de cap {object_type}s"
 
 #: ckan/lib/helpers.py:1064
 msgid "Update {object_type}"
-msgstr ""
+msgstr "Actualitzar {object_type}"
 
 #: ckan/lib/helpers.py:1660
 msgid "Unknown"
@@ -320,11 +320,11 @@ msgstr "Ha de ser un nombre natural"
 
 #: ckan/logic/validators.py:148
 msgid "Must be a positive integer"
-msgstr ""
+msgstr "Ha de ser un valor enter positiu"
 
 #: ckan/logic/validators.py:157
 msgid "Must be a float timestamp"
-msgstr ""
+msgstr "Ha de ser una marca horària en format de coma flotant"
 
 #: ckan/logic/validators.py:186
 msgid "Date format incorrect"
@@ -336,15 +336,15 @@ msgstr "L'identificador del conjunt de dades ja existeix"
 
 #: ckan/logic/validators.py:233
 msgid "Resource id already exists."
-msgstr ""
+msgstr "L'identificador del recurs ja existeix"
 
 #: ckan/logic/validators.py:244 ckan/logic/validators.py:256
 msgid "Id already exists"
-msgstr ""
+msgstr "L'identificador ja existeix"
 
 #: ckan/logic/validators.py:269
 msgid "ResourceView id already exists"
-msgstr ""
+msgstr "L'identificador de la vista de recurs ja existeix"
 
 #: ckan/logic/validators.py:317
 msgid "Resource"
@@ -352,7 +352,7 @@ msgstr "Recurs"
 
 #: ckan/logic/validators.py:325
 msgid "Invalid id provided"
-msgstr ""
+msgstr "Identificador invàlid"
 
 #: ckan/logic/validators.py:379
 msgid "That group name or ID does not exist."
@@ -428,6 +428,8 @@ msgid ""
 "Tag \"%s\" can only contain alphanumeric characters, spaces (\" \"), hyphens"
 " (\"-\"), underscores (\"_\") or dots (\".\")"
 msgstr ""
+"L'etiqueta \"%s\" només pot contenir caràcters alfanumèrics , espais (\" "
+"\"), guions (\"-\"), guions baixos (\"_\") o punts (\".\")"
 
 #: ckan/logic/validators.py:529
 #, python-format
@@ -613,7 +615,7 @@ msgstr "Esteu intentant crear una organizació com a grup"
 
 #: ckan/logic/action/create.py:1120
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Error enviant el correu amb la invitació, l'usuari no s'ha creat: {0}"
 
 #: ckan/logic/action/create.py:1241 ckan/logic/action/create.py:1247
 #: ckan/logic/action/create.py:1297 ckan/logic/action/create.py:1303
