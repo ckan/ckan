@@ -304,7 +304,7 @@ def package_update(
             copy_resources = {
                 i: r['position']
                 for (i, r) in enumerate(data_dict['resources'])
-                if r == oids.get(r['id'], ())
+                if r == oids.get(r.get('id'), ())
             }
             changed_resources = [
                 r for i, r in enumerate(data_dict['resources'])
