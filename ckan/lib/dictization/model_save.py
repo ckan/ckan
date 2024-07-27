@@ -52,16 +52,17 @@ def resource_dict_save(res_dict: dict[str, Any],
 
     if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
+        session.add(obj)
     obj.state = u'active'
     obj.extras = skipped
 
-    session.add(obj)
     return obj
 
 
 def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
-        package: 'model.Package', context: Context) -> None:
+        package: 'model.Package', context: Context,
+        copy_resources: dict[int, int] | tuple[()]) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
     if res_dicts is None and allow_partial_update:
         return
@@ -74,7 +75,9 @@ def package_resource_list_save(
     # datastore have a chance to remove tables created for those resources
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
-        .filter(model.Resource.state != 'deleted')[:]
+        .filter(model.Resource.state != 'deleted') \
+        .order_by(model.Resource.position)[:]
+
     # resources previously deleted can be removed permanently as part
     # of this update
     deleted_list = session.query(model.Resource) \
@@ -82,11 +85,17 @@ def package_resource_list_save(
         .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
-    for res_dict in res_dicts or []:
+    for i, res_dict in enumerate(res_dicts or []):
+        if i in copy_resources:
+            obj_list.append(old_list[copy_resources[i]])
+            continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+
+    if old_list == obj_list:
+        return
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it
@@ -251,7 +260,8 @@ def relationship_list_save(
 
 def package_dict_save(
         pkg_dict: dict[str, Any], context: Context,
-        include_plugin_data: bool = False) -> 'model.Package':
+        include_plugin_data: bool = False,
+        copy_resources: dict[int, int] | tuple[()] = ()) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
     if package:
@@ -277,7 +287,8 @@ def package_dict_save(
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources"), pkg, context)
+    package_resource_list_save(
+        pkg_dict.get("resources"), pkg, context, copy_resources)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
     package_membership_list_save(pkg_dict.get("groups"), pkg, context)
 
