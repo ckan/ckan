@@ -69,8 +69,6 @@ class Member(core.StatefulObjectMixin,
     Meanings:
     * Package - the Group is a collection of Packages
                  - capacity is 'public', 'private'
-                   or 'organization' if the Group is an Organization
-                   (see ckan.logic.action.package_owner_org_update)
     * User - the User is granted permissions for the Group
                  - capacity is 'admin', 'editor' or 'member'
     * Group - the Group (Member.group_id) is a parent of the Group (Member.id)
@@ -373,22 +371,29 @@ class Group(core.StatefulObjectMixin,
                     .filter(Member.table_id == user_id)
             user_is_org_member = len(member_query.all()) != 0
 
-        query = meta.Session.query(_package.Package).\
-            filter(_package.Package.state == core.State.ACTIVE).\
-            filter(group_table.c["id"] == self.id).\
-            filter(member_table.c["state"] == 'active')
+        if self.is_organization:
+            query = meta.Session.query(_package.Package).filter(
+                _package.Package.owner_org == self.id,
+                _package.Package.state == 'active',
+            )
+            # orgs do not show private datasets unless the user is a member
+            if not user_is_org_member:
+                 query = query.filter(_package.Package.private == False)
 
-        # orgs do not show private datasets unless the user is a member
-        if self.is_organization and not user_is_org_member:
-            query = query.filter(_package.Package.private == False)
-        # groups (not orgs) never show private datasets
-        if not self.is_organization:
-            query = query.filter(_package.Package.private == False)
+        else:
+            query = meta.Session.query(_package.Package).\
+                filter(_package.Package.state == core.State.ACTIVE).\
+                filter(group_table.c["id"] == self.id).\
+                filter(member_table.c["state"] == 'active')
 
-        query: "Query[_package.Package]" = query.join(
-            member_table, member_table.c["table_id"] == _package.Package.id)
-        query: "Query[_package.Package]" = query.join(
-            group_table, group_table.c["id"] == member_table.c["group_id"])
+            # groups (not orgs) never show private datasets
+            if not self.is_organization:
+                query = query.filter(_package.Package.private == False)
+
+            query: "Query[_package.Package]" = query.join(
+                member_table, member_table.c["table_id"] == _package.Package.id)
+            query: "Query[_package.Package]" = query.join(
+                group_table, group_table.c["id"] == member_table.c["group_id"])
 
         if limit is not None:
             query = query.limit(limit)

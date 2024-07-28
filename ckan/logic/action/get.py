@@ -372,14 +372,26 @@ def _group_or_org_list(
                                total=1)
 
     if sort_info and sort_info[0][0] == 'package_count':
-        query = model.Session.query(model.Group.id,
-                                    model.Group.name,
-                                    sqlalchemy.func.count(model.Group.id))
+        if is_org:
+            query = model.Session.query(
+                model.Group.id,
+                model.Group.name,
+                sqlalchemy.func.count(model.Package.id).label("package_count"),
+            ).outerjoin(
+                model.Package,
+                (model.Group.id == model.Package.owner_org)
+                & (model.Package.state == "active"),
+            )
 
-        query = query.filter(model.Member.group_id == model.Group.id) \
-                     .filter(model.Member.table_id == model.Package.id) \
-                     .filter(model.Member.table_name == 'package') \
-                     .filter(model.Package.state == 'active')
+        else:
+            query = model.Session.query(model.Group.id,
+                                        model.Group.name,
+                                        sqlalchemy.func.count(model.Group.id))
+
+            query = query.filter(model.Member.group_id == model.Group.id) \
+                        .filter(model.Member.table_id == model.Package.id) \
+                        .filter(model.Member.table_name == 'package') \
+                        .filter(model.Package.state == 'active')
     else:
         query = model.Session.query(model.Group.id,
                                     model.Group.name)
@@ -403,7 +415,11 @@ def _group_or_org_list(
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
-        sort_model_field: Any = sqlalchemy.func.count(model.Group.id)
+        sort_model_field: Any = (
+            sqlalchemy.func.count(model.Package.id)
+            if is_org
+            else sqlalchemy.func.count(model.Group.id)
+        )
         if sort_field == 'package_count':
             query = query.group_by(model.Group.id, model.Group.name)
         elif sort_field == 'name':
@@ -982,7 +998,7 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
     include_plugin_data = asbool(data_dict.get('include_plugin_data', False))
     if user_obj and user_obj.is_authenticated:
         include_plugin_data = (
-            user_obj.sysadmin  # type: ignore
+            user_obj.sysadmin
             and include_plugin_data
         )
 
