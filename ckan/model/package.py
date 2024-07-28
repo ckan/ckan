@@ -13,10 +13,10 @@ import logging
 from typing_extensions import TypeAlias, Self
 
 from sqlalchemy.sql import and_, or_
-from sqlalchemy import orm, types, Column, Table, ForeignKey, Index
+from sqlalchemy import (orm, types, Column, Table, ForeignKey, Index,
+                        CheckConstraint)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from ckan.common import config
 
@@ -31,7 +31,7 @@ from ckan.types import Query
 
 if TYPE_CHECKING:
     from ckan.model import (
-     PackageExtra, PackageRelationship, Resource,
+     PackageRelationship, Resource,
      PackageTag, Tag, Vocabulary,
      Group,
     )
@@ -75,6 +75,13 @@ package_table = Table('package', meta.metadata,
     Column('private', types.Boolean, default=False),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
     Column('plugin_data', MutableDict.as_mutable(JSONB)),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='package_flat_extras',
+    )),
     Index('idx_pkg_sid', 'id', 'state'),
     Index('idx_pkg_sname', 'name', 'state'),
     Index('idx_pkg_stitle', 'title', 'state'),
@@ -117,12 +124,11 @@ class Package(core.StatefulObjectMixin,
     private: Mapped[bool]
     state: Mapped[str]
     plugin_data: Mapped[dict[str, Any]]
+    extras: Mapped[dict[str, str]]
 
     package_tags: Mapped[list["PackageTag"]]
 
     resources_all: Mapped[list["Resource"]]
-    _extras: Mapped[dict[str, Any]]
-    extras: AssociationProxy
 
     relationships_as_subject: Mapped['PackageRelationship']
     relationships_as_object: Mapped['PackageRelationship']
@@ -471,19 +477,6 @@ class Package(core.StatefulObjectMixin,
 
         groups = [group for (group, cap) in pairs if not capacity or cap == capacity]
         return groups
-
-    @property
-    @maintain.deprecated(since="2.9.0")
-    def extras_list(self) -> list['PackageExtra']:
-        '''DEPRECATED in 2.9
-
-        Returns a list of the dataset's extras, as PackageExtra object
-        NB includes deleted ones too (state='deleted')
-        '''
-        from ckan.model.package_extra import PackageExtra
-        return meta.Session.query(PackageExtra) \
-            .filter_by(package_id=self.id) \
-            .all()
 
 
 class PackageMember(domain_object.DomainObject):

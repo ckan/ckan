@@ -1,7 +1,7 @@
 <div class="popover-context profile-info">
   {% if notes != 'null' %}
     {% set notes = notes|striptags %}
-    <p class="about" title="{{ notes }}">
+    <p class="about">
       {{ notes|truncate(160) }}
     </p>
   {% endif %}
