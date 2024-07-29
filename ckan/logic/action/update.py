@@ -305,9 +305,16 @@ def package_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
+    # check for metadata_modified
+    if data_dict.get("metadata_modified"):
+        mmod = datetime.datetime.strptime(data_dict.get(
+            "metadata_modified"),  "%Y-%m-%dT%H:%M:%S.%f")
+    else:
+        mmod = datetime.datetime.utcnow()
+
+    # avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
+        {"metadata_modified": mmod})
     model.Session.refresh(pkg)
 
     include_plugin_data = False
