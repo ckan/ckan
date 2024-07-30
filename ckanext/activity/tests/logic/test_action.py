@@ -2746,7 +2746,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         data_dict = {"offset_days": 30}
         result = helpers.call_action(
-            "activity_delete_by_date_range_or_offset",
+            "activity_delete",
             context={"user": sysadmin["name"]},
             **data_dict,
         )
@@ -2767,7 +2767,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         data_dict = {"start_date": "2023-01-01", "end_date": "2023-01-31"}
         result = helpers.call_action(
-            "activity_delete_by_date_range_or_offset",
+            "activity_delete",
             context={"user": sysadmin["name"]},
             **data_dict,
         )
@@ -2785,7 +2785,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         with pytest.raises(tk.ValidationError):
             helpers.call_action(
-                "activity_delete_by_date_range_or_offset",
+                "activity_delete",
                 context={"user": sysadmin["name"]},
                 **data_dict,
             )
@@ -2795,7 +2795,7 @@ class TestActivityDeleteByDateRangeOrOffset:
         data_dict = {"offset_days": 60}
 
         result = helpers.call_action(
-            "activity_delete_by_date_range_or_offset",
+            "activity_delete",
             context={"user": sysadmin["name"]},
             **data_dict,
         )
@@ -2810,7 +2810,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         with pytest.raises(tk.ValidationError):
             helpers.call_action(
-                "activity_delete_by_date_range_or_offset",
+                "activity_delete",
                 context={"user": sysadmin["name"]},
                 **data_dict,
             )
@@ -2821,7 +2821,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         with pytest.raises(tk.ValidationError):
             helpers.call_action(
-                "activity_delete_by_date_range_or_offset",
+                "activity_delete",
                 context={"user": sysadmin["name"]},
                 **data_dict,
             )
@@ -2832,7 +2832,7 @@ class TestActivityDeleteByDateRangeOrOffset:
 
         with pytest.raises(tk.ValidationError):
             helpers.call_action(
-                "activity_delete_by_date_range_or_offset",
+                "activity_delete",
                 context={"user": sysadmin["name"]},
                 **data_dict,
             )
@@ -2845,4 +2845,4 @@ class TestActivityDeleteByDateRangeOrOffset:
         with pytest.raises(tk.NotAuthorized):
             # Using get_action instead of call_action to bypass the default
             # ignore_auth=True behavior.
-            tk.get_action("activity_delete_by_date_range_or_offset")(context, data_dict)
+            tk.get_action("activity_delete")(context, data_dict)
