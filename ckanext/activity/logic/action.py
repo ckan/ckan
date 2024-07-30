@@ -663,9 +663,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
 
 
 @tk.validate(schema.default_activity_delete_schema)
-def activity_delete_by_date_range_or_offset(
-    context: Context, data_dict: DataDict
-) -> dict[str, Any]:
+def activity_delete(context: Context, data_dict: DataDict) -> dict[str, Any]:
     """
     Deletes activities from the database based on a specified date range or
     offset days.
@@ -682,10 +680,7 @@ def activity_delete_by_date_range_or_offset(
     or provide offset_days to delete activities older than a specified number
     of days.
     """
-    tk.check_access(
-        "activity_delete_by_date_range_or_offset",
-        context, data_dict
-    )
+    tk.check_access("activity_delete", context, data_dict)
 
     session = context["session"]
 
@@ -706,7 +701,7 @@ def activity_delete_by_date_range_or_offset(
         if start_date > end_date:
             session.rollback()
             raise tk.ValidationError(
-                "start_date cannot be greater than end_date."
+                tk._("start_date cannot be greater than end_date.")
             )
 
         query = session.query(model_activity.Activity).filter(
@@ -714,11 +709,19 @@ def activity_delete_by_date_range_or_offset(
         )
 
     if query.count():
-
         deleted_count = query.delete(synchronize_session=False)
-        session.commit()
 
-        error_msg = f"Deleted {deleted_count} rows from the activity table."
-        return {"message": error_msg}
+        if not context.get("defer_commit", False):
+            session.commit()
+            msg = tk._(
+                "Deleted {amount} rows from the activity table."
+            ).format(amount=deleted_count)
 
-    return {"message": "No activities found matching the specified criteria."}
+        else:
+            msg = deleted_count
+
+        return {"message": msg}
+
+    return {
+        "message": tk._("No activities found matching the specified criteria.")
+    }

@@ -118,14 +118,20 @@ def ensure_date_range_or_offset_provided(
         "Either both start_date and end_date must be specified, "
         "or offset_days must be provided."
     )
-    raise tk.Invalid(error_msg)
+    raise tk.Invalid(tk._(error_msg))
 
 
-def convert_yyyy_mm_dd_format(value: str, context: Context) -> Any:
+def convert_yyyy_mm_dd_format(value: Any, context: Context) -> Any:
     """
     Converts a string in 'YYYY-MM-DD' format to a datetime.date object.
+    If the value is already a datetime.date object, it returns the value as is.
     """
-    try:
-        return datetime.datetime.strptime(value, "%Y-%m-%d").date()
-    except ValueError:
-        raise tk.Invalid("Invalid date format. Use YYYY-MM-DD.")
+    if isinstance(value, datetime.date):
+        return value
+    elif isinstance(value, str):
+        try:
+            return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            raise tk.Invalid(tk._("Invalid date format. Use YYYY-MM-DD."))
+    else:
+        raise tk.Invalid(tk._("Invalid date type. Use a string in YYYY-MM-DD format or a date object."))
