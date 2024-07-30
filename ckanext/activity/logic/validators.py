@@ -134,4 +134,8 @@ def convert_yyyy_mm_dd_format(value: Any, context: Context) -> Any:
         except ValueError:
             raise tk.Invalid(tk._("Invalid date format. Use YYYY-MM-DD."))
     else:
-        raise tk.Invalid(tk._("Invalid date type. Use a string in YYYY-MM-DD format or a date object."))
+        msg = (
+            "Invalid date type. Use a string in YYYY-MM-DD format "
+            "or a date object."
+        )
+        raise tk.Invalid(tk._(msg))
