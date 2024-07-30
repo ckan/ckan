@@ -32,7 +32,9 @@ from ckan import model, logic, types
     is_flag=True,
     help="If set, do not prompt for confirmation before deleting activities.",
 )
-def activities(start_date: datetime, end_date: datetime, offset_days: int, quiet: bool):
+def activities(
+    start_date: datetime, end_date: datetime, offset_days: int, quiet: bool
+):
     """
     Delete activities based on a specified date range or offset days.
     You must provide either a start date and end date or an offset in days.
@@ -68,7 +70,8 @@ def activities(start_date: datetime, end_date: datetime, offset_days: int, quiet
             if click.confirm(confirm_text, default=False, abort=True):
                 click.secho(
                     f"Deleted {result} rows from the activity table.",
-                    fg="green", bold=True
+                    fg="green",
+                    bold=True,
                 )
                 model.Session.commit()
             else:
