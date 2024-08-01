@@ -1969,9 +1969,8 @@ class TestPackageMemberCreate(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
-class TestUserPluginExtras(object):
+class TestUserPluginData(object):
     def test_stored_on_create_if_sysadmin(self):
-
         sysadmin = factories.Sysadmin()
         stub = factories.User.stub()
         user_dict = {

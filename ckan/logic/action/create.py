@@ -949,7 +949,7 @@ def user_create(context: Context,
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param plugin_extras: private extra user data belonging to plugins.
+    :param plugin_data: private extra user data belonging to plugins.
         Only sysadmin users may set this value. It should be a dict that can
         be dumped into JSON, and plugins should namespace their extras with
         the plugin name to avoid collisions with other plugins, eg::
@@ -957,7 +957,7 @@ def user_create(context: Context,
             {
                 "name": "test_user",
                 "email": "test@example.com",
-                "plugin_extras": {
+                "plugin_data": {
                     "my_plugin": {
                         "private_extra": 1
                     },
@@ -966,7 +966,7 @@ def user_create(context: Context,
                     }
                 }
             }
-    :type plugin_extras: dict
+    :type plugin_data: dict
     :param with_apitoken: whether to create an API token for the user.
                     (Optional)
     :type with_apitoken: bool
@@ -1028,12 +1028,12 @@ def user_create(context: Context,
     user_dictize_context['keep_apikey'] = True
     user_dictize_context['keep_email'] = True
 
-    include_plugin_extras = False
+    include_plugin_data = False
     if author_obj:
-        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+        include_plugin_data = author_obj.sysadmin and 'plugin_data' in data
     user_dict = model_dictize.user_dictize(
         user, user_dictize_context,
-        include_plugin_extras=include_plugin_extras
+        include_plugin_data=include_plugin_data
     )
 
     context['user_obj'] = user

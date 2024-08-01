@@ -568,7 +568,7 @@ def member_dictize(member: Union[model.Member, model.PackageMember],
 def user_dictize(
         user: Union[model.User, tuple[model.User, str]], context: Context,
         include_password_hash: bool=False,
-        include_plugin_extras: bool=False) -> dict[str, Any]:
+        include_plugin_data: bool=False) -> dict[str, Any]:
     model = context['model']
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
@@ -611,7 +611,7 @@ def user_dictize(
         if include_password_hash:
             result_dict['password_hash'] = password_hash
 
-        if include_plugin_extras:
+        if include_plugin_data:
             result_dict['plugin_data'] = copy.deepcopy(
                 plugin_data) if plugin_data else plugin_data
 
@@ -687,12 +687,12 @@ def resource_view_list_dictize(resource_views: list[model.ResourceView],
 
 def api_token_dictize(api_token: model.ApiToken,
                       context: Context) -> dict[str, Any]:
-    include_plugin_extras = context.get(u'include_plugin_extras', False)
+    include_plugin_data = context.get(u'include_plugin_data', False)
     result_dict = d.table_dictize(api_token, context)
-    plugin_extras = result_dict.pop(u'plugin_extras', None)
-    if include_plugin_extras:
-        result_dict[u'plugin_extras'] = copy.deepcopy(
-            plugin_extras) if plugin_extras else plugin_extras
+    plugin_data = result_dict.pop(u'plugin_data', None)
+    if include_plugin_data:
+        result_dict[u'plugin_data'] = copy.deepcopy(
+            plugin_data) if plugin_data else plugin_data
     return result_dict
 
 
