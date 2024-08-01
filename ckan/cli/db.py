@@ -14,7 +14,7 @@ import ckan.migration as migration_repo
 import ckan.plugins as p
 import ckan.model as model
 from ckan.common import config
-from . import error_shout
+from . import error_shout, search_index
 
 log = logging.getLogger(__name__)
 
@@ -70,11 +70,13 @@ PROMPT_MSG = u'This will delete all of your data!\nDo you want to continue?'
 
 @db.command()
 @click.confirmation_option(prompt=PROMPT_MSG)
-def clean():
+@click.pass_context
+def clean(ctx: click.Context):
     """Clean the database.
     """
     try:
         model.repo.clean_db()
+        ctx.invoke(search_index.clear)
     except Exception as e:
         error_shout(e)
     else:
