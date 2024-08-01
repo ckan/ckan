@@ -31,12 +31,13 @@ def search_index():
                    u'ensures that changes are immediately available on the'
                    u'search, but slows significantly the process. Default'
                    u'is false.')
-@click.option('-c', '--clear', help='Clear the index before reindexing',
-              is_flag=True)
+@click.option(u'-k', u'--keep-orphans', is_flag=True,
+              help=u'Keep orphans in the search index')
 @click.argument(u'package_id', required=False)
+@click.pass_context
 def rebuild(
-        verbose: bool, force: bool, only_missing: bool, quiet: bool,
-        commit_each: bool, package_id: str, clear: bool
+        ctx: click.Context, verbose: bool, force: bool, only_missing: bool,
+        quiet: bool, commit_each: bool, package_id: str, keep_orphans: bool
 ):
     u''' Rebuild search index '''
     from ckan.lib.search import rebuild, commit
@@ -47,7 +48,9 @@ def rebuild(
                 force=force,
                 defer_commit=(not commit_each),
                 quiet=quiet and not verbose,
-                clear=clear)
+                clear=False)
+        if not keep_orphans:
+            ctx.invoke(clear_orphans)
     except logic.NotFound:
         error_shout("Couldn't find package %s" % package_id)
     except Exception as e:
