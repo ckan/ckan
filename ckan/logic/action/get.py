@@ -1427,15 +1427,6 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
 
     _check_access('user_show', context, data_dict)
 
-    schema = context.get('schema', None) or logic.schema.default_user_show_schema()
-
-    for item in plugins.PluginImplementations(plugins.IUserForm):
-        schema = item.show_user_schema(schema)
-    breakpoint()
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     if not user_obj:
         raise NotFound
 

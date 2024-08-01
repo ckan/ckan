@@ -28,12 +28,16 @@ class ExampleIUserFormPlugin1(plugins.SingletonPlugin):
         return f
 
     def show_user_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
-        f = cast(Schema, schema)
-        f["zip_code"] = [
-            tk.get_validator("ignore_missing"),
-            tk.get_converter('convert_from_extras')
-            ],
-        return f
+        schema = super(ExampleIUserFormPlugin1, self).show_user_schema(
+            schema
+        )
+        schema.update({
+            "zip_code": [
+                tk.get_validator("ignore_missing"),
+                tk.get_converter('convert_from_extras')
+            ]
+        })
+        return schema
 
     def create_user_schema(self, schema: Schema) -> Dict[str, Any]:
         schema = super(ExampleIUserFormPlugin1, self).create_user_schema(

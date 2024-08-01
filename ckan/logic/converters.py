@@ -18,7 +18,6 @@ def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
     """Convert given field into an extra field.
     """
     # Get the current extras index
-    breakpoint()
     current_indexes = [k[1] for k in data.keys()
                        if len(k) > 1 and k[0] == 'extras']
 
@@ -50,36 +49,6 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
     else:
         return
     remove_from_extras(data, data_key[1])
-
-
-def store_plugin_data(plugin_name: str):
-    """Copy data[key] to plugin_data["plugin_name"][key]
-    for storing in the db"""
-
-    def callable(key: FlattenKey, data: FlattenDataDict,
-                 errors: FlattenErrorDict, context: Context) -> Any:
-        pd = data.get(('plugin_data',), {})
-        if isinstance(pd, df.Missing):
-            data[("plugin_data",)] = {}
-        plugin_data = {plugin_name: {key[0]: data.get(key)}}
-        data[("plugin_data",)].update(plugin_data)
-
-    return callable
-
-
-def load_plugin_data(plugin_name: str):
-    """Copy plugin_data["plugin_name"][key] to data[key]
-    for exposing to forms and API"""
-
-    def callable(key: FlattenKey, data: FlattenDataDict,
-                               errors: FlattenErrorDict,
-                               context: Context) -> Any:
-        plugin_data = context.get('plugin_data', {})
-        if not plugin_data:
-            return
-        data[key] = plugin_data.get(plugin_name, {}).get(key[-1])
-
-    return callable
 
 
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):

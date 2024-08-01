@@ -616,8 +616,10 @@ def user_dictize(
                 plugin_data) if plugin_data else plugin_data
 
     # check and update custom user data
-    # add to context to allow plugins to access it
-    context['extras'] = result_dict.pop('extras', None)
+    result_dict["extras"] = [
+        {'key': k, 'value': v}
+        for k, v in (result_dict["extras"] or {}).items()
+    ]
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url

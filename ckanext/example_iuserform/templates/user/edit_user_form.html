@@ -5,9 +5,8 @@
     {% block extra_fields %}
 
     {{ super() }}
-
-    {% set country = data["plugin_data"]["example_iuserform"]["country"] %}
-    {% set zip_code = data["plugin_data"]["example_iuserform1"]["zip_code"] %}
+    {% set country = h.get_pkg_dict_extra(data, 'country') %}
+    {% set zip_code = h.get_pkg_dict_extra(data, 'zip_code') %}
         <div class="control-group">
           <label for="field-country">Country</label>
               <select id="field-country" name="country">

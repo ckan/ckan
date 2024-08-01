@@ -59,13 +59,15 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         Column('state', types.UnicodeText, default=core.State.ACTIVE, nullable=False),
         Column('image_url', types.UnicodeText),
+        # plugin_extras is now called plugin_data
         Column('plugin_data', MutableDict.as_mutable(JSONB)),
+        # extras will be used for user extras
         Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
-        """
-        jsonb_typeof(extras) = 'object' and
-        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
-        """,
-        name='package_flat_extras')) ,
+            """
+            jsonb_typeof(extras) = 'object' and
+            not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+            """,
+            name='package_flat_extras')) ,
         Index('idx_user_id', 'id'),
         Index('idx_user_name', 'name'),
         Index('idx_only_one_active_email', 'email', 'state', unique=True,
@@ -88,8 +90,9 @@ class User(core.StatefulObjectMixin,
     sysadmin: Mapped[bool]
     state: Mapped[str]
     image_url: Mapped[str]
-    plugin_extras: Mapped[dict[str, Any]]
     plugin_data: Mapped[dict[str, Any]]
+    extras: Mapped[dict[str, str]]
+
 
     api_tokens: Mapped[list['ApiToken']]
 
@@ -220,6 +223,7 @@ class User(core.StatefulObjectMixin,
 
     def as_dict(self) -> dict[str, Any]:
         _dict = domain_object.DomainObject.as_dict(self)
+        _dict['extras'] = {key: value for key, value in self.extras.items()}
         del _dict['password']
         return _dict
 

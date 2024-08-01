@@ -479,7 +479,7 @@ def default_user_schema(
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
         'plugin_data': [ignore_missing, json_object, ignore_not_sysadmin],
-        'extras': [ignore_missing]
+        'extras': default_extras_schema(),
     }
 
 
@@ -548,9 +548,8 @@ def default_user_invite_schema(
 
 
 @validator_args
-def default_user_show_schema(ignore_missing: Validator,
+def default_show_user_schema(ignore_missing: Validator,
                              ignore_empty: Validator,
-                             load_plugin_data: Validator,
                              ignore: Validator) -> Schema:
     # schema = default_user_schema()
 
@@ -567,8 +566,8 @@ def default_user_show_schema(ignore_missing: Validator,
         'state': [ignore_empty],
         'image_url': [ignore_empty],
         'image_display_url': [ignore_empty],
-        'plugin_data': [load_plugin_data],
-        'extras': [ignore_missing]
+        'plugin_data': [ignore_empty],
+        'extras': default_show_extras_schema()
     }
 
 
