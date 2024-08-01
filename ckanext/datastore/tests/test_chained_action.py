@@ -73,8 +73,7 @@ class TestChainedAction(object):
         assert response["deleted_count"] == 1
 
     def _create_datastore_resource(self, records):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset)
+        resource = factories.Resource()
 
         data = {
             u"resource_id": resource[u"id"],

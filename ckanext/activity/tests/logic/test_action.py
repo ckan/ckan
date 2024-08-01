@@ -93,6 +93,7 @@ class TestPackageActivityList(object):
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
+
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
         ]
@@ -1328,15 +1329,19 @@ class TestGroupActivityList(object):
 @pytest.mark.ckan_config("ckan.plugins", "activity")
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganizationActivityList(object):
-    def test_bulk_make_public(self):
+    def test_bulk_make_public(self, user):
         org = factories.Organization()
 
-        dataset1 = factories.Dataset(owner_org=org["id"], private=True)
-        dataset2 = factories.Dataset(owner_org=org["id"], private=True)
+        dataset1 = factories.Dataset(
+            owner_org=org["id"], private=True, user=user
+        )
+        dataset2 = factories.Dataset(
+            owner_org=org["id"], private=True, user=user
+        )
 
         helpers.call_action(
             "bulk_update_public",
-            {},
+            {"user": user["name"]},
             datasets=[dataset1["id"], dataset2["id"]],
             org_id=org["id"],
         )
@@ -1345,15 +1350,15 @@ class TestOrganizationActivityList(object):
         )
         assert activities[0]["activity_type"] == "changed package"
 
-    def test_bulk_delete(self):
-        user = factories.User()
+    def test_bulk_delete(self, user):
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(owner_org=org["id"])
-        dataset2 = factories.Dataset(owner_org=org["id"])
+
+        dataset1 = factories.Dataset(owner_org=org["id"], user=user)
+        dataset2 = factories.Dataset(owner_org=org["id"], user=user)
 
         helpers.call_action(
             "bulk_update_delete",
-            {},
+            {"user": user["name"]},
             datasets=[dataset1["id"], dataset2["id"]],
             org_id=org["id"],
         )
@@ -2380,12 +2385,17 @@ class TestSendEmailNotifications(object):
 
     @pytest.mark.usefixtures("with_request_context")
     def test_single_notification(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
         assert len(messages) == 1
@@ -2398,14 +2408,17 @@ class TestSendEmailNotifications(object):
 
     @pytest.mark.usefixtures("with_request_context")
     def test_multiple_notifications(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
         for i in range(3):
             helpers.call_action(
-                "package_update", id=pkg["id"], notes=f"updated {i} times"
+                "package_update",
+                {"user": author["name"]},
+                id=pkg["id"], notes=f"updated {i} times"
             )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
@@ -2418,12 +2431,17 @@ class TestSendEmailNotifications(object):
         )
 
     def test_no_notifications_if_dashboard_visited(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         new_activities_count = helpers.call_action(
             "dashboard_new_activities_count",
             {"user": user["name"]},
@@ -2445,12 +2463,17 @@ class TestSendEmailNotifications(object):
         assert not user["activity_streams_email_notifications"]
 
     def test_no_emails_when_notifications_disabled(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User()
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
         assert len(messages) == 0
@@ -2477,7 +2500,11 @@ class TestSendEmailNotifications(object):
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": pkg["creator_user_id"]},
+            id=pkg["id"], notes="updated"
+        )
         time.sleep(0.01)
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()

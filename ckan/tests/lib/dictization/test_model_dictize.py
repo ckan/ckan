@@ -462,9 +462,7 @@ class TestPackageDictize:
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
     def test_package_dictize_resource_upload_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="some_filename.csv",
@@ -478,9 +476,7 @@ class TestPackageDictize:
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_resource_upload_with_url_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="http://some_filename.csv",
@@ -520,7 +516,6 @@ class TestPackageDictize:
         assert_equal_for_keys(result["extras"][0], extras_dict, "key", "value")
         expected_dict = {
             u"key": u"latitude",
-            u"state": u"active",
             u"value": u"54.6",
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])

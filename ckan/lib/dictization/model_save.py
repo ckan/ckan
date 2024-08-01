@@ -108,43 +108,6 @@ def package_resource_list_save(
         resource_list.append(resource)
 
 
-def package_extras_save(
-        extra_dicts: Optional[list[dict[str, Any]]], pkg: 'model.Package',
-        context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if extra_dicts is None and allow_partial_update:
-        return
-
-    session = context["session"]
-
-    old_extras = pkg._extras
-
-    new_extras: dict[str, Any] = {}
-    for extra_dict in extra_dicts or []:
-        if extra_dict.get("deleted"):
-            continue
-
-        if extra_dict['value'] is None:
-            pass
-        else:
-            new_extras[extra_dict["key"]] = extra_dict["value"]
-
-    #new
-    for key in set(new_extras.keys()) - set(old_extras.keys()):
-        pkg.extras[key] = new_extras[key]
-    #changed
-    for key in set(new_extras.keys()) & set(old_extras.keys()):
-        extra = old_extras[key]
-        if new_extras[key] == extra.value:
-            continue
-        extra.value = new_extras[key]
-        session.add(extra)
-    #deleted
-    for key in set(old_extras.keys()) - set(new_extras.keys()):
-        extra = old_extras[key]
-        session.delete(extra)
-
-
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
                           package: 'model.Package', context: Context) -> None:
     allow_partial_update = context.get("allow_partial_update", False)
@@ -305,7 +268,11 @@ def package_dict_save(
         pkg_dict['plugin_data'] = copy.deepcopy(
             plugin_data) if plugin_data else plugin_data
 
-    pkg = d.table_dict_save(pkg_dict, Package, context)
+    extras = {
+        e['key']: e['value'] for e in pkg_dict.get('extras', [])
+    }
+
+    pkg = d.table_dict_save(dict(pkg_dict, extras=extras), Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
@@ -322,8 +289,6 @@ def package_dict_save(
     if 'relationships_as_object' in pkg_dict:
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
-
-    package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 
@@ -409,7 +374,11 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     if group:
         group_dict["id"] = group.id
 
-    group = d.table_dict_save(group_dict, Group, context)
+    extras = {
+        e['key']: e['value'] for e in group_dict.get('extras', [])
+    }
+
+    group = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
 
@@ -432,18 +401,6 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     log.debug('Group save membership changes - Packages: %r  Users: %r  '
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
-
-    extras = group_dict.get("extras", [])
-    new_extras = {i['key'] for i in extras}
-    if extras:
-        old_extras = group.extras
-        for key in set(old_extras) - new_extras:
-            del group.extras[key]
-        for x in extras:
-            if 'deleted' in x and x['key'] in old_extras:
-                del group.extras[x['key']]
-                continue
-            group.extras[x['key']] = x['value']
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.

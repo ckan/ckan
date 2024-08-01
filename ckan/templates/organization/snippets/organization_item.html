@@ -46,7 +46,8 @@ Example:
     {% endif %}
   {% endblock %}
   {% block link %}
-  <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
+  {% set view_label = _('Open details page for {name}').format(name=organization.display_name) %}
+  <a href="{{ url }}" aria-label="{{ view_label }}" data-bs-title="{{ view_label }}" data-bs-toggle="tooltip" class="media-view">
     <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
   </a>
   {% endblock %}
