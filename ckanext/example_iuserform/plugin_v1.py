@@ -1,5 +1,5 @@
 from typing import Any, Dict, cast
-from ckan.types import Schema, ValidatorFactory
+from ckan.types import Schema
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 
