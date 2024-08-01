@@ -2051,7 +2051,7 @@ class TestUserPluginData(object):
 
         # Hold on, partner
 
-        plugin_data= (
+        plugin_data = (
             model.Session.execute(
                 sa.text('SELECT plugin_data FROM "user" WHERE id=:id'),
                 {"id": user["id"]},
