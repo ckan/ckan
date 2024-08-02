@@ -3416,37 +3416,37 @@ class TestResourceSearch(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
-class TestUserPluginExtras(object):
-    def test_returned_if_sysadmin_and_include_plugin_extras_only(self):
+class TestUserPluginData(object):
+    def test_returned_if_sysadmin_and_include_plugin_data_only(self):
 
         sysadmin = factories.Sysadmin()
 
-        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
+        user = factories.User(plugin_data={"plugin1": {"key1": "value1"}})
 
         context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
             "user_show",
             context=context,
             id=user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert user["plugin_extras"] == {"plugin1": {"key1": "value1"}}
+        assert user["plugin_data"] == {"plugin1": {"key1": "value1"}}
 
         context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action("user_show", context=context, id=user["id"])
 
-        assert "plugin_extras" not in user
+        assert "plugin_data" not in user
 
         context = {"user": user["name"], "ignore_auth": False}
         user = helpers.call_action(
             "user_show",
             context=context,
             id=user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert "plugin_extras" not in user
+        assert "plugin_data" not in user
 
 
 @pytest.mark.usefixtures("non_clean_db")

@@ -217,7 +217,7 @@ class ApiTokenView(MethodView):
             u'user': current_user.name,
             u'auth_user_obj': current_user,
             u'for_view': True,
-            u'include_plugin_extras': True
+            u'include_plugin_data': True
         }
         try:
             tokens = logic.get_action(u'api_token_list')(
