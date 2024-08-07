@@ -2400,8 +2400,11 @@ def get_site_user(context: Context, data_dict: DataDict) -> ActionResult.GetSite
         if not context.get('defer_commit'):
             model.repo.commit()
 
-    return {'name': user.name,
-            'apikey': user.apikey}
+    return {
+        'name': user.name,
+        'id': user.id,
+        'apikey': user.apikey,
+    }
 
 
 def status_show(context: Context, data_dict: DataDict) -> ActionResult.StatusShow:
