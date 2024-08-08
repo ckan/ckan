@@ -29,16 +29,19 @@ def db():
 
 
 @db.command()
-def init():
-    """Initialize the database.
+@click.option('-v', '--version', help='Migration version', default='head')
+@click.option('--skip-plugins', is_flag=True, help='Skip plugin migrations')
+@click.option('--skip-core', is_flag=True, help='Skip core migrations')
+@click.pass_context
+@applies_to_plugin
+def init(
+        ctx: click.Context, version: str, plugin: str,
+        skip_core: bool, skip_plugins: bool
+):
+
+    """Initialize the database (alias of `ckan db upgrade`)
     """
-    log.info(u"Initialize the Database")
-    try:
-        model.repo.init_db()
-    except Exception as e:
-        error_shout(e)
-    else:
-        click.secho(u'Initialising DB: SUCCESS', fg=u'green', bold=True)
+    ctx.forward(upgrade)
 
 
 @db.command()
@@ -47,8 +50,17 @@ def create_from_model():
     """
     try:
         model.repo.create_db()
-    except Exception as e:
-        error_shout(e)
+        model.repo.stamp_alembic_head()
+
+        # also mark plugins as migrated
+        # FIXME: move to model.repo?
+        pending = _get_pending_plugins()
+        for plugin in sorted(pending):
+            with _repo_for_plugin(plugin) as repo:
+                print(plugin, repo)
+                repo.stamp_alembic_head()
+    except Exception:
+        raise
     else:
         click.secho('Create DB from model: SUCCESS', fg='green', bold=True)
 
@@ -79,7 +91,7 @@ def upgrade(
         ctx: click.Context, version: str, plugin: str,
         skip_core: bool, skip_plugins: bool
 ):
-    """Upgrade the database.
+    """Upgrade or initialize the database.
     """
     if not skip_core:
         _run_migrations(plugin, version)

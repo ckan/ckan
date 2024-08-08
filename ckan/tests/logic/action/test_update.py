@@ -757,8 +757,7 @@ class TestResourceViewUpdate(object):
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")
 class TestResourceUpdate(object):
     def test_url_only(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset, url="http://first")
+        resource = factories.Resource(url="http://first")
 
         res_returned = helpers.call_action(
             "resource_update", id=resource["id"], url="http://second"
@@ -769,8 +768,7 @@ class TestResourceUpdate(object):
         assert resource["url"] == "http://second"
 
     def test_extra_only(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package=dataset, newfield="first")
+        resource = factories.Resource(newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -784,10 +782,7 @@ class TestResourceUpdate(object):
         assert resource["newfield"] == "second"
 
     def test_both_extra_and_url(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -804,10 +799,7 @@ class TestResourceUpdate(object):
         assert resource["newfield"] == "second"
 
     def test_extra_gets_deleted_on_both_core_and_extra_update(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -826,10 +818,7 @@ class TestResourceUpdate(object):
         assert "newfield" not in res_returned
 
     def test_extra_gets_deleted_on_extra_only_update(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://first", newfield="first"
-        )
+        resource = factories.Resource(url="http://first", newfield="first")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -848,10 +837,8 @@ class TestResourceUpdate(object):
         assert "newfield" not in res_returned
 
     def test_datastore_active_is_persisted_if_true_and_not_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=True
-        )
+            url="http://example.com", datastore_active=True)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -863,10 +850,8 @@ class TestResourceUpdate(object):
         assert res_returned["datastore_active"]
 
     def test_datastore_active_is_persisted_if_false_and_not_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=False
-        )
+            url="http://example.com", datastore_active=False)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -878,10 +863,8 @@ class TestResourceUpdate(object):
         assert not res_returned["datastore_active"]
 
     def test_datastore_active_is_updated_if_false_and_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=False
-        )
+            url="http://example.com", datastore_active=False)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -894,10 +877,8 @@ class TestResourceUpdate(object):
         assert res_returned["datastore_active"]
 
     def test_datastore_active_is_updated_if_true_and_provided(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://example.com", datastore_active=True
-        )
+            url="http://example.com", datastore_active=True)
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -914,10 +895,7 @@ class TestResourceUpdate(object):
     ):
         assert not p.plugin_loaded("datastore")
 
-        dataset = factories.Dataset()
-        resource = factories.Resource(
-            package=dataset, url="http://example.com"
-        )
+        resource = factories.Resource(url="http://example.com")
 
         res_returned = helpers.call_action(
             "resource_update",
@@ -935,10 +913,9 @@ class TestResourceUpdate(object):
         the mimetype would be guessed, based on the url
 
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
+
         monkeypatch.setitem(ckan_config, u'ckan.storage_path', str(tmpdir))
         res_update = helpers.call_action(
             "resource_update",
@@ -959,10 +936,8 @@ class TestResourceUpdate(object):
         Real world usage would be using the FileStore API or web UI form to create a resource
         and the user wanted to specify the mimetype themselves
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
 
         res_update = helpers.call_action(
             "resource_update",
@@ -987,10 +962,8 @@ class TestResourceUpdate(object):
         guessed by the contents inside the file
 
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset, url="http://localhost/data.csv", name="Test"
-        )
+            url="http://localhost/data.csv", name="Test")
 
         content = """
         Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm, Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, Normal mm
@@ -1005,7 +978,7 @@ class TestResourceUpdate(object):
             action="resource_update",
             id=resource["id"],
             url="http://localhost",
-            package_id=dataset["id"],
+            package_id=resource["package_id"],
         )
 
         org_mimetype = resource.pop("mimetype")
@@ -1076,9 +1049,7 @@ class TestResourceUpdate(object):
 
         Real world usage would be using the FileStore API and the user provides a size for the resource
         """
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset,
             url="http://localhost/data.csv",
             name="Test",
             size=500,
@@ -1175,12 +1146,9 @@ class TestResourceUpdate(object):
         "ckan.views.default_views", "image_view text_view"
     )
     def test_resource_format_update(self):
-        dataset = factories.Dataset()
-
         # Create resource without format
         resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test", format=""
-        )
+            url="http://localhost", name="Test", format="")
         res_views = helpers.call_action(
             "resource_view_list", id=resource["id"]
         )
@@ -1203,8 +1171,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
         second_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test2", format="TXT"
-        )
+            url="http://localhost", name="Test2", format="TXT")
 
         res_views = helpers.call_action(
             "resource_view_list", id=second_resource["id"]
@@ -1226,8 +1193,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 2
 
         third_resource = factories.Resource(
-            package=dataset, url="http://localhost", name="Test3", format=""
-        )
+            url="http://localhost", name="Test3", format="")
 
         res_views = helpers.call_action(
             "resource_view_list", id=third_resource["id"]
@@ -1264,8 +1230,7 @@ class TestResourceUpdate(object):
         assert len(res_views) == 1
 
     def test_edit_metadata_updates_metadata_modified_field(self):
-        dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset["id"])
+        resource = factories.Resource()
 
         with freeze_time("2020-02-25 12:00:00"):
             resource = helpers.call_action(
@@ -1276,11 +1241,8 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_same_values_dont_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="Test",
                 some_custom_field="test",
                 url="http://link.to.some.data",
@@ -1305,12 +1267,8 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "1987-03-04T23:30:00"
 
     def test_new_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
-            resource = factories.Resource(
-                package_id=dataset["id"], description="test"
-            )
+            resource = factories.Resource(description="test")
             assert (
                 resource["metadata_modified"]
                 == datetime.datetime.utcnow().isoformat()
@@ -1331,11 +1289,8 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_remove_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="test",
                 some_custom_field="test",
             )
@@ -1358,11 +1313,8 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_update_keys_update_metadata_modified_field(self):
-        dataset = factories.Dataset()
-
         with freeze_time("1987-03-04 23:30:00"):
             resource = factories.Resource(
-                package_id=dataset["id"],
                 description="test",
                 some_custom_field="test",
             )
@@ -1386,9 +1338,7 @@ class TestResourceUpdate(object):
             assert resource["metadata_modified"] == "2020-02-25T12:00:00"
 
     def test_resource_update_for_update(self):
-
-        dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource()
 
         mock_package_show = mock.MagicMock()
         mock_package_show.side_effect = lambda context, data_dict: core_package_show(context, data_dict)
@@ -1503,6 +1453,18 @@ class TestGroupUpdate(object):
         )
 
         assert group["image_url"] == "new_image_url.jpg"
+
+    def test_group_update_locates_group_by_name(self, group, faker):
+        description = faker.sentence()
+        original_id = group["id"]
+        group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+            description=description
+        )
+
+        assert group["id"] == original_id
+        assert group["description"] == description
 
     def test_group_update_cant_change_type(self):
         user = factories.User()

@@ -10,3 +10,26 @@
     class Plugin(p.SingletonPlugin):
         p.implements(p.IClick, inherit=True)
 
+- All plugins need to be instances of p.SingletonPlugin, they can't inherit
+  from a base class that is an instance itself. For example, you need to move
+  from this::
+
+    class FirstPlugin(p.SingletonPlugin):
+        p.implements(ISomething)
+        def some_method(self):
+            pass
+
+    class SecondPlugin(FirstPlugin):
+        p.implements(IAnything)
+
+To this::
+
+    class BasePlugin():
+        def some_method(self):
+            pass
+
+    class FirstPlugin(p.SingletonPlugin, BasePlugin):
+        p.implements(ISomething)
+
+    class SecondPlugin(p.SingletonPlugin, BasePlutin):
+        p.implements(IAnything)

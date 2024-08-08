@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import datetime
-from typing import (
-    Any, Optional, Union, overload
-)
+from typing import Optional, Union, overload
 from typing_extensions import Literal, Self
 
-from sqlalchemy import column, orm, types, Column, Table, ForeignKey, or_, and_, text
-from sqlalchemy.ext.associationproxy import AssociationProxy
+from sqlalchemy import (column, orm, types, Column, Table, ForeignKey, or_,
+                        and_, text, Index, CheckConstraint)
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 import ckan.model.meta as meta
 import ckan.model.core as core
@@ -26,41 +26,39 @@ __all__ = ['group_table', 'Group',
 Mapped = orm.Mapped
 
 member_table = Table('member', meta.metadata,
-                     Column('id', types.UnicodeText,
-                            primary_key=True,
-                            default=_types.make_uuid),
-                     Column('table_name', types.UnicodeText,
-                            nullable=False),
-                     Column('table_id', types.UnicodeText,
-                            nullable=False),
-                     Column('capacity', types.UnicodeText,
-                            nullable=False),
-                     Column('group_id', types.UnicodeText,
-                            ForeignKey('group.id')),
-                     Column('state', types.UnicodeText,
-                            default=core.State.ACTIVE),
-                     )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('table_name', types.UnicodeText, nullable=False),
+    Column('table_id', types.UnicodeText, nullable=False),
+    Column('capacity', types.UnicodeText, nullable=False),
+    Column('group_id', types.UnicodeText, ForeignKey('group.id')),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_group_pkg_id', 'table_id'),
+    Index('idx_extra_grp_id_pkg_id', 'group_id', 'table_id'),
+    Index('idx_package_group_id', 'id'),
+)
 
 
 group_table = Table('group', meta.metadata,
-                    Column('id', types.UnicodeText,
-                           primary_key=True,
-                           default=_types.make_uuid),
-                    Column('name', types.UnicodeText,
-                           nullable=False, unique=True),
-                    Column('title', types.UnicodeText),
-                    Column('type', types.UnicodeText,
-                           nullable=False),
-                    Column('description', types.UnicodeText),
-                    Column('image_url', types.UnicodeText),
-                    Column('created', types.DateTime,
-                           default=datetime.datetime.now),
-                    Column('is_organization', types.Boolean, default=False),
-                    Column('approval_status', types.UnicodeText,
-                           default=u"approved"),
-                    Column('state', types.UnicodeText,
-                           default=core.State.ACTIVE),
-                    )
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('name', types.UnicodeText, nullable=False, unique=True),
+    Column('title', types.UnicodeText),
+    Column('type', types.UnicodeText, nullable=False),
+    Column('description', types.UnicodeText),
+    Column('image_url', types.UnicodeText),
+    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('is_organization', types.Boolean, default=False),
+    Column('approval_status', types.UnicodeText, default=u"approved"),
+    Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+        """
+        jsonb_typeof(extras) = 'object' and
+        not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
+        """,
+        name='group_flat_extras',
+    )),
+    Index('idx_group_id', 'id'),
+    Index('idx_group_name', 'name'),
+)
 
 
 class Member(core.StatefulObjectMixin,
@@ -168,8 +166,6 @@ class Group(core.StatefulObjectMixin,
     approval_status: Mapped[str]
     state: Mapped[str]
 
-    _extras: Mapped[dict[str, Any]]
-    extras: AssociationProxy
     member_all: Mapped[list[Member]]
 
     def __init__(self, name: str = u'', title: str = u'',

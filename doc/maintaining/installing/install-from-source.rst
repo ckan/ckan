@@ -37,7 +37,7 @@ wiki page for help):
 Package                Description
 =====================  ===============================================
 Python                 `The Python programming language, v3.9 or newer <https://www.python.org/getit/>`_
-|postgres|             `The PostgreSQL database system, v10 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
+|postgres|             `The PostgreSQL database system, v12 or newer <https://www.postgresql.org/docs/10/libpq.html>`_
 libpq                  `The C programmer's interface to PostgreSQL <http://www.postgresql.org/docs/8.1/static/libpq.html>`_
 pip                    `A tool for installing and managing Python packages <https://pip.pypa.io/en/stable/>`_
 python3-venv           `The Python3 virtual environment builder (or for Python 2 use 'virtualenv' instead) <https://virtualenv.pypa.io/en/latest/>`_

@@ -59,7 +59,7 @@
           {# When previewing we need to stick the whole resource_view as a param as there is no other way to pass to information on to the iframe #}
           {% set src = h.url_for(package['type'] ~ '_resource.view', id=package['name'], resource_id=resource['id'], qualified=true) + '?' + h.urlencode({'resource_view': h.dump_json(resource_view)}) %}
         {% endif %}
-        <iframe title="Data viewer" src="{{ src }}" frameborder="0" width="100%" data-module="data-viewer">
+        <iframe aria-label="Data viewer" src="{{ src }}" frameborder="0" width="100%" data-module="data-viewer">
           <p>{{ _('Your browser does not support iframes.') }}</p>
         </iframe>
       {% endif %}
@@ -70,7 +70,7 @@
 
       <div class="modal-header">
         <h3 class="modal-title">{{ _("Embed resource view") }}</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close modal') }}"></button>
 
       </div>
       <div class="modal-body">

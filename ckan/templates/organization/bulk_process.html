@@ -76,7 +76,7 @@
                         {{ _('Edit') }}
                       </a>
                       <h3 class="dataset-heading">
-                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" title="{{ title }}">
+                        <a href="{{ h.url_for(package.type ~ '.read', id=package.name) }}" aria-label="{{ _('Open details page for dataset - {title}').format(title=title|truncate(80)) }}">
                           {{ title|truncate(80) }}
                         </a>
                         {% if package.get('state', '').startswith('draft') %}
@@ -107,8 +107,8 @@
 {% endblock %}
 
 {% block secondary_content %}
-    {{  super() }}
-    {% for facet in c.facet_titles %}
-    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets) }}
+  {{ super() }}
+  {% for facet in c.facet_titles %}
+    {% snippet 'snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':group_dict.id}, search_facets=search_facets %}
   {% endfor %}
 {% endblock %}

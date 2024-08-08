@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Iterable, Optional, Type, TypeVar
+from typing import Any, Iterable, Optional, Type, TypeVar, Union, List, Tuple
 from typing_extensions import TypeAlias
 
 from sqlalchemy.orm import relationship, backref, Mapped
@@ -14,6 +14,9 @@ from sqlalchemy import (
     and_,
     not_,
     text,
+    select,
+    literal,
+    Index,
 )
 
 from ckan.common import config
@@ -23,6 +26,7 @@ import ckan.model.domain_object as domain_object
 import ckan.model.types as _types
 from ckan.model.base import BaseModel
 from ckan.lib.dictization import table_dictize
+from ckan.lib.maintain import deprecated
 from ckan.types import Context, Query  # noqa
 from ckan.lib.plugins import get_permission_labels
 
@@ -46,8 +50,6 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
     timestamp = Column("timestamp", types.DateTime)
     user_id = Column("user_id", types.UnicodeText)
     object_id: Any = Column("object_id", types.UnicodeText)
-    # legacy revision_id values are used by migrate_package_activity.py
-    revision_id = Column("revision_id", types.UnicodeText)
     activity_type = Column("activity_type", types.UnicodeText)
     data = Column("data", _types.JsonDictType)
     permission_labels = Column("permission_labels", types.Text)
@@ -80,9 +82,17 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         return meta.Session.query(cls).get(id)
 
     @classmethod
+    @deprecated(
+        "Use `activity_create` instead of Activity.activity_stream_item",
+        since="2.11.0"
+    )
     def activity_stream_item(
         cls, pkg: model.Package, activity_type: str, user_id: str
     ) -> Optional["Activity"]:
+        """DEPRECATED. Create an activity for a package.
+
+        Use `activity_create` API action instead.
+        """
         import ckan.model
         import ckan.logic
 
@@ -143,6 +153,12 @@ class Activity(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
+Index('idx_activity_user_id',
+      Activity.__table__.c.user_id, Activity.__table__.c.timestamp)
+Index('idx_activity_object_id',
+      Activity.__table__.c.object_id, Activity.__table__.c.timestamp)
+
+
 def activity_dictize(activity: Activity, context: Context) -> dict[str, Any]:
     return table_dictize(activity, context)
 
@@ -198,6 +214,10 @@ class ActivityDetail(domain_object.DomainObject, BaseModel):  # type: ignore
         )
 
 
+Index('idx_activity_detail_activity_id',
+      ActivityDetail.__table__.c.activity_id)
+
+
 def _activities_limit(
     q: QActivity,
     limit: int,
@@ -236,21 +256,22 @@ def _activities_union_all(*qlist: QActivity) -> QActivity:
     return q
 
 
-def _activities_from_user_query(user_id: str) -> QActivity:
+def _activities_from_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities from user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.user_id == user_id)
+    q = q.filter(Activity.user_id.in_(_to_list(user_id)))  # type: ignore
     return q
 
 
-def _activities_about_user_query(user_id: str) -> QActivity:
+def _activities_about_user_query(user_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about user_id."""
     q = model.Session.query(Activity)
-    q = q.filter(Activity.object_id == user_id)
+    q = q.filter(Activity.object_id.in_(_to_list(user_id)))
     return q
 
 
-def _user_activity_query(user_id: str, limit: int) -> QActivity:
+def _user_activity_query(
+        user_id: Union[str, List[str]], limit: int) -> QActivity:
     """Return an SQLAlchemy query for all activities from or about user_id."""
     q1 = _activities_limit(_activities_from_user_query(user_id), limit)
     q2 = _activities_limit(_activities_about_user_query(user_id), limit)
@@ -311,9 +332,16 @@ def user_activity_list(
     return results
 
 
-def _package_activity_query(package_id: str) -> QActivity:
+def _to_list(vals: Union[List[str], Tuple[str], str]):
+    if isinstance(vals, (list, tuple)):
+        return vals
+    return [vals]
+
+
+def _package_activity_query(package_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about package_id."""
-    q = model.Session.query(Activity).filter_by(object_id=package_id)
+    q = model.Session.query(Activity)\
+        .filter(Activity.object_id.in_(_to_list(package_id)))
     return q
 
 
@@ -381,18 +409,15 @@ def package_activity_list(
     return results
 
 
-def _group_activity_query(group_id: str) -> QActivity:
+def _group_activity_query(group_id: Union[str, List[str]]) -> QActivity:
     """Return an SQLAlchemy query for all activities about group_id.
 
     Returns a query for all activities whose object is either the group itself
     or one of the group's datasets.
 
     """
-    group = model.Group.get(group_id)
-    if not group:
-        # Return a query with no results.
-        return model.Session.query(Activity).filter(text("0=1"))
 
+    groups = _to_list(group_id)
     q: QActivity = (
         model.Session.query(Activity)
         .outerjoin(model.Member, Activity.object_id == model.Member.table_id)
@@ -412,20 +437,20 @@ def _group_activity_query(group_id: str) -> QActivity:
             or_(
                 # active dataset in the group
                 and_(
-                    model.Member.group_id == group_id,
+                    model.Member.group_id.in_(groups),
                     model.Member.state == "active",
                     model.Package.state == "active",
                 ),
                 # deleted dataset in the group
                 and_(
-                    model.Member.group_id == group_id,
+                    model.Member.group_id.in_(groups),
                     model.Member.state == "deleted",
                     model.Package.state == "deleted",
                 ),
                 # (we want to avoid showing changes to an active dataset that
                 # was once in this group)
                 # activity the the group itself
-                Activity.object_id == group_id,
+                Activity.object_id.in_(groups),
             )
         )
     )
@@ -440,28 +465,35 @@ def _organization_activity_query(org_id: str) -> QActivity:
     or one of the org's datasets.
 
     """
+
     org = model.Group.get(org_id)
     if not org or not org.is_organization:
         # Return a query with no results.
-        return model.Session.query(Activity).filter(text("0=1"))
+        return model.Session.query(Activity).filter(text('0=1'))
 
     q: QActivity = (
         model.Session.query(Activity)
-        .outerjoin(
-            model.Package,
-            and_(
-                model.Package.id == Activity.object_id,
-                model.Package.private == False,  # noqa
-            ),
-        )
         .filter(
             # We only care about activity either on the the org itself or on
             # packages within that org.
             # FIXME: This means that activity that occured while a package
             # belonged to a org but was then removed will not show up. This may
             # not be desired but is consistent with legacy behaviour.
-            or_(
-                model.Package.owner_org == org_id, Activity.object_id == org_id
+            #
+            # Use subselect instead of outer join so that it can all
+            # be indexable
+            Activity.object_id.in_(
+                select(model.Package.id)
+                .where(
+                    and_(
+                        model.Package.private == False,  # noqa
+                        model.Package.owner_org == org_id
+                    )
+                )
+                .union(
+                    # select the org itself
+                    select(literal(org_id))
+                )
             )
         )
     )
@@ -598,12 +630,9 @@ def _activities_from_users_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return _activities_union_all(
-        *[
-            _user_activity_query(follower.object_id, limit)
-            for follower in follower_objects
-        ]
-    )
+    return _user_activity_query(
+        [follower.object_id for follower in follower_objects],
+        limit)
 
 
 def _activities_from_datasets_followed_by_user_query(
@@ -616,14 +645,10 @@ def _activities_from_datasets_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return _activities_union_all(
-        *[
-            _activities_limit(
-                _package_activity_query(follower.object_id), limit
-            )
-            for follower in follower_objects
-        ]
-    )
+    return _activities_limit(
+        _package_activity_query(
+            [follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_groups_followed_by_user_query(
@@ -642,12 +667,10 @@ def _activities_from_groups_followed_by_user_query(
         # Return a query with no results.
         return model.Session.query(Activity).filter(text("0=1"))
 
-    return _activities_union_all(
-        *[
-            _activities_limit(_group_activity_query(follower.object_id), limit)
-            for follower in follower_objects
-        ]
-    )
+    return _activities_limit(
+        _group_activity_query(
+            [follower.object_id for follower in follower_objects]),
+        limit)
 
 
 def _activities_from_everything_followed_by_user_query(

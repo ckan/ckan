@@ -342,12 +342,17 @@ def default_create_group_schema(
 def default_update_group_schema(
         ignore_missing: Validator,
         not_empty: Validator,
-        group_id_exists: Validator,
+        group_id_or_name_exists: Validator,
         group_name_validator: Validator,
         unicode_safe: Validator):
     schema = default_create_group_schema()
-    schema["id"] = [not_empty, group_id_exists, unicode_safe]
-    schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
+    schema["id"] = [not_empty, group_id_or_name_exists, unicode_safe]
+    schema["name"] = [
+        ignore_missing,
+        not_empty,
+        group_name_validator,
+        unicode_safe,
+    ]
     return schema
 
 
@@ -824,10 +829,13 @@ def update_configuration_schema():
 
 @validator_args
 def job_list_schema(
-        ignore_missing: Validator, list_of_strings: Validator
+        ignore_missing: Validator, list_of_strings: Validator,
+        int_validator: Validator, boolean_validator: Validator
 ) -> Schema:
     return {
         u'queues': [ignore_missing, list_of_strings],
+        'limit': [ignore_missing, int_validator],
+        'ids_only': [ignore_missing, boolean_validator],
     }
 
 

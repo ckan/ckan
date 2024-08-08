@@ -105,23 +105,6 @@ class TestGroupListDictize:
 
         assert group_dicts[0]["extras"][0]["key"] == "k1"
 
-    def test_group_list_dictize_including_tags(self):
-        group = factories.Group.model()
-        tag = factories.Tag.model()
-        member = model.Member(
-            group=group, table_id=tag.id, table_name="tag"
-        )
-        model.Session.add(member)
-        model.Session.commit()
-        context = {"model": model, "session": model.Session}
-
-        group_dicts = model_dictize.group_list_dictize(
-            [group], context, include_tags=True
-        )
-
-        assert group_dicts[0]["tags"][0]["name"] == tag.name
-
-    @pytest.mark.usefixtures("clean_db")
     def test_group_list_dictize_including_groups(self):
         parent = factories.Group(title="Parent")
         child = factories.Group(title="Child", groups=[{"name": parent["name"]}])
@@ -150,7 +133,6 @@ class TestGroupDictize:
         assert group["name"] == group_obj.name
         assert group["packages"] == []
         assert group["extras"] == []
-        assert group["tags"] == []
         assert group["groups"] == []
 
     def test_group_dictize_group_with_dataset(self):
@@ -480,9 +462,7 @@ class TestPackageDictize:
         self.assert_equals_expected(expected_dict, result["resources"][0])
 
     def test_package_dictize_resource_upload_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="some_filename.csv",
@@ -496,9 +476,7 @@ class TestPackageDictize:
         assert expected_dict["url"] == result.url
 
     def test_package_dictize_resource_upload_with_url_and_striped(self):
-        dataset = factories.Dataset()
         resource = factories.Resource(
-            package=dataset["id"],
             name="test_pkg_dictize",
             url_type="upload",
             url="http://some_filename.csv",
@@ -538,7 +516,6 @@ class TestPackageDictize:
         assert_equal_for_keys(result["extras"][0], extras_dict, "key", "value")
         expected_dict = {
             u"key": u"latitude",
-            u"state": u"active",
             u"value": u"54.6",
         }
         self.assert_equals_expected(expected_dict, result["extras"][0])
@@ -792,7 +769,6 @@ class TestPackageSchema(object):
         # we don't want these here
         del data["groups"]
         del data["users"]
-        del data["tags"]
         del data["extras"]
 
         converted_data, errors = validate(

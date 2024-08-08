@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import sys
 import time
+import importlib
 import inspect
 import pkgutil
 import logging
@@ -21,7 +22,6 @@ from werkzeug.exceptions import (
     Unauthorized,
     Forbidden
 )
-from werkzeug.local import LocalProxy
 
 from flask_babel import Babel
 
@@ -99,14 +99,6 @@ class I18nMiddleware(object):
         return self.app(environ, start_response)
 
 
-def _ungettext_alias():
-    u'''
-    Provide `ungettext` as an alias of `ngettext` for backwards
-    compatibility
-    '''
-    return dict(ungettext=ungettext)
-
-
 def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
@@ -182,18 +174,21 @@ def make_flask_stack(conf: Union[Config, CKANConfig]) -> CKANApp:
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
 
+    # globals work in imported and included templates (like snippets)
+    # whereas context processors do not
+    app.jinja_env.globals.update({
+        'h': h.helper_functions,
+        'ungettext': ungettext,
+        'current_user': current_user,
+        'c': g,  # backwards compat. with old Pylons templates
+    })
+
     # Common handlers for all requests
     #
     # flask types do not mention that it's possible to return a response from
     # the `before_request` callback
     app.before_request(ckan_before_request)
     app.after_request(ckan_after_request)
-
-    # Template context processors
-    app.context_processor(helper_functions)
-    app.context_processor(c_object)
-
-    app.context_processor(_ungettext_alias)
 
     # Babel
     _ckan_i18n_dir = i18n.get_ckan_i18n_dir()
@@ -408,20 +403,6 @@ def ckan_after_request(response: Response) -> Response:
     return response
 
 
-def helper_functions() -> dict[str, h.HelperAttributeDict]:
-    u'''Make helper functions (`h`) available to Flask templates'''
-    if not h.helper_functions:
-        h.load_plugin_helpers()
-    return dict(h=h.helper_functions)
-
-
-def c_object() -> dict[str, LocalProxy[Any]]:
-    u'''
-    Expose `c` as an alias of `g` in templates for backwards compatibility
-    '''
-    return dict(c=g)
-
-
 class CKAN_AppCtxGlobals(_AppCtxGlobals):  # noqa
 
     '''Custom Flask AppCtxGlobal class (flask.g).'''
@@ -481,10 +462,19 @@ def _register_core_blueprints(app: CKANApp):
 
     for loader, name, __ in pkgutil.iter_modules([path], 'ckan.views.'):
         # type_ignore_reason: incorrect external type declarations
-        module = loader.find_module(name).load_module(name)  # type: ignore
-        for blueprint in inspect.getmembers(module, is_blueprint):
-            app.register_blueprint(blueprint[1])
-            log.debug(u'Registered core blueprint: {0!r}'.format(blueprint[0]))
+        spec = loader.find_spec(name)   # type: ignore
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)  # type: ignore
+            sys.modules[name] = module
+            if spec.loader is not None:
+                spec.loader.exec_module(module)
+                for blueprint in inspect.getmembers(module, is_blueprint):
+                    app.register_blueprint(blueprint[1])
+                    log.debug(
+                        u'Registered core blueprint: {0!r}'.format(
+                            blueprint[0]
+                        )
+                    )
 
 
 def _register_error_handler(app: CKANApp):

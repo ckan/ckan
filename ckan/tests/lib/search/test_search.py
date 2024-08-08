@@ -66,9 +66,8 @@ def test_03_update_package_from_dict():
     package = model.Package.by_name("council-owned-litter-bins")
 
     # update package
-    package.name = u"new_name"
-    extra = model.PackageExtra(key="published_by", value="barrow")
-    package._extras[extra.key] = extra
+    package.name = "new_name"
+    package.extras["published_by"] = "barrow"
     model.repo.commit_and_remove()
 
     assert query.run({"q": ""})["count"] == 2
