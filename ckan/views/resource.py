@@ -233,7 +233,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                Context(context, allow_state_change=True),
+                context,
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
@@ -263,7 +263,7 @@ class CreateView(MethodView):
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
-                Context(context, allow_state_change=True),
+                context,
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.read'.format(package_type), id=id)

@@ -99,7 +99,6 @@ class Context(TypedDict, total=False):
     for_view: bool
     ignore_auth: bool
     preview: bool
-    allow_state_change: bool
     is_member: bool
     use_cache: bool
     include_plugin_extras: bool

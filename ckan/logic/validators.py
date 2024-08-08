@@ -553,38 +553,6 @@ def tag_string_convert(key: FlattenKey, data: FlattenDataDict,
         tag_name_validator(tag, context)
 
 
-def ignore_not_package_admin(key: FlattenKey, data: FlattenDataDict,
-                             errors: FlattenErrorDict,
-                             context: Context) -> Any:
-    '''Ignore if the user is not allowed to administer the package specified.'''
-
-    user = context.get('user')
-
-    if 'ignore_auth' in context:
-        return
-
-    if user and authz.is_sysadmin(user):
-        return
-
-    authorized = False
-    pkg = context.get('package')
-    if pkg:
-        try:
-            logic.check_access('package_change_state',context, {"id": pkg.id})
-            authorized = True
-        except logic.NotAuthorized:
-            authorized = False
-
-    if (user and pkg and authorized):
-        return
-
-    # allow_state_change in the context will allow the state to be changed
-    # FIXME is this the best way to cjeck for state only?
-    if key == ('state',) and context.get('allow_state_change'):
-        return
-    data.pop(key)
-
-
 def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
                         errors: FlattenErrorDict, context: Context) -> Any:
     '''Ignore the field if user not sysadmin or ignore_auth in context.'''

@@ -571,8 +571,6 @@ class CreateView(MethodView):
                     u'go-resource', u'go-metadata'
                 ]:
                     data_dict[u'state'] = u'draft'
-                # allow the state to be changed
-                context[u'allow_state_change'] = True
 
             data_dict[u'type'] = package_type
             pkg_dict = get_action(u'package_create')(context, data_dict)
@@ -591,7 +589,7 @@ class CreateView(MethodView):
                     return h.redirect_to(url)
 
                 get_action(u'package_update')(
-                    Context(context, allow_state_change=True),
+                    context,
                     dict(pkg_dict, state=u'active')
                 )
                 return h.redirect_to(
