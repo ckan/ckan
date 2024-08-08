@@ -707,6 +707,7 @@ class TestPackageSchema(object):
             "type": u"dataset",
             "notes": u"Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n",
             "private": False,
+            "state": "active",
             "resources": [
                 {
                     "alt_url": u"alt123",
