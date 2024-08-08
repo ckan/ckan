@@ -1,0 +1,4 @@
+Removed `ignore_not_package_admin` and `package_change_state` functions
+Removed `allow_state_change` context variable:
+
+Added `one_of` validator for the `state` field to ensure it can only be set to "active," "draft," or "deleted."

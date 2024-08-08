@@ -570,7 +570,7 @@ class CreateView(MethodView):
                 if request.form[u'save'] not in [
                     u'go-resource', u'go-metadata'
                 ]:
-                    data_dict[u'state'] = u'draft'       
+                    data_dict[u'state'] = u'draft'   
 
             data_dict[u'type'] = package_type
             pkg_dict = get_action(u'package_create')(context, data_dict)

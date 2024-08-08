@@ -132,7 +132,7 @@ def default_create_package_schema(
         package_name_validator: Validator, strip_value: Validator,
         if_empty_same_as: ValidatorFactory,
         email_validator: Validator, package_version_validator: Validator,
-        boolean_validator: Validator, one_of: Validator,
+        boolean_validator: Validator, one_of: ValidatorFactory,
         datasets_with_no_organization_cannot_be_private: Validator,
         empty: Validator, tag_string_convert: Validator,
         owner_org_validator: Validator, json_object: Validator,
