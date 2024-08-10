@@ -29,7 +29,7 @@ class TestSearchIndex(object):
         assert search_result[u'count'] == 1
 
         # Clear and defer commit
-        result = cli.invoke(ckan, [u'search-index', u'rebuild', '-e', '-c'])
+        result = cli.invoke(ckan, [u'search-index', u'rebuild', '-e'])
         print(result.output)
         assert not result.exit_code
         search_result = helpers.call_action(u'package_search', q=u"After")
