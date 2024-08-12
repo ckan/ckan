@@ -114,7 +114,7 @@ Minor changes
   resource url_type values that can be modified without force=True (`#7617
   <https://github.com/ckan/ckan/pull/7617>`_)
 - ``datastore_create`` now allows removing fields when passing a new list of ``fields``
-   and ``delete_fields=True`` (`#7622 <https://github.com/ckan/ckan/pull/7622>`_) (`#7919
+  and ``delete_fields=True`` (`#7622 <https://github.com/ckan/ckan/pull/7622>`_) (`#7919
   <https://github.com/ckan/ckan/pull/7919>`_)
 - New ``reset_redis`` and ``clean_redis`` test fixtures for removing data from
   Redis. (`#7630 <https://github.com/ckan/ckan/pull/7630>`_)
