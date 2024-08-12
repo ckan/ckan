@@ -1056,7 +1056,6 @@ groups:
               they're implemented in.
 
       - key: ckan.download_proxy
-        default: None
         example: http://proxy:3128
         description: |
           Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
