@@ -32,6 +32,12 @@ def proxy_resource(context, data_dict):
     '''
     resource_id = data_dict[u'resource_id']
     log.info(u'Proxify resource {id}'.format(id=resource_id))
+
+    proxies = None
+    proxy = config.get('ckan.download_proxy', '')
+    if proxy:
+        proxies = {'http': proxy, 'https': proxy}
+
     try:
         resource = get_action(u'resource_show')(context, {u'id': resource_id})
     except logic.NotFound:
@@ -52,7 +58,10 @@ def proxy_resource(context, data_dict):
         # text, or a 403 (forbidden) status is also possible (#2412,
         # #2530)
         if r.status_code in (400, 403, 405):
-            r = requests.get(url, timeout=TIMEOUT, stream=True)
+            r = requests.get(url,
+                             timeout=TIMEOUT,
+                             stream=True,
+                             proxies=proxies)
             did_get = True
         r.raise_for_status()
 
@@ -66,7 +75,10 @@ def proxy_resource(context, data_dict):
             )
 
         if not did_get:
-            r = requests.get(url, timeout=TIMEOUT, stream=True)
+            r = requests.get(url,
+                             timeout=TIMEOUT,
+                             stream=True,
+                             proxies=proxies)
 
         response.headers[u'content-type'] = r.headers[u'content-type']
         response.charset = r.encoding
