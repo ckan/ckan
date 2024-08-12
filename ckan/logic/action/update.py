@@ -613,7 +613,7 @@ def package_resource_reorder(
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
-    existing_resources = package_dict.get('resources', [])
+    existing_resources = list(package_dict.get('resources', []))
     ordered_resources = []
 
     for resource_id in order:

@@ -762,6 +762,21 @@ class TestResourceCreate:
             helpers.call_action('resource_create', package_id=dataset['id'], url='http://example.com', description='hey')
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
+    def test_resource_create_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        existing = factories.Resource()
+        params = {
+            "package_id": existing['package_id'],
+            "url": "http://data",
+            "name": "A second resource",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_create", **params)
+            assert m.call_args.args[3] == {0: 0}, 'copy existing resource 0'
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestMemberCreate(object):
