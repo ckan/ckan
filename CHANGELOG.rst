@@ -9,7 +9,7 @@ Changelog
 
 .. towncrier release notes start
 
-v.2.11.0 2024-08-14
+v.2.11.0 2024-08-21
 ===================
 
 Overview
@@ -28,7 +28,7 @@ Major features
 
 - Added support for **Python** 3.11 and 3.12 (`#8357
   <https://github.com/ckan/ckan/pull/8357>`_)
-- **Table Designer**: UI for DataStore-first datasets
+- **Table Designer** is a form-builder for CKAN DataStore tables with enforced data validation.
   Use the :doc:`maintaining/table-designer` on the resource url/upload control for (`#6118 <https://github.com/ckan/ckan/pull/6118>`_):
 
   - automatic creation of DataTable view for new Table Designer resources
@@ -37,7 +37,7 @@ Major features
   - add individual rows with an auto-generated form based on the schema
   - data validation enforced by PostgreSQL triggers, rendered as friendly errors in forms
   - extended DataTables view with "edit row" and "delete rows" buttons for managing data
-  - automatic API documentation for create/upsert/delete with examples from real data when available 
+  - automatic API documentation for create/upsert/delete with examples from real data when available
 - Increased **performance**:
 
   - Render snippets faster through better use of existing jinja2 tags. Use ``{% snippet 'path/to/snippet.html', arg1=test %}`` instead
@@ -96,7 +96,7 @@ Minor changes
 
           __tablename__ = "ext_model"
           id = Column(String(50), primary_key=True)
-          ... 
+          ...
 
 - The PyUtilib dependency has been removed. All the primitives for the plugin system are
   now defined in CKAN. (`#7976 <https://github.com/ckan/ckan/pull/7976>`_)
@@ -113,9 +113,9 @@ Minor changes
 - The ``datastore_rw_resource_url_types`` helper can be overridden to define additional
   resource url_type values that can be modified without force=True (`#7617
   <https://github.com/ckan/ckan/pull/7617>`_)
-- ``datastore_create`` now allows removing columns. Setting ``fields`` without
-  including all existing fields will remove the others and the data they
-  contain. (`#7622 <https://github.com/ckan/ckan/pull/7622>`_)
+- ``datastore_create`` now allows removing fields when passing a new list of ``fields``
+   and ``delete_fields=True`` (`#7622 <https://github.com/ckan/ckan/pull/7622>`_) (`#7919
+  <https://github.com/ckan/ckan/pull/7919>`_)
 - New ``reset_redis`` and ``clean_redis`` test fixtures for removing data from
   Redis. (`#7630 <https://github.com/ckan/ckan/pull/7630>`_)
 - ``ckan generate fake-data`` accepts ``--user`` option that is used as
@@ -133,8 +133,7 @@ Minor changes
 - Adds button to delete a Resource's datastore table in ckanext-datapusher
   (`#7902 <https://github.com/ckan/ckan/pull/7902>`_)
 - ``datastore_create``: Add a ``delete_fields`` flag that must be set to True to delete
-  any existing fields not passed in the fields list (`#7919
-  <https://github.com/ckan/ckan/pull/7919>`_)
+  any existing fields not passed in the fields list
 - Introducing a new parameter to the ``user_create`` action ``with_apitoken``.
   When set, this parameter triggers the creation of an API token for the user.
   (`#7932 <https://github.com/ckan/ckan/pull/7932>`_)
@@ -223,8 +222,6 @@ Minor changes
 - ``ckan db init`` is now alias of ``ckan db upgrade``, which provides better
   support for includuing plugin migrations (`#8339
   <https://github.com/ckan/ckan/pull/8339>`_)
-- Remove mutable global state usage in group blueprint (`#8359
-  <https://github.com/ckan/ckan/pull/8359>`_)
 - It is now possible to extend interface classes directly when implementing
   plugins, which provides better integration with development tools, e.g. (`#7976 <https://github.com/ckan/ckan/pull/7976>`_)::
 
@@ -335,6 +332,8 @@ Bug fixes
   <https://github.com/ckan/ckan/pull/8268>`_)
 - Prevent exception in Datatables view when the size field is missing (`#8284
   <https://github.com/ckan/ckan/pull/8284>`_)
+- Remove mutable global state usage in group blueprint (`#8359
+  <https://github.com/ckan/ckan/pull/8359>`_)
 
 .. _migration-notes-2.11:
 
@@ -374,7 +373,7 @@ Migration notes
   ``beaker.session.secure``         :ref:`SESSION_COOKIE_SECURE`
   ``beaker.session.httponly``       :ref:`SESSION_COOKIE_HTTPONLY`
   ``beaker.session.samesite``       :ref:`SESSION_COOKIE_SAMESITE`
-  ================================= ============================================== 
+  ================================= ==============================================
 
 - When parsing the configuration file, the default behaviour starting from
   CKAN 2.11 is the old ``strict`` mode,  where CKAN will not
@@ -395,8 +394,8 @@ Migration notes
   renamed to :ref:`apitoken_header_name` from ``apikey_header_name``.
 - Only sysadmins can now set the ``id`` field of Datasets, Groups,
   Organizations, Users, Resource Views and Extras (`#8069 <https://github.com/ckan/ckan/pull/8069>`_)
-- If provided, the value of the ``id`` field needs to be a valid UUID v4
-  string. Sites using custom ids that are not UUIDs can extend the relevant
+- If provided, the value of the ``id`` field needs to be a valid UUID string.
+  Sites using custom ids that are not UUIDs can extend the relevant
   schema or validate methods to override the validation on the ``id`` field,
   but are strongly encouraged to use a separate custom field to store the
   custom id instead. (`#8069 <https://github.com/ckan/ckan/pull/8069>`_)
@@ -525,7 +524,7 @@ Removals and deprecations
     startup, use `Alembic migrations <https://docs.ckan.org/en/2.11/extensions/best-practices.html#use-migrations-when-introducing-new-models>`_
   * If there is no other way, change ``table.create()``/``table.exists()`` to
     ``table.create(engine)``/``table.exists()``. Get ``engine`` by calling
-    :py:func:`~ckan.model.ensure_engine`. 
+    :py:func:`~ckan.model.ensure_engine`.
 - The Boostrap 3 based templates have been removed. (`#7637
   <https://github.com/ckan/ckan/pull/7637>`_)
 - ``template_head_end`` and ``template_footer_end`` config options have been
@@ -588,7 +587,7 @@ Removals and deprecations
           p.implements(ISomething)
 
       class SecondPlugin(p.SingletonPlugin, BasePlutin):
-          p.implements(IAnything) 
+          p.implements(IAnything)
 
 
 
