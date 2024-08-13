@@ -110,6 +110,7 @@ Minor changes
 - JS translations are no longer generated on each server restart. The are
   built when starting the development server with `ckan run` or explicitly with
   `ckan translations js` (`#8219 <https://github.com/ckan/ckan/pull/8219>`_)
+- Added support for :ref:`ckan.download_proxy` to the `resourceproxy` plugin (`#8354  <https://github.com/ckan/ckan/pull/8354>`_)
 - The ``datastore_rw_resource_url_types`` helper can be overridden to define additional
   resource url_type values that can be modified without force=True (`#7617
   <https://github.com/ckan/ckan/pull/7617>`_)
@@ -222,6 +223,8 @@ Minor changes
 - ``ckan db init`` is now alias of ``ckan db upgrade``, which provides better
   support for includuing plugin migrations (`#8339
   <https://github.com/ckan/ckan/pull/8339>`_)
+- Use case sensitive email unique validator (`#7934
+  <https://github.com/ckan/ckan/pull/7934>`_)
 - It is now possible to extend interface classes directly when implementing
   plugins, which provides better integration with development tools, e.g. (`#7976 <https://github.com/ckan/ckan/pull/7976>`_)::
 
