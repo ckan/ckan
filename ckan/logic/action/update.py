@@ -341,26 +341,28 @@ def package_update(
 
         item.after_dataset_update(context, data)
 
+    return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    final_data = _get_action('package_show')(
+        logic.fresh_context(context, ignore_auth=True, use_cache=False),
+        {'id': pkg.id}
+    )
+
     if not context.get('defer_commit'):
+        index = search.index_for('Package')
+        index.update_dict(final_data)
+
         model.repo.commit()
 
     log.debug('Updated object %s' % pkg.name)
 
-    return_id_only = context.get('return_id_only', False)
+    if return_id_only:
+        return pkg.id
 
-    # Make sure that a user provided schema is not used on package_show
-    context.pop('schema', None)
-
-    # we could update the dataset so we should still be able to read it.
-    context['ignore_auth'] = True
-    output = data_dict['id'] if return_id_only \
-            else _get_action('package_show')(
-                context,
-                {'id': data_dict['id'],
-                "include_plugin_data": include_plugin_data
-            }
-        )
-    return output
+    return final_data
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:

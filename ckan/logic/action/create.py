@@ -28,6 +28,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
+from ckan.lib import search
 import ckan.authz as authz
 import ckan.model
 
@@ -224,18 +225,26 @@ def package_create(
              'ignore_auth': True},
             {'package': data})
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
-
     return_id_only = context.get('return_id_only', False)
+
+    if return_id_only and context.get('defer_commit'):
+        return pkg.id
+
+    final_data = _get_action('package_show')(
+        fresh_context(context),
+        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
+    )
+
+    if not context.get('defer_commit'):
+        index = search.index_for('Package')
+        index.insert_dict(final_data)
+
+        model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return _get_action('package_show')(
-        context.copy(),
-        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
-    )
+    return final_data
 
 
 def resource_create(context: Context,

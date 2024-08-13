@@ -16,7 +16,6 @@ from requests.auth import HTTPBasicAuth
 
 import ckan.model as model
 import ckan.model.domain_object as domain_object
-import ckan.plugins as p
 import ckan.logic as logic
 from ckan.types import Context
 
@@ -133,48 +132,6 @@ def query_for(_type: Any) -> SearchQuery:
         return _QUERIES[_type_n]()
     except KeyError:
         raise SearchError("Unknown search type: %s" % _type)
-
-
-def dispatch_by_operation(entity_type: str, entity: dict[str, Any],
-                          operation: str) -> None:
-    """Call the appropriate index method for a given notification."""
-    try:
-        index = index_for(entity_type)
-        if operation == domain_object.DomainObjectOperation.new:
-            index.insert_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.changed:
-            index.update_dict(entity)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            index.remove_dict(entity)
-        else:
-            log.warn("Unknown operation: %s" % operation)
-    except Exception as ex:
-        log.exception(ex)
-        # we really need to know about any exceptions, so reraise
-        # (see #1172)
-        raise
-
-
-class SynchronousSearchPlugin(p.SingletonPlugin):
-    """Update the search index automatically."""
-    p.implements(p.IDomainObjectModification, inherit=True)
-
-    def notify(self, entity: Any, operation: str) -> None:
-        if not isinstance(entity, model.Package):
-            return
-        if operation != domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(
-                entity.__class__.__name__,
-                logic.get_action('package_show')({
-                        'ignore_auth': True,
-                        'validate': False,
-                        'use_cache': False
-                    }, {'id': entity.id}), operation)
-        elif operation == domain_object.DomainObjectOperation.deleted:
-            dispatch_by_operation(entity.__class__.__name__,
-                                  {'id': entity.id}, operation)
-        else:
-            log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
 def rebuild(package_id: Optional[str] = None,
