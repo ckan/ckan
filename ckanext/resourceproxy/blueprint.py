@@ -42,7 +42,7 @@ def proxy_resource(context: Context, data_dict: DataDict):
     timeout = config.get('ckan.resource_proxy.timeout')
     max_file_size = config.get(u'ckan.resource_proxy.max_file_size')
     proxy = config.get('ckan.download_proxy')
-    proxies = {'http': proxy, 'https': proxy}
+    proxies = {'http': proxy, 'https': proxy} if proxy else None
     response = make_response()
     try:
         # first we try a HEAD request which may not be supported

@@ -17,11 +17,13 @@ Flask-WTF==1.0.1
 flask-multistatic==1.0
 greenlet==2.0.2
 Jinja2==3.1.4
-PyJWT==2.4.0
 Markdown==3.4.1
+packaging==24.1
 passlib==1.7.4
 polib==1.1.1
 psycopg2==2.9.3
+PyJWT==2.4.0
+pyparsing==3.1.2
 python-magic==0.4.27
 pysolr==3.9.0
 python-dateutil==2.8.2
