@@ -109,6 +109,7 @@ class PackageSearchIndex(SearchIndex):
                       defer_commit: bool = False) -> None:
         if pkg_dict is None:
             return
+        pkg_dict = dict(pkg_dict)
 
         # Index validated data-dict
         package_plugin = lib_plugins.lookup_package_plugin(
