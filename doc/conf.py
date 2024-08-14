@@ -140,21 +140,8 @@ def get_release_tags():
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
-    release_tags_.sort(key=version_parse)
+    release_tags_ = sorted(release_tags_, key=lambda tag: version_parse(tag.lstrip('ckan-')))
     return release_tags_
-
-
-def parse_version(version_):
-    '''Parses version string
-        ckan-2.1.3 -> ('2', '1', '3')
-        ckan-2.1   -> ('2', '1', None)  (the occasion when we didn't do semver)
-    '''
-    global version_re
-    if version_re is None:
-        version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
-    if isinstance(version_, bytes):
-        version_ = version_.decode()
-    return version_re.match(version_).groups()
 
 
 def get_equivalent_point_release(version_):
@@ -164,7 +151,8 @@ def get_equivalent_point_release(version_):
         ckan-2.1.3 -> ckan-2.1
         ckan-2.1   -> ckan-2.1  (the occasion when we didn't do semver)
     '''
-    return 'ckan-%s.%s' % parse_version(version_)[:2]
+    version = version_parse(version_.lstrip("ckan-"))
+    return f"ckan-{version.major}.{version.minor}"
 
 
 def get_point_releases():
@@ -260,9 +248,9 @@ def get_previous_release_version() -> str:
     eg if the latest release is 2.9.5, it returns 2.8.10
 
     """
-    current_version = parse_version(get_current_release_version())
+    current_version = version_parse(get_current_release_version())
 
-    previous_tag_prefix = f"ckan-{current_version[0]}.{int(current_version[1]) - 1}"
+    previous_tag_prefix = f"ckan-{current_version.major}.{current_version.minor - 1}"
 
     previous_version_tags = [
         r for r in get_release_tags() if r.startswith(previous_tag_prefix)
