@@ -409,25 +409,21 @@ def _group_or_org_delete(
     # organization delete will not occur while all datasets for that org are
     # not deleted
     if is_org:
-        datasets = model.Session.query(model.Package) \
+        dataset_ids = model.Session.query(model.Package.id) \
                         .filter_by(owner_org=group.id) \
-                        .filter(model.Package.state != 'deleted') \
-                        .count()
-        if datasets:
+                        .filter(model.Package.state != 'deleted')
+        if dataset_ids:
             if not authz.check_config_permission(
                     'ckan.auth.create_unowned_dataset'):
                 raise ValidationError({
                     'message': _('Organization cannot be deleted while it '
                                       'still has datasets')})
 
-            pkg_table = model.package_table
-            # using Core SQLA instead of the ORM should be faster
-            model.Session.execute(
-                pkg_table.update().where(
-                    sqla.and_(pkg_table.c["owner_org"] == group.id,
-                              pkg_table.c["state"] != 'deleted')
-                ).values(owner_org=None)
-            )
+            for d in dataset_ids:
+                _get_action('package_patch')(
+                    ckan.logic.fresh_context(context),
+                    {'id': d, 'owner_org': ''}
+                )
 
     # The group's Member objects are deleted
     # (including hierarchy connections to parent and children groups)
@@ -436,6 +432,13 @@ def _group_or_org_delete(
                        model.Member.group_id == id)).\
             filter(model.Member.state == 'active').all():
         member.delete()
+        if not is_org and member.table_name == 'package':
+            index = search.index_for('Package')
+            index.update_dict(_get_action('package_show')(
+                ckan.logic.fresh_context(
+                    context, ignore_auth=True, use_cache=False),
+                {'id': member.table_id},
+            ))
 
     group.delete()
 
@@ -508,33 +511,41 @@ def _group_or_org_purge(
 
     if is_org:
         # Clear the owner_org field
-        datasets = model.Session.query(model.Package) \
+        dataset_ids = model.Session.query(model.Package.id) \
                         .filter_by(owner_org=group.id) \
-                        .filter(model.Package.state != 'deleted') \
-                        .count()
-        if datasets:
+                        .filter(model.Package.state != 'deleted')
+        if dataset_ids:
             if not authz.check_config_permission(
                     'ckan.auth.create_unowned_dataset'):
                 raise ValidationError({
                     'message': 'Organization cannot be purged while it '
                                       'still has datasets'})
-            pkg_table = model.package_table
-            # using Core SQLA instead of the ORM should be faster
-            model.Session.execute(
-                pkg_table.update().where(
-                    sqla.and_(pkg_table.c["owner_org"] == group.id,
-                              pkg_table.c["state"] != 'deleted')
-                ).values(owner_org=None)
-            )
+            for d in dataset_ids:
+                _get_action('package_patch')(
+                    ckan.logic.fresh_context(context),
+                    {'id': d, 'owner_org': ''}
+                )
 
     # Delete related Memberships
     members = model.Session.query(model.Member) \
                    .filter(sqla.or_(model.Member.group_id == group.id,
                                     model.Member.table_id == group.id))
+    reindex = set()
     if members.count() > 0:
         for m in members.all():
             m.purge()
+            if not is_org and m.table_name == 'package':
+                reindex.add(m.table_id)
         model.repo.commit_and_remove()
+
+    if reindex:
+        index = search.index_for('Package')
+        for r in reindex:
+            index.update_dict(_get_action('package_show')(
+                ckan.logic.fresh_context(
+                    context, ignore_auth=True, use_cache=False),
+                {'id': r},
+            ))
 
     group = model.Group.get(id)
     assert group
