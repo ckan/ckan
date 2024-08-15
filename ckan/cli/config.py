@@ -105,10 +105,14 @@ def declaration(
     help="Output the documentation in this format",
 )
 def docs(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
-    """Print out documentation for the config declarations for the given plugins."""
+    """
+    Print out documentation for the config declarations for the given
+    plugins.
+    """
     decl = _declaration(plugins, core, enabled)
     if decl:
         click.echo(decl.into_docs(fmt))
+
 
 @config.command()
 @click.argument("pattern", default="*")
