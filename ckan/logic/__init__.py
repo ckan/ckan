@@ -921,3 +921,33 @@ def fresh_context(
     new_context.update(kwargs)
     new_context = cast(Context, new_context)
     return new_context
+
+
+def index_update_package(context: Context, id_: str):
+    "update package in search index by id"
+    both_dict = get_action('package_show')(
+        fresh_context(context, ignore_auth=True, use_cache=False),
+        {'id': id_, 'use_default_schema': 'both'}
+    )
+    index_update_package_dict(both_dict)
+
+
+def index_update_package_dict(both_dict: dict[str, Any]):
+    "update package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.update_dict(both_dict)
+
+
+def index_insert_package_dict(both_dict: dict[str, Any]):
+    "create package in search index with default and custom schema data"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.insert_dict(both_dict)
+
+
+def index_remove_package(id_: str):
+    "remove package from search index by id"
+    from ckan.lib import search
+    index = search.index_for('Package')
+    index.remove_dict({'id': id_})

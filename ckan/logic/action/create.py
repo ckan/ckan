@@ -28,7 +28,6 @@ import ckan.lib.mailer as mailer
 import ckan.lib.signals as signals
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
-from ckan.lib import search
 import ckan.authz as authz
 import ckan.model
 
@@ -214,15 +213,10 @@ def package_create(
 
         item.after_dataset_create(context, data)
 
-    # Make sure that a user provided schema is not used in create_views
-    # and on package_show
-    context.pop('schema', None)
-
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
+            fresh_context(context, ignore_auth=True),
             {'package': data})
 
     return_id_only = context.get('return_id_only', False)
@@ -230,21 +224,19 @@ def package_create(
     if return_id_only and context.get('defer_commit'):
         return pkg.id
 
-    final_data = _get_action('package_show')(
-        fresh_context(context),
-        {'id': pkg.id, 'include_plugin_data': include_plugin_data}
+    both_data = _get_action('package_show')(
+        fresh_context(context, ignore_auth=True),
+        {'id': pkg.id, 'use_default_schema': 'both'}
     )
 
     if not context.get('defer_commit'):
-        index = search.index_for('Package')
-        index.insert_dict(final_data)
-
+        logic.index_insert_package_dict(both_data)
         model.repo.commit()
 
     if return_id_only:
         return pkg.id
 
-    return final_data
+    return both_data['with_custom_schema']
 
 
 def resource_create(context: Context,

@@ -15,7 +15,6 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.plugins as plugins
 import ckan.lib.api_token as api_token
-from ckan.lib import search
 from ckan import authz
 from  ckan.lib.navl.dictization_functions import validate
 from ckan.model.follower import ModelFollowingModel
@@ -111,13 +110,7 @@ def package_delete(context: Context, data_dict: DataDict) -> ActionResult.Packag
     for collaborator in dataset_collaborators:
         collaborator.delete()
 
-    final_data = _get_action('package_show')(
-        ckan.logic.fresh_context(context, ignore_auth=True, use_cache=False),
-        {'id': id}
-    )
-    index = search.index_for('Package')
-    index.update_dict(final_data)
-
+    ckan.logic.index_update_package(context, id)
     model.repo.commit()
 
 
@@ -163,8 +156,7 @@ def dataset_purge(context: Context, data_dict: DataDict) -> ActionResult.Dataset
     pkg = model.Package.get(id)
     assert pkg
 
-    index = search.index_for('Package')
-    index.remove_dict({'id': id})
+    ckan.logic.index_remove_package(id)
 
     pkg.purge()
     model.repo.commit_and_remove()
@@ -433,12 +425,7 @@ def _group_or_org_delete(
             filter(model.Member.state == 'active').all():
         member.delete()
         if not is_org and member.table_name == 'package':
-            index = search.index_for('Package')
-            index.update_dict(_get_action('package_show')(
-                ckan.logic.fresh_context(
-                    context, ignore_auth=True, use_cache=False),
-                {'id': member.table_id},
-            ))
+            ckan.logic.index_update_package(context, member.table_id)
 
     group.delete()
 
@@ -539,13 +526,8 @@ def _group_or_org_purge(
         model.repo.commit_and_remove()
 
     if reindex:
-        index = search.index_for('Package')
         for r in reindex:
-            index.update_dict(_get_action('package_show')(
-                ckan.logic.fresh_context(
-                    context, ignore_auth=True, use_cache=False),
-                {'id': r},
-            ))
+            ckan.logic.index_update_package(context, r)
 
     group = model.Group.get(id)
     assert group
