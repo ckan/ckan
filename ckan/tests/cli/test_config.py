@@ -146,6 +146,45 @@ class TestDeclaration(object):
 
 
 @pytest.mark.usefixtures("with_extended_cli")
+class TestDocs(object):
+    def test_basic_invocation(self, command):
+        result = command("docs")
+        assert not result.output
+        assert not result.exit_code, result.output
+
+    def test_core(self, command):
+        result = command("docs", "--core")
+        assert result.output.startswith(".. _default-settings:")
+        assert not result.exit_code, result.output
+
+    def test_core_format(self, command):
+        result = command("docs", "--core", "--format", "md")
+        assert result.output.startswith("### Default settings")
+        assert not result.exit_code, result.output
+
+    @pytest.mark.ckan_config("ckan.plugins", "datastore")
+    @pytest.mark.usefixtures("with_plugins")
+    def test_enabled(self, command):
+        result = command("docs", "--enabled", "--format", "md")
+        assert "### Datastore settings" in result.output
+        assert (
+            "Default value: `postgresql://ckan_default:pass@localhost/datastore_default`"
+            in result.output
+        )
+        assert not result.exit_code, result.output
+
+    def test_explicit(self, command):
+        result = command("docs", "datastore", "--format", "md")
+        assert "### Datastore settings" in result.output
+        assert "Datastore settings" in result.output
+        assert (
+            "Default value: `postgresql://ckan_default:pass@localhost/datastore_default`"
+            in result.output
+        )
+        assert not result.exit_code, result.output
+
+
+@pytest.mark.usefixtures("with_extended_cli")
 class TestSearch(object):
     def test_wrong_non_pattern(self, command):
         result = command("search", "ckan")
