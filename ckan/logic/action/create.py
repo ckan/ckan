@@ -331,17 +331,23 @@ def resource_create(context: Context,
     model.repo.commit()
 
     #  Run package show again to get out actual last_resource
-    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
-    resource = updated_pkg_dict['resources'][-1]
+    both_data = _get_action('package_show')(
+        logic.fresh_context(context, ignore_auth=True, use_cache=False),
+        {'id': package_id, 'use_default_schema': 'both'}
+    )
+    # update index because of defer_commit use above
+    logic.index_update_package_dict(both_data)
+
+    resource = both_data['with_custom_schema']['resources'][-1]
 
     #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(
         {'model': context['model'],
          'user': context['user'],
-         'ignore_auth': True
+         'ignore_auth': True,
          },
         {'resource': resource,
-         'package': updated_pkg_dict
+         'package': both_data['with_custom_schema'],
          })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
