@@ -205,7 +205,9 @@ def serialize_md(declaration: "Declaration"):
             result += f"#### {item}\n\n"
 
             if option.example:
-                result += f"Example:\n\n```\n{item} = {option.example}\n```\n\n"
+                result += (
+                    f"Example:\n\n```\n{item} = {option.example}\n```\n\n"
+                )
 
             default = option.str_value()
 

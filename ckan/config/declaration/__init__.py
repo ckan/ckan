@@ -235,7 +235,8 @@ class Declaration:
         return serializer(self, "validation_schema")
 
     def into_docs(self, fmt: str = "rst") -> str:
-        """Serialize declaration into one of the supported documentation formats.
+        """
+        Serialize declaration into one of the supported documentation formats.
         """
         return serializer(self, fmt)
 
