@@ -923,20 +923,22 @@ def fresh_context(
     return new_context
 
 
-def index_update_package(context: Context, id_: str):
+def index_update_package(
+        context: Context, id_: str, defer_commit: bool = False):
     "update package in search index by id"
     both_dict = get_action('package_show')(
         fresh_context(context, ignore_auth=True, use_cache=False),
         {'id': id_, 'use_default_schema': 'both'}
     )
-    index_update_package_dict(both_dict)
+    index_update_package_dict(both_dict, defer_commit)
 
 
-def index_update_package_dict(both_dict: dict[str, Any]):
+def index_update_package_dict(
+        both_dict: dict[str, Any], defer_commit: bool = False):
     "update package in search index with default and custom schema data"
     from ckan.lib import search
     index = search.index_for('Package')
-    index.update_dict(both_dict)
+    index.update_dict(both_dict, defer_commit)
 
 
 def index_insert_package_dict(both_dict: dict[str, Any]):

@@ -155,23 +155,16 @@ def rebuild(package_id: Optional[str] = None,
     package_index = index_for(model.Package)
     context: Context = {
         'ignore_auth': True,
-        'validate': False,
-        'use_cache': False
     }
 
     if package_id:
-        pkg_dict = logic.get_action('package_show')(context, {
-            'id': package_id
-        })
-        log.info('Indexing just package %r...', pkg_dict['name'])
-        package_index.remove_dict(pkg_dict)
-        package_index.insert_dict(pkg_dict)
+        log.info('Indexing just package %r...', package_id)
+        logic.index_remove_package(package_id)
+        logic.index_update_package(context, package_id)
     elif package_ids is not None:
         for package_id in package_ids:
-            pkg_dict = logic.get_action('package_show')(context,
-                {'id': package_id})
-            log.info('Indexing just package %r...', pkg_dict['name'])
-            package_index.update_dict(pkg_dict, True)
+            log.info('Indexing just package %r...', package_id)
+            logic.index_update_package(context, package_id, True)
     else:
         packages = model.Session.query(model.Package.id)
         if config.get('ckan.search.remove_deleted_packages'):
@@ -205,12 +198,7 @@ def rebuild(package_id: Optional[str] = None,
                 )
                 sys.stdout.flush()
             try:
-                package_index.update_dict(
-                    logic.get_action('package_show')(context,
-                        {'id': pkg_id}
-                    ),
-                    defer_commit
-                )
+                logic.index_update_package(context, pkg_id, defer_commit)
             except Exception as e:
                 log.error(u'Error while indexing dataset %s: %s' %
                           (pkg_id, repr(e)))
