@@ -1,4 +1,5 @@
 [flake8]
+max-line-length=88
 exclude =
         .*
         ./contrib
