@@ -234,10 +234,10 @@ class Declaration:
         """
         return serializer(self, "validation_schema")
 
-    def into_docs(self) -> str:
-        """Serialize declaration into reST documentation.
+    def into_docs(self, fmt: str = "rst") -> str:
+        """Serialize declaration into one of the supported documentation formats.
         """
-        return serializer(self, "rst")
+        return serializer(self, fmt)
 
     def describe(self, fmt: str) -> str:
         """Describe definition of options in the given format.
