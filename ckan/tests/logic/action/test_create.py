@@ -1128,6 +1128,19 @@ class TestDatasetCreate(object):
 
         assert isinstance(dataset, str)
 
+    def test_non_string_extras(self):
+        data_dict = {
+            "name": "test-non-string-extras",
+            "extras": [
+                {
+                    "key": "some_number",
+                    "value": 1.5
+                }
+            ]
+        }
+
+        helpers.call_action("package_create", **data_dict)
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
