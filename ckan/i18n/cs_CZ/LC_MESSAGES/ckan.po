@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2024
+# Jiří Podhorecký <jirka.p@volny.cz>, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-05-23 15:52+0200\n"
 "PO-Revision-Date: 2024-05-23 14:04+0000\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2024\n"
+"Last-Translator: Jiří Podhorecký <jirka.p@volny.cz>, 2024\n"
 "Language-Team: Czech (Czech Republic) (https://app.transifex.com/okfn/teams/11162/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -341,11 +342,11 @@ msgstr "Zdrojové ID již existuje."
 
 #: ckan/logic/validators.py:244 ckan/logic/validators.py:256
 msgid "Id already exists"
-msgstr ""
+msgstr "Id již existuje"
 
 #: ckan/logic/validators.py:269
 msgid "ResourceView id already exists"
-msgstr ""
+msgstr "Id ResourceView již existuje"
 
 #: ckan/logic/validators.py:317
 msgid "Resource"
@@ -353,7 +354,7 @@ msgstr "Datový zdroj"
 
 #: ckan/logic/validators.py:325
 msgid "Invalid id provided"
-msgstr ""
+msgstr "Zadáno neplatné Id"
 
 #: ckan/logic/validators.py:379
 msgid "That group name or ID does not exist."
@@ -625,7 +626,7 @@ msgstr "Abyste mohl(-a) sledovat uživatele, musíte se přihlásit"
 
 #: ckan/logic/action/create.py:1255
 msgid "Error validating the schema of the user to follow."
-msgstr ""
+msgstr "Chyba při ověřování schématu uživatele, který má být následován."
 
 #: ckan/logic/action/create.py:1260
 msgid "You cannot follow yourself"
@@ -1753,7 +1754,7 @@ msgstr "Přidat člena"
 #: ckan/templates/group/manage_members.html:7
 #: ckan/templates/organization/manage_members.html:9
 msgid "CSV"
-msgstr ""
+msgstr "CSV"
 
 #: ckan/templates/group/manage_members.html:16
 #: ckan/templates/group/member_new.html:63
@@ -1957,7 +1958,7 @@ msgstr[3] ""
 #: ckan/templates/group/snippets/group_item.html:41
 #: ckan/templates/organization/snippets/organization_item.html:40
 msgid "0 Members"
-msgstr ""
+msgstr "0 členů"
 
 #: ckan/templates/group/snippets/group_item.html:50
 #: ckan/templates/group/snippets/group_item.html:51
@@ -3434,11 +3435,11 @@ msgstr "Uživatel zatím nevytvořil žádnou datovou sadu."
 
 #: ckan/templates/user/read_groups.html:16
 msgid "User isn't a member of any groups."
-msgstr ""
+msgstr "Uživatel není členem žádné skupiny."
 
 #: ckan/templates/user/read_organizations.html:16
 msgid "User isn't a member of any organizations."
-msgstr ""
+msgstr "Uživatel není členem žádné organizace."
 
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
@@ -3694,19 +3695,19 @@ msgstr "Uživatel %r nemá oprávnění měnit členy %s"
 
 #: ckan/views/group.py:595
 msgid "Not authorized to access {group} members download"
-msgstr ""
+msgstr "Není oprávněn k přístupu ke stažení členů {group}"
 
 #: ckan/views/group.py:605
 msgid "Members not found"
-msgstr ""
+msgstr "Členové nebyli nalezeni"
 
 #: ckan/views/group.py:615
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: ckan/views/group.py:625
 msgid "members"
-msgstr ""
+msgstr "členové"
 
 #: ckan/views/group.py:651 ckan/views/group.py:670
 #, python-format
@@ -4721,7 +4722,7 @@ msgstr "Dosud nenahráno"
 
 #: ckanext/datapusher/views.py:94
 msgid "DataStore and Data Dictionary "
-msgstr ""
+msgstr "DataStore a Data Dictionary "
 
 #: ckanext/datapusher/templates/datapusher/resource_data.html:16
 msgid "Are you sure you want to delete the DataStore and Data Dictionary?"
@@ -4783,7 +4784,7 @@ msgstr "Nepodporovaný formát"
 #: ckanext/datastore/blueprint.py:209 ckanext/tabledesigner/views.py:88
 #, python-format
 msgid "Field %d"
-msgstr ""
+msgstr "Pole %d"
 
 #: ckanext/datastore/blueprint.py:214
 msgid ""
@@ -4834,7 +4835,7 @@ msgstr ""
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:46
 msgid "Code examples:"
-msgstr ""
+msgstr "Příklady kódu:"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:61
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:19
@@ -4844,7 +4845,7 @@ msgstr "Zpracování dotazu"
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:65
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:23
 msgid "Get 5 results containing \"jones\" in any field:"
-msgstr ""
+msgstr "Získejte 5 výsledků obsahujících slovo \"jones\" v libovolném poli:"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:71
 msgid ""
@@ -4855,11 +4856,11 @@ msgstr ""
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:77
 #: ckanext/tabledesigner/templates/ajax_snippets/api_info.html:35
 msgid "SQL query example:"
-msgstr ""
+msgstr "Příklad dotazu SQL:"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:90
 msgid "Using the API with this Web Browser"
-msgstr ""
+msgstr "Použití rozhraní API s tímto webovým prohlížečem"
 
 #: ckanext/datastore/templates/ajax_snippets/api_info.html:94
 msgid "Some API endpoints may be accessed using a GET query string."
@@ -4891,7 +4892,7 @@ msgstr "Pole {num}."
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:44
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_view.html:19
 msgid "Primary key"
-msgstr ""
+msgstr "Primární klíč"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:24
 msgid "Type Override"
@@ -4914,7 +4915,7 @@ msgstr "Datový slovník"
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:55
 #: ckanext/tabledesigner/templates/datastore/snippets/dictionary_form.html:31
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ckanext/datastore/templates/datastore/snippets/dictionary_view.html:56
 msgid "Type"
@@ -5045,12 +5046,12 @@ msgstr "Vytvořit nový {object_type}"
 
 #: ckanext/example_icolumnconstraints/plugin.py:56
 msgid "This field may not be changed"
-msgstr ""
+msgstr "Toto pole nelze měnit"
 
 #: ckanext/example_icolumnconstraints/templates/tabledesigner/constraint_snippets/immutable.html:3
 #: ckanext/example_icolumnconstraints/templates/tabledesigner/view_snippets/immutable.html:1
 msgid "Immutable"
-msgstr ""
+msgstr "Nezměnitelné"
 
 #: ckanext/example_icolumnconstraints/templates/tabledesigner/constraint_snippets/immutable.html:11
 msgid "The value may be set once then not changed afterwards"
@@ -5090,12 +5091,12 @@ msgstr "Testovací konfigurace"
 
 #: ckanext/example_idatadictionaryform/plugin.py:76
 msgid "Not a JSON object"
-msgstr ""
+msgstr "Není to objekt JSON"
 
 #: ckanext/example_idatadictionaryform/plugin.py:97
 #, python-format
 msgid "Value must be larger than %d"
-msgstr ""
+msgstr "Hodnota musí být větší než %d"
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:5
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:5
@@ -5105,12 +5106,12 @@ msgstr ""
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:10
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:6
 msgid "JSON object"
-msgstr ""
+msgstr "JSON objekt"
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:17
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:7
 msgid "Always increasing"
-msgstr ""
+msgstr "Stále rostoucí"
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:22
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_view.html:8
@@ -5119,7 +5120,7 @@ msgstr ""
 
 #: ckanext/example_idatadictionaryform/templates/datastore/snippets/dictionary_form.html:27
 msgid "Secret (write-only)"
-msgstr ""
+msgstr "Tajné (pouze pro zápis)"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
@@ -5304,19 +5305,19 @@ msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:136
 msgid "free-form text"
-msgstr ""
+msgstr "volný text"
 
 #: ckanext/tabledesigner/column_types.py:159
 msgid "Choice"
-msgstr ""
+msgstr "Volba"
 
 #: ckanext/tabledesigner/column_types.py:161
 msgid "Choose one option from a fixed list"
-msgstr ""
+msgstr "Vyberte jednu možnost z pevného seznamu"
 
 #: ckanext/tabledesigner/column_types.py:238
 msgid "Email Address"
-msgstr ""
+msgstr "E-mailová adresa"
 
 #: ckanext/tabledesigner/column_types.py:240
 msgid "A single email address"
@@ -5328,7 +5329,7 @@ msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:278
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: ckanext/tabledesigner/column_types.py:280
 msgid "Uniform resource identifier (URL or URN)"
@@ -5378,7 +5379,7 @@ msgstr ""
 
 #: ckanext/tabledesigner/column_types.py:384
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: ckanext/tabledesigner/column_types.py:386
 msgid "A JSON object"
@@ -5567,7 +5568,7 @@ msgstr ""
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:3
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/range.html:1
 msgid "Minimum"
-msgstr ""
+msgstr "Minimum"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:12
 msgid "Minimum permitted value for data in this column"
@@ -5576,7 +5577,7 @@ msgstr ""
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:18
 #: ckanext/tabledesigner/templates/tabledesigner/view_snippets/range.html:2
 msgid "Maximum"
-msgstr ""
+msgstr "Maximum"
 
 #: ckanext/tabledesigner/templates/tabledesigner/constraint_snippets/range.html:27
 msgid "Maximum permitted value for data in this column"

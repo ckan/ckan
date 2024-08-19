@@ -5,6 +5,8 @@
 # 
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2024
+# Konstantin Sivakov <konstantin.sivakov@gmail.com>, 2024
+# Petar Gligorovski, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-05-23 15:52+0200\n"
 "PO-Revision-Date: 2024-05-23 14:04+0000\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2024\n"
+"Last-Translator: Petar Gligorovski, 2024\n"
 "Language-Team: Macedonian (https://app.transifex.com/okfn/teams/11162/mk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -108,7 +110,7 @@ msgstr "{y}Ѕ"
 
 #: ckan/lib/helpers.py:1037
 msgid "Add {object_type}"
-msgstr ""
+msgstr "Додади {object_type}"
 
 #: ckan/lib/helpers.py:1038 ckan/lib/helpers.py:1039 ckan/lib/helpers.py:1047
 #: ckan/lib/helpers.py:1049 ckan/lib/helpers.py:1060
@@ -117,35 +119,35 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1040 ckan/lib/helpers.py:1041
 msgid "Create {object_type}"
-msgstr ""
+msgstr "Креирај {object_type}"
 
 #: ckan/lib/helpers.py:1042
 msgid "Are you sure you want to delete this {object_type}?"
-msgstr ""
+msgstr "Дали сте сигурни дека сакате да го избришете {object_type} ?"
 
 #: ckan/lib/helpers.py:1044
 msgid "A little information about my {object_type}..."
-msgstr ""
+msgstr "Неколку информации за {object_type}?"
 
 #: ckan/lib/helpers.py:1046
 msgid "Edit {object_type}"
-msgstr ""
+msgstr "Измени"
 
 #: ckan/lib/helpers.py:1048
 msgid "{object_type} Form"
-msgstr ""
+msgstr "{object_type} Форма"
 
 #: ckan/lib/helpers.py:1050
 msgid "My {object_type}s"
-msgstr ""
+msgstr "Мој/и {object_type}-ови"
 
 #: ckan/lib/helpers.py:1051
 msgid "View {object_type}"
-msgstr ""
+msgstr "Погледни {object_type}"
 
 #: ckan/lib/helpers.py:1052
 msgid "My {object_type}"
-msgstr ""
+msgstr "Мој/и {object_type}"
 
 #: ckan/lib/helpers.py:1053
 msgid "There are currently no {object_type}s for this site"
@@ -165,11 +167,11 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1061
 msgid "Save {object_type}"
-msgstr ""
+msgstr "Зачувај {object_type}"
 
 #: ckan/lib/helpers.py:1062
 msgid "Search {object_type}s..."
-msgstr ""
+msgstr "Пребарувај {object_type}-ови"
 
 #: ckan/lib/helpers.py:1063
 msgid "You are not a member of any {object_type}s."
@@ -177,7 +179,7 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1064
 msgid "Update {object_type}"
-msgstr ""
+msgstr "Ажурирај {object_type}"
 
 #: ckan/lib/helpers.py:1660
 msgid "Unknown"
@@ -611,7 +613,7 @@ msgstr "Се обидувате да креирате организација �
 
 #: ckan/logic/action/create.py:1120
 msgid "Error sending the invite email, the user was not created: {0}"
-msgstr ""
+msgstr "Грешка при испраќање на емаил, корисникот не е креиран: {0}"
 
 #: ckan/logic/action/create.py:1241 ckan/logic/action/create.py:1247
 #: ckan/logic/action/create.py:1297 ckan/logic/action/create.py:1303
@@ -1137,7 +1139,7 @@ msgstr "Датотека"
 #: ckan/public/base/javascript/modules/resource-reorder.js:41
 #: ckan/templates/package/edit_base.html:18
 msgid "Reorder resources"
-msgstr ""
+msgstr "Сортирај ресурси"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:42
 msgid ""
@@ -1145,6 +1147,9 @@ msgid ""
 "the resource to the right and place it to the desired location on the list. "
 "When you are done, click the \"Save order\" -button."
 msgstr ""
+"Можете да ги преуредите ресурсите со влечење со помош на иконата со стрелка."
+" Повлечете го ресурсот надесно и поставете го на саканата локација на "
+"листата. Кога ќе завршите, кликнете на копчето „Зачувај нарачка“."
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:64
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:54
@@ -1167,7 +1172,7 @@ msgstr "Изберете поле"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:40
 msgid "Reorder resource view"
-msgstr ""
+msgstr "Приказ за сортирање на ресурси"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:57
 #: ckan/templates/group/edit_base.html:13
@@ -1202,7 +1207,7 @@ msgstr ""
 
 #: ckan/templates/error_document_template.html:16
 msgid "Click here to login"
-msgstr ""
+msgstr "Кликни тука за да се логираш"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
@@ -1234,7 +1239,7 @@ msgstr "Видете профил"
 
 #: ckan/templates/header.html:27
 msgid "View dashboard"
-msgstr ""
+msgstr "Погледни контролна табла"
 
 #: ckan/templates/header.html:29 ckan/templates/user/dashboard.html:10
 #: ckanext/activity/templates/header.html:11
@@ -1245,7 +1250,7 @@ msgstr "Контролна табла"
 #: ckan/templates/header.html:35 ckan/templates/header.html:37
 #: ckan/templates/user/dashboard.html:20
 msgid "Profile settings"
-msgstr ""
+msgstr "Поставувања на профил"
 
 #: ckan/templates/header.html:44
 msgid "Log out"
@@ -1253,7 +1258,7 @@ msgstr "Одјавете се"
 
 #: ckan/templates/header.html:53
 msgid "Account"
-msgstr ""
+msgstr "Сметка"
 
 #: ckan/templates/header.html:56 ckan/templates/user/logout_first.html:14
 msgid "Log in"
@@ -1322,7 +1327,7 @@ msgstr "За"
 
 #: ckan/templates/header.html:116
 msgid "Search Datasets..."
-msgstr ""
+msgstr "Пребарувај податочни сетови"
 
 #: ckan/templates/header.html:117 ckan/templates/home/snippets/search.html:12
 #: ckan/templates/snippets/simple_search.html:5
@@ -1342,15 +1347,15 @@ msgstr "Пребарувајте податочни сетови..."
 
 #: ckan/templates/header.html:118 ckan/templates/snippets/search_form.html:16
 msgid "Submit"
-msgstr ""
+msgstr "Испрати"
 
 #: ckan/templates/page.html:6
 msgid "Skip to main content"
-msgstr ""
+msgstr "Прескокни до главна содржина"
 
 #: ckan/templates/page.html:36
 msgid "Breadcrumb"
-msgstr ""
+msgstr "навигација на локација"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
@@ -1374,7 +1379,7 @@ msgstr "Наслов на сајтот"
 
 #: ckan/templates/admin/config.html:17
 msgid "Custom Stylesheet"
-msgstr ""
+msgstr "Пролагодени стилови"
 
 #: ckan/templates/admin/config.html:19
 msgid "Site Tag Line"
@@ -1446,19 +1451,19 @@ msgstr "Потврдете ресетирање"
 
 #: ckan/templates/admin/index.html:4
 msgid "Current Sysadmins"
-msgstr ""
+msgstr "Моментален системски администратор"
 
 #: ckan/templates/admin/index.html:26
 msgid "Revoke Sysadmin permission"
-msgstr ""
+msgstr "Отповикај ги дозволите за системскиот администратор."
 
 #: ckan/templates/admin/index.html:40 ckan/templates/admin/index.html:60
 msgid "Promote user to Sysadmin"
-msgstr ""
+msgstr "Надгради го корисникот во Систем Администратор"
 
 #: ckan/templates/admin/index.html:61
 msgid "Promote"
-msgstr ""
+msgstr "Надгради"
 
 #: ckan/templates/admin/index.html:73
 msgid "Administer CKAN"
