@@ -83,6 +83,10 @@
       </style>
       {%- endif %}
     {% endblock %}
+
+    {%- block head_extras %}
+    {% endblock %}
+
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
@@ -109,6 +113,9 @@
     #}
     {%- block scripts %}
     {% endblock -%}
+
+    {% block body_extras -%}
+    {%- endblock %}
 
     {# render all assets included in scripts block and everywhere else #}
     {# make sure there are no calls to `asset` tag after this point #}
