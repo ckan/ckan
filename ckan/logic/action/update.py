@@ -227,7 +227,6 @@ def resource_view_update(
     assert view_plugin
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
-
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -326,6 +325,7 @@ def package_update(
     :rtype: dictionary
 
     '''
+
     model = context['model']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
