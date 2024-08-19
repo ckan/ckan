@@ -1,0 +1,2 @@
+migrate_package_activity.py and revision tables have been removed. Migrate your revision
+data to activities before upgrading to this version or the revision history will be lost.

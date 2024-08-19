@@ -1,8 +1,8 @@
-# encoding: utf-8
+from __future__ import annotations
 
 import logging
-import ckan.plugins as plugins
-from typing import Any, Mapping, Optional
+from ckan import model, plugins
+from typing import Any
 
 from ckan.common import g, request
 from ckan.lib import captcha
@@ -12,7 +12,9 @@ from . import signals
 log = logging.getLogger(__name__)
 
 
-def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
+def default_authenticate(
+        identity: dict[str, Any]
+) -> model.User | model.AnonymousUser | None:
     if not ('login' in identity and 'password' in identity):
         return None
 
@@ -47,7 +49,9 @@ def default_authenticate(identity: 'Mapping[str, Any]') -> Optional["User"]:
     return None
 
 
-def ckan_authenticator(identity: 'Mapping[str, Any]') -> Optional["User"]:
+def ckan_authenticator(
+        identity: dict[str, Any]
+) -> model.User | model.AnonymousUser | None:
     """Allows extensions that have implemented
     `IAuthenticator.authenticate()` to hook into the CKAN authentication
     process with a custom implementation.

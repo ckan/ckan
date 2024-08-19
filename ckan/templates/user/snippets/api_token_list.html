@@ -38,7 +38,7 @@
               <form action="{{ action }}" method="POST">
                 {{ h.csrf_input() }}
                 <div class="btn-group">
-                  <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" title="{{ _('Revoke') }}" data-module="confirm-action">
+                  <button type="submit" href="{{ action }}" class="btn btn-danger btn-sm" aria-label="{{ _('Revoke token') }}" data-bs-title="{{ _('Revoke token') }}" data-bs-toggle="tooltip" data-module="confirm-action">
                     <i class="fa fa-times"></i>
                   </button>
                 </div>

@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, Callable, ClassVar, Optional
+from typing import Any, Callable, ClassVar, Optional, cast
 
 
 from collections import OrderedDict
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy import orm
 from ckan.common import config
-from sqlalchemy import types, Column, Table, ForeignKey
+from sqlalchemy import types, Column, Table, ForeignKey, Index
 from typing_extensions import Self
 
 import ckan.model.meta as meta
@@ -35,7 +35,7 @@ resource_table = Table(
     Column('id', types.UnicodeText, primary_key=True,
            default=_types.make_uuid),
     Column('package_id', types.UnicodeText,
-           ForeignKey('package.id')),
+           ForeignKey('package.id'), nullable=False),
     Column('url', types.UnicodeText, nullable=False, doc='remove_if_not_provided'),
     # XXX: format doc='remove_if_not_provided' makes lots of tests fail, fix tests?
     Column('format', types.UnicodeText),
@@ -56,6 +56,9 @@ resource_table = Table(
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
+    Index('idx_package_resource_id', 'id'),
+    Index('idx_package_resource_package_id', 'package_id'),
+    Index('idx_package_resource_url', 'url'),
 )
 
 
@@ -153,7 +156,10 @@ class Resource(core.StatefulObjectMixin,
     @classmethod
     def get_extra_columns(cls) -> list[str]:
         if cls.extra_columns is None:
-            cls.extra_columns = config.get("ckan.extra_resource_fields")
+            cls.extra_columns = cast(
+                "list[str]",
+                config["ckan.extra_resource_fields"]
+            )
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         assert cls.extra_columns is not None

@@ -342,12 +342,17 @@ def default_create_group_schema(
 def default_update_group_schema(
         ignore_missing: Validator,
         not_empty: Validator,
-        group_id_exists: Validator,
+        group_id_or_name_exists: Validator,
         group_name_validator: Validator,
         unicode_safe: Validator):
     schema = default_create_group_schema()
-    schema["id"] = [not_empty, group_id_exists, unicode_safe]
-    schema["name"] = [ignore_missing, group_name_validator, unicode_safe]
+    schema["id"] = [not_empty, group_id_or_name_exists, unicode_safe]
+    schema["name"] = [
+        ignore_missing,
+        not_empty,
+        group_name_validator,
+        unicode_safe,
+    ]
     return schema
 
 
@@ -446,7 +451,7 @@ def default_user_schema(
         ignore_missing: Validator, unicode_safe: Validator,
         name_validator: Validator, user_name_validator: Validator,
         user_password_validator: Validator, user_password_not_empty: Validator,
-        ignore_not_sysadmin: Validator,
+        email_is_unique: Validator, ignore_not_sysadmin: Validator,
         not_empty: Validator, strip_value: Validator,
         email_validator: Validator, user_about_validator: Validator,
         ignore: Validator, boolean_validator: Validator,
@@ -462,7 +467,7 @@ def default_user_schema(
         'password': [user_password_validator, user_password_not_empty,
                      ignore_missing, unicode_safe],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode_safe],
-        'email': [not_empty, strip_value, email_validator,
+        'email': [not_empty, strip_value, email_validator, email_is_unique,
                   unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
@@ -824,10 +829,13 @@ def update_configuration_schema():
 
 @validator_args
 def job_list_schema(
-        ignore_missing: Validator, list_of_strings: Validator
+        ignore_missing: Validator, list_of_strings: Validator,
+        int_validator: Validator, boolean_validator: Validator
 ) -> Schema:
     return {
         u'queues': [ignore_missing, list_of_strings],
+        'limit': [ignore_missing, int_validator],
+        'ids_only': [ignore_missing, boolean_validator],
     }
 
 
