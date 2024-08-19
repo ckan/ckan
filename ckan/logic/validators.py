@@ -1,6 +1,7 @@
 # encoding: utf-8
 from __future__ import annotations
 
+import os
 import collections
 import datetime
 from itertools import count
@@ -15,7 +16,7 @@ from urllib.parse import urlparse
 from sqlalchemy.orm.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
-from ckan import authz, logic
+from ckan import authz, logic, config
 import ckan.logic.converters as converters
 import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
@@ -922,10 +923,11 @@ def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
         parsed = urlparse(url)
         if parsed.scheme and not parsed.path:
             return
-
+        breakpoint()
         mimetype, _encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
+
 
 def clean_format(format: str):
     """Normalize resource's format.
@@ -1137,3 +1139,55 @@ def extras_valid_json(extras: Any, context: Context) -> Any:
             raise Invalid(_(u'Could not parse extra \'{name}\' as valid JSON').
                           format(name=extra))
     return extras
+
+
+def ensure_format_is_updated_on_file_replacement(
+    key: FlattenKey, 
+    data: FlattenDataDict,
+    errors: FlattenErrorDict, 
+    context: Context
+) -> Any:
+    """
+    Ensure that when a file in an existing resource is replaced,
+    the format is correctly updated to reflect the new file format.
+
+    It also updates the resource name if it is set to the filename and the
+    filename has been changed.
+    """
+    model = context['model']
+    resource_id = data.get(key[:-1] + ('id',))
+    existing_resource = model.Resource.get(resource_id)
+
+    if existing_resource and data[key] == existing_resource.format:
+
+        url = data.get(key[:-1] + ('url',))
+
+        parsed = urlparse(url)
+        if parsed.scheme and (not parsed.path or parsed.path == '/'):
+            data[key] = ""
+            return
+
+        mimetype, _ = mimetypes.guess_type(url)
+
+        # If the MIME type cannot be determined and the user has already
+        # specified a format, retain the user's specified format without
+        # overwriting it.
+        if not mimetype:
+            return
+
+        new_format = h.unified_resource_format(mimetype)
+        if existing_resource.format != new_format:
+            data[key] = new_format
+
+        new_filename = os.path.basename(url)
+        old_filename = os.path.basename(existing_resource.url)
+
+        _, file_extension = os.path.splitext(existing_resource.name)
+        is_default_name = existing_resource.name == old_filename
+        is_filename_updated = existing_resource.name != new_filename
+
+        # If the resource name has a file extension, matches the original,
+        # filename and the filename has been changed, update the resource name
+        # with the new filename.
+        if file_extension and is_default_name and is_filename_updated:
+            data[key[:-1] + ("name",)] = new_filename
