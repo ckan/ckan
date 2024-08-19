@@ -394,13 +394,13 @@ def default_extras_schema(ignore: Validator, not_empty: Validator,
 
 
 @validator_args
-def default_show_extras_schema(ignore: Validator):
+def default_show_extras_schema(
+        ignore: Validator, not_empty: Validator) -> Schema:
 
-    schema = default_extras_schema()
-
-    schema["id"] = [ignore]
-
-    return schema
+    return {
+        'key': [not_empty],
+        'value': [not_empty],
+    }
 
 
 @validator_args
