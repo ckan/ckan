@@ -107,24 +107,6 @@ def package_relationship_update(context: Context,
                                    data_dict)
 
 
-def package_change_state(context: Context, data_dict: DataDict) -> AuthResult:
-    user = context['user']
-    package = logic_auth.get_package_object(context, data_dict)
-
-    # use the logic for package_update
-    authorized = authz.is_authorized_boolean('package_update',
-                                                 context,
-                                                 data_dict)
-    if not authorized:
-        return {
-            'success': False,
-            'msg': _('User %s not authorized to change state of package %s') %
-                    (str(user), package.id)
-        }
-    else:
-        return {'success': True}
-
-
 def group_update(context: Context, data_dict: DataDict) -> AuthResult:
     group = logic_auth.get_group_object(context, data_dict)
     user = context['user']
