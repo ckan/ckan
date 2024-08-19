@@ -923,7 +923,7 @@ def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
         parsed = urlparse(url)
         if parsed.scheme and not parsed.path:
             return
-        breakpoint()
+
         mimetype, _encoding = mimetypes.guess_type(url)
         if mimetype:
             data[key] = mimetype
