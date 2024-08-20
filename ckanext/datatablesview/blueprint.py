@@ -7,6 +7,7 @@ from six import text_type
 
 from ckan.common import json
 from ckan.plugins.toolkit import get_action, request, h
+from html import escape
 
 datatablesview = Blueprint(u'datatablesview', __name__)
 
@@ -89,13 +90,25 @@ def ajax(resource_view_id):
         }
     )
 
+    aaData = []
+    for row in response[u'records']:
+        row_data = []
+        for colname in cols:
+            cell = row.get(colname, None)
+            if cell is None:
+                row_data.append(text_type(u''))
+            else:
+                if isinstance(cell, str):
+                    row_data.append(escape(cell))
+                else:
+                    row_data.append(cell)
+        aaData.append(row_data)
+
     return json.dumps({
         u'draw': draw,
         u'iTotalRecords': unfiltered_response.get(u'total', 0),
         u'iTotalDisplayRecords': response.get(u'total', 0),
-        u'aaData': [[text_type(row.get(colname, u''))
-                     for colname in cols]
-                    for row in response[u'records']],
+        u'aaData': aaData,
     })
 
 
