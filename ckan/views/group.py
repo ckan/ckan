@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sqlalchemy as sa
 from collections import OrderedDict
 from typing import Any, Optional, Union
 
@@ -103,6 +104,25 @@ def _guess_group_type(expecting_name: bool = False) -> str:
     return gt
 
 
+def _get_total_group_count(group_type: str, q: Optional[str] = None) -> int:
+    """
+    Calculate the total number of groups or organizations for pagination.
+    """
+    total_count_query = model.Session.query(
+        sa.func.count(model.Group.id)
+    ).filter(model.Group.state == "active", model.Group.type == group_type)
+    if q:
+        q_like = f"%{q}%"
+        total_count_query = total_count_query.filter(
+            sa.or_(
+                model.Group.name.ilike(q_like),
+                model.Group.title.ilike(q_like),
+                model.Group.description.ilike(q_like),
+            )
+        )
+    return total_count_query.scalar()
+
+
 def index(group_type: str, is_organization: bool) -> str:
     extra_vars: dict[str, Any] = {}
     page = h.get_page_number(request.args) or 1
@@ -148,10 +168,13 @@ def index(group_type: str, is_organization: bool) -> str:
             u'include_dataset_count': True,
             u'include_member_count': True,
             u'include_extras': True,
-            u'set_max_limit': True
+            u'limit': items_per_page,
+            u'offset': (page - 1) * items_per_page,
         }
-        action = 'group_list'
-        page_results = get_action(action, is_organization)(context, data_dict)
+        action_name = 'organization_list' if is_organization else 'group_list'
+        page_results = get_action(action_name)(context, data_dict)
+        total_count = _get_total_group_count(group_type, q)
+
     except ValidationError as e:
         if e.error_dict and e.error_dict.get(u'message'):
             msg: Any = e.error_dict['message']
@@ -164,13 +187,6 @@ def index(group_type: str, is_organization: bool) -> str:
         group_template = _get_group_template(u'index_template', group_type)
         return base.render(group_template, extra_vars)
 
-    total_count = len(page_results)
-    # Calculate the offset and limit for list slicing
-    offset = (page - 1) * items_per_page
-    end = min(offset + items_per_page, total_count)
-    # Get the orgs/groups for the current page
-    orgs_for_page = page_results[offset:end]
-
     extra_vars["page"] = Page(
         collection=page_results,
         page=page,
@@ -179,7 +195,7 @@ def index(group_type: str, is_organization: bool) -> str:
         items_per_page=items_per_page
     )
 
-    extra_vars["page"].items = orgs_for_page
+    extra_vars["page"].items = page_results
     extra_vars["group_type"] = group_type
 
     # TODO: Remove
@@ -762,9 +778,8 @@ def followers(id: str, group_type: str, is_organization: bool) -> str:
     context: Context = {'user': current_user.name}
     group_dict = _get_group_dict(id, is_organization)
     try:
-        action = 'group_follower_list'
         followers = \
-            get_action(action, is_organization)(context, {u'id': id})
+            get_action(u'group_follower_list')(context, {u'id': id})
     except NotAuthorized:
         base.abort(403, _(u'Unauthorized to view followers %s') % u'')
 

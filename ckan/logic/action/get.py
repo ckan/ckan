@@ -322,7 +322,6 @@ def _group_or_org_list(
     ref_group_by = 'id' if api == 2 else 'name'
     pagination_dict = {}
     limit = data_dict.get('limit')
-    set_max_limit = data_dict.pop('set_max_limit', False)
     if limit:
         pagination_dict['limit'] = data_dict['limit']
     offset = data_dict.get('offset')
@@ -339,11 +338,6 @@ def _group_or_org_list(
     all_fields = asbool(data_dict.get('all_fields', None))
 
     if all_fields:
-        if set_max_limit:
-            # This is required for proper pagination in group/org index.
-            max_limit = 1000
-        # all_fields is really computationally expensive, so need a tight limit
-        else:
             try:
                 max_limit = config.get(
                     'ckan.group_and_organization_list_all_fields_max')
