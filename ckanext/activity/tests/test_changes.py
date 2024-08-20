@@ -314,9 +314,9 @@ class TestChanges(object):
 
         helpers.call_action(
             "package_patch",
+            {"user": user["name"]},
             id=original["id"],
-            owner_org=None,
-            organization=None
+            owner_org='',
         )
 
         new = helpers.call_action(
