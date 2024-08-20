@@ -18,7 +18,7 @@ When a resource is added to the DataStore, you get:
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
-The DataStore is generally used alongside other tools which will
+The DataStore is generally used alongside tools which will
 automatically upload data to the DataStore from suitable files, whether
 uploaded to CKAN's FileStore or externally linked. See :ref:`automatic_uploads`
 for more details.
