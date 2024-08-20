@@ -113,6 +113,15 @@ class TestVersion5(object):
             {'key': 'key2', 'value': 'value2'},
         ]
 
+    def test_non_string_extras(self):
+        dataset = factories.Dataset(
+            type='fancy_type',
+            name='test-dataset',
+            custom_text='custom-text',
+            custom_number=15
+        )
+        assert dataset["custom_number"] == 15
+
 
 @pytest.fixture
 def user():
