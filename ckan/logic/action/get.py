@@ -1063,21 +1063,27 @@ def package_show(context: Context, data_dict: DataDict) -> ActionResult.PackageS
             package_dict = with_custom_schema
 
     assert isinstance(package_dict, dict)  # everything is fine, pyright
+    changing = (package_dict['with_custom_schema']
+                if use_default_schema == 'both' else package_dict)
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
-            package_dict = item.before_dataset_view(package_dict)
+            changing = item.before_dataset_view(changing)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
-        for resource_dict in package_dict['resources']:
+        for resource_dict in changing['resources']:
             item.before_resource_show(resource_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.after_dataset_show(context, package_dict)
+        item.after_dataset_show(context, changing)
 
-    return package_dict
+    if use_default_schema == 'both':
+        package_dict['with_custom_schema'] = changing
+        return package_dict
+
+    return changing
 
 
 def resource_show(

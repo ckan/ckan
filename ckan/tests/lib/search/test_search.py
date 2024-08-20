@@ -74,9 +74,8 @@ def test_03_update_package_from_dict():
     assert query.run({"q": "barrow"})["results"][0] == "new_name"
 
     # update package again
-    package = model.Package.by_name("new_name")
-    package.name = u"council-owned-litter-bins"
-    model.repo.commit_and_remove()
+    package['name'] = "council-owned-litter-bins"
+    helpers.call_action("package_update", context={}, **package)
 
     assert query.run({"q": ""})["count"] == 2
     assert query.run({"q": "spatial"})["count"] == 1

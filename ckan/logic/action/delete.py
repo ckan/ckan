@@ -647,8 +647,11 @@ def tag_delete(context: Context, data_dict: DataDict) -> None:
 
     _check_access('tag_delete', context, data_dict)
 
+    update_packages = tag_obj.packages
     tag_obj.delete()
     model.repo.commit()
+    for p in update_packages:
+        ckan.logic.index_update_package(context, p.id)
 
 def _unfollow(
         context: Context, data_dict: DataDict, schema: Schema,
