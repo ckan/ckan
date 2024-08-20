@@ -385,7 +385,7 @@ def default_extras_schema(ignore: Validator, not_empty: Validator,
     return {
         'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator],
         'key': [not_empty, extra_key_not_in_root_schema, unicode_safe],
-        'value': [not_missing],
+        'value': [not_missing, unicode_safe],
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
@@ -394,13 +394,13 @@ def default_extras_schema(ignore: Validator, not_empty: Validator,
 
 
 @validator_args
-def default_show_extras_schema(ignore: Validator):
+def default_show_extras_schema(
+        ignore: Validator, not_empty: Validator) -> Schema:
 
-    schema = default_extras_schema()
-
-    schema["id"] = [ignore]
-
-    return schema
+    return {
+        'key': [not_empty],
+        'value': [not_empty],
+    }
 
 
 @validator_args
