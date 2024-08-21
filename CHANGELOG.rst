@@ -1797,6 +1797,8 @@ Minor changes
 v.2.9.0 2020-08-05
 ==================
 
+.. _migration-notes-2.9:
+
 Migration notes
 ---------------
 - This version does require a requirements upgrade on source installations
