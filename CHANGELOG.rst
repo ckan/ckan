@@ -10,6 +10,16 @@ Changelog
 .. towncrier release notes start
 
 
+v.2.9.12 2024-08-21
+===================
+
+Bugfixes
+--------
+- `CVE-2024-43371 <https://github.com/ckan/ckan/security/advisories/GHSA-g9ph-j5vj-f8wm>`_: SSRF prevention mechanisms. Added support for the :ref:`ckan.download_proxy` setting in the `Resource Proxy <https://docs.ckan.org/en/latest/maintaining/data-viewer.html#resource-proxy>`_ plugin.
+- `CVE-2024-41674 <https://github.com/ckan/ckan/security/advisories/GHSA-2rqw-cfhc-35fh>`_: fixed Solr credentials leak via error message in ``package_search`` action.
+- `CVE-2024-41675 <https://github.com/ckan/ckan/security/advisories/GHSA-r3jc-vhf4-6v32>`_: fixed XSS vector in DataTables view.
+
+
 v.2.9.11 2024-03-13
 ===================
 
