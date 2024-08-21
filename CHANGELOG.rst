@@ -9,6 +9,44 @@ Changelog
 
 .. towncrier release notes start
 
+v.2.10.5 2024-08-21
+===================
+
+Migration notes
+---------------
+
+- This version requires a requirements upgrade on source installations
+- The minimum Python version for this version is Python 3.8. It has been tested up
+  to Python 3.11
+
+Minor changes
+-------------
+- Support for Python 3.11 (`#8171
+  <https://github.com/ckan/ckan/pull/8171>`_)
+- Upgrade requirements to address security vulnerabilities (`#8349
+  <https://github.com/ckan/ckan/pull/8349>`_)
+- Added :ref:`ckan.datatables.null_label` config option. Datatables
+  views will now show blank cells for NoneType field values by
+  default. (`#7574 <https://github.com/ckan/ckan/pull/7574>`_)
+
+
+Bugfixes
+--------
+
+- `CVE-2024-43371 <https://github.com/ckan/ckan/security/advisories/GHSA-g9ph-j5vj-f8wm>`_: SSRF prevention mechanisms.
+  Added support for the :ref:`ckan.download_proxy` setting in the `Resource Proxy <https://docs.ckan.org/en/latest/maintaining/data-viewer.html#resource-proxy>`_ plugin.
+- `CVE-2024-41674 <https://github.com/ckan/ckan/security/advisories/GHSA-2rqw-cfhc-35fh>`_: fixed
+  Solr credentials leak via error message in ``package_search`` action.
+- `CVE-2024-41675 <https://github.com/ckan/ckan/security/advisories/GHSA-r3jc-vhf4-6v32>`_: fixed
+  XSS vector in DataTables view.
+- Allow using ``.`` in Solr local parser parameters (`#8138
+  <https://github.com/ckan/ckan/pull/8138>`_)
+- Fix misplaced CSRF token in the BS3 collaborator_new.html. (`#8204
+  <https://github.com/ckan/ckan/pull/8204>`_)
+- Prevent exception in Datatables view when the size field is missing (`#8284
+  <https://github.com/ckan/ckan/pull/8284>`_)
+
+
 v.2.10.4 2024-03-13
 ===================
 
