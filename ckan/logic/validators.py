@@ -906,26 +906,23 @@ def list_of_strings(key: FlattenKey, data: FlattenDataDict,
 
 def if_empty_guess_format(key: FlattenKey, data: FlattenDataDict,
                           errors: FlattenErrorDict, context: Context) -> Any:
-    """Make an attempt to guess resource's format using URL.
+    """Make an attempt to guess resource's format on creation using URL, otherwise
+    If the resource exists and its format changes, refresh it with the new one. 
+    (Since CKAN 2.10)
     """
-    value = data[key]
-    resource_id = data.get(key[:-1] + ('id',))
+    url = data.get(key[:-1] + ('url',), '')
+    if not url:
+        return
 
-    # if resource_id then an update
-    if (not value or value is Missing) and not resource_id:
-        url = data.get(key[:-1] + ('url',), '')
-        if not url:
-            return
+    # Uploaded files have only the filename as url, so check scheme to
+    # determine if it's an actual url
+    parsed = urlparse(url)
+    if parsed.scheme and not parsed.path:
+        return
 
-        # Uploaded files have only the filename as url, so check scheme to
-        # determine if it's an actual url
-        parsed = urlparse(url)
-        if parsed.scheme and not parsed.path:
-            return
-
-        mimetype, _encoding = mimetypes.guess_type(url)
-        if mimetype:
-            data[key] = mimetype
+    mimetype, _ = mimetypes.guess_type(url)
+    if mimetype:
+        data[key] = mimetype
 
 def clean_format(format: str):
     """Normalize resource's format.

@@ -75,10 +75,6 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     context["resource"] = resource
     old_resource_format = resource.format
 
-    if not resource:
-        log.debug('Could not find resource %s', id)
-        raise NotFound(_('Resource was not found.'))
-
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
@@ -90,6 +86,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
     for n, p in enumerate(resources):
         if p['id'] == id:
+            data_dict['position'] = p['position']
             break
     else:
         log.error('Could not find resource %s after all', id)
@@ -108,6 +105,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     try:
         context['use_cache'] = False
+        context['resource_to_validate'] = data_dict.get('name')
         updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError as e:
         try:
@@ -260,6 +258,7 @@ def package_update(
 
     '''
     model = context['model']
+    resource_to_validate = context.pop('resource_to_validate', None)
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
@@ -296,6 +295,26 @@ def package_update(
 
         resource_uploads.append(upload)
 
+    # these resources are already validated
+    # so we need to skip them in order to increase the performance
+    # for datasets that have many resources.
+    res_to_skip_validation = []
+    if data_dict.get('resources'):
+        res_to_skip_validation = (
+            [
+            res for res 
+            in data_dict['resources'] 
+            if not res.get('name') == resource_to_validate
+        ])
+        # remove all resources that are already validated 
+        # except the ones that need to be created/updated
+        data_dict['resources'] = (
+            [
+            res for res
+            in data_dict['resources']
+            if res.get('name') == resource_to_validate
+        ])
+
     data, errors = lib_plugins.plugin_validate(
         package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
@@ -317,6 +336,18 @@ def package_update(
         include_plugin_data = (
             user_obj.sysadmin  # type: ignore
             and plugin_data
+        )
+
+    if res_to_skip_validation:
+        # extend resources that we skipped during validation and...
+        # preserve original order
+        data['resources'].extend(res_to_skip_validation)
+        data['resources'] = (
+            # newly created resources dont have position yet,
+            # and to make sure they're last
+            sorted(data['resources'],
+                   key=lambda x: x['position']
+                   if 'position' in x else len(data['resources']) + 1)
         )
 
     pkg = model_save.package_dict_save(data, context, include_plugin_data)
