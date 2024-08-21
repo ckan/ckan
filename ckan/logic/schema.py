@@ -48,6 +48,7 @@ def default_resource_schema(
         isodate: Validator, int_validator: Validator,
         extras_valid_json: Validator, keep_extras: Validator,
         uuid_validator: Validator,
+        ensure_format_is_updated_on_file_replacement: Validator,
         resource_id_does_not_exist: Validator) -> Schema:
     return {
         'id': [ignore_empty, uuid_validator,
@@ -55,8 +56,9 @@ def default_resource_schema(
         'package_id': [ignore],
         'url': [ignore_missing, unicode_safe, remove_whitespace],
         'description': [ignore_missing, unicode_safe],
-        'format': [if_empty_guess_format, ignore_missing, clean_format,
-                   unicode_safe],
+        'format': [if_empty_guess_format, ignore_missing,
+                   ensure_format_is_updated_on_file_replacement,
+                   clean_format, unicode_safe],
         'hash': [ignore_missing, unicode_safe],
         'state': [ignore],
         'position': [ignore],

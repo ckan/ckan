@@ -8,6 +8,7 @@ import logging
 import datetime
 import time
 import json
+import os
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -41,6 +42,42 @@ _check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
+
+
+def _has_tabular_file_changed(
+        resource: logic.model.Resource, data_dict: dict[str, Any]
+    ) -> bool:
+    """
+    Check if the filename has changed and if both the old and new formats
+    are recognized tabular formats.
+
+    """
+    new_filename = (
+        data_dict["upload"].filename if data_dict["url_type"] == "upload"
+        and data_dict.get("upload")
+        else os.path.basename(data_dict["url"])
+    )
+    old_filename = os.path.basename(resource.url)
+    tabular_file_formats = (
+        "CSV",
+        "XLS",
+        "XLSX",
+        "XLSM",
+        "XLSB",
+        "TSV",
+        "TAB",
+        "ODS",
+    )
+    new_file_extension = os.path.splitext(new_filename)[1].strip('.').upper()
+    if new_file_extension not in tabular_file_formats:
+        return False
+
+    are_both_tabular_formats = {
+        data_dict["format"],
+        resource.format,
+    }.issubset(tabular_file_formats)
+
+    return new_filename != old_filename and are_both_tabular_formats
 
 
 def resource_update(context: Context, data_dict: DataDict) -> ActionResult.ResourceUpdate:
@@ -105,6 +142,7 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
                                       data_dict)
 
     resources[n] = data_dict
+    has_tabular_file_changed = _has_tabular_file_changed(resource, data_dict)
 
     try:
         context['use_cache'] = False
@@ -118,12 +156,41 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if old_resource_format != resource['format']:
-        _get_action('resource_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': updated_pkg_dict,
-             'resource': resource})
+    has_format_changed = old_resource_format != resource['format']
+    # If the format hasn’t changed but the tabular file has, recreate views.
+    # `has_format_changed` covers format changes, while
+    # `has_tabular_file_changed` ensures updates to the file itself.
+    if has_format_changed or has_tabular_file_changed:
+        res_view_ids = (
+            context["session"]
+            .query(model.ResourceView.id)
+            .filter(model.ResourceView.resource_id == id)
+            .all()
+        )
+        res_view_context: Context = {
+            "model": context["model"],
+            "user": context["user"],
+            "ignore_auth": True,
+        }
+        if res_view_ids:
+            for view_id in res_view_ids:
+                _get_action("resource_view_delete")(
+                    res_view_context,
+                    {"id": view_id},
+                )
+        _get_action("resource_create_default_resource_views")(
+            res_view_context,
+            {"package": updated_pkg_dict, "resource": resource},
+        )
+
+        if has_format_changed:
+            datastore_active = plugins.plugin_loaded("datastore")
+            if datastore_active and resource.get("datastore_active"):
+                    data_dict: dict[str, Any] = {
+                        "force": True,
+                        "resource_id": resource["id"],
+                    }
+                    _get_action("datastore_delete")({"ignore_auth": True}, data_dict)
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_resource_update(context, resource)
@@ -160,7 +227,6 @@ def resource_view_update(
     assert view_plugin
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
-
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
@@ -259,6 +325,7 @@ def package_update(
     :rtype: dictionary
 
     '''
+
     model = context['model']
     name_or_id = data_dict.get('id') or data_dict.get('name')
     if name_or_id is None:

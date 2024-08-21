@@ -7,6 +7,9 @@ import unittest.mock as mock
 import pytest
 import sqlalchemy as sa
 
+from io import BytesIO
+from werkzeug.datastructures import FileStorage
+
 import ckan.lib.app_globals as app_globals
 import ckan.logic as logic
 from ckan.logic.action.get import package_show as core_package_show
@@ -1190,7 +1193,7 @@ class TestResourceUpdate(object):
             "resource_view_list", id=second_resource["id"]
         )
 
-        assert len(res_views) == 2
+        assert len(res_views) == 1
 
         third_resource = factories.Resource(
             url="http://localhost", name="Test3", format="")
@@ -1361,6 +1364,47 @@ class TestResourceUpdate(object):
                 'package_resource_reorder',
                 id=dataset['id'], order=[resource2['id'], resource1['id']])
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
+
+    @pytest.mark.ckan_config("ckan.views.default_views", "image_view text_view")
+    @mock.patch("flask_login.utils._get_user")
+    def test_resource_format_and_view_update(
+        self,
+        current_user,
+        ckan_config,
+        monkeypatch,
+        tmpdir,
+    ):
+        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+        dataset = factories.Dataset()
+
+        data_dict = {
+            "name": "new resource",
+            "description": "test",
+            "disposal": "one_year",
+            "package_id": dataset["id"],
+            "upload": create_filestorage(),
+            "action_required_after_retention": "archive",
+        }
+
+        resource = helpers.call_action("resource_create", **data_dict)
+        assert resource["format"] == "TXT"
+        assert resource["mimetype"] == "text/plain"
+
+        views_list = helpers.call_action("resource_view_list", id=resource["id"])
+        assert len(views_list) == 1
+        assert views_list[0]["view_type"] == "text_view"
+
+        file_storage = create_filestorage("20230322_test.jpg", "image/jpeg")
+        data_dict = {"upload": file_storage}
+
+        mock_current_user(current_user)
+        updated_resource = helpers.call_action("resource_patch", id=resource["id"], **data_dict)
+        assert updated_resource["format"] == "JPEG"
+
+        views_list = helpers.call_action("resource_view_list", id=updated_resource["id"])
+        # previous preview is deleted
+        assert len(views_list) == 1
+        assert views_list[0]["view_type"] == "image_view"
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -2460,3 +2504,21 @@ class TestPackagePluginData(object):
                 "key1": "value1"
             }
         }
+
+
+def create_filestorage(
+    filename: str = "20230322_test.text",
+    content_type: str = "text/plain",
+):
+    return FileStorage(
+        stream=BytesIO(b"upload-content"),
+        filename=filename,
+        content_type=content_type,
+    )
+
+
+def mock_current_user(current_user):
+    user = factories.Sysadmin()
+    user_obj = model.User.get(user["name"])
+    # mock current_user
+    current_user.return_value = user_obj
