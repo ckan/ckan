@@ -5,8 +5,8 @@
 # 
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2022
-# Friedrich Zahn, 2023
-# Ondics Githubler, 2023
+# toothstone, 2023
+# Ondics Githubler, 2024
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-30 16:00+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Ondics Githubler, 2023\n"
+"Last-Translator: Ondics Githubler, 2024\n"
 "Language-Team: German (https://app.transifex.com/okfn/teams/11162/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -350,7 +350,7 @@ msgstr "Datensatz ID gibt es schon"
 
 #: ckan/logic/validators.py:234
 msgid "Resource id already exists."
-msgstr ""
+msgstr "Ressourcen-ID gibt es schon"
 
 #: ckan/logic/validators.py:281
 msgid "Resource"

@@ -18,7 +18,7 @@ import ckan.model as model
 
 from ckan.common import config
 from ckan.lib.search.common import (
-    make_connection, SearchError, SearchQueryError
+    make_connection, SearchError, SearchQueryError, SolrConnectionError
 )
 from ckan.types import Context
 
@@ -103,7 +103,7 @@ def _parse_local_params(local_params: str) -> list[Union[str, list[str]]]:
     {!type=dismax qf=myfield v='some value'} -> [['type', 'dismax'], ['qf', 'myfield'], ['v', 'some value']]
 
     """
-    key = Word(alphanums + "_")
+    key = Word(alphanums + "_.")
     value = QuotedString('"') | QuotedString("'") | Word(alphanums + "_$")
     pair = Group(key + Suppress("=") + value)
     expression = Suppress("{!") + OneOrMore(pair | key) + Suppress("}")
@@ -473,6 +473,12 @@ class PackageSearchQuery(SearchQuery):
                         "Can't determine Sort Order" in e.args[0] or \
                         'Unknown sort order' in e.args[0]:
                     raise SearchQueryError('Invalid "sort" parameter')
+
+                if ("Failed to connect to server" in e.args[0] or 
+                        "Connection to server" in e.args[0]):
+                    log.warning("Connection Error: Failed to connect to Solr server.")
+                    raise SolrConnectionError("Solr returned an error while searching.")
+
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
         self.count = solr_response.hits

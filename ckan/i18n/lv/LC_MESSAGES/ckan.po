@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Adrià Mercader <amercadero@gmail.com>, 2022
+# Gatis Zeiris <gatis@dsistemas.lv>, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2023-11-30 16:00+0100\n"
 "PO-Revision-Date: 2022-11-16 11:05+0000\n"
-"Last-Translator: Adrià Mercader <amercadero@gmail.com>, 2022\n"
+"Last-Translator: Gatis Zeiris <gatis@dsistemas.lv>, 2024\n"
 "Language-Team: Latvian (https://app.transifex.com/okfn/teams/11162/lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1215,7 +1216,7 @@ msgstr "Pievienot filtru"
 #: ckan/public-bs3/base/javascript/modules/resource-view-filters.js:52
 #: ckan/public/base/javascript/modules/resource-view-filters.js:52
 msgid "Select a field"
-msgstr ""
+msgstr "Izvēlēties lauku"
 
 #: ckan/public-bs3/base/javascript/modules/resource-view-reorder.js:40
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:40
@@ -2126,6 +2127,10 @@ msgid ""
 "bs-toggle=\"popover\" data-bs-content=\"%(markdown_tooltip)s\" data-bs-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
+"Šeit tu vari izmantot<a href=\"#markdown\" title=\"Markdown quick "
+"reference\" data-bs-toggle=\"popover\" data-bs-"
+"content=\"%(markdown_tooltip)s\" data-bs-html=\"true\">Markdown "
+"formatējumu</a> "
 
 #: ckan/templates/macros/form/required_message.html:11
 msgid "Required field"
@@ -3157,16 +3162,16 @@ msgstr "Notiek ielāde..."
 
 #: ckan/templates/user/api_tokens.html:20
 msgid "Create API Token"
-msgstr ""
+msgstr "Izveidot API žetonu"
 
 #: ckan/templates/user/api_tokens.html:30
 #: ckan/templates/user/read_base.html:22
 msgid "API Tokens"
-msgstr ""
+msgstr "API Tokens"
 
 #: ckan/templates/user/api_tokens.html:38
 msgid "You haven't created any API Tokens."
-msgstr ""
+msgstr "Jūs neesat izveidojis nevienu API žetonu."
 
 #: ckan/templates/user/confirm_delete.html:11
 msgid "Are you sure you want to delete user - {name}?"
@@ -3465,7 +3470,7 @@ msgstr "Biedrs kopš"
 
 #: ckan/templates/user/read_base.html:91
 msgid "Last Active"
-msgstr ""
+msgstr "Pēdējo reizi redzēts"
 
 #: ckan/templates/user/read_base.html:101
 msgid "API Key"
@@ -3478,29 +3483,31 @@ msgstr "Attiestatīt jūsu paroli"
 
 #: ckan/templates/user/request_reset.html:18
 msgid "Email or username"
-msgstr ""
+msgstr "E-pasts vai lietotājvārds"
 
 #: ckan/templates/user/request_reset.html:23
 msgid "Request Reset"
-msgstr ""
+msgstr "Pieprasīt atiestatīšanu"
 
 #: ckan/templates/user/request_reset.html:39
 msgid ""
 "Enter your email address or username into the box and we will send you an "
 "email with a link to enter a new password."
 msgstr ""
+"Ievadiet savu lietotājvārdu lodziņā, un mēs nosūtīsim jums e-pastu ar saiti,"
+" lai ievadītu jaunu paroli."
 
 #: ckan/templates/user/snippets/api_token_list.html:13
 msgid "Token"
-msgstr ""
+msgstr "Žetons"
 
 #: ckan/templates/user/snippets/api_token_list.html:14
 msgid "Last access"
-msgstr ""
+msgstr "Pēdējo reizi piekļūts"
 
 #: ckan/templates/user/snippets/api_token_list.html:15
 msgid "Actions"
-msgstr ""
+msgstr "Darbības"
 
 #: ckan/templates/user/snippets/api_token_list.html:32
 #: ckanext/datapusher/templates-bs3/datapusher/resource_data.html:56
@@ -3518,7 +3525,7 @@ msgstr "Nav sekotāju"
 
 #: ckan/templates/user/snippets/login_form.html:21
 msgid "Username or Email"
-msgstr ""
+msgstr "Lietotājvārds vai e-pasts"
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
@@ -3869,6 +3876,8 @@ msgid ""
 "API Token created: <code style=\"word-break:break-all;\">{token}</code> "
 "{copy}<br>Make sure to copy it now, you won't be able to see it again!"
 msgstr ""
+"API žetons izveidots: <code style=\"word-break:break-all;\">{token}</code> "
+"{copy}<br>Noteikti nokopējiet to tūlīt, jo jūs to vairs neredzēsiet!"
 
 #: ckan/views/user.py:253
 msgid "Unauthorized to revoke API tokens."
@@ -4286,10 +4295,11 @@ msgstr ""
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:5
 msgid "Added field <q>{key}</q> with value <q>{value}</q> to {pkg_link}"
 msgstr ""
+"Pievienots lauks <q>{key}</q> ar vērtību <q>{value}</q> priekš {pkg_link}"
 
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:13
 msgid "Added field <q>{key}</q> to {pkg_link}"
-msgstr ""
+msgstr "Pievienots lauks <q>{key}</q> to {pkg_link}"
 
 #: ckanext/activity/templates/snippets/changes/extra_fields.html:20
 msgid "Added the following fields to {pkg_link}"
@@ -4832,12 +4842,12 @@ msgstr "Piemērs: Python"
 #: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:3
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:3
 msgid "Field {num}."
-msgstr ""
+msgstr "Lauks {num}."
 
 #: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:12
 #: ckanext/datastore/templates/datastore/snippets/dictionary_form.html:12
 msgid "Type Override"
-msgstr ""
+msgstr "Pārrrakstīt ar datu tipu"
 
 #: ckanext/datastore/templates-bs3/datastore/snippets/dictionary_form.html:20
 #: ckanext/datastore/templates-bs3/package/resource_read.html:21
@@ -4845,7 +4855,7 @@ msgstr ""
 #: ckanext/datastore/templates/package/resource_read.html:21
 #: ckanext/datatablesview/templates/datatables/datatables_form.html:35
 msgid "Label"
-msgstr ""
+msgstr "Virsraksts"
 
 #: ckanext/datastore/templates-bs3/package/resource_edit_base.html:6
 #: ckanext/datastore/templates-bs3/package/resource_read.html:14
