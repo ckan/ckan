@@ -235,10 +235,20 @@ Minor changes
 
       class Plugin(p.SingletonPlugin):
           p.implements(p.IClick, inherit=True)
+- New ``ckan config docs`` command, support for config options Markdown documentation (`#8397
+  <https://github.com/ckan/ckan/pull/8397>`_)
+
+
 
 Bug fixes
 ---------
 
+- `CVE-2024-43371 <https://github.com/ckan/ckan/security/advisories/GHSA-g9ph-j5vj-f8wm>`_: SSRF prevention mechanisms.
+  Added support for the :ref:`ckan.download_proxy` setting in the `Resource Proxy <https://docs.ckan.org/en/latest/maintaining/data-viewer.html#resource-proxy>`_ plugin.
+- `CVE-2024-41674 <https://github.com/ckan/ckan/security/advisories/GHSA-2rqw-cfhc-35fh>`_: fixed
+  Solr credentials leak via error message in ``package_search`` action.
+- `CVE-2024-41675 <https://github.com/ckan/ckan/security/advisories/GHSA-r3jc-vhf4-6v32>`_: fixed
+  XSS vector in DataTables view.
 - Add support for custom resource_view auth in view templates (`#5909
   <https://github.com/ckan/ckan/pull/5909>`_)
 - datastore_search_sql returns correct numeric data (`#5753
@@ -337,6 +347,8 @@ Bug fixes
   <https://github.com/ckan/ckan/pull/8284>`_)
 - Remove mutable global state usage in group blueprint (`#8359
   <https://github.com/ckan/ckan/pull/8359>`_)
+- Added back ``header_extra`` and ``body_extra`` template blocks (`#8264
+  <https://github.com/ckan/ckan/pull/8264>`_)
 
 .. _migration-notes-2.11:
 
