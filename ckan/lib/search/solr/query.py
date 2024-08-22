@@ -18,7 +18,7 @@ import ckan.model as model
 
 from ckan.common import config
 from ckan.lib.search.solr.common import (
-    make_connection, SearchError, SearchQueryError, SolrConnectionError
+    make_connection, SearchError, SearchQueryError, SearchEngineConnectionError
 )
 from ckan.types import Context
 
@@ -472,7 +472,7 @@ class PackageSearchQuery(SearchQuery):
                 if "Failed to connect to server" in e.args[0] or \
                         "Connection to server" in e.args[0]:
                     log.warning("Connection Error: Failed to connect to Solr server.")
-                    raise SolrConnectionError("Solr returned an error while searching.")
+                    raise SearchEngineConnectionError("Solr returned an error while searching.")
 
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))

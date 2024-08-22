@@ -22,7 +22,8 @@ from ckan.types import Context
 
 from ckan.lib.search.solr.common import (
     make_connection, SearchIndexError, SearchQueryError,  # type: ignore
-    SearchError, is_available, SearchEngineSettings, config
+    SearchError, is_available, SearchEngineSettings, SearchEngineConnectionError,
+    config
 )
 from ckan.lib.search.solr.index import (
     SearchIndex, PackageSearchIndex, NoopSearchIndex

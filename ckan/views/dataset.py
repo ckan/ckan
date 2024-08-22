@@ -27,7 +27,7 @@ from ckan.common import _, config, g, request
 from ckan.views.home import CACHE_PARAMETERS
 from ckan.lib.plugins import lookup_package_plugin
 from ckan.lib.search import (
-    SearchError, SearchQueryError, SearchIndexError, SolrConnectionError
+    SearchError, SearchQueryError, SearchIndexError, SearchEngineConnectionError
 )
 from ckan.types import Context, Response
 
@@ -337,8 +337,8 @@ def search(package_type: str) -> str:
             _(u'Invalid search query: {error_message}')
             .format(error_message=str(se))
         )
-    except (SearchError, SolrConnectionError) as se:
-        if isinstance(se, SolrConnectionError):
+    except (SearchError, SearchEngineConnectionError) as se:
+        if isinstance(se, SearchEngineConnectionError):
             base.abort(500, se.args[0])
 
         # May be bad input from the user, but may also be more serious like

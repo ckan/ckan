@@ -29,14 +29,14 @@ class SearchQueryError(SearchError):
     pass
 
 
-class SolrConnectionError(Exception):
+class SearchEngineConnectionError(Exception):
     pass
 
 
 DEFAULT_SOLR_URL = 'http://127.0.0.1:8983/solr/ckan'
 
 
-class SolrSettings(object):
+class SearchEngineSettings(object):
     _is_initialised: bool = False
     _url: Optional[str] = None
     _user: Optional[str] = None
@@ -78,7 +78,7 @@ def is_available() -> bool:
 
 
 def make_connection(decode_dates: bool = True) -> Solr:
-    solr_url, solr_user, solr_password = SolrSettings.get()
+    solr_url, solr_user, solr_password = SearchEngineSettings.get()
 
     if solr_url and solr_user and solr_password:
         # Rebuild the URL with the username/password
