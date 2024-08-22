@@ -17,7 +17,7 @@ import ckan.logic as logic
 import ckan.model as model
 
 from ckan.common import config
-from ckan.lib.search.common import (
+from ckan.lib.search.solr.common import (
     make_connection, SearchError, SearchQueryError, SolrConnectionError
 )
 from ckan.types import Context
