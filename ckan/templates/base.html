@@ -74,6 +74,21 @@
       {% asset theme %}
     {% endblock %}
 
+    {% if config.get('ckan.root_path') %}
+      {# if using a root_path, get the url_for_static #}
+      {# target body, to override :root #}
+      <style>
+        body {
+          --format-sprite-image: url("{{ h.url_for_static('/base/images/sprite-resource-icons.png') }}");
+          --background-image: url("{{ h.url_for_static('/base/images/bg.png') }}");
+          --table-separator-image: url("{{ h.url_for_static('/base/images/table-seperator.png') }}");
+          --footer-logo-image: url("{{ h.url_for_static('/base/images/ckan-logo-footer.png') }}");
+          --background-tile-image: url("{{ h.url_for_static('/base/images/background-tile.png') }}");
+          --dashboard-followee-image: url("{{ h.url_for_static('/base/images/dashboard-followee-related.png') }}");
+        }
+      </style>
+    {% endif %}
+
     {# render all assets included in styles block #}
     {{ h.render_assets('style') }}
     {%- block custom_styles %}

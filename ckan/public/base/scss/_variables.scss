@@ -1,6 +1,15 @@
 // Base variables
 $imagePath: "../../../base/images";
-$bgPath: "#{$imagePath}/bg.png";
+
+// CSS Variables
+:root{
+  --format-sprite-image: url("#{$imagePath}/sprite-resource-icons.png");
+  --background-image: url("#{$imagePath}/bg.png");
+  --table-separator-image: url("#{$imagePath}/table-seperator.png");
+  --footer-logo-image: url("#{$imagePath}/ckan-logo-footer.png");
+  --background-tile-image: url("#{$imagePath}/background-tile.png");
+  --dashboard-followee-image: url("#{$imagePath}/dashboard-followee-related.png");
+}
 
 // Layout Variables
 $layoutFontFamily: $font-family-sans-serif;
