@@ -284,7 +284,7 @@ class Repository():
 
             # if custom model imported without migrations applied,
             # corresponding table can be missing from DB
-            if not inspector.has_table(table):
+            if not inspector.has_table(table.name):
                 continue
 
             connection.execute(sa.delete(table))
