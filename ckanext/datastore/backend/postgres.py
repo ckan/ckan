@@ -696,7 +696,7 @@ def create_alias(context: Context, data_dict: dict[str, Any]):
                 ))
         except DBAPIError as e:
             if _get_pgcode(e) in [_PG_ERR_CODE['duplicate_table'],
-                                 _PG_ERR_CODE['duplicate_alias']]:
+                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
                     'alias': [u'"{0}" already exists'.format(alias)]
                 })
@@ -805,7 +805,7 @@ def _is_valid_pg_type(context: Context, type_name: str):
             )
         except ProgrammingError as e:
             if _get_pgcode(e) in [_PG_ERR_CODE['undefined_object'],
-                                 _PG_ERR_CODE['syntax_error']]:
+                                  _PG_ERR_CODE['syntax_error']]:
                 return False
             raise
         else:

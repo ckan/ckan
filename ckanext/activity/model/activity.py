@@ -42,9 +42,7 @@ class Activity(domain_object.DomainObject, BaseModel):
     __table__ = Table(
         "activity",
         BaseModel.metadata,
-        Column(
-        "id", types.UnicodeText, primary_key=True, default=_types.make_uuid
-        ),
+        Column("id", types.UnicodeText, primary_key=True, default=_types.make_uuid),
         Column("timestamp", types.DateTime),
         Column("user_id", types.UnicodeText),
         Column("object_id", types.UnicodeText),
