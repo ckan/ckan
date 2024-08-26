@@ -12,7 +12,7 @@ import uuid
 from typing import Any, Container, Optional, Union
 from urllib.parse import urlparse
 
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 import ckan.lib.navl.dictization_functions as df
 from ckan import authz, logic
@@ -719,7 +719,7 @@ def user_password_not_empty(key: FlattenKey, data: FlattenDataDict,
             authz.is_sysadmin(context.get('user'))):
         return
 
-    if not ('password1',) in data and not ('password2',) in data:
+    if ('password1',) not in data and ('password2',) not in data:
         password = data.get(('password',),None)
         if not password:
             errors[key].append(_('Missing value'))
@@ -939,7 +939,7 @@ def no_loops_in_hierarchy(key: FlattenKey, data: FlattenDataDict,
     a loop in the group hierarchy, and therefore cause the recursion up/down
     the hierarchy to get into an infinite loop.
     '''
-    if not ('id',) in data:
+    if ('id',) not in data:
         # Must be a new group - has no children, so no chance of loops
         return
     group = context['model'].Group.get(data[('id',)])

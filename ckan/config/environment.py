@@ -214,7 +214,7 @@ def update_config() -> None:
     # to eliminate database errors due to stale pooled connections
     config.setdefault('sqlalchemy.pool_pre_ping', True)
     # Initialize SQLAlchemy
-    engine = engine_from_config(config)
+    engine = engine_from_config(dict(config))
     model.init_model(engine)
 
     for plugin in p.PluginImplementations(p.IConfigurable):

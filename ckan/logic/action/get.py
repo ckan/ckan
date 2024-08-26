@@ -692,7 +692,7 @@ def organization_list_for_user(context: Context,
         if not user_id:
             return []
 
-        q: Query[tuple[model.Member, model.Group]] = model.Session.query(model.Member, model.Group) \
+        q = model.Session.query(model.Member, model.Group) \
             .filter(model.Member.table_name == 'user') \
             .filter(
                 model.Member.capacity.in_(roles)
@@ -1947,7 +1947,10 @@ def package_search(context: Context, data_dict: DataDict) -> ActionResult.Packag
               .filter(model.Group.name.in_(group_names))
               .all()
               if group_names else [])
-    group_titles_by_name = dict(groups)
+    group_titles_by_name = {
+        row[0]: row[1]
+        for row in groups
+    }
 
     # Transform facets into a more useful data structure.
     restructured_facets: dict[str, Any] = {}

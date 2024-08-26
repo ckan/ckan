@@ -384,6 +384,9 @@ class Repository():
 
     def are_tables_created(self) -> bool:
         meta.metadata = MetaData()
+        if not meta.engine:
+            return False
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|geometry).*')
             meta.metadata.reflect(meta.engine)

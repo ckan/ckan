@@ -130,7 +130,7 @@ def table_dict_save(table_dict: dict[str, Any],
     if id:
         obj = session.query(ModelClass).get(id)
 
-    if not obj:
+    if not obj and isinstance(table, Table):
         unique_constraints = get_unique_constraints(table, context)
         for constraint in unique_constraints:
             params = dict((key, table_dict.get(key)) for key in constraint)

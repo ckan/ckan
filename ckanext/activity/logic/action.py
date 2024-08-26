@@ -623,7 +623,7 @@ def activity_diff(context: Context, data_dict: DataDict) -> dict[str, Any]:
         .filter(model_activity.Activity.timestamp < activity.timestamp)
         .order_by(
             # type_ignore_reason: incomplete SQLAlchemy types
-            model_activity.Activity.timestamp.desc()  # type: ignore
+            model_activity.Activity.timestamp.desc()
         )
         .first()
     )

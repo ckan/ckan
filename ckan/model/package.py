@@ -74,8 +74,8 @@ package_table = Table('package', meta.metadata,
     Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
     Column('private', types.Boolean, default=False),
     Column('state', types.UnicodeText, default=core.State.ACTIVE),
-    Column('plugin_data', MutableDict.as_mutable(JSONB)),
-    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(
+    Column('plugin_data', MutableDict.as_mutable(JSONB)),  # type: ignore
+    Column('extras', MutableDict.as_mutable(JSONB), CheckConstraint(  # type: ignore
         """
         jsonb_typeof(extras) = 'object' and
         not jsonb_path_exists(extras, '$.* ? (@.type() <> "string")')
@@ -155,7 +155,7 @@ class Package(core.StatefulObjectMixin,
         if for_update:
             q = q.with_for_update()
         pkg = q.get(reference)
-        if pkg == None:
+        if not pkg:
             pkg = cls.by_name(reference, for_update=for_update)
         return pkg
     # Todo: Make sure package names can't be changed to look like package IDs?
@@ -461,11 +461,14 @@ class Package(core.StatefulObjectMixin,
         import ckan.model as model
 
         # Gets [ (group, capacity,) ...]
-        pairs: list[tuple[model.Group, str]] = model.Session.query(
+        pairs = model.Session.query(
             model.Group,model.Member.capacity
         ). join(
-            model.Member, model.Member.group_id == model.Group.id and
-            model.Member.table_name == 'package'
+            model.Member,
+            and_(
+                model.Member.group_id == model.Group.id,
+                model.Member.table_name == 'package'
+            )
         ).join(
             model.Package, model.Package.id == model.Member.table_id
         ).filter(model.Member.state == 'active').filter(
@@ -487,7 +490,7 @@ class PackageMember(domain_object.DomainObject):
 
 
 # import here to prevent circular import
-from ckan.model import tag
+from ckan.model import tag  # noqa: E402
 
 meta.registry.map_imperatively(Package, package_table, properties={
     # delete-orphan on cascade does NOT work!

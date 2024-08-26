@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import Any, ClassVar, Optional, Union
+from typing import Any, ClassVar, Optional, Sequence, Union
 
-from sqlalchemy import Table, select, join, func, and_
+from sqlalchemy import Table, select, join, func, and_, false
 
 import ckan.model as model
 
@@ -45,9 +45,9 @@ class Stats(object):
             .group_by(package.c["owner_org"])
             .where(
                 and_(
-                    package.c["owner_org"] != None,  # type: ignore
+                    package.c["owner_org"].isnot(None),
                     activity.c["activity_type"] == "new package",
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     package.c["state"] == "active",
                 )
             )
@@ -66,7 +66,7 @@ class Stats(object):
     @classmethod
     def top_tags(cls, limit: int = 10,
                  returned_tag_info: str = 'object'
-                 ) -> Optional[list[Any]]:  # by package
+                 ) -> Optional[Sequence[Any]]:  # by package
         assert returned_tag_info in ("name", "id", "object")
         tag = table("tag")
         package_tag = table("package_tag")
@@ -93,7 +93,7 @@ class Stats(object):
             .where(
                 and_(
                     package_tag.c["state"] == "active",
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     package.c["state"] == "active",
                 )
             )
@@ -106,6 +106,7 @@ class Stats(object):
         res_col = model.Session.execute(s).fetchall()
         if returned_tag_info in ("id", "name"):
             return res_col
+
         elif returned_tag_info == "object":
             res_tags = [
                 (model.Session.query(model.Tag).get(str(tag_id)), val)
@@ -121,7 +122,7 @@ class Stats(object):
                 func.count(model.Package.creator_user_id),
             )
             .filter(model.Package.state == "active")
-            .filter(model.Package.private == False)
+            .filter(model.Package.private == false())
             .group_by(model.Package.creator_user_id)
             .order_by(func.count(model.Package.creator_user_id).desc())
             .limit(limit)
@@ -148,7 +149,7 @@ class Stats(object):
             )
             .where(
                 and_(
-                    package.c["private"] == False,
+                    package.c["private"] == false(),
                     activity.c["activity_type"] == "changed package",
                     package.c["state"] == "active",
                 )
@@ -168,7 +169,7 @@ class Stats(object):
         return res_pkgs
 
     @classmethod
-    def get_package_revisions(cls) -> list[Any]:
+    def get_package_revisions(cls) -> Sequence[Any]:
         """
         @return: Returns list of revisions and date of them, in
                  format: [(id, date), ...]
