@@ -1,0 +1,2 @@
+`unselected_facet_items` helper has been removed. You can use
+`get_facet_items_dict` with exclude_active=True instead.

@@ -1,0 +1,1 @@
+Suppress database errors on db & environment init (relation does not exist).
