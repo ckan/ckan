@@ -1,2 +1,0 @@
-Fixes a bug causing `ckan.datasets_per_page` config not being used.
-`limit` parameter in group/organization view has been removed in favor of the config.

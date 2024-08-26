@@ -1,1 +1,0 @@
-use custom group type from the activity object if it's not supplied, eg on user activity streams

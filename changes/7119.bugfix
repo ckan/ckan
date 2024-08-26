@@ -1,1 +1,0 @@
-remove old deleted resources on package_update so that performance is consistent over time (no longer degrading)
