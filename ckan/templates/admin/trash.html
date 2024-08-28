@@ -16,10 +16,12 @@
   </div>
 </form>
 
-{% for ent_type, entities in data.items() %}
-  {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities, messages=messages %}
-{% endfor %}
-{% endblock %}
+  {% block trash_content %}
+    {% for ent_type, entities in data.items() %}
+      {% snippet "admin/snippets/data_type.html", ent_type=ent_type, entities=entities, messages=messages %}
+    {% endfor %}
+  {% endblock trash_content%}
+{% endblock primary_content_inner %}
 
 {% block secondary_content %}
 <div class="module module-narrow module-shallow">
@@ -35,4 +37,4 @@
     </p>
   </div>
 </div>
-{% endblock %}
+{% endblock secondary_content %}
