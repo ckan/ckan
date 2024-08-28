@@ -3,17 +3,22 @@
     <h2 class="accordion-header" id="heading-{{ ent_type }}">
       <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#{{ ent_type }}"
         aria-expanded="true" aria-controls="{{ ent_type }}">
-        {% if ent_type == "package" %} <i class='fa fa-sitemap p-2'></i>
-          {% elif ent_type == 'group' %} <i class='fa fa-group p-2'></i>
-          {% else %} <i class="fa fa-building p-2"></i>
-        {% endif %}
-        {% if ent_type == 'package' %}
-          {{ _('Deleted datasets') }}
-        {% elif ent_type == 'organization' %}
-          {{ _('Deleted organizations') }}
-        {% elif ent_type == 'group' %}
-          {{ _('Deleted groups') }}
-        {% endif %}
+        {% block accordion_icon %}
+          {% if ent_type == "package" %} <i class='fa fa-sitemap p-2'></i>
+            {% elif ent_type == 'group' %} <i class='fa fa-users p-2'></i>
+            {% else %} <i class="fa fa-building p-2"></i>
+          {% endif %}
+        {% endblock accordion_icon %}
+
+        {% block accordion_title %}
+          {% if ent_type == 'package' %}
+            {{ _('Deleted datasets') }}
+          {% elif ent_type == 'organization' %}
+            {{ _('Deleted organizations') }}
+          {% elif ent_type == 'group' %}
+            {{ _('Deleted groups') }}
+          {% endif %}
+        {% endblock accordion_title %}
       </button>
     </h2>
 
@@ -24,34 +29,38 @@
     <div id="{{ ent_type }}" class="accordion-collapse collapse show p-2" aria-labelledby="heading-{{ ent_type }}"
       data-bs-parent="#accordion-{{ ent_type }}">
       <ul class="{{ ent_type }}-list">
-        {% for entity in entities %}
-        {% set title = entity.title or entity.name %}
-          {% do items.append(title) %}
-        <li>
-          <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}" aria-label="{{ _('Navigate to dataset: {title}').format(title=title|truncate(60)) }}">
-            {{ title|truncate(80) }}
-          </a>
-        </li>
-        {% else %}
-        <p>
-          {{ _(messages.empty[ent_type]) }}
-        </p>
-        {% endfor %}
+        {% block accordion_items %}
+          {% for entity in entities %}
+          {% set title = entity.title or entity.name %}
+            {% do items.append(title) %}
+          <li>
+            <a href="{{ h.url_for(entity.type + '.read', id=entity.name) }}" title="{{ title }}">
+              {{ title|truncate(80) }}
+            </a>
+          </li>
+          {% else %}
+          <p>
+            {{ _(messages.empty[ent_type]) }}
+          </p>
+          {% endfor %}
+        {% endblock accordion_items %}
       </ul>
 
-      <!-- show button only if there is entity to purge -->
-      {% if items|length > 0 %}
-      <form method="POST" class="d-flex justify-content-end" action="{{ h.url_for('admin.trash') }}"
-        id="form-purge-{{ ent_type }}">
-        {{ h.csrf_input() }}
-        <input type="hidden" name="action" value="{{ent_type}}">
-        <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger purge-all"
-          data-module="confirm-action" data-module-with-data=true
-          data-module-content="{{ _(messages.confirm[ent_type]) }}">
-          {{ _('Purge') }}
-        </a>
-      </form>
-      {% endif %}
+      {% block purge_button %}
+        <!-- show button only if there is entity to purge -->
+        {% if items|length > 0 %}
+        <form method="POST" class="d-flex justify-content-end" action="{{ h.url_for('admin.trash') }}"
+          id="form-purge-{{ ent_type }}">
+          {{ h.csrf_input() }}
+          <input type="hidden" name="action" value="{{ent_type}}">
+          <a href="{{ h.url_for('admin.trash', name=ent_type) }}" class="btn btn-danger purge-all"
+            data-module="confirm-action" data-module-with-data=true
+            data-module-content="{{ _(messages.confirm[ent_type]) }}">
+            {{ _('Purge') }}
+          </a>
+        </form>
+        {% endif %}
+      {% endblock purge_button %}
     </div>
   </div>
 </div>

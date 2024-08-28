@@ -1,0 +1,48 @@
+{% ckan_extends %}
+
+
+{% block accordion_icon %}
+    {% if ent_type == 'activity' %}
+        <i class="fa fa-tasks p-2"></i>
+    {% else %}
+        {{ super() }}
+    {% endif %}
+{% endblock accordion_icon %}
+
+{% block accordion_title %}
+    {% if ent_type == 'activity' %}
+        {{ _('Deleted activities') }}
+    {% else %}
+        {{ super() }}
+    {% endif %}
+{% endblock accordion_title %}
+
+{% block accordion_items %}
+{% if ent_type == "activity" %}
+    {% for date, activities in entities.items() %}
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-{{ loop.index }}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+                {{ date }} ({{ activities|length }} activities)
+            </button>
+        </h2>
+        <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#activitiesAccordion">
+            <div class="accordion-body">
+                <ul>
+                    {% for activity in activities %}
+                        <li>
+                            <strong>Type:</strong> {{ activity.activity_type }} - 
+                            <strong>Timestamp:</strong> {{ activity.timestamp }} - 
+                            <strong>Data:</strong> {{ activity.data }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    {{ super()}}
+{% endif %}
+{% endblock accordion_items %}

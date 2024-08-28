@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Union, List
+from typing import Any, Union, List, Tuple
 
 from flask import Blueprint
 from flask.views import MethodView
@@ -173,6 +173,11 @@ class TrashView(MethodView):
 
         return base_results['results']
 
+    def _get_actions_and_entities(self) -> Tuple[Tuple[str, ...], Tuple[List[Any], ...]]:
+        actions = ('dataset_purge', 'group_purge', 'organization_purge')
+        entities = tuple(self.deleted_entities.values())
+        return actions, entities
+
     def get(self) -> str:
         ent_type = request.args.get(u'name')
 
@@ -199,14 +204,7 @@ class TrashView(MethodView):
         return h.redirect_to(u'admin.trash')
 
     def purge_all(self):
-        actions = (u'dataset_purge', u'group_purge', u'organization_purge')
-        entities = (
-            self.deleted_packages,
-            self.deleted_groups,
-            self.deleted_orgs
-        )
-
-        for action, deleted_entities in zip(actions, entities):
+        for action, deleted_entities in zip(self._get_actions_and_entities()):
             for entity in deleted_entities:
                 ent_id = entity.id if hasattr(entity, 'id') \
                     else entity['id']  # type: ignore
