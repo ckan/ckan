@@ -297,9 +297,15 @@ def package_update(
         if original_package == data_dict:
             # no change
             return pkg.id if return_id_only else data_dict
-        if dict(original_package, resources=None) == dict(
-                data_dict, resources=None) and isinstance(
-                data_dict.get('resources'), list):
+
+        res_deps = []
+        if hasattr(package_plugin, 'resource_validation_dependencies'):
+            res_deps = package_plugin.resource_validation_dependencies(
+                pkg.type)
+
+        _missing = object()
+        if all(original_package.get(rd, _missing) ==
+               data_dict.get(rd, _missing) for rd in res_deps):
             oids = {r['id']: r for r in original_package['resources']}
             copy_resources = {
                 i: r['position']
