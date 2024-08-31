@@ -5,7 +5,6 @@ import pytest
 import ckan.logic as logic
 import ckan.authz as authz
 import ckan.plugins as plugins
-from ckan.plugins.core import find_system_plugins
 
 
 def _make_calls(*args):
@@ -142,14 +141,7 @@ def reset_observer():
 @pytest.mark.ckan_config("ckan.plugins", "action_plugin")
 @pytest.mark.usefixtures("with_plugins")
 def test_plugins_load():
-    # synchronous_search automatically gets loaded
-    current_plugins = set(
-        [
-            plugins.get_plugin(p)
-            for p in ["action_plugin", "synchronous_search"]
-            + find_system_plugins()
-        ]
-    )
+    current_plugins = {plugins.get_plugin("action_plugin")}
     assert set(plugins.core._PLUGINS_SERVICE.values()) == current_plugins
 
 
