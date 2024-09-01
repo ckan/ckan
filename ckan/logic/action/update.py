@@ -87,6 +87,11 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         package_show_context: Union[Context, Any] = dict(context, for_update=True)
         pkg_dict = _get_action('package_show')(
             package_show_context, {'id': package_id})
+
+        # allow metadata_modified to be updated
+        # removes from original_package for comparison in package_update
+        pkg_dict.pop('metadata_modified', None)
+
     update_context['original_package'] = dict(pkg_dict)
     pkg_dict['resources'] = list(pkg_dict['resources'])
 
@@ -379,10 +384,10 @@ def package_update(
             i += 1
         data['resources'] = resources
 
-    # FIXME: avoid weird logic in package_dict_save by updating directly
-    model.Session.query(model.Package).filter_by(id=pkg.id).update(
-        {"metadata_modified": datetime.datetime.utcnow()})
-    model.Session.refresh(pkg)
+    if not data.get('metadata_modified'):
+        # FIXME: check if anything was in fact changed before updating,
+        # creating activities, calling plugins etc.
+        data['metadata_modified'] = datetime.datetime.utcnow()
 
     include_plugin_data = False
     user_obj = context.get('auth_user_obj')
@@ -558,6 +563,10 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             for unm in unmatched
         ]})
 
+    # allow metadata_modified to be updated if data has changed
+    # removes from original_package for comparison in package_update
+    orig.pop('metadata_modified', None)
+
     revised = deepcopy(orig)
     if 'filter' in data:
         dfunc.filter_glob_match(revised, data['filter'])
@@ -619,6 +628,11 @@ def package_resource_reorder(
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
+
+    # allow metadata_modified to be updated if data has changed
+    # removes from original_package for comparison in package_update
+    package_dict.pop('metadata_modified', None)
+
     existing_resources = list(package_dict.get('resources', []))
     ordered_resources = []
 

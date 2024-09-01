@@ -291,6 +291,10 @@ def resource_create(context: Context,
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_create(context, data_dict)
 
+    # allow metadata_modified to be updated
+    # removes from original_package for comparison in package_update
+    pkg_dict.pop('metadata_modified', None)
+
     original_package = dict(pkg_dict)
     pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
