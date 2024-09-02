@@ -45,6 +45,15 @@ class ResourceDataView(MethodView):
             # backward compatibility with old templates
             toolkit.g.pkg_dict = pkg_dict
             toolkit.g.resource = resource
+            
+            # Determine if the upload button should be enabled based on whether
+            # the resource format is supported. The button will be enabled if
+            # the resource format is listed in the supported formats.
+            resource_format = resource.get('format','').strip()
+            supported_formats = toolkit.config.get('ckan.datapusher.formats')
+            is_supported = (resource_format in supported_formats or
+                   resource_format.lower() in supported_formats
+            )
 
         except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _(u'Resource not found'))
@@ -66,6 +75,7 @@ class ResourceDataView(MethodView):
                 u'status': datapusher_status,
                 u'pkg_dict': pkg_dict,
                 u'resource': resource,
+                u'is_supported': is_supported,
             }
         )
 
