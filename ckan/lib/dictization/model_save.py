@@ -63,8 +63,7 @@ def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', context: Context,
         copy_resources: dict[int, int] | tuple[()]) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if res_dicts is None and allow_partial_update:
+    if res_dicts is None:
         return
 
     session = context['session']
@@ -119,8 +118,7 @@ def package_resource_list_save(
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
                           package: 'model.Package', context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if tag_dicts is None and allow_partial_update:
+    if tag_dicts is None:
         return
 
     model = context["model"]
@@ -168,8 +166,7 @@ def package_membership_list_save(
         group_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', context: Context) -> None:
 
-    allow_partial_update = context.get("allow_partial_update", False)
-    if group_dicts is None and allow_partial_update:
+    if group_dicts is None:
         return
 
     capacity = 'public'
@@ -237,8 +234,7 @@ def relationship_list_save(
         relationship_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', attr: str, context: Context) -> None:
 
-    allow_partial_update = context.get("allow_partial_update", False)
-    if relationship_dicts is None and allow_partial_update:
+    if relationship_dicts is None:
         return
 
     model = context["model"]
@@ -314,10 +310,7 @@ def group_member_save(context: Context, group_dict: dict[str, Any],
     )
 
     if entity_list is None:
-        if context.get('allow_partial_update', False):
-            return {'added': [], 'removed': []}
-        else:
-            entity_list = []
+        return {'added': [], 'removed': []}
 
     entities: dict[tuple[str, str], Any] = {}
     Member = model.Member

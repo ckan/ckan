@@ -125,7 +125,6 @@ def group_patch(context: Context,
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('group_update')(patch_context, patched)
 
 
@@ -155,7 +154,6 @@ def organization_patch(
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('organization_update')(patch_context, patched)
 
 

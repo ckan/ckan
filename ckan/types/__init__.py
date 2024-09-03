@@ -93,7 +93,6 @@ class Context(TypedDict, total=False):
     reset_password: bool
     save: bool
     active: bool
-    allow_partial_update: bool
     for_update: bool
     for_edit: bool
     for_view: bool

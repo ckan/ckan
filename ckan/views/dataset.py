@@ -541,8 +541,6 @@ class CreateView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if ckan_phase:
-                # prevent clearing of groups etc
-                context[u'allow_partial_update'] = True
                 # sort the tags
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
@@ -724,8 +722,6 @@ class EditView(MethodView):
             return base.abort(400, _(u'Integrity Error'))
         try:
             if u'_ckan_phase' in data_dict:
-                # we allow partial updates to not destroy existing resources
-                context[u'allow_partial_update'] = True
                 if u'tag_string' in data_dict:
                     data_dict[u'tags'] = _tag_string_to_list(
                         data_dict[u'tag_string']

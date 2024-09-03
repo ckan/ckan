@@ -824,16 +824,15 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
     For further parameters see
     :py:func:`~ckan.logic.action.create.group_create`.
 
+    Callers can choose to not specify particular keys and they will be left at
+    their existing values. This includes: packages, users, groups, tags, extras
+
     :param id: the name or id of the group to update
     :type id: string
 
     :returns: the updated group
     :rtype: dictionary
-
     '''
-    # Callers that set context['allow_partial_update'] = True can choose to not
-    # specify particular keys and they will be left at their existing
-    # values. This includes: packages, users, groups, tags, extras
     return _group_or_org_update(context, data_dict)
 
 def organization_update(
@@ -849,6 +848,9 @@ def organization_update(
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
+    Callers can choose to not specify particular keys and they will be left at
+    their existing values. This includes: packages, users, groups, tags, extras
+
     :param id: the name or id of the organization to update
     :type id: string
     :param packages: ignored. use
@@ -859,9 +861,6 @@ def organization_update(
     :rtype: dictionary
 
     '''
-    # Callers that set context['allow_partial_update'] = True can choose to not
-    # specify particular keys and they will be left at their existing
-    # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdate:
