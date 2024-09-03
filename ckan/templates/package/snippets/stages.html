@@ -12,31 +12,115 @@ Example:
     {% snippet 'package/snippets/stages.html', stages=['active', 'complete'] %}
 
 #}
+
+{% macro render_step(icon, active, step_count, step_name, step_status) %}
+    <span class="dataset-circle-icon">
+        <i class="fa {{active}} {{ icon }}" aria-hidden="true"></i>
+    </span>
+    <span class="dataset-step">STEP {{ step_count }}</span>
+    <span class="dataset-step-name">{{ step_name }}</span>
+    <span class="dataset-step-status">{{ step_status }}</span>
+{% endmacro %}
+
 {% set s1 = stages[0] or 'active' %}
 {% set s2 = stages[1] or 'uncomplete' %}
+{% set s3 = stages[2] or 'preview' %}
 {% set dataset_type = dataset_type or h.default_package_type() %}
 
 {% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
 {% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
+{% if s3 != 'uncomplete' %}{% set class = 'stage-3' %}{% endif %}
 
-<ol class="stages {{ class }}">
+<!-- <ol class="stages {{ class }}">
   <li class="first {{ s1 }}">
     {% if s1 != 'complete' %}
-      <span class="highlight">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</span>
+      <span class="highlight">
+        <div class="row">
+          {{ render_step('fa-check-circle', s1, '1', _('Create Dataset'), _('In Progress')) }}
+        </div>
+      </span>
     {% else %}
-      <button class="highlight" name="save" value="go-dataset" type="submit">{{ h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset') }}</button>
+      <button class="highlight" name="save" value="go-dataset" type="submit">
+        <div class="row">
+        {{ render_step('fa-check-circle',s1, '1', h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), _('In Progress')) }}
+        </div>
+      </button>
     {% endif %}
   </li>
-  <li class="last {{ s2 }}">
+  <li class="row">
+    <span class="dataset-line">
+
+    </span>
+  </li>
+  <li class="second {{ s2 }}">
     {% if s2 != 'complete' %}
-      <span class="highlight">{{ _('Add data') }}</span>
+      <span class="highlight">
+        <div class="row">
+        {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
+        </div>
+      </span>
     {% else %}
       {% if s1 == 'active' %}
-        {# stage 1 #}
-        <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
+        <button class="row" name="save" value="go-resources" type="submit">
+          {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
+        </button>
+      {% else %}
+        <a href="{{h.url_for(dataset.new)}}" class="row">
+          {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
+        </a>
+      {% endif %}
+    {% endif %}
+  </li>
+  <li class="row">
+    <span class="dataset-line">
+
+    </span>
+  </li>
+  <li class="third {{ s3 }}">
+    {% if s2 != 'complete' %}
+    <span class="highlight">
+      <div class="row">
+      {{ render_step('fa-angle-double-right',s3, '3', _('Submit Dataset'), _('Pending')) }}
+      </div>
+    </span>
+    {% else %}
+      {% if s2 == 'active' %}
+      <button class="row" name="save" value="go-resources" type="submit">
+        {{ render_step('fa-angle-double-right',s3, '3', _('Submit Dataset'), _('Pending')) }}
+      </button>
       {% else %}
         {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
       {% endif %}
     {% endif %}
   </li>
-</ol>
+</ol> -->
+
+<div class="container rounded stage">
+  <div class="row" >
+    <div class="col-auto " >
+      <div class="row" >
+        {{ render_step('fa-check-circle', s1, '1', _('Create Dataset'), _('In Progress')) }}
+      </div>
+    </div>
+    <div class="col row" >
+      <span class="dataset-line">
+
+      </span>
+    </div>
+    <div class="col-auto" >
+      <div class="row" >
+        {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
+      </div>
+    </div>
+    <div class="col row" >
+      <span class="dataset-line">
+
+      </span>
+    </div>
+    <div class="col-auto" >
+      <div class="row" >
+        {{ render_step('fa-angle-double-right',s3, '3', _('Submit Dataset'), _('Pending')) }}
+      </div>
+    </div>
+  </div>
+</div>
