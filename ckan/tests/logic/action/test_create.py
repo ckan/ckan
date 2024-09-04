@@ -1143,6 +1143,19 @@ class TestDatasetCreate(object):
 
         assert isinstance(dataset, str)
 
+    def test_non_string_extras(self):
+        data_dict = {
+            "name": "test-non-string-extras",
+            "extras": [
+                {
+                    "key": "some_number",
+                    "value": 1.5
+                }
+            ]
+        }
+
+        helpers.call_action("package_create", **data_dict)
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestGroupCreate(object):
@@ -1510,6 +1523,18 @@ class TestUserCreate(object):
             "api_token_list", context=context, **user_dict
         )
         assert not token
+
+    def test_user_create_fails_with_duplicate_email_case_insensitive(self):
+        factories.User(email="some_email@example.org")
+
+        with pytest.raises(logic.ValidationError):
+            helpers.call_action(
+                "user_create",
+                context={},
+                email="Some_Email@example.org",
+                name="test",
+                password="required",
+            )
 
 
 @pytest.mark.usefixtures("clean_db")

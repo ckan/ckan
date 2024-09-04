@@ -63,6 +63,18 @@ def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', context: Context,
         copy_resources: dict[int, int] | tuple[()]) -> None:
+    """
+    Store a list of resources in the database
+
+    :param res_dicts: List of resource dictionaries to store
+    :type res_dict: list of dicts
+    :param package: The package model object that resources belong to
+    :param package: model.Package
+    :param context: A context dict with extra information
+    :type context: dict
+    :param copy_resources: A dictionary with resource indexes that should be copied from the existing resource list rather than creating new models for them. It should have the format `{<new_index>: <old_index>,}`
+    :type copy_resources: dict
+    """
     if res_dicts is None:
         return
 
