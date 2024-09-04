@@ -130,9 +130,6 @@ def package_resource_list_save(
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
                           package: 'model.Package', context: Context) -> None:
-    if tag_dicts is None:
-        return
-
     model = context["model"]
     session = context["session"]
 
@@ -215,8 +212,9 @@ def package_membership_list_save(
         member_obj = group_member[group]
         if member_obj and member_obj.state == 'deleted':
             continue
-        if authz.has_user_permission_for_group_or_org(
-                member_obj.group_id, user, 'read'):
+        if (context.get('ignore_auth') or
+            authz.has_user_permission_for_group_or_org(
+                member_obj.group_id, user, 'read')):
             member_obj.capacity = capacity
             member_obj.state = 'deleted'
             session.add(member_obj)
@@ -226,8 +224,9 @@ def package_membership_list_save(
         member_obj = group_member.get(group)
         if member_obj and member_obj.state == 'active':
             continue
-        if authz.has_user_permission_for_group_or_org(
-                group.id, user, 'read'):
+        if (context.get('ignore_auth') or
+            authz.has_user_permission_for_group_or_org(
+                group.id, user, 'read')):
             member_obj = group_member.get(group)
             if member_obj:
                 member_obj.capacity = capacity

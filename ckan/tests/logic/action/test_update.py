@@ -637,6 +637,62 @@ class TestDatasetUpdate(object):
 
         assert updated_dataset == dataset["id"]
 
+    def test_resources_unchanged_if_missing(self):
+        res = factories.Resource()
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=res['package_id'],
+            notes='hi',
+        )
+        assert updated_dataset['resources'] == [res]
+
+    def test_resources_removed_if_empty_list(self):
+        res = factories.Resource()
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=res['package_id'],
+            notes='hi',
+            resources=[],
+        )
+        assert updated_dataset['resources'] == []
+
+    def test_tags_removed_if_missing(self):
+        dataset = factories.Dataset(tag_string='tagone,tagtwo')
+        assert dataset['tags']
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+        )
+        assert updated_dataset['tags'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group = factories.Group()
+        del group['users']  # avoid validation error
+        dataset = factories.Dataset(groups=[group])
+        assert dataset['groups']
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+        )
+        assert updated_dataset['groups'] == dataset['groups']
+
+    def test_groups_removed_if_empty_list(self):
+        group = factories.Group()
+        del group['users']  # avoid validation error
+        dataset = factories.Dataset(groups=[group])
+        assert dataset['groups']
+
+        updated_dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            groups=[],
+        )
+        assert updated_dataset['groups'] == []
+
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
