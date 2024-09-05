@@ -412,10 +412,9 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
         }
     group_users_changed = group_member_save(context, group_dict, 'users')
     group_groups_changed = group_member_save(context, group_dict, 'groups')
-    group_tags_changed = group_member_save(context, group_dict, 'tags')
     log.debug('Group save membership changes - Packages: %r  Users: %r  '
-            'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
-            group_groups_changed, group_tags_changed)
+            'Groups: %r', pkgs_edited, group_users_changed,
+            group_groups_changed)
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.
