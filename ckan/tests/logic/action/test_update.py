@@ -405,6 +405,9 @@ class TestUpdate(object):
             == "dataset"
         )
 
+
+@pytest.mark.usefixtures("non_clean_db")
+class TestOrganizationUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {"user": user["name"]}
@@ -418,6 +421,62 @@ class TestUpdate(object):
                 name=org["name"],
                 type="ragtagband",
             )
+
+    def test_extras_removed_if_missing(self):
+        org = factories.Organization(extras=[{'key': 'e', 'value': 'v'}])
+        assert org['extras'] == [{'key': 'e', 'value': 'v'}]
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert updated_org['extras'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group = factories.Group()
+        org = factories.Organization(groups=[{'name': group['name']}])
+        assert org['groups'][0]['name'] == group['name']
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert updated_org['groups'][0]['name'] == group['name']
+
+    def test_groups_removed_if_empty_list(self):
+        group = factories.Group()
+        org = factories.Organization(groups=[{'name': group['name']}])
+        assert org['groups'][0]['name'] == group['name']
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+            groups=[],
+        )
+
+        assert updated_org['groups'] == []
+
+    def test_users_unchanged_if_missing(self):
+        user = factories.User()
+        org = factories.Organization(users=[user])
+        assert user['name'] in (g['name'] for g in org['users'])
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+        )
+
+        assert user['name'] in (g['name'] for g in updated_org['users'])
+
+    def test_users_removed_if_empty_list(self):
+        user = factories.User()
+        org = factories.Organization(users=[user])
+        assert user['name'] in (g['name'] for g in org['users'])
+        updated_org = helpers.call_action(
+            "organization_update",
+            id=org["name"],
+            users=[]
+        )
+
+        assert updated_org['users'] == []
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -1560,6 +1619,62 @@ class TestGroupUpdate(object):
                 id=group["id"],
                 type="favouritecolour",
             )
+
+    def test_extras_removed_if_missing(self):
+        group = factories.Group(extras=[{'key': 'e', 'value': 'v'}])
+        assert group['extras'] == [{'key': 'e', 'value': 'v'}]
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+        )
+
+        assert updated_group['extras'] == []
+
+    def test_groups_unchanged_if_missing(self):
+        group1 = factories.Group()
+        group2 = factories.Group(groups=[{'name': group1['name']}])
+        assert group2['groups'][0]['name'] == group1['name']
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group2["name"],
+        )
+
+        assert updated_group['groups'][0]['name'] == group1['name']
+
+    def test_groups_removed_if_empty_list(self):
+        group1 = factories.Group()
+        group2 = factories.Group(groups=[{'name': group1['name']}])
+        assert group2['groups'][0]['name'] == group1['name']
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group2["name"],
+            groups=[],
+        )
+
+        assert updated_group['groups'] == []
+
+    def test_users_unchanged_if_missing(self):
+        user = factories.User()
+        group = factories.Group(users=[user])
+        assert user['name'] in (g['name'] for g in group['users'])
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+        )
+
+        assert user['name'] in (g['name'] for g in updated_group['users'])
+
+    def test_users_removed_if_empty_list(self):
+        user = factories.User()
+        group = factories.Group(users=[user])
+        assert user['name'] in (g['name'] for g in group['users'])
+        updated_group = helpers.call_action(
+            "group_update",
+            id=group["name"],
+            users=[]
+        )
+
+        assert updated_group['users'] == []
 
 
 @pytest.mark.usefixtures("non_clean_db")

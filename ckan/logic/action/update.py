@@ -824,8 +824,8 @@ def group_update(context: Context, data_dict: DataDict) -> ActionResult.GroupUpd
     For further parameters see
     :py:func:`~ckan.logic.action.create.group_create`.
 
-    Callers can choose to not specify particular keys and they will be left at
-    their existing values. This includes: packages, users, groups, tags, extras
+    Callers can choose to not specify packages, users or groups and they will be
+    left at their existing values.
 
     :param id: the name or id of the group to update
     :type id: string
@@ -848,8 +848,8 @@ def organization_update(
     For further parameters see
     :py:func:`~ckan.logic.action.create.organization_create`.
 
-    Callers can choose to not specify particular keys and they will be left at
-    their existing values. This includes: packages, users, groups, tags, extras
+    Callers can choose to not specify packages, users or groups and they will be
+    left at their existing values.
 
     :param id: the name or id of the organization to update
     :type id: string
