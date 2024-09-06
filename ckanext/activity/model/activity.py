@@ -62,7 +62,7 @@ class Activity(domain_object.DomainObject, BaseModel):
     user_id: Mapped[Optional[str]]
     object_id: Mapped[Optional[str]]
     activity_type: Mapped[Optional[str]]
-    data: Mapped[Optional[dict[str, Any]]]
+    data: Mapped[dict[str, Any]]
     permission_labels: Mapped[Optional[list[str]]]
 
     def __init__(
