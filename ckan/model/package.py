@@ -151,10 +151,11 @@ class Package(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        q = meta.Session.query(cls)
-        if for_update:
-            q = q.with_for_update()
-        pkg = q.get(reference)
+        pkg = meta.Session.get(
+            cls,
+            reference,
+            with_for_update=for_update or None,
+        )
         if not pkg:
             pkg = cls.by_name(reference, for_update=for_update)
         return pkg

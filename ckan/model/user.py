@@ -144,7 +144,7 @@ class User(core.StatefulObjectMixin,
         algorithm will require this code to be changed (perhaps using
         passlib's CryptContext)
         '''
-        hashed_password: Any = pbkdf2_sha512.encrypt(password)
+        hashed_password: Any = pbkdf2_sha512.hash(password)
         self._password = str(hashed_password)
 
     def _get_password(self) -> str:
