@@ -84,6 +84,21 @@ class TestDeleteResource(object):
         pkg = helpers.call_action("package_show", id=res["package_id"])
         assert len(pkg["resources"]) == 0
 
+    def test_resource_delete_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        res2 = factories.Resource(package_id=res1['package_id'])
+        factories.Resource(package_id=res1['package_id'])
+        params = {
+            "id": res2['id'],
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_delete", **params)
+            assert m.call_args.args[3] == {0: 0, 1: 2}, 'unchanged res 0, 2'
+
 
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
 @pytest.mark.usefixtures("non_clean_db", "with_plugins")

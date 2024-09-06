@@ -67,6 +67,8 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
     def notify(self, entity: Any, operation: Any):
         for observer in plugins.PluginImplementations(
                 plugins.IDomainObjectModification):
+            # FIXME: swallowing exceptions hides issues and makes index_package
+            # difficult to debug
             try:
                 observer.notify(entity, operation)
             except SearchIndexError as search_error:
