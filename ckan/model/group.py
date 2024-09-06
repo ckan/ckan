@@ -103,7 +103,7 @@ class Member(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        member = meta.Session.query(cls).get(reference)
+        member = meta.Session.get(cls, reference)
         if member is None:
             member = cls.by_name(reference)
         return member
@@ -138,10 +138,10 @@ class Member(core.StatefulObjectMixin,
     def __str__(self):
         # refer to objects by name, not ID, to help debugging
         if self.table_name == 'package':
-            pkg = meta.Session.query(_package.Package).get(self.table_id)
+            pkg = meta.Session.get(_package.Package, self.table_id)
             table_info = 'package=%s' % pkg.name if pkg else 'None'
         elif self.table_name == 'group':
-            group = meta.Session.query(Group).get(self.table_id)
+            group = meta.Session.get(Group, self.table_id)
             table_info = 'group=%s' % group.name if group else 'None'
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name,

@@ -112,7 +112,7 @@ def resource_history(id: str, resource_id: str, activity_id: str) -> str:
     # activity stream
     current_pkg = package
     try:
-        activity = context["session"].query(Activity).get(activity_id)
+        activity = context["session"].get(Activity, activity_id)
         assert activity
         package = activity.data["package"]
     except AttributeError:

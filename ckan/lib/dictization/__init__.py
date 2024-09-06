@@ -128,7 +128,7 @@ def table_dict_save(table_dict: dict[str, Any],
     id = table_dict.get("id")
 
     if id:
-        obj = session.query(ModelClass).get(id)
+        obj = session.get(ModelClass, id)
 
     if not obj and isinstance(table, Table):
         unique_constraints = get_unique_constraints(table, context)

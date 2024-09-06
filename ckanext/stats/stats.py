@@ -58,7 +58,7 @@ class Stats(object):
         res_ids = model.Session.execute(s).fetchall()
 
         res_groups: list[tuple[Optional[model.Group], int]] = [
-            (model.Session.query(model.Group).get(str(group_id)), val)
+            (model.Session.get(model.Group, str(group_id)), val)
             for group_id, val in res_ids
         ]
         return res_groups
@@ -109,7 +109,7 @@ class Stats(object):
 
         elif returned_tag_info == "object":
             res_tags = [
-                (model.Session.query(model.Tag).get(str(tag_id)), val)
+                (model.Session.get(model.Tag, str(tag_id)), val)
                 for tag_id, val in res_col
             ]
             return res_tags
@@ -129,7 +129,7 @@ class Stats(object):
             .all()
         )
         user_count = [
-            (model.Session.query(model.User).get(str(user_id)), count)
+            (model.Session.get(model.User, str(user_id)), count)
             for user_id, count in userid_count
             if user_id
         ]
@@ -162,7 +162,7 @@ class Stats(object):
 
         res_pkgs: list[tuple[model.Package, int]] = []
         for pkg_id, val in res_ids:
-            pkg = model.Session.query(model.Package).get(str(pkg_id))
+            pkg = model.Session.get(model.Package, str(pkg_id))
             assert pkg
             res_pkgs.append((pkg, val))
 
@@ -319,12 +319,12 @@ class Stats(object):
                 num_pkgs = len(new_pkg_ids) - len(deleted_pkg_ids)
                 new_pkgs.extend(
                     pkg.name for pkg in
-                    [model.Session.query(model.Package).get(id)
+                    [model.Session.get(model.Package, id)
                      for id in new_pkg_ids] if pkg
                 )
                 deleted_pkgs.extend(
                     pkg.name for pkg in
-                    [model.Session.query(model.Package).get(id)
+                    [model.Session.get(model.Package, id)
                      for id in deleted_pkg_ids] if pkg
                 )
                 cls._cumulative_num_pkgs += num_pkgs

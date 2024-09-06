@@ -45,7 +45,7 @@ class ResourceView(domain_object.DomainObject):
         if not reference:
             return None
 
-        view = meta.Session.query(cls).get(reference)
+        view = meta.Session.get(cls, reference)
         return view
 
     @classmethod

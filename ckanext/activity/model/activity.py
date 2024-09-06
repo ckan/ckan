@@ -90,7 +90,7 @@ class Activity(domain_object.DomainObject, BaseModel):
         if not id:
             return None
 
-        return meta.Session.query(cls).get(id)
+        return meta.Session.get(cls, id)
 
     @classmethod
     @deprecated(
@@ -148,7 +148,7 @@ class Activity(domain_object.DomainObject, BaseModel):
             # is purged.
             return None
 
-        actor = meta.Session.query(ckan.model.User).get(user_id)
+        actor = meta.Session.get(ckan.model.User, user_id)
 
         return cls(
             user_id,
