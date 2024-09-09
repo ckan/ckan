@@ -18,10 +18,10 @@ When a resource is added to the DataStore, you get:
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
 authorization system.
 
-The DataStore is generally used alongside the
-`DataPusher <https://github.com/ckan/datapusher>`_, which will
+The DataStore is generally used alongside tools which will
 automatically upload data to the DataStore from suitable files, whether
-uploaded to CKAN's FileStore or externally linked.
+uploaded to CKAN's FileStore or externally linked. See :ref:`automatic_uploads`
+for more details.
 
 .. contents::
    :depth: 1
@@ -194,24 +194,31 @@ You can now delete the DataStore table with::
 
 To find out more about the Data API, see `The Data API`_.
 
+.. _automatic_uploads:
 
----------------------------------------------------
-DataPusher: Automatically Add Data to the DataStore
----------------------------------------------------
+------------------------------------------
+Automatically Adding Data to the DataStore
+------------------------------------------
 
-Often, one wants data that is added to CKAN (whether it is linked to or
+In most cases, you will want data that is added to CKAN (whether it is linked to or
 uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
 DataStore. This requires some processing, to extract the data from your files
 and to add it to the DataStore in the format the DataStore can handle.
 
-This task of automatically parsing and then adding data to the DataStore is
-performed by the `DataPusher`_, a service that runs asynchronously and can be installed
-alongside CKAN.
+This task of automatically parsing and then adding data to the DataStore can be performed
+by different tools, you can choose the one the best fits your requirements:
 
-To install this please look at the docs here: https://github.com/ckan/datapusher
+* `XLoader <https://github.com/ckan/ckanext-xloader>`_ is the officially supported extension for 
+  automated uploads to the DataStore. It runs as a :doc:`background job <background-tasks>` and supports
+  type guessing and limiting the number of rows imported among other settings.
+* `DataPusher+ (DataPusher Plus) <https://github.com/dathere/datapusher-plus>`_ is a next-generation replacement for the
+  DataPusher, maintained by `datHere <https://dathere.com/>`_. It focuses on increased performance and robustness and
+  includes data pre-processing capabilities to infer fields, transform data, etc.
+* `AirCan <https://github.com/datopian/aircan>`_ is a tool built on top of Apache Airflow maintained
+  by `Datopian <https://www.datopian.com/>`_ that among other functionalities supports automated data uploads to the DataStore.
+* `DataPusher <https://github.com/ckan/datapusher>`_ is a **legacy tool** that is no longer maintained.
+  It presents significant limitations so users are encouraged to migrate to one of the tools above.
 
-.. note:: The DataPusher only imports the first worksheet of a spreadsheet. It also does
-   not support duplicate column headers. That includes blank column headings.
 
 .. _data_dictionary:
 

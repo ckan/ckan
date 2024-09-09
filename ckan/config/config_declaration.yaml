@@ -1055,10 +1055,14 @@ groups:
               they're given in the config file, regardless of which Python modules
               they're implemented in.
 
-      - key: ckan.resource_proxy.timeout
-        type: int
-        default: 5
-        description: Timeout in seconds to use on Resource Proxy requests.
+      - key: ckan.download_proxy
+        example: http://proxy:3128
+        description: |
+          Specifies a HTTP proxy to be used by extensions such as Resource Proxy, XLoader or Archiver
+          when downloading remote files. This may be useful for enabling access to
+          restricted network locations, or restricting access to privileged ones, eg
+          preventing `Server Side Request Forgery <https://feeding.cloud.geek.nz/posts/restricting-outgoing-webapp-requests-using-squid-proxy/>`_.
+          It will not be used by CKAN core.
 
   - annotation: Front-End Settings
     options:

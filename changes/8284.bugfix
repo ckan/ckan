@@ -1,0 +1,1 @@
+Prevent exception in Datatables view when the size field is missing

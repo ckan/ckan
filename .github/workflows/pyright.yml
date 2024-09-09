@@ -2,7 +2,7 @@ name: Check types
 on: [pull_request]
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.7'
+  PYTHON_VERSION: '3.8'
 
 permissions:
   contents: read
@@ -11,11 +11,11 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install python deps
@@ -23,4 +23,6 @@ jobs:
       - name: Install node deps
         run: npm ci
       - name: Check types
-        run: npx pyright
+        run: |
+          npm list pyright
+          npx pyright

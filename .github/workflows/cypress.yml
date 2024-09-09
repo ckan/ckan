@@ -2,7 +2,7 @@ name: Cypress
 on: [pull_request]
 env:
   NODE_VERSION: '16'
-  PYTHON_VERSION: '3.7'
+  PYTHON_VERSION: '3.8'
 
 permissions:
   contents: read
@@ -40,11 +40,11 @@ jobs:
       CKAN_REDIS_URL: redis://localhost:6379/1
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 

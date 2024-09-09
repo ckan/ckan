@@ -366,6 +366,10 @@ as CKAN.
 You can modify the maximum allowed size for proxied files using the
 :ref:`ckan.resource_proxy.max_file_size` configuration setting.
 
+.. warning:: To prevent exposing internal network resources via the resource proxy,
+   consider setting up a download proxy and configure CKAN with :ref:`ckan.download_proxy`
+
+
 
 .. _same-origin policy: http://en.wikipedia.org/wiki/Same_origin_policy
 
