@@ -123,7 +123,7 @@ def call_action(action_name: str, context=None, **kwargs):
     """
     if context is None:
         context = {}
-    context.setdefault("user", config.get('ckan.site_id'))
+    context.setdefault("user", "127.0.0.1")
     context.setdefault("ignore_auth", True)
     return logic.get_action(action_name)(context, kwargs)
 
