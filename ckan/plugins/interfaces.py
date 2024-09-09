@@ -63,6 +63,7 @@ __all__ = [
     u'IApiToken',
     u'IClick',
     u'ISignal',
+    u'IUserForm',
 ]
 
 
@@ -2234,3 +2235,100 @@ class ISignal(Interface):
 
         """
         return {}
+
+
+class IUserForm(Interface):
+    '''
+    Allows customisation of the user form and its underlying schema.
+    '''
+
+    def new_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the 'new' page.
+        '''
+        return ''
+
+    def read_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page
+
+        '''
+        return ''
+
+    def edit_template(self) -> str:
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the edit page
+
+        '''
+        return ''
+
+    def create_user_schema(self, schema: Schema) -> Schema:
+        '''
+        Return the schema for validating new user dicts.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the user form or API) when creating new user,
+        before entering that data into the database.
+
+
+        CKAN's `store_plugin_data()`` function can
+        be used to convert custom fields into extras for
+        storing in the database.
+
+        See ``ckanext/example_iuserform`` for examples.
+
+        :returns: a dictionary mapping user dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return schema
+
+    def update_user_schema(self, schema: Schema) -> Schema:
+        '''
+        Return the schema for validating user dicts when they are updated.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from users (via the user form or API) when updating user data,
+        before entering that data into the database.
+
+        CKAN's `store_plugin_data()`` function can
+        be used to convert custom fields into extras for
+        storing in the database.
+
+        See ``ckanext/example_iuserform`` for examples.
+
+        :returns: a dictionary mapping user dict keys to lists of validator
+            and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return schema
+
+    def show_user_schema(self, schema: Schema) -> Schema:
+        '''
+        Return a schema to validate user data before they're shown to the
+        requester.
+
+        CKAN will use the returned schema to validate and convert data coming
+        from the database before it is returned to the user via the API or
+        passed to a template for rendering.
+
+
+        If you have used  ``store_plugin_data()`` in
+        your ``create_user_schema()`` and ``update_user_schema()`` then
+        you should use ``load_plugin_data()`` in
+        your ``show_user_schema()`` to convert the extra fields in the
+        database back into your custom user fields.
+
+        See ``ckanext/example_iuserform`` for examples.
+
+        :returns: a dictionary mapping dataset dict keys to lists of validator
+          and converter functions to be applied to those keys
+        :rtype: dictionary
+
+        '''
+        return schema

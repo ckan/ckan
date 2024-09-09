@@ -868,6 +868,11 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
     user = context['user']
     session = context['session']
     schema = context.get('schema') or schema_.default_update_user_schema()
+    # Get the custom schema from IUserForm
+    for plugin in plugins.PluginImplementations(plugins.IUserForm):
+        user_schema = plugin.update_user_schema(schema=schema)
+        schema.update(user_schema)
+
     id = _get_or_bust(data_dict, 'id')
 
     user_obj = model.User.get(id)
@@ -899,11 +904,11 @@ def user_update(context: Context, data_dict: DataDict) -> ActionResult.UserUpdat
             model.repo.commit()
 
     author_obj = model.User.get(context.get('user'))
-    include_plugin_extras = False
+    include_plugin_data = False
     if author_obj:
-        include_plugin_extras = author_obj.sysadmin and 'plugin_extras' in data
+        include_plugin_data = author_obj.sysadmin and 'plugin_extras' in data
     user_dict = model_dictize.user_dictize(
-        user, context, include_plugin_extras=include_plugin_extras)
+        user, context, include_plugin_data=include_plugin_data)
 
     return user_dict
 

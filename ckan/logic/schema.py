@@ -478,7 +478,8 @@ def default_user_schema(
         'state': [ignore_missing, ignore_not_sysadmin],
         'image_url': [ignore_missing, unicode_safe],
         'image_display_url': [ignore_missing, unicode_safe],
-        'plugin_extras': [ignore_missing, json_object, ignore_not_sysadmin],
+        'plugin_data': [ignore_missing, json_object, ignore_not_sysadmin],
+        'extras': default_extras_schema(),
     }
 
 
@@ -560,6 +561,30 @@ def default_user_invite_schema(
         'email': [not_empty, email_validator, email_is_unique, unicode_safe],
         'group_id': [not_empty],
         'role': [not_empty],
+    }
+
+
+@validator_args
+def default_show_user_schema(ignore_missing: Validator,
+                             ignore_empty: Validator,
+                             ignore: Validator) -> Schema:
+    # schema = default_user_schema()
+
+    return {
+        'id': [ignore_empty],
+        'name': [ignore_empty],
+        'fullname': [ignore_empty],
+        'email': [ignore_empty],
+        'about': [ignore_empty],
+        'created': [ignore_empty],
+        'sysadmin': [ignore_empty],
+        'reset_key': [ignore_empty],
+        'activity_streams_email_notifications': [ignore_empty],
+        'state': [ignore_empty],
+        'image_url': [ignore_empty],
+        'image_display_url': [ignore_empty],
+        'plugin_data': [ignore_empty],
+        'extras': default_show_extras_schema()
     }
 
 

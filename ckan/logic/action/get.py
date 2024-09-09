@@ -1398,9 +1398,9 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     :param include_password_hash: Include the stored password hash
         (sysadmin only, optional, default:``False``)
     :type include_password_hash: bool
-    :param include_plugin_extras: Include the internal plugin extras object
+    :param include_plugin_data: Include the internal plugin extras object
         (sysadmin only, optional, default:``False``)
-    :type include_plugin_extras: bool
+    :type include_plugin_data: bool
 
 
     :returns: the details of the user. Includes email_hash and
@@ -1446,11 +1446,11 @@ def user_show(context: Context, data_dict: DataDict) -> ActionResult.UserShow:
     include_password_hash = sysadmin and asbool(
         data_dict.get('include_password_hash', False))
 
-    include_plugin_extras = sysadmin and asbool(
-        data_dict.get('include_plugin_extras', False))
+    include_plugin_data = sysadmin and asbool(
+        data_dict.get('include_plugin_data', False))
 
     user_dict = model_dictize.user_dictize(
-        user_obj, context, include_password_hash, include_plugin_extras)
+        user_obj, context, include_password_hash, include_plugin_data)
 
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []

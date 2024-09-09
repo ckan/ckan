@@ -1,0 +1,24 @@
+{% ckan_extends %}
+
+
+
+    {% block extra_fields %}
+
+    {{ super() }}
+    {% set country = h.get_pkg_dict_extra(data, 'country') %}
+    {% set zip_code = h.get_pkg_dict_extra(data, 'zip_code') %}
+        <div class="control-group">
+          <label for="field-country">Country</label>
+              <select id="field-country" name="country">
+                {% for c in h.countries()  %}
+                  <option value="{{ c }}" {% if c == country %}selected="selected"{% endif %}>{{ c }}</option>
+                {% endfor %}
+              </select>
+
+          <label for="zip-code">Zip Code</label>
+          <input type="text" id="zip-code" name="zip_code" value="{{ zip_code }}" />
+        </div>
+      </div>
+
+    {% endblock %}
+

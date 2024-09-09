@@ -102,7 +102,7 @@ class Context(TypedDict, total=False):
     allow_state_change: bool
     is_member: bool
     use_cache: bool
-    include_plugin_extras: bool
+    include_plugin_data: bool
     message: str
     extras_as_string: bool
     with_private: bool

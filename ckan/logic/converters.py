@@ -51,6 +51,7 @@ def convert_from_extras(key: FlattenKey, data: FlattenDataDict,
         return
     remove_from_extras(data, data_key[1])
 
+
 def extras_unicode_convert(extras: FlattenDataDict, context: Context):
     """Convert every value of the dictionary into string.
     """
@@ -69,6 +70,7 @@ def free_tags_only(key: FlattenKey, data: FlattenDataDict,
     for k in list(data.keys()):
         if k[0] == 'tags' and k[1] == tag_number:
             del data[k]
+
 
 def convert_to_tags(vocab: Any) -> DataValidator:
     """Convert list of tag names into a list of tag dictionaries
@@ -100,6 +102,7 @@ def convert_to_tags(vocab: Any) -> DataValidator:
             data[('tags', num + n, 'vocabulary_id')] = v.id
     return func
 
+
 def convert_from_tags(vocab: Any) -> DataValidator:
     def func(key: FlattenKey, data: FlattenDataDict,
              errors: FlattenErrorDict, context: Context):
@@ -114,6 +117,7 @@ def convert_from_tags(vocab: Any) -> DataValidator:
                     name = data[k].get('display_name', data[k]['name'])
                     tags.append(name)
         data[key] = tags
+
     return func
 
 
@@ -223,6 +227,7 @@ def convert_to_list_if_string(value: Any) -> Any:
     else:
         return value
 
+
 def json_or_string(value: Any) -> Any:
     """
     parse string values as json, return string if that fails
@@ -233,6 +238,7 @@ def json_or_string(value: Any) -> Any:
         except ValueError:
             pass
     return value
+
 
 def json_list_or_string(value: Any) -> Any:
     """

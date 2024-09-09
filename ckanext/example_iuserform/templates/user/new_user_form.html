@@ -1,0 +1,17 @@
+{% ckan_extends %}
+
+{% block extra_fields %}
+      <label for="field-country">Country</label>
+      <select id="field-country" name="country">
+        {% for country in h.countries()  %}
+          <option value="{{ country }}" {% if country in h.countries() %}selected="selected"{% endif %}>{{ country }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <label for="zip-code">Zip Code</label>
+    <input type="text" id="zip-code" name="zip_code" value="{{ zip_code }}" />
+  </div>
+
+  {{ super() }}
+
+{% endblock %}

@@ -1956,14 +1956,14 @@ class TestDatasetRevise(object):
 
 
 @pytest.mark.usefixtures("non_clean_db")
-class TestUserPluginExtras(object):
+class TestUserPluginData(object):
     def test_stored_on_update_if_sysadmin(self):
 
         sysadmin = factories.Sysadmin()
 
-        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
+        user = factories.User(plugin_data={"plugin1": {"key1": "value1"}})
 
-        user["plugin_extras"] = {
+        user["plugin_data"] = {
             "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
@@ -1974,7 +1974,7 @@ class TestUserPluginExtras(object):
             "user_update", context=context, **user
         )
 
-        assert updated_user["plugin_extras"] == {
+        assert updated_user["plugin_data"] == {
             "plugin1": {
                 "key1": "value1.2",
                 "key2": "value2",
@@ -1986,25 +1986,25 @@ class TestUserPluginExtras(object):
             "user_show",
             context=context,
             id=user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert updated_user["plugin_extras"] == {
+        assert updated_user["plugin_data"] == {
             "plugin1": {
                 "key1": "value1.2",
                 "key2": "value2",
             }
         }
 
-        plugin_extras_from_db = (
+        plugin_data_from_db = (
             model.Session.execute(
-                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
+                sa.text('SELECT plugin_data FROM "user" WHERE id=:id'),
                 {"id": user["id"]},
             )
             .first()[0]
         )
 
-        assert plugin_extras_from_db == {
+        assert plugin_data_from_db == {
             "plugin1": {
                 "key1": "value1.2",
                 "key2": "value2",
@@ -2015,9 +2015,9 @@ class TestUserPluginExtras(object):
 
         sysadmin = factories.Sysadmin()
 
-        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
+        user = factories.User(plugin_data={"plugin1": {"key1": "value1"}})
 
-        user["plugin_extras"] = {
+        user["plugin_data"] = {
             "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
@@ -2028,17 +2028,17 @@ class TestUserPluginExtras(object):
             "user_update", context=context, **user
         )
 
-        assert "plugin_extras" not in created_user
+        assert "plugin_data" not in created_user
 
         context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
             "user_show",
             context=context,
             id=created_user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert user["plugin_extras"] == {"plugin1": {"key1": "value1"}}
+        assert user["plugin_data"] == {"plugin1": {"key1": "value1"}}
 
     def test_ignored_on_update_if_non_sysadmin_when_empty(self):
 
@@ -2046,7 +2046,7 @@ class TestUserPluginExtras(object):
 
         user = factories.User()
 
-        user["plugin_extras"] = {
+        user["plugin_data"] = {
             "plugin1": {"key1": "value1.2", "key2": "value2"}
         }
 
@@ -2057,21 +2057,21 @@ class TestUserPluginExtras(object):
             "user_update", context=context, **user
         )
 
-        assert "plugin_extras" not in created_user
+        assert "plugin_data" not in created_user
 
         context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
             "user_show",
             context=context,
             id=created_user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert user["plugin_extras"] is None
+        assert user["plugin_data"] is None
 
     def test_nested_updates_are_reflected_in_db(self):
 
-        user = factories.User(plugin_extras={"plugin1": {"key1": "value1"}})
+        user = factories.User(plugin_data={"plugin1": {"key1": "value1"}})
 
         sysadmin = factories.Sysadmin()
 
@@ -2081,28 +2081,28 @@ class TestUserPluginExtras(object):
             "user_show",
             context=context,
             id=user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        user["plugin_extras"]["plugin1"]["key1"] = "value2"
+        user["plugin_data"]["plugin1"]["key1"] = "value2"
 
         updated_user = helpers.call_action(
             "user_update", context=context, **user
         )
 
-        assert updated_user["plugin_extras"]["plugin1"]["key1"] == "value2"
+        assert updated_user["plugin_data"]["plugin1"]["key1"] == "value2"
 
         # Hold on, partner
 
-        plugin_extras = (
+        plugin_data = (
             model.Session.execute(
-                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
+                sa.text('SELECT plugin_data FROM "user" WHERE id=:id'),
                 {"id": user["id"]},
             )
             .first()[0]
         )
 
-        assert plugin_extras["plugin1"]["key1"] == "value2"
+        assert plugin_data["plugin1"]["key1"] == "value2"
 
 
 class TestVocabularyUpdate(object):

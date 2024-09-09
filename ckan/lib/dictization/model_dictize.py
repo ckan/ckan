@@ -568,9 +568,8 @@ def member_dictize(member: Union[model.Member, model.PackageMember],
 def user_dictize(
         user: Union[model.User, tuple[model.User, str]], context: Context,
         include_password_hash: bool=False,
-        include_plugin_extras: bool=False) -> dict[str, Any]:
+        include_plugin_data: bool=False) -> dict[str, Any]:
     model = context['model']
-
     if context.get('with_capacity'):
         # Fix type: "User" is not iterable
         user, capacity = user  #type: ignore
@@ -593,7 +592,7 @@ def user_dictize(
     result_dict.pop('reset_key', None)
     apikey = result_dict.pop('apikey', None)
     email = result_dict.pop('email', None)
-    plugin_extras = result_dict.pop('plugin_extras', None)
+    plugin_data = result_dict.pop('plugin_data', None)
 
     if context.get('keep_email', False):
         result_dict['email'] = email
@@ -612,10 +611,15 @@ def user_dictize(
         if include_password_hash:
             result_dict['password_hash'] = password_hash
 
-        if include_plugin_extras:
-            result_dict['plugin_extras'] = copy.deepcopy(
-                plugin_extras) if plugin_extras else plugin_extras
+        if include_plugin_data:
+            result_dict['plugin_data'] = copy.deepcopy(
+                plugin_data) if plugin_data else plugin_data
 
+    # check and update custom user data
+    result_dict["extras"] = [
+        {'key': k, 'value': v}
+        for k, v in (result_dict["extras"] or {}).items()
+    ]
 
     image_url = result_dict.get('image_url')
     result_dict['image_display_url'] = image_url
@@ -683,12 +687,12 @@ def resource_view_list_dictize(resource_views: list[model.ResourceView],
 
 def api_token_dictize(api_token: model.ApiToken,
                       context: Context) -> dict[str, Any]:
-    include_plugin_extras = context.get(u'include_plugin_extras', False)
+    include_plugin_data = context.get(u'include_plugin_data', False)
     result_dict = d.table_dictize(api_token, context)
-    plugin_extras = result_dict.pop(u'plugin_extras', None)
-    if include_plugin_extras:
-        result_dict[u'plugin_extras'] = copy.deepcopy(
-            plugin_extras) if plugin_extras else plugin_extras
+    plugin_data = result_dict.pop(u'plugin_data', None)
+    if include_plugin_data:
+        result_dict[u'plugin_data'] = copy.deepcopy(
+            plugin_data) if plugin_data else plugin_data
     return result_dict
 
 

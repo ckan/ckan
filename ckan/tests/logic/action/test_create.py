@@ -2009,16 +2009,15 @@ class TestPackageMemberCreate(object):
 
 @pytest.mark.usefixtures("non_clean_db")
 @pytest.mark.ckan_config("ckan.auth.create_user_via_web", True)
-class TestUserPluginExtras(object):
+class TestUserPluginData(object):
     def test_stored_on_create_if_sysadmin(self):
-
         sysadmin = factories.Sysadmin()
         stub = factories.User.stub()
         user_dict = {
             "name": stub.name,
             "email": stub.email,
             "password": "12345678",
-            "plugin_extras": {"plugin1": {"key1": "value1"}},
+            "plugin_data": {"plugin1": {"key1": "value1"}},
         }
 
         # helpers.call_action sets 'ignore_auth' to True by default
@@ -2028,7 +2027,7 @@ class TestUserPluginExtras(object):
             "user_create", context=context, **user_dict
         )
 
-        assert created_user["plugin_extras"] == {
+        assert created_user["plugin_data"] == {
             "plugin1": {
                 "key1": "value1",
             }
@@ -2038,24 +2037,24 @@ class TestUserPluginExtras(object):
             "user_show",
             context=context,
             id=created_user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert user_dict["plugin_extras"] == {
+        assert user_dict["plugin_data"] == {
             "plugin1": {
                 "key1": "value1",
             }
         }
 
-        plugin_extras_from_db = (
+        plugin_data_from_db = (
             model.Session.execute(
-                sa.text('SELECT plugin_extras FROM "user" WHERE id=:id'),
+                sa.text('SELECT plugin_data FROM "user" WHERE id=:id'),
                 {"id": created_user["id"]},
             )
             .first()[0]
         )
 
-        assert plugin_extras_from_db == {
+        assert plugin_data_from_db == {
             "plugin1": {
                 "key1": "value1",
             }
@@ -2070,7 +2069,7 @@ class TestUserPluginExtras(object):
             "name": stub.name,
             "email": stub.email,
             "password": "12345678",
-            "plugin_extras": {"plugin1": {"key1": "value1"}},
+            "plugin_data": {"plugin1": {"key1": "value1"}},
         }
 
         # helpers.call_action sets 'ignore_auth' to True by default
@@ -2080,17 +2079,17 @@ class TestUserPluginExtras(object):
             "user_create", context=context, **user_dict
         )
 
-        assert "plugin_extras" not in created_user
+        assert "plugin_data" not in created_user
 
         context = {"user": sysadmin["name"], "ignore_auth": False}
         user = helpers.call_action(
             "user_show",
             context=context,
             id=created_user["id"],
-            include_plugin_extras=True,
+            include_plugin_data=True,
         )
 
-        assert user["plugin_extras"] is None
+        assert user["plugin_data"] is None
 
 
 @pytest.mark.usefixtures("non_clean_db")
