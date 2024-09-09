@@ -1,1 +1,0 @@
- The Recline-based view plugins (``recline_view``, ``recline_grid_view``, ``recline_map_view``, etc) have been removed and are no longer available. Users are encouraged to use the DataTables-based view (``datatables_view``) or some of the `community maintained alternatives <https://docs.ckan.org/en/2.10/maintaining/data-viewer.html#other-view-plugins>`_

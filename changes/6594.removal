@@ -1,2 +1,0 @@
-The `IRoutes` interface has been removed since it was part of the old Pylons
-architecture.
