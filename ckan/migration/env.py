@@ -6,11 +6,7 @@ from sqlalchemy import engine_from_config, pool
 # from logging.config import fileConfig
 from ckan.model import init_model
 from ckan.model.meta import metadata
-
-# When auto-generating migration scripts, uncomment these lines to include in
-# the model the revision tables - otherwise Alembic wants to delete them
-# from ckan.migration.revision_legacy_code import RevisionTableMappings
-# RevisionTableMappings.instance()
+from ckan.plugins import plugin_loaded
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -32,6 +28,29 @@ target_metadata = metadata
 # ... etc.
 
 
+def include_name(name, type_, parent_names):
+    """
+    FIXME: A number of revision tables/indexes exist only in migrations.
+
+    Ignore for now but remove these exceptions once a migration is created
+    to delete them properly or create them in the models as well.
+    """
+    if type_ == 'table':
+        if name.endswith('_alembic_version'):
+            # keep migration information from extensions
+            return False
+
+        # tracking and activity tables were created in a core migration
+        if not plugin_loaded('tracking') and name in (
+                'tracking_raw', 'tracking_summary'):
+            return False
+        if not plugin_loaded('activity') and name in (
+                'activity', 'activity_detail'):
+            return False
+
+    return True
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -46,7 +65,8 @@ def run_migrations_offline():
     """
     url = config.get_main_option(u"sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True
+        url=url, target_metadata=target_metadata, literal_binds=True,
+        include_name=include_name,
     )
 
     with context.begin_transaction():
@@ -68,7 +88,10 @@ def run_migrations_online():
     connection = connectable.connect()
     init_model(connectable)
 
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection, target_metadata=target_metadata,
+        include_name=include_name,
+    )
 
     with context.begin_transaction():
         context.run_migrations()

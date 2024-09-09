@@ -24,6 +24,10 @@ Example:
 
   {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
 
+  {% if g.recaptcha_publickey %}
+    {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+  {% endif %}
+
   <div class="form-actions">
     {% block login_button %}
     <button class="btn btn-primary" type="submit">{{ _('Login') }}</button>

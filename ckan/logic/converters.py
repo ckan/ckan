@@ -6,6 +6,7 @@ from typing import Any
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic.validators as validators
+from ckan.lib.navl.validators import unicode_safe
 
 from ckan.common import _, aslist
 from ckan.types import (
@@ -24,7 +25,7 @@ def convert_to_extras(key: FlattenKey, data: FlattenDataDict,
     new_index = max(current_indexes) + 1 if current_indexes else 0
 
     data[('extras', new_index, 'key')] = key[-1]
-    data[('extras', new_index, 'value')] = data[key]
+    data[('extras', new_index, 'value')] = unicode_safe(data[key])
 
 
 def convert_from_extras(key: FlattenKey, data: FlattenDataDict,

@@ -23,7 +23,9 @@
                 <button
                   type="submit"
                   class="btn btn-danger btn-sm"
-                  title="{{ _('Revoke Sysadmin permission') }}"
+                  aria-label="{{ _('Revoke Sysadmin permission') }}"
+                  data-bs-title="{{ _('Revoke Sysadmin permission') }}"
+                  data-bs-toggle="tooltip"
                 >
                   <i class="fa fa-times"></i>
                 </button>
@@ -57,7 +59,7 @@
           <button
             type="submit"
             class="btn btn-primary"
-            title="{{ _('Promote user to Sysadmin') }}"
+            aria-label="{{ _('Promote user to Sysadmin') }}"
           >{{ _('Promote') }}</button>
         </div>
 

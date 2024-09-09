@@ -613,8 +613,6 @@ page.
 
 CKAN displays the user settings page. Here you can change:
 
-* Your username
-
 * Your full name
 
 * Your e-mail address (note: this is not displayed to other users)
@@ -625,7 +623,3 @@ CKAN displays the user settings page. Here you can change:
 
 Make the changes you require and then select the "Update Profile" button.
 
-.. note::
-
-    If you change your username, CKAN will log you out. You will need to log
-    back in using your new username.

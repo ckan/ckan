@@ -10,7 +10,7 @@ from flask.wrappers import Response
 
 import ckan.lib.app_globals as app_globals
 import ckan.lib.base as base
-import ckan.lib.helpers as h
+from ckan.lib.helpers import helper_functions as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -28,8 +28,7 @@ admin = Blueprint(u'admin', __name__, url_prefix=u'/ckan-admin')
 
 def _get_sysadmins() -> "Query[model.User]":
     q = model.Session.query(model.User).filter(
-        # type_ignore_reason: incomplete SQLAlchemy types
-        model.User.sysadmin.is_(True),  # type: ignore
+        model.User.sysadmin.is_(True),
         model.User.state == u'active')
     return q
 
@@ -87,7 +86,7 @@ class ConfigView(MethodView):
 
     def post(self) -> Union[str, Response]:
         try:
-            req: dict[str, Any] = request.form.copy()
+            req = request.form.copy()
             req.update(request.files.to_dict())
             data_dict = logic.clean_dict(
                 dict_fns.unflatten(

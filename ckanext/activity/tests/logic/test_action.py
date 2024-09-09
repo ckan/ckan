@@ -56,7 +56,7 @@ class TestLimits:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestActivityShow:
     def test_simple_with_data(self, package, user, activity_factory):
         activity = activity_factory(
@@ -84,7 +84,7 @@ class TestActivityShow:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestPackageActivityList(object):
     def test_create_dataset(self):
         user = factories.User()
@@ -93,6 +93,7 @@ class TestPackageActivityList(object):
         activities = helpers.call_action(
             "package_activity_list", id=dataset["id"]
         )
+
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
         ]
@@ -298,12 +299,15 @@ class TestPackageActivityList(object):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         _clear_activities()
+
         helpers.call_action(
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"]},
+            id=dataset["id"]
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -312,7 +316,7 @@ class TestPackageActivityList(object):
         assert activities[0]["object_id"] == dataset["id"]
         assert activities[0]["data"]["package"]["title"] == dataset["title"]
 
-    def test_private_dataset_has_no_activity(self):
+    def test_private_dataset_has_activity(self):
         user = factories.User()
         org = factories.Organization(user=user)
         _clear_activities()
@@ -325,11 +329,81 @@ class TestPackageActivityList(object):
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"]},
+            id=dataset["id"]
         )
-        assert [activity["activity_type"] for activity in activities] == []
+        assert [activity["activity_type"]
+                for activity in activities] == ['changed package', 'new package']
 
-    def test_private_dataset_delete_has_no_activity(self):
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Not visible to users without permission
+        activities = helpers.call_action(
+            "package_activity_list",
+            id=dataset["id"],
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
+    def test_private_dataset_delete_has_activity(self):
         user = factories.User()
         org = factories.Organization(user=user)
         _clear_activities()
@@ -341,15 +415,17 @@ class TestPackageActivityList(object):
         )
 
         activities = helpers.call_action(
-            "package_activity_list", id=dataset["id"]
+            "package_activity_list",
+            context={"user": user["name"]},
+            id=dataset["id"]
         )
-        assert [activity["activity_type"] for activity in activities] == []
+        assert [activity["activity_type"]
+                for activity in activities] == ['deleted package', 'new package']
 
     def _create_bulk_types_activities(self, types):
-        dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
+        dataset = factories.Dataset(user=user)
+        from ckan import model
 
         objs = [
             Activity(
@@ -357,12 +433,13 @@ class TestPackageActivityList(object):
                 object_id=dataset["id"],
                 activity_type=activity_type,
                 data=None,
+                permission_labels=["public"]
             )
             for activity_type in types
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
-        return dataset["id"]
+        return dataset["id"], user
 
     def test_error_bad_search(self):
         with pytest.raises(tk.ValidationError):
@@ -381,68 +458,90 @@ class TestPackageActivityList(object):
             "changed package",
             "new package",
         ]
-        id = self._create_bulk_types_activities(types)
+        id, user = self._create_bulk_types_activities(types)
 
         activities_new = helpers.call_action(
-            "package_activity_list", id=id, activity_types=["new package"]
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"]},
+            activity_types=["new package"]
         )
-        assert len(activities_new) == 2
+        assert len(activities_new) == 3
 
         activities_not_new = helpers.call_action(
             "package_activity_list",
             id=id,
+            context={"user": user["name"]},
             exclude_activity_types=["new package"],
         )
         assert len(activities_not_new) == 3
 
         activities_delete = helpers.call_action(
-            "package_activity_list", id=id, activity_types=["deleted package"]
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"]},
+            activity_types=["deleted package"]
         )
         assert len(activities_delete) == 1
 
         activities_not_deleted = helpers.call_action(
             "package_activity_list",
             id=id,
+            context={"user": user["name"]},
             exclude_activity_types=["deleted package"],
         )
-        assert len(activities_not_deleted) == 4
+        assert len(activities_not_deleted) == 5
 
     def _create_bulk_package_activities(self, count):
-        dataset = factories.Dataset()
-        from ckan import model
-
         user = factories.User()
+        dataset = factories.Dataset(user=user)
+        from ckan import model
 
         objs = [
             Activity(
                 user_id=user["id"],
                 object_id=dataset["id"],
-                activity_type=None,
+                activity_type="package",
                 data=None,
+                permission_labels=["public"]
             )
             for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
-        return dataset["id"]
+        return dataset["id"], user
 
     def test_limit_default(self):
-        id = self._create_bulk_package_activities(35)
-        results = helpers.call_action("package_activity_list", id=id)
+        id, user = self._create_bulk_package_activities(35)
+
+        results = helpers.call_action(
+            "package_activity_list",
+            context={"user": user["name"]},
+            id=id
+        )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
-        id = self._create_bulk_package_activities(7)
-        results = helpers.call_action("package_activity_list", id=id)
+        id, user = self._create_bulk_package_activities(7)
+
+        results = helpers.call_action(
+            "package_activity_list",
+            context={"user": user["name"]},
+            id=id
+        )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
-        id = self._create_bulk_package_activities(9)
+        id, user = self._create_bulk_package_activities(9)
+
         results = helpers.call_action(
-            "package_activity_list", id=id, limit="9"
+            "package_activity_list",
+            id=id,
+            context={"user": user["name"]},
+            limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
@@ -607,7 +706,7 @@ class TestPackageActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestUserActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -840,9 +939,76 @@ class TestUserActivityList(object):
         results = helpers.call_action("user_activity_list", id=id, limit="9")
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        activities = helpers.call_action(
+            "user_activity_list",
+            id=user["id"],
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "user_activity_list",
+            id=user["id"],
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "user_activity_list",
+            id=user["id"],
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Not visible to users without permission
+        activities = helpers.call_action(
+            "user_activity_list",
+            id=user["id"],
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestGroupActivityList(object):
     def test_create_group(self):
         user = factories.User()
@@ -965,7 +1131,11 @@ class TestGroupActivityList(object):
             "package_delete", context={"user": user["name"]}, **dataset
         )
 
-        activities = helpers.call_action("group_activity_list", id=group["id"])
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": user["name"]},
+        )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
         ]
@@ -1012,7 +1182,11 @@ class TestGroupActivityList(object):
         # ideally the dataset's deletion would not show up in its old group
         # but it can't be helped without _group_activity_query getting very
         # complicated
-        activities = helpers.call_action("group_activity_list", id=group["id"])
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": user["name"]},
+        )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
         ]
@@ -1082,19 +1256,92 @@ class TestGroupActivityList(object):
             "new group"
         ]
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        group = factories.Group(user=user)
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True,
+            groups=[{"id": group["id"]}]
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Not visible to users without permission
+        activities = helpers.call_action(
+            "group_activity_list",
+            id=group["id"],
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestOrganizationActivityList(object):
-    def test_bulk_make_public(self):
+    def test_bulk_make_public(self, user):
         org = factories.Organization()
 
-        dataset1 = factories.Dataset(owner_org=org["id"], private=True)
-        dataset2 = factories.Dataset(owner_org=org["id"], private=True)
+        dataset1 = factories.Dataset(
+            owner_org=org["id"], private=True, user=user
+        )
+        dataset2 = factories.Dataset(
+            owner_org=org["id"], private=True, user=user
+        )
 
         helpers.call_action(
             "bulk_update_public",
-            {},
+            {"user": user["name"]},
             datasets=[dataset1["id"], dataset2["id"]],
             org_id=org["id"],
         )
@@ -1103,21 +1350,23 @@ class TestOrganizationActivityList(object):
         )
         assert activities[0]["activity_type"] == "changed package"
 
-    def test_bulk_delete(self):
-        org = factories.Organization()
+    def test_bulk_delete(self, user):
+        org = factories.Organization(user=user)
 
-        dataset1 = factories.Dataset(owner_org=org["id"])
-        dataset2 = factories.Dataset(owner_org=org["id"])
+        dataset1 = factories.Dataset(owner_org=org["id"], user=user)
+        dataset2 = factories.Dataset(owner_org=org["id"], user=user)
 
         helpers.call_action(
             "bulk_update_delete",
-            {},
+            {"user": user["name"]},
             datasets=[dataset1["id"], dataset2["id"]],
             org_id=org["id"],
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"]},
         )
         assert activities[0]["activity_type"] == "deleted package"
 
@@ -1235,7 +1484,9 @@ class TestOrganizationActivityList(object):
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"]},
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1359,16 +1610,85 @@ class TestOrganizationActivityList(object):
             "new organization"
         ]
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        activities = helpers.call_action(
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Not visible to users without permission
+        activities = helpers.call_action(
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestRecentlyChangedPackagesActivityList:
     def test_create_dataset(self):
         user = factories.User()
         org = factories.Dataset(user=user)
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "new package"
@@ -1389,7 +1709,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package",
@@ -1414,7 +1736,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1434,7 +1758,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "recently_changed_packages_activity_list", id=org["id"]
+            "recently_changed_packages_activity_list",
+            id=org["id"],
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "changed package"
@@ -1453,7 +1779,9 @@ class TestRecentlyChangedPackagesActivityList:
         )
 
         activities = helpers.call_action(
-            "organization_activity_list", id=org["id"]
+            "organization_activity_list",
+            id=org["id"],
+            context={"user": user["name"]}
         )
         assert [activity["activity_type"] for activity in activities] == [
             "deleted package"
@@ -1466,46 +1794,116 @@ class TestRecentlyChangedPackagesActivityList:
         from ckan import model
 
         user = factories.User()
+        dataset = factories.Dataset(user=user)
 
         objs = [
             Activity(
                 user_id=user["id"],
-                object_id=None,
+                object_id=dataset["id"],
                 activity_type="new_package",
                 data=None,
+                permission_labels=["public"]
             )
             for _ in range(count)
         ]
         model.Session.add_all(objs)
         model.repo.commit_and_remove()
+        return user
 
     def test_limit_default(self):
-        self._create_bulk_package_activities(35)
+        user = self._create_bulk_package_activities(35)
         results = helpers.call_action(
-            "recently_changed_packages_activity_list"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"]}
         )
         assert len(results) == 31  # i.e. default value
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     def test_limit_configured(self):
-        self._create_bulk_package_activities(7)
+        user = self._create_bulk_package_activities(7)
         results = helpers.call_action(
-            "recently_changed_packages_activity_list"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"]}
         )
         assert len(results) == 5  # i.e. ckan.activity_list_limit
 
     @pytest.mark.ckan_config("ckan.activity_list_limit", "5")
     @pytest.mark.ckan_config("ckan.activity_list_limit_max", "7")
     def test_limit_hits_max(self):
-        self._create_bulk_package_activities(9)
+        user = self._create_bulk_package_activities(9)
         results = helpers.call_action(
-            "recently_changed_packages_activity_list", limit="9"
+            "recently_changed_packages_activity_list",
+            context={"user": user["name"]},
+            limit="9"
         )
         assert len(results) == 7  # i.e. ckan.activity_list_limit_max
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to organization members
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Visible to collaborators
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+
+        # Not visible to users without permission
+        activities = helpers.call_action(
+            "recently_changed_packages_activity_list",
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDashboardActivityList(object):
     def test_create_user(self):
         user = factories.User()
@@ -1615,7 +2013,7 @@ class TestDashboardActivityList(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDashboardNewActivities(object):
     def test_users_own_activities(self):
         # a user's own activities are not shown as "new"
@@ -1638,7 +2036,8 @@ class TestDashboardNewActivities(object):
         )
 
         new_activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
+            "dashboard_activity_list",
+            context={"user": user["id"]}
         )
         assert [activity["is_new"] for activity in new_activities] == [
             False
@@ -1655,7 +2054,7 @@ class TestDashboardNewActivities(object):
             "follow_user", context={"user": user["name"]}, **followed_user
         )
         _clear_activities()
-        dataset = factories.Dataset(user=followed_user)
+        dataset = factories.Dataset(user=followed_user, private=False)
         dataset["title"] = "Dataset with changed title"
         helpers.call_action(
             "package_update",
@@ -1677,24 +2076,24 @@ class TestDashboardNewActivities(object):
         )
 
         activities = helpers.call_action(
-            "dashboard_activity_list", context={"user": user["id"]}
+            "dashboard_activity_list",
+            context={"user": user["id"]}
         )
         assert [
             activity["activity_type"] for activity in activities[::-1]
         ] == [
             "new package",
             "changed package",
-            "deleted package",
             "new group",
             "changed group",
             "deleted group",
         ]
-        assert [activity["is_new"] for activity in activities] == [True] * 6
+        assert [activity["is_new"] for activity in activities] == [True] * 5
         assert (
             helpers.call_action(
                 "dashboard_new_activities_count", context={"user": user["id"]}
             )
-            == 6
+            == 5
         )
 
     def test_activities_on_a_followed_dataset(self):
@@ -1870,9 +2269,104 @@ class TestDashboardNewActivities(object):
             == 5
         )
 
+    @pytest.mark.ckan_config('ckan.auth.allow_dataset_collaborators', True)
+    def test_private_dataset_activities_visibility(self):
+        user = factories.User()
+        org_user = factories.User()
+        collaborator_user = factories.User()
+        another_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(
+            users=[
+                {"name": user["name"], "capacity": "admin"},
+                {"name": org_user["name"], "capacity": "member"}
+            ]
+        )
+        _clear_activities()
+
+        dataset = factories.Dataset(
+            user=user,
+            owner_org=org["id"],
+            private=True
+        )
+        dataset["private"] = False
+        helpers.call_action(
+            "package_update", context={"user": user["name"]}, **dataset
+        )
+        helpers.call_action(
+            'package_collaborator_create',
+            id=dataset['id'],
+            user_id=collaborator_user["name"],
+            capacity='editor'
+        )
+
+        # Visible to sysadmin users
+        helpers.call_action(
+            "follow_dataset", context={"user": sysadmin["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": sysadmin["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": sysadmin["id"]}
+        )
+        assert dashboard_count == 2
+
+        # Visible to organization members
+        helpers.call_action(
+            "follow_dataset", context={"user": org_user["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": org_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": org_user["id"]}
+        )
+        assert dashboard_count == 2
+
+        # Visible to collaborators
+        helpers.call_action(
+            "follow_dataset", context={"user": collaborator_user["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": collaborator_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package", "new package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": collaborator_user["id"]}
+        )
+        assert dashboard_count == 2
+
+        # Not visible to users without permission
+        helpers.call_action(
+            "follow_dataset", context={"user": another_user["name"]}, **dataset
+        )
+        activities = helpers.call_action(
+            "dashboard_activity_list",
+            context={"user": another_user["name"]}
+        )
+        assert [activity["activity_type"]
+                for activity in activities] == ["changed package"]
+        dashboard_count = helpers.call_action(
+            "dashboard_new_activities_count",
+            context={"user": another_user["id"]}
+        )
+        assert dashboard_count == 1
+
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestSendEmailNotifications(object):
     # TODO: this action doesn't do much. Maybe it well be better to move tests
     # into lib.email_notifications eventually
@@ -1891,12 +2385,17 @@ class TestSendEmailNotifications(object):
 
     @pytest.mark.usefixtures("with_request_context")
     def test_single_notification(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
         assert len(messages) == 1
@@ -1909,14 +2408,17 @@ class TestSendEmailNotifications(object):
 
     @pytest.mark.usefixtures("with_request_context")
     def test_multiple_notifications(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
         for i in range(3):
             helpers.call_action(
-                "package_update", id=pkg["id"], notes=f"updated {i} times"
+                "package_update",
+                {"user": author["name"]},
+                id=pkg["id"], notes=f"updated {i} times"
             )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
@@ -1929,12 +2431,17 @@ class TestSendEmailNotifications(object):
         )
 
     def test_no_notifications_if_dashboard_visited(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User(activity_streams_email_notifications=True)
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         new_activities_count = helpers.call_action(
             "dashboard_new_activities_count",
             {"user": user["name"]},
@@ -1956,12 +2463,17 @@ class TestSendEmailNotifications(object):
         assert not user["activity_streams_email_notifications"]
 
     def test_no_emails_when_notifications_disabled(self, mail_server):
-        pkg = factories.Dataset()
+        author = factories.User()
+        pkg = factories.Dataset(user=author)
         user = factories.User()
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": author["name"]},
+            id=pkg["id"], notes="updated"
+        )
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
         assert len(messages) == 0
@@ -1988,7 +2500,11 @@ class TestSendEmailNotifications(object):
         helpers.call_action(
             "follow_dataset", {"user": user["name"]}, id=pkg["id"]
         )
-        helpers.call_action("package_update", id=pkg["id"], notes="updated")
+        helpers.call_action(
+            "package_update",
+            {"user": pkg["creator_user_id"]},
+            id=pkg["id"], notes="updated"
+        )
         time.sleep(0.01)
         helpers.call_action("send_email_notifications")
         messages = mail_server.get_smtp_messages()
@@ -1996,7 +2512,7 @@ class TestSendEmailNotifications(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDashboardMarkActivitiesOld(object):
     def test_mark_as_old_some_activities_by_a_followed_user(self):
         # do some activity that will show up on user's dashboard
@@ -2057,7 +2573,7 @@ class TestDashboardMarkActivitiesOld(object):
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestFollow:
     @pytest.mark.usefixtures("app")
     def test_follow_dataset_no_activity(self):
@@ -2101,7 +2617,7 @@ class TestFollow:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "activity")
-@pytest.mark.usefixtures("clean_db", "with_plugins")
+@pytest.mark.usefixtures("with_plugins", "clean_db")
 class TestDeferCommitOnCreate(object):
 
     def test_package_create_defer_commit(self):
@@ -2151,12 +2667,14 @@ class TestDeferCommitOnCreate(object):
             "user": factories.User()["name"],
         }
 
-        helpers.call_action("organization_create", context=context, **organization_dict)
+        helpers.call_action("organization_create",
+                            context=context, **organization_dict)
 
         model.Session.close()
 
         with pytest.raises(tk.ObjectNotFound):
-            helpers.call_action("organization_show", id=organization_dict["name"])
+            helpers.call_action("organization_show",
+                                id=organization_dict["name"])
 
         assert model.Session.query(Activity).filter(
             Activity.activity_type != "new user").count() == 0
@@ -2178,3 +2696,55 @@ class TestDeferCommitOnCreate(object):
             helpers.call_action("user_show", id=user_dict["name"])
 
         assert model.Session.query(Activity).count() == 0
+
+
+@pytest.mark.ckan_config("ckan.plugins", "activity")
+@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+class TestActivityCreate:
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization["id"], user=user)
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_dict = {
+            "id": "test-001-a",
+            "user_id": user["id"],
+            "object_id": dataset["id"],
+            "activity_type": "changed datastore",
+            "data": {
+                "resource_id": resource["id"],
+                "pkg_type": dataset["type"],
+                "resource_name": "june-2018",
+                "owner_org": organization["name"],
+                "count": 5,
+            },
+            "context": context
+        }
+        with pytest.raises(tk.NotAuthorized):
+            helpers.call_action("activity_create", **activity_dict)
+
+    def test_sysadmin_user_cant_set_id(self):
+        user = factories.Sysadmin()
+        context = {"user": user["name"], "ignore_auth": False}
+        organization = factories.Organization(
+            users=[{"name": user["id"], "capacity": "admin"}]
+        )
+        dataset = factories.Dataset(owner_org=organization["id"], user=user)
+        resource = factories.Resource(package_id=dataset["id"])
+        activity_dict = {
+            "id": "test-001-a",
+            "user_id": user["id"],
+            "object_id": dataset["id"],
+            "activity_type": "changed package",
+            "data": {
+                "resource_id": resource["id"],
+                "pkg_type": dataset["type"],
+                "resource_name": "june-2018",
+                "owner_org": organization["name"],
+                "count": 5,
+            },
+            "context": context
+        }
+        result = helpers.call_action("activity_create", **activity_dict)
+        assert result.get("activity_type") == 'changed package'

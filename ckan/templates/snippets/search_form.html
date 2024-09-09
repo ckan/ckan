@@ -46,11 +46,13 @@
   {% endblock %}
 
   {% block search_title %}
+    <h1>
     {% if not error %}
-      <h1>{% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}</h1>
+      {% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}
     {% else %}
-      <h2>Error</h2>
+      Error
     {% endif %}
+    </h1>
   {% endblock %}
 
   {% block search_facets %}
@@ -66,7 +68,7 @@
               {%- else -%}
                 {{ h.list_dict_filter(search_facets_items, 'name', 'display_name', value) }}
               {%- endif %}
-              <a href="{{ facets.remove_field(field, value) }}" class="remove" title="{{ _('Remove') }}"><i class="fa fa-times"></i></a>
+              <a href="{{ facets.remove_field(field, value) }}" class="remove" aria-label="{{ _('Remove applied filter: {value}').format(value=value) }}" data-bs-title="{{ _('Remove') }}" data-bs-toggle="tooltip"><i class="fa fa-times"></i></a>
             </span>
           {% endfor %}
         {% endfor %}

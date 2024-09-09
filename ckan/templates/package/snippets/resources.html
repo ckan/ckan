@@ -26,11 +26,11 @@ Example:
               {% set url = h.url_for('%s_resource.read' % pkg.type, id=pkg.name, resource_id=resource.id) %}
               {% if active == resource.id %}
                 <li class="nav-item active">
-                  <a href="#">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                  <a href="#" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
               {% elif can_edit %}
                 <li class="nav-item d-flex justify-content-between position-relative">
-                  <a class="flex-fill" href="{{ url }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                  <a class="flex-fill" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                   <div class="dropdown position-absolute end-0 me-2">
                     <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownRes{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-wrench"></i></button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownRes{{ loop.index }}">
@@ -42,7 +42,7 @@ Example:
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a href="{{ url }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
+                  <a href="{{ url }}" aria-label="{{ _('Navigate to resource: {name}').format(name=h.resource_display_name(resource)) }}">{{ h.resource_display_name(resource)|truncate(25) }}</a>
                 </li>
               {% endif %}
             {% endfor %}

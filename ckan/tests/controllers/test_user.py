@@ -171,8 +171,6 @@ class TestUser(object):
         )
         # assert "/user/activity" in response.headers["location"]
 
-    @pytest.mark.ckan_config("ckan.plugins", "activity")
-    @pytest.mark.usefixtures("with_plugins")
     def test_registered_user_login(self, app):
         """
         Registered user can submit valid login details at /user/login and
@@ -191,7 +189,7 @@ class TestUser(object):
             },
         )
         # the response is the user dashboard, right?
-        assert '<a href="/dashboard/">Dashboard</a>' in response
+        assert '<a href="/dashboard/datasets">Dashboard</a>' in response
         assert (
             '<span class="username">{0}</span>'.format(user["fullname"])
             in response
@@ -278,7 +276,7 @@ class TestUser(object):
 
         response = app.get(url=url_for("dashboard.datasets"), headers=headers)
 
-        assert not (dataset_title in response)
+        assert dataset_title not in response
 
     def test_user_edit_no_user(self, app):
 
@@ -429,6 +427,24 @@ class TestUser(object):
         )
 
         assert "That login name can not be modified" in response
+
+    def test_edit_user_logged_in_username_change_by_sysadmin(
+            self, app, user, sysadmin):
+
+        headers = {"Authorization": sysadmin["token"]}
+        response = app.post(
+            url=url_for("user.edit", id=user["id"]),
+            data={
+                "email": user["email"],
+                "save": "",
+                "old_password": "correct123",
+                "password1": "",
+                "password2": "",
+                "name": factories.User.stub().name,
+            },
+            headers=headers
+        )
+        assert 'Profile updated' in response
 
     def test_perform_reset_for_key_change(self, app):
         password = "TestPassword1"

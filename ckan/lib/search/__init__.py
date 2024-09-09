@@ -22,6 +22,7 @@ from ckan.types import Context
 
 from ckan.lib.search.common import (
     make_connection, SearchIndexError, SearchQueryError,  # type: ignore
+    SolrConnectionError, # type: ignore
     SearchError, is_available, SolrSettings, config
 )
 from ckan.lib.search.index import (
@@ -56,7 +57,7 @@ def text_traceback() -> str:
     return res
 
 
-SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10']
+SUPPORTED_SCHEMA_VERSIONS = ['2.8', '2.9', '2.10', '2.11']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -167,7 +168,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
                 logic.get_action('package_show')({
                         'ignore_auth': True,
                         'validate': False,
-                        'use_cache': False
+                        'use_cache': False,
+                        'model': model,
                     }, {'id': entity.id}), operation)
         elif operation == domain_object.DomainObjectOperation.deleted:
             dispatch_by_operation(entity.__class__.__name__,

@@ -1,2 +1,0 @@
-Fix 500 error caused from passing null to a field using the 
-`ckanext.datastore.logic.schema.json_validator` in its schema

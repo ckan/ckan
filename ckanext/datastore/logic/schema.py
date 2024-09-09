@@ -120,6 +120,7 @@ def datastore_create_schema() -> Schema:
             'type': [ignore_missing],
             'info': [ignore_missing],
         },
+        'delete_fields': [default(False), boolean_validator],
         'primary_key': [ignore_missing, list_of_strings_or_string],
         'indexes': [ignore_missing, list_of_strings_or_string],
         'triggers': {
@@ -221,6 +222,8 @@ def datastore_function_create_schema() -> Schema:
         'arguments': {
             'argname': [unicode_only, not_empty],
             'argtype': [unicode_only, not_empty],
+            'argmode': [ignore_missing, unicode_only, one_of([
+                'in', 'out', 'inout'])],
         },
         'rettype': [default(u'void'), unicode_only],
         'definition': [unicode_only],

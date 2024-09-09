@@ -43,6 +43,8 @@ class JsonType(types.TypeDecorator):  # type: ignore
     '''
     impl = types.UnicodeText
 
+    cache_ok = False
+
     def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"
         if value is None or value == {}:
@@ -70,6 +72,8 @@ class JsonType(types.TypeDecorator):  # type: ignore
 class JsonDictType(JsonType):
 
     impl = types.UnicodeText
+
+    cache_ok = False
 
     def process_bind_param(self, value: Any, dialect: Any):
         # ensure we stores nulls in db not json "null"

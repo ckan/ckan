@@ -211,7 +211,8 @@ class Upload(object):
         if not mimetypes and not types:
             return
 
-        actual = magic.from_buffer(self.upload_file.read(1024), mime=True)
+        # 2KB required for detecting xlsx mimetype
+        actual = magic.from_buffer(self.upload_file.read(2048), mime=True)
         self.upload_file.seek(0, os.SEEK_SET)
         err: ErrorDict = {
             self.file_field: [f"Unsupported upload type: {actual}"]

@@ -3,6 +3,7 @@
 import datetime
 import hashlib
 import os
+import sys
 
 import pytz
 import tzlocal
@@ -705,8 +706,11 @@ def test_sanitize_url():
         u'http://example.com/some-path/to_a/file.jpg'
     ) == u'http://example.com/some-path/to_a/file.jpg'
     assert h.sanitize_url(
-        u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
-    ) == u'sh+eme://[net:loc]:12345/a/path?a=b&c=d'
+        u'sh+eme://host:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://host:12345/a/path?a=b&c=d'
+    assert h.sanitize_url(
+        u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
+    ) == u'sh+eme://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:12345/a/path?a=b&c=d'
     assert h.sanitize_url(
         u'http://éxàmple.com/some:path/to+a/fil[e].jpg'
     ) == u'http://éxàmple.com/some%3Apath/to%2Ba/fil%5Be%5D.jpg'
@@ -738,17 +742,30 @@ Notes: this is the classic RDF source but historically has had some problems wit
     ("2008-04-13T20:40:20.123456", datetime.datetime(2008, 4, 13, 20, 40, 20, 123456)),
     ("2008-04-13T20:40:20", datetime.datetime(2008, 4, 13, 20, 40, 20)),
     ("2008-04-13T20:40:20.1234", datetime.datetime(2008, 4, 13, 20, 40, 20, 123400)),
+    (
+        "2008-04-13T20:40:20.123-01:30",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, 123000, datetime.timezone(
+            -datetime.timedelta(minutes=90)
+        ))),
+    pytest.param(
+        "2008-04-13T20:40:20-0130",
+        datetime.datetime(2008, 4, 13, 20, 40, 20, tzinfo=datetime.timezone(
+            datetime.timedelta(days=-1, seconds=81000))),
+        marks=pytest.mark.skipif(sys.version_info < (3, 11), reason="This is invalid in py<3.11")
+    )
 ])
-def test_date_str_to_datetime_valid(string, date):
+def test_date_str_to_datetime_valid(string: str, date: datetime.datetime):
     assert h.date_str_to_datetime(string) == date
 
 
 @pytest.mark.parametrize("string", [
-    "2008-04-13T20:40:20-01:30",
-    "2008-04-13T20:40:20-0130",
-    "2008-04-13T20:40:20foobar",
+    pytest.param(
+        "2008-04-13T20:40:20-0130",  # no `:` in timezone
+        marks=pytest.mark.skipif(sys.version_info >= (3, 11), reason="This is valid in py>=3.11"),
+    ),
+    "2008-04-13T20:40:20foobar",  # cannot parse the rest as milliseconds
 ])
-def test_date_str_to_datetime_invalid(string):
+def test_date_str_to_datetime_invalid(string: str):
     with pytest.raises(ValueError):
         h.date_str_to_datetime(string)
 

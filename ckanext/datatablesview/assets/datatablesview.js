@@ -288,14 +288,14 @@ this.ckan.module('datatables_view', function (jQuery) {
       const defaultview = dtprv.data('default-view')
 
       // get view mode setting from localstorage (table or list/responsive])
-      const lastView = getWithExpiry('lastView')
+      const lastView = getWithExpiry('lastView-' + gresviewId)
       if (!lastView) {
         if (responsiveflag) {
           gcurrentView = 'list' // aka responsive
         } else {
           gcurrentView = defaultview
         }
-        setWithExpiry('lastView', gcurrentView, 0)
+        setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
       } else {
         gcurrentView = lastView
       }
@@ -476,10 +476,16 @@ this.ckan.module('datatables_view', function (jQuery) {
       })
 
       // init the datatable
+      $('#dtprv').on('preInit.dt', function (_event, _settings) {
+        // show loading indicator when first painting data into the table.
+        // useful with very large resources that take long to load
+        $('body.dt-view').css('visibility', 'visible');
+        $('#dtprv_processing').addClass('pre-init');
+      });
       datatable = $('#dtprv').DataTable({
         paging: true,
         serverSide: true,
-        processing: false,
+        processing: true,
         stateSave: statesaveflag,
         stateDuration: stateduration,
         colReorder: {
@@ -508,6 +514,9 @@ this.ckan.module('datatables_view', function (jQuery) {
           url: ajaxurl,
           type: 'POST',
           timeout: 60000,
+          headers: {
+            'X-CSRF-Token': $('meta[name="_csrf_token"]').attr('content')
+          },
           data: function (d) {
             d.filters = ckanfilters
           }
@@ -549,7 +558,7 @@ this.ckan.module('datatables_view', function (jQuery) {
           // save selected rows settings
           gsavedSelected = data.selected
           // save view mode
-          setWithExpiry('lastView', data.viewmode, 0)
+          setWithExpiry('lastView-' + gresviewId, data.viewmode, 0)
 
           // restore values of column filters
           const api = new $.fn.dataTable.Api(settings)
@@ -591,6 +600,9 @@ this.ckan.module('datatables_view', function (jQuery) {
             api.page.len(gsavedPagelen)
             api.page(gsavedPage)
           }
+
+          // hide the pre-loading indicator background so the table is interactive when loading
+          $('#dtprv_processing').removeClass('pre-init');
 
           // restore selected rows from state
           if (typeof gsavedSelected !== 'undefined') {
@@ -702,7 +714,7 @@ this.ckan.module('datatables_view', function (jQuery) {
               gcurrentView = 'list'
               $('#dtprv').addClass('dt-responsive')
             }
-            setWithExpiry('lastView', gcurrentView, 0)
+            setWithExpiry('lastView-' + gresviewId, gcurrentView, 0)
             window.localStorage.removeItem('loadctr-' + gresviewId)
             dt.state.clear()
             window.location.reload()
@@ -888,6 +900,8 @@ this.ckan.module('datatables_view', function (jQuery) {
                         : ' <span class="fa fa-sort-amount-desc"></span> ')
         })
         $('div.sortinfo').html(gsortInfo)
+        //adjust column widths after sorting
+        fitColText();
       })
     }
   }

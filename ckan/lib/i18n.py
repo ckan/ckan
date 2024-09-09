@@ -306,11 +306,13 @@ def _build_js_translation(
             elif entry.msgstr_plural:
                 plural = result[entry.msgid] = [entry.msgid_plural]
                 ordered_plural = sorted(
-                    entry.msgstr_plural.items())  # type: ignore
+                    entry.msgstr_plural.items())
                 for _, msgstr in ordered_plural:
                     plural.append(msgstr)
     with open(dest_filename, u'w', encoding='utf-8') as f:
-        s = json.dumps(result, sort_keys=True, indent=2, ensure_ascii=False)
+        s = json.dumps(
+            result, sort_keys=True, ensure_ascii=False, separators=(',', ':')
+        )
         f.write(s)
 
 

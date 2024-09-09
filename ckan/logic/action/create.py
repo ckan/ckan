@@ -278,8 +278,6 @@ def resource_create(context: Context,
     :rtype: dictionary
 
     '''
-    model = context['model']
-
     package_id = _get_or_bust(data_dict, 'package_id')
     if not data_dict.get('url'):
         data_dict['url'] = ''
@@ -293,26 +291,16 @@ def resource_create(context: Context,
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_resource_create(context, data_dict)
 
-    if 'resources' not in pkg_dict:
-        pkg_dict['resources'] = []
-
-    upload = uploader.get_resource_uploader(data_dict)
-
-    if 'mimetype' not in data_dict:
-        if hasattr(upload, 'mimetype'):
-            data_dict['mimetype'] = upload.mimetype
-
-    if 'size' not in data_dict:
-        if hasattr(upload, 'filesize'):
-            data_dict['size'] = upload.filesize
+    original_package = dict(pkg_dict)
+    pkg_dict['resources'] = list(pkg_dict.get('resources', []))
 
     pkg_dict['resources'].append(data_dict)
 
     try:
-        context['defer_commit'] = True
-        context['use_cache'] = False
-        _get_action('package_update')(context, pkg_dict)
-        context.pop('defer_commit')
+        update_context = Context(context)
+        update_context['original_package'] = original_package
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
             error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[-1]
@@ -320,17 +308,6 @@ def resource_create(context: Context,
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    # Get out resource_id resource from model as it will not appear in
-    # package_show until after commit
-    package = context['package']
-    assert package
-    upload.upload(package.resources[-1].id,
-                  uploader.get_max_resource_size())
-
-    model.repo.commit()
-
-    #  Run package show again to get out actual last_resource
-    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
     #  Add the default views to the new resource
@@ -401,8 +378,7 @@ def resource_view_create(
     last_view = model.Session.query(model.ResourceView)\
         .filter_by(resource_id=resource_id) \
         .order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.ResourceView.order.desc()  # type: ignore
+            model.ResourceView.order.desc()
         ).first()
 
     if not last_view:
@@ -610,10 +586,7 @@ def member_create(context: Context,
         filter(model.Member.table_name == obj_type).\
         filter(model.Member.table_id == obj.id).\
         filter(model.Member.group_id == group.id).\
-        order_by(
-            # type_ignore_reason: incomplete SQLAlchemy types
-            model.Member.state.asc()  # type: ignore
-        ).first()
+        order_by(model.Member.state.asc()).first()
     if member:
         user_obj = model.User.get(user)
         if user_obj and member.table_name == u'user' and \
@@ -727,12 +700,18 @@ def _group_or_org_create(context: Context,
     # get the schema
     group_type = data_dict.get('type', 'organization' if is_org else 'group')
     group_plugin = lib_plugins.lookup_group_plugin(group_type)
-    try:
-        schema: Schema = group_plugin.form_to_db_schema_options({
+
+    if context.get("schema"):
+        schema: Schema = context["schema"]
+    elif hasattr(group_plugin, "create_group_schema"):
+        schema: Schema = group_plugin.create_group_schema()
+    # TODO: remove these fallback deprecated methods in the next release
+    elif hasattr(group_plugin, "form_to_db_schema_options"):
+        schema: Schema = getattr(group_plugin, "form_to_db_schema_options")({
             'type': 'create', 'api': 'api_version' in context,
             'context': context})
-    except AttributeError:
-        schema = group_plugin.form_to_db_schema()
+    else:
+        schema: Schema = group_plugin.form_to_db_schema()
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
@@ -965,7 +944,9 @@ def user_create(context: Context,
                 }
             }
     :type plugin_extras: dict
-
+    :param with_apitoken: whether to create an API token for the user.
+                    (Optional)
+    :type with_apitoken: bool
 
     :returns: the newly created user
     :rtype: dictionary
@@ -974,6 +955,7 @@ def user_create(context: Context,
     model = context['model']
     schema = context.get('schema') or ckan.logic.schema.default_user_schema()
     session = context['session']
+    with_apitoken = data_dict.pop("with_apitoken", False)
 
     _check_access('user_create', context, data_dict)
 
@@ -1003,7 +985,7 @@ def user_create(context: Context,
     upload.upload(uploader.get_max_image_size())
 
     if not context.get('defer_commit'):
-        with logic.guard_against_duplicated_email(data_dict['email']):
+        with logic.guard_against_duplicated_email(data["email"]):
             model.repo.commit()
     else:
         # The Dashboard object below needs the user id, and if we didn't
@@ -1032,9 +1014,20 @@ def user_create(context: Context,
 
     # Create dashboard for user.
     dashboard = model.Dashboard(user.id)
+
     session.add(dashboard)
     if not context.get('defer_commit'):
         model.repo.commit()
+
+    if with_apitoken:
+        if not context['user']:
+            context["user"] = user.name
+
+        # Create apitoken for user.
+        api_token = _get_action("api_token_create")(
+            context, {"user": user.name, "name": "default"}
+        )
+        user_dict["token"] = api_token["token"]
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict

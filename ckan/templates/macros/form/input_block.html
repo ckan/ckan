@@ -22,7 +22,7 @@ Example:
 
 {% macro input_block(for, label="", error="", classes=[], control_classes=[], extra_html="", is_required=false) %}
 <div class="form-group{{ " error" if error }}{{ " " ~ classes | join(' ') }}">
-<label class="form-label" for="{{ for }}">{% if is_required %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}{{ label or _('Custom') }}</label>
+<label class="form-label" for="{{ for }}">{% if is_required %}<span class="control-required">*</span> {% endif %}{{ label or _('Custom') }}</label>
 <div class="controls{{ " " ~ control_classes | join(' ') }}">
 {{ caller() }}
 {% if error and error is iterable %}<span class="error-block">{{ error|join(', ') }}</span>{% endif %}

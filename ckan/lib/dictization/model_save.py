@@ -52,16 +52,29 @@ def resource_dict_save(res_dict: dict[str, Any],
 
     if changed or obj.extras != skipped:
         obj.metadata_modified = datetime.datetime.utcnow()
+        session.add(obj)
     obj.state = u'active'
     obj.extras = skipped
 
-    session.add(obj)
     return obj
 
 
 def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
-        package: 'model.Package', context: Context) -> None:
+        package: 'model.Package', context: Context,
+        copy_resources: dict[int, int] | tuple[()]) -> None:
+    """
+    Store a list of resources in the database
+    
+    :param res_dicts: List of resource dictionaries to store
+    :type res_dict: list of dicts 
+    :param package: The package model object that resources belong to
+    :param package: model.Package
+    :param context: A context dict with extra information
+    :type context: dict
+    :param copy_resources: A dictionary with resource indexes that should be copied from the existing resource list rather than creating new models for them. It should have the format `{<new_index>: <old_index>,}`
+    :type copy_resources: dict
+    """
     allow_partial_update = context.get("allow_partial_update", False)
     if res_dicts is None and allow_partial_update:
         return
@@ -74,7 +87,9 @@ def package_resource_list_save(
     # datastore have a chance to remove tables created for those resources
     old_list = session.query(model.Resource) \
         .filter(model.Resource.package_id == package.id) \
-        .filter(model.Resource.state != 'deleted')[:]
+        .filter(model.Resource.state != 'deleted') \
+        .order_by(model.Resource.position)[:]
+
     # resources previously deleted can be removed permanently as part
     # of this update
     deleted_list = session.query(model.Resource) \
@@ -82,11 +97,17 @@ def package_resource_list_save(
         .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
-    for res_dict in res_dicts or []:
+    for i, res_dict in enumerate(res_dicts or []):
+        if i in copy_resources:
+            obj_list.append(old_list[copy_resources[i]])
+            continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+
+    if old_list == obj_list:
+        return
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it
@@ -106,43 +127,6 @@ def package_resource_list_save(
     for resource in set(old_list) - set(obj_list):
         resource.state = 'deleted'
         resource_list.append(resource)
-
-
-def package_extras_save(
-        extra_dicts: Optional[list[dict[str, Any]]], pkg: 'model.Package',
-        context: Context) -> None:
-    allow_partial_update = context.get("allow_partial_update", False)
-    if extra_dicts is None and allow_partial_update:
-        return
-
-    session = context["session"]
-
-    old_extras = pkg._extras
-
-    new_extras: dict[str, Any] = {}
-    for extra_dict in extra_dicts or []:
-        if extra_dict.get("deleted"):
-            continue
-
-        if extra_dict['value'] is None:
-            pass
-        else:
-            new_extras[extra_dict["key"]] = extra_dict["value"]
-
-    #new
-    for key in set(new_extras.keys()) - set(old_extras.keys()):
-        pkg.extras[key] = new_extras[key]
-    #changed
-    for key in set(new_extras.keys()) & set(old_extras.keys()):
-        extra = old_extras[key]
-        if new_extras[key] == extra.value:
-            continue
-        extra.value = new_extras[key]
-        session.add(extra)
-    #deleted
-    for key in set(old_extras.keys()) - set(new_extras.keys()):
-        extra = old_extras[key]
-        session.delete(extra)
 
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
@@ -288,7 +272,8 @@ def relationship_list_save(
 
 def package_dict_save(
         pkg_dict: dict[str, Any], context: Context,
-        include_plugin_data: bool = False) -> 'model.Package':
+        include_plugin_data: bool = False,
+        copy_resources: dict[int, int] | tuple[()] = ()) -> 'model.Package':
     model = context["model"]
     package = context.get("package")
     if package:
@@ -305,12 +290,17 @@ def package_dict_save(
         pkg_dict['plugin_data'] = copy.deepcopy(
             plugin_data) if plugin_data else plugin_data
 
-    pkg = d.table_dict_save(pkg_dict, Package, context)
+    extras = {
+        e['key']: e['value'] for e in pkg_dict.get('extras', [])
+    }
+
+    pkg = d.table_dict_save(dict(pkg_dict, extras=extras), Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(pkg_dict.get("resources"), pkg, context)
+    package_resource_list_save(
+        pkg_dict.get("resources"), pkg, context, copy_resources)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
     package_membership_list_save(pkg_dict.get("groups"), pkg, context)
 
@@ -322,8 +312,6 @@ def package_dict_save(
     if 'relationships_as_object' in pkg_dict:
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
-
-    package_extras_save(pkg_dict.get("extras"), pkg, context)
 
     return pkg
 
@@ -409,7 +397,11 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     if group:
         group_dict["id"] = group.id
 
-    group = d.table_dict_save(group_dict, Group, context)
+    extras = {
+        e['key']: e['value'] for e in group_dict.get('extras', [])
+    }
+
+    group = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
 
@@ -432,18 +424,6 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
     log.debug('Group save membership changes - Packages: %r  Users: %r  '
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
-
-    extras = group_dict.get("extras", [])
-    new_extras = {i['key'] for i in extras}
-    if extras:
-        old_extras = group.extras
-        for key in set(old_extras) - new_extras:
-            del group.extras[key]
-        for x in extras:
-            if 'deleted' in x and x['key'] in old_extras:
-                del group.extras[x['key']]
-                continue
-            group.extras[x['key']] = x['value']
 
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.

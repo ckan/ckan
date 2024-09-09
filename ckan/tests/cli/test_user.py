@@ -89,7 +89,7 @@ class TestApiToken(object):
 
         # tid must be prefixed by --. When it starts with a hyphen it treated
         # as a flag otherwise.
-        args = f'user token revoke -- "{tid}"'
+        args = ["user", "token", "revoke", "--", tid]
         result = cli.invoke(ckan, args)
         assert not result.exit_code, result.output
         assert u"API Token has been revoked" in result.output

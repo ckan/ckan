@@ -188,6 +188,16 @@ def test_email_is_unique_validator_with_existed_value(app):
 
 
 @pytest.mark.usefixtures("non_clean_db")
+def test_email_is_unique_case_insensitive(app):
+    factories.User(username="user01", email="some_email@example.org")
+
+    # Attempt to create a new user with an email that is already in use
+    # testing for case insensitivity
+    with pytest.raises(logic.ValidationError):
+        factories.User(email="Some_Email@example.org")
+
+
+@pytest.mark.usefixtures("non_clean_db")
 def test_email_is_unique_validator_user_update_email_unchanged():
     user = factories.User()
 
@@ -899,3 +909,41 @@ def test_tag_string_convert():
     assert convert("") == []
     assert convert("trailing comma,") == ["trailing comma"]
     assert convert("trailing comma space, ") == ["trailing comma space"]
+
+
+def test_url_validator():
+    key = ("url",)
+    errors = {(key): []}
+
+    # Test with a valid URL without a port
+    url = {("url",): "https://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with a valid URL with a port
+    url = {("url",): "https://example.com:8080"}
+    validators.url_validator(key, url, errors, {})
+    assert errors == {('url',): []}
+
+    # Test with an invalid URL (invalid characters in hostname)
+    url = {("url",): "https://exa$mple.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (invalid port)
+    url = {("url",): "https://example.com:80a80"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (no scheme)
+    url = {("url",): "example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
+    errors[key].clear()
+
+    # Test with an invalid URL (unsupported scheme)
+    url = {("url",): "ftp://example.com"}
+    validators.url_validator(key, url, errors, {})
+    assert errors[key] == ['Please provide a valid URL']
