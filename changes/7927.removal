@@ -1,2 +1,0 @@
-Move datastore-specific download logic from ckan/templates/package/resource_read.html
-to ckanext/datastore/templates/package/resource_read.html

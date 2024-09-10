@@ -1,2 +1,0 @@
-`ckan db init` is now alias of `ckan db upgrade`, which provides better support
-for includuing plugin migrations
