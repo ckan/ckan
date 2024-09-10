@@ -25,7 +25,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 from ckan.model.core import State
 
-from ckan.common import _
+from ckan.common import _, config
 from ckan.types import (
     FlattenDataDict, FlattenKey, Validator, Context, FlattenErrorDict)
 
@@ -597,6 +597,53 @@ def ignore_not_sysadmin(key: FlattenKey, data: FlattenDataDict,
     data.pop(key)
 
 
+def limit_sysadmin_update(key: FlattenKey, data: FlattenDataDict,
+                          errors: FlattenErrorDict, context: Context) -> Any:
+    """
+    Should not be able to modify your own sysadmin privs, or the system user's
+    """
+    value = data.get(key)
+
+    if value is None:
+        # sysadmin key not in data, return here
+        return
+
+    contextual_user = context.get('auth_user_obj')
+    site_id = config.get('ckan.site_id')
+    contextual_user_name = context.get('user')
+
+    if not contextual_user and contextual_user_name:
+        contextual_user = context['model'].User.get(contextual_user_name)
+
+    if not contextual_user:
+        # no auth user supplied, can not check
+        return
+
+    # system user should be able to do anything still
+    if contextual_user_name == site_id:
+        return
+
+    user = context.get('user_obj')
+
+    if not user:
+        # user_obj not set, can not check
+        return
+
+    # sysadmin not being updated, return here
+    if value == user.sysadmin:
+        return
+
+    # cannot change your own sysadmin value
+    if user.name == contextual_user_name:
+        errors[key].append(_('Cannot modify your own sysadmin privileges'))
+
+    # cannot change site user sysadmin value
+    if user.name == site_id:
+        errors[key].append(_('Cannot modify sysadmin privileges for system user'))
+
+    return
+
+
 def ignore_not_group_admin(key: FlattenKey, data: FlattenDataDict,
                            errors: FlattenErrorDict, context: Context) -> Any:
     '''Ignore if the user is not allowed to administer for the group specified.'''
@@ -652,7 +699,7 @@ def user_name_validator(key: FlattenKey, data: FlattenDataDict,
             # Otherwise return an error: there's already another user with that
             # name, so you can't create a new user with that name or update an
             # existing user's name to that name.
-            errors[key].append(_('That login name is not available.'))
+            errors[key].append(_('The username is already associated with another account. Please use a different username.'))
     elif user_obj_from_context:
         requester = context.get('auth_user_obj', None)
         if requester and authz.is_sysadmin(requester.name):
