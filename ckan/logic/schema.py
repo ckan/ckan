@@ -457,7 +457,7 @@ def default_user_schema(
         ignore: Validator, boolean_validator: Validator,
         empty_if_not_sysadmin: Validator,
         uuid_validator: Validator, user_id_does_not_exist: Validator,
-        json_object: Validator) -> Schema:
+        json_object: Validator, limit_sysadmin_update: Validator) -> Schema:
     return {
         'id': [ignore_missing, empty_if_not_sysadmin, uuid_validator,
                user_id_does_not_exist, unicode_safe],
@@ -471,7 +471,8 @@ def default_user_schema(
                   unicode_safe],
         'about': [ignore_missing, user_about_validator, unicode_safe],
         'created': [ignore],
-        'sysadmin': [ignore_missing, ignore_not_sysadmin],
+        'sysadmin': [ignore_missing, ignore_not_sysadmin,
+                     limit_sysadmin_update],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing,
                                                  boolean_validator],
