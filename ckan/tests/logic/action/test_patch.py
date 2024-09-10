@@ -279,10 +279,7 @@ class TestPatch(object):
                 context={"user": sysadmin["name"]},
             )
 
-        # user dicts do not have sysadmin key, get from db
-        user = model.User.get(user["id"])
-
-        assert user.sysadmin is False
+        assert user["sysadmin"] is False
 
         helpers.call_action(
                 "user_patch",
