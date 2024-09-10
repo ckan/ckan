@@ -88,11 +88,9 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         pkg_dict = _get_action('package_show')(
             package_show_context, {'id': package_id})
 
-        # allow metadata_modified to be updated
-        # removes from original_package for comparison in package_update
-        pkg_dict.pop('metadata_modified', None)
-
     update_context['original_package'] = dict(pkg_dict)
+    # allow dataset metadata_modified to be updated
+    pkg_dict.pop('metadata_modified', None)
     pkg_dict['resources'] = list(pkg_dict['resources'])
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
@@ -295,11 +293,19 @@ def package_update(
     original_package = context.get('original_package')
     copy_resources = {}
     changed_resources = data_dict.get('resources')
+    dataset_changed = True
 
     if original_package and original_package.get('id') != pkg.id:
         original_package = None
     if original_package:
-        if original_package == data_dict:
+        if data_dict.get('metadata_modified'):
+            dataset_changed = original_package != data_dict
+        else:
+            dataset_changed = dict(
+                original_package, metadata_modified=None, resources=None
+                ) != dict(data_dict, metadata_modified=None, resources=None)
+        if not dataset_changed and original_package.get('resources'
+                ) == data_dict.get('resources'):
             # no change
             return pkg.id if return_id_only else data_dict
 
@@ -384,11 +390,6 @@ def package_update(
             i += 1
         data['resources'] = resources
 
-    if not data.get('metadata_modified'):
-        # FIXME: check if anything was in fact changed before updating,
-        # creating activities, calling plugins etc.
-        data['metadata_modified'] = datetime.datetime.utcnow()
-
     include_plugin_data = False
     user_obj = context.get('auth_user_obj')
     if user_obj:
@@ -398,47 +399,53 @@ def package_update(
             and plugin_data
         )
 
-    pkg = model_save.package_dict_save(
+    pkg, change = model_save.package_dict_save(
         data, context, include_plugin_data, copy_resources)
 
-    context_org_update = context.copy()
-    context_org_update['ignore_auth'] = True
-    context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
+    if change:
+        if not data.get('metadata_modified'):
+            pkg.metadata_modified = datetime.datetime.utcnow()
 
-    # Needed to let extensions know the new resources ids
-    model.Session.flush()
-    for index, (resource, upload) in enumerate(
-            zip(data.get('resources', []), resource_uploads)):
-        resource['id'] = pkg.resources[index].id
+        context_org_update = logic.fresh_context(
+            context, ignore_auth=True, defer_commit=True)
+        _get_action('package_owner_org_update')(context_org_update,
+                                                {'id': pkg.id,
+                                                 'organization_id': pkg.owner_org})
 
-        upload.upload(resource['id'], uploader.get_max_resource_size())
+        # Needed to let extensions know the new resources ids
+        model.Session.flush()
+        for index, (resource, upload) in enumerate(
+                zip(data.get('resources', []), resource_uploads)):
+            resource['id'] = pkg.resources[index].id
 
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        item.edit(pkg)
+            upload.upload(resource['id'], uploader.get_max_resource_size())
 
-        item.after_dataset_update(context, data)
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            item.edit(pkg)
 
-    if not context.get('defer_commit'):
-        model.repo.commit()
+            item.after_dataset_update(context, data)
 
-    log.debug('Updated object %s' % pkg.name)
+        if not context.get('defer_commit'):
+            model.repo.commit()
 
-    # Make sure that a user provided schema is not used on package_show
-    context.pop('schema', None)
+        log.debug('Updated object %s' % pkg.name)
+    else:
+        log.debug('No update for object %s' % pkg.name)
+        # FIXME handle defer_commit?
+        model.repo.session.rollback()
+
+    if return_id_only:
+        return pkg.id
+
+    if not change and original_package:
+        return original_package
 
     # we could update the dataset so we should still be able to read it.
-    context['ignore_auth'] = True
-    output = data_dict['id'] if return_id_only \
-            else _get_action('package_show')(
-                context,
-                {'id': data_dict['id'],
-                "include_plugin_data": include_plugin_data
-            }
-        )
-    return output
+    show_context = logic.fresh_context(context, ignore_auth=True)
+    return _get_action('package_show')(show_context, {
+        'id': data_dict['id'],
+        'include_plugin_data': include_plugin_data,
+    })
 
 
 def package_revise(context: Context, data_dict: DataDict) -> ActionResult.PackageRevise:
@@ -563,11 +570,10 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             for unm in unmatched
         ]})
 
-    # allow metadata_modified to be updated if data has changed
-    # removes from original_package for comparison in package_update
-    orig.pop('metadata_modified', None)
-
     revised = deepcopy(orig)
+    # allow metadata_modified to be updated if data has changed
+    revised.pop('metadata_modified', None)
+
     if 'filter' in data:
         dfunc.filter_glob_match(revised, data['filter'])
         revised['id'] = orig['id']

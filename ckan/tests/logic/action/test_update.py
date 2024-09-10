@@ -1386,6 +1386,8 @@ class TestResourceUpdate(object):
                 != datetime.datetime.utcnow().isoformat()
             )
             assert resource["metadata_modified"] == "1987-03-04T23:30:00"
+        package = helpers.call_action('package_show', id=resource['package_id'])
+        assert package['metadata_modified'] == '1987-03-04T23:30:00'
 
     def test_new_keys_update_metadata_modified_field(self):
         with freeze_time("1987-03-04 23:30:00"):

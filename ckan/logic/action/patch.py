@@ -48,11 +48,10 @@ def package_patch(
         show_context,
         {'id': _get_or_bust(data_dict, 'id')})
 
-    # allow metadata_modified to be updated if data has changed
-    # removes from original_package for comparison in package_update
-    package_dict.pop('metadata_modified', None)
-
     patched = dict(package_dict)
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
     patched['id'] = package_dict['id']
     update_context = Context(context)
@@ -89,11 +88,10 @@ def resource_patch(context: Context,
     if package_dict['resources'][resource.position]['id'] != resource.id:
         raise NotFound('Resource was not found.')
 
-    # allow metadata_modified to be updated if data has changed
-    # removes from original_package for comparison in package_update
-    package_dict.pop('metadata_modified', None)
-
     patched = dict(package_dict['resources'][resource.position])
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
     update_context = Context(context)
     update_context['original_package'] = package_dict

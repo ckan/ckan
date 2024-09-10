@@ -6,7 +6,8 @@ import datetime
 import uuid
 import logging
 from typing import (
-    Any, Collection, Optional, TYPE_CHECKING, Type, Union, cast, overload
+    Any, Collection, Optional, TYPE_CHECKING, Type, Union, cast, overload,
+    Literal,
 )
 
 import ckan.lib.dictization as d
@@ -21,8 +22,15 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def resource_dict_save(res_dict: dict[str, Any],
-                       context: Context) -> 'model.Resource':
+def resource_dict_save(
+        res_dict: dict[str, Any], context: Context) \
+        -> tuple['model.Resource', Literal['create', 'update', None]]:
+    '''
+    Returns (resource_object, change) where change is:
+    - 'create' if this is a new resource object
+    - 'update' if any core fields or extras were changed
+    - None if no change for an existing resource object
+    '''
     model = context["model"]
     session = context["session"]
 
@@ -50,21 +58,23 @@ def resource_dict_save(res_dict: dict[str, Any],
     if 'url' in changed or ('last_modified' in changed and not new):
         obj.url_changed = True
 
-    if changed or obj.extras != skipped:
+    any_change = changed or obj.extras != skipped
+    if any_change:
         obj.metadata_modified = datetime.datetime.utcnow()
         session.add(obj)
     obj.state = u'active'
     obj.extras = skipped
 
-    return obj
+    return obj, 'create' if new else 'update' if any_change else None
 
 
 def package_resource_list_save(
         res_dicts: Optional[list[dict[str, Any]]],
         package: 'model.Package', context: Context,
-        copy_resources: dict[int, int] | tuple[()]) -> None:
+        copy_resources: dict[int, int] | tuple[()]) -> bool:
     """
-    Store a list of resources in the database
+    Store a list of resources in the database. Returns True if any resources
+    were changed.
 
     :param res_dicts: List of resource dictionaries to store
     :type res_dict: list of dicts
@@ -76,7 +86,7 @@ def package_resource_list_save(
     :type copy_resources: dict
     """
     if res_dicts is None:
-        return
+        return False
 
     session = context['session']
     model = context['model']
@@ -96,17 +106,20 @@ def package_resource_list_save(
         .filter(model.Resource.state == 'deleted')[:]
 
     obj_list = []
+    resources_changed = False
     for i, res_dict in enumerate(res_dicts or []):
         if i in copy_resources:
             obj_list.append(old_list[copy_resources[i]])
             continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
-        obj = resource_dict_save(res_dict, context)
+        obj, change = resource_dict_save(res_dict, context)
         obj_list.append(obj)
+        if change:
+            resources_changed = True
 
     if old_list == obj_list:
-        return
+        return resources_changed
 
     # Set the package's resources. resource_list is an ORM relation - the
     # package's resources. If we didn't have the slice operator "[:]" then it
@@ -127,6 +140,8 @@ def package_resource_list_save(
         resource.state = 'deleted'
         resource_list.append(resource)
 
+    return True
+
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
                           package: 'model.Package', context: Context) -> None:
@@ -146,7 +161,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
     for tag_dict in tag_dicts or []:
         name_vocab = (tag_dict.get('name'), tag_dict.get('vocabulary_id'))
         if name_vocab not in tag_name_vocab:
-            tag_obj = d.table_dict_save(tag_dict, model.Tag, context)
+            tag_obj, _change = d.table_dict_save(tag_dict, model.Tag, context)
             tags.add(tag_obj)
             tag_name_vocab.add((tag_obj.name, tag_obj.vocabulary_id))
 
@@ -255,8 +270,8 @@ def relationship_list_save(
 
     relationships = []
     for relationship_dict in relationship_dicts or []:
-        obj = d.table_dict_save(relationship_dict,
-                              model.PackageRelationship, context)
+        obj, _change = d.table_dict_save(
+            relationship_dict, model.PackageRelationship, context)
         relationships.append(obj)
 
     relationship_list[:] = relationships
@@ -268,17 +283,20 @@ def relationship_list_save(
 def package_dict_save(
         pkg_dict: dict[str, Any], context: Context,
         include_plugin_data: bool = False,
-        copy_resources: dict[int, int] | tuple[()] = ()) -> 'model.Package':
+        copy_resources: dict[int, int] | tuple[()] = ()) \
+        -> tuple['model.Package', Literal['create', 'update', None]]:
+    '''
+    Returns (package_object, change) where change is:
+    - 'create' if this is a new package object
+    - 'update' if any fields or resources were changed
+    - None if no change for an existing package object
+    '''
+
     model = context["model"]
-    package = context.get("package")
-    if package:
-        pkg_dict["id"] = package.id
     Package = model.Package
 
     if 'metadata_created' in pkg_dict:
         del pkg_dict['metadata_created']
-    if 'metadata_modified' in pkg_dict:
-        del pkg_dict['metadata_modified']
 
     plugin_data = pkg_dict.pop('plugin_data', None)
     if include_plugin_data:
@@ -289,12 +307,13 @@ def package_dict_save(
         e['key']: e['value'] for e in pkg_dict.get('extras', [])
     }
 
-    pkg = d.table_dict_save(dict(pkg_dict, extras=extras), Package, context)
+    pkg, pkg_change = d.table_dict_save(
+        dict(pkg_dict, extras=extras), Package, context)
 
     if not pkg.id:
         pkg.id = str(uuid.uuid4())
 
-    package_resource_list_save(
+    res_change = package_resource_list_save(
         pkg_dict.get("resources"), pkg, context, copy_resources)
     package_tag_list_save(pkg_dict.get("tags"), pkg, context)
     package_membership_list_save(pkg_dict.get("groups"), pkg, context)
@@ -308,7 +327,11 @@ def package_dict_save(
         objects = pkg_dict.get('relationships_as_object')
         relationship_list_save(objects, pkg, 'relationships_as_object', context)
 
-    return pkg
+    return (
+        pkg,
+        'create' if pkg_change == 'create' else
+        'update' if pkg_change or res_change else None
+    )
 
 def group_member_save(context: Context, group_dict: dict[str, Any],
                       member_table_name: str) -> dict[str, Any]:
@@ -393,7 +416,7 @@ def group_dict_save(group_dict: dict[str, Any], context: Context,
         e['key']: e['value'] for e in group_dict.get('extras', [])
     }
 
-    group = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
+    group, _change = d.table_dict_save(dict(group_dict, extras=extras), Group, context)
     if not group.id:
         group.id = str(uuid.uuid4())
 
@@ -440,7 +463,7 @@ def user_dict_save(
     if 'password' in user_dict and not len(user_dict['password']):
         del user_dict['password']
 
-    user = d.table_dict_save(
+    user, _change = d.table_dict_save(
         user_dict,
         User,
         context,
@@ -519,7 +542,7 @@ def task_status_dict_save(task_status_dict: dict[str, Any],
     if task_status:
         task_status_dict["id"] = task_status.id
 
-    task_status = d.table_dict_save(
+    task_status, _change = d.table_dict_save(
         task_status_dict, model.TaskStatus, context)
     return task_status
 
@@ -579,7 +602,7 @@ def tag_dict_save(tag_dict: dict[str, Any], context: Context) -> 'model.Tag':
     tag = context.get('tag')
     if tag:
         tag_dict['id'] = tag.id
-    tag = d.table_dict_save(tag_dict, model.Tag, context)
+    tag, _change = d.table_dict_save(tag_dict, model.Tag, context)
     return tag
 
 @overload
@@ -633,8 +656,8 @@ def resource_view_dict_save(data_dict: dict[str, Any],
             config[key]  = value
     data_dict['config'] = config
 
-
-    return d.table_dict_save(data_dict, model.ResourceView, context)
+    resview, _change = d.table_dict_save(data_dict, model.ResourceView, context)
+    return resview
 
 
 def api_token_save(data_dict: dict[str, Any],
@@ -642,10 +665,11 @@ def api_token_save(data_dict: dict[str, Any],
     model = context[u"model"]
     user = model.User.get(data_dict['user'])
     assert user
-    return d.table_dict_save(
+    token, _change = d.table_dict_save(
         {
             u"user_id": user.id,
             u"name": data_dict[u"name"]
         },
         model.ApiToken, context
     )
+    return token
