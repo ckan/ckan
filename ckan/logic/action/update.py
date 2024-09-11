@@ -399,6 +399,7 @@ def package_update(
             and plugin_data
         )
 
+    nested = model.repo.session.begin_nested()
     pkg, change = model_save.package_dict_save(
         data, context, include_plugin_data, copy_resources)
 
@@ -425,14 +426,15 @@ def package_update(
 
             item.after_dataset_update(context, data)
 
-        if not context.get('defer_commit'):
+        if context.get('defer_commit'):
+            nested.commit()
+        else:
             model.repo.commit()
 
         log.debug('Updated object %s' % pkg.name)
     else:
         log.debug('No update for object %s' % pkg.name)
-        # FIXME handle defer_commit?
-        model.repo.session.rollback()
+        nested.rollback()
 
     if return_id_only:
         return pkg.id
