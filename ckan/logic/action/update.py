@@ -1183,7 +1183,7 @@ def package_owner_org_update(context: Context, data_dict: DataDict) -> ActionRes
             need_update = False
         else:
             member_obj.state = 'deleted'
-            member_obj.save()
+            model.Session.add(member_obj)
 
     # add the organization to member table
     if org and need_update:
