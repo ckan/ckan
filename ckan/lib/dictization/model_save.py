@@ -110,6 +110,8 @@ def package_resource_list_save(
     for i, res_dict in enumerate(res_dicts or []):
         if i in copy_resources:
             obj_list.append(old_list[copy_resources[i]])
+            if i != copy_resources[i]:
+                resources_changed = True
             continue
         if not u'package_id' in res_dict or not res_dict[u'package_id']:
             res_dict[u'package_id'] = package.id
@@ -144,7 +146,11 @@ def package_resource_list_save(
 
 
 def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
-                          package: 'model.Package', context: Context) -> None:
+                          package: 'model.Package', context: Context) -> bool:
+    '''
+    Returns True if any tags were changed
+    '''
+    changed = False
     model = context["model"]
     session = context["session"]
 
@@ -170,6 +176,7 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
     for tag in set(tag_package_tag.keys()) - tags:
         package_tag = tag_package_tag[tag]
         package_tag.state = 'deleted'
+        changed = True
 
     # case 2: in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
@@ -177,21 +184,30 @@ def package_tag_list_save(tag_dicts: Optional[list[dict[str, Any]]],
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
+        changed = True
 
     # case 3: in new list and already used but in deleted state
     for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
         state = 'active'
         package_tag = tag_package_tag[tag]
         package_tag.state = state
+        changed = True
 
-    package.package_tags[:] = tag_package_tag.values()
+    if changed:
+        package.package_tags[:] = tag_package_tag.values()
+    return changed
+
 
 def package_membership_list_save(
         group_dicts: Optional[list[dict[str, Any]]],
-        package: 'model.Package', context: Context) -> None:
+        package: 'model.Package', context: Context) -> bool:
+    '''
+    Returns True if any member was changed.
+    '''
+    changed = False
 
     if group_dicts is None:
-        return
+        return changed
 
     capacity = 'public'
     model = context["model"]
@@ -233,6 +249,7 @@ def package_membership_list_save(
             member_obj.capacity = capacity
             member_obj.state = 'deleted'
             session.add(member_obj)
+            changed = True
 
     # Add any new groups
     for group in groups:
@@ -254,6 +271,9 @@ def package_membership_list_save(
                                           group_id=group.id,
                                           state = 'active')
             session.add(member_obj)
+            changed = True
+
+    return changed
 
 
 def relationship_list_save(
@@ -315,8 +335,9 @@ def package_dict_save(
 
     res_change = package_resource_list_save(
         pkg_dict.get("resources"), pkg, context, copy_resources)
-    package_tag_list_save(pkg_dict.get("tags"), pkg, context)
-    package_membership_list_save(pkg_dict.get("groups"), pkg, context)
+    tag_change = package_tag_list_save(pkg_dict.get("tags"), pkg, context)
+    group_change = package_membership_list_save(
+        pkg_dict.get("groups"), pkg, context)
 
     # relationships are not considered 'part' of the package, so only
     # process this if the key is provided
@@ -329,8 +350,9 @@ def package_dict_save(
 
     return (
         pkg,
-        'create' if pkg_change == 'create' else
-        'update' if pkg_change or res_change else None
+        'create' if pkg_change == 'create'
+        else 'update' if pkg_change or res_change or tag_change or group_change
+        else None
     )
 
 def group_member_save(context: Context, group_dict: dict[str, Any],

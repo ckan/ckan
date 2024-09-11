@@ -426,9 +426,8 @@ def package_update(
 
             item.after_dataset_update(context, data)
 
-        if context.get('defer_commit'):
-            nested.commit()
-        else:
+        nested.commit()
+        if not context.get('defer_commit'):
             model.repo.commit()
 
         log.debug('Updated object %s' % pkg.name)
