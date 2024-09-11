@@ -75,11 +75,9 @@
                   aria-label="{{ _('Navigate to Home - {site_title}').format(site_title=g.site_title) }}"/>
               </a>
             {% else %}
-              <h1>
-                <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>
-              </h1>
+              <a href="{{ h.url_for('home.index') }}">{{ g.site_title }}</a>
               {% if g.site_description %}
-                <h2>{{ g.site_description }}</h2>
+                <p class="mb-0">{{ g.site_description }}</p>
               {% endif %}
             {% endif %}
           {% endblock %}
