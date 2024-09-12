@@ -47,10 +47,10 @@ describe('ckan.notify()', {testIsolation: false}, function () {
     })
   });
 
-  it('should default the class to "alert-error"', function () {
+  it('should default the class to "alert-danger"', function () {
     cy.window().then(win => {
       win.ckan.notify('test');
-      assert.ok(this.element.find('.alert').hasClass('alert-error'));
+      assert.ok(this.element.find('.alert').hasClass('alert-danger'));
     })
   });
 
