@@ -10,7 +10,7 @@
 
   <form method="post" action="{{ delete_action }}" class="mb-3 d-inline-block">
     {{ h.csrf_input() }}
-    {% if is_supported %}
+    {% if is_delete_supported %}
       <button class="btn btn-danger" name="delete" type="submit"
         data-module="confirm-action"
         data-module-with-data=true
@@ -21,12 +21,12 @@
       <button class="btn btn-danger"  type="button" disabled>
         <i class="fa fa-remove"></i> {{ _('Delete from DataStore') }}
       </button>
-    {% endif %}  
+    {% endif %}
   </form>
 
   <form method="post" action="{{ action }}" class="datapusher-form mb-3 d-inline-block">
     {{ h.csrf_input() }}
-    {% if is_supported %}
+    {% if is_upload_supported %}
       <button class="btn btn-primary" name="save" type="submit">
         <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
       </button>
@@ -34,11 +34,15 @@
       <button class="btn btn-primary" type="button" disabled>
         <i class="fa fa-cloud-upload"></i> {{ _('Upload to DataStore') }}
       </button>
-    {% endif %}  
+    {% endif %}
   </form>
 
-  {% if not is_supported %}
+  {% if not is_upload_supported and not is_delete_supported %}
     <p class="empty"> {{ _('Uploads and deletions are not supported for this file type in the DataStore') }}</p>
+   {% elif not is_upload_supported %}
+    <p class="empty"> {{ _('Uploads are not supported for this file type in the DataStore') }}</p>
+   {% elif not is_delete_supported %}
+    <p class="empty"> {{ _('Deletion cannot be performed as no data is present for this resourece in the DataStore') }}</p>
   {% endif %}
 
   {% if status.error and status.error.message %}
