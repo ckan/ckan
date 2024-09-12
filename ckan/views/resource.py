@@ -264,9 +264,9 @@ class CreateView(MethodView):
             data_dict = get_action(u'package_show')(context, {u'id': id})
             get_action(u'package_update')(
                 Context(context, allow_state_change=True),
-                dict(data_dict, state=u'active')
+                dict(data_dict, state=u'draft')
             )
-            return h.redirect_to(u'{}.read'.format(package_type), id=id)
+            return h.redirect_to(u'{}.preview'.format(package_type), id=id)
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
@@ -781,6 +781,8 @@ class EditResourceViewView(MethodView):
             return base.render(u'package/edit_view.html', extra_vars)
 
         return base.render(u'package/new_view.html', extra_vars)
+
+
 
 
 def register_dataset_plugin_rules(blueprint: Blueprint) -> None:

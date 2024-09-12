@@ -31,69 +31,7 @@ Example:
 {% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
 {% if s3 != 'uncomplete' %}{% set class = 'stage-3' %}{% endif %}
 
-<!-- <ol class="stages {{ class }}">
-  <li class="first {{ s1 }}">
-    {% if s1 != 'complete' %}
-      <span class="highlight">
-        <div class="row">
-          {{ render_step('fa-check-circle', s1, '1', _('Create Dataset'), _('In Progress')) }}
-        </div>
-      </span>
-    {% else %}
-      <button class="highlight" name="save" value="go-dataset" type="submit">
-        <div class="row">
-        {{ render_step('fa-check-circle',s1, '1', h.humanize_entity_type('package', dataset_type, 'create label') or _('Create Dataset'), _('In Progress')) }}
-        </div>
-      </button>
-    {% endif %}
-  </li>
-  <li class="row">
-    <span class="dataset-line">
 
-    </span>
-  </li>
-  <li class="second {{ s2 }}">
-    {% if s2 != 'complete' %}
-      <span class="highlight">
-        <div class="row">
-        {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
-        </div>
-      </span>
-    {% else %}
-      {% if s1 == 'active' %}
-        <button class="row" name="save" value="go-resources" type="submit">
-          {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
-        </button>
-      {% else %}
-        <a href="{{h.url_for(dataset.new)}}" class="row">
-          {{ render_step('fa-angle-double-right',s2, '2', _('Add data'), _('Pending')) }}
-        </a>
-      {% endif %}
-    {% endif %}
-  </li>
-  <li class="row">
-    <span class="dataset-line">
-
-    </span>
-  </li>
-  <li class="third {{ s3 }}">
-    {% if s2 != 'complete' %}
-    <span class="highlight">
-      <div class="row">
-      {{ render_step('fa-angle-double-right',s3, '3', _('Submit Dataset'), _('Pending')) }}
-      </div>
-    </span>
-    {% else %}
-      {% if s2 == 'active' %}
-      <button class="row" name="save" value="go-resources" type="submit">
-        {{ render_step('fa-angle-double-right',s3, '3', _('Submit Dataset'), _('Pending')) }}
-      </button>
-      {% else %}
-        {% link_for _('Add data'), named_route='dataset.new', class_="highlight" %}
-      {% endif %}
-    {% endif %}
-  </li>
-</ol> -->
 
 <div class="container rounded stage">
   <div class="row" >
