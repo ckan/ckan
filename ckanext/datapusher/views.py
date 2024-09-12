@@ -45,7 +45,7 @@ class ResourceDataView(MethodView):
             # backward compatibility with old templates
             toolkit.g.pkg_dict = pkg_dict
             toolkit.g.resource = resource
-            
+
             # Determine if the upload button and delete button 
             # should be enabled or disabled
             resource_format = resource.get('format', '').strip()
