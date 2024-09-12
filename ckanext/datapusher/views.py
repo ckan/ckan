@@ -46,11 +46,13 @@ class ResourceDataView(MethodView):
             toolkit.g.pkg_dict = pkg_dict
             toolkit.g.resource = resource
             
-            # Determine if the upload button and delete button should be enabled or disabled
-            resource_format = resource.get('format','').strip()
+            # Determine if the upload button and delete button 
+            # should be enabled or disabled
+            resource_format = resource.get('format', '').strip()
             supported_formats = toolkit.config.get('ckan.datapusher.formats')
-            is_upload_supported = (resource_format in supported_formats or
-                   resource_format.lower() in supported_formats
+            is_upload_supported = (
+                resource_format in supported_formats or
+                resource_format.lower() in supported_formats
             )
             is_delete_supported = resource.get('datastore_active', False)
 
