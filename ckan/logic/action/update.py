@@ -295,38 +295,48 @@ def package_update(
     changed_resources = data_dict.get('resources')
     dataset_changed = True
 
-    if original_package and original_package.get('id') != pkg.id:
-        original_package = None
-    if original_package:
-        if data_dict.get('metadata_modified'):
-            dataset_changed = original_package != data_dict
-        else:
-            dataset_changed = dict(
-                original_package, metadata_modified=None, resources=None
-                ) != dict(data_dict, metadata_modified=None, resources=None)
-        if not dataset_changed and original_package.get('resources'
-                ) == data_dict.get('resources'):
-            # no change
-            return pkg.id if return_id_only else data_dict
+    if not original_package or original_package.get('id') != pkg.id:
+        show_context = logic.fresh_context(context, ignore_auth=True)
+        original_package = _get_action('package_show')(show_context, {
+            'id': data_dict['id'],
+        })
 
-        res_deps = []
-        if hasattr(package_plugin, 'resource_validation_dependencies'):
-            res_deps = package_plugin.resource_validation_dependencies(
-                pkg.type)
+    if data_dict.get('metadata_modified'):
+        dataset_changed = original_package != data_dict
+    else:
+        dataset_changed = dict(
+            original_package, metadata_modified=None, resources=None
+            ) != dict(data_dict, metadata_modified=None, resources=None)
+    if not dataset_changed and original_package.get('resources'
+            ) == data_dict.get('resources'):
+        # no change
+        return pkg.id if return_id_only else original_package
 
-        _missing = object()
-        if all(original_package.get(rd, _missing) ==
-               data_dict.get(rd, _missing) for rd in res_deps):
-            oids = {r['id']: r for r in original_package['resources']}
-            copy_resources = {
-                i: r['position']
-                for (i, r) in enumerate(data_dict['resources'])
-                if r == oids.get(r.get('id'), ())
-            }
-            changed_resources = [
-                r for i, r in enumerate(data_dict['resources'])
-                if i not in copy_resources
-            ]
+    res_deps = []
+    if hasattr(package_plugin, 'resource_validation_dependencies'):
+        res_deps = package_plugin.resource_validation_dependencies(
+            pkg.type)
+
+    _missing = object()
+    if 'resources' in data_dict and all(
+            original_package.get(rd, _missing) == data_dict.get(rd, _missing)
+            for rd in res_deps):
+        oids = {r['id']: r for r in original_package['resources']}
+        copy_resources = {
+            i: r['position']
+            for (i, r) in enumerate(data_dict['resources'])
+            if r == oids.get(r.get('id'), ())
+        }
+        changed_resources = [
+            r for i, r in enumerate(data_dict['resources'])
+            if i not in copy_resources
+        ]
+
+    if 'resources' not in data_dict and any(
+            original_package.get(rd, _missing) != data_dict.get(rd, _missing)
+            for rd in res_deps):
+        # re-validate resource fields even if not passed
+        changed_resources = original_package['resources']
 
     resource_uploads = []
     for resource in changed_resources or []:

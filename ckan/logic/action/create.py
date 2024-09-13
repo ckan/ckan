@@ -202,6 +202,9 @@ def package_create(
         for index, resource in enumerate(data['resources']):
             resource['id'] = pkg.resources[index].id
 
+    if not data.get('metadata_modified'):
+        pkg.metadata_modified = datetime.datetime.utcnow()
+
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
