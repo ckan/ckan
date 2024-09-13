@@ -561,10 +561,18 @@ class CreateView(MethodView):
                     )
 
                     # redirect to add dataset resources
-                    url = h.url_for(
-                        u'{}_resource.new'.format(package_type),
-                        id=pkg_dict[u'name']
-                    )
+
+                    if request.form[u'save'] == "go-resources":
+                        last_added_resource = pkg_dict[u'resources'][-1]
+                        url = h.url_for(
+                            u'{}_resource.edit'.format(package_type), 
+                            id=pkg_dict.get('id'),
+                            resource_id=last_added_resource.get('id'))
+                    else:
+                        url = h.url_for(
+                            u'{}_resource.new'.format(package_type),
+                            id=pkg_dict[u'name']
+                        )
                     return h.redirect_to(url)
                 # Make sure we don't index this dataset
                 if request.form[u'save'] not in [
@@ -1238,6 +1246,9 @@ class PreviedDatasetView(MethodView):
                 dict(data_dict, state=u'active')
             )
             return h.redirect_to(u'{}.new'.format(package_type))
+        
+        elif save_action == u'go-dataset':
+            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         
         elif save_action == u'go-resources':
             data_dict = get_action(u'package_show')(context, {u'id': id})

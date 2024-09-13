@@ -2867,8 +2867,8 @@ fieldset:disabled .btn {
 .btn-primary:disabled,
 .btn-primary.disabled {
   color: #fff;
-  background-color: #6a8df6;
-  border-color: #6a8df6;
+  background-color: #153084;
+  border-color: #153084;
 }
 
 .btn-secondary {
@@ -11275,6 +11275,7 @@ textarea {
   flex-direction: row-reverse;
   justify-content: end;
   text-align: right;
+  gap:8px;
 }
 .form-actions .action-info {
   line-height: 1rem;
@@ -11843,12 +11844,27 @@ select[data-module="autocomplete"] {
   .select2-choices
   .select2-search-field:first-child
   input {
-  font-size: 14px;
+  font-size: 16px;
 }
 
-.select2-container-multi .select2-choices .select2-search-field input {
+/* .select2-container-multi .select2-choices .select2-search-field input {
   height: 29px;
-}
+} */
+
+.select2-container-multi .select2-choices .select2-search-field input {
+  padding: 0px !important;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+  color: #667085;
+  font-family: "Noto Sans", sans-serif;
+  line-height: 100%;
+ }
+
+ .select2-container-multi .select2-choices  {
+  background-image: none !important;
+  box-shadow: none !important;
+ }
 
 .select2-container .select2-choice input,
 .select2-container-multi
@@ -11872,8 +11888,14 @@ select[data-module="autocomplete"] {
 }
 
 .select2-container-multi.select2-container .select2-choices {
-  padding-top: 3px;
-  padding-bottom: 3px;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 0.125rem solid #D0D5DD ;
+}
+
+.select2-container .select2-choice input, 
+.select2-container-multi .select2-choices .select2-search-field:first-child input {
+  padding-left: 0px !important;
 }
 
 .select2-search-choice-close,
@@ -13782,7 +13804,7 @@ td.diff_header {
     line-height: 1;
 }
 
-.dataset-circle-icon .fa.active{
+.dataset-circle-icon .fa.complete{
   color: green;
     background-color: green;
     border-radius: 50%;
@@ -13796,12 +13818,12 @@ td.diff_header {
 }
 
 
-.dataset-circle-icon .fa-check-circle::before {
+.dataset-circle-icon .fa.complete::before {
   content: '\f00c';      
   color: white;          
 }
 
-.dataset-circle-icon .fa-angle-double-right::before {
+.dataset-circle-icon .fa.uncomplete::before {
   content: '\f101';      
   color: white;          
 }
@@ -13933,3 +13955,20 @@ td.diff_header {
   line-height: 120%; 
 }
 
+.stage-nohiglight {
+  display: inline-block; /* Ensures the button behaves like a block element */
+  padding: 0; /* Removes extra padding */
+  border: none; /* Removes button border */
+  background: none; /* Removes default button background */
+  width: auto; /* Keeps width auto to not expand the content */
+  cursor: pointer;
+  text-align: left;
+}
+
+.stage > .row > .stage-nohiglight > .col-auto {
+  padding-right: 4px;
+}
+
+.stage > .row > .stage-nohiglight > .col-auto > .row {
+  width: 164px;
+}
