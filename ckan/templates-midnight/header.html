@@ -101,15 +101,15 @@
                   ('home.about', _('About')) ) }}
               {% endblock %}
             </ul>
-            {% block header_account_notlogged %}
-              <div class="col-md-2 login-btn-container">
-                <a class="btn login-btn" href="{{ h.url_for('user.login') }}">
-                  {{ _('Login') }}
-                  <i class="fa fa-sign-in"></i>
-                </a>
-              </div>
-            {% endblock %}
-        {% endblock %}
+          {% endblock %}
+          {% block header_account_notlogged %}
+            <div class="col-md-2 login-btn-container">
+              <a class="btn" href="{{ h.url_for('user.login') }}">
+                {{ _('Login') }}
+                <i class="fa fa-sign-in"></i>
+              </a>
+            </div>
+          {% endblock %}
         </div>
       </nav>
     </div>
