@@ -765,6 +765,21 @@ class TestDatasetUpdate(object):
         updated_dataset = helpers.call_action('package_update', **dataset)
         assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
 
+    def test_metadata_modified_can_be_updated(self):
+        dataset = factories.Dataset()
+        updated_dataset = helpers.call_action('package_update', **dict(
+            dataset, metadata_modified="2020-02-25T12:00:00"
+        ))
+        assert updated_dataset["metadata_modified"] == "2020-02-25T12:00:00"
+
+        # but not for normal users
+        user = factories.User()
+        context = {"user": user["name"], "ignore_auth": False}
+        unchanged = helpers.call_action('package_update', context, **dict(
+            dataset, metadata_modified="2021-01-01T11:01:00"
+        ))
+        assert unchanged["metadata_modified"] == "2020-02-25T12:00:00"
+
 
 @pytest.mark.ckan_config("ckan.views.default_views", "")
 @pytest.mark.ckan_config("ckan.plugins", "image_view")
