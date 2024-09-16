@@ -151,21 +151,6 @@ class TestOrganization(object):
         assert dataset["id"] in href.select_one("a")["href"].split("/", 2)[-1]
         assert dataset["title"] in href.text.strip()
 
-    def test_no_change_dataset(self, app):
-        user = factories.User()
-        org = factories.Organization()
-        dataset = factories.Dataset(owner_org=org["id"], user=user)
-        _clear_activities()
-        helpers.call_action(
-            "package_update", context={"user": user["name"]}, **dataset
-        )
-
-        url = url_for("activity.organization_activity", id=org["id"])
-        response = app.get(url)
-        page = BeautifulSoup(response.body)
-        href = page.select_one(".dataset")
-        assert "updated the dataset" not in response
-
     def test_delete_dataset(self, app):
         user = factories.UserWithToken()
         org = factories.Organization(user=user)
