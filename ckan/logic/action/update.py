@@ -242,13 +242,12 @@ def package_update(
     You must be authorized to edit the dataset and the groups that it belongs
     to.
 
-    .. note:: Update methods may delete parameters not explicitly provided in the
-        data_dict. If you want to edit only a specific attribute use `package_patch`
-        instead.
+    .. note:: Update methods may delete parameters not explicitly provided.
+        If you want to edit only a specific attribute use
+        :py:func:`ckan.logic.action.get.package_patch` instead.
 
-    It is recommended to call
-    :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
-    the result, and then call ``package_update()`` with it.
+    If the ``resources`` list is omitted the current resources will be left
+    unchanged.
 
     Plugins may change the parameters of this function depending on the value
     of the dataset's ``type`` attribute, see the
@@ -309,7 +308,8 @@ def package_update(
             ) != dict(data_dict, metadata_modified=None, resources=None)
     if not dataset_changed and original_package.get('resources'
             ) == data_dict.get('resources'):
-        # no change
+        # flag no change for caller
+        context['package_update_unchanged'] = 'before validation'
         return pkg.id if return_id_only else original_package
 
     res_deps = []
@@ -449,6 +449,8 @@ def package_update(
         return pkg.id
 
     if not change and original_package:
+        # flag no change for caller
+        context['package_update_unchanged'] = 'after validation'
         return original_package
 
     # we could update the dataset so we should still be able to read it.
