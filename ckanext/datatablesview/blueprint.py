@@ -206,6 +206,7 @@ def filtered_download(resource_view_id):
                 u'filters': json.dumps(filters),
                 u'format': request.form[u'format'],
                 u'fields': u','.join(cols),
+                u'bom': True,
             }))
 
 
