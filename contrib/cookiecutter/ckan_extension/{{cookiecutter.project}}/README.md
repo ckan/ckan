@@ -45,7 +45,7 @@ To install {{ cookiecutter.project }}:
 
     git clone https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutter.project }}.git
     cd {{ cookiecutter.project }}
-    pip install -e .
+    pip install .
 	pip install -r requirements.txt
 
 3. Add `{{ cookiecutter.project[8:] }}` to the `ckan.plugins` setting in your CKAN
@@ -75,7 +75,7 @@ do:
 
     git clone https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutter.project }}.git
     cd {{ cookiecutter.project }}
-    python setup.py develop
+    pip install -e .
     pip install -r dev-requirements.txt
 
 
@@ -98,7 +98,7 @@ If {{ cookiecutter.project }} should be available on PyPI you can follow these s
 
 3. Create a source and binary distributions of the new version:
 
-       python setup.py sdist bdist_wheel && twine check dist/*
+       python -m build && twine check dist/*
 
    Fix any errors you get.
 

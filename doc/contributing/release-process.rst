@@ -379,32 +379,24 @@ a release.
 
 #. Upload the release to PyPI::
 
-        python setup.py sdist upload
+        python -m build
+        twine check dist/*
+        twine upload dist/*
+
 
    You will need a PyPI account with admin permissions on the ckan package,
    and your credentials should be defined on a ``~/.pypirc`` file such as::
 
         [distutils]
         index-servers =
-            pypi
+          pypi
 
         [pypi]
-        username: <user-name>
-        password: <password>
+        username: __token__
+        password: <token>
 
    For more info, see:
-   `here <http://docs.python.org/distutils/packageindex.html#pypirc>`_
-
-   If running in Vagrant you may get error ``error: Operation not permitted``
-   due to failure to create a hard link. The solution is to add a line at the top
-   of setup.py::
-
-        # Avoid problem releasing to pypi from vagrant
-        import os
-        if os.environ.get('USER', '') == 'vagrant':
-            del os.link
-
-   as described here: https://stackoverflow.com/questions/7719380/python-setup-py-sdist-error-operation-not-permitted
+   `here <>`_
 
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
@@ -513,7 +505,9 @@ Doing the patch releases
 
 #. Upload the release to PyPI::
 
-        python setup.py sdist upload
+        python -m build
+        twine check dist/*
+        twine upload dist/*
 
 #. Make sure the documentation branch (``X.Y``) is up to date with the latest changes in the
    corresponding ``dev-vX.Y`` branch.
