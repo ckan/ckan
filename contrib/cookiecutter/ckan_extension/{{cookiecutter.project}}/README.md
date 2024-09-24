@@ -90,7 +90,7 @@ To run the tests, do:
 
 If {{ cookiecutter.project }} should be available on PyPI you can follow these steps to publish a new version:
 
-1. Update the version number in the `setup.py` file. See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers) for how to choose version numbers.
+1. Update the version number in the `pyproject.toml` file. See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers) for how to choose version numbers.
 
 2. Make sure you have the latest version of necessary packages:
 

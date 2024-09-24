@@ -50,9 +50,8 @@ def recut():
     keywords = context['keywords'].strip().split()
     keywords = [keyword for keyword in keywords
                 if keyword not in ('ckan', 'CKAN', 'A', 'space',
-                                   'seperated', 'list', 'of', 'keywords')]
+                                   'separated', 'list', 'of', 'keywords')]
     keywords.insert(0, 'CKAN')
-    keywords = u' '.join(keywords)
     context['keywords'] = keywords
 
     # Double check 'project_shortname' and 'plugin_class_name'
