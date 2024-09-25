@@ -52,9 +52,12 @@ CKAN release you're upgrading to:
 
      pip install .
 
-   .. note:: If you plan on modifying the CKAN source code, do an editable install instead::
+   .. note:: 
 
-      pip install -e .
+      If you plan on modifying the CKAN source code, do an editable install instead::
+
+         pip install -e .
+
 
 #. If there have been changes in the Solr schema (check the :doc:`/changelog`
    to find out) you need to restart Jetty for the changes to take effect:
