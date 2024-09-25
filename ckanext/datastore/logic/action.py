@@ -294,7 +294,9 @@ def datastore_upsert(context: Context, data_dict: dict[str, Any]):
     return result
 
 
-def datastore_info(context: Context, data_dict: dict[str, Any]):
+@logic.side_effect_free
+def datastore_info(context: Context, data_dict: dict[str, Any]
+        ) -> dict[str, Any]:
     '''
     Returns detailed metadata about a resource.
 
