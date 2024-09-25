@@ -395,15 +395,15 @@ a release.
         username: __token__
         password: <token>
 
-   For more info, see:
-   `here <>`_
+   For more info, see
+   `here <https://packaging.python.org/en/latest/specifications/pypirc/>`_
 
    If you upload a bad package, then you can remove it from PyPI however you
    must use a new version number next time.
 
 #. Build new Docker images for the new version in the following repos:
 
-   * `openknowledge/docker-ckan <https://github.com/okfn/docker-ckan>`_ -> ``openknowledge/ckan-base:{Major:minor}`` and ``openknowledge/ckan-dev:{Major:minor}`` (ping @amercader for this one)
+   * `ckan/ckan-docker-base <https://github.com/ckan/ckan-docker-base>`_ -> ``ckan/ckan-base:{Major:minor}`` and ``ckan/ckan-dev:{Major:minor}``
    * `ckan/ckan-solr <https://github.com/ckan/ckan-solr>`_ -> ``ckan/ckan-solr:{Major:minor}-solr{solr-version}``
    * `ckan/ckan-postgres-dev <https://github.com/ckan/ckan-postgres-dev>`_ -> ``ckan/ckan-postgres-dev:{Major:minor}``
 
