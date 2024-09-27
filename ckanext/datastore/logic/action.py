@@ -662,6 +662,8 @@ def set_datastore_active_flag(
     # find changed resource, patch it and reindex package
     psi = search.PackageSearchIndex()
     try:
+        resource = model.Resource.get(data_dict['resource_id'])
+        assert resource
         _data_dict = p.toolkit.get_action('package_show')(context, {
             'id': resource.package_id
         })
