@@ -4,12 +4,9 @@ import pytest
 import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 
-from ckanext.datapusher.tests import get_api_token
 
-
-@pytest.mark.ckan_config(u"ckan.plugins", u"datastore datapusher")
-@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures(u"clean_datastore", u"with_plugins")
+@pytest.mark.ckan_config(u"ckan.plugins", u"datastore")
+@pytest.mark.usefixtures("clean_datastore", "with_plugins")
 def test_read(app):
     user = factories.User()
     user_token = factories.APIToken(user=user["id"])

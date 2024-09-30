@@ -13,12 +13,10 @@ from ckan.tests import factories
 from ckan.tests.helpers import call_action
 from ckan.common import config
 from ckanext.datastore.tests.helpers import set_url_type
-from ckanext.datapusher.tests import get_api_token
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
-@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("with_plugins", "non_clean_db")
+@pytest.mark.usefixtures("with_plugins", "with_datapusher_token", "non_clean_db")
 class TestDatastoreNew:
     def test_create_ckan_resource_in_package(self, app, api_token):
         package = factories.Dataset.model()
@@ -65,8 +63,7 @@ class TestDatastoreNew:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datastore datapusher")
-@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_datapusher_token", "with_plugins")
 class TestDatastoreCreate(object):
     sysadmin_user = None
     normal_user = None

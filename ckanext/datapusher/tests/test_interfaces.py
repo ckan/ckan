@@ -8,7 +8,6 @@ import responses
 
 import ckan.plugins as p
 import ckanext.datapusher.interfaces as interfaces
-from ckanext.datapusher.tests import get_api_token
 
 from ckan.tests import helpers, factories
 
@@ -30,8 +29,7 @@ class FakeDataPusherPlugin(p.SingletonPlugin):
 @pytest.mark.ckan_config(
     "ckan.plugins", "datastore datapusher test_datapusher_plugin"
 )
-@pytest.mark.ckan_config("ckan.datapusher.api_token", get_api_token())
-@pytest.mark.usefixtures("non_clean_db", "with_plugins")
+@pytest.mark.usefixtures("non_clean_db", "with_datapusher_token", "with_plugins")
 class TestInterace(object):
 
     @responses.activate

@@ -7,7 +7,6 @@ import pytest
 from ckan.logic import _actions
 
 from ckan.tests import helpers, factories
-from ckanext.datapusher.tests import get_api_token
 
 
 def _pending_task(resource_id):
@@ -21,21 +20,6 @@ def _pending_task(resource_id):
         "value": "{}",
         "error": "{}",
     }
-
-
-@pytest.fixture()
-def with_datapusher_token(non_clean_db, ckan_config, monkeypatch):
-    """Set mandatory datapusher option.
-
-    It must be applied before `datapusher` plugin is loaded via `with_plugins`,
-    but after DB initialization via `non_clean_db`.
-
-    """
-    monkeypatch.setitem(
-        ckan_config,
-        "ckan.datapusher.api_token",
-        get_api_token(),
-    )
 
 
 @pytest.mark.ckan_config("ckan.plugins", "datapusher datastore")
