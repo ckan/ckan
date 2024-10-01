@@ -39,11 +39,7 @@ def recut():
     context = {}
 
 {%- for key, value in cookiecutter.items() -%}
-{% if value is not none %}
-    context["{{key}}"] = {{ value|tojson }}
-{% else %}
-    context["{{key}}"] = None
-{% endif %}
+    context["{{key}}"] = {{ value.__repr__() | safe }}
 {%- endfor -%}
 
     # Process keywords
