@@ -1,0 +1,30 @@
+{% extends "organization/read_base.html" %}
+
+{% block subtitle %}{{ _('Members') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block page_primary_action %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% set count = members|length %}
+  {% set members_count = ungettext('{count} member', '{count} members', count).format(count=count) %}
+  <h3 class="page-heading">{{ members_count }}</h3>
+  <table class="table table-header table-hover table-bordered">
+    <thead>
+      <tr>
+          <th>{{ _('User') }}</th>
+          <th>{{ _('Role') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_id, user, role in members %}
+        <tr>
+          <td class="media">
+            {{ h.linked_user(user_id, maxlength=20) }}
+          </td>
+          <td>{{ role }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
