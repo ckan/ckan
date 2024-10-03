@@ -207,8 +207,9 @@ class CKANFactory(factory.alchemy.SQLAlchemyModelFactory):
     def model(cls, **kwargs):
         """Create entity via API and retrieve result directly from the DB."""
         result = cls(**kwargs)
-        return cls._meta.sqlalchemy_session.query(cls._meta.model).get(
-            result[cls._meta.primary_key]
+        return cls._meta.sqlalchemy_session.get(
+            cls._meta.model,
+            result[cls._meta.primary_key],
         )
 
     @classmethod
