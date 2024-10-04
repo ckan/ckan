@@ -2834,6 +2834,7 @@ fieldset:disabled .btn {
   font-size: 16px !important;
   font-weight: 600 !important;
   line-height: 24px;
+  text-align: center;
   
 }
 .btn-primary:hover {
@@ -11839,6 +11840,14 @@ select[data-module="autocomplete"] {
   margin-right: 3px;
 }
 
+@media screen and (max-width: 768px) {
+  .slug-preview {
+    font-size: 0.1rem;
+    margin-left: 0px;
+  }
+  
+}
+
 .select2-container .select2-choice input,
 .select2-container-multi
   .select2-choices
@@ -12641,10 +12650,10 @@ td.diff_header {
 .actions li:last-of-type {
   margin-right: 0;
 }
-
+/* 
 .hide-heading {
-  display: none;
-}
+ 
+} */
 
 .page-header {
   margin-top: 1.5rem;
@@ -13785,6 +13794,7 @@ td.diff_header {
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
+  justify-content: center;
 }
 
 .dataset-circle-icon {
@@ -13932,6 +13942,14 @@ td.diff_header {
   margin-right: 8px;
 }
 
+@media screen and (max-width: 768px) {
+  .slug-preview-inner {
+    letter-spacing: -0.6px;
+    font-size: 0.6rem;
+  }
+  
+}
+
 .preview-text {
   margin-bottom: 24px;
 }
@@ -13971,4 +13989,31 @@ td.diff_header {
 
 .stage > .row > .stage-nohiglight > .col-auto > .row {
   width: 164px;
+}
+
+.page-heading  {
+  font-size: 3rem ;
+  line-height: 3rem ;
+  font-weight: 600 ;
+  color: #153084 ;
+}
+
+.hide-heading {
+  font-size: 3rem ;
+  line-height: 3rem ;
+  font-weight: 600 ;
+  color: #153084 ;
+}
+
+@media screen and (max-width: 768px) {
+  .page-heading {
+    font-size: 1.875rem ;
+    line-height: 1.875rem ;
+  }
+
+  .hide-heading {
+    font-size: 1.875rem ;
+    line-height: 1.875rem ;
+  }
+  
 }
