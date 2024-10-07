@@ -156,6 +156,9 @@ def package_changed(sender: str, **kwargs: Any):
 
     result: types.ActionResult.PackageUpdate = kwargs["result"]
     data_dict = kwargs["data_dict"]
+    context = kwargs["context"]
+    if context.get('package_update_unchanged'):
+        return
 
     if not result:
         id_ = data_dict["id"]

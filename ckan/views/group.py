@@ -1080,7 +1080,6 @@ class EditGroupView(MethodView):
         except dict_fns.DataError:
             base.abort(400, _(u'Integrity Error'))
         data_dict['id'] = context['id']
-        context['allow_partial_update'] = True
         try:
             action_name = (
                 'organization_update' if is_organization else 'group_update'

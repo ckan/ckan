@@ -470,7 +470,7 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
@@ -484,7 +484,7 @@ class TestPackageDictize:
 
         context = {"model": model, "session": model.Session}
 
-        result = model_save.resource_dict_save(resource, context)
+        result, _change = model_save.resource_dict_save(resource, context)
 
         expected_dict = {u"url": u"some_filename.csv", u"url_type": u"upload"}
         assert expected_dict["url"] == result.url
