@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+from collections import OrderedDict  # for context
 import jinja2
 import cookiecutter.find as find
 import cookiecutter.generate as gen
@@ -36,7 +37,7 @@ def recut():
     setup_template = 'setup.py'
 
     # get context
-    context = {{ cookiecutter | jsonify }}
+    context = {{ cookiecutter }}
 
     # Process keywords
     keywords = context['keywords'].strip().split()
@@ -68,6 +69,6 @@ def recut():
 
 
 if __name__ == '__main__':
-    context = {{ cookiecutter | jsonify }}
+    context = {{ cookiecutter }}
     if context['_source'] == 'local':
         recut()
