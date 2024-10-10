@@ -38,7 +38,9 @@ def track_request(response: Response) -> Response:
         sql = '''INSERT INTO tracking_raw
                     (user_key, url, tracking_type)
                      VALUES (:key, :url, :type)'''
-
+        # Check if the engine is initialized
+        if engine is None:
+            return response
         with cast(sa.engine.Engine, engine).begin() as conn:
             conn.execute(sa.text(sql), {
                 "key": key,
