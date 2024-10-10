@@ -201,13 +201,6 @@ def package_create(
         for index, resource in enumerate(data['resources']):
             resource['id'] = pkg.resources[index].id
 
-    context_org_update = context.copy()
-    context_org_update['ignore_auth'] = True
-    context_org_update['defer_commit'] = True
-    _get_action('package_owner_org_update')(context_org_update,
-                                            {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
-
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
 
