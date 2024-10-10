@@ -45,7 +45,7 @@ To install {{ cookiecutter.project }}:
 
     git clone https://github.com/{{ cookiecutter.github_user_name }}/{{ cookiecutter.project }}.git
     cd {{ cookiecutter.project }}
-    pip install .
+    pip install -e .
 	pip install -r requirements.txt
 
 3. Add `{{ cookiecutter.project[8:] }}` to the `ckan.plugins` setting in your CKAN
