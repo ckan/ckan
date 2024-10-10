@@ -1,10 +1,32 @@
 {% extends "organization/edit_base.html" %}
 
-{% block primary_content_inner %}
-  <h1 class="{% block page_heading_class %}page-heading{% endblock %}">
-    {% block page_heading %}{{ h.humanize_entity_type('organization', group_type, 'form label') or _('Organization Form') }}{% endblock %}
-  </h1>
-  {% block form %}
-    {{ form | safe }}
-  {% endblock %}
+{% block primary %}
+  <div class="primary col-xs-12" role="main">
+
+    {% block primary_content %}
+      <section class="module">
+        {% block page_header %}
+       
+        {% endblock %}
+        <div class="module-content">
+          {% block primary_content_inner %}
+          <h1 class="{% block page_heading_class %}page-heading{% endblock %}">
+            {% block page_heading %}{{ h.humanize_entity_type('organization', group_type, 'form label') or _('Organization Form') }}{% endblock %}
+          </h1>
+          
+          {% block form %}
+            {{ form | safe }}
+          {% endblock %}
+        {% endblock %}
+        </div>
+      </section>
+    {% endblock %}
+
+   
+  </div>
+{% endblock %}
+
+
+
+{% block secondary %}
 {% endblock %}

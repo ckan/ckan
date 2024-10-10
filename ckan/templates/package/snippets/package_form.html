@@ -14,13 +14,19 @@ then itself be extended to add/remove blocks of functionality. #}
   <input type="hidden" name="pkg_name" value="{{ data.id }}" />
   {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
-  {% block basic_fields %}
-    {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors %}
-  {% endblock %}
+<div class="package-metadata-field rounded container">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10">
+      {% block basic_fields %}
+        {% snippet 'package/snippets/package_basic_fields.html', data=data, errors=errors %}
+      {% endblock %}
 
-  {% block metadata_fields %}
-    {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors %}
-  {% endblock %}
+      {% block metadata_fields %}
+        {% snippet 'package/snippets/package_metadata_fields.html', data=data, errors=errors %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
 
   {% block form_actions %}
     {{ form.required_message() }}

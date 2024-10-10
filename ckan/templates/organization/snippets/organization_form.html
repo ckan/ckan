@@ -2,37 +2,43 @@
 
 
 <form id='organization-edit-form' method="post" data-module="basic-form" enctype="multipart/form-data">
-  {{ h.csrf_input() }}
-  {% block error_summary %}
-    {{ form.errors(error_summary) }}
-  {% endblock %}
+  <div class="package-metadata-field rounded container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10">
+        {{ h.csrf_input() }}
+        {% block error_summary %}
+          {{ form.errors(error_summary) }}
+        {% endblock %}
 
-  {% block basic_fields %}
-    {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
-    {{ form.input('title', label=_('Name'), id='field-name', placeholder=h.humanize_entity_type('organization', group_type, 'name placeholder') or _('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
+        {% block basic_fields %}
+          {% set attrs = {'data-module': 'slug-preview-target', 'class': 'form-control'} %}
+          {{ form.input('title', label=_('Name'), id='field-name', placeholder=h.humanize_entity_type('organization', group_type, 'name placeholder') or _('My Organization'), value=data.title, error=errors.title, classes=['control-full'], attrs=attrs) }}
 
-    {# Perhaps these should be moved into the controller? #}
-    {% set prefix = h.url_for(group_type + '.read', id='') %}
-    {% set domain = h.url_for(group_type + '.read', id='', qualified=true) %}
-    {% set domain = domain|replace("http://", "")|replace("https://", "") %}
-    {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<' + group_type + '>'} %}
+          {# Perhaps these should be moved into the controller? #}
+          {% set prefix = h.url_for(group_type + '.read', id='') %}
+          {% set domain = h.url_for(group_type + '.read', id='', qualified=true) %}
+          {% set domain = domain|replace("http://", "")|replace("https://", "") %}
+          {% set attrs = {'data-module': 'slug-preview-slug', 'class': 'form-control input-sm', 'data-module-prefix': domain, 'data-module-placeholder': '<' + group_type + '>'} %}
 
-    {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-' + group_type), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
+          {{ form.prepend('name', label=_('URL'), prepend=prefix, id='field-url', placeholder=_('my-' + group_type), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
 
-    {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=h.humanize_entity_type('organization', group_type, 'description placeholder') or _('A little information about my organization...'), value=data.description, error=errors.description) }}
+          {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=h.humanize_entity_type('organization', group_type, 'description placeholder') or _('A little information about my organization...'), value=data.description, error=errors.description) }}
 
-    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
-    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+          {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+          {% set is_url = data.image_url and data.image_url.startswith('http') %}
 
-    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
+          {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
-  {% endblock %}
+        {% endblock %}
 
-  {% block custom_fields %}
-    {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
-  {% endblock %}
+        {% block custom_fields %}
+          {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
+        {% endblock %}
 
-  {{ form.required_message() }}
+        {{ form.required_message() }}
+      </div>
+    </div>
+  </div>
 
   <div class="form-actions">
     {% block delete_button %}
