@@ -1,0 +1,19 @@
+{% set action = pkg.type ~ '_resource.edit_view' if is_edit and h.check_access('resource_view_update', view) else pkg.type ~ '_resource.read' %}
+
+{% if current_filters %}
+  {% set url = h.url_for(action, id=pkg.name,
+                         resource_id=view.resource_id, view_id=view.id,
+                         filters=current_filters) %}
+{% else %}
+  {% set url = h.url_for(action, id=pkg.name,
+                         resource_id=view.resource_id, view_id=view.id) %}
+{% endif %}
+
+<li data-id="{{ view.id }}">
+  {% set tab_class = "nav-link active" if is_selected else "nav-link" %}
+
+  <a class="{{ tab_class }} view-item view-item-{{ view.view_type }}" href="{{ url }}" data-id="{{ view.id }}">
+    <i class="fa icon fa-{{ h.resource_view_icon(view) }}"></i>
+    {{ view.title }}
+  </a>
+</li>

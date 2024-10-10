@@ -1,0 +1,79 @@
+{#
+  Renders a single resource with icons and view links.
+
+  res - A resource dict to render
+  pkg - A package dict that the resource belongs to
+  can_edit - Whether the user is allowed to edit the resource
+  url_is_edit - Whether the link to the resource should be to editing it (set to False to make the link view the resource)
+  url - URL of the resource details page(resource edit/read depending on url_is_edit, by default).
+
+  Example:
+
+    {% snippet "package/snippets/resource_item.html", res=resource, pkg=pkg, can_edit=True, url_is_edit=False %}
+
+#}
+{% set url_action = pkg.type ~ ('_resource.edit' if url_is_edit and can_edit else '_resource.read') %}
+{% set url = url or h.url_for(url_action, id=pkg.name, resource_id=res.id) %}
+
+<li class="resource-item" data-id="{{ res.id }}">
+  {% block resource_item_title %}
+  {% set name_or_id = res.name or res.id %}
+  <a class="heading" href="{{ url }}" aria-label="{{ _('Navigate to resource: {name_or_id}').format(name_or_id=name_or_id)}}">
+    {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
+  </a>
+  {% endblock %}
+  {% block resource_item_description %}
+    <p class="description">
+      {% if res.description %}
+        {{ h.markdown_extract(h.get_translated(res, 'description'), extract_length=80) }}
+      {% endif %}
+    </p>
+  {% endblock %}
+  {% block resource_item_explore %}
+  {% if not url_is_edit %}
+  <div class="dropdown btn-group">
+    <a href="#" class="btn btn-primary dropdown-toggle" type="button" id="dropdownExplorer" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fa fa-share"></i>
+      {{ _('Explore') }}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="dropdownExplorer">
+      {% block resource_item_explore_links %}
+        {% block explore_view %}
+          <li>
+            <a class="dropdown-item" href="{{ url }}">
+              {% if res.has_views %}
+                <i class="fa fa-chart-bar"></i>
+                {{ _('Preview') }}
+              {% else %}
+                <i class="fa fa-info-circle"></i>
+                {{ _('More information') }}
+              {% endif %}
+            </a>
+          </li>
+        {% endblock explore_view %}
+
+        {% if res.url and h.is_url(res.url) %}
+      <li>
+        <a class="dropdown-item resource-url-analytics" href="{{ res.url }}" target="_blank" rel="noreferrer">
+          {% if res.has_views or res.url_type == 'upload' %}
+            <i class="fa fa-arrow-circle-down"></i>
+            {{ _('Download') }}
+          {% else %}
+            <i class="fa fa-external-link"></i>
+            {{ _('Go to resource') }}
+          {% endif %}
+        </a>
+      </li>
+      {% endif %}
+      {% if can_edit %}
+        <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='pencil' %}</li>
+        {% block resource_item_explore_inner scoped %}{% endblock %}
+        <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='dropdown-item', icon='chart-bar' %}</li>
+      {% endif %}
+      {% endblock %}
+    </ul>
+  </div>
+  {% endif %}
+  {% endblock %}
+</li>

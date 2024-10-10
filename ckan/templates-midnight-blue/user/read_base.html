@@ -1,0 +1,32 @@
+{% extends "page.html" %}
+
+{% set user = user_dict %}
+{% set dataset_type = h.default_package_type() %}
+{% set org_type = h.default_group_type('organization') %}
+{% set group_type = h.default_group_type('group') %}
+
+{% block subtitle %}{{ user.display_name }} {{ g.template_title_delimiter }} {{ _('Users') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ h.build_nav('user.index', _('Users')) }}
+  {{ h.build_nav('user.read', user.display_name|truncate(35), id=user.name) }}
+{% endblock %}
+
+{% block content_action %}
+  {% if h.check_access('user_update', user) %}
+    {% link_for _('Manage'), named_route='user.edit', id=user.name, class_='btn btn-default', icon='wrench' %}
+  {% endif %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon('user.read', h.humanize_entity_type('package', dataset_type, 'content tab') or _('Datasets'), id=user.name, icon='sitemap') }}
+  {{ h.build_nav_icon('user.read_organizations', h.humanize_entity_type('organization', org_type, 'content tab') or _('Organizations'), id=user.name, icon='building') }}
+  {{ h.build_nav_icon('user.read_groups', h.humanize_entity_type('group', group_type, 'content tab') or _('Groups'), id=user.name, icon='users') }}
+  {% if h.check_access('api_token_list', {'user': user['name']}) %}
+    {{ h.build_nav_icon('user.api_tokens', _('API Tokens'), id=user.name, icon='key') }}
+  {% endif %}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "user/snippets/info.html", user=user, is_myself=is_myself, is_sysadmin=is_sysadmin, dataset_type=dataset_type, org_type=org_type, group_type=group_type, am_following=am_following %}
+{% endblock %}

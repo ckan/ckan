@@ -1,0 +1,106 @@
+{% set user = user_dict if not user else user %}
+{% set orgs_available = h.organizations_available(permission='manage_group',
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
+{% set groups_available = h.groups_available(am_member=True,
+  include_dataset_count=True,
+  include_member_count=True,
+  user=user['name'])
+%}
+
+
+<div id="user-info" class="module context-info">
+    <section class="module-content">
+      {% block secondary_content_inner %}
+        {% block user_image %}
+        <div class="image">{{ h.user_image(user.id, size=270) }}</div>
+        {% endblock %}
+        {% block user_heading %}
+        <h1 class="heading">{{ user.display_name }}</h1>
+        {% endblock %}
+        {% block user_about %}
+        {% if about_formatted %}
+          {{ about_formatted }}
+        {% else %}
+          <p class="empty">
+            {% if is_myself %}
+              {% trans %}You have not provided a biography.{% endtrans %}
+            {% else %}
+              {% trans %}This user has no biography.{% endtrans %}
+            {% endif %}
+          </p>
+        {% endif %}
+        {% endblock %}
+        {% block user_nums %}
+        {% set num_followers = h.follow_count('user', user.id) %}
+        <div class="nums">
+          <dl>
+            <dt>{{ _('Followers') }}</dt>
+            <dd>{{ h.SI_number_span(num_followers) }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ h.humanize_entity_type('package', dataset_type, 'facet label') or _('Datasets') }}</dt>
+            <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ h.humanize_entity_type('organization', org_type, 'facet label') or _('Organizations') }}</dt>
+            <dd>{{ orgs_available | count }}</dd>
+          </dl>
+          <dl>
+            <dt>{{ h.humanize_entity_type('group', group_type, 'facet label') or _('Groups') }}</dt>
+            <dd>{{ groups_available | count }}</dd>
+          </dl>
+        </div>
+        {% endblock %}
+        {% if is_myself == false %}
+          {% block user_follow %}
+          {% if current_user.is_authenticated %}
+          {% if error_message %}
+             <div class="alert alert-danger">{{ error_message }}</div>
+          {% endif %}
+          {% if am_following %}
+             <a class="btn btn-danger" hx-post="{{ h.url_for('user.unfollow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-minus"></i> Unfollow</a>
+           {% else %}
+           <a class="btn btn-success" hx-post="{{ h.url_for('user.follow', id=user.id) }}" hx-target="#user-info"><i class="fa-solid fa-circle-plus"></i> Follow</a>
+           {% endif %}
+         {% endif %}
+          {% endblock %}
+        {% endif %}
+        {% block user_info %}
+        <div class="info">
+          <dl>
+            {% if user.name.startswith('http://') or user.name.startswith('https://') %}
+              <dt>{{ _('Open ID') }}</dt>
+              <dd>{{ user.name|urlize(25) }}{# Be great if this just showed the domain #}</dd>
+            {% else %}
+              <dt>{{ _('Username') }}</dt>
+              <dd>{{ user.name }}</dd>
+            {% endif %}
+          </dl>
+          {% if is_myself %}
+            <dl>
+              <dt>{{ _('Email') }} <span class="label label-default" aria-label="{{ _('This information is private and visible only to you') }}" data-bs-title="{{ _('This information is private and visible only to you') }}" data-bs-toggle="tooltip">{{ _('Private') }}</span></dt>
+              <dd>{{ user.email }}</dd>
+            </dl>
+          {% endif %}
+          <dl>
+            <dt>{{ _('Member Since') }}</dt>
+            <dd>{{ h.render_datetime(user.created) }}</dd>
+          </dl>
+          {% if is_sysadmin %}
+          <dl>
+            <dt>{{_('Last Active') }}</dt>
+            <dd>{{ h.time_ago_from_timestamp(user.last_active) }}</dd>
+          </dl>
+          {% endif %}
+          <dl>
+            <dt>{{ _('State') }}</dt>
+            <dd>{{ _(user.state) }}</dd>
+          </dl>
+        </div>
+        {% endblock %}
+      {% endblock %}
+    </section>
+  </div>

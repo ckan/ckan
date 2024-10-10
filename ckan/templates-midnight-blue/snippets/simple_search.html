@@ -1,0 +1,17 @@
+{% set input_class = input_class or 'search-giant' %}
+<form class="dataset-search {{ form_class }}" method="GET" data-module="select-switch">
+  <span class="form-group {{ input_class }}">
+    <input type="text" class="search form-control" name="q" value="{{ q }}" autocomplete="off" placeholder="{{ placeholder }}" />
+    <button type="submit"><i class="fa fa-search"></i> <span>{{ _('Search') }}</span></button>
+  </span>
+  <span class="form-select form-group control-order-by">
+    <label for="field-order-by">{{ _('Order by') }}</label>
+    <select id="field-order-by" name="sort" class="form-control">
+      {% set sort_items = [(_('Name Ascending'), 'name asc'), (_('Name Descending'), 'name desc')] %}
+      {% for item in sort_items + (extra_sort or []) %}
+        <option value="{{ item[1] }}"{% if sort==item[1] %} selected="selected"{% endif %}>{{ item[0] }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-default js-hide" type="submit">{{ _('Go') }}</button>
+  </span>
+</form>

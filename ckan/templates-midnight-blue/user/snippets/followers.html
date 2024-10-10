@@ -1,0 +1,10 @@
+{% if followers %}
+  <ul class="user-list">
+    {% for follower in followers %}
+      {# HACK: (for group/admins) follower can be the id of the user or a user_dict #}
+      <li>{{ h.linked_user(follower.name or follower, maxlength=20) }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="empty">{{ _('No followers') }}</p>
+{% endif %}

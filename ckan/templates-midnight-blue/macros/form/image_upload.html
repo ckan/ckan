@@ -1,0 +1,59 @@
+{% from 'macros/form/input.html' import input %}
+{% from 'macros/form/checkbox.html' import checkbox %}
+
+{#
+Builds a file upload for input
+
+Example
+{% import 'macros/form.html' as form %}
+{{ form.image_upload(data, errors, is_upload_enabled=true) }}
+
+#}
+{% macro image_upload(data, errors, field_url='image_url', field_upload='image_upload', field_clear='clear_upload',
+                    is_url=false, is_upload=false, is_upload_enabled=false, placeholder=false,
+                    url_label='', upload_label='', field_name='image_url')  %}
+{% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
+{% set url_label = url_label or _('Image URL')  %}
+{% set upload_label = upload_label or _('Image')  %}
+{% set previous_upload = data['previous_upload'] %}
+
+{% if field_url == 'url' and field_upload == 'upload' %}
+    {# backwards compatibility for old resource forms that still call the `forms.image_upload()` macro, eg ckanext-scheming #}
+    {% snippet 'package/snippets/resource_upload_field.html',
+    data=data,
+    errors=errors,
+    is_url=is_url,
+    is_upload=is_upload,
+    is_upload_enabled=is_upload_enabled,
+    url_label=url_label,
+    upload_label=upload_label,
+    placeholder=placeholder %}
+{% else %}
+    {% if is_upload_enabled %}
+    <div class="image-upload"
+            data-module="image-upload"
+            data-module-is_url="{{ 'true' if is_url else 'false' }}"
+            data-module-is_upload="{{ 'true' if is_upload else 'false' }}"
+            data-module-field_url="{{ field_url }}"
+            data-module-field_upload="{{ field_upload }}"
+            data-module-field_clear="{{ field_clear }}"
+            data-module-upload_label="{{ upload_label }}"
+            data-module-field_name="{{ field_name }}"
+            data-module-previous_upload="{{ 'true' if previous_upload else 'false' }}">
+    {% endif %}
+
+
+    {{ input(field_url, label=url_label, id='field-image-url', type='url', placeholder=placeholder, value=data.get(field_url), error=errors.get(field_url), classes=['control-full']) }}
+
+
+    {% if is_upload_enabled %}
+    {{ input(field_upload, label=upload_label, id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
+    {% if is_upload %}
+        {{ checkbox(field_clear, label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
+    {% endif %}
+    {% endif %}
+
+    {% if is_upload_enabled %}</div>{% endif %}
+{% endif %}
+
+{% endmacro %}

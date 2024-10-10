@@ -1,0 +1,17 @@
+{% extends 'dataviewer/base.html' %}
+
+{% block page %}
+  <div>
+    <pre data-module="mock-preview">
+      <div class="loading">
+        {{ _('Loading...') }}
+      </div>
+    </pre>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script src="mock-preview.js"></script>
+{% endblock %}

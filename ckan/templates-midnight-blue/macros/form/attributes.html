@@ -1,0 +1,17 @@
+{#
+Builds a space seperated list of html attributes from a dict of key/value pairs.
+Generally only used internally by macros.
+
+attrs - A dict of attribute/value pairs
+
+Example
+
+{% import 'macros/form.html' as form %}
+{{ form.attributes({}) }}
+
+#}
+{%- macro attributes(attrs={}) -%}
+{%- for key, value in attrs.items() -%}
+{{ " " }}{{ key }}{% if value != "" %}="{{ value }}"{% endif %}
+{%- endfor -%}
+{%- endmacro -%}

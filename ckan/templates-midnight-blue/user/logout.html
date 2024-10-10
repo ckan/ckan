@@ -1,0 +1,14 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Logged Out') }}{% endblock %}
+
+{% block primary_content %}
+  <section class="module">
+    <div class="module-content">
+      <h1 class="page-heading">
+      	{% block page_heading %}{{ _('Logged Out') }}{% endblock %}
+      </h1>
+      <p>{% trans %}You are now logged out.{% endtrans %}</p>
+    </div>
+  </section>
+{% endblock %}
