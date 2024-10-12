@@ -35,17 +35,16 @@ class TrackingRaw(domain_object.DomainObject, BaseModel):  # type: ignore
                       primary_key=True)
     url = Column("url", types.UnicodeText, nullable=False, primary_key=True)
     tracking_type = Column("tracking_type", types.Unicode(10),
-                           nullable=False, primary_key=True)
-    access_timestamp = Column("access_timestamp", types.DateTime)
+                           nullable=False)
+    access_timestamp = Column("access_timestamp", types.DateTime,
+                              primary_key=True, default=datetime.datetime.now)
 
     def __init__(self, user_key: str,
                  url: str,
-                 tracking_type: str,
-                 access_timestamp: datetime.datetime) -> None:
+                 tracking_type: str) -> None:
         self.user_key = user_key
         self.url = url
         self.tracking_type = tracking_type
-        self.access_timestamp = access_timestamp
 
     @classmethod
     def get(cls, **kw: _types.Any) -> TrackingRaw | None:
