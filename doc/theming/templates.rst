@@ -37,12 +37,12 @@ an extension and plugin. For a detailed explanation of the steps below, see
         example_theme=ckanext.example_theme.plugin:ExampleThemePlugin
     ''',
 
-4. Run ``python setup.py develop``:
+4. Run ``pip install -e .``:
 
    .. parsed-literal::
 
     cd |extension_dir|
-    python setup.py develop
+    pip install -e .
 
 5. Add the plugin to the ``ckan.plugins`` setting in your |ckan.ini|
    file::
