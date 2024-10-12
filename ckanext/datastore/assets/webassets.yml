@@ -1,15 +1,18 @@
 datastore_css:
   output: ckanext_datastore/%(version)s_datastore.css
+  extra:
+    preload:
+      - vendor/hljs-dark-theme
   contents:
     - css/datastore.css
-    - vendor/a11y-dark.css
 
 datastore:
   output: ckanext_datastore/%(version)s_datastore.js
+  filter: rjsmin
   extra:
     preload:
       - base/main
+      - vendor/hljs
       - ckanext_datastore/datastore_css
   contents:
       - js/api-info.js
-      - vendor/highlight.min.js
