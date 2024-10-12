@@ -22,11 +22,6 @@ def upgrade():
         'tracking_raw_pkey', 'tracking_raw', ['user_key', 'url', 'tracking_type']
     )
 
-    op.create_primary_key(
-        'tracking_summary_pkey', 'tracking_summary', ['url', 'package_id',
-                                                      'access_timestamp']
-    )
-
 
 def downgrade():
     op.drop_constraint('tracking_raw_pkey', 'tracking_raw')
