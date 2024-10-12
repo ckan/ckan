@@ -39,8 +39,7 @@ def track_request(response: Response) -> Response:
             TrackingRaw.create(
                 user_key=key,
                 url=data.get("url"),
-                tracking_type=data.get("type"),
-                access_timestamp=datetime.datetime.now()
+                tracking_type=data.get("type")
             )
         except Exception as e:
             raise e
