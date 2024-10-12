@@ -56,20 +56,10 @@ class TrackingRaw(domain_object.DomainObject, BaseModel):  # type: ignore
     @classmethod
     def create(cls, **kw: _types.Any) -> TrackingRaw:
         """Create a new tracking raw entry."""
-        instance = cls(**kw)
-        meta.Session.add(instance)
+        obj = cls(**kw)
+        meta.Session.add(obj)
         meta.Session.commit()
-        return instance
-
-    @classmethod
-    def update(cls, filters: dict[str, _types.Any], **kw: _types.Any) -> TrackingRaw | None:
-        """Update tracking raw entry."""
-        instance = cls.get(**filters)
-        if instance:
-            for k, v in kw.items():
-                setattr(instance, k, v)
-            meta.Session.commit()
-        return instance
+        return obj
 
 
 Index('tracking_raw_user_key', TrackingRaw.user_key)
@@ -154,5 +144,5 @@ class TrackingSummary(domain_object.DomainObject, BaseModel):  # type: ignore
 
 
 Index('tracking_summary_url', TrackingSummary.url)
-Index('tracking_summary_package_id', TrackingSummary.package_id)
+Index('tracking_summary_package_id', TrackingSummary.package_id)  # type: ignore
 Index('tracking_summary_date', 'tracking_date')
