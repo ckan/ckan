@@ -175,11 +175,11 @@ def update_tracking(summary_date: datetime.datetime):
         session.query(
             tr.url,
             tr.user_key,
-            cast(tr.access_timestamp, sa.Date)  # type: ignore
+            cast(tr.access_timestamp, sa.Date)
             .label("tracking_date"),
             tr.tracking_type,
         )
-        .filter(cast(tr.access_timestamp,  # type: ignore
+        .filter(cast(tr.access_timestamp,
                      sa.Date) == summary_date)
         .distinct()
         .subquery()
