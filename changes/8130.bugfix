@@ -1,1 +1,0 @@
-``use_default_schema`` in ``package_show`` is now evaluated as boolean.

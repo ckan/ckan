@@ -1,6 +1,0 @@
-Allow blocking users to change their passwords by hidding the `password1` and
-`password2` fields in the user edit form.
-This PR just changes the hard requirement on password1 and password2 fields.
-If we need to drop the {% block change_password %} block for the user.edit
-view to do not allow users to change their password (for ckanext-saml2 users
-this is important) we will get an KeyError.

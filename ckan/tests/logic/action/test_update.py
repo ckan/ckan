@@ -322,7 +322,13 @@ class TestUpdate(object):
         # This should put c.html at the front
         reorder = {"id": dataset["id"], "order": [mapping["http://c.html"]]}
 
-        helpers.call_action("package_resource_reorder", **reorder)
+        from ckan.lib.dictization import model_save
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("package_resource_reorder", **reorder)
+            assert m.call_args.args[3] == {0: 2, 1: 0, 2: 1}, 'move existing'
 
         dataset = helpers.call_action("package_show", id=dataset["id"])
         reordered_resource_urls = [
@@ -1362,6 +1368,25 @@ class TestResourceUpdate(object):
                 id=dataset['id'], order=[resource2['id'], resource1['id']])
             assert mock_package_show.call_args_list[0][0][0].get('for_update') is True
 
+    def test_resource_update_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        res2 = factories.Resource(
+            package_id=res1['package_id'],
+            url="http://data"
+        )
+        factories.Resource(package_id=res1['package_id'])
+        params = {
+            "id": res2['id'],
+            "url": "http://data2",
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("resource_update", **params)
+            assert m.call_args.args[3] == {0: 0, 2: 2}, 'unchanged res 0, 2'
+
 
 @pytest.mark.usefixtures("non_clean_db")
 class TestConfigOptionUpdate(object):
@@ -1910,6 +1935,24 @@ class TestDatasetRevise(object):
             context=context,
         )
         assert response["package"]["notes"] == "new notes"
+
+    def test_package_revise_resource_copies_other_resources(self):
+        from ckan.lib.dictization import model_save
+        res1 = factories.Resource()
+        factories.Resource(
+            package_id=res1['package_id'],
+            url="http://data",
+        )
+        params = {
+            "match": {"id": res1["package_id"]},
+            "update__resources__1": {"url": "http://data2"},
+        }
+        with mock.patch(
+                'ckan.lib.dictization.model_save.package_dict_save',
+                wraps=model_save.package_dict_save,
+                ) as m:
+            helpers.call_action("package_revise", **params)
+            assert m.call_args.args[3] == {0: 0}, 'res 0 unmodified'
 
 
 @pytest.mark.usefixtures("non_clean_db")

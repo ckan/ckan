@@ -73,7 +73,7 @@ Next steps with Solr
 
 To check that Solr started you can visit the web interface at http://localhost:8983/solr
 
-.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Pleaser refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
+.. warning:: The two installation methods above will leave you with a setup that is fine for local development, but Solr should never be exposed publicly in a production site. Please refer to the `Solr documentation <https://solr.apache.org/guide/securing-solr.html>`_ to learn how to secure your Solr instance.
 
 
 If you followed any of the instructions above, the CKAN Solr core will be available at http://localhost:8983/solr/ckan. If for whatever reason you ended up with a different one (eg with a different port, host or core name), you need to change the :ref:`solr_url` setting in your :ref:`config_file` (|ckan.ini|) to point to your Solr server, for example::

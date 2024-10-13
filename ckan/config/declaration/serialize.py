@@ -173,3 +173,52 @@ def serialize_rst(declaration: "Declaration"):
             result += option.description + "\n\n"
 
     return result
+
+
+@handler.register("md")
+def serialize_md(declaration: "Declaration"):
+    """Serialize declaration into Markdown documentation.
+    """
+    result = ""
+
+    # Config option may refer to the absolute filepath in their default
+    # values. One of such options is `ckan.resource_formats`. Just to avoid
+    # misunderstanding, we'll update these options, replacing the path till
+    # CKAN root with `/<CKAN_ROOT>` segment.
+    ckan_root = os.path.dirname(
+        os.path.dirname(os.path.realpath(ckan.__file__)))
+
+    for item in declaration._members:
+        if isinstance(item, Annotation):
+            result += f"### {item}\n\n"
+        elif isinstance(item, Key):
+            option = declaration._options[item]
+            if option.has_flag(Flag.non_iterable()):
+                continue
+            if not option.description:
+                log.warning(
+                    "Skip %s option because it has no description",
+                    item
+                )
+                continue
+
+            result += f"#### {item}\n\n"
+
+            if option.example:
+                result += (
+                    f"Example:\n\n```\n{item} = {option.example}\n```\n\n"
+                )
+
+            default = option.str_value()
+
+            if default != '':
+                if default.startswith(ckan_root):
+                    default = default.replace(ckan_root, '/<CKAN_ROOT>')
+                default = f"`{default}`"
+            else:
+                default = "none"
+
+            result += f"Default value: {default}\n\n"
+            result += option.description + "\n\n"
+
+    return result

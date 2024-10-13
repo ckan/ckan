@@ -1,2 +1,0 @@
-The `PluginMapperExtension` has been removed since it was no longer used in core
-and it had a deprecated dependency.

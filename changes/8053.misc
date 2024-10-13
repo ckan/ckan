@@ -1,1 +1,0 @@
-Define allowed alternative Solr query parsers via the :ref:`ckan.search.solr_allowed_query_parsers` config option 

@@ -8,6 +8,7 @@ import logging
 import datetime
 import time
 import json
+from copy import deepcopy
 from typing import Any, Union, TYPE_CHECKING, cast
 
 import ckan.lib.helpers as h
@@ -64,35 +65,34 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
 
     '''
     model = context['model']
-    id: str = _get_or_bust(data_dict, "id")
+    rid: str = _get_or_bust(data_dict, "id")
 
     if not data_dict.get('url'):
         data_dict['url'] = ''
 
-    resource = model.Resource.get(id)
-    if resource is None:
-        raise NotFound('Resource was not found.')
+    resource = model.Resource.get(rid)
+    if not resource:
+        log.debug('Could not find resource %s', rid)
+        raise NotFound(_('Resource was not found.'))
     context["resource"] = resource
     old_resource_format = resource.format
-
-    if not resource:
-        log.debug('Could not find resource %s', id)
-        raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.package.id
-    package_show_context: Union[Context, Any] = dict(context, for_update=True)
-    pkg_dict = _get_action('package_show')(
-        package_show_context, {'id': package_id})
+    update_context = Context(context)
+    pkg_dict = context.get('original_package')
+    if not pkg_dict:
+        package_id = resource.package.id
+        package_show_context: Union[Context, Any] = dict(context, for_update=True)
+        pkg_dict = _get_action('package_show')(
+            package_show_context, {'id': package_id})
+    update_context['original_package'] = dict(pkg_dict)
+    pkg_dict['resources'] = list(pkg_dict['resources'])
 
     resources = cast("list[dict[str, Any]]", pkg_dict['resources'])
-    for n, p in enumerate(resources):
-        if p['id'] == id:
-            break
-    else:
-        log.error('Could not find resource %s after all', id)
+    if resources[resource.position]['id'] != rid:
+        log.error('Could not find resource %s after all', rid)
         raise NotFound(_('Resource was not found.'))
 
     # Persist the datastore_active extra if already present and not provided
@@ -101,22 +101,26 @@ def resource_update(context: Context, data_dict: DataDict) -> ActionResult.Resou
         data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
-        plugin.before_resource_update(context, pkg_dict['resources'][n],
-                                      data_dict)
+        plugin.before_resource_update(
+            context,
+            pkg_dict['resources'][resource.position],
+            data_dict
+        )
 
-    resources[n] = data_dict
+    resources[resource.position] = data_dict
 
     try:
-        context['use_cache'] = False
-        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(
+            update_context, pkg_dict)
     except ValidationError as e:
         try:
-            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[n]
+            error_dict = cast("list[ErrorDict]", e.error_dict['resources'])[
+                resource.position]
         except (KeyError, IndexError):
             error_dict = e.error_dict
         raise ValidationError(error_dict)
 
-    resource = _get_action('resource_show')(context, {'id': id})
+    resource = updated_pkg_dict['resources'][resource.position]
 
     if old_resource_format != resource['format']:
         _get_action('resource_create_default_resource_views')(
@@ -281,8 +285,34 @@ def package_update(
     package_plugin = lib_plugins.lookup_package_plugin(pkg.type)
     schema = context.get('schema') or package_plugin.update_package_schema()
 
+    # try to do less work
+    return_id_only = context.get('return_id_only', False)
+    original_package = context.get('original_package')
+    copy_resources = {}
+    changed_resources = data_dict.get('resources')
+
+    if original_package and original_package.get('id') != pkg.id:
+        original_package = None
+    if original_package:
+        if original_package == data_dict:
+            # no change
+            return pkg.id if return_id_only else data_dict
+        if dict(original_package, resources=None) == dict(
+                data_dict, resources=None) and isinstance(
+                data_dict.get('resources'), list):
+            oids = {r['id']: r for r in original_package['resources']}
+            copy_resources = {
+                i: r['position']
+                for (i, r) in enumerate(data_dict['resources'])
+                if r == oids.get(r.get('id'), ())
+            }
+            changed_resources = [
+                r for i, r in enumerate(data_dict['resources'])
+                if i not in copy_resources
+            ]
+
     resource_uploads = []
-    for resource in data_dict.get('resources', []):
+    for resource in changed_resources or []:
         # file uploads/clearing
         upload = uploader.get_resource_uploader(resource)
 
@@ -296,8 +326,28 @@ def package_update(
 
         resource_uploads.append(upload)
 
+    validate_data = dict(data_dict)
+    if changed_resources is not None:
+        validate_data['resources'] = changed_resources
+
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_update')
+        package_plugin,
+        context,
+        validate_data,
+        schema,
+        'package_update'
+    )
+    # shift resource errors to the correct positions
+    if copy_resources and 'resources' in errors:
+        rerrs = []
+        i = 0
+        for e in errors['resources']:
+            while i in copy_resources:
+                rerrs.append({})
+                i += 1
+            rerrs.append(e)
+            i += 1
+        errors['resources'] = rerrs
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, user, context['package'].name, data)
 
@@ -305,7 +355,25 @@ def package_update(
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
+    # merge skipped resources back into validated data
+    if copy_resources:
+        assert original_package  # make pyright happy
+        resources = []
+        i = 0
+        for r in data['resources']:
+            while i in copy_resources:
+                resources.append(
+                    original_package['resources'][copy_resources[i]])
+                i += 1
+            resources.append(r)
+            i += 1
+        while i in copy_resources:
+            resources.append(
+                original_package['resources'][copy_resources[i]])
+            i += 1
+        data['resources'] = resources
+
+    # FIXME: avoid weird logic in package_dict_save by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow()})
     model.Session.refresh(pkg)
@@ -319,7 +387,8 @@ def package_update(
             and plugin_data
         )
 
-    pkg = model_save.package_dict_save(data, context, include_plugin_data)
+    pkg = model_save.package_dict_save(
+        data, context, include_plugin_data, copy_resources)
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -345,8 +414,6 @@ def package_update(
         model.repo.commit()
 
     log.debug('Updated object %s' % pkg.name)
-
-    return_id_only = context.get('return_id_only', False)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -394,9 +461,9 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
 
     ``match`` and ``update`` parameters may also be passed as "flattened keys", using
     either the item numeric index or its unique id (with a minimum of 5 characters), e.g.
-    ``update__resource__1f9ab__description="guidebook"`` would set the
+    ``update__resources__1f9ab__description="guidebook"`` would set the
     description of the resource with id starting with "1f9ab" to "guidebook", and
-    ``update__resource__-1__description="guidebook"`` would do the same
+    ``update__resources__-1__description="guidebook"`` would do the same
     on the last resource in the dataset.
 
     The ``extend`` suffix can also be used on the update parameter to add
@@ -465,13 +532,11 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
     if name_or_id is None:
         raise ValidationError({'match__id': _('Missing value')})
 
-    package_show_context = context.copy()
+    package_show_context = Context(context)
     package_show_context['for_update'] = True
     orig = _get_action('package_show')(
         package_show_context,
         {'id': name_or_id})
-
-    pkg = package_show_context['package']  # side-effect of package_show
 
     unmatched = []
     if 'match' in data:
@@ -487,14 +552,14 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             for unm in unmatched
         ]})
 
+    revised = deepcopy(orig)
     if 'filter' in data:
-        orig_id = orig['id']
-        dfunc.filter_glob_match(orig, data['filter'])
-        orig['id'] = orig_id
+        dfunc.filter_glob_match(revised, data['filter'])
+        revised['id'] = orig['id']
 
     if 'update' in data:
         try:
-            dfunc.update_merge_dict(orig, data['update'])
+            dfunc.update_merge_dict(revised, data['update'])
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({'update': [de.error]})
@@ -505,20 +570,21 @@ def package_revise(context: Context, data_dict: DataDict) -> ActionResult.Packag
             data['update__'].items(),
             key=lambda s: s[0][-6] if s[0].endswith('extend') else s[0]):
         try:
-            dfunc.update_merge_string_key(orig, k, v)
+            dfunc.update_merge_string_key(revised, k, v)
         except dfunc.DataError as de:
             model.Session.rollback()
             raise ValidationError({k: [de.error]})
 
-    _check_access('package_revise', context, {"update": orig})
+    _check_access('package_revise', context, {"update": revised})
+
+    update_context = Context(context)
+    update_context['original_package'] = orig
 
     # future-proof return dict by putting package data under
     # "package". We will want to return activity info
     # on update or "nothing changed" status once possible
     rval = {
-        'package': _get_action('package_update')(
-            Context(context, package=pkg),
-            orig)}
+        'package': _get_action('package_update')(update_context, revised)}
     if 'include' in data_dict:
         dfunc.filter_glob_match(rval, data_dict['include'])
     return rval
@@ -547,7 +613,7 @@ def package_resource_reorder(
     package_show_context: Union[Context, Any] = dict(context, for_update=True)
     package_dict = _get_action('package_show')(
         package_show_context, {'id': id})
-    existing_resources = package_dict.get('resources', [])
+    existing_resources = list(package_dict.get('resources', []))
     ordered_resources = []
 
     for resource_id in order:
@@ -563,10 +629,12 @@ def package_resource_reorder(
             )
 
     new_resources = ordered_resources + existing_resources
+    update_context = Context(context)
+    update_context['original_package'] = dict(package_dict)
     package_dict['resources'] = new_resources
 
     _check_access('package_resource_reorder', context, package_dict)
-    _get_action('package_update')(context, package_dict)
+    _get_action('package_update')(update_context, package_dict)
 
     return {'id': id, 'order': [resource['id'] for resource in new_resources]}
 

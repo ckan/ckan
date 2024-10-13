@@ -1,0 +1,2 @@
+Template helper `member_count` will return 0
+for unauthorized users.

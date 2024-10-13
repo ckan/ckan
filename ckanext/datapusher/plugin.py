@@ -72,7 +72,7 @@ class DatapusherPlugin(p.SingletonPlugin):
 
         self._submit_to_datapusher(resource_dict)
 
-    def after_update(
+    def after_resource_update(
             self, context: Context, resource_dict: dict[str, Any]):
 
         self._submit_to_datapusher(resource_dict)

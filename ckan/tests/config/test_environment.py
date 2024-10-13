@@ -123,3 +123,13 @@ def test_all_secrets_default_to_SECRET_KEY(ckan_config):
         assert ckan_config[key] == "super_secret"
 
     # Note: api_token.jwt.*.secret are tested in ckan/tests/lib/test_api_token.py
+
+
+@pytest.mark.ckan_config("beaker.session.secret", "super_secret")
+def test_SECRET_KEY_falls_back_to_beaker_session_secret(ckan_config, monkeypatch):
+
+    monkeypatch.delitem(ckan_config, "SECRET_KEY")
+
+    environment.update_config()
+
+    assert ckan_config["SECRET_KEY"] == "super_secret"

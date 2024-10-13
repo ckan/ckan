@@ -1,1 +1,0 @@
-Because of a new version of Sphinx, the command to rebuild the documentation is now ``sphinx-build doc build/sphinx``

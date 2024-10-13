@@ -1,1 +1,0 @@
-Refactor CircleCI testing to allow for local test runs in docker with the same images as CircleCI

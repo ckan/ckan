@@ -1,1 +1,0 @@
-Site maintainers can choose to completely ignore cookie based by using ``ckan.auth.enable_cookie_auth_in_api``. When set to False, all API requests must use :ref:`API Tokens <api authentication>`. Note that this is likely to break some existing JS modules from the frontend that perform API calls, so it should be used with caution.

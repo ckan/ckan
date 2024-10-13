@@ -1,3 +1,0 @@
-Removed the password creation logic for user, when inviting a user.
-Added new schema `create_user_for_user_invite` that disables the password 
-field on user creation.

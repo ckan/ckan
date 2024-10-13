@@ -1,1 +1,0 @@
-`site_read` authz function has been deprecate since it always returns True.

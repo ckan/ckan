@@ -1,1 +1,0 @@
-Set license model `od_conformance` and `osd_conformance` attributes' default values to `False` to prevent errors.

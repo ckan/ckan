@@ -1,1 +1,0 @@
-Render snippets faster through better use of existing jinja2 tags. Use ``{% snippet 'path/to/snippet.html', arg1=test %}`` instead of ``{{ h.snippet('path/to/snippet.html', arg1=test) }}`` in templates for better performance.

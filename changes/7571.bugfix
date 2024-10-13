@@ -1,2 +1,0 @@
-Fixed context in `set_datastore_active_flag` to
-solve possible solr errors during `index_package`

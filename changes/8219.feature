@@ -1,2 +1,0 @@
-- Improved start-up performance
-- JS translations are no longer generated on each server restart. The are built when starting the development server with `ckan run` or explicitly with `ckan translations js`

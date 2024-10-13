@@ -85,6 +85,36 @@ def declaration(
 
 
 @config.command()
+@click.argument("plugins", nargs=-1)
+@click.option(
+    "--core",
+    is_flag=True,
+    help="Include declarations of CKAN core config options",
+)
+@click.option(
+    "--enabled",
+    is_flag=True,
+    help="Include declarations of plugins enabled in the CKAN config file",
+)
+@click.option(
+    "-f",
+    "--format",
+    "fmt",
+    type=click.Choice(["rst", "md"]),
+    default="rst",
+    help="Output the documentation in this format",
+)
+def docs(plugins: tuple[str, ...], core: bool, enabled: bool, fmt: str):
+    """
+    Print out documentation for the config declarations for the given
+    plugins.
+    """
+    decl = _declaration(plugins, core, enabled)
+    if decl:
+        click.echo(decl.into_docs(fmt))
+
+
+@config.command()
 @click.argument("pattern", default="*")
 @click.option(
     "-i",

@@ -1,1 +1,0 @@
-`template_head_end` and `template_footer_end` config options have been removed. You can achieve the same effect by extending the `base.html` template.

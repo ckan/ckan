@@ -1,4 +1,0 @@
-When `activity` plugin is enabled, every action that creates an activity
-recored(i.e. `package_create`, `package_update`, `package_delete`, `group_*`,
-`organization_*`, `user_*`, `bulk_update_*`) requires a `context['user']` and
-raises `ValidationError` if it's missing or empty.

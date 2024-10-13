@@ -1,1 +1,0 @@
-Empty string in `beaker.session.timeout` produces an error instead of never-expiring session

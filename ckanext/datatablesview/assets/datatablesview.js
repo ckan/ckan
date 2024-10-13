@@ -385,6 +385,11 @@ this.ckan.module('datatables_view', function (jQuery) {
       // en is the default language, no need to load i18n file
       if (languagefile === '/vendor/DataTables/i18n/en.json') {
         activelanguage = ''
+      // load i18n files for zh_Hant_TW and zh_Hans_CN language
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hant_TW.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_Hant.json'
+      } else if (languagefile === '/vendor/DataTables/i18n/zh_Hans_CN.json') {
+        activelanguage = '/vendor/DataTables/i18n/zh_CN.json'
       }
 
       // settings if gcurrentView === table

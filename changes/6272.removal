@@ -1,3 +1,0 @@
-The following old helper functions have been removed and are no longer available:
-``submit()``, ``radio()``, ``icon_url()``, ``icon_html()``, ``icon()``, ``resource_icon()``, 
-``format_icon()``, ``button_attr()``, ``activity_div()``

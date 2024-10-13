@@ -61,7 +61,6 @@ class TestSubmit:
         func.assert_called()
 
     @pytest.mark.ckan_config("ckan.views.default_views", "")
-    @pytest.mark.flaky(reruns=2)
     def test_submit_when_url_changes(self, monkeypatch):
         dataset = factories.Dataset()
         func = mock.Mock()

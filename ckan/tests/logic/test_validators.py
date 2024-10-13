@@ -155,7 +155,7 @@ def adds_message_to_errors_dict(error_message):
 
     Usage:
 
-        @adds_message_to_errors_dict('That login name is not available.')
+        @adds_message_to_errors_dict('The username is already associated with another account. Please use a different username.')
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
@@ -185,6 +185,16 @@ def test_email_is_unique_validator_with_existed_value(app):
     # try to create new user with occupied email
     with pytest.raises(logic.ValidationError):
         factories.User(email=user["email"])
+
+
+@pytest.mark.usefixtures("non_clean_db")
+def test_email_is_unique_case_insensitive(app):
+    factories.User(username="user01", email="some_email@example.org")
+
+    # Attempt to create a new user with an email that is already in use
+    # testing for case insensitivity
+    with pytest.raises(logic.ValidationError):
+        factories.User(email="Some_Email@example.org")
 
 
 @pytest.mark.usefixtures("non_clean_db")
@@ -433,7 +443,7 @@ def test_user_name_validator_with_a_name_that_already_exists():
     @does_not_modify_other_keys_in_errors_dict
     @t.does_not_modify_data_dict
     @t.returns_none
-    @adds_message_to_errors_dict("That login name is not available.")
+    @adds_message_to_errors_dict('The username is already associated with another account. Please use a different username.')
     def call_validator(*args, **kwargs):
         return validators.user_name_validator(*args, **kwargs)
 
