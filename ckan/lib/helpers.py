@@ -1982,9 +1982,10 @@ def groups_available(am_member: bool = False,
 
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
-    data_dict = {'available_only': True,
+        user = current_user.id
+    context: Context = {'user': current_user.name}
+    data_dict = {'id': user,
+                 'available_only': True,
                  'am_member': am_member,
                  'include_dataset_count': include_dataset_count,
                  'include_member_count': include_member_count}
@@ -1997,13 +1998,14 @@ def organizations_available(permission: str = 'manage_group',
                             include_member_count: bool = False,
                             user: Union[str, None] = None
                             ) -> list[dict[str, Any]]:
-    '''Return a list of organizations that the current user has the specified
-    permission for.
+    '''Return a list of organizations that a user has the specified permission
+    for. If no user is specified, the current user is used.
     '''
     if user is None:
-        user = current_user.name
-    context: Context = {'user': user}
+        user = current_user.id
+    context: Context = {'user': current_user.name}
     data_dict = {
+        'id': user,
         'permission': permission,
         'include_dataset_count': include_dataset_count,
         'include_member_count': include_member_count}
