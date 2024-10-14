@@ -232,11 +232,13 @@ class CreateView(MethodView):
 
             try:
                 get_action('package_patch')(
-                    Context(context, allow_state_change=True),
+                    logic.fresh_context(context),
                     {'id': id, 'state': 'active'}
                 )
-            except ValidationError:
-                pass
+            except ValidationError as e:
+                errors = e.error_dict.get('resources',[{}])[-1]
+                error_summary = e.error_summary
+                return self.get(package_type, id, data, errors, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         data[u'package_id'] = id
@@ -263,11 +265,13 @@ class CreateView(MethodView):
         if save_action == u'go-metadata':
             try:
                 get_action('package_patch')(
-                    Context(context, allow_state_change=True),
+                    logic.fresh_context(context),
                     {'id': id, 'state': 'active'}
                 )
-            except ValidationError:
-                pass
+            except ValidationError as e:
+                errors = e.error_dict.get('resources',[{}])[-1]
+                error_summary = e.error_summary
+                return self.get(package_type, id, data, errors, error_summary)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)
         elif save_action == u'go-dataset':
             # go to first stage of add dataset
