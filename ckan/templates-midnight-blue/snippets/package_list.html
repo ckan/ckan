@@ -1,0 +1,24 @@
+{#
+Displays a list of datasets.
+
+packages       - A list of packages to display.
+list_class     - The class name for the list item.
+item_class     - The class name to use on each item.
+hide_resources - If true hides the resources (default: false).
+
+Example:
+
+  {% snippet 'snippets/package_list.html', packages=c.datasets %}
+
+#}
+{% block package_list %}
+  {% if packages %}
+    <ul class="{{ list_class or 'dataset-list list-unstyled' }}">
+    	{% block package_list_inner %}
+	      {% for package in packages %}
+	        {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources %}
+	      {% endfor %}
+	    {% endblock %}
+    </ul>
+  {% endif %}
+{% endblock %}
