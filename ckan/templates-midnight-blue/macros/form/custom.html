@@ -1,0 +1,61 @@
+{% from "macros/form/input_block.html" import input_block %}
+{% from "macros/form/attributes.html" import attributes %}
+
+{#
+Creates all the markup required for an custom key/value input. These are usually
+used to let the user provide custom meta data. Each "field" has three inputs
+one for the key, one for the value and a checkbox to remove it. So the arguments
+for this macro are nearly all tuples containing values for the
+(key, value, delete) fields respectively.
+
+name        - A tuple of names for the three fields.
+id          - An id string to be used for each input.
+label       - The human readable label for the main label.
+values      - A tuple of values for the (key, value, delete) fields. If delete
+is truthy the checkbox will be checked.
+placeholder - A tuple of placeholder text for the (key, value) fields.
+error       - A list of error strings for the field or just true to highlight the field.
+classes     - An array of classes to apply to the form-group.
+is_required - Boolean of whether this input is requred for the form to validate
+
+Examples:
+
+{% import 'macros/form.html' as form %}
+{{ form.custom(
+names=('custom_key', 'custom_value', 'custom_deleted'),
+id='field-custom',
+label=_('Custom Field'),
+values=(extra.key, extra.value, extra.deleted),
+error=''
+) }}
+#}
+{% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[], attrs={}, is_required=false, key_values=()) %}
+{%- set classes = (classes|list) -%}
+{%- set label_id = (id or names[0]) ~ "-key" -%}
+{%- set extra_html = caller() if caller -%}
+{%- do classes.append('control-custom') -%}
+
+{% call input_block(label_id, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
+<div class="row">
+    <div class="col-md-6">
+    <div class="input-group" {{ attributes(attrs) }}>
+        <label class="input-group-text">{{ _('Key') }}</label>
+        <input class="form-control" id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
+    </div>
+    </div>
+    <div class="col-md-6 d-flex flex-row-reverse">
+    {% if values[0] or values[1] or error %}
+    <label class="checkbox pull-right" for="{{ id or names[2] }}-remove">
+        <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} />
+        <span class="btn btn-danger"><span class="fa fa-trash"></span><span class="sr-only">{{ _('Remove') }}</span></span>
+    </label>
+    {% endif %}
+    <div class="input-group" {{ attributes(attrs) }}>
+        <label for="{{ id or names[1] }}-value" class="input-group-text">{{ _('Value') }}</label>
+        <input class="form-control" id="{{ id or names[1] }}-value" type="text" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
+    </div>
+    </div>
+</div>
+
+{% endcall %}
+{% endmacro %}

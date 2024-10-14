@@ -1,0 +1,10 @@
+{% extends "package/read_base.html" %}
+
+{% block subtitle %}{{ _('Followers') }} {{ g.template_title_delimiter }} {{ h.dataset_display_name(pkg_dict) }}{% endblock %}
+
+{% block primary_content_inner %}
+  <h1 class="hide-heading">{% block page_heading %}{{ _('Followers') }}{% endblock %}</h1>
+  {% block followers_list %}
+    {% snippet "user/snippets/followers.html", followers=followers %}
+  {% endblock %}
+{% endblock %}
