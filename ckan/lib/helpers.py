@@ -1982,7 +1982,11 @@ def groups_available(am_member: bool = False,
 
     '''
     if user is None:
-        user = current_user.id
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
     context: Context = {'user': current_user.name}
     data_dict = {'id': user,
                  'available_only': True,
@@ -2002,7 +2006,11 @@ def organizations_available(permission: str = 'manage_group',
     for. If no user is specified, the current user is used.
     '''
     if user is None:
-        user = current_user.id
+        try:
+            user = current_user.id
+        except AttributeError:
+            # current_user is anonymous
+            pass
     context: Context = {'user': current_user.name}
     data_dict = {
         'id': user,
