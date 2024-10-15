@@ -5,7 +5,7 @@
 {% set orgs_available = h.organizations_available(permission='manage_group',
   include_dataset_count=True,
   include_member_count=True,
-  user=user['name'])
+  user=user['id'])
 %}
 
 {% block primary_content_inner %}
