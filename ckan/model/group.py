@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime
+import urllib.parse
 from typing import Optional, Union, overload
 from typing_extensions import Literal, Self
 
@@ -253,9 +254,10 @@ class Group(core.StatefulObjectMixin,
         [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'),
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
+        search_path = extract_search_path(meta.engine.url.render_as_string())
         results: list[tuple[str, str, str, str]] = meta.Session.query(
             Group.id, Group.name, Group.title,  column('parent_id')
-        ).from_statement(text(HIERARCHY_DOWNWARDS_CTE)).params(
+        ).from_statement(text(HIERARCHY_DOWNWARDS_CTE.replace("search_path", search_path))).params(
             id=self.id, type=type).all()
         return results
 
@@ -278,8 +280,9 @@ class Group(core.StatefulObjectMixin,
     def get_parent_group_hierarchy(self, type: str='group') -> list[Group]:
         '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
+        search_path = extract_search_path(meta.engine.url.render_as_string())
         result: list[Group] =  meta.Session.query(Group).\
-            from_statement(text(HIERARCHY_UPWARDS_CTE)).\
+            from_statement(text(HIERARCHY_UPWARDS_CTE.replace("search_path", search_path))).\
             params(id=self.id, type=type).all()
         return result
 
@@ -458,22 +461,41 @@ HIERARCHY_DOWNWARDS_CTE: str = """WITH RECURSIVE child(depth) AS
           AND m.state = 'active' AND c.depth < {max_recurses}
 )
 SELECT G.id, G.name, G.title, child.depth, child.table_id as parent_id FROM child
-    INNER JOIN public.group G ON G.id = child.group_id
+    INNER JOIN search_path.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY child.depth ASC;""".format(max_recurses=MAX_RECURSES)
 
 HIERARCHY_UPWARDS_CTE: str = """WITH RECURSIVE parenttree(depth) AS (
     -- non-recursive term
-    SELECT 0, M.* FROM public.member AS M
+    SELECT 0, M.* FROM search_path.member AS M
     WHERE group_id = :id AND M.table_name = 'group' AND M.state = 'active'
     UNION
     -- recursive term
-    SELECT PG.depth + 1, M.* FROM parenttree PG, public.member M
+    SELECT PG.depth + 1, M.* FROM parenttree PG, search_path.member M
     WHERE PG.table_id = M.group_id AND M.table_name = 'group'
           AND M.state = 'active' AND PG.depth < {max_recurses}
     )
 
 SELECT G.*, PT.depth FROM parenttree AS PT
-    INNER JOIN public.group G ON G.id = PT.table_id
+    INNER JOIN search_path.group G ON G.id = PT.table_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY PT.depth DESC;""".format(max_recurses=MAX_RECURSES)
+
+
+def extract_search_path(url: str) -> str:
+    options_start = url.find('options=')
+    if options_start == -1:
+        return "public"
+    options_substr = url[options_start + len('options='):]
+    options_substr = urllib.parse.unquote(options_substr)
+    search_path_start = options_substr.find('search_path=')
+    if search_path_start == -1:
+        return "public"
+    search_path_start += len('search_path=')
+    search_path_end = options_substr.find('&', search_path_start)
+    if search_path_end == -1:
+        search_path_value = options_substr[search_path_start:]
+    else:
+        search_path_value = options_substr[search_path_start:search_path_end]
+
+    return search_path_value
