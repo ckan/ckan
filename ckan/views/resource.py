@@ -207,8 +207,12 @@ class CreateView(MethodView):
                 data_provided = True
                 break
 
-        if not data_provided and save_action != u"go-dataset-complete":
-            if save_action == u'go-dataset':
+        if not data_provided and save_action != "go-dataset-complete":
+            if save_action == 'again':
+                errors: dict[str, Any] = {}
+                error_summary = {_('Error'): _('No resource data entered')}
+                return self.get(package_type, id, data, errors, error_summary)
+            if save_action == 'go-dataset':
                 # go to final stage of adddataset
                 return h.redirect_to(u'{}.edit'.format(package_type), id=id)
             try:
