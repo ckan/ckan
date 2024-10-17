@@ -49,6 +49,9 @@ def package_patch(
         {'id': _get_or_bust(data_dict, 'id')})
 
     patched = dict(package_dict)
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
     patched['id'] = package_dict['id']
     update_context = Context(context)
@@ -86,6 +89,9 @@ def resource_patch(context: Context,
         raise NotFound('Resource was not found.')
 
     patched = dict(package_dict['resources'][resource.position])
+    # allow metadata_modified to be updated if data has changed
+    patched.pop('metadata_modified', None)
+
     patched.update(data_dict)
     update_context = Context(context)
     update_context['original_package'] = package_dict
@@ -117,7 +123,6 @@ def group_patch(context: Context,
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('group_update')(patch_context, patched)
 
 
@@ -147,7 +152,6 @@ def organization_patch(
     patched.update(data_dict)
 
     patch_context = context.copy()
-    patch_context['allow_partial_update'] = True
     return _get_action('organization_update')(patch_context, patched)
 
 
