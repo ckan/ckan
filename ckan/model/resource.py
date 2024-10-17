@@ -140,7 +140,7 @@ class Resource(core.StatefulObjectMixin,
         if not reference:
             return None
 
-        resource = meta.Session.query(cls).get(reference)
+        resource = meta.Session.get(cls, reference)
         if resource is None:
             resource = cls.by_name(reference)
         return resource

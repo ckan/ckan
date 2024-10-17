@@ -38,7 +38,7 @@ class Dashboard(object):
         one will be created and returned.
 
         '''
-        query = meta.Session.query(Dashboard)
+        query = meta.Session.query(cls)
         query = query.filter(Dashboard.user_id == user_id)
         return query.first()
 
