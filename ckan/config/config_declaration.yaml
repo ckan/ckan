@@ -141,12 +141,12 @@ groups:
         placeholder: egg:ckan
 
       - key: SECRET_KEY
+        legacy_key: beaker.session.secret
         validators: not_empty
         required: true
         placeholder_callable: secrets:token_urlsafe
         callable_args:
           nbytes: 20
-        validators: configured_default("beaker.session.secret",None)
         description: |
           This is the secret token that is used by security related tasks by CKAN and its extensions.
           ``ckan generate config`` generates a unique
