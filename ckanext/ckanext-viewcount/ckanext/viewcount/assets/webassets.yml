@@ -1,0 +1,14 @@
+# viewcount-js:
+#   filter: rjsmin
+#   output: ckanext-viewcount/%(version)s-viewcount.js
+#   contents:
+#     - js/viewcount.js
+#   extra:
+#     preload:
+#       - base/main
+
+# viewcount-css:
+#   filter: cssrewrite
+#   output: ckanext-viewcount/%(version)s-viewcount.css
+#   contents:
+#     - css/viewcount.css
