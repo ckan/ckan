@@ -1,0 +1,14 @@
+# task1-js:
+#   filter: rjsmin
+#   output: ckanext-task1/%(version)s-task1.js
+#   contents:
+#     - js/task1.js
+#   extra:
+#     preload:
+#       - base/main
+
+# task1-css:
+#   filter: cssrewrite
+#   output: ckanext-task1/%(version)s-task1.css
+#   contents:
+#     - css/task1.css
