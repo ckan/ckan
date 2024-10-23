@@ -40,7 +40,7 @@
 
       preview.find('strong').html(required + ' ' + options.i18n['URL'] + ':');
       preview.find('.slug-preview-prefix').text(options.prefix);
-      preview.find('button').text(options.i18n['Edit']).click(function (event) {
+      preview.find('button').click(function (event) {
         event.preventDefault();
         element.show();
         preview.hide();
@@ -68,9 +68,11 @@
     },
     template: [
       '<div class="slug-preview">',
+      '<span class="slug-preview-inner">',
       '<strong></strong>',
       '<span class="slug-preview-prefix"></span><span class="slug-preview-value"></span>',
-      '<button class="btn btn-default btn-xs"></button>',
+      '</span>',
+      '<button class="custom-btn"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>',
       '</div>'
     ].join('\n')
   };
