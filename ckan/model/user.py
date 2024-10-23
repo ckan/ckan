@@ -98,26 +98,28 @@ class User(core.StatefulObjectMixin,
             Even if we try to avoid duplicated emails, extensions may allow it
             Also, older CKAN instances can have duplicated emails
         """
-        all_insensitive_users = meta.Session.query(cls).filter(
+        all_users = meta.Session.query(
+            cls.name, cls.email, cls.state
+        ).filter(
             func.lower(cls.email) == func.lower(email)
         ).all()
-        if len(all_insensitive_users) == 0:
+        if len(all_users) == 0:
             return None
 
-        if len(all_insensitive_users) > 1:
+        if len(all_users) > 1:
             # Try to get only active users
             active_users = [
-                u for u in all_insensitive_users
+                u for u in all_users
                 if u.state == core.State.ACTIVE
             ]
             if len(active_users) == 1:
                 return active_users[0]
-            user_names = [user.name for user in all_insensitive_users]
+            user_names = [user.name for user in all_users]
             log.error(f"Multiple users found for email {email}: {user_names}")
             if raise_on_duplicated:
                 raise Exception(f"Multiple users found for email {email}")
 
-        return all_insensitive_users[0]
+        return all_users[0]
 
 
     @classmethod
